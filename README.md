@@ -1,4 +1,4 @@
-# Dog_Robot
+# Puppy_too
 
 This Repo is mainly for tracking and sharing solidworks files for the AARL "Puppy" robot.
 
