@@ -4,4 +4,4 @@ This Repo is mainly for tracking and sharing solidworks files for the AARL "Pupp
 
 Project Lead: Cody Scharzenberger
 
-Main contributor: Melissa McEntire
+Contributor: Melissa McEntire
