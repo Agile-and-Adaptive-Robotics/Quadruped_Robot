@@ -1,0 +1,33 @@
+The Region of Attraction Toolbox (ROAtoolbox) is a collection of MATLAB
+routines for determining the ROAs for autonomous nonlinear systems.
+A user guide is under writing.
+
+To use the ROAtoolbox, you will need the ToolboxLS which is developed
+by Ian M. Mitchell for sovlving the time-dependent HJ PDE. you can get it at:
+
+    https://bitbucket.org/ian_mitchell/toolboxls
+The ROAtoolbox contains TooboxLS-1.1.1.
+
+You can find the most recent version of ROAtoolbox at:
+
+    https://
+
+Before using ROAtoolbox, you will need to run a script file as follows.
+Start MATLAB, change to the ROAtoolbox1.0/ directory, and run the
+AddROAKernelPath.m file. This script will add path of the ROAtoolbox kernel and
+ToolboxLS1.1.1 kernel to MATLAB search path.
+
+Once you have ran AddROAKernelPath.m, you can try out ROAtoolbox as follows.
+Change to ROAtoolbox1.0/Examples directory, there are 11 examples.
+There are two script files in each example, run the RunProject.m file you can
+get the results. You can modify the parameters in the SetProjectOptions.m file.
+
+If you want to compute new system, just copy an example, rename it, modify the
+model equation i.e. function GenVecField() in  SetProjectOptions.m.
+
+If you have any question, contact me:
+
+   guoqiangyuan@yeah.net
+
+YUAN Guoqiang
+October, 2016
