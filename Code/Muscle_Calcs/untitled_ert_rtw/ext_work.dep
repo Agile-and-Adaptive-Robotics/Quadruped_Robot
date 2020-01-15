@@ -1,0 +1,29 @@
+ext_work.o: \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_work.c \
+ C:/Users/USER/Documents/Coursework/MSME/Thesis/AARL_Puppy_18_00_000/Control/Muscle_Calcs/untitled_ert_rtw/rtwtypes.h \
+ C:/PROGRA~1/MATLAB/R2017a/simulink/include/rtw_extmode.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_types.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_share.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/updown.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/upsup_public.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_svr.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_svr_transport.h \
+ C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_work.h
+
+C:/Users/USER/Documents/Coursework/MSME/Thesis/AARL_Puppy_18_00_000/Control/Muscle_Calcs/untitled_ert_rtw/rtwtypes.h:
+
+C:/PROGRA~1/MATLAB/R2017a/simulink/include/rtw_extmode.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_types.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_share.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/updown.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/upsup_public.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_svr.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_svr_transport.h:
+
+C:/PROGRA~1/MATLAB/R2017a/rtw/c/src/ext_mode/common/ext_work.h:

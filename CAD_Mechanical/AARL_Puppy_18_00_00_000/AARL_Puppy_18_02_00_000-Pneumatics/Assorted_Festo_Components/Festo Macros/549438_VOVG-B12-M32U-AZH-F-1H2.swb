@@ -1,0 +1,2316 @@
+dim swApp
+dim storePath
+dim docVisible
+#If VBA7 Then
+Private Type BROWSEINFO
+   hwndOwner       As LongPtr
+   pIDLRoot        As Long
+   pszDisplayName  As String
+   lpszTitle       As String
+   ulFlags         As Long
+   lpfnCallback    As LongPtr
+   lParam          As LongPtr
+  iImage          As Long
+End Type
+Private Declare PtrSafe Function SHBrowseForFolder Lib "Shell32" (lpbi As BROWSEINFO) As Long
+Private Declare PtrSafe Function SHGetPathFromIDList Lib "Shell32" (ByVal pidList As Long, ByVal lpBuffer As String) As Long
+Private Declare PtrSafe Sub CoTaskMemFree Lib "ole32" (ByVal hMem As Long)
+#Else
+Private Type BROWSEINFO
+   hwndOwner       As Long
+   pIDLRoot        As Long
+   pszDisplayName  As Long
+   lpszTitle       As String
+   ulFlags         As Long
+   lpfnCallback    As Long
+   lParam          As Long
+  iImage          As Long
+End Type
+Private Declare Function SHBrowseForFolder Lib "Shell32" (lpbi As BROWSEINFO) As Long
+Private Declare Function SHGetPathFromIDList Lib "Shell32" (ByVal pidList As Long, ByVal lpBuffer As String) As Long
+Private Declare Sub CoTaskMemFree Lib "ole32" (ByVal hMem As Long)
+#End If
+Private Const MAX_PATH = 260
+'Directories only
+Private Const BIF_RETURNONLYFSDIRS = &H1&
+'Windows 2000 (Shell32.dll 5.0) extended dialog
+Private Const BIF_NEWDIALOGSTYLE = &H40
+' show edit box
+Private Const BIF_EDITBOX = &H10&
+Function getLastFeatureByType(model,typ)  
+  Set feat = model.FirstFeature ' Get the 1st feature in part
+  Set res = Nothing
+  Count = 0
+  Do While Not feat Is Nothing ' While we have a valid feature
+    If feat.GetTypeName() = typ Then
+      Set res = feat
+    End If
+    Set feat = feat.GetNextFeature() ' Get the next feature
+  Loop ' Continue until no more
+  Set getLastFeatureByType = res
+End Function
+' this code with copy a matrix to a other
+Function copyMat4x4(source)
+Dim res(0 To 15) As Double
+For i = 0 To 15
+ res(i) = source(i)
+Next
+copyMat4x4 = res
+End Function
+
+' This code creates a mat from a sw mat
+Function createMatFromSWMat(source)
+ Dim res(0 To 15) As Double
+ res(0) = source(0)
+ res(1) = source(1)
+ res(2) = source(2)
+ res(3) = 0
+ res(4) = source(3)
+ res(5) = source(4)
+ res(6) = source(5)
+ res(7) = 0
+ res(8) = source(6)
+ res(9) = source(7)
+ res(10) = source(8)
+ res(11) = 0
+ res(12) = source(9)
+ res(13) = source(10)
+ res(14) = source(11)
+ res(15) = source(12)
+ createMatFromSWMat = res
+End Function
+Function createSWMatFromMat(source)
+ Dim res(0 To 15) As Double
+ res(0) = source(0)
+ res(1) = source(1)
+ res(2) = source(2)
+ res(3) = source(4)
+ res(4) = source(5)
+ res(5) = source(6)
+ res(6) = source(8)
+ res(7) = source(9)
+ res(8) = source(10)
+ res(9) = source(12)
+ res(10) = source(13)
+ res(11) = source(14)
+ res(12) = source(15)
+ res(13) = 0
+ res(14) = 0
+ res(15) = 0
+ createSWMatFromMat = res
+End Function
+Function createMat4x4FromValues(x1,x2,x3,y1,y2,y3,z1,z2,z3,t1,t2,t3)
+ Dim res(0 To 15) As Double
+ res(0) = x1
+ res(1) = x2
+ res(2) = x3
+ res(3) = 0
+ res(4) = y1
+ res(5) = y2
+ res(6) = y3
+ res(7) = 0
+ res(8) = z1
+ res(9) = z2
+ res(10) =z3
+ res(11) = 0
+ res(12) = t1
+ res(13) = t2
+ res(14) = t3
+ res(15) = 1
+ createMat4x4FromValues = res
+End Function
+' this code will mult a common mat with any other stuff
+Function multMatMat(ld, xld, yld, rd, xrd, yrd)
+  mulRes = yld * xrd
+  'Dim od(0 To 0) As Variant
+  ReDim od(mulRes - 1) As Double
+  For i = 0 To mulRes - 1
+   od(i) = 0#
+  Next
+  y = 0
+  While y < yld
+    x = 0
+    While x < xrd
+      i = 0
+      While i < xld
+       od(x * yld + y) = od(x * yld + y) + ld(i * yld + y) * rd(x * yrd + i)
+       i = i + 1
+      Wend
+      x = x + 1
+    Wend
+    y = y + 1
+  Wend
+  multMatMat = od
+
+End Function
+' this code will mult a vector with a matrix
+Function mulMat4x4Values3d(mat, x,y,z)
+  tmp = createVec4d(x, y, z, 1)
+  res = multMatMat(mat, 4, 4, tmp, 1, 3)
+  mulMat4x4Values3d = createVec3d(res(0), res(1), res(2))
+End Function
+Function mulMat4x4Vec3d(mat, vec)
+  tmp = createVec4d(vec(0), vec(1), vec(2), 1)
+  res = multMatMat(mat, 4, 4, tmp, 1, 3)
+  mulMat4x4Vec3d = createVec3d(res(0), res(1), res(2))
+End Function
+Function mulMat4x4Mat4x4(mat1, mat2)
+  mulMat4x4Mat4x4 = multMatMat(mat1, 4, 4, mat2, 4, 4)
+End Function
+' create a 4x4 matrix
+Function createMat4x4()
+ Dim res(0 To 15) As Double
+ for i = 0 to 15 
+ res(i) = 0
+ next
+ createMat4x4 = res
+End Function
+Function createMat4x4Ident()
+ Dim res(0 To 15) As Double
+ res(0) = 1
+ res(5) = 1
+ res(10) = 1
+ res(15) = 1
+ res(1) = 0
+ res(2) = 0
+ res(3) = 0
+ res(4) = 0
+ res(6) = 0
+ res(7) = 0
+ res(8) = 0
+ res(9) = 0
+ res(11) = 0
+ res(12) = 0
+ res(13) = 0
+ res(14) = 0
+ createMat4x4Ident = res
+End Function
+' this function create a new vector
+Function createVec3d(x, y, z)
+ Dim res(0 To 2) As Double
+ res(0) = x
+ res(1) = y
+ res(2) = z
+ createVec3d = res
+End Function
+' this function create a new vector
+Function createVec4d(x, y, z, w)
+ Dim res(0 To 3) As Double
+ res(0) = x
+ res(1) = y
+ res(2) = z
+ res(3) = w
+ createVec4d = res
+End Function
+
+Function getMatTVec(mat)
+ getMatTVec = createVec3d(mat(12), mat(13), mat(14))
+End Function
+
+Sub setMatTVec(mat, v)
+ mat(12) = v(0)
+ mat(13) = v(1)
+ mat(14) = v(2)
+End Sub
+Sub setMatXVec(mat, v)
+ mat(0) = v(0)
+ mat(1) = v(1)
+ mat(2) = v(2)
+End Sub
+Sub setMatYVec(mat, v)
+ mat(4) = v(0)
+ mat(5) = v(1)
+ mat(6) = v(2)
+End Sub
+Sub setMatZVec(mat, v)
+ mat(8) = v(0)
+ mat(9) = v(1)
+ mat(10) = v(2)
+End Sub
+Sub setMatScale(mat, s)
+ mat(15) = s
+End Sub
+Function getMatXVec(mat)
+ getMatXVec = createVec3d(mat(0), mat(1), mat(2))
+End Function
+Function getMatYVec(mat)
+ getMatYVec = createVec3d(mat(4), mat(5), mat(6))
+End Function
+Function getMatZVec(mat)
+ getMatZVec = createVec3d(mat(8), mat(9), mat(10))
+End Function
+
+Function negVec3d(v)
+ negVec3d = createVec3d(-v(0), -v(1), -v(2))
+End Function
+Function scaleVec3d(v,s)
+ scaleVec3d = createVec3d(v(0)*s,v(1)*s,v(2)*s)
+End Function
+' invert a 4x4 matrix
+Function invMat4x4(source)
+target = copyMat4x4(source)
+setMatTVec target, createVec3d(0, 0, 0)
+ target(1) = source(4)
+ target(4) = source(1)
+ target(2) = source(8)
+ target(8) = source(2)
+ target(6) = source(9)
+ target(9) = source(6)
+ setMatScale target,1
+ t = getMatTVec(source)
+ v = mulMat4x4Vec3d(target, t)
+ setMatTVec target, negVec3d(v)
+ invMat4x4 = target
+End Function
+Function getFaceFromModel(part, pos, normal)
+ Dim partBodies As Variant
+ partBodies = part.GetBodies(swSolidBody)
+ For k = LBound(partBodies) To UBound(partBodies)
+   found = 0
+   Dim body As Object
+   Set body = partBodies(k)
+   Set face = body.GetFirstFace()
+   getFaceFromModel = noting
+   Do While Not face Is Nothing ' While we have a valid feature
+     Set sur = face.GetSurface()
+     If sur.IsPlane() Then
+       planePara = sur.PlaneParams
+       faceNormal = face.normal
+       nTest = faceNormal(0) * normal(0) + faceNormal(1) * normal(1) + faceNormal(2) * normal(2)
+       If nTest > 1 - 0.000001 Then
+         ' check projection
+         closeRes = face.GetClosestPointOn(pos(0), pos(1), pos(2))
+         dTest = (pos(0) - closeRes(0)) * (pos(0) - closeRes(0)) + (pos(1) - closeRes(1)) * (pos(1) - closeRes(1)) + (pos(2) - closeRes(2)) * (pos(2) - closeRes(2))
+         If dTest < 0.000001 Then
+           Set getFaceFromModel = face
+           found=1
+           Exit Do
+         End If
+       End If
+     else
+       If sur.IsCylinder() then
+         closeRes = face.GetClosestPointOn(pos(0), pos(1), pos(2))
+         dTest = (pos(0) - closeRes(0)) * (pos(0) - closeRes(0)) + (pos(1) - closeRes(1)) * (pos(1) - closeRes(1)) + (pos(2) - closeRes(2)) * (pos(2) - closeRes(2))
+         If dTest < 0.00000001 Then
+           res=sur.EvaluateAtPoint(closeRes(0),closeRes(1),closeRes(2))
+           nTest=res(0)*normal(0)+res(1)*normal(1)+res(2)*normal(2)
+           if nTest>1-0.00000001 then
+             Set getFaceFromModel = face
+             found=1
+             Exit Do
+           End if
+         End if
+       End if
+     End if
+     Set face = face.GetNextFace ' Get the next Face
+   Loop
+   If (found = 1) Then
+     Exit For
+   End If
+ Next k
+End Function
+Function getEdgeFromModel(part, pos,byref edgeRet)
+ Dim partBodies As Variant
+ partBodies = part.GetBodies(swSolidBody)
+ For k = LBound(partBodies) To UBound(partBodies)
+   Dim body As Object
+   Set body = partBodies(k)
+   edges= body.GetEdges()
+   start= LBound(edges)
+   ende = UBound(edges)
+   For i = start To ende
+     Set edge = edges(i)
+     closeRes=edge.GetClosestPointOn(pos(0),pos(1),pos(2))
+     dTest = (pos(0) - closeRes(0)) * (pos(0) - closeRes(0)) + (pos(1) - closeRes(1)) * (pos(1) - closeRes(1)) + (pos(2) - closeRes(2)) * (pos(2) - closeRes(2))
+     If dTest < 0.00000001 Then
+       set edgeRet=edge
+       getEdgeFromModel=true
+       exit function
+     End If
+   Next i
+ Next k
+ getEdgeFromModel=false
+End Function
+sub cLn(part,wMat,x1,y1,x2,y2)
+pk1=mulMat4x4Values3d(wMat,x1,y1,0)
+pk2=mulMat4x4Values3d(wMat,x2,y2,0)
+Part.SketchManager.CreateLine pk1(0),pk1(1),0,pk2(0),pk2(1),0
+end sub
+sub cCLn(part,wMat,x1,y1,x2,y2)
+pk1=mulMat4x4Values3d(wMat,x1,y1,0)
+pk2=mulMat4x4Values3d(wMat,x2,y2,0)
+Part.CreateCenterLineVB pk1(0),pk1(1),0,pk2(0),pk2(1),0
+end sub
+sub cArc(part,wMat,x1,y1,x2,y2,x3,y3)
+pk1=mulMat4x4Values3d(wMat,x1,y1,0)
+pk2=mulMat4x4Values3d(wMat,x2,y2,0)
+pk3=mulMat4x4Values3d(wMat,x3,y3,0)
+Part.SketchManager.Create3PointArc pk1(0),pk1(1),0,pk3(0),pk3(1),0,pk2(0),pk2(1),0
+end sub
+sub cCir(part,wMat,x1,y1,rad)
+pk1=mulMat4x4Values3d(wMat,x1,y1,0)
+Part.SketchManager.CreateCircleByRadius pk1(0),pk1(1),0,rad
+end sub
+Public Function BrowseForFolder() As String
+  Dim tBI         As BROWSEINFO
+  Dim lngPIDL     As Long
+  Dim strPath     As String
+  With tBI
+    .lpszTitle = ""
+    .ulFlags = BIF_RETURNONLYFSDIRS Or BIF_NEWDIALOGSTYLE Or BIF_EDITBOX
+  End With
+  lngPIDL = SHBrowseForFolder(tBI)
+  If (lngPIDL <> 0) Then
+    ' get path from ID list
+    strPath = Space$(MAX_PATH)
+    SHGetPathFromIDList lngPIDL, strPath
+    strPath = Left$(strPath, InStr(strPath, Chr$(0)) - 1)
+    ' release list
+    CoTaskMemFree lngPIDL
+  End If
+  BrowseForFolder = strPath
+End Function
+Sub CreatePart0
+dim errors as long
+dim warnings as long
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set res=swApp.OpenDoc6 ( storePath & "549438 VOVG-B12-M32U-Z---(G).sldprt",1,3,"", errors, warnings)
+if not res is nothing then
+ if (docVisible=0) then
+  swApp.DocumentVisible 1, 1
+ end if
+ exit sub
+end if
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+Dim longstatus As Long
+Dim sPartTemplateName As String
+sPartTemplateName = swApp.GetUserPreferenceStringValue(8)
+Set part = swApp.NewDocument(sPartTemplateName, 0, 0, 0)
+swApp.ActivateDoc2 "549438 VOVG-B12-M32U-Z---(G).sldprt", False, longstatus
+Set part = swApp.ActiveDoc
+part.SketchManager.AddToDB = true
+part.SketchManager.DisplayWhenAdded = false
+part.ActiveView.EnableGraphicsUpdate = false
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "VOVG---(G)"
+customPropMgr.Add2 "NT", 30, "Basic valve"
+customPropMgr.Add2 "NB", 30, "549438 VOVG-B12-M32U-Z---(G)"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $NB1.---(G)"
+customPropMgr.Add2 "LINA", 30, "549438 VOVG-B12-M32U-Z---(G)"
+customPropMgr.Add2 "TNR", 30, "549438"
+customPropMgr.Add2 "TYP", 30, "VOVG"
+customPropMgr.Add2 "VA", 30, "B"
+customPropMgr.Add2 "BG", 30, "12"
+customPropMgr.Add2 "VF", 30, "M32U"
+customPropMgr.Add2 "SZ", 30, "Z"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "549438 VOVG-B12-M32U-Z---(G)"
+customPropMgr.Add2 "BOMINFO", 30, "549438 VOVG-B12-M32U-Z---(G)"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+customPropMgr.Add2 "IsFastener", 30, "0"
+part.SummaryInfo(0)="549438 VOVG-B12-M32U-Z---(G)"
+part.SummaryInfo(4)="Basic valve"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+valRGB=part.MaterialPropertyValues
+valRGB(0)=0.75294119119644
+valRGB(1)=0.75294119119644
+valRGB(2)=0.75294119119644
+part.MaterialPropertyValues=valRGB
+Dim featMgr as object
+set featMgr = part.FeatureManager
+codeBag0 part,featMgr
+codeBag14 part,featMgr
+part.ActiveView.EnableGraphicsUpdate = true
+part.SketchManager.DisplayWhenAdded = true
+part.SketchManager.AddToDB = false
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "549438 VOVG-B12-M32U-Z---(G).sldprt",0,0,nothing,errors,warnings
+End Sub
+Sub CreatePart1
+dim errors as long
+dim warnings as long
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set res=swApp.OpenDoc6 ( storePath & "652115 M16X8.sldprt",1,3,"", errors, warnings)
+if not res is nothing then
+ if (docVisible=0) then
+  swApp.DocumentVisible 1, 1
+ end if
+ exit sub
+end if
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+Dim longstatus As Long
+Dim sPartTemplateName As String
+sPartTemplateName = swApp.GetUserPreferenceStringValue(8)
+Set part = swApp.NewDocument(sPartTemplateName, 0, 0, 0)
+swApp.ActivateDoc2 "652115 M16X8.sldprt", False, longstatus
+Set part = swApp.ActiveDoc
+part.SketchManager.AddToDB = true
+part.SketchManager.DisplayWhenAdded = false
+part.ActiveView.EnableGraphicsUpdate = false
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "M.."
+customPropMgr.Add2 "NT", 30, "Screws"
+customPropMgr.Add2 "NB", 30, "652115 M16X8"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $TYP."
+customPropMgr.Add2 "LINA", 30, "652115 M16X8"
+customPropMgr.Add2 "TNR", 30, "652115"
+customPropMgr.Add2 "TYP", 30, "M16X8"
+customPropMgr.Add2 "VERS", 30, "2"
+customPropMgr.Add2 "A", 30, "0.000"
+customPropMgr.Add2 "A0", 30, "1.600"
+customPropMgr.Add2 "A2", 30, "1.300"
+customPropMgr.Add2 "C1", 30, "3.850"
+customPropMgr.Add2 "D", 30, "2.900"
+customPropMgr.Add2 "K", 30, "1.200"
+customPropMgr.Add2 "L", 30, "8.000"
+customPropMgr.Add2 "R1", 30, "2.500"
+customPropMgr.Add2 "R2", 30, "0.200"
+customPropMgr.Add2 "VERS2", 30, "0.000"
+customPropMgr.Add2 "B", 30, "0.000"
+customPropMgr.Add2 "T", 30, "0.000"
+customPropMgr.Add2 "DK", 30, "0.000"
+customPropMgr.Add2 "LR1", 30, "0.000"
+customPropMgr.Add2 "K1", 30, "0.780"
+customPropMgr.Add2 "X", 30, "0.000"
+customPropMgr.Add2 "L2", 30, "0.000"
+customPropMgr.Add2 "L3", 30, "0.000"
+customPropMgr.Add2 "L4", 30, "2.900"
+customPropMgr.Add2 "L5", 30, "0.310"
+customPropMgr.Add2 "W1", 30, "0.000"
+customPropMgr.Add2 "Y", 30, "0.000"
+customPropMgr.Add2 "M", 30, "0.000"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "652115 M16X8"
+customPropMgr.Add2 "BOMINFO", 30, "652115 M16X8"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+customPropMgr.Add2 "IsFastener", 30, "0"
+part.SummaryInfo(0)="652115 M16X8"
+part.SummaryInfo(4)="Screws"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+valRGB=part.MaterialPropertyValues
+valRGB(0)=0.75294119119644
+valRGB(1)=0.75294119119644
+valRGB(2)=0.75294119119644
+part.MaterialPropertyValues=valRGB
+Dim featMgr as object
+set featMgr = part.FeatureManager
+codeBag17 part,featMgr
+part.ActiveView.EnableGraphicsUpdate = true
+part.SketchManager.DisplayWhenAdded = true
+part.SketchManager.AddToDB = false
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "652115 M16X8.sldprt",0,0,nothing,errors,warnings
+End Sub
+Sub CreatePart2
+dim errors as long
+dim warnings as long
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set res=swApp.OpenDoc6 ( storePath & "678917 M2X23.sldprt",1,3,"", errors, warnings)
+if not res is nothing then
+ if (docVisible=0) then
+  swApp.DocumentVisible 1, 1
+ end if
+ exit sub
+end if
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+Dim longstatus As Long
+Dim sPartTemplateName As String
+sPartTemplateName = swApp.GetUserPreferenceStringValue(8)
+Set part = swApp.NewDocument(sPartTemplateName, 0, 0, 0)
+swApp.ActivateDoc2 "678917 M2X23.sldprt", False, longstatus
+Set part = swApp.ActiveDoc
+part.SketchManager.AddToDB = true
+part.SketchManager.DisplayWhenAdded = false
+part.ActiveView.EnableGraphicsUpdate = false
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "M.."
+customPropMgr.Add2 "NT", 30, "Screws"
+customPropMgr.Add2 "NB", 30, "678917 M2X23"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $TYP."
+customPropMgr.Add2 "LINA", 30, "678917 M2X23"
+customPropMgr.Add2 "TNR", 30, "678917"
+customPropMgr.Add2 "TYP", 30, "M2X23"
+customPropMgr.Add2 "VERS", 30, "3"
+customPropMgr.Add2 "A", 30, "0.000"
+customPropMgr.Add2 "A0", 30, "2.000"
+customPropMgr.Add2 "A2", 30, "1.690"
+customPropMgr.Add2 "C1", 30, "4.000"
+customPropMgr.Add2 "D", 30, "3.500"
+customPropMgr.Add2 "K", 30, "1.600"
+customPropMgr.Add2 "L", 30, "23.000"
+customPropMgr.Add2 "R1", 30, "0.000"
+customPropMgr.Add2 "R2", 30, "0.000"
+customPropMgr.Add2 "VERS2", 30, "0.000"
+customPropMgr.Add2 "B", 30, "0.000"
+customPropMgr.Add2 "T", 30, "0.000"
+customPropMgr.Add2 "DK", 30, "0.000"
+customPropMgr.Add2 "LR1", 30, "0.000"
+customPropMgr.Add2 "K1", 30, "0.000"
+customPropMgr.Add2 "X", 30, "0.000"
+customPropMgr.Add2 "L2", 30, "0.600"
+customPropMgr.Add2 "L3", 30, "0.600"
+customPropMgr.Add2 "L4", 30, "3.600"
+customPropMgr.Add2 "L5", 30, "0.500"
+customPropMgr.Add2 "W1", 30, "5.000"
+customPropMgr.Add2 "Y", 30, "0.000"
+customPropMgr.Add2 "M", 30, "0.000"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "678917 M2X23"
+customPropMgr.Add2 "BOMINFO", 30, "678917 M2X23"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+customPropMgr.Add2 "IsFastener", 30, "0"
+part.SummaryInfo(0)="678917 M2X23"
+part.SummaryInfo(4)="Screws"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+valRGB=part.MaterialPropertyValues
+valRGB(0)=0.75294119119644
+valRGB(1)=0.75294119119644
+valRGB(2)=0.75294119119644
+part.MaterialPropertyValues=valRGB
+Dim featMgr as object
+set featMgr = part.FeatureManager
+codeBag22 part,featMgr
+part.ActiveView.EnableGraphicsUpdate = true
+part.SketchManager.DisplayWhenAdded = true
+part.SketchManager.AddToDB = false
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "678917 M2X23.sldprt",0,0,nothing,errors,warnings
+End Sub
+Sub CreatePart3
+dim errors as long
+dim warnings as long
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set res=swApp.OpenDoc6 ( storePath & "750914 VOVG-B.sldprt",1,3,"", errors, warnings)
+if not res is nothing then
+ if (docVisible=0) then
+  swApp.DocumentVisible 1, 1
+ end if
+ exit sub
+end if
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+Dim longstatus As Long
+Dim sPartTemplateName As String
+sPartTemplateName = swApp.GetUserPreferenceStringValue(8)
+Set part = swApp.NewDocument(sPartTemplateName, 0, 0, 0)
+swApp.ActivateDoc2 "750914 VOVG-B.sldprt", False, longstatus
+Set part = swApp.ActiveDoc
+part.SketchManager.AddToDB = true
+part.SketchManager.DisplayWhenAdded = false
+part.ActiveView.EnableGraphicsUpdate = false
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "VOVG Dichtung"
+customPropMgr.Add2 "NT", 30, "Seal"
+customPropMgr.Add2 "NB", 30, "750914 VOVG-B"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $TYP."
+customPropMgr.Add2 "LINA", 30, "750914 VOVG-B"
+customPropMgr.Add2 "TNR", 30, "750914"
+customPropMgr.Add2 "TYP", 30, "VOVG-B"
+customPropMgr.Add2 "VERS", 30, "2"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "750914 VOVG-B"
+customPropMgr.Add2 "BOMINFO", 30, "750914 VOVG-B"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+customPropMgr.Add2 "IsFastener", 30, "0"
+part.SummaryInfo(0)="750914 VOVG-B"
+part.SummaryInfo(4)="Seal"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+valRGB=part.MaterialPropertyValues
+valRGB(0)=0.75294119119644
+valRGB(1)=0.75294119119644
+valRGB(2)=0.75294119119644
+part.MaterialPropertyValues=valRGB
+Dim featMgr as object
+set featMgr = part.FeatureManager
+codeBag26 part,featMgr
+part.ActiveView.EnableGraphicsUpdate = true
+part.SketchManager.DisplayWhenAdded = true
+part.SketchManager.AddToDB = false
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "750914 VOVG-B.sldprt",0,0,nothing,errors,warnings
+End Sub
+Sub CreatePart4
+dim errors as long
+dim warnings as long
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set res=swApp.OpenDoc6 ( storePath & "648295 MHA1-M1H-3_2G-0_6-TC---(M).sldprt",1,3,"", errors, warnings)
+if not res is nothing then
+ if (docVisible=0) then
+  swApp.DocumentVisible 1, 1
+ end if
+ exit sub
+end if
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+Dim longstatus As Long
+Dim sPartTemplateName As String
+sPartTemplateName = swApp.GetUserPreferenceStringValue(8)
+Set part = swApp.NewDocument(sPartTemplateName, 0, 0, 0)
+swApp.ActivateDoc2 "648295 MHA1-M1H-3_2G-0_6-TC---(M).sldprt", False, longstatus
+Set part = swApp.ActiveDoc
+part.SketchManager.AddToDB = true
+part.SketchManager.DisplayWhenAdded = false
+part.ActiveView.EnableGraphicsUpdate = false
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "VOVG---(M)"
+customPropMgr.Add2 "NT", 30, "Solenoid valve"
+customPropMgr.Add2 "NB", 30, "648295 MHA1-M1H-3/2G-0.6-TC---(M)"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $TYP.---(M)"
+customPropMgr.Add2 "LINA", 30, "648295 MHA1-M1H-3/2G-0.6-TC---(M)"
+customPropMgr.Add2 "TNR", 30, "648295"
+customPropMgr.Add2 "TYP", 30, "MHA1-M1H-3/2G-0.6-TC"
+customPropMgr.Add2 "HHB", 30, "H"
+customPropMgr.Add2 "EA", 30, "H2"
+customPropMgr.Add2 "AZ", 30, "-"
+customPropMgr.Add2 "NS", 30, "1"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "648295 MHA1-M1H-3/2G-0.6-TC---(M)"
+customPropMgr.Add2 "BOMINFO", 30, "648295 MHA1-M1H-3/2G-0.6-TC---(M)"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+customPropMgr.Add2 "IsFastener", 30, "0"
+part.SummaryInfo(0)="648295 MHA1-M1H-3/2G-0.6-TC---(M)"
+part.SummaryInfo(4)="Solenoid valve"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+valRGB=part.MaterialPropertyValues
+valRGB(0)=0.75294119119644
+valRGB(1)=0.75294119119644
+valRGB(2)=0.75294119119644
+part.MaterialPropertyValues=valRGB
+Dim featMgr as object
+set featMgr = part.FeatureManager
+codeBag28 part,featMgr
+codeBag43 part,featMgr
+codeBag58 part,featMgr
+part.ActiveView.EnableGraphicsUpdate = true
+part.SketchManager.DisplayWhenAdded = true
+part.SketchManager.AddToDB = false
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "648295 MHA1-M1H-3_2G-0_6-TC---(M).sldprt",0,0,nothing,errors,warnings
+End Sub
+Sub CreatePart5
+dim errors as long
+dim warnings as long
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set res=swApp.OpenDoc6 ( storePath & "703106 M1_6X22.sldprt",1,3,"", errors, warnings)
+if not res is nothing then
+ if (docVisible=0) then
+  swApp.DocumentVisible 1, 1
+ end if
+ exit sub
+end if
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+Dim longstatus As Long
+Dim sPartTemplateName As String
+sPartTemplateName = swApp.GetUserPreferenceStringValue(8)
+Set part = swApp.NewDocument(sPartTemplateName, 0, 0, 0)
+swApp.ActivateDoc2 "703106 M1_6X22.sldprt", False, longstatus
+Set part = swApp.ActiveDoc
+part.SketchManager.AddToDB = true
+part.SketchManager.DisplayWhenAdded = false
+part.ActiveView.EnableGraphicsUpdate = false
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "M.."
+customPropMgr.Add2 "NT", 30, "Screws"
+customPropMgr.Add2 "NB", 30, "703106 M1.6X22"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $TYP."
+customPropMgr.Add2 "LINA", 30, "703106 M1.6X22"
+customPropMgr.Add2 "TNR", 30, "703106"
+customPropMgr.Add2 "TYP", 30, "M1.6X22"
+customPropMgr.Add2 "VERS", 30, "4"
+customPropMgr.Add2 "A", 30, "0.000"
+customPropMgr.Add2 "A0", 30, "1.600"
+customPropMgr.Add2 "A2", 30, "0.000"
+customPropMgr.Add2 "C1", 30, "0.000"
+customPropMgr.Add2 "D", 30, "3.000"
+customPropMgr.Add2 "K", 30, "1.200"
+customPropMgr.Add2 "L", 30, "22.000"
+customPropMgr.Add2 "R1", 30, "0.000"
+customPropMgr.Add2 "R2", 30, "0.200"
+customPropMgr.Add2 "VERS2", 30, "0.000"
+customPropMgr.Add2 "B", 30, "0.000"
+customPropMgr.Add2 "T", 30, "0.000"
+customPropMgr.Add2 "DK", 30, "0.000"
+customPropMgr.Add2 "LR1", 30, "0.000"
+customPropMgr.Add2 "K1", 30, "0.500"
+customPropMgr.Add2 "X", 30, "0.000"
+customPropMgr.Add2 "L2", 30, "0.000"
+customPropMgr.Add2 "L3", 30, "0.000"
+customPropMgr.Add2 "L4", 30, "3.000"
+customPropMgr.Add2 "L5", 30, "0.310"
+customPropMgr.Add2 "W1", 30, "0.000"
+customPropMgr.Add2 "Y", 30, "0.000"
+customPropMgr.Add2 "M", 30, "0.000"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "703106 M1.6X22"
+customPropMgr.Add2 "BOMINFO", 30, "703106 M1.6X22"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+customPropMgr.Add2 "IsFastener", 30, "0"
+part.SummaryInfo(0)="703106 M1.6X22"
+part.SummaryInfo(4)="Screws"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+valRGB=part.MaterialPropertyValues
+valRGB(0)=0.75294119119644
+valRGB(1)=0.75294119119644
+valRGB(2)=0.75294119119644
+part.MaterialPropertyValues=valRGB
+Dim featMgr as object
+set featMgr = part.FeatureManager
+codeBag61 part,featMgr
+part.ActiveView.EnableGraphicsUpdate = true
+part.SketchManager.DisplayWhenAdded = true
+part.SketchManager.AddToDB = false
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "703106 M1_6X22.sldprt",0,0,nothing,errors,warnings
+End Sub
+sub CreatePart6
+dim errors as long
+dim warnings as long
+set res=swApp.OpenDoc6 ( storePath & "549438 VOVG-B12-M32U-AZH-F-1H2.sldasm",2,3,"", errors, warnings)
+if not res is nothing then
+ exit sub
+end if
+createPart0
+createPart1
+createPart2
+createPart2
+createPart3
+createPart4
+createPart5
+createPart5
+set part=swApp.NewAssembly
+Set modelExt = part.Extension
+Set customPropMgr = modelExt.CustomPropertyManager("")
+customPropMgr.Add2 "NN", 30, "VOVG (m)"
+customPropMgr.Add2 "NT", 30, "Solenoid valve, Modular system"
+customPropMgr.Add2 "NB", 30, "549438 VOVG-B12-M32U-AZH-F-1H2"
+customPropMgr.Add2 "NBSYN", 30, "$TNR. $NB1."
+customPropMgr.Add2 "LINA", 30, "549438 VOVG-B12-M32U-AZH-F-1H2"
+customPropMgr.Add2 "TNR", 30, "549438"
+customPropMgr.Add2 "TYP", 30, "VOVG"
+customPropMgr.Add2 "VA", 30, "B"
+customPropMgr.Add2 "BG", 30, "12"
+customPropMgr.Add2 "VF", 30, "M32U"
+customPropMgr.Add2 "RA", 30, "A"
+customPropMgr.Add2 "SZ", 30, "Z"
+customPropMgr.Add2 "HHB", 30, "H"
+customPropMgr.Add2 "PA", 30, "F"
+customPropMgr.Add2 "EL", 30, "-"
+customPropMgr.Add2 "NS", 30, "1"
+customPropMgr.Add2 "EA", 30, "H2"
+customPropMgr.Add2 "AZ", 30, "-"
+customPropMgr.Add2 "KA", 30, "-"
+customPropMgr.Add2 "SUPPLIER", 30, "FESTO"
+customPropMgr.Add2 "ARTICLENO", 30, "549438 VOVG-B12-M32U-AZH-F-1H2"
+customPropMgr.Add2 "BOMINFO", 30, "549438 VOVG-B12-M32U-AZH-F-1H2"
+customPropMgr.Add2 "CREATOR", 30, "CADENAS GmbH"
+part.SummaryInfo(0)="549438 VOVG-B12-M32U-AZH-F-1H2"
+part.SummaryInfo(4)="Solenoid valve, Modular system"
+part.SummaryInfo(2)="Cadenas PARTsolutions"
+if (docVisible=0) then
+ swApp.DocumentVisible 0, 1
+end if
+set comp = part.AddComponent5 (storePath &"549438 VOVG-B12-M32U-Z---(G).sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,0)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"652115 M16X8.sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,-1,0,0,0,-1,0.0033,0.0164,-0.0327)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"678917 M2X23.sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0.0035,0.019,-0.00155)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"678917 M2X23.sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,-0.0055,0.019,-0.01625)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"750914 VOVG-B.sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0.0035,0,-0.00155)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"648295 MHA1-M1H-3_2G-0_6-TC---(M).sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0.0061,-0.0343)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"703106 M1_6X22.sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,-1,0,0,0,-1,0.00325,0.0061,-0.0464)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+set comp = part.AddComponent5 (storePath &"703106 M1_6X22.sldprt", 0, "", false, "",0,0,0)
+posMat=createMat4x4FromValues(1,0,0,0,-1,0,0,0,-1,-0.00325,0.0061,-0.0464)
+swPosMat=createSWMatFromMat(posMat)
+comp.SetXForm(swPosMat)
+swApp.CloseDoc storePath &"549438 VOVG-B12-M32U-Z---(G).sldprt"
+swApp.CloseDoc storePath &"652115 M16X8.sldprt"
+swApp.CloseDoc storePath &"678917 M2X23.sldprt"
+swApp.CloseDoc storePath &"678917 M2X23.sldprt"
+swApp.CloseDoc storePath &"750914 VOVG-B.sldprt"
+swApp.CloseDoc storePath &"648295 MHA1-M1H-3_2G-0_6-TC---(M).sldprt"
+swApp.CloseDoc storePath &"703106 M1_6X22.sldprt"
+swApp.CloseDoc storePath &"703106 M1_6X22.sldprt"
+if (docVisible=0) then
+ swApp.DocumentVisible 1, 1
+end if
+part.EditRebuild3
+part.Rebuild swRebuildAll
+Set modelExt = part.Extension
+modelExt.SaveAs storePath & "549438 VOVG-B12-M32U-AZH-F-1H2.sldasm",0,0,nothing,errors,warnings
+end sub
+sub codeBag1(part,wMat)
+cLn part,wMat,-0.007,0.0273,-0.007,0
+cLn part,wMat,-0.007,0,0.005,0
+cLn part,wMat,0.005,0,0.005,0.0273
+cLn part,wMat,0.005,0.0273,-0.007,0.0273
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag2(part,wMat)
+cCir part,wMat,0.0035,0.00155,0.00105
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag3(part,wMat)
+cCir part,wMat,-0.0055,0.01625,0.00105
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag4(part,wMat)
+cLn part,wMat,0.0051,0.0107,0.0066,0.0107
+cLn part,wMat,0.0066,0.0107,0.0066,0
+cLn part,wMat,0.0066,0,0.0051,0
+cLn part,wMat,0.0051,0,0.0051,0.0107
+cCLn part,wMat,0.0051,0,0.0051,0.0107
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag5(part,wMat)
+cLn part,wMat,0.0102,0.0107,0.0117,0.0107
+cLn part,wMat,0.0117,0.0107,0.0117,0
+cLn part,wMat,0.0117,0,0.0102,0
+cLn part,wMat,0.0102,0,0.0102,0.0107
+cCLn part,wMat,0.0102,0,0.0102,0.0107
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag6(part,wMat)
+cLn part,wMat,0.0153,0.0107,0.0168,0.0107
+cLn part,wMat,0.0168,0.0107,0.0168,0
+cLn part,wMat,0.0168,0,0.0153,0
+cLn part,wMat,0.0153,0,0.0153,0.0107
+cCLn part,wMat,0.0153,0,0.0153,0.0107
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag7(part,wMat)
+cLn part,wMat,0.0195,0.016806217782649,0.02055,0.0162
+cLn part,wMat,0.02055,0.0162,0.02055,0
+cLn part,wMat,0.02055,0,0.0195,0
+cLn part,wMat,0.0195,0,0.0195,0.016806217782649
+cCLn part,wMat,0.0195,0,0.0195,0.016806217782649
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag8(part,wMat)
+cArc part,wMat,-0.0049,0.0012837052723967,-0.0048036471658302,0.00098863076398015,-0.0045517240953354,0.00080728130270721
+cArc part,wMat,-0.0045517240953354,0.00080728130270721,-1.2656513855684e-18,0.0001,0.004551724137931,0.0008072813162724
+cArc part,wMat,0.004551724137931,0.0008072813162724,0.0048036471658302,0.00098863076398015,0.0049,0.0012837052723967
+cLn part,wMat,0.0049,0.0012837052723967,0.0049,0.0183
+cArc part,wMat,0.0049,0.0183,0.0048414213562373,0.018441421356237,0.0047,0.0185
+cLn part,wMat,0.0047,0.0185,-0.0047,0.0185
+cArc part,wMat,-0.0047,0.0185,-0.0048414213562373,0.018441421356237,-0.0049,0.0183
+cLn part,wMat,-0.0049,0.0183,-0.0049,0.0012837052723967
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag9(part,wMat)
+cArc part,wMat,0.0033,0.018,0.0017,0.0164,0.0033,0.0148
+cLn part,wMat,0.0033,0.0148,0.0047,0.0148
+cArc part,wMat,0.0047,0.0148,0.0048414213562373,0.014741421356237,0.0049,0.0146
+cLn part,wMat,0.0049,0.0146,0.0049,0.0138
+cLn part,wMat,0.0049,0.0138,0.0059,0.0138
+cLn part,wMat,0.0059,0.0138,0.0059,0.019
+cLn part,wMat,0.0059,0.019,0.0049,0.019
+cLn part,wMat,0.0049,0.019,0.0049,0.0182
+cArc part,wMat,0.0049,0.0182,0.0048414213562373,0.018058578643763,0.0047,0.018
+cLn part,wMat,0.0047,0.018,0.0033,0.018
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag10(part,wMat)
+cCir part,wMat,0.0033,0.0164,0.0009
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag11(part,wMat)
+cLn part,wMat,0.00325,0.0343,0.0043478571428571,0.0343
+cLn part,wMat,0.0043478571428571,0.0343,0.0041478571428571,0.0341
+cLn part,wMat,0.0041478571428571,0.0341,0.0040771428571429,0.0275
+cLn part,wMat,0.0040771428571429,0.0275,0.0042771428571429,0.0273
+cLn part,wMat,0.0042771428571429,0.0273,0.00325,0.0273
+cLn part,wMat,0.00325,0.0273,0.00325,0.0343
+cCLn part,wMat,0.00325,0.0273,0.00325,0.0343
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag12(part,wMat)
+cLn part,wMat,-0.00325,0.0343,-0.0021521428571429,0.0343
+cLn part,wMat,-0.0021521428571429,0.0343,-0.0023521428571429,0.0341
+cLn part,wMat,-0.0023521428571429,0.0341,-0.0024228571428571,0.0275
+cLn part,wMat,-0.0024228571428571,0.0275,-0.0022228571428571,0.0273
+cLn part,wMat,-0.0022228571428571,0.0273,-0.00325,0.0273
+cLn part,wMat,-0.00325,0.0273,-0.00325,0.0343
+cCLn part,wMat,-0.00325,0.0273,-0.00325,0.0343
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag13(part,wMat)
+cLn part,wMat,0.00325,0.0273,0.00405,0.0273
+cLn part,wMat,0.00405,0.0273,0.0038605,0.0271105
+cLn part,wMat,0.0038605,0.0271105,0.0038605,0.0226
+cLn part,wMat,0.0038605,0.0226,0.00325,0.02224752766066
+cLn part,wMat,0.00325,0.02224752766066,0.00325,0.0273
+cCLn part,wMat,0.00325,0.02224752766066,0.00325,0.0273
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag0(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag1 part,wMat
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+featMgr.FeatureExtrusion2 1,0,0,0,0,0.019,0.019,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag2 part,wMat
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+featMgr.FeatureCut3 1,0,1,0,0,0.019,0.019,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag3 part,wMat
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+featMgr.FeatureCut3 1,0,1,0,0,0.019,0.019,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat15=part.Extension.GetLastFeatureAdded()
+feat15.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag4 part,wMat
+set feat15=part.Extension.GetLastFeatureAdded()
+feat15.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat17=part.Extension.GetLastFeatureAdded()
+feat17.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag5 part,wMat
+set feat17=part.Extension.GetLastFeatureAdded()
+feat17.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(-0.0017,0,0),createVec3d(-0.0017,0,-1),createVec3d(-0.0017,1,0),1
+set feat20=part.Extension.GetLastFeatureAdded()
+feat20.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,-0.0017,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag6 part,wMat
+set feat20=part.Extension.GetLastFeatureAdded()
+feat20.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(-0.0024,0,0),createVec3d(-0.0024,0,-1),createVec3d(-0.0024,1,0),1
+set feat23=part.Extension.GetLastFeatureAdded()
+feat23.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,-0.0024,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag7 part,wMat
+set feat23=part.Extension.GetLastFeatureAdded()
+feat23.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0273),createVec3d(1,0,-0.0273),createVec3d(0,1,-0.0273),1
+set feat31=part.Extension.GetLastFeatureAdded()
+feat31.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0273)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag8 part,wMat
+set feat31=part.Extension.GetLastFeatureAdded()
+feat31.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.007,0.007,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0343),createVec3d(1,0,-0.0343),createVec3d(0,1,-0.0343),1
+set feat36=part.Extension.GetLastFeatureAdded()
+feat36.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0343)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag9 part,wMat
+set feat36=part.Extension.GetLastFeatureAdded()
+feat36.select2 false,0
+featMgr.FeatureCut3 1,0,1,0,0,0.0016,0.0016,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0343),createVec3d(1,0,-0.0343),createVec3d(0,1,-0.0343),1
+set feat38=part.Extension.GetLastFeatureAdded()
+feat38.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0343)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag10 part,wMat
+set feat38=part.Extension.GetLastFeatureAdded()
+feat38.select2 false,0
+featMgr.FeatureCut3 1,0,1,0,0,0.007,0.007,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.0061,0),createVec3d(1,0.0061,0),createVec3d(0,0.0061,-1),1
+set feat41=part.Extension.GetLastFeatureAdded()
+feat41.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0061,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag11 part,wMat
+set feat41=part.Extension.GetLastFeatureAdded()
+feat41.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(0,0.0061,0),createVec3d(1,0.0061,0),createVec3d(0,0.0061,-1),1
+set feat43=part.Extension.GetLastFeatureAdded()
+feat43.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0061,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag12 part,wMat
+set feat43=part.Extension.GetLastFeatureAdded()
+feat43.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(0,0.0061,0),createVec3d(1,0.0061,0),createVec3d(0,0.0061,-1),1
+set feat45=part.Extension.GetLastFeatureAdded()
+feat45.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0061,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag13 part,wMat
+set feat45=part.Extension.GetLastFeatureAdded()
+feat45.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+ if getEdgeFromModel(part,createVec3d(0.0026395,0.0061,-0.0271105),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.0016,0.0035,""
+ elseif getEdgeFromModel(part,createVec3d(0.0026395,0.0061,-0.0238),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.0016,0.0035,""
+ End If
+end sub
+
+sub codeBag15(part,wMat)
+cLn part,wMat,-0.00325,0.0273,-0.00245,0.0273
+cLn part,wMat,-0.00245,0.0273,-0.0026395,0.0271105
+cLn part,wMat,-0.0026395,0.0271105,-0.0026395,0.0226
+cLn part,wMat,-0.0026395,0.0226,-0.00325,0.02224752766066
+cLn part,wMat,-0.00325,0.02224752766066,-0.00325,0.0273
+cCLn part,wMat,-0.00325,0.02224752766066,-0.00325,0.0273
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag16(part,wMat)
+cLn part,wMat,0.0033,0.0273,0.0041,0.0273
+cLn part,wMat,0.0041,0.0273,0.0039105,0.0271105
+cLn part,wMat,0.0039105,0.0271105,0.0039105,0.0226
+cLn part,wMat,0.0039105,0.0226,0.0033,0.02224752766066
+cLn part,wMat,0.0033,0.02224752766066,0.0033,0.0273
+cCLn part,wMat,0.0033,0.02224752766066,0.0033,0.0273
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag14(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0.0061,0),createVec3d(1,0.0061,0),createVec3d(0,0.0061,-1),1
+set feat47=part.Extension.GetLastFeatureAdded()
+feat47.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0061,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag15 part,wMat
+set feat47=part.Extension.GetLastFeatureAdded()
+feat47.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+ if getEdgeFromModel(part,createVec3d(-0.0038605,0.0061,-0.0271105),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.0016,0.0035,""
+ elseif getEdgeFromModel(part,createVec3d(-0.0038605,0.0061,-0.0238),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.0016,0.0035,""
+ End If
+part.CreatePlaneFixed2 createVec3d(0,0.0164,0),createVec3d(1,0.0164,0),createVec3d(0,0.0164,-1),1
+set feat50=part.Extension.GetLastFeatureAdded()
+feat50.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0164,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag16 part,wMat
+set feat50=part.Extension.GetLastFeatureAdded()
+feat50.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+ if getEdgeFromModel(part,createVec3d(0.0026895,0.0164,-0.0271105),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.0016,0.0035,""
+ elseif getEdgeFromModel(part,createVec3d(0.0026895,0.0164,-0.0238),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.0016,0.0035,""
+ End If
+end sub
+
+sub codeBag18(part,wMat)
+cArc part,wMat,-0.0012,0,-0.00095493019626199,0.00069552621818419,-0.00054759135427497,0.0013102546108052
+cArc part,wMat,-0.00054759135427497,0.0013102546108052,-0.00041101541107786,0.001413388115052,-0.00024383563407432,0.00145
+cLn part,wMat,-0.00024383563407432,0.00145,0,0.00145
+cLn part,wMat,0,0.00145,0,0.00085
+cArc part,wMat,0,0.00085,5.8578643762691e-05,0.00070857864376269,0.0002,0.00065
+cLn part,wMat,0.0002,0.00065,0.0037378783870818,0.00065
+cLn part,wMat,0.0037378783870818,0.00065,0.00415,0.0008
+cLn part,wMat,0.00415,0.0008,0.0077855,0.0008
+cLn part,wMat,0.0077855,0.0008,0.008,0.0005855
+cLn part,wMat,0.008,0.0005855,0.008,0
+cLn part,wMat,0.008,0,-0.0012,0
+cCLn part,wMat,0.008,0,-0.0012,0
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag19(part,wMat)
+cLn part,wMat,-0.00342,0.000155,-0.00342,-0.000155
+cLn part,wMat,-0.00342,-0.000155,-0.00042,-0.000155
+cLn part,wMat,-0.00042,-0.000155,-0.00042,0.000155
+cLn part,wMat,-0.00042,0.000155,-0.00342,0.000155
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag20(part,wMat)
+cLn part,wMat,-0.00322,-0.0029039935220523,-0.00022,-0.000155
+cLn part,wMat,-0.00022,-0.000155,-0.00022,0.000155
+cLn part,wMat,-0.00022,0.000155,-0.00322,0.0029039935220523
+cLn part,wMat,-0.00322,0.0029039935220523,-0.00322,-0.0029039935220523
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag21(part,wMat)
+cLn part,wMat,-0.0029039935220523,-0.00322,0.0029039935220523,-0.00322
+cLn part,wMat,0.0029039935220523,-0.00322,0.000155,-0.00022
+cLn part,wMat,0.000155,-0.00022,-0.000155,-0.00022
+cLn part,wMat,-0.000155,-0.00022,-0.0029039935220523,-0.00322
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag17(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag18 part,wMat
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+featMgr.FeatureRevolve 6.2831853071796,1,6.2831853071796,0,0,1,1,1
+ if getEdgeFromModel(part,createVec3d(0,-0.0008,-0.0077855),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.001171,0.00385,""
+ elseif getEdgeFromModel(part,createVec3d(0,-0.0008,-0.00415),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.001171,0.00385,""
+ End If
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag19 part,wMat
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.0029,0.0029,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag20 part,wMat
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.000155,0.000155,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat10=part.Extension.GetLastFeatureAdded()
+feat10.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag21 part,wMat
+set feat10=part.Extension.GetLastFeatureAdded()
+feat10.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.000155,0.000155,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+end sub
+
+sub codeBag23(part,wMat)
+cLn part,wMat,-0.0016,0,-0.0016,0.0016100181383585
+cLn part,wMat,-0.0016,0.0016100181383585,0,0.00175
+cLn part,wMat,0,0.00175,0,0.000845
+cLn part,wMat,0,0.000845,0.018731532124827,0.000845
+cLn part,wMat,0.018731532124827,0.000845,0.019,0.001
+cLn part,wMat,0.019,0.001,0.0227545,0.001
+cLn part,wMat,0.0227545,0.001,0.023,0.0007545
+cLn part,wMat,0.023,0.0007545,0.023,0
+cLn part,wMat,0.023,0,-0.0016,0
+cCLn part,wMat,0.023,0,-0.0016,0
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag24(part,wMat)
+cLn part,wMat,-0.004,0.00025,-0.004,-0.00025
+cLn part,wMat,-0.004,-0.00025,-0.001,-0.00025
+cLn part,wMat,-0.001,-0.00025,-0.001,0.00025
+cLn part,wMat,-0.001,0.00025,-0.004,0.00025
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag25(part,wMat)
+cLn part,wMat,-0.004,0.0029989935220523,-0.004,-0.0029989935220523
+cLn part,wMat,-0.004,-0.0029989935220523,-0.001,-0.00025
+cLn part,wMat,-0.001,-0.00025,-0.001,0.00025
+cLn part,wMat,-0.001,0.00025,-0.004,0.0029989935220523
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag22(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag23 part,wMat
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+featMgr.FeatureRevolve 6.2831853071796,1,6.2831853071796,0,0,1,1,1
+ if getEdgeFromModel(part,createVec3d(0,-0.001,-0.0227545),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.001509,0.004,""
+ elseif getEdgeFromModel(part,createVec3d(0,-0.001,-0.019),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.001509,0.004,""
+ End If
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag24 part,wMat
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.00175,0.00175,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag25 part,wMat
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.00025,0.00025,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+end sub
+
+sub codeBag27(part,wMat)
+cArc part,wMat,-0.010369565217391,0.015868028730516,-0.0108,0.0147,-0.010369565217391,0.013531971269484
+cArc part,wMat,-0.010369565217391,0.013531971269484,-0.010280842568372,0.013380409863042,-0.01025,0.01320751884434
+cLn part,wMat,-0.01025,0.01320751884434,-0.01025,-0.0008
+cArc part,wMat,-0.01025,-0.0008,-0.010103553390593,-0.0011535533905933,-0.00975,-0.0013
+cLn part,wMat,-0.00975,-0.0013,-0.0015874507866388,-0.0013
+cArc part,wMat,-0.0015874507866388,-0.0013,-0.0014106740913421,-0.0013322928266533,-0.0012567318727557,-0.001425
+cArc part,wMat,-0.0012567318727557,-0.001425,0.0013641376132923,-0.0013225462456947,0.0013854166666667,0.0013002386933645
+cArc part,wMat,0.0013854166666667,0.0013002386933645,0.0012850851332412,0.0014584117525172,0.00125,0.0016424067705657
+cLn part,wMat,0.00125,0.0016424067705657,0.00125,0.0212
+cArc part,wMat,0.00125,0.0212,0.0011035533905933,0.021553553390593,0.00075,0.0217
+cLn part,wMat,0.00075,0.0217,-0.009,0.0217
+cArc part,wMat,-0.009,0.0217,-0.010634388527084,0.020654171162625,-0.010369565217391,0.018731971269484
+cArc part,wMat,-0.010369565217391,0.018731971269484,-0.010280842568372,0.018580409863042,-0.01025,0.01840751884434
+cLn part,wMat,-0.01025,0.01840751884434,-0.01025,0.01619248115566
+cArc part,wMat,-0.01025,0.01619248115566,-0.010280842568372,0.016019590136958,-0.010369565217391,0.015868028730516
+cCir part,wMat,0,0,0.0009
+cCir part,wMat,-0.0035,0.00355,0.0018
+cCir part,wMat,-0.0035,0.00865,0.0018
+cCir part,wMat,-0.0059,0.01795,0.0008
+cCir part,wMat,-0.0052,0.01375,0.0018
+cCir part,wMat,-0.009,0.0199,0.0008
+cCir part,wMat,-0.009,0.0147,0.0009
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag26(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag27 part,wMat
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.0007,0.0007,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+end sub
+
+sub codeBag29(part,wMat)
+cArc part,wMat,-0.00489,-0.0048194753880167,-0.004793540366737,-0.0051146959367829,-0.0045413793103448,-0.0052960090220863
+cArc part,wMat,-0.0045413793103448,-0.0052960090220863,-4.1534233859191e-18,-0.006,0.0045413793103448,-0.0052960090220863
+cArc part,wMat,0.0045413793103448,-0.0052960090220863,0.004793540366737,-0.0051146959367829,0.00489,-0.0048194753880167
+cLn part,wMat,0.00489,-0.0048194753880167,0.00489,0.0058
+cLn part,wMat,0.00489,0.0058,-0.00489,0.0058
+cLn part,wMat,-0.00489,0.0058,-0.00489,-0.0048194753880167
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag30(part,wMat)
+cArc part,wMat,0.00325,0.00165,0.0016,2.0206672185931e-19,0.00325,-0.00165
+cLn part,wMat,0.00325,-0.00165,0.0049,-0.00165
+cLn part,wMat,0.0049,-0.00165,0.0049,0.00165
+cLn part,wMat,0.0049,0.00165,0.00325,0.00165
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag31(part,wMat)
+cLn part,wMat,-0.0049,0.00165,-0.0049,-0.00165
+cLn part,wMat,-0.0049,-0.00165,-0.00325,-0.00165
+cArc part,wMat,-0.00325,-0.00165,-0.0016,-4.0413344371863e-19,-0.00325,0.00165
+cLn part,wMat,-0.00325,0.00165,-0.0049,0.00165
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag32(part,wMat)
+cLn part,wMat,-0.0049,0.0225,-0.0049,0.0058
+cLn part,wMat,-0.0049,0.0058,0.0049,0.0058
+cLn part,wMat,0.0049,0.0058,0.0049,0.0225
+cLn part,wMat,0.0049,0.0225,-0.0049,0.0225
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag33(part,wMat)
+cArc part,wMat,0.0026,0.0079267949192431,0.00275,0.0076669872981078,0.00305,0.0076669872981078
+cLn part,wMat,0.00305,0.0076669872981078,0.0036344842910435,0.0080044394608789
+cArc part,wMat,0.0036344842910435,0.0080044394608789,0.0037975701072531,0.0080443463062181,0.0039565572219489,0.0079903774530302
+cLn part,wMat,0.0039565572219489,0.0079903774530302,0.0042720729309053,0.0077694509751953
+cArc part,wMat,0.0042720729309053,0.0077694509751953,0.0043661032499535,0.0076622299458792,0.0044,0.0075237053619087
+cLn part,wMat,0.0044,0.0075237053619087,0.0044,0.0027762946380913
+cArc part,wMat,0.0044,0.0027762946380913,0.0043661032499535,0.0026377700541208,0.0042720729309053,0.0025305490248047
+cLn part,wMat,0.0042720729309053,0.0025305490248047,0.0039565572219489,0.0023096225469698
+cArc part,wMat,0.0039565572219489,0.0023096225469698,0.0037975701072531,0.0022556536937819,0.0036344842910435,0.0022955605391211
+cLn part,wMat,0.0036344842910435,0.0022955605391211,0.00305,0.0026330127018922
+cArc part,wMat,0.00305,0.0026330127018922,0.00275,0.0026330127018922,0.0026,0.0023732050807569
+cLn part,wMat,0.0026,0.0023732050807569,0.0026,0.0014
+cLn part,wMat,0.0026,0.0014,0.0049,0.0014
+cLn part,wMat,0.0049,0.0014,0.0049,0.0089
+cLn part,wMat,0.0049,0.0089,0.0026,0.0089
+cLn part,wMat,0.0026,0.0089,0.0026,0.0079267949192431
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag34(part,wMat)
+cLn part,wMat,-0.0049,0.0089,-0.0049,0.0014
+cLn part,wMat,-0.0049,0.0014,-0.0026,0.0014
+cLn part,wMat,-0.0026,0.0014,-0.0026,0.0023732050807569
+cArc part,wMat,-0.0026,0.0023732050807569,-0.00275,0.0026330127018922,-0.00305,0.0026330127018922
+cLn part,wMat,-0.00305,0.0026330127018922,-0.0036344842910435,0.0022955605391211
+cArc part,wMat,-0.0036344842910435,0.0022955605391211,-0.0037975701072531,0.0022556536937819,-0.0039565572219489,0.0023096225469698
+cLn part,wMat,-0.0039565572219489,0.0023096225469698,-0.0042720729309053,0.0025305490248046
+cArc part,wMat,-0.0042720729309053,0.0025305490248046,-0.0043661032499535,0.0026377700541208,-0.0044,0.0027762946380914
+cLn part,wMat,-0.0044,0.0027762946380914,-0.0044,0.0075237053619087
+cArc part,wMat,-0.0044,0.0075237053619087,-0.0043661032499535,0.0076622299458792,-0.0042720729309053,0.0077694509751954
+cLn part,wMat,-0.0042720729309053,0.0077694509751954,-0.0039565572219488,0.0079903774530302
+cArc part,wMat,-0.0039565572219488,0.0079903774530302,-0.0037975701072531,0.0080443463062181,-0.0036344842910435,0.0080044394608789
+cLn part,wMat,-0.0036344842910435,0.0080044394608789,-0.00305,0.0076669872981078
+cArc part,wMat,-0.00305,0.0076669872981078,-0.00275,0.0076669872981078,-0.0026,0.0079267949192431
+cLn part,wMat,-0.0026,0.0079267949192431,-0.0026,0.0089
+cLn part,wMat,-0.0026,0.0089,-0.0049,0.0089
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag35(part,wMat)
+cArc part,wMat,0.0083,-0.004,0.0084464466094067,-0.0043535533905933,0.0088,-0.0045
+cLn part,wMat,0.0088,-0.0045,0.0134,-0.0045
+cArc part,wMat,0.0134,-0.0045,0.013753553390593,-0.0043535533905933,0.0139,-0.004
+cLn part,wMat,0.0139,-0.004,0.0139,-0.0028
+cArc part,wMat,0.0139,-0.0028,0.013753553390593,-0.0024464466094067,0.0134,-0.0023
+cLn part,wMat,0.0134,-0.0023,0.011879795897113,-0.0023
+cArc part,wMat,0.011879795897113,-0.0023,0.011563568131096,-0.0021872983346207,0.011389897948557,-0.0019
+cArc part,wMat,0.011389897948557,-0.0019,0.011216227766017,-0.0016127016653793,0.0109,-0.0015
+cLn part,wMat,0.0109,-0.0015,0.0088,-0.0015
+cArc part,wMat,0.0088,-0.0015,0.0084464466094067,-0.0016464466094067,0.0083,-0.002
+cLn part,wMat,0.0083,-0.002,0.0083,-0.004
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag36(part,wMat)
+cArc part,wMat,-0.00055,0.010449152420612,-2.1802415222876e-19,0.0045,0.00055,0.010449152420612
+cLn part,wMat,0.00055,0.010449152420612,0.00055,0.0142
+cLn part,wMat,0.00055,0.0142,-0.00055,0.0142
+cLn part,wMat,-0.00055,0.0142,-0.00055,0.010449152420612
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag37(part,wMat)
+cCir part,wMat,0.00325,0,0.0009
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag38(part,wMat)
+cCir part,wMat,-0.00325,0,0.0009
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag39(part,wMat)
+cLn part,wMat,0.0028032566285183,0.0023471796769724,0.0036,0.0018871796769724
+cArc part,wMat,0.0036,0.0018871796769724,0.0044,0.0018871796769724,0.0048,0.00258
+cLn part,wMat,0.0048,0.00258,0.0048,0.00773
+cArc part,wMat,0.0048,0.00773,0.0044,0.0084228203230276,0.0036,0.0084228203230276
+cLn part,wMat,0.0036,0.0084228203230276,0.0028032566285183,0.0079628203230276
+cLn part,wMat,0.0028032566285183,0.0079628203230276,0.0030032566285183,0.0076164101615138
+cLn part,wMat,0.0030032566285183,0.0076164101615138,0.0038,0.0080764101615138
+cArc part,wMat,0.0038,0.0080764101615138,0.0042,0.0080764101615138,0.0044,0.00773
+cLn part,wMat,0.0044,0.00773,0.0044,0.00258
+cArc part,wMat,0.0044,0.00258,0.0042,0.0022335898384862,0.0038,0.0022335898384862
+cLn part,wMat,0.0038,0.0022335898384862,0.0030032566285183,0.0026935898384862
+cLn part,wMat,0.0030032566285183,0.0026935898384862,0.0028032566285183,0.0023471796769724
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag40(part,wMat)
+cLn part,wMat,-0.0048,0.00773,-0.0048,0.00258
+cArc part,wMat,-0.0048,0.00258,-0.0044,0.0018871796769724,-0.0036,0.0018871796769724
+cLn part,wMat,-0.0036,0.0018871796769724,-0.0028032566285183,0.0023471796769725
+cLn part,wMat,-0.0028032566285183,0.0023471796769725,-0.0030032566285183,0.0026935898384862
+cLn part,wMat,-0.0030032566285183,0.0026935898384862,-0.0038,0.0022335898384862
+cArc part,wMat,-0.0038,0.0022335898384862,-0.0042,0.0022335898384862,-0.0044,0.00258
+cLn part,wMat,-0.0044,0.00258,-0.0044,0.00773
+cArc part,wMat,-0.0044,0.00773,-0.0042,0.0080764101615138,-0.0038,0.0080764101615138
+cLn part,wMat,-0.0038,0.0080764101615138,-0.0030032566285183,0.0076164101615138
+cLn part,wMat,-0.0030032566285183,0.0076164101615138,-0.0028032566285183,0.0079628203230275
+cLn part,wMat,-0.0028032566285183,0.0079628203230275,-0.0036,0.0084228203230276
+cArc part,wMat,-0.0036,0.0084228203230276,-0.0044,0.0084228203230276,-0.0048,0.00773
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag41(part,wMat)
+cCir part,wMat,0,0.0034,0.00165
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag42(part,wMat)
+cLn part,wMat,-0.0015,0.0037905124837953,-0.0015,0.0030094875162047
+cArc part,wMat,-0.0015,0.0030094875162047,-2.8473038080176e-19,0.00185,0.0015,0.0030094875162047
+cLn part,wMat,0.0015,0.0030094875162047,0.0015,0.0037905124837953
+cArc part,wMat,0.0015,0.0037905124837953,9.491012693392e-20,0.00495,-0.0015,0.0037905124837953
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag28(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,1,0),1
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag29 part,wMat
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.01469,0.01469,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0121),createVec3d(1,0,-0.0121),createVec3d(0,1,-0.0121),1
+set feat7=part.Extension.GetLastFeatureAdded()
+feat7.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0121)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag30 part,wMat
+set feat7=part.Extension.GetLastFeatureAdded()
+feat7.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.003,0.003,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0121),createVec3d(1,0,-0.0121),createVec3d(0,1,-0.0121),1
+set feat9=part.Extension.GetLastFeatureAdded()
+feat9.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0121)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag31 part,wMat
+set feat9=part.Extension.GetLastFeatureAdded()
+feat9.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.003,0.003,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0003),createVec3d(1,0,-0.0003),createVec3d(0,1,-0.0003),1
+set feat15=part.Extension.GetLastFeatureAdded()
+feat15.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0003)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag32 part,wMat
+set feat15=part.Extension.GetLastFeatureAdded()
+feat15.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.0144,0.0144,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,1,0),1
+set feat16=part.Extension.GetLastFeatureAdded()
+feat16.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag33 part,wMat
+set feat16=part.Extension.GetLastFeatureAdded()
+feat16.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.0029,0.0029,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0121),createVec3d(1,0,-0.0121),createVec3d(0,1,-0.0121),1
+set feat18=part.Extension.GetLastFeatureAdded()
+feat18.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0121)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag34 part,wMat
+set feat18=part.Extension.GetLastFeatureAdded()
+feat18.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.0026,0.0026,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat20=part.Extension.GetLastFeatureAdded()
+feat20.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag35 part,wMat
+set feat20=part.Extension.GetLastFeatureAdded()
+feat20.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.005,0.005,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat22=part.Extension.GetLastFeatureAdded()
+feat22.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag36 part,wMat
+set feat22=part.Extension.GetLastFeatureAdded()
+feat22.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.005,0.005,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,1,0),1
+set feat23=part.Extension.GetLastFeatureAdded()
+feat23.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag37 part,wMat
+set feat23=part.Extension.GetLastFeatureAdded()
+feat23.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.015,0.015,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,1,0),1
+set feat24=part.Extension.GetLastFeatureAdded()
+feat24.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag38 part,wMat
+set feat24=part.Extension.GetLastFeatureAdded()
+feat24.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.015,0.015,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0029),createVec3d(1,0,-0.0029),createVec3d(0,1,-0.0029),1
+set feat27=part.Extension.GetLastFeatureAdded()
+feat27.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0029)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag39 part,wMat
+set feat27=part.Extension.GetLastFeatureAdded()
+feat27.select2 false,0
+featMgr.FeatureExtrusion2 1,0,0,0,0,0.0024,0.0024,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0121),createVec3d(1,0,-0.0121),createVec3d(0,1,-0.0121),1
+set feat30=part.Extension.GetLastFeatureAdded()
+feat30.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0121)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag40 part,wMat
+set feat30=part.Extension.GetLastFeatureAdded()
+feat30.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.0024,0.0024,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.01418),createVec3d(1,0,-0.01418),createVec3d(0,1,-0.01418),1
+set feat33=part.Extension.GetLastFeatureAdded()
+feat33.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.01418)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag41 part,wMat
+set feat33=part.Extension.GetLastFeatureAdded()
+feat33.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.001,0.001,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.01418),createVec3d(1,0,-0.01418),createVec3d(0,1,-0.01418),1
+set feat35=part.Extension.GetLastFeatureAdded()
+feat35.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.01418)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag42 part,wMat
+set feat35=part.Extension.GetLastFeatureAdded()
+feat35.select2 false,0
+featMgr.FeatureExtrusion2 1,0,1,0,0,0.0006,0.0006,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+end sub
+
+sub codeBag44(part,wMat)
+cLn part,wMat,0.01448,0.0034,0.01448,0.0039
+cLn part,wMat,0.01448,0.0039,0.01478,0.0040732050807569
+cLn part,wMat,0.01478,0.0040732050807569,0.01478,0.0034
+cLn part,wMat,0.01478,0.0034,0.01448,0.0034
+cCLn part,wMat,0.01478,0.0034,0.01448,0.0034
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag45(part,wMat)
+cLn part,wMat,-0.002,-0.0074,0.0167,-0.0074
+cLn part,wMat,0.0167,-0.0074,0.0167,0.0066
+cLn part,wMat,0.0167,0.0066,0.0135,0.0066
+cLn part,wMat,0.0135,0.0066,0.0135,0.0058
+cLn part,wMat,0.0135,0.0058,0.0157,0.0058
+cLn part,wMat,0.0157,0.0058,0.0157,-0.0062
+cLn part,wMat,0.0157,-0.0062,-0.001,-0.0062
+cLn part,wMat,-0.001,-0.0062,-0.001,0.0058
+cLn part,wMat,-0.001,0.0058,0.0012,0.0058
+cLn part,wMat,0.0012,0.0058,0.0012,0.0066
+cLn part,wMat,0.0012,0.0066,-0.002,0.0066
+cLn part,wMat,-0.002,0.0066,-0.002,-0.0074
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag46(part,wMat)
+cArc part,wMat,-0.00415,0.01435,-0.004062132034356,0.014137867965644,-0.00385,0.01405
+cLn part,wMat,-0.00385,0.01405,0.00385,0.01405
+cArc part,wMat,0.00385,0.01405,0.004062132034356,0.014137867965644,0.00415,0.01435
+cLn part,wMat,0.00415,0.01435,0.00415,0.01945
+cArc part,wMat,0.00415,0.01945,0.004062132034356,0.019662132034356,0.00385,0.01975
+cLn part,wMat,0.00385,0.01975,-0.00385,0.01975
+cArc part,wMat,-0.00385,0.01975,-0.004062132034356,0.019662132034356,-0.00415,0.01945
+cLn part,wMat,-0.00415,0.01945,-0.00415,0.01435
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag47(part,wMat)
+cLn part,wMat,0.01612867965644,0.01732867965644,0.01612867965644,0.01647132034356
+cLn part,wMat,0.01612867965644,0.01647132034356,0.01825,0.01435
+cLn part,wMat,0.01825,0.01435,0.01825,0.01945
+cLn part,wMat,0.01825,0.01945,0.01612867965644,0.01732867965644
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag48(part,wMat)
+cLn part,wMat,-0.00385,0.01525,0.00385,0.01525
+cLn part,wMat,0.00385,0.01525,0.00385,0.01825
+cLn part,wMat,0.00385,0.01825,0.0017286796564404,0.01612867965644
+cLn part,wMat,0.0017286796564404,0.01612867965644,-0.0017286796564404,0.01612867965644
+cLn part,wMat,-0.0017286796564404,0.01612867965644,-0.00385,0.01825
+cLn part,wMat,-0.00385,0.01825,-0.00385,0.01525
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag49(part,wMat)
+cLn part,wMat,-0.00345,0.01475,-0.00115,0.01475
+cLn part,wMat,-0.00115,0.01475,-0.00115,0.01545
+cLn part,wMat,-0.00115,0.01545,-0.00075,0.01545
+cLn part,wMat,-0.00075,0.01545,-0.00075,0.01475
+cLn part,wMat,-0.00075,0.01475,0.00075,0.01475
+cLn part,wMat,0.00075,0.01475,0.00075,0.01545
+cLn part,wMat,0.00075,0.01545,0.00115,0.01545
+cLn part,wMat,0.00115,0.01545,0.00115,0.01475
+cLn part,wMat,0.00115,0.01475,0.00345,0.01475
+cLn part,wMat,0.00345,0.01475,0.00345,0.01905
+cLn part,wMat,0.00345,0.01905,-0.00345,0.01905
+cLn part,wMat,-0.00345,0.01905,-0.00345,0.01475
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag50(part,wMat)
+cLn part,wMat,-0.00345,0.01505,-0.0024,0.01505
+cLn part,wMat,-0.0024,0.01505,-0.0024,0.01815
+cLn part,wMat,-0.0024,0.01815,0.0024,0.01815
+cLn part,wMat,0.0024,0.01815,0.0024,0.01505
+cLn part,wMat,0.0024,0.01505,0.00345,0.01505
+cLn part,wMat,0.00345,0.01505,0.00345,0.01825
+cLn part,wMat,0.00345,0.01825,-0.00345,0.01825
+cLn part,wMat,-0.00345,0.01825,-0.00345,0.01505
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag51(part,wMat)
+cLn part,wMat,0.00325,0.01755,0.00345,0.01755
+cArc part,wMat,0.00345,0.01755,0.0034792893218813,0.017620710678119,0.00355,0.01765
+cLn part,wMat,0.00355,0.01765,0.00405,0.01765
+cArc part,wMat,0.00405,0.01765,0.0041207106781187,0.017620710678119,0.00415,0.01755
+cLn part,wMat,0.00415,0.01755,0.00435,0.01755
+cLn part,wMat,0.00435,0.01755,0.00435,0.01825
+cLn part,wMat,0.00435,0.01825,0.00325,0.01825
+cLn part,wMat,0.00325,0.01825,0.00325,0.01755
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag52(part,wMat)
+cLn part,wMat,-0.00435,0.01755,-0.00415,0.01755
+cArc part,wMat,-0.00415,0.01755,-0.0041207106781187,0.017620710678119,-0.00405,0.01765
+cLn part,wMat,-0.00405,0.01765,-0.00355,0.01765
+cArc part,wMat,-0.00355,0.01765,-0.0034792893218813,0.017620710678119,-0.00345,0.01755
+cLn part,wMat,-0.00345,0.01755,-0.00325,0.01755
+cLn part,wMat,-0.00325,0.01755,-0.00325,0.01825
+cLn part,wMat,-0.00325,0.01825,-0.00435,0.01825
+cLn part,wMat,-0.00435,0.01825,-0.00435,0.01755
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag53(part,wMat)
+cLn part,wMat,-0.00285,0.0155,-0.00285,0.0145
+cLn part,wMat,-0.00285,0.0145,-0.00115,0.0145
+cLn part,wMat,-0.00115,0.0145,-0.00115,0.0154
+cLn part,wMat,-0.00115,0.0154,0.00115,0.0154
+cLn part,wMat,0.00115,0.0154,0.00115,0.0145
+cLn part,wMat,0.00115,0.0145,0.00285,0.0145
+cLn part,wMat,0.00285,0.0145,0.00285,0.0155
+cLn part,wMat,0.00285,0.0155,-0.00285,0.0155
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag54(part,wMat)
+cLn part,wMat,-0.00265,0.0145,-0.00135,0.0145
+cLn part,wMat,-0.00135,0.0145,-0.00175,0.0149
+cLn part,wMat,-0.00175,0.0149,-0.00175,0.0172
+cLn part,wMat,-0.00175,0.0172,-0.0018839745962156,0.0177
+cLn part,wMat,-0.0018839745962156,0.0177,-0.0021160254037844,0.0177
+cLn part,wMat,-0.0021160254037844,0.0177,-0.00225,0.0172
+cLn part,wMat,-0.00225,0.0172,-0.00225,0.0149
+cLn part,wMat,-0.00225,0.0149,-0.00265,0.0145
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag55(part,wMat)
+cLn part,wMat,0.00135,0.0145,0.00265,0.0145
+cLn part,wMat,0.00265,0.0145,0.00225,0.0149
+cLn part,wMat,0.00225,0.0149,0.00225,0.0172
+cLn part,wMat,0.00225,0.0172,0.0021160254037844,0.0177
+cLn part,wMat,0.0021160254037844,0.0177,0.0018839745962156,0.0177
+cLn part,wMat,0.0018839745962156,0.0177,0.00175,0.0172
+cLn part,wMat,0.00175,0.0172,0.00175,0.0149
+cLn part,wMat,0.00175,0.0149,0.00135,0.0145
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag56(part,wMat)
+cLn part,wMat,0.0145,0.01805,0.0149,0.01765
+cLn part,wMat,0.0149,0.01765,0.0172,0.01765
+cLn part,wMat,0.0172,0.01765,0.0177,0.017516025403784
+cLn part,wMat,0.0177,0.017516025403784,0.0177,0.017283974596216
+cLn part,wMat,0.0177,0.017283974596216,0.0172,0.01715
+cLn part,wMat,0.0172,0.01715,0.0149,0.01715
+cLn part,wMat,0.0149,0.01715,0.0145,0.01675
+cLn part,wMat,0.0145,0.01675,0.018,0.01675
+cLn part,wMat,0.018,0.01675,0.018,0.01805
+cLn part,wMat,0.018,0.01805,0.0145,0.01805
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag57(part,wMat)
+cLn part,wMat,0.0145,0.01805,0.0149,0.01765
+cLn part,wMat,0.0149,0.01765,0.0172,0.01765
+cLn part,wMat,0.0172,0.01765,0.0177,0.017516025403784
+cLn part,wMat,0.0177,0.017516025403784,0.0177,0.017283974596216
+cLn part,wMat,0.0177,0.017283974596216,0.0172,0.01715
+cLn part,wMat,0.0172,0.01715,0.0149,0.01715
+cLn part,wMat,0.0149,0.01715,0.0145,0.01675
+cLn part,wMat,0.0145,0.01675,0.018,0.01675
+cLn part,wMat,0.018,0.01675,0.018,0.01805
+cLn part,wMat,0.018,0.01805,0.0145,0.01805
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag43(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat37=part.Extension.GetLastFeatureAdded()
+feat37.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag44 part,wMat
+set feat37=part.Extension.GetLastFeatureAdded()
+feat37.select2 false,0
+featMgr.FeatureRevolveCut2 6.2831853071796,1,6.2831853071796,0,0,1,1,false,false,false
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat39=part.Extension.GetLastFeatureAdded()
+feat39.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag45 part,wMat
+set feat39=part.Extension.GetLastFeatureAdded()
+feat39.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.0015,0.0015,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0147),createVec3d(1,0,-0.0147),createVec3d(0,1,-0.0147),1
+set feat50=part.Extension.GetLastFeatureAdded()
+feat50.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0147)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag46 part,wMat
+set feat50=part.Extension.GetLastFeatureAdded()
+feat50.select2 false,0
+featMgr.FeatureExtrusion2 0,0,1,0,0,0.00355,0.00355,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat52=part.Extension.GetLastFeatureAdded()
+feat52.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag47 part,wMat
+set feat52=part.Extension.GetLastFeatureAdded()
+feat52.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.00385,0.00385,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.0169,0),createVec3d(1,0.0169,0),createVec3d(0,0.0169,-1),1
+set feat55=part.Extension.GetLastFeatureAdded()
+feat55.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0169,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag48 part,wMat
+set feat55=part.Extension.GetLastFeatureAdded()
+feat55.select2 false,0
+featMgr.FeatureExtrusion2 0,0,1,0,0,0.00275,0.00275,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,-0.0147),createVec3d(1,0,-0.0147),createVec3d(0,1,-0.0147),1
+set feat57=part.Extension.GetLastFeatureAdded()
+feat57.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,1,0,0,0,1,0,0,-0.0147)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag49 part,wMat
+set feat57=part.Extension.GetLastFeatureAdded()
+feat57.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.00355,0.00355,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.0169,0),createVec3d(1,0.0169,0),createVec3d(0,0.0169,-1),1
+set feat59=part.Extension.GetLastFeatureAdded()
+feat59.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0169,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag50 part,wMat
+set feat59=part.Extension.GetLastFeatureAdded()
+feat59.select2 false,0
+featMgr.FeatureCut3 1,0,1,0,0,0.0023,0.0023,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.01635,0),createVec3d(1,0.01635,0),createVec3d(0,0.01635,-1),1
+set feat62=part.Extension.GetLastFeatureAdded()
+feat62.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.01635,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag51 part,wMat
+set feat62=part.Extension.GetLastFeatureAdded()
+feat62.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.0016,0.0016,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.01635,0),createVec3d(1,0.01635,0),createVec3d(0,0.01635,-1),1
+set feat64=part.Extension.GetLastFeatureAdded()
+feat64.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.01635,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag52 part,wMat
+set feat64=part.Extension.GetLastFeatureAdded()
+feat64.select2 false,0
+featMgr.FeatureCut3 1,0,0,0,0,0.0016,0.0016,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.0174,0),createVec3d(1,0.0174,0),createVec3d(0,0.0174,-1),1
+set feat67=part.Extension.GetLastFeatureAdded()
+feat67.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0174,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag53 part,wMat
+set feat67=part.Extension.GetLastFeatureAdded()
+feat67.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.00085,0.00085,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.0174,0),createVec3d(1,0.0174,0),createVec3d(0,0.0174,-1),1
+set feat69=part.Extension.GetLastFeatureAdded()
+feat69.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0174,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag54 part,wMat
+set feat69=part.Extension.GetLastFeatureAdded()
+feat69.select2 false,0
+featMgr.FeatureExtrusion2 0,0,1,0,0,0.00065,0.00065,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0.0174,0),createVec3d(1,0.0174,0),createVec3d(0,0.0174,-1),1
+set feat71=part.Extension.GetLastFeatureAdded()
+feat71.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0.0174,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag55 part,wMat
+set feat71=part.Extension.GetLastFeatureAdded()
+feat71.select2 false,0
+featMgr.FeatureExtrusion2 0,0,1,0,0,0.00065,0.00065,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+part.CreatePlaneFixed2 createVec3d(0.002,0,0),createVec3d(0.002,0,-1),createVec3d(0.002,1,0),1
+set feat73=part.Extension.GetLastFeatureAdded()
+feat73.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0.002,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag56 part,wMat
+set feat73=part.Extension.GetLastFeatureAdded()
+feat73.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.00065,0.00065,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(-0.002,0,0),createVec3d(-0.002,0,-1),createVec3d(-0.002,1,0),1
+set feat75=part.Extension.GetLastFeatureAdded()
+feat75.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,-0.002,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag57 part,wMat
+set feat75=part.Extension.GetLastFeatureAdded()
+feat75.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.00065,0.00065,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+end sub
+
+sub codeBag59(part,wMat)
+cCir part,wMat,0,0.0075,0.0027
+cCir part,wMat,0,0.0075,0.0024
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag60(part,wMat)
+cLn part,wMat,0.0157,0.02135,0.0157,0.01935
+cLn part,wMat,0.0157,0.01935,0.0165,0.01935
+cLn part,wMat,0.0165,0.01935,0.0165,0.02135
+cLn part,wMat,0.0165,0.02135,0.0157,0.02135
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag58(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,-0.006,0),createVec3d(1,-0.006,0),createVec3d(0,-0.006,-1),1
+set feat78=part.Extension.GetLastFeatureAdded()
+feat78.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,-0.006,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag59 part,wMat
+set feat78=part.Extension.GetLastFeatureAdded()
+feat78.select2 false,0
+featMgr.FeatureCut3 1,0,1,0,0,0.0004,0.0004,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat81=part.Extension.GetLastFeatureAdded()
+feat81.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag60 part,wMat
+set feat81=part.Extension.GetLastFeatureAdded()
+feat81.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.002,0.002,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+end sub
+
+sub codeBag62(part,wMat)
+cArc part,wMat,-0.0012,0,-0.0010717082451263,0.0007905694150421,-0.0007,0.0015
+cLn part,wMat,-0.0007,0.0015,0,0.0015
+cLn part,wMat,0,0.0015,0,0.001
+cArc part,wMat,0,0.001,5.857864376269e-05,0.00085857864376269,0.0002,0.0008
+cLn part,wMat,0.0002,0.0008,0.0217855,0.0008
+cLn part,wMat,0.0217855,0.0008,0.022,0.0005855
+cLn part,wMat,0.022,0.0005855,0.022,0
+cLn part,wMat,0.022,0,-0.0012,0
+cCLn part,wMat,0.022,0,-0.0012,0
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag63(part,wMat)
+cLn part,wMat,-0.00352,0.0035079611823743,-0.00352,-0.0035079611823743
+cLn part,wMat,-0.00352,-0.0035079611823743,-0.00052,-0.000155
+cLn part,wMat,-0.00052,-0.000155,-0.00052,0.000155
+cLn part,wMat,-0.00052,0.000155,-0.00352,0.0035079611823743
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag64(part,wMat)
+cLn part,wMat,-0.0035079611823743,-0.00352,0.0035079611823743,-0.00352
+cLn part,wMat,0.0035079611823743,-0.00352,0.000155,-0.00052
+cLn part,wMat,0.000155,-0.00052,-0.000155,-0.00052
+cLn part,wMat,-0.000155,-0.00052,-0.0035079611823743,-0.00352
+Part.SketchManager.InsertSketch True
+end sub
+
+sub codeBag61(part,featMgr)
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag62 part,wMat
+set feat4=part.Extension.GetLastFeatureAdded()
+feat4.select2 false,0
+featMgr.FeatureRevolve 6.2831853071796,1,6.2831853071796,0,0,1,1,1
+ if getEdgeFromModel(part,createVec3d(0,-0.0008,-0.0217855),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.001171,0.022,""
+ elseif getEdgeFromModel(part,createVec3d(0,-0.0008,-0.0002),cylEdge) then
+   cylEdge.Select(false)
+   Part.InsertCosmeticThread 0,0.001171,0.022,""
+ End If
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(0,0,-1),createVec3d(0,1,0),1
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(0,0,-1,0,1,0,1,0,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag63 part,wMat
+set feat6=part.Extension.GetLastFeatureAdded()
+feat6.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.000155,0.000155,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+part.CreatePlaneFixed2 createVec3d(0,0,0),createVec3d(1,0,0),createVec3d(0,0,-1),1
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+part.SketchManager.InsertSketch True
+part.BlankRefGeom
+Set swActiveMat = Part.SketchManager.ActiveSketch
+swSketchMat= createMatFromSWMat(swActiveMat.ModelToSketchXForm)
+mSkMat=createMat4x4FromValues(1,0,0,0,0,-1,0,1,0,0,0,0)
+wMat=mulMat4x4Mat4x4(swSketchMat,mSkMat)
+codeBag64 part,wMat
+set feat8=part.Extension.GetLastFeatureAdded()
+feat8.select2 false,0
+featMgr.FeatureCut3 0,0,0,0,0,0.000155,0.000155,1,1,0,0,0,0,0,0,0,0,0,1,1,false,false,false,0,0,0
+end sub
+
+sub main
+set swApp = Application.SldWorks
+code = swApp.RevisionNumber
+found = InStr(code, ".")
+If (found > 0) Then
+  code = Left(code, found-1)
+  docVisible=1
+  If (CInt(code) >= 18) Then
+    docVisible=0
+  End If
+End If
+swApp.SetUserPreferenceToggle 11, FALSE
+swApp.SetUserPreferenceToggle 97, FALSE
+storePath=BrowseForFolder
+If (storePath <> "") Then
+   If ((Right(storePath, 1) <> "\") And (Right(storePath, 1) <> "/")) Then
+       storePath = storePath + "\"
+   End If
+   createPart6
+End If
+end sub

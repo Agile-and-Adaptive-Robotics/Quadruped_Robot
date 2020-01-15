@@ -1,0 +1,616 @@
+
+Bang_Bang_Control_Testing.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         0000000e  00800100  000002b0  00000344  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000002b0  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          00000008  0080010e  0080010e  00000352  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000352  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000384  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000170  00000000  00000000  000003c0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   000024ad  00000000  00000000  00000530  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000dd0  00000000  00000000  000029dd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   00000e56  00000000  00000000  000037ad  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  0000060c  00000000  00000000  00004604  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000bb2  00000000  00000000  00004c10  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00001ffd  00000000  00000000  000057c2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 000001a8  00000000  00000000  000077bf  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	21 c0       	rjmp	.+66     	; 0x44 <__ctors_end>
+   2:	3b c0       	rjmp	.+118    	; 0x7a <__bad_interrupt>
+   4:	3a c0       	rjmp	.+116    	; 0x7a <__bad_interrupt>
+   6:	39 c0       	rjmp	.+114    	; 0x7a <__bad_interrupt>
+   8:	38 c0       	rjmp	.+112    	; 0x7a <__bad_interrupt>
+   a:	37 c0       	rjmp	.+110    	; 0x7a <__bad_interrupt>
+   c:	36 c0       	rjmp	.+108    	; 0x7a <__bad_interrupt>
+   e:	35 c0       	rjmp	.+106    	; 0x7a <__bad_interrupt>
+  10:	34 c0       	rjmp	.+104    	; 0x7a <__bad_interrupt>
+  12:	33 c0       	rjmp	.+102    	; 0x7a <__bad_interrupt>
+  14:	32 c0       	rjmp	.+100    	; 0x7a <__bad_interrupt>
+  16:	81 c0       	rjmp	.+258    	; 0x11a <__vector_11>
+  18:	30 c0       	rjmp	.+96     	; 0x7a <__bad_interrupt>
+  1a:	2f c0       	rjmp	.+94     	; 0x7a <__bad_interrupt>
+  1c:	2e c0       	rjmp	.+92     	; 0x7a <__bad_interrupt>
+  1e:	2d c0       	rjmp	.+90     	; 0x7a <__bad_interrupt>
+  20:	2c c0       	rjmp	.+88     	; 0x7a <__bad_interrupt>
+  22:	2b c0       	rjmp	.+86     	; 0x7a <__bad_interrupt>
+  24:	2a c0       	rjmp	.+84     	; 0x7a <__bad_interrupt>
+  26:	29 c0       	rjmp	.+82     	; 0x7a <__bad_interrupt>
+  28:	28 c0       	rjmp	.+80     	; 0x7a <__bad_interrupt>
+  2a:	27 c0       	rjmp	.+78     	; 0x7a <__bad_interrupt>
+  2c:	26 c0       	rjmp	.+76     	; 0x7a <__bad_interrupt>
+  2e:	25 c0       	rjmp	.+74     	; 0x7a <__bad_interrupt>
+  30:	24 c0       	rjmp	.+72     	; 0x7a <__bad_interrupt>
+  32:	23 c0       	rjmp	.+70     	; 0x7a <__bad_interrupt>
+  34:	2f c0       	rjmp	.+94     	; 0x94 <readADC+0xe>
+  36:	31 c0       	rjmp	.+98     	; 0x9a <readADC+0x14>
+  38:	34 c0       	rjmp	.+104    	; 0xa2 <readADC+0x1c>
+  3a:	37 c0       	rjmp	.+110    	; 0xaa <readADC+0x24>
+  3c:	3a c0       	rjmp	.+116    	; 0xb2 <readADC+0x2c>
+  3e:	3d c0       	rjmp	.+122    	; 0xba <readADC+0x34>
+  40:	40 c0       	rjmp	.+128    	; 0xc2 <readADC+0x3c>
+  42:	43 c0       	rjmp	.+134    	; 0xca <readADC+0x44>
+
+00000044 <__ctors_end>:
+  44:	11 24       	eor	r1, r1
+  46:	1f be       	out	0x3f, r1	; 63
+  48:	cf ef       	ldi	r28, 0xFF	; 255
+  4a:	d4 e0       	ldi	r29, 0x04	; 4
+  4c:	de bf       	out	0x3e, r29	; 62
+  4e:	cd bf       	out	0x3d, r28	; 61
+
+00000050 <__do_copy_data>:
+  50:	11 e0       	ldi	r17, 0x01	; 1
+  52:	a0 e0       	ldi	r26, 0x00	; 0
+  54:	b1 e0       	ldi	r27, 0x01	; 1
+  56:	e0 eb       	ldi	r30, 0xB0	; 176
+  58:	f2 e0       	ldi	r31, 0x02	; 2
+  5a:	02 c0       	rjmp	.+4      	; 0x60 <__do_copy_data+0x10>
+  5c:	05 90       	lpm	r0, Z+
+  5e:	0d 92       	st	X+, r0
+  60:	ae 30       	cpi	r26, 0x0E	; 14
+  62:	b1 07       	cpc	r27, r17
+  64:	d9 f7       	brne	.-10     	; 0x5c <__do_copy_data+0xc>
+
+00000066 <__do_clear_bss>:
+  66:	21 e0       	ldi	r18, 0x01	; 1
+  68:	ae e0       	ldi	r26, 0x0E	; 14
+  6a:	b1 e0       	ldi	r27, 0x01	; 1
+  6c:	01 c0       	rjmp	.+2      	; 0x70 <.do_clear_bss_start>
+
+0000006e <.do_clear_bss_loop>:
+  6e:	1d 92       	st	X+, r1
+
+00000070 <.do_clear_bss_start>:
+  70:	a6 31       	cpi	r26, 0x16	; 22
+  72:	b2 07       	cpc	r27, r18
+  74:	e1 f7       	brne	.-8      	; 0x6e <.do_clear_bss_loop>
+  76:	4b d0       	rcall	.+150    	; 0x10e <main>
+  78:	19 c1       	rjmp	.+562    	; 0x2ac <_exit>
+
+0000007a <__bad_interrupt>:
+  7a:	c2 cf       	rjmp	.-124    	; 0x0 <__vectors>
+
+0000007c <spi_write_read>:
+}
+
+//Implement the SPI write_read function.
+void spi_write_read(unsigned char spi_data)
+{
+	SPDR = spi_data;
+  7c:	8e bd       	out	0x2e, r24	; 46
+	while ((SPSR & (1<<SPIF))==0);	//Wait until the data transfer is complete.
+  7e:	0d b4       	in	r0, 0x2d	; 45
+  80:	07 fe       	sbrs	r0, 7
+  82:	fd cf       	rjmp	.-6      	; 0x7e <spi_write_read+0x2>
+}
+  84:	08 95       	ret
+
+00000086 <readADC>:
+
+//Implement a function to read from an ADC channel.
+unsigned int readADC( unsigned int channel_num )
+{
+	//Determine the correct bit pattern to send to the ADMUX register based on the desired channel number.
+	switch ( channel_num )
+  86:	88 30       	cpi	r24, 0x08	; 8
+  88:	91 05       	cpc	r25, r1
+  8a:	10 f5       	brcc	.+68     	; 0xd0 <readADC+0x4a>
+  8c:	fc 01       	movw	r30, r24
+  8e:	e6 5e       	subi	r30, 0xE6	; 230
+  90:	ff 4f       	sbci	r31, 0xFF	; 255
+  92:	09 94       	ijmp
+	{
+	case 0 :
+		ADMUX  = 0b00000000;
+  94:	10 92 7c 00 	sts	0x007C, r1	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  98:	1b c0       	rjmp	.+54     	; 0xd0 <readADC+0x4a>
+	case 1 :
+		ADMUX  = 0b00000001;
+  9a:	81 e0       	ldi	r24, 0x01	; 1
+  9c:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  a0:	17 c0       	rjmp	.+46     	; 0xd0 <readADC+0x4a>
+	case 2 :
+		ADMUX  = 0b00000010;
+  a2:	82 e0       	ldi	r24, 0x02	; 2
+  a4:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  a8:	13 c0       	rjmp	.+38     	; 0xd0 <readADC+0x4a>
+	case 3 :
+		ADMUX  = 0b00000011;
+  aa:	83 e0       	ldi	r24, 0x03	; 3
+  ac:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  b0:	0f c0       	rjmp	.+30     	; 0xd0 <readADC+0x4a>
+	case 4 :
+		ADMUX  = 0b00000100;	
+  b2:	84 e0       	ldi	r24, 0x04	; 4
+  b4:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  b8:	0b c0       	rjmp	.+22     	; 0xd0 <readADC+0x4a>
+	case 5 :
+		ADMUX  = 0b00000101;
+  ba:	85 e0       	ldi	r24, 0x05	; 5
+  bc:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  c0:	07 c0       	rjmp	.+14     	; 0xd0 <readADC+0x4a>
+	case 6 :
+		ADMUX  = 0b00000110;	
+  c2:	86 e0       	ldi	r24, 0x06	; 6
+  c4:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+  c8:	03 c0       	rjmp	.+6      	; 0xd0 <readADC+0x4a>
+	case 7 :
+		ADMUX  = 0b00000111;	
+  ca:	87 e0       	ldi	r24, 0x07	; 7
+  cc:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__EEPROM_REGION_LENGTH__+0x7f007c>
+		break;
+	}
+	
+	//Retrieve the current ADC value at the specified channel.
+	ADCSRA = ADCSRA | 0b01000000;						// Start AD conversion.  Sets bit 7 to 1 and leaves all other bits the same.
+  d0:	ea e7       	ldi	r30, 0x7A	; 122
+  d2:	f0 e0       	ldi	r31, 0x00	; 0
+  d4:	80 81       	ld	r24, Z
+  d6:	80 64       	ori	r24, 0x40	; 64
+  d8:	80 83       	st	Z, r24
+	while ((ADCSRA & 0b01000000) == 0b01000000);		// Wait while AD conversion is executed.  Waits until bit 7 is set to 1.
+  da:	80 81       	ld	r24, Z
+  dc:	86 fd       	sbrc	r24, 6
+  de:	fd cf       	rjmp	.-6      	; 0xda <readADC+0x54>
+	return ADCW;										//[0-1023] ADC value.
+  e0:	80 91 78 00 	lds	r24, 0x0078	; 0x800078 <__EEPROM_REGION_LENGTH__+0x7f0078>
+  e4:	90 91 79 00 	lds	r25, 0x0079	; 0x800079 <__EEPROM_REGION_LENGTH__+0x7f0079>
+	
+}
+  e8:	08 95       	ret
+
+000000ea <write2DAC>:
+
+//Implement a function to write to the DAC.
+void write2DAC(unsigned int value_to_write)
+{
+  ea:	cf 93       	push	r28
+  ec:	df 93       	push	r29
+  ee:	ec 01       	movw	r28, r24
+	unsigned char			spi_data_0;
+	unsigned char			spi_data_1;
+	
+	//Convert the ADC data to a form that the DAC will recognize.
+	spi_data_0 = 0x00;										//Zero spi_data_0.
+	spi_data_0 = (value_to_write & 0x0F00) >> 8;			//Set up the first byte to write by mapping bits 8-11 to the lower 4 bit positions.
+  f0:	88 27       	eor	r24, r24
+  f2:	9f 70       	andi	r25, 0x0F	; 15
+	spi_data_0 = spi_data_0 + 0b00110000;					//Now add the upper 4 DAC control bits.
+	spi_data_1 = (value_to_write & 0xFF);					//Setup the second byte to write by mapping bits 0-7 to the lower 8 bit positions.
+
+	//Write the ADC data to the DAC.
+	cbi(PORTB,0);								// Activate the chip - set chip select to zero
+  f4:	28 98       	cbi	0x05, 0	; 5
+	spi_write_read(spi_data_0);					// Write/Read first byte
+  f6:	80 e3       	ldi	r24, 0x30	; 48
+  f8:	89 0f       	add	r24, r25
+  fa:	c0 df       	rcall	.-128    	; 0x7c <spi_write_read>
+	spi_write_read(spi_data_1);  				// Write/Read second byte
+  fc:	8c 2f       	mov	r24, r28
+  fe:	be df       	rcall	.-132    	; 0x7c <spi_write_read>
+	sbi(PORTB,0);								// Release the chip  - set chip select to one
+ 100:	28 9a       	sbi	0x05, 0	; 5
+		
+	//Cycle the LDAC.
+	cbi(PORTB,1);			//Set the LDAC low.
+ 102:	29 98       	cbi	0x05, 1	; 5
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 104:	00 c0       	rjmp	.+0      	; 0x106 <write2DAC+0x1c>
+	_delay_ms(0.0001);		//Wait the specified LDAC duration.
+	sbi(PORTB,1);			//Set the LDAC high.
+ 106:	29 9a       	sbi	0x05, 1	; 5
+	
+}
+ 108:	df 91       	pop	r29
+ 10a:	cf 91       	pop	r28
+ 10c:	08 95       	ret
+
+0000010e <main>:
+//Implement the main function.
+int main (void)
+{
+	
+	//Setup the microcontroller.
+	SetupMicro();
+ 10e:	c6 d0       	rcall	.+396    	; 0x29c <SetupMicro>
+	////Define local variables.
+	//struct int_array_struct command_data;
+	//struct int_array_struct sensor_data;
+	//volatile unsigned int myuint;
+
+	dac_data = dac_off_value;
+ 110:	10 92 0f 01 	sts	0x010F, r1	; 0x80010f <__data_end+0x1>
+ 114:	10 92 0e 01 	sts	0x010E, r1	; 0x80010e <__data_end>
+ 118:	ff cf       	rjmp	.-2      	; 0x118 <main+0xa>
+
+0000011a <__vector_11>:
+
+}
+
+//Implement the first timer interrupt function.
+ISR(TIMER1_COMPA_vect)
+{
+ 11a:	1f 92       	push	r1
+ 11c:	0f 92       	push	r0
+ 11e:	0f b6       	in	r0, 0x3f	; 63
+ 120:	0f 92       	push	r0
+ 122:	11 24       	eor	r1, r1
+ 124:	2f 93       	push	r18
+ 126:	3f 93       	push	r19
+ 128:	4f 93       	push	r20
+ 12a:	5f 93       	push	r21
+ 12c:	6f 93       	push	r22
+ 12e:	7f 93       	push	r23
+ 130:	8f 93       	push	r24
+ 132:	9f 93       	push	r25
+ 134:	af 93       	push	r26
+ 136:	bf 93       	push	r27
+ 138:	ef 93       	push	r30
+ 13a:	ff 93       	push	r31
+ 13c:	cf 93       	push	r28
+ 13e:	df 93       	push	r29
+ 140:	cd b7       	in	r28, 0x3d	; 61
+ 142:	de b7       	in	r29, 0x3e	; 62
+ 144:	28 97       	sbiw	r28, 0x08	; 8
+ 146:	de bf       	out	0x3e, r29	; 62
+ 148:	cd bf       	out	0x3d, r28	; 61
+	volatile uint16_t p_actual;
+	//volatile uint16_t dac_data = dac_off_value;
+	volatile uint16_t lower_bound;
+	volatile uint16_t upper_bound;
+
+	sbi(PORTD, 7);
+ 14a:	5f 9a       	sbi	0x0b, 7	; 11
+
+	////Read in the actual pressure.
+	//set_multiplexer_channel( 0 );
+	//_delay_ms(0.0005);
+	//p_actual = readADC( 0 );
+	p_actual = readADC( 0 );
+ 14c:	80 e0       	ldi	r24, 0x00	; 0
+ 14e:	90 e0       	ldi	r25, 0x00	; 0
+ 150:	9a df       	rcall	.-204    	; 0x86 <readADC>
+ 152:	9c 83       	std	Y+4, r25	; 0x04
+ 154:	8b 83       	std	Y+3, r24	; 0x03
+
+	////Read in the desired pressure.
+	//set_multiplexer_channel( 63 );
+	//_delay_ms(0.0005);
+	//p_desired = readADC( 0 );
+	p_desired = readADC( 1 );
+ 156:	81 e0       	ldi	r24, 0x01	; 1
+ 158:	90 e0       	ldi	r25, 0x00	; 0
+ 15a:	95 df       	rcall	.-214    	; 0x86 <readADC>
+ 15c:	9a 83       	std	Y+2, r25	; 0x02
+ 15e:	89 83       	std	Y+1, r24	; 0x01
+	//{
+		//upper_bound = 1023;
+	//}
+		
+	//Compute the lower pressure bound.
+	if (p_desired > bang_bang_threshold)
+ 160:	89 81       	ldd	r24, Y+1	; 0x01
+ 162:	9a 81       	ldd	r25, Y+2	; 0x02
+ 164:	c3 97       	sbiw	r24, 0x33	; 51
+ 166:	30 f0       	brcs	.+12     	; 0x174 <__vector_11+0x5a>
+	{
+		lower_bound = p_desired - bang_bang_threshold;
+ 168:	89 81       	ldd	r24, Y+1	; 0x01
+ 16a:	9a 81       	ldd	r25, Y+2	; 0x02
+ 16c:	c2 97       	sbiw	r24, 0x32	; 50
+ 16e:	9e 83       	std	Y+6, r25	; 0x06
+ 170:	8d 83       	std	Y+5, r24	; 0x05
+ 172:	02 c0       	rjmp	.+4      	; 0x178 <__vector_11+0x5e>
+	}
+	else
+	{
+		lower_bound = 0;
+ 174:	1e 82       	std	Y+6, r1	; 0x06
+ 176:	1d 82       	std	Y+5, r1	; 0x05
+	}
+			
+	//Compute the upper pressure bound.
+	upper_bound = p_desired + bang_bang_threshold;
+ 178:	89 81       	ldd	r24, Y+1	; 0x01
+ 17a:	9a 81       	ldd	r25, Y+2	; 0x02
+ 17c:	c2 96       	adiw	r24, 0x32	; 50
+ 17e:	98 87       	std	Y+8, r25	; 0x08
+ 180:	8f 83       	std	Y+7, r24	; 0x07
+			
+	//Constrain the upper bound to the range 0-1023.
+	if (upper_bound > 1023)
+ 182:	8f 81       	ldd	r24, Y+7	; 0x07
+ 184:	98 85       	ldd	r25, Y+8	; 0x08
+ 186:	81 15       	cp	r24, r1
+ 188:	94 40       	sbci	r25, 0x04	; 4
+ 18a:	20 f0       	brcs	.+8      	; 0x194 <__vector_11+0x7a>
+	{
+		upper_bound = 1023;
+ 18c:	8f ef       	ldi	r24, 0xFF	; 255
+ 18e:	93 e0       	ldi	r25, 0x03	; 3
+ 190:	98 87       	std	Y+8, r25	; 0x08
+ 192:	8f 83       	std	Y+7, r24	; 0x07
+	}
+
+	//Determine whether to open or close the valve.
+	if (p_actual < lower_bound)
+ 194:	2b 81       	ldd	r18, Y+3	; 0x03
+ 196:	3c 81       	ldd	r19, Y+4	; 0x04
+ 198:	8d 81       	ldd	r24, Y+5	; 0x05
+ 19a:	9e 81       	ldd	r25, Y+6	; 0x06
+ 19c:	28 17       	cp	r18, r24
+ 19e:	39 07       	cpc	r19, r25
+ 1a0:	38 f4       	brcc	.+14     	; 0x1b0 <__vector_11+0x96>
+	{
+		dac_data = dac_on_value;
+ 1a2:	8f e9       	ldi	r24, 0x9F	; 159
+ 1a4:	9f e0       	ldi	r25, 0x0F	; 15
+ 1a6:	90 93 0f 01 	sts	0x010F, r25	; 0x80010f <__data_end+0x1>
+ 1aa:	80 93 0e 01 	sts	0x010E, r24	; 0x80010e <__data_end>
+ 1ae:	0b c0       	rjmp	.+22     	; 0x1c6 <__vector_11+0xac>
+	}
+	else if (p_actual > upper_bound)
+ 1b0:	2b 81       	ldd	r18, Y+3	; 0x03
+ 1b2:	3c 81       	ldd	r19, Y+4	; 0x04
+ 1b4:	8f 81       	ldd	r24, Y+7	; 0x07
+ 1b6:	98 85       	ldd	r25, Y+8	; 0x08
+ 1b8:	82 17       	cp	r24, r18
+ 1ba:	93 07       	cpc	r25, r19
+ 1bc:	20 f4       	brcc	.+8      	; 0x1c6 <__vector_11+0xac>
+	{
+		dac_data = dac_off_value;
+ 1be:	10 92 0f 01 	sts	0x010F, r1	; 0x80010f <__data_end+0x1>
+ 1c2:	10 92 0e 01 	sts	0x010E, r1	; 0x80010e <__data_end>
+	}
+	
+	//Send the appropriate signal to the DAC.
+	write2DAC(dac_data);
+ 1c6:	80 91 0e 01 	lds	r24, 0x010E	; 0x80010e <__data_end>
+ 1ca:	90 91 0f 01 	lds	r25, 0x010F	; 0x80010f <__data_end+0x1>
+ 1ce:	8d df       	rcall	.-230    	; 0xea <write2DAC>
+	
+	cbi(PORTD, 7);
+ 1d0:	5f 98       	cbi	0x0b, 7	; 11
+	
+}
+ 1d2:	28 96       	adiw	r28, 0x08	; 8
+ 1d4:	0f b6       	in	r0, 0x3f	; 63
+ 1d6:	f8 94       	cli
+ 1d8:	de bf       	out	0x3e, r29	; 62
+ 1da:	0f be       	out	0x3f, r0	; 63
+ 1dc:	cd bf       	out	0x3d, r28	; 61
+ 1de:	df 91       	pop	r29
+ 1e0:	cf 91       	pop	r28
+ 1e2:	ff 91       	pop	r31
+ 1e4:	ef 91       	pop	r30
+ 1e6:	bf 91       	pop	r27
+ 1e8:	af 91       	pop	r26
+ 1ea:	9f 91       	pop	r25
+ 1ec:	8f 91       	pop	r24
+ 1ee:	7f 91       	pop	r23
+ 1f0:	6f 91       	pop	r22
+ 1f2:	5f 91       	pop	r21
+ 1f4:	4f 91       	pop	r20
+ 1f6:	3f 91       	pop	r19
+ 1f8:	2f 91       	pop	r18
+ 1fa:	0f 90       	pop	r0
+ 1fc:	0f be       	out	0x3f, r0	; 63
+ 1fe:	0f 90       	pop	r0
+ 200:	1f 90       	pop	r1
+ 202:	18 95       	reti
+
+00000204 <uart_putchar>:
+//Include the associated header file.
+#include "Bang_Bang_Control_Testing_Header.h"
+
+//Implement the USART putchar function.
+void uart_putchar(char c, FILE *stream)
+{
+ 204:	cf 93       	push	r28
+ 206:	c8 2f       	mov	r28, r24
+	if (c == '\n') uart_putchar('\r', stream);
+ 208:	8a 30       	cpi	r24, 0x0A	; 10
+ 20a:	11 f4       	brne	.+4      	; 0x210 <uart_putchar+0xc>
+ 20c:	8d e0       	ldi	r24, 0x0D	; 13
+ 20e:	fa df       	rcall	.-12     	; 0x204 <uart_putchar>
+	
+	loop_until_bit_is_set(UCSR0A, UDRE0);
+ 210:	e0 ec       	ldi	r30, 0xC0	; 192
+ 212:	f0 e0       	ldi	r31, 0x00	; 0
+ 214:	80 81       	ld	r24, Z
+ 216:	85 ff       	sbrs	r24, 5
+ 218:	fd cf       	rjmp	.-6      	; 0x214 <uart_putchar+0x10>
+	UDR0 = c;
+ 21a:	c0 93 c6 00 	sts	0x00C6, r28	; 0x8000c6 <__EEPROM_REGION_LENGTH__+0x7f00c6>
+}
+ 21e:	cf 91       	pop	r28
+ 220:	08 95       	ret
+
+00000222 <SetupPins>:
+
+//Implement a function to setup ADC.
+void SetupADC( void )
+{
+	//Setup the ADC.
+	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
+ 222:	8f e2       	ldi	r24, 0x2F	; 47
+ 224:	84 b9       	out	0x04, r24	; 4
+ 226:	80 e3       	ldi	r24, 0x30	; 48
+ 228:	87 b9       	out	0x07, r24	; 7
+ 22a:	8e ef       	ldi	r24, 0xFE	; 254
+ 22c:	8a b9       	out	0x0a, r24	; 10
+ 22e:	28 9a       	sbi	0x05, 0	; 5
+ 230:	29 9a       	sbi	0x05, 1	; 5
+ 232:	2a 98       	cbi	0x05, 2	; 5
+ 234:	41 98       	cbi	0x08, 1	; 8
+ 236:	42 98       	cbi	0x08, 2	; 8
+ 238:	43 98       	cbi	0x08, 3	; 8
+ 23a:	44 98       	cbi	0x08, 4	; 8
+ 23c:	45 98       	cbi	0x08, 5	; 8
+ 23e:	5a 98       	cbi	0x0b, 2	; 11
+ 240:	5b 98       	cbi	0x0b, 3	; 11
+ 242:	5c 98       	cbi	0x0b, 4	; 11
+ 244:	5d 98       	cbi	0x0b, 5	; 11
+ 246:	5e 98       	cbi	0x0b, 6	; 11
+ 248:	5f 98       	cbi	0x0b, 7	; 11
+ 24a:	08 95       	ret
+
+0000024c <SetupSPI>:
+
+//Implement a function to setup SPI communication.
+void SetupSPI( void )
+{
+	// Setup for SPI.
+	SPCR=0b01010010;
+ 24c:	82 e5       	ldi	r24, 0x52	; 82
+ 24e:	8c bd       	out	0x2c, r24	; 44
+	SPSR=0b00000000;
+ 250:	1d bc       	out	0x2d, r1	; 45
+ 252:	08 95       	ret
+
+00000254 <SetupTimerInterrupts>:
+
+//Implement a function to setup timer interrupts.
+void SetupTimerInterrupts( void )
+{
+	//Setup timer interrupt properties.
+	TCCR1B |= (1 << WGM12);										// Configure timer 1 for CTC mode
+ 254:	e1 e8       	ldi	r30, 0x81	; 129
+ 256:	f0 e0       	ldi	r31, 0x00	; 0
+ 258:	80 81       	ld	r24, Z
+ 25a:	88 60       	ori	r24, 0x08	; 8
+ 25c:	80 83       	st	Z, r24
+	TIMSK1 |= (1 << OCIE1A);									// Enable CTC interrupt
+ 25e:	af e6       	ldi	r26, 0x6F	; 111
+ 260:	b0 e0       	ldi	r27, 0x00	; 0
+ 262:	8c 91       	ld	r24, X
+ 264:	82 60       	ori	r24, 0x02	; 2
+ 266:	8c 93       	st	X, r24
+	
+	sei();														// Enable global interrupts
+ 268:	78 94       	sei
+	
+	////OCR1A = 15999;											//Set target timer count for 1 kHz interrupt given 16MHz clock & prescaler of 1. Use 3999 for 4 kHz under same conditions. OCR1A = Target_Timer_Count = (Clock_Frequency / (Prescale * Target_Frequency)) – 1
+	//OCR1A = 3999;												//Achieves interrupt frequency of 4 kHz given a prescaler of 1.
+	//TCCR1B |= ((1 << CS10) | (0 << CS11) | (0 << CS12));		//Sets the prescaler to 1.
+	
+	OCR1A = 19999;												//Achieves interrupt frequency of 100 Hz given a prescaler of 8.
+ 26a:	8f e1       	ldi	r24, 0x1F	; 31
+ 26c:	9e e4       	ldi	r25, 0x4E	; 78
+ 26e:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__EEPROM_REGION_LENGTH__+0x7f0089>
+ 272:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__EEPROM_REGION_LENGTH__+0x7f0088>
+	TCCR1B |= ((0 << CS10) | (1 << CS11) | (0 << CS12));		//Sets the prescaler to 8.
+ 276:	80 81       	ld	r24, Z
+ 278:	82 60       	ori	r24, 0x02	; 2
+ 27a:	80 83       	st	Z, r24
+ 27c:	08 95       	ret
+
+0000027e <SetupUSART>:
+
+//Implement a function to setup USART communication.
+void SetupUSART( void )
+{
+	//USART Setup
+	UBRR0H = MYUBRR >> 8;
+ 27e:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__EEPROM_REGION_LENGTH__+0x7f00c5>
+	UBRR0L = MYUBRR;
+ 282:	80 e1       	ldi	r24, 0x10	; 16
+ 284:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__EEPROM_REGION_LENGTH__+0x7f00c4>
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+ 288:	88 e1       	ldi	r24, 0x18	; 24
+ 28a:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__EEPROM_REGION_LENGTH__+0x7f00c1>
+	stdout = &mystdout;
+ 28e:	80 e0       	ldi	r24, 0x00	; 0
+ 290:	91 e0       	ldi	r25, 0x01	; 1
+ 292:	90 93 13 01 	sts	0x0113, r25	; 0x800113 <__iob+0x3>
+ 296:	80 93 12 01 	sts	0x0112, r24	; 0x800112 <__iob+0x2>
+ 29a:	08 95       	ret
+
+0000029c <SetupMicro>:
+//Implement a function to setup mircocontroller functionality.
+void SetupMicro( void )
+{
+	
+	//Setup the microcontroller pins.
+	SetupPins();
+ 29c:	c2 df       	rcall	.-124    	; 0x222 <SetupPins>
+
+//Implement a function to setup ADC.
+void SetupADC( void )
+{
+	//Setup the ADC.
+	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
+ 29e:	87 e8       	ldi	r24, 0x87	; 135
+ 2a0:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__EEPROM_REGION_LENGTH__+0x7f007a>
+	
+	//Setup for ADC.
+	SetupADC();
+	
+	//Setup SPI communication.
+	SetupSPI();
+ 2a4:	d3 df       	rcall	.-90     	; 0x24c <SetupSPI>
+	
+	//Setup timer interrupts.
+	SetupTimerInterrupts();
+ 2a6:	d6 df       	rcall	.-84     	; 0x254 <SetupTimerInterrupts>
+	
+	//Setup USART communication.
+	SetupUSART();	
+ 2a8:	ea df       	rcall	.-44     	; 0x27e <SetupUSART>
+ 2aa:	08 95       	ret
+
+000002ac <_exit>:
+ 2ac:	f8 94       	cli
+
+000002ae <__stop_program>:
+ 2ae:	ff cf       	rjmp	.-2      	; 0x2ae <__stop_program>

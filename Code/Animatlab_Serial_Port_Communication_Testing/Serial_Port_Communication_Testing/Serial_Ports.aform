@@ -1,0 +1,75 @@
+<Form>
+<Form>
+<ID>7d929d3a-5d04-420f-8d3f-d5b391aff9e3</ID>
+<Title>Serial Ports</Title>
+<TabPageName>Serial Ports</TabPageName>
+<AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
+<ClassName>LicensedAnimatGUI.Forms.Charts.LineChart</ClassName>
+<AutoCollectInterval>True</AutoCollectInterval>
+<CollectDataInterval Value="0.6" Scale="milli" Actual="0.0006"/>
+<CollectTimeWindow Value="11" Scale="None" Actual="11"/>
+<UpdateDataInterval Value="200" Scale="milli" Actual="0.2"/>
+<SetStartEndTime>True</SetStartEndTime>
+<CollectStartTime Value="0" Scale="None" Actual="0"/>
+<CollectEndTime Value="10" Scale="None" Actual="10"/>
+<AxisList>
+<Axis>
+<AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
+<ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
+<Name>Serial Input</Name>
+<WorkingAxis>0</WorkingAxis>
+<DataColumns>
+<DataColumn>
+<AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
+<ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
+<Name>Animat Serial Input</Name>
+<ID>b6d3b001-205b-4da6-972c-b00b941ae9d0</ID>
+<DataItemAssemblyFile>RoboticsGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>RoboticsGUI.RobotIOControls.AnimatSerial</DataItemClassName>
+<StructureID/>
+<DataItemID>1d2e1b2f-97f4-4689-b054-bdd761b470ad</DataItemID>
+<SelectedDataType>StepIODuration</SelectedDataType>
+<DataSubSet>0</DataSubSet>
+<PrevDataSubset>0</PrevDataSubset>
+<UseIncomingDataType>False</UseIncomingDataType>
+<LineType>MediumSolid</LineType>
+<PointType>Plus</PointType>
+<PlotMethodType>Line</PlotMethodType>
+<LineColor>-65536</LineColor>
+</DataColumn>
+</DataColumns>
+</Axis>
+<Axis>
+<AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
+<ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
+<Name>Serial Output</Name>
+<WorkingAxis>1</WorkingAxis>
+<DataColumns>
+<DataColumn>
+<AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
+<ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
+<Name>Animat Serial Output</Name>
+<ID>8ce068a2-3073-4943-8051-e81e2d9fe627</ID>
+<DataItemAssemblyFile>RoboticsGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>RoboticsGUI.RobotIOControls.AnimatSerial</DataItemClassName>
+<StructureID/>
+<DataItemID>642a8553-066e-45fb-8f79-5ef56ac08ebb</DataItemID>
+<SelectedDataType>StepIODuration</SelectedDataType>
+<DataSubSet>1</DataSubSet>
+<PrevDataSubset>1</PrevDataSubset>
+<UseIncomingDataType>False</UseIncomingDataType>
+<LineType>MediumSolid</LineType>
+<PointType>Plus</PointType>
+<PlotMethodType>Line</PlotMethodType>
+<LineColor>-16711936</LineColor>
+</DataColumn>
+</DataColumns>
+</Axis>
+</AxisList>
+<SaveDataWhenClosed>False</SaveDataWhenClosed>
+<UpdateChartAtEnd>True</UpdateChartAtEnd>
+<PointsToKeep>18334</PointsToKeep>
+<YAxisOffset>0</YAxisOffset>
+<GraphConfig ByteCount="8983"/>
+</Form>
+</Form>

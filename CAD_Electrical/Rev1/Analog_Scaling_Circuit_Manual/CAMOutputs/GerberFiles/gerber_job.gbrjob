@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2019-04-08T18:18:14Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.3.0"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "Analog_Scaling_Circuit_Manual"
+        },
+        "Owner": "Cody Scharzenberger <cscharz2@pdx.edu>",
+        "Size": {
+            "X": 87.3125,
+            "Y": 92.075
+        }
+    }
+}
