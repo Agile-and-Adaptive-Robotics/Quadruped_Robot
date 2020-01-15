@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="./js/coder_app.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="./rtwreport_utils.js"></script>
+<script type="text/javascript" src="./rtwannotate.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/coder_app.css"/>
+</head>
+<body onload="srcFileOnload();">
+<pre id="code">
+<table class="code" id="codeTbl">
+<tr name="1" id="1">
+<td><a id="l1" class='ln'>1</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="2" id="2">
+<td><a id="l2" class='ln'>2</a></td><td><span class="ct"> * Academic License - for use in teaching, academic research, and meeting</span></td></tr>
+<tr name="3" id="3">
+<td><a id="l3" class='ln'>3</a></td><td><span class="ct"> * course requirements at degree granting institutions only.  Not for</span></td></tr>
+<tr name="4" id="4">
+<td><a id="l4" class='ln'>4</a></td><td><span class="ct"> * government, commercial, or other organizational use.</span></td></tr>
+<tr name="5" id="5">
+<td><a id="l5" class='ln'>5</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="6" id="6">
+<td><a id="l6" class='ln'>6</a></td><td><span class="ct"> * File: untitled.c</span></td></tr>
+<tr name="7" id="7">
+<td><a id="l7" class='ln'>7</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="8" id="8">
+<td><a id="l8" class='ln'>8</a></td><td><span class="ct"> * Code generated for Simulink model 'untitled'.</span></td></tr>
+<tr name="9" id="9">
+<td><a id="l9" class='ln'>9</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="10" id="10">
+<td><a id="l10" class='ln'>10</a></td><td><span class="ct"> * Model version                  : 1.13</span></td></tr>
+<tr name="11" id="11">
+<td><a id="l11" class='ln'>11</a></td><td><span class="ct"> * Simulink Coder version         : 8.12 (R2017a) 16-Feb-2017</span></td></tr>
+<tr name="12" id="12">
+<td><a id="l12" class='ln'>12</a></td><td><span class="ct"> * C/C++ source code generated on : Mon Nov 05 15:29:32 2018</span></td></tr>
+<tr name="13" id="13">
+<td><a id="l13" class='ln'>13</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="14" id="14">
+<td><a id="l14" class='ln'>14</a></td><td><span class="ct"> * Target selection: ert.tlc</span></td></tr>
+<tr name="15" id="15">
+<td><a id="l15" class='ln'>15</a></td><td><span class="ct"> * Embedded hardware selection: Atmel-&gt;AVR</span></td></tr>
+<tr name="16" id="16">
+<td><a id="l16" class='ln'>16</a></td><td><span class="ct"> * Code generation objectives: Unspecified</span></td></tr>
+<tr name="17" id="17">
+<td><a id="l17" class='ln'>17</a></td><td><span class="ct"> * Validation result: Not run</span></td></tr>
+<tr name="18" id="18">
+<td><a id="l18" class='ln'>18</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="19" id="19">
+<td><a id="l19" class='ln'>19</a></td><td></td></tr>
+<tr name="20" id="20">
+<td><a id="l20" class='ln'>20</a></td><td><span class="pp">#include "untitled.h"</span></td></tr>
+<tr name="21" id="21">
+<td><a id="l21" class='ln'>21</a></td><td><span class="pp">#include "untitled_private.h"</span></td></tr>
+<tr name="22" id="22">
+<td><a id="l22" class='ln'>22</a></td><td><span class="pp">#include "untitled_dt.h"</span></td></tr>
+<tr name="23" id="23">
+<td><a id="l23" class='ln'>23</a></td><td></td></tr>
+<tr name="24" id="24">
+<td><a id="l24" class='ln'>24</a></td><td><span class="ct">/* Block signals (auto storage) */</span></td></tr>
+<tr name="25" id="25">
+<td><a id="l25" class='ln'>25</a></td><td><a id="25c1" class="tk">B_untitled_T</a> <a id="25c14" class="tk">untitled_B</a>;</td></tr>
+<tr name="26" id="26">
+<td><a id="l26" class='ln'>26</a></td><td></td></tr>
+<tr name="27" id="27">
+<td><a id="l27" class='ln'>27</a></td><td><span class="ct">/* Block states (auto storage) */</span></td></tr>
+<tr name="28" id="28">
+<td><a id="l28" class='ln'>28</a></td><td><a id="28c1" class="tk">DW_untitled_T</a> <a id="28c15" class="tk">untitled_DW</a>;</td></tr>
+<tr name="29" id="29">
+<td><a id="l29" class='ln'>29</a></td><td></td></tr>
+<tr name="30" id="30">
+<td><a id="l30" class='ln'>30</a></td><td><span class="ct">/* Real-time model */</span></td></tr>
+<tr name="31" id="31">
+<td><a id="l31" class='ln'>31</a></td><td><a id="31c1" class="tk">RT_MODEL_untitled_T</a> <a id="31c21" class="tk">untitled_M_</a>;</td></tr>
+<tr name="32" id="32">
+<td><a id="l32" class='ln'>32</a></td><td><a id="32c1" class="tk">RT_MODEL_untitled_T</a> <a id="32c21" class="tk">*</a><span class="kw">const</span> <a id="32c28" class="tk">untitled_M</a> = <a id="32c41" class="tk">&amp;</a><a id="32c42" class="tk">untitled_M_</a>;</td></tr>
+<tr name="33" id="33">
+<td><a id="l33" class='ln'>33</a></td><td></td></tr>
+<tr name="34" id="34">
+<td><a id="l34" class='ln'>34</a></td><td><span class="ct">/* Model step function */</span></td></tr>
+<tr name="35" id="35">
+<td><a id="l35" class='ln'>35</a></td><td><span class="kw">void</span> <a id="35c6" class="tk">untitled_step</a>(<span class="kw">void</span>)</td></tr>
+<tr name="36" id="36">
+<td><a id="l36" class='ln'>36</a></td><td><span class="br">{</span></td></tr>
+<tr name="37" id="37">
+<td><a id="l37" class='ln'>37</a></td><td>  <a id="37c3" class="tk">uint16_T</a> <a id="37c12" class="tk">tmp</a>;</td></tr>
+<tr name="38" id="38">
+<td><a id="l38" class='ln'>38</a></td><td>  <a id="38c3" class="tk">real_T</a> <a id="38c10" class="tk">u</a>;</td></tr>
+<tr name="39" id="39">
+<td><a id="l39" class='ln'>39</a></td><td>  <a id="39c3" class="tk">real_T</a> <a id="39c10" class="tk">v</a>;</td></tr>
+<tr name="40" id="40">
+<td><a id="l40" class='ln'>40</a></td><td></td></tr>
+<tr name="41" id="41">
+<td><a id="l41" class='ln'>41</a></td><td>  <span class="ct">/* Sin: '<a class="ct blk" blk_line="41">&lt;Root&gt;/Sine Wave</a>' */</span></td></tr>
+<tr name="42" id="42">
+<td><a id="l42" class='ln'>42</a></td><td>  <a id="42c3" class="tk">untitled_B</a>.<a id="42c14" class="tk">SineWave</a> = <a id="42c25" class="tk">sin</a>(<a id="42c29" class="tk">untitled_P</a>.<a id="42c40" class="tk">SineWave_Freq</a> <a id="42c54" class="tk">*</a> <a id="42c56" class="tk">untitled_M</a>-&gt;<a id="42c68" class="tk">Timing</a>.<a id="42c75" class="tk">t</a>[0] <a id="42c80" class="tk">+</a></td></tr>
+<tr name="43" id="43">
+<td><a id="l43" class='ln'>43</a></td><td>    <a id="43c5" class="tk">untitled_P</a>.<a id="43c16" class="tk">SineWave_Phase</a>) <a id="43c32" class="tk">*</a> <a id="43c34" class="tk">untitled_P</a>.<a id="43c45" class="tk">SineWave_Amp</a> <a id="43c58" class="tk">+</a></td></tr>
+<tr name="44" id="44">
+<td><a id="l44" class='ln'>44</a></td><td>    <a id="44c5" class="tk">untitled_P</a>.<a id="44c16" class="tk">SineWave_Bias</a>;</td></tr>
+<tr name="45" id="45">
+<td><a id="l45" class='ln'>45</a></td><td></td></tr>
+<tr name="46" id="46">
+<td><a id="l46" class='ln'>46</a></td><td>  <span class="ct">/* Gain: '<a class="ct blk" blk_line="46">&lt;Root&gt;/Gain1</a>' */</span></td></tr>
+<tr name="47" id="47">
+<td><a id="l47" class='ln'>47</a></td><td>  <a id="47c3" class="tk">u</a> = <a id="47c7" class="tk">untitled_P</a>.<a id="47c18" class="tk">Gain1_Gain</a> <a id="47c29" class="tk">*</a> <a id="47c31" class="tk">untitled_B</a>.<a id="47c42" class="tk">SineWave</a>;</td></tr>
+<tr name="48" id="48">
+<td><a id="l48" class='ln'>48</a></td><td></td></tr>
+<tr name="49" id="49">
+<td><a id="l49" class='ln'>49</a></td><td>  <span class="ct">/* DataTypeConversion: '<a class="ct blk" blk_line="49">&lt;Root&gt;/Data Type Conversion3</a>' */</span></td></tr>
+<tr name="50" id="50">
+<td><a id="l50" class='ln'>50</a></td><td>  <a id="50c3" class="tk">v</a> = <a id="50c7" class="tk">fabs</a>(<a id="50c12" class="tk">u</a>);</td></tr>
+<tr name="51" id="51">
+<td><a id="l51" class='ln'>51</a></td><td>  <span class="kw">if</span> (<a id="51c7" class="tk">v</a> <a id="51c9" class="tk">&lt;</a> 4.503599627370496E+15) <span class="br">{</span></td></tr>
+<tr name="52" id="52">
+<td><a id="l52" class='ln'>52</a></td><td>    <span class="kw">if</span> (<a id="52c9" class="tk">v</a> <a id="52c11" class="tk">&gt;=</a> 0.5) <span class="br">{</span></td></tr>
+<tr name="53" id="53">
+<td><a id="l53" class='ln'>53</a></td><td>      <a id="53c7" class="tk">u</a> = <a id="53c11" class="tk">floor</a>(<a id="53c17" class="tk">u</a> <a id="53c19" class="tk">+</a> 0.5);</td></tr>
+<tr name="54" id="54">
+<td><a id="l54" class='ln'>54</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="55" id="55">
+<td><a id="l55" class='ln'>55</a></td><td>      <a id="55c7" class="tk">u</a> <a id="55c9" class="tk">*=</a> 0.0;</td></tr>
+<tr name="56" id="56">
+<td><a id="l56" class='ln'>56</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="57" id="57">
+<td><a id="l57" class='ln'>57</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="58" id="58">
+<td><a id="l58" class='ln'>58</a></td><td></td></tr>
+<tr name="59" id="59">
+<td><a id="l59" class='ln'>59</a></td><td>  <span class="kw">if</span> (<a id="59c7" class="tk">rtIsNaN</a>(<a id="59c15" class="tk">u</a>) <a id="59c18" class="tk">||</a> <a id="59c21" class="tk">rtIsInf</a>(<a id="59c29" class="tk">u</a>)) <span class="br">{</span></td></tr>
+<tr name="60" id="60">
+<td><a id="l60" class='ln'>60</a></td><td>    <a id="60c5" class="tk">u</a> = 0.0;</td></tr>
+<tr name="61" id="61">
+<td><a id="l61" class='ln'>61</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="62" id="62">
+<td><a id="l62" class='ln'>62</a></td><td>    <a id="62c5" class="tk">u</a> = <a id="62c9" class="tk">fmod</a>(<a id="62c14" class="tk">u</a>, 65536.0);</td></tr>
+<tr name="63" id="63">
+<td><a id="l63" class='ln'>63</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="64" id="64">
+<td><a id="l64" class='ln'>64</a></td><td></td></tr>
+<tr name="65" id="65">
+<td><a id="l65" class='ln'>65</a></td><td>  <a id="65c3" class="tk">untitled_B</a>.<a id="65c14" class="tk">DataTypeConversion3</a> = <a id="65c36" class="tk">u</a> <a id="65c38" class="tk">&lt;</a> 0.0 <a id="65c44" class="tk">?</a> (<a id="65c47" class="tk">uint16_T</a>)<a id="65c56" class="tk">-</a>(<a id="65c58" class="tk">int16_T</a>)(<a id="65c67" class="tk">uint16_T</a>)<a id="65c76" class="tk">-</a><a id="65c77" class="tk">u</a> <a id="65c79" class="tk">:</a></td></tr>
+<tr name="66" id="66">
+<td><a id="l66" class='ln'>66</a></td><td>    (<a id="66c6" class="tk">uint16_T</a>)<a id="66c15" class="tk">u</a>;</td></tr>
+<tr name="67" id="67">
+<td><a id="l67" class='ln'>67</a></td><td></td></tr>
+<tr name="68" id="68">
+<td><a id="l68" class='ln'>68</a></td><td>  <span class="ct">/* End of DataTypeConversion: '<a class="ct blk" blk_line="68">&lt;Root&gt;/Data Type Conversion3</a>' */</span></td></tr>
+<tr name="69" id="69">
+<td><a id="l69" class='ln'>69</a></td><td></td></tr>
+<tr name="70" id="70">
+<td><a id="l70" class='ln'>70</a></td><td>  <span class="ct">/* DataTypeConversion: '<a class="ct blk" blk_line="70">&lt;S3&gt;/Data Type Conversion</a>' */</span></td></tr>
+<tr name="71" id="71">
+<td><a id="l71" class='ln'>71</a></td><td>  <a id="71c3" class="tk">tmp</a> = <a id="71c9" class="tk">untitled_B</a>.<a id="71c20" class="tk">DataTypeConversion3</a>;</td></tr>
+<tr name="72" id="72">
+<td><a id="l72" class='ln'>72</a></td><td>  <span class="kw">if</span> (<a id="72c7" class="tk">untitled_B</a>.<a id="72c18" class="tk">DataTypeConversion3</a> <a id="72c38" class="tk">&gt;</a> 255U) <span class="br">{</span></td></tr>
+<tr name="73" id="73">
+<td><a id="l73" class='ln'>73</a></td><td>    <a id="73c5" class="tk">tmp</a> = 255U;</td></tr>
+<tr name="74" id="74">
+<td><a id="l74" class='ln'>74</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="75" id="75">
+<td><a id="l75" class='ln'>75</a></td><td></td></tr>
+<tr name="76" id="76">
+<td><a id="l76" class='ln'>76</a></td><td>  <span class="ct">/* S-Function (arduinoanalogoutput_sfcn): '<a class="ct blk" blk_line="76">&lt;S3&gt;/PWM</a>' incorporates:</span></td></tr>
+<tr name="77" id="77">
+<td><a id="l77" class='ln'>77</a></td><td><span class="ct">   *  DataTypeConversion: '<a class="ct blk" blk_line="77">&lt;S3&gt;/Data Type Conversion</a>'</span></td></tr>
+<tr name="78" id="78">
+<td><a id="l78" class='ln'>78</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="79" id="79">
+<td><a id="l79" class='ln'>79</a></td><td>  <a id="79c3" class="tk">MW_analogWrite</a>(<a id="79c18" class="tk">untitled_P</a>.<a id="79c29" class="tk">PWM_pinNumber</a>, (<a id="79c45" class="tk">uint8_T</a>)<a id="79c53" class="tk">tmp</a>);</td></tr>
+<tr name="80" id="80">
+<td><a id="l80" class='ln'>80</a></td><td></td></tr>
+<tr name="81" id="81">
+<td><a id="l81" class='ln'>81</a></td><td>  <span class="ct">/* External mode */</span></td></tr>
+<tr name="82" id="82">
+<td><a id="l82" class='ln'>82</a></td><td>  <a id="82c3" class="tk">rtExtModeUploadCheckTrigger</a>(2);</td></tr>
+<tr name="83" id="83">
+<td><a id="l83" class='ln'>83</a></td><td></td></tr>
+<tr name="84" id="84">
+<td><a id="l84" class='ln'>84</a></td><td>  <span class="br">{</span>                                    <span class="ct">/* Sample time: [0.0s, 0.0s] */</span></td></tr>
+<tr name="85" id="85">
+<td><a id="l85" class='ln'>85</a></td><td>    <a id="85c5" class="tk">rtExtModeUpload</a>(0, <a id="85c24" class="tk">untitled_M</a>-&gt;<a id="85c36" class="tk">Timing</a>.<a id="85c43" class="tk">t</a>[0]);</td></tr>
+<tr name="86" id="86">
+<td><a id="l86" class='ln'>86</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="87" id="87">
+<td><a id="l87" class='ln'>87</a></td><td></td></tr>
+<tr name="88" id="88">
+<td><a id="l88" class='ln'>88</a></td><td>  <span class="br">{</span>                                    <span class="ct">/* Sample time: [0.2s, 0.0s] */</span></td></tr>
+<tr name="89" id="89">
+<td><a id="l89" class='ln'>89</a></td><td>    <a id="89c5" class="tk">rtExtModeUpload</a>(1, ((<a id="89c26" class="tk">untitled_M</a>-&gt;<a id="89c38" class="tk">Timing</a>.<a id="89c45" class="tk">clockTick1</a>) <a id="89c57" class="tk">*</a> 0.2));</td></tr>
+<tr name="90" id="90">
+<td><a id="l90" class='ln'>90</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="91" id="91">
+<td><a id="l91" class='ln'>91</a></td><td></td></tr>
+<tr name="92" id="92">
+<td><a id="l92" class='ln'>92</a></td><td>  <span class="ct">/* signal main to stop simulation */</span></td></tr>
+<tr name="93" id="93">
+<td><a id="l93" class='ln'>93</a></td><td>  <span class="br">{</span>                                    <span class="ct">/* Sample time: [0.0s, 0.0s] */</span></td></tr>
+<tr name="94" id="94">
+<td><a id="l94" class='ln'>94</a></td><td>    <span class="kw">if</span> ((<a id="94c10" class="tk">rtmGetTFinal</a>(<a id="94c23" class="tk">untitled_M</a>)<a id="94c34" class="tk">!=</a><a id="94c36" class="tk">-</a>1) <a id="94c40" class="tk">&amp;&amp;</a></td></tr>
+<tr name="95" id="95">
+<td><a id="l95" class='ln'>95</a></td><td>        <a id="95c9" class="tk">!</a>((<a id="95c12" class="tk">rtmGetTFinal</a>(<a id="95c25" class="tk">untitled_M</a>)<a id="95c36" class="tk">-</a><a id="95c37" class="tk">untitled_M</a>-&gt;<a id="95c49" class="tk">Timing</a>.<a id="95c56" class="tk">t</a>[0]) <a id="95c62" class="tk">&gt;</a></td></tr>
+<tr name="96" id="96">
+<td><a id="l96" class='ln'>96</a></td><td>          <a id="96c11" class="tk">untitled_M</a>-&gt;<a id="96c23" class="tk">Timing</a>.<a id="96c30" class="tk">t</a>[0] <a id="96c35" class="tk">*</a> (<a id="96c38" class="tk">DBL_EPSILON</a>))) <span class="br">{</span></td></tr>
+<tr name="97" id="97">
+<td><a id="l97" class='ln'>97</a></td><td>      <a id="97c7" class="tk">rtmSetErrorStatus</a>(<a id="97c25" class="tk">untitled_M</a>, "Simulation finished");</td></tr>
+<tr name="98" id="98">
+<td><a id="l98" class='ln'>98</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="99" id="99">
+<td><a id="l99" class='ln'>99</a></td><td></td></tr>
+<tr name="100" id="100">
+<td><a id="l100" class='ln'>100</a></td><td>    <span class="kw">if</span> (<a id="100c9" class="tk">rtmGetStopRequested</a>(<a id="100c29" class="tk">untitled_M</a>)) <span class="br">{</span></td></tr>
+<tr name="101" id="101">
+<td><a id="l101" class='ln'>101</a></td><td>      <a id="101c7" class="tk">rtmSetErrorStatus</a>(<a id="101c25" class="tk">untitled_M</a>, "Simulation finished");</td></tr>
+<tr name="102" id="102">
+<td><a id="l102" class='ln'>102</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="103" id="103">
+<td><a id="l103" class='ln'>103</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="104" id="104">
+<td><a id="l104" class='ln'>104</a></td><td></td></tr>
+<tr name="105" id="105">
+<td><a id="l105" class='ln'>105</a></td><td>  <span class="ct">/* Update absolute time for base rate */</span></td></tr>
+<tr name="106" id="106">
+<td><a id="l106" class='ln'>106</a></td><td>  <span class="ct">/* The "clockTick0" counts the number of times the code of this task has</span></td></tr>
+<tr name="107" id="107">
+<td><a id="l107" class='ln'>107</a></td><td><span class="ct">   * been executed. The absolute time is the multiplication of "clockTick0"</span></td></tr>
+<tr name="108" id="108">
+<td><a id="l108" class='ln'>108</a></td><td><span class="ct">   * and "Timing.stepSize0". Size of "clockTick0" ensures timer will not</span></td></tr>
+<tr name="109" id="109">
+<td><a id="l109" class='ln'>109</a></td><td><span class="ct">   * overflow during the application lifespan selected.</span></td></tr>
+<tr name="110" id="110">
+<td><a id="l110" class='ln'>110</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="111" id="111">
+<td><a id="l111" class='ln'>111</a></td><td>  <a id="111c3" class="tk">untitled_M</a>-&gt;<a id="111c15" class="tk">Timing</a>.<a id="111c22" class="tk">t</a>[0] =</td></tr>
+<tr name="112" id="112">
+<td><a id="l112" class='ln'>112</a></td><td>    (<a id="112c6" class="tk">++</a><a id="112c8" class="tk">untitled_M</a>-&gt;<a id="112c20" class="tk">Timing</a>.<a id="112c27" class="tk">clockTick0</a>) <a id="112c39" class="tk">*</a> <a id="112c41" class="tk">untitled_M</a>-&gt;<a id="112c53" class="tk">Timing</a>.<a id="112c60" class="tk">stepSize0</a>;</td></tr>
+<tr name="113" id="113">
+<td><a id="l113" class='ln'>113</a></td><td></td></tr>
+<tr name="114" id="114">
+<td><a id="l114" class='ln'>114</a></td><td>  <span class="br">{</span></td></tr>
+<tr name="115" id="115">
+<td><a id="l115" class='ln'>115</a></td><td>    <span class="ct">/* Update absolute timer for sample time: [0.2s, 0.0s] */</span></td></tr>
+<tr name="116" id="116">
+<td><a id="l116" class='ln'>116</a></td><td>    <span class="ct">/* The "clockTick1" counts the number of times the code of this task has</span></td></tr>
+<tr name="117" id="117">
+<td><a id="l117" class='ln'>117</a></td><td><span class="ct">     * been executed. The resolution of this integer timer is 0.2, which is the step size</span></td></tr>
+<tr name="118" id="118">
+<td><a id="l118" class='ln'>118</a></td><td><span class="ct">     * of the task. Size of "clockTick1" ensures timer will not overflow during the</span></td></tr>
+<tr name="119" id="119">
+<td><a id="l119" class='ln'>119</a></td><td><span class="ct">     * application lifespan selected.</span></td></tr>
+<tr name="120" id="120">
+<td><a id="l120" class='ln'>120</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="121" id="121">
+<td><a id="l121" class='ln'>121</a></td><td>    <a id="121c5" class="tk">untitled_M</a>-&gt;<a id="121c17" class="tk">Timing</a>.<a id="121c24" class="tk">clockTick1</a><a id="121c34" class="tk">++</a>;</td></tr>
+<tr name="122" id="122">
+<td><a id="l122" class='ln'>122</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="123" id="123">
+<td><a id="l123" class='ln'>123</a></td><td><span class="br">}</span></td></tr>
+<tr name="124" id="124">
+<td><a id="l124" class='ln'>124</a></td><td></td></tr>
+<tr name="125" id="125">
+<td><a id="l125" class='ln'>125</a></td><td><span class="ct">/* Model initialize function */</span></td></tr>
+<tr name="126" id="126">
+<td><a id="l126" class='ln'>126</a></td><td><span class="kw">void</span> <a id="126c6" class="tk">untitled_initialize</a>(<span class="kw">void</span>)</td></tr>
+<tr name="127" id="127">
+<td><a id="l127" class='ln'>127</a></td><td><span class="br">{</span></td></tr>
+<tr name="128" id="128">
+<td><a id="l128" class='ln'>128</a></td><td>  <span class="ct">/* Registration code */</span></td></tr>
+<tr name="129" id="129">
+<td><a id="l129" class='ln'>129</a></td><td></td></tr>
+<tr name="130" id="130">
+<td><a id="l130" class='ln'>130</a></td><td>  <span class="ct">/* initialize non-finites */</span></td></tr>
+<tr name="131" id="131">
+<td><a id="l131" class='ln'>131</a></td><td>  <a id="131c3" class="tk">rt_InitInfAndNaN</a>(<span class="kw">sizeof</span>(<a id="131c27" class="tk">real_T</a>));</td></tr>
+<tr name="132" id="132">
+<td><a id="l132" class='ln'>132</a></td><td></td></tr>
+<tr name="133" id="133">
+<td><a id="l133" class='ln'>133</a></td><td>  <span class="ct">/* initialize real-time model */</span></td></tr>
+<tr name="134" id="134">
+<td><a id="l134" class='ln'>134</a></td><td>  (<span class="kw">void</span>) <a id="134c10" class="tk">memset</a>((<span class="kw">void</span> <a id="134c23" class="tk">*</a>)<a id="134c25" class="tk">untitled_M</a>, 0,</td></tr>
+<tr name="135" id="135">
+<td><a id="l135" class='ln'>135</a></td><td>                <span class="kw">sizeof</span>(<a id="135c24" class="tk">RT_MODEL_untitled_T</a>));</td></tr>
+<tr name="136" id="136">
+<td><a id="l136" class='ln'>136</a></td><td></td></tr>
+<tr name="137" id="137">
+<td><a id="l137" class='ln'>137</a></td><td>  <span class="br">{</span></td></tr>
+<tr name="138" id="138">
+<td><a id="l138" class='ln'>138</a></td><td>    <span class="ct">/* Setup solver object */</span></td></tr>
+<tr name="139" id="139">
+<td><a id="l139" class='ln'>139</a></td><td>    <a id="139c5" class="tk">rtsiSetSimTimeStepPtr</a>(<a id="139c27" class="tk">&amp;</a><a id="139c28" class="tk">untitled_M</a>-&gt;<a id="139c40" class="tk">solverInfo</a>,</td></tr>
+<tr name="140" id="140">
+<td><a id="l140" class='ln'>140</a></td><td>                          <a id="140c27" class="tk">&amp;</a><a id="140c28" class="tk">untitled_M</a>-&gt;<a id="140c40" class="tk">Timing</a>.<a id="140c47" class="tk">simTimeStep</a>);</td></tr>
+<tr name="141" id="141">
+<td><a id="l141" class='ln'>141</a></td><td>    <a id="141c5" class="tk">rtsiSetTPtr</a>(<a id="141c17" class="tk">&amp;</a><a id="141c18" class="tk">untitled_M</a>-&gt;<a id="141c30" class="tk">solverInfo</a>, <a id="141c42" class="tk">&amp;</a><a id="141c43" class="tk">rtmGetTPtr</a>(<a id="141c54" class="tk">untitled_M</a>));</td></tr>
+<tr name="142" id="142">
+<td><a id="l142" class='ln'>142</a></td><td>    <a id="142c5" class="tk">rtsiSetStepSizePtr</a>(<a id="142c24" class="tk">&amp;</a><a id="142c25" class="tk">untitled_M</a>-&gt;<a id="142c37" class="tk">solverInfo</a>, <a id="142c49" class="tk">&amp;</a><a id="142c50" class="tk">untitled_M</a>-&gt;<a id="142c62" class="tk">Timing</a>.<a id="142c69" class="tk">stepSize0</a>);</td></tr>
+<tr name="143" id="143">
+<td><a id="l143" class='ln'>143</a></td><td>    <a id="143c5" class="tk">rtsiSetErrorStatusPtr</a>(<a id="143c27" class="tk">&amp;</a><a id="143c28" class="tk">untitled_M</a>-&gt;<a id="143c40" class="tk">solverInfo</a>, (<a id="143c53" class="tk">&amp;</a><a id="143c54" class="tk">rtmGetErrorStatus</a></td></tr>
+<tr name="144" id="144">
+<td><a id="l144" class='ln'>144</a></td><td>      (<a id="144c8" class="tk">untitled_M</a>)));</td></tr>
+<tr name="145" id="145">
+<td><a id="l145" class='ln'>145</a></td><td>    <a id="145c5" class="tk">rtsiSetRTModelPtr</a>(<a id="145c23" class="tk">&amp;</a><a id="145c24" class="tk">untitled_M</a>-&gt;<a id="145c36" class="tk">solverInfo</a>, <a id="145c48" class="tk">untitled_M</a>);</td></tr>
+<tr name="146" id="146">
+<td><a id="l146" class='ln'>146</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="147" id="147">
+<td><a id="l147" class='ln'>147</a></td><td></td></tr>
+<tr name="148" id="148">
+<td><a id="l148" class='ln'>148</a></td><td>  <a id="148c3" class="tk">rtsiSetSimTimeStep</a>(<a id="148c22" class="tk">&amp;</a><a id="148c23" class="tk">untitled_M</a>-&gt;<a id="148c35" class="tk">solverInfo</a>, <a id="148c47" class="tk">MAJOR_TIME_STEP</a>);</td></tr>
+<tr name="149" id="149">
+<td><a id="l149" class='ln'>149</a></td><td>  <a id="149c3" class="tk">rtsiSetSolverName</a>(<a id="149c21" class="tk">&amp;</a><a id="149c22" class="tk">untitled_M</a>-&gt;<a id="149c34" class="tk">solverInfo</a>,"FixedStepDiscrete");</td></tr>
+<tr name="150" id="150">
+<td><a id="l150" class='ln'>150</a></td><td>  <a id="150c3" class="tk">rtmSetTPtr</a>(<a id="150c14" class="tk">untitled_M</a>, <a id="150c26" class="tk">&amp;</a><a id="150c27" class="tk">untitled_M</a>-&gt;<a id="150c39" class="tk">Timing</a>.<a id="150c46" class="tk">tArray</a>[0]);</td></tr>
+<tr name="151" id="151">
+<td><a id="l151" class='ln'>151</a></td><td>  <a id="151c3" class="tk">rtmSetTFinal</a>(<a id="151c16" class="tk">untitled_M</a>, <a id="151c28" class="tk">-</a>1);</td></tr>
+<tr name="152" id="152">
+<td><a id="l152" class='ln'>152</a></td><td>  <a id="152c3" class="tk">untitled_M</a>-&gt;<a id="152c15" class="tk">Timing</a>.<a id="152c22" class="tk">stepSize0</a> = 0.2;</td></tr>
+<tr name="153" id="153">
+<td><a id="l153" class='ln'>153</a></td><td></td></tr>
+<tr name="154" id="154">
+<td><a id="l154" class='ln'>154</a></td><td>  <span class="ct">/* External mode info */</span></td></tr>
+<tr name="155" id="155">
+<td><a id="l155" class='ln'>155</a></td><td>  <a id="155c3" class="tk">untitled_M</a>-&gt;<a id="155c15" class="tk">Sizes</a>.<a id="155c21" class="tk">checksums</a>[0] = (1888972057U);</td></tr>
+<tr name="156" id="156">
+<td><a id="l156" class='ln'>156</a></td><td>  <a id="156c3" class="tk">untitled_M</a>-&gt;<a id="156c15" class="tk">Sizes</a>.<a id="156c21" class="tk">checksums</a>[1] = (421401575U);</td></tr>
+<tr name="157" id="157">
+<td><a id="l157" class='ln'>157</a></td><td>  <a id="157c3" class="tk">untitled_M</a>-&gt;<a id="157c15" class="tk">Sizes</a>.<a id="157c21" class="tk">checksums</a>[2] = (3735160966U);</td></tr>
+<tr name="158" id="158">
+<td><a id="l158" class='ln'>158</a></td><td>  <a id="158c3" class="tk">untitled_M</a>-&gt;<a id="158c15" class="tk">Sizes</a>.<a id="158c21" class="tk">checksums</a>[3] = (2751074950U);</td></tr>
+<tr name="159" id="159">
+<td><a id="l159" class='ln'>159</a></td><td></td></tr>
+<tr name="160" id="160">
+<td><a id="l160" class='ln'>160</a></td><td>  <span class="br">{</span></td></tr>
+<tr name="161" id="161">
+<td><a id="l161" class='ln'>161</a></td><td>    <span class="kw">static</span> <span class="kw">const</span> <a id="161c18" class="tk">sysRanDType</a> <a id="161c30" class="tk">rtAlwaysEnabled</a> = <a id="161c48" class="tk">SUBSYS_RAN_BC_ENABLE</a>;</td></tr>
+<tr name="162" id="162">
+<td><a id="l162" class='ln'>162</a></td><td>    <span class="kw">static</span> <a id="162c12" class="tk">RTWExtModeInfo</a> <a id="162c27" class="tk">rt_ExtModeInfo</a>;</td></tr>
+<tr name="163" id="163">
+<td><a id="l163" class='ln'>163</a></td><td>    <span class="kw">static</span> <span class="kw">const</span> <a id="163c18" class="tk">sysRanDType</a> <a id="163c30" class="tk">*</a><a id="163c31" class="tk">systemRan</a>[1];</td></tr>
+<tr name="164" id="164">
+<td><a id="l164" class='ln'>164</a></td><td>    <a id="164c5" class="tk">untitled_M</a>-&gt;<a id="164c17" class="tk">extModeInfo</a> = (<a id="164c32" class="tk">&amp;</a><a id="164c33" class="tk">rt_ExtModeInfo</a>);</td></tr>
+<tr name="165" id="165">
+<td><a id="l165" class='ln'>165</a></td><td>    <a id="165c5" class="tk">rteiSetSubSystemActiveVectorAddresses</a>(<a id="165c43" class="tk">&amp;</a><a id="165c44" class="tk">rt_ExtModeInfo</a>, <a id="165c60" class="tk">systemRan</a>);</td></tr>
+<tr name="166" id="166">
+<td><a id="l166" class='ln'>166</a></td><td>    <a id="166c5" class="tk">systemRan</a>[0] = <a id="166c20" class="tk">&amp;</a><a id="166c21" class="tk">rtAlwaysEnabled</a>;</td></tr>
+<tr name="167" id="167">
+<td><a id="l167" class='ln'>167</a></td><td>    <a id="167c5" class="tk">rteiSetModelMappingInfoPtr</a>(<a id="167c32" class="tk">untitled_M</a>-&gt;<a id="167c44" class="tk">extModeInfo</a>,</td></tr>
+<tr name="168" id="168">
+<td><a id="l168" class='ln'>168</a></td><td>      <a id="168c7" class="tk">&amp;</a><a id="168c8" class="tk">untitled_M</a>-&gt;<a id="168c20" class="tk">SpecialInfo</a>.<a id="168c32" class="tk">mappingInfo</a>);</td></tr>
+<tr name="169" id="169">
+<td><a id="l169" class='ln'>169</a></td><td>    <a id="169c5" class="tk">rteiSetChecksumsPtr</a>(<a id="169c25" class="tk">untitled_M</a>-&gt;<a id="169c37" class="tk">extModeInfo</a>, <a id="169c50" class="tk">untitled_M</a>-&gt;<a id="169c62" class="tk">Sizes</a>.<a id="169c68" class="tk">checksums</a>);</td></tr>
+<tr name="170" id="170">
+<td><a id="l170" class='ln'>170</a></td><td>    <a id="170c5" class="tk">rteiSetTPtr</a>(<a id="170c17" class="tk">untitled_M</a>-&gt;<a id="170c29" class="tk">extModeInfo</a>, <a id="170c42" class="tk">rtmGetTPtr</a>(<a id="170c53" class="tk">untitled_M</a>));</td></tr>
+<tr name="171" id="171">
+<td><a id="l171" class='ln'>171</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="172" id="172">
+<td><a id="l172" class='ln'>172</a></td><td></td></tr>
+<tr name="173" id="173">
+<td><a id="l173" class='ln'>173</a></td><td>  <span class="ct">/* block I/O */</span></td></tr>
+<tr name="174" id="174">
+<td><a id="l174" class='ln'>174</a></td><td>  (<span class="kw">void</span>) <a id="174c10" class="tk">memset</a>(((<span class="kw">void</span> <a id="174c24" class="tk">*</a>) <a id="174c27" class="tk">&amp;</a><a id="174c28" class="tk">untitled_B</a>), 0,</td></tr>
+<tr name="175" id="175">
+<td><a id="l175" class='ln'>175</a></td><td>                <span class="kw">sizeof</span>(<a id="175c24" class="tk">B_untitled_T</a>));</td></tr>
+<tr name="176" id="176">
+<td><a id="l176" class='ln'>176</a></td><td></td></tr>
+<tr name="177" id="177">
+<td><a id="l177" class='ln'>177</a></td><td>  <span class="ct">/* states (dwork) */</span></td></tr>
+<tr name="178" id="178">
+<td><a id="l178" class='ln'>178</a></td><td>  (<span class="kw">void</span>) <a id="178c10" class="tk">memset</a>((<span class="kw">void</span> <a id="178c23" class="tk">*</a>)<a id="178c25" class="tk">&amp;</a><a id="178c26" class="tk">untitled_DW</a>, 0,</td></tr>
+<tr name="179" id="179">
+<td><a id="l179" class='ln'>179</a></td><td>                <span class="kw">sizeof</span>(<a id="179c24" class="tk">DW_untitled_T</a>));</td></tr>
+<tr name="180" id="180">
+<td><a id="l180" class='ln'>180</a></td><td></td></tr>
+<tr name="181" id="181">
+<td><a id="l181" class='ln'>181</a></td><td>  <span class="ct">/* data type transition information */</span></td></tr>
+<tr name="182" id="182">
+<td><a id="l182" class='ln'>182</a></td><td>  <span class="br">{</span></td></tr>
+<tr name="183" id="183">
+<td><a id="l183" class='ln'>183</a></td><td>    <span class="kw">static</span> <a id="183c12" class="tk">DataTypeTransInfo</a> <a id="183c30" class="tk">dtInfo</a>;</td></tr>
+<tr name="184" id="184">
+<td><a id="l184" class='ln'>184</a></td><td>    (<span class="kw">void</span>) <a id="184c12" class="tk">memset</a>((<a id="184c20" class="tk">char_T</a> <a id="184c27" class="tk">*</a>) <a id="184c30" class="tk">&amp;</a><a id="184c31" class="tk">dtInfo</a>, 0,</td></tr>
+<tr name="185" id="185">
+<td><a id="l185" class='ln'>185</a></td><td>                  <span class="kw">sizeof</span>(<a id="185c26" class="tk">dtInfo</a>));</td></tr>
+<tr name="186" id="186">
+<td><a id="l186" class='ln'>186</a></td><td>    <a id="186c5" class="tk">untitled_M</a>-&gt;<a id="186c17" class="tk">SpecialInfo</a>.<a id="186c29" class="tk">mappingInfo</a> = (<a id="186c44" class="tk">&amp;</a><a id="186c45" class="tk">dtInfo</a>);</td></tr>
+<tr name="187" id="187">
+<td><a id="l187" class='ln'>187</a></td><td>    <a id="187c5" class="tk">dtInfo</a>.<a id="187c12" class="tk">numDataTypes</a> = 14;</td></tr>
+<tr name="188" id="188">
+<td><a id="l188" class='ln'>188</a></td><td>    <a id="188c5" class="tk">dtInfo</a>.<a id="188c12" class="tk">dataTypeSizes</a> = <a id="188c28" class="tk">&amp;</a><a id="188c29" class="tk">rtDataTypeSizes</a>[0];</td></tr>
+<tr name="189" id="189">
+<td><a id="l189" class='ln'>189</a></td><td>    <a id="189c5" class="tk">dtInfo</a>.<a id="189c12" class="tk">dataTypeNames</a> = <a id="189c28" class="tk">&amp;</a><a id="189c29" class="tk">rtDataTypeNames</a>[0];</td></tr>
+<tr name="190" id="190">
+<td><a id="l190" class='ln'>190</a></td><td></td></tr>
+<tr name="191" id="191">
+<td><a id="l191" class='ln'>191</a></td><td>    <span class="ct">/* Block I/O transition table */</span></td></tr>
+<tr name="192" id="192">
+<td><a id="l192" class='ln'>192</a></td><td>    <a id="192c5" class="tk">dtInfo</a>.<a id="192c12" class="tk">BTransTable</a> = <a id="192c26" class="tk">&amp;</a><a id="192c27" class="tk">rtBTransTable</a>;</td></tr>
+<tr name="193" id="193">
+<td><a id="l193" class='ln'>193</a></td><td></td></tr>
+<tr name="194" id="194">
+<td><a id="l194" class='ln'>194</a></td><td>    <span class="ct">/* Parameters transition table */</span></td></tr>
+<tr name="195" id="195">
+<td><a id="l195" class='ln'>195</a></td><td>    <a id="195c5" class="tk">dtInfo</a>.<a id="195c12" class="tk">PTransTable</a> = <a id="195c26" class="tk">&amp;</a><a id="195c27" class="tk">rtPTransTable</a>;</td></tr>
+<tr name="196" id="196">
+<td><a id="l196" class='ln'>196</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="197" id="197">
+<td><a id="l197" class='ln'>197</a></td><td></td></tr>
+<tr name="198" id="198">
+<td><a id="l198" class='ln'>198</a></td><td>  <span class="ct">/* Start for S-Function (arduinoanalogoutput_sfcn): '<a class="ct blk" blk_line="198">&lt;S3&gt;/PWM</a>' */</span></td></tr>
+<tr name="199" id="199">
+<td><a id="l199" class='ln'>199</a></td><td>  <a id="199c3" class="tk">MW_pinModeOutput</a>(<a id="199c20" class="tk">untitled_P</a>.<a id="199c31" class="tk">PWM_pinNumber</a>);</td></tr>
+<tr name="200" id="200">
+<td><a id="l200" class='ln'>200</a></td><td><span class="br">}</span></td></tr>
+<tr name="201" id="201">
+<td><a id="l201" class='ln'>201</a></td><td></td></tr>
+<tr name="202" id="202">
+<td><a id="l202" class='ln'>202</a></td><td><span class="ct">/* Model terminate function */</span></td></tr>
+<tr name="203" id="203">
+<td><a id="l203" class='ln'>203</a></td><td><span class="kw">void</span> <a id="203c6" class="tk">untitled_terminate</a>(<span class="kw">void</span>)</td></tr>
+<tr name="204" id="204">
+<td><a id="l204" class='ln'>204</a></td><td><span class="br">{</span></td></tr>
+<tr name="205" id="205">
+<td><a id="l205" class='ln'>205</a></td><td>  <span class="ct">/* (no terminate code required) */</span></td></tr>
+<tr name="206" id="206">
+<td><a id="l206" class='ln'>206</a></td><td><span class="br">}</span></td></tr>
+<tr name="207" id="207">
+<td><a id="l207" class='ln'>207</a></td><td></td></tr>
+<tr name="208" id="208">
+<td><a id="l208" class='ln'>208</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="209" id="209">
+<td><a id="l209" class='ln'>209</a></td><td><span class="ct"> * File trailer for generated code.</span></td></tr>
+<tr name="210" id="210">
+<td><a id="l210" class='ln'>210</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="211" id="211">
+<td><a id="l211" class='ln'>211</a></td><td><span class="ct"> * [EOF]</span></td></tr>
+<tr name="212" id="212">
+<td><a id="l212" class='ln'>212</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="213" id="213">
+<td><a id="l213" class='ln'>213</a></td><td></td></tr>
+</table>
+</pre>
+</body>
+</html>
