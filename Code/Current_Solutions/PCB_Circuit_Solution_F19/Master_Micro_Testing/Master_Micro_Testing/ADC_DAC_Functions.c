@@ -196,9 +196,10 @@ void GetSensorData( struct int_array_struct * sensor_data_ptr )
 	for (int i = 0; i < NUM_SENSORS_TOTAL; ++i)							//Iterate through each sensor...
 	{
 		//Set the multiplexer channel.
-		//set_multiplexer_channel( i );										//Set the current multiplexer channel.
+		set_multiplexer_channel( i );										//Set the current multiplexer channel.
 		//set_multiplexer_channel( 0 );										//Set the current multiplexer channel.
-		set_multiplexer_channel( 24 );										//Set the current multiplexer channel.
+		//set_multiplexer_channel( 32 );										//Set the current multiplexer channel.
+		//set_multiplexer_channel( 24 );										//Set the current multiplexer channel.
 		
 		//Read from the ADC into a temporary integer.
 		adc_int_temp = readADC( 0 );

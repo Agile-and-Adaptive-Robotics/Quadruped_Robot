@@ -259,28 +259,25 @@ for k1 = 1:num_front_back_states                            % Iterate through th
         % Retrieve the relevant muscle pressures.
         muscle_pressures = muscle_pressure_cell{k1, k2};
         
-        % Initialize a counter variable.
-        k4 = -1;
+        % Create a counter variable.
+        k4 = 0;
         
         %Cycle through each muscle pair.
         for k3 = 1:num_muscle_pairs                                                                          %Iterate through each muscle pair...
             
-            % Advance this counter variable.
-            k4 = k4 + 2;
+            k4 = 
             
             %Create a subplot for this muscle extensor/flexor pair.
             subplot(3, 1, k3), hold on, grid on, xlabel('Iteration Number [#]'), ylabel('Pressure [psi]'), title([muscle_pair_names{k3} ': Muscle Pressure vs Iteration Number'])
             
             %Plot the extensor for this muscle pair.
             %             plot(ts, front_left_leg_pressures(k3, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
-%             plot(ts, muscle_pressures(k3, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
-            plot(ts, muscle_pressures(k4, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
-
+            plot(ts, muscle_pressures(k3, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
+            
             %Plot the flexor for this muscle pair.
             %             plot(ts, front_left_leg_pressures(k3 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
-%             plot(ts, muscle_pressures(k3 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
-            plot(ts, muscle_pressures(k4 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
-
+            plot(ts, muscle_pressures(k3 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
+            
             %Add a legend to the plot.
             legend('Extensor', 'Flexor', 'Location', 'Best')
             
@@ -293,7 +290,7 @@ end
 %% Plot the Joint Angle Data.
 
 % Create cell arrays to store the joint names for the front and back limbs.
-front_joint_names = {'Scapula', 'Shoulder', 'Elbow', 'Wrist'};
+front_joint_names = {'Scapula: ', 'Shoulder: ', 'Elbow: ', 'Wrist: '};
 back_joint_names = {'Hip', 'Knee', 'Ankle'};
 
 % Collect the joint names for the front and back limbs into a single cell array.

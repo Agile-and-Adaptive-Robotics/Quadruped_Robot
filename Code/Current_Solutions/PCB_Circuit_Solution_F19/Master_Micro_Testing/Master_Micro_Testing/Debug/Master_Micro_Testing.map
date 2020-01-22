@@ -836,15 +836,15 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x2e1e
+.debug_info     0x00000000     0x2e1f
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
- .debug_info    0x000005f4      0xc0d ADC_DAC_Functions.o
- .debug_info    0x00001201      0x476 Conversion_Functions.o
- .debug_info    0x00001677      0x47f Master_Micro_Testing_Main.o
- .debug_info    0x00001af6      0xccd Serial_Communication_Functions.o
- .debug_info    0x000027c3      0x256 Setup_Functions.o
- .debug_info    0x00002a19      0x405 SPI_Functions.o
+ .debug_info    0x000005f4      0xc0e ADC_DAC_Functions.o
+ .debug_info    0x00001202      0x476 Conversion_Functions.o
+ .debug_info    0x00001678      0x47f Master_Micro_Testing_Main.o
+ .debug_info    0x00001af7      0xccd Serial_Communication_Functions.o
+ .debug_info    0x000027c4      0x256 Setup_Functions.o
+ .debug_info    0x00002a1a      0x405 SPI_Functions.o
 
 .debug_abbrev   0x00000000     0x11af
  *(.debug_abbrev)
@@ -875,20 +875,20 @@ END GROUP
  .debug_frame   0x00000690       0x74 Setup_Functions.o
  .debug_frame   0x00000704       0xa4 SPI_Functions.o
 
-.debug_str      0x00000000      0xc4a
+.debug_str      0x00000000      0xcd9
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
- .debug_str     0x00000208      0x4bb ADC_DAC_Functions.o
-                                0x515 (size before relaxing)
- .debug_str     0x000006c3      0x13e Conversion_Functions.o
+ .debug_str     0x00000208      0x4a3 ADC_DAC_Functions.o
+                                0x4fd (size before relaxing)
+ .debug_str     0x000006ab      0x1e5 Conversion_Functions.o
                                 0x37b (size before relaxing)
- .debug_str     0x00000801       0xcc Master_Micro_Testing_Main.o
+ .debug_str     0x00000890       0xcc Master_Micro_Testing_Main.o
                                 0x3e3 (size before relaxing)
- .debug_str     0x000008cd      0x2be Serial_Communication_Functions.o
+ .debug_str     0x0000095c      0x2be Serial_Communication_Functions.o
                                 0x603 (size before relaxing)
- .debug_str     0x00000b8b       0x53 Setup_Functions.o
+ .debug_str     0x00000c1a       0x53 Setup_Functions.o
                                 0x273 (size before relaxing)
- .debug_str     0x00000bde       0x6c SPI_Functions.o
+ .debug_str     0x00000c6d       0x6c SPI_Functions.o
                                 0x34e (size before relaxing)
 
 .debug_loc      0x00000000     0x26bf
