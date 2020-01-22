@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   5 .debug_aranges 00000220  00000000  00000000  00000dd8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00002e1e  00000000  00000000  00000ff8  2**0
+  6 .debug_info   00002e1f  00000000  00000000  00000ff8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000011af  00000000  00000000  00003e16  2**0
+  7 .debug_abbrev 000011af  00000000  00000000  00003e17  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00001205  00000000  00000000  00004fc5  2**0
+  8 .debug_line   00001205  00000000  00000000  00004fc6  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  000007a8  00000000  00000000  000061cc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000c4a  00000000  00000000  00006974  2**0
+ 10 .debug_str    00000cd9  00000000  00000000  00006974  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000026bf  00000000  00000000  000075be  2**0
+ 11 .debug_loc    000026bf  00000000  00000000  0000764d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000238  00000000  00000000  00009c7d  2**0
+ 12 .debug_ranges 00000238  00000000  00000000  00009d0c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -535,9 +535,9 @@ Disassembly of section .text:
  3c6:	26 e2       	ldi	r18, 0x26	; 38
  3c8:	c2 0e       	add	r12, r18
  3ca:	d1 1c       	adc	r13, r1
- 3cc:	11 e0       	ldi	r17, 0x01	; 1
+ 3cc:	10 e0       	ldi	r17, 0x00	; 0
  3ce:	7f 01       	movw	r14, r30
- 3d0:	88 e1       	ldi	r24, 0x18	; 24
+ 3d0:	81 2f       	mov	r24, r17
  3d2:	c3 df       	rcall	.-122    	; 0x35a <set_multiplexer_channel>
  3d4:	80 e0       	ldi	r24, 0x00	; 0
  3d6:	90 e0       	ldi	r25, 0x00	; 0
@@ -549,21 +549,21 @@ Disassembly of section .text:
  3e2:	56 d0       	rcall	.+172    	; 0x490 <ADC2uint16>
  3e4:	9c 83       	std	Y+4, r25	; 0x04
  3e6:	8b 83       	std	Y+3, r24	; 0x03
- 3e8:	f5 01       	movw	r30, r10
- 3ea:	11 93       	st	Z+, r17
- 3ec:	5f 01       	movw	r10, r30
- 3ee:	8b 81       	ldd	r24, Y+3	; 0x03
- 3f0:	9c 81       	ldd	r25, Y+4	; 0x04
- 3f2:	f6 01       	movw	r30, r12
- 3f4:	81 93       	st	Z+, r24
- 3f6:	91 93       	st	Z+, r25
- 3f8:	6f 01       	movw	r12, r30
- 3fa:	f7 01       	movw	r30, r14
- 3fc:	90 81       	ld	r25, Z
- 3fe:	9f 5f       	subi	r25, 0xFF	; 255
- 400:	90 83       	st	Z, r25
- 402:	1f 5f       	subi	r17, 0xFF	; 255
- 404:	17 32       	cpi	r17, 0x27	; 39
+ 3e8:	1f 5f       	subi	r17, 0xFF	; 255
+ 3ea:	f5 01       	movw	r30, r10
+ 3ec:	11 93       	st	Z+, r17
+ 3ee:	5f 01       	movw	r10, r30
+ 3f0:	8b 81       	ldd	r24, Y+3	; 0x03
+ 3f2:	9c 81       	ldd	r25, Y+4	; 0x04
+ 3f4:	f6 01       	movw	r30, r12
+ 3f6:	81 93       	st	Z+, r24
+ 3f8:	91 93       	st	Z+, r25
+ 3fa:	6f 01       	movw	r12, r30
+ 3fc:	f7 01       	movw	r30, r14
+ 3fe:	90 81       	ld	r25, Z
+ 400:	9f 5f       	subi	r25, 0xFF	; 255
+ 402:	90 83       	st	Z, r25
+ 404:	16 32       	cpi	r17, 0x26	; 38
  406:	21 f7       	brne	.-56     	; 0x3d0 <GetSensorData+0x30>
  408:	0f 90       	pop	r0
  40a:	0f 90       	pop	r0
@@ -641,12 +641,6 @@ uint8_t GetMuscleIndex( uint8_t muscle_ID_target )
  44c:	08 95       	ret
 
 0000044e <byte_array2int>:
-	sensor_int = (65535/5.)*sensor_volt;
-	
-	//Return the sensor integer.
-	return sensor_int;
-	
-}
  44e:	cf 93       	push	r28
  450:	df 93       	push	r29
  452:	00 d0       	rcall	.+0      	; 0x454 <byte_array2int+0x6>
@@ -684,12 +678,6 @@ uint8_t GetMuscleIndex( uint8_t muscle_ID_target )
  48e:	08 95       	ret
 
 00000490 <ADC2uint16>:
-	ADCuint16 = (65535/1023)*ADC_value;
-
-	//Return the uint16 value associated with the ADC value.
-	return ADCuint16;
-	
-}
  490:	00 24       	eor	r0, r0
  492:	96 95       	lsr	r25
  494:	87 95       	ror	r24
@@ -702,22 +690,10 @@ uint8_t GetMuscleIndex( uint8_t muscle_ID_target )
  4a2:	08 95       	ret
 
 000004a4 <main>:
-//Implement the main function.
-int main (void)
-{
-	
-	//Setup the microcontroller.
-	SetupMicro();
  4a4:	ed d1       	rcall	.+986    	; 0x880 <SetupMicro>
  4a6:	ff cf       	rjmp	.-2      	; 0x4a6 <main+0x2>
 
 000004a8 <__vector_11>:
-
-}
-
-//Implement the first timer interrupt function.
-ISR(TIMER1_COMPA_vect)
-{
  4a8:	1f 92       	push	r1
  4aa:	0f 92       	push	r0
  4ac:	0f b6       	in	r0, 0x3f	; 63
@@ -743,37 +719,17 @@ ISR(TIMER1_COMPA_vect)
  4d4:	d1 09       	sbc	r29, r1
  4d6:	de bf       	out	0x3e, r29	; 62
  4d8:	cd bf       	out	0x3d, r28	; 61
-	uint16_t dac_value;
-	struct int_array_struct command_data;
-	struct int_array_struct sensor_data;
-			
-	//Read the command uint16s from matlab.
-	serial_read_matlab_muscle_command_ints( &command_data );
  4da:	ce 01       	movw	r24, r28
  4dc:	01 96       	adiw	r24, 0x01	; 1
  4de:	56 d1       	rcall	.+684    	; 0x78c <serial_read_matlab_muscle_command_ints>
-	
-	//Write the command data to the slaves.
-	WriteCommandData2Slaves( &command_data );
  4e0:	ce 01       	movw	r24, r28
  4e2:	01 96       	adiw	r24, 0x01	; 1
  4e4:	f2 d1       	rcall	.+996    	; 0x8ca <WriteCommandData2Slaves>
-		
-	//Relinquish control of the slave select pin.
-	DDRB &= ~(1 << 0);					//Set the SS pin to input.
  4e6:	20 98       	cbi	0x04, 0	; 4
-		
-	//Retrieve the latest sensor data.
-	GetSensorData( &sensor_data );
  4e8:	ce 01       	movw	r24, r28
  4ea:	8c 58       	subi	r24, 0x8C	; 140
  4ec:	9f 4f       	sbci	r25, 0xFF	; 255
  4ee:	58 df       	rcall	.-336    	; 0x3a0 <GetSensorData>
-			
-
-
-	//Convert the ADC value to a DAC value.
-	dac_value = ADC2DAC( sensor_data.values[24] );
  4f0:	c6 53       	subi	r28, 0x36	; 54
  4f2:	df 4f       	sbci	r29, 0xFF	; 255
  4f4:	88 81       	ld	r24, Y
@@ -781,26 +737,11 @@ ISR(TIMER1_COMPA_vect)
  4f8:	ca 5c       	subi	r28, 0xCA	; 202
  4fa:	d0 40       	sbci	r29, 0x00	; 0
  4fc:	c7 dd       	rcall	.-1138   	; 0x8c <ADC2DAC>
-	
-	//Write a value to the DAC.
-	write2DAC( dac_value );
  4fe:	0a de       	rcall	.-1004   	; 0x114 <write2DAC>
-			
-				
-	//Write to the serial port.
-
-	//Write the sensor data uint16 values to matlab.
-	serial_write_sensor_data_ints2matlab( &sensor_data );
  500:	ce 01       	movw	r24, r28
  502:	8c 58       	subi	r24, 0x8C	; 140
  504:	9f 4f       	sbci	r25, 0xFF	; 255
  506:	55 d0       	rcall	.+170    	; 0x5b2 <serial_write_sensor_data_ints2matlab>
-	////write2slave( 1023, 21 );
-	////write2slave( 1023, 22 );
-	////write2slave( 1023, 23 );
-	////write2slave( 1023, 24 );
-
-}
  508:	ca 51       	subi	r28, 0x1A	; 26
  50a:	df 4f       	sbci	r29, 0xFF	; 255
  50c:	0f b6       	in	r0, 0x3f	; 63
@@ -829,12 +770,6 @@ ISR(TIMER1_COMPA_vect)
  53a:	18 95       	reti
 
 0000053c <uart_putchar>:
-	myfloat_struct.array = array;
-	myfloat_struct.length = num_singles;
-	
-	//Return the int_array.
-	return myfloat_struct;
-}
  53c:	cf 93       	push	r28
  53e:	c8 2f       	mov	r28, r24
  540:	8a 30       	cpi	r24, 0x0A	; 10
@@ -1133,10 +1068,6 @@ ISR(TIMER1_COMPA_vect)
  78a:	08 95       	ret
 
 0000078c <serial_read_matlab_muscle_command_ints>:
-
-//Implement a function to read matlab muscle activation uint16s.
-void serial_read_matlab_muscle_command_ints( struct int_array_struct * command_data_ptr )
-{
  78c:	9f 92       	push	r9
  78e:	af 92       	push	r10
  790:	bf 92       	push	r11
@@ -1149,21 +1080,9 @@ void serial_read_matlab_muscle_command_ints( struct int_array_struct * command_d
  79e:	cf 93       	push	r28
  7a0:	df 93       	push	r29
  7a2:	5c 01       	movw	r10, r24
-	//Define local variables.
-	unsigned char num_commands;										//This assumes that the number of ints being sent is <255.
-	static unsigned char int_bytes[NUM_BYTES_PER_UINT16];
-
-	//Wait for the start sequence to be received.
-	wait_for_start_sequence();
  7a4:	89 df       	rcall	.-238    	; 0x6b8 <wait_for_start_sequence>
-	
-	//Read in the number of commands to expect.
-	num_commands = uart_getchar();
  7a6:	d9 de       	rcall	.-590    	; 0x55a <uart_getchar>
  7a8:	98 2e       	mov	r9, r24
-	
-	//Read in each single.
-	for ( int k1 = 0; k1 < num_commands; ++k1)
  7aa:	88 23       	and	r24, r24
  7ac:	01 f1       	breq	.+64     	; 0x7ee <serial_read_matlab_muscle_command_ints+0x62>
  7ae:	75 01       	movw	r14, r10
@@ -1179,64 +1098,29 @@ void serial_read_matlab_muscle_command_ints( struct int_array_struct * command_d
  7c2:	dd 1c       	adc	r13, r13
  7c4:	ca 0c       	add	r12, r10
  7c6:	db 1c       	adc	r13, r11
-		command_data_ptr->IDs[k1] = uart_getchar();
-		
-		//Read in the float bytes.
-		for (int k2 = 0; k2 < NUM_BYTES_PER_UINT16; ++k2)
-		{
-			int_bytes[k2] = uart_getchar();
  7c8:	ca e4       	ldi	r28, 0x4A	; 74
  7ca:	d1 e0       	ldi	r29, 0x01	; 1
-	
-	//Read in each single.
-	for ( int k1 = 0; k1 < num_commands; ++k1)
-	{
-		//Read in the ID byte.
-		command_data_ptr->IDs[k1] = uart_getchar();
  7cc:	c6 de       	rcall	.-628    	; 0x55a <uart_getchar>
  7ce:	f7 01       	movw	r30, r14
  7d0:	81 93       	st	Z+, r24
  7d2:	7f 01       	movw	r14, r30
-		
-		//Read in the float bytes.
-		for (int k2 = 0; k2 < NUM_BYTES_PER_UINT16; ++k2)
-		{
-			int_bytes[k2] = uart_getchar();
  7d4:	c2 de       	rcall	.-636    	; 0x55a <uart_getchar>
  7d6:	88 83       	st	Y, r24
  7d8:	c0 de       	rcall	.-640    	; 0x55a <uart_getchar>
  7da:	89 83       	std	Y+1, r24	; 0x01
-		}
-		
-		//Store this byte array into a uint16.
-		command_data_ptr->values[k1] = byte_array2int(int_bytes);
  7dc:	ce 01       	movw	r24, r28
  7de:	37 de       	rcall	.-914    	; 0x44e <byte_array2int>
  7e0:	f8 01       	movw	r30, r16
  7e2:	81 93       	st	Z+, r24
  7e4:	91 93       	st	Z+, r25
  7e6:	8f 01       	movw	r16, r30
-	
-	//Read in the number of commands to expect.
-	num_commands = uart_getchar();
-	
-	//Read in each single.
-	for ( int k1 = 0; k1 < num_commands; ++k1)
  7e8:	ec 15       	cp	r30, r12
  7ea:	fd 05       	cpc	r31, r13
  7ec:	79 f7       	brne	.-34     	; 0x7cc <serial_read_matlab_muscle_command_ints+0x40>
-		//Store this byte array into a uint16.
-		command_data_ptr->values[k1] = byte_array2int(int_bytes);
-	}
-	
-	//Store the number of commands into the structure length field.
-	command_data_ptr->length = num_commands;
  7ee:	f5 01       	movw	r30, r10
  7f0:	ee 58       	subi	r30, 0x8E	; 142
  7f2:	ff 4f       	sbci	r31, 0xFF	; 255
  7f4:	90 82       	st	Z, r9
-
-}
  7f6:	df 91       	pop	r29
  7f8:	cf 91       	pop	r28
  7fa:	1f 91       	pop	r17
@@ -1251,12 +1135,6 @@ void serial_read_matlab_muscle_command_ints( struct int_array_struct * command_d
  80c:	08 95       	ret
 
 0000080e <SetupPins>:
-
-//Implement a function to setup ADC.
-void SetupADC( void )
-{
-	//Setup the ADC.
-	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
  80e:	8e e2       	ldi	r24, 0x2E	; 46
  810:	84 b9       	out	0x04, r24	; 4
  812:	17 b8       	out	0x07, r1	; 7
@@ -1275,69 +1153,39 @@ void SetupADC( void )
  82c:	08 95       	ret
 
 0000082e <SetupSPI>:
-{
-	//Define local variables.
-	unsigned char temp;
-	
-	// Setup for SPI.
-	SPCR=0b01010010;		//0, 1 = SPI Clock Rate Setting (SPR0, SPR1); 2 = SPI Clock Phase (CPHA); 3 = SPI Clock Polarity (CPOL); 4 = Master / Slave Setting (MSTR); 5 = SPI Data Order (DORD); 6 = SPI Enable (SPE); 7 = SPI Interrupt Enable (SPIE)
  82e:	82 e5       	ldi	r24, 0x52	; 82
  830:	8c bd       	out	0x2c, r24	; 44
-	
-	//Clear the SPI Status Register (SPSR) and SPI Data Register (SPDR) by reading them.
-	temp = SPSR;
  832:	8d b5       	in	r24, 0x2d	; 45
-	temp = SPDR;
  834:	8e b5       	in	r24, 0x2e	; 46
  836:	08 95       	ret
 
 00000838 <SetupTimerInterrupts>:
-
-//Implement a function to setup timer interrupts.
-void SetupTimerInterrupts( void )
-{
-	//Setup timer interrupt properties.
-	TCCR1B |= (1 << WGM12);										// Configure timer 1 for CTC mode
  838:	e1 e8       	ldi	r30, 0x81	; 129
  83a:	f0 e0       	ldi	r31, 0x00	; 0
  83c:	80 81       	ld	r24, Z
  83e:	88 60       	ori	r24, 0x08	; 8
  840:	80 83       	st	Z, r24
-	TIMSK1 |= (1 << OCIE1A);									// Enable CTC interrupt
  842:	af e6       	ldi	r26, 0x6F	; 111
  844:	b0 e0       	ldi	r27, 0x00	; 0
  846:	8c 91       	ld	r24, X
  848:	82 60       	ori	r24, 0x02	; 2
  84a:	8c 93       	st	X, r24
-	sei();													// Enable global interrupts
  84c:	78 94       	sei
-	//cli();														// Disable global interrupts
-	OCR1A = 15999;												//Set target timer count for 1 kHz interrupt given 16MHz clock & prescaler of 1. Use 3999 for 4 kHz under same conditions. OCR1A = Target_Timer_Count = (Clock_Frequency / (Prescale * Target_Frequency)) – 1
  84e:	8f e7       	ldi	r24, 0x7F	; 127
  850:	9e e3       	ldi	r25, 0x3E	; 62
  852:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__EEPROM_REGION_LENGTH__+0x7f0089>
  856:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__EEPROM_REGION_LENGTH__+0x7f0088>
-	TCCR1B |= ((1 << CS10) | (0 << CS11) | (0 << CS12));		//Sets the prescaler to 1.
  85a:	80 81       	ld	r24, Z
  85c:	81 60       	ori	r24, 0x01	; 1
  85e:	80 83       	st	Z, r24
  860:	08 95       	ret
 
 00000862 <SetupUSART>:
-
-//Implement a function to setup USART communication.
-void SetupUSART( void )
-{
-	//USART Setup
-	UBRR0H = MYUBRR >> 8;
  862:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__EEPROM_REGION_LENGTH__+0x7f00c5>
-	UBRR0L = MYUBRR;
  866:	80 e1       	ldi	r24, 0x10	; 16
  868:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__EEPROM_REGION_LENGTH__+0x7f00c4>
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
  86c:	88 e1       	ldi	r24, 0x18	; 24
  86e:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__EEPROM_REGION_LENGTH__+0x7f00c1>
-	stdout = &mystdout;
  872:	82 e0       	ldi	r24, 0x02	; 2
  874:	91 e0       	ldi	r25, 0x01	; 1
  876:	90 93 4f 01 	sts	0x014F, r25	; 0x80014f <__iob+0x3>
@@ -1345,45 +1193,15 @@ void SetupUSART( void )
  87e:	08 95       	ret
 
 00000880 <SetupMicro>:
-//Implement a function to setup mircocontroller functionality.
-void SetupMicro( void )
-{
-	
-	//Setup the microcontroller pins.
-	SetupPins();
  880:	c6 df       	rcall	.-116    	; 0x80e <SetupPins>
-
-//Implement a function to setup ADC.
-void SetupADC( void )
-{
-	//Setup the ADC.
-	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
  882:	87 e8       	ldi	r24, 0x87	; 135
  884:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__EEPROM_REGION_LENGTH__+0x7f007a>
-	
-	//Setup for ADC.
-	SetupADC();
-	
-	//Setup SPI communication.
-	SetupSPI();
  888:	d2 df       	rcall	.-92     	; 0x82e <SetupSPI>
-	
-	//Setup timer interrupts.
-	SetupTimerInterrupts();
  88a:	d6 df       	rcall	.-84     	; 0x838 <SetupTimerInterrupts>
-	
-	//Setup USART communication.
-	SetupUSART();	
  88c:	ea df       	rcall	.-44     	; 0x862 <SetupUSART>
  88e:	08 95       	ret
 
 00000890 <spi_write>:
-	spi_data = SPDR;
-	
-	//Return the SPI data.
-	return spi_data;
-	
-}
  890:	8e bd       	out	0x2e, r24	; 46
  892:	0d b4       	in	r0, 0x2d	; 45
  894:	07 fe       	sbrs	r0, 7
@@ -1391,84 +1209,34 @@ void SetupADC( void )
  898:	08 95       	ret
 
 0000089a <spi_read_write>:
-//Implement a function to perform SPI read and write.
-unsigned char spi_read_write(unsigned char spi_data)
-{
-	
-	//Write the SPI data.
-	SPDR = spi_data;
  89a:	8e bd       	out	0x2e, r24	; 46
-	
-	//Wait for a SPI data transfer to be complete.
-	while (!(SPSR & (1<<SPIF)));
  89c:	0d b4       	in	r0, 0x2d	; 45
  89e:	07 fe       	sbrs	r0, 7
  8a0:	fd cf       	rjmp	.-6      	; 0x89c <spi_read_write+0x2>
-	
-	//Read in the SPI data.
-	spi_data = SPDR;
  8a2:	8e b5       	in	r24, 0x2e	; 46
-	
-	//Return the SPI data.
-	return spi_data;
-
-}
  8a4:	08 95       	ret
 
 000008a6 <write2slave>:
-
-//Implement a function to pass an integer from the Master microcontroller to a Slave microcontroller via SPI.
-void write2slave( uint16_t value_to_write, uint8_t slave_num )
-{
  8a6:	cf 93       	push	r28
  8a8:	df 93       	push	r29
  8aa:	d8 2f       	mov	r29, r24
  8ac:	c9 2f       	mov	r28, r25
-	spi_byte_low = (value_to_write & 0xFF);					//Retrieve the lower byte from the value to write.
-	//spi_byte_high = (value_to_write & 0x0F00) >> 8;			//Retrieve the upper byte from the value to write.  Note that the 0x0F00 is valid for 12 bit values.
-	spi_byte_high = (value_to_write & 0xFF00) >> 8;			//Retrieve the upper byte from the value to write.  Note that 0xFF00 is valid for 16 bit values (i.e., two byte values such as uint16).
-
-	//Set the multiplexer channel so that we can perform a slave select for Micro-Micro SPI.
-	set_multiplexer_channel( slave_num + 37 );
  8ae:	85 e2       	ldi	r24, 0x25	; 37
  8b0:	86 0f       	add	r24, r22
  8b2:	53 dd       	rcall	.-1370   	; 0x35a <set_multiplexer_channel>
-
-	//Re-establish control over the slave select pin.
-	DDRB |= (1 << 0);						//Ensure the the SS pin is set to output.
  8b4:	20 9a       	sbi	0x04, 0	; 4
-
-	//Pull the slave select pin low to initiate SPI communication.
-	cbi(PORTB, 0);
  8b6:	28 98       	cbi	0x05, 0	; 5
-	//_delay_ms(1000);
-		
-	//Write the SPI byte to the slave.
-	//dummy_spi_byte = spi_read_write(0);
-	//dummy_spi_byte = spi_read_write(255);
-	dummy_spi_byte = spi_read_write(spi_byte_low);
  8b8:	8d 2f       	mov	r24, r29
  8ba:	ef df       	rcall	.-34     	; 0x89a <spi_read_write>
-	dummy_spi_byte = spi_read_write(spi_byte_high);
  8bc:	8c 2f       	mov	r24, r28
  8be:	ed df       	rcall	.-38     	; 0x89a <spi_read_write>
-		
-	//Pull the slave select pin high to end SPI communication.
-	sbi(PORTB, 0);
  8c0:	28 9a       	sbi	0x05, 0	; 5
-		
-	//Relinquish control of the slave select pin.
-	DDRB &= ~(1 << 0);					//Set the SS pin to input.
  8c2:	20 98       	cbi	0x04, 0	; 4
-}
  8c4:	df 91       	pop	r29
  8c6:	cf 91       	pop	r28
  8c8:	08 95       	ret
 
 000008ca <WriteCommandData2Slaves>:
-
-void WriteCommandData2Slaves( struct int_array_struct * command_data_ptr )
-{
  8ca:	af 92       	push	r10
  8cc:	bf 92       	push	r11
  8ce:	cf 92       	push	r12
@@ -1479,12 +1247,6 @@ void WriteCommandData2Slaves( struct int_array_struct * command_data_ptr )
  8d8:	1f 93       	push	r17
  8da:	cf 93       	push	r28
  8dc:	df 93       	push	r29
-
-	//Define local variables.
-	uint8_t k2;						//Index in the slave info structure array associated with the current muscle ID.
-
-	//Write the command data to the appropriate slave microcontroller.
-	for (uint8_t k1; k1 < command_data_ptr->length; ++k1)
  8de:	fc 01       	movw	r30, r24
  8e0:	ee 58       	subi	r30, 0x8E	; 142
  8e2:	ff 4f       	sbci	r31, 0xFF	; 255
@@ -1493,39 +1255,16 @@ void WriteCommandData2Slaves( struct int_array_struct * command_data_ptr )
  8e8:	d2 16       	cp	r13, r18
  8ea:	a0 f5       	brcc	.+104    	; 0x954 <WriteCommandData2Slaves+0x8a>
  8ec:	ec 01       	movw	r28, r24
-			// Code to Test Whether the Master & Slave are getting the same command data value for a given slave.
-			
-			if (slave_info[k2].slave_num == 2)		// If the current command value is being sent to slave number 1...
-			{
-				
-				if (command_data_ptr->values[k1] > activation_threshold)		// If the current command value is above the activation threshold...
  8ee:	e0 90 10 01 	lds	r14, 0x0110	; 0x800110 <activation_threshold>
  8f2:	f0 90 11 01 	lds	r15, 0x0111	; 0x800111 <activation_threshold+0x1>
-
-	//Define local variables.
-	uint8_t k2;						//Index in the slave info structure array associated with the current muscle ID.
-
-	//Write the command data to the appropriate slave microcontroller.
-	for (uint8_t k1; k1 < command_data_ptr->length; ++k1)
  8f6:	8f 01       	movw	r16, r30
-	{
-		
-		//Retrieve the muscle index.
-		k2 = GetMuscleIndex( command_data_ptr->IDs[k1] );
  8f8:	fe 01       	movw	r30, r28
  8fa:	ed 0d       	add	r30, r13
  8fc:	f1 1d       	adc	r31, r1
  8fe:	80 81       	ld	r24, Z
  900:	91 dd       	rcall	.-1246   	; 0x424 <GetMuscleIndex>
-		
-		//Write to the appropriate slave.
-		if (!(k2 == 255))																	//If we detected a valid muscle ID...
  902:	8f 3f       	cpi	r24, 0xFF	; 255
  904:	11 f1       	breq	.+68     	; 0x94a <WriteCommandData2Slaves+0x80>
-		{
-			
-			//Write the corresponding value to the associated slave microcontroller.
-			write2slave( command_data_ptr->values[k1], slave_info[k2].slave_num );
  906:	e8 2f       	mov	r30, r24
  908:	f0 e0       	ldi	r31, 0x00	; 0
  90a:	ee 0f       	add	r30, r30
@@ -1544,52 +1283,27 @@ void WriteCommandData2Slaves( struct int_array_struct * command_data_ptr )
  924:	86 a1       	ldd	r24, Z+38	; 0x26
  926:	97 a1       	ldd	r25, Z+39	; 0x27
  928:	be df       	rcall	.-132    	; 0x8a6 <write2slave>
-
-			// Code to Test Whether the Master & Slave are getting the same command data value for a given slave.
-			
-			if (slave_info[k2].slave_num == 2)		// If the current command value is being sent to slave number 1...
  92a:	f2 e0       	ldi	r31, 0x02	; 2
  92c:	cf 12       	cpse	r12, r31
  92e:	0d c0       	rjmp	.+26     	; 0x94a <WriteCommandData2Slaves+0x80>
-			{
-				
-				if (command_data_ptr->values[k1] > activation_threshold)		// If the current command value is above the activation threshold...
  930:	f5 01       	movw	r30, r10
  932:	86 a1       	ldd	r24, Z+38	; 0x26
  934:	97 a1       	ldd	r25, Z+39	; 0x27
  936:	e8 16       	cp	r14, r24
  938:	f9 06       	cpc	r15, r25
  93a:	20 f4       	brcc	.+8      	; 0x944 <WriteCommandData2Slaves+0x7a>
-				{
-					write2DAC( 4095 );										// Set the DAC high.
  93c:	8f ef       	ldi	r24, 0xFF	; 255
  93e:	9f e0       	ldi	r25, 0x0F	; 15
  940:	e9 db       	rcall	.-2094   	; 0x114 <write2DAC>
  942:	03 c0       	rjmp	.+6      	; 0x94a <WriteCommandData2Slaves+0x80>
-				}
-				else
-				{
-					write2DAC( 0 );											// Set the DAC low.
  944:	80 e0       	ldi	r24, 0x00	; 0
  946:	90 e0       	ldi	r25, 0x00	; 0
  948:	e5 db       	rcall	.-2102   	; 0x114 <write2DAC>
-
-	//Define local variables.
-	uint8_t k2;						//Index in the slave info structure array associated with the current muscle ID.
-
-	//Write the command data to the appropriate slave microcontroller.
-	for (uint8_t k1; k1 < command_data_ptr->length; ++k1)
  94a:	d3 94       	inc	r13
  94c:	f8 01       	movw	r30, r16
  94e:	80 81       	ld	r24, Z
  950:	d8 16       	cp	r13, r24
  952:	90 f2       	brcs	.-92     	; 0x8f8 <WriteCommandData2Slaves+0x2e>
-
-		}
-		
-	}
-	
-}
  954:	df 91       	pop	r29
  956:	cf 91       	pop	r28
  958:	1f 91       	pop	r17
