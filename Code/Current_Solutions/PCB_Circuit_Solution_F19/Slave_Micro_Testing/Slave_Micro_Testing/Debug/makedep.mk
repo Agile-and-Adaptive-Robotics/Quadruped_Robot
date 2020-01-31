@@ -4,6 +4,8 @@
 
 ADC_DAC_Functions.c
 
+Control_Functions.c
+
 Conversion_Functions.c
 
 Serial_Communication_Functions.c

@@ -135,9 +135,40 @@ uint16_t ADC2uint16( unsigned int ADC_value )
 	uint16_t ADCuint16;
 	
 	//Convert the ADC value to a uint16.
-	ADCuint16 = (65535/910)*ADC_value;
-	
+	//ADCuint16 = (65535/1023)*ADC_value;
+	ADCuint16 = round( (65535/1023)*ADC_value );
+
 	//Return the uint16 value associated with the ADC value.
 	return ADCuint16;
+	
+}
+
+// Implement a function to convert an uint16 value to an adc value.
+unsigned int uint162ADC( uint16_t uint16_value )
+{
+	
+	// Define a variable to store the ADC value.
+	unsigned int ADC_value;
+	
+	// Convert the uint16 to an ADC value.
+	ADC_value = round( (1023/65535)*uint16_value );
+	
+	// Return the ADC value.
+	return ADC_value;
+	
+}
+
+// Implement a function to convert an ADC value to a voltage (0-5 float).
+float ADC2Voltage( unsigned int ADC_value )
+{
+	
+	// Define local variables.
+	float voltage;
+	
+	// Convert the ADC value to a voltage.
+	voltage = (5./1023)*ADC_value;
+	
+	// Return the voltage.
+	return voltage;
 	
 }

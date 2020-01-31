@@ -49,23 +49,24 @@ sensor_IDs_crit = 1:38;
 %% Read in Command Data From Previous Animatlab Simulations.
 
 % %Read in Animatlab muscle data.
-% animatlab_muscle_data = dlmread('C:\Users\USER\Documents\Coursework\MSME\Thesis\Animatlab\Simple_Quadruped\Simple_Quadruped\Front Left Leg Muscle Data.txt', '', 1, 0);
-%
+% % animatlab_muscle_data = dlmread('C:\Users\USER\Documents\Coursework\MSME\Thesis\Animatlab\Simple_Quadruped\Simple_Quadruped\Front Left Leg Muscle Data.txt', '', 1, 0);
+% animatlab_muscle_data = dlmread('C:\Users\USER\Documents\Graduate_School\Thesis\Animatlab\Simple_Quadruped\Simple_Quadruped\Front Left Leg Muscle Data.txt', '', 1, 0);
+% 
 % %Retrieve the animatlab time vector.
 % ts_animatlab = animatlab_muscle_data(:, 1);
-%
+% 
 % %Retrieve the muscle tension values.
 % animatlab_muscle_tensions = animatlab_muscle_data(:, 3:2:end);
-%
+% 
 % %Permute the columns of the animatlab muscle tensions so that the commands are ordered: hip, knee, ankle.
 % animatlab_muscle_tensions(:, :) = animatlab_muscle_tensions(:, [3 4 5 6 1 2]);
-%
+% 
 % %Subsample the animatlab muscle tension data.
 % animatlab_muscle_tensions = animatlab_muscle_tensions(1:60:end, :);
-%
+% 
 % %Define the number of commands to be sent.
 % num_commands = size(animatlab_muscle_tensions, 1);
-%
+% 
 % %Define a time vector for data collection and simulation.
 % ts = 1:num_commands;
 

@@ -163,6 +163,9 @@
     <Compile Include="ADC_DAC_Functions.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Control_Functions.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Conversion_Functions.c">
       <SubType>compile</SubType>
     </Compile>

@@ -38,6 +38,7 @@ SUBDIRS :=
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../ADC_DAC_Functions.c \
+../Control_Functions.c \
 ../Conversion_Functions.c \
 ../Serial_Communication_Functions.c \
 ../Setup_Functions.c \
@@ -52,6 +53,7 @@ ASM_SRCS +=
 
 OBJS +=  \
 ADC_DAC_Functions.o \
+Control_Functions.o \
 Conversion_Functions.o \
 Serial_Communication_Functions.o \
 Setup_Functions.o \
@@ -59,6 +61,7 @@ Slave_Micro_Testing_Main.o
 
 OBJS_AS_ARGS +=  \
 ADC_DAC_Functions.o \
+Control_Functions.o \
 Conversion_Functions.o \
 Serial_Communication_Functions.o \
 Setup_Functions.o \
@@ -66,6 +69,7 @@ Slave_Micro_Testing_Main.o
 
 C_DEPS +=  \
 ADC_DAC_Functions.d \
+Control_Functions.d \
 Conversion_Functions.d \
 Serial_Communication_Functions.d \
 Setup_Functions.d \
@@ -73,6 +77,7 @@ Slave_Micro_Testing_Main.d
 
 C_DEPS_AS_ARGS +=  \
 ADC_DAC_Functions.d \
+Control_Functions.d \
 Conversion_Functions.d \
 Serial_Communication_Functions.d \
 Setup_Functions.d \
@@ -92,6 +97,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

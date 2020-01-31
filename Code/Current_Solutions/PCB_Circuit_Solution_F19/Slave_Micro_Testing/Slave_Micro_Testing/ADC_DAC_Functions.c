@@ -96,7 +96,7 @@ unsigned int readADC( unsigned int channel_num )
 	//Retrieve the current ADC value at the specified channel.
 	ADCSRA = ADCSRA | 0b01000000;						// Start AD conversion.  Sets bit 7 to 1 and leaves all other bits the same.
 	while ((ADCSRA & 0b01000000) == 0b01000000);		// Wait while AD conversion is executed.  Waits until bit 7 is set to 1.
-	return ADCW;										//[0-1023] ADC value.
+	return ADCW;										// [0-1023] ADC value.
 	
 }
 
