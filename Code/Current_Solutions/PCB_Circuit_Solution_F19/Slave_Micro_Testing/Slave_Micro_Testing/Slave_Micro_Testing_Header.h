@@ -76,6 +76,9 @@ void float2byte_array(float my_float, unsigned char byte_array[]);
 float muscle_int2muscle_volt(unsigned int muscle_int);
 unsigned int sensor_volt2sensor_int(unsigned int sensor_volt);
 uint16_t ADC2uint16( unsigned int ADC_value );
+unsigned int uint162ADC( uint16_t uint16_value );
+float ADC2Voltage( unsigned int ADC_value );
+
 
 //Low Level UART Functions.
 void uart_putchar(char c, FILE *stream);
@@ -125,6 +128,9 @@ unsigned char GetMuscleInfoIndex( unsigned char muscle_ID );
 void UpdateMuscleOnOffStates( struct int_array_struct * command_data_ptr);
 void UseDACAsMusclePin(struct int_array_struct * command_data_ptr);
 
+// Control Functions.
+void on_off_threshold_control( uint16_t activation_level );
+void bang_bang_pressure_control( float p_desired, float p_actual );
 
 //Define the the standard output.
 static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
@@ -148,6 +154,7 @@ extern const unsigned char num_potentiometers;
 extern const unsigned char num_sensors_total;
 extern const struct muscle_info_struct muscle_info[NUM_FRONT_LEG_MUSCLES];
 extern const uint16_t activation_threshold;
+extern const float p_threshold;
 
 //Declare global variables.
 extern unsigned int dac_data;										//[#] Value to send to dac.

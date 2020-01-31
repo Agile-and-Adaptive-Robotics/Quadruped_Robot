@@ -25,6 +25,8 @@ const unsigned char num_sensors_total = 38;
 const struct muscle_info_struct muscle_info[NUM_FRONT_LEG_MUSCLES] = { {39, &PORTB, 2}, {40, &PORTC, 3}, {41, &PORTC, 1}, {42, &PORTC, 4}, {43, &PORTC, 2}, {44, &PORTC, 5} };
 //const uint16_t activation_threshold = 32767;
 const uint16_t activation_threshold = 5000;
+const float p_threshold = (5./90)*10;				// [V] Represents 10 psi as a voltage [0-5].
+
 
 //Define global variables.
 unsigned int dac_data = 0;									//[#] Value to send to dac.
@@ -54,36 +56,89 @@ int main (void)
 ISR(TIMER1_COMPA_vect)
 {			
 	
-	//Define local variables.
-	uint16_t p_desired;
-	
-	//Convert the current SPI bytes into a SPI value.
-	p_desired = byte_array2int(spi_bytes);
+	//// THIS IS ON OFF CONTROL USING MY FUNCTION.
+	//
+	////Define local variables.
+	//uint16_t spi_value;
+	//
+	////Convert the current SPI bytes into a SPI value.
+	//spi_value = byte_array2int(spi_bytes);
+		//
+	//// Treat the spi value as an activation level.  If the activation level is above the activation threshold, open the valve.
+	//on_off_threshold_control( spi_value );
 		
-	//Determine what to do based on the SPI value.
-	if (p_desired >= activation_threshold)
-	{
-		//PORTD |= (1 << 5);
-		PORTB |= (1 << 1);
-	}
-	else
-	{
-		//PORTD &= ~(1 << 5);
-		PORTB &= ~(1 << 1);
-	}
 		
-	////Determine what to do based on the SPI value.
-	//if (p_desired >= 512)
+	//// THIS IS ON OFF CONTORL WITHOUT MY FUNCTION.
+	//
+	//// Determine whether to open or close the valve.
+	//if (activation_level >= activation_threshold)			// If the activation level is greater than or equal to the activation threshold...
 	//{
-		//PORTD |= (1 << 5);
+		//// Open the valve.
+		//PORTB |= (1 << 1);
 	//}
 	//else
 	//{
-		//PORTD &= ~(1 << 5);
+		//// Close the valve.
+		//PORTB &= ~(1 << 1);
 	//}
+	
+	
+	
+	// THIS IS BANG-BANG CONTROL WITH MY FUNCTION.
 		
-	//PORTD |= (1 << 5);
+	// Define local variables.
+	float p_desired;
+	float p_actual;
 		
+	// Retrieve the desired pressure value from the SPI bytes.
+	p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-5] Desired pressure as a floating point voltage.
+		
+	// Read in the current pressure value.
+	p_actual = ADC2Voltage( readADC( 0 ) );														// [0-5] Actual pressure as a floating point voltage.
+		
+	// Perform bang-bang control.  i.e., if the actual pressure is sufficiently far below the desired pressure, open the valve to increase the pressure.  If the actual pressure is sufficiently far above the actual pressure, close the valve to decrease the pressure.
+	bang_bang_pressure_control( p_desired, p_actual );
+		
+
+	
+
+	//// THIS IS BANG-BANG CONTROL WITHOUT MY FUNCTION.
+	//
+	//// Define local variables.
+	//float p_desired;
+	//float p_actual;
+	//float p_upper;
+	//float p_lower;
+	//
+	//// Retrieve the desired pressure value from the SPI bytes.
+	//p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-5] Desired pressure as a floating point voltage.
+//
+	//// Compute the lower and upper pressure bounds.
+	//p_lower = p_desired - p_threshold;
+	//p_upper = p_desired + p_threshold;
+//
+	//// Read in the current pressure value.
+	//p_actual = ADC2Voltage( readADC( 0 ) );
+		//
+	//// Determine whether to open or close the valve.
+	//if (p_actual > p_upper)				// If the current pressure is above the upper pressure limit...
+	//{
+		//// Close the valve to exhaust air.
+		//PORTB &= ~(1 << 1);
+	//}
+	//else if (p_actual < p_lower)		// If the current pressure is below the lower pressure limit...
+	//{
+		//// Open the valve to add air.
+		//PORTB |= (1 << 1);
+	//}
+	
+	
+	
+	
+	
+	
+	
+	// Toggle a pin each time this interrupt executes.
 	PORTD ^= (1 << 3);
 	
 }
