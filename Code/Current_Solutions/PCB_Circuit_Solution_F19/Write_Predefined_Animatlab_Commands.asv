@@ -51,50 +51,111 @@ sensor_IDs_crit = 1:38;
 % %Read in Animatlab muscle data.
 % % animatlab_muscle_data = dlmread('C:\Users\USER\Documents\Coursework\MSME\Thesis\Animatlab\Simple_Quadruped\Simple_Quadruped\Front Left Leg Muscle Data.txt', '', 1, 0);
 % animatlab_muscle_data = dlmread('C:\Users\USER\Documents\Graduate_School\Thesis\Animatlab\Simple_Quadruped\Simple_Quadruped\Front Left Leg Muscle Data.txt', '', 1, 0);
-%
+% 
 % %Retrieve the animatlab time vector.
 % ts_animatlab = animatlab_muscle_data(:, 1);
-%
+% 
 % %Retrieve the muscle tension values.
 % animatlab_muscle_tensions = animatlab_muscle_data(:, 3:2:end);
-%
+% 
 % %Permute the columns of the animatlab muscle tensions so that the commands are ordered: hip, knee, ankle.
 % animatlab_muscle_tensions(:, :) = animatlab_muscle_tensions(:, [3 4 5 6 1 2]);
-%
+% 
 % %Subsample the animatlab muscle tension data.
 % animatlab_muscle_tensions = animatlab_muscle_tensions(1:60:end, :);
-%
+% 
 % %Define the number of commands to be sent.
 % num_commands = size(animatlab_muscle_tensions, 1);
-%
+% 
 % %Define a time vector for data collection and simulation.
 % ts = 1:num_commands;
 
 
-%% Generate Muscle Commands Using Square Waves.
+%% Generate On / Off Muscle Commands Manually
+
+% % Define the muscle on value.
+% muscle_on_value = 450;
+% 
+% % Define the number of muscles to use.
+% % num_muscles = 6;
+% num_muscles = 24;
+% 
+% % Define cycle parameters.
+% num_commands_per_cycle = 100;
+% num_cycles = 5;
+% 
+% % Compute the total number of commands to be sent.
+% num_commands = num_commands_per_cycle*(num_cycles + 1);
+% 
+% % Create a template row for the animatlab muscle tension matrix.
+% template_row = zeros(1, num_muscles);
+% template_row(2:2:end) = ones(1, length(template_row(2:2:end)));
+% 
+% % Initialize the animatlab muscle tension matrix.
+% animatlab_muscle_tensions = zeros(num_commands, num_muscles);
+% 
+% % Initialize a counter variable.
+% k3 = 0;
+% 
+% % Create the Animatlab muscle tension matrix row by row.
+% for k1 = 1:(2*num_cycles)                           % Iterate through each of the cycles...
+%     for k2 = 1:num_commands_per_cycle               % Iterate through each of the other commands per cycle...
+%         
+%         % Advance the counter.
+%         k3 = k3 + 1;
+%         
+%         if (mod(k1, 2) == 0)
+%             animatlab_muscle_tensions(k3, :) = muscle_on_value*template_row;
+%         else
+%             animatlab_muscle_tensions(k3, :) = muscle_on_value*(~template_row);
+%         end
+%         
+%     end
+% end
+% 
+% % Set the final command set to zero.
+% for k = 1:num_commands_per_cycle
+%     animatlab_muscle_tensions(k3 + k, :) = zeros(1, num_muscles);
+% end
+% 
+% %Define a time vector for data collection and simulation.
+% ts = 1:num_commands;
+
+
 
 % % Define the On/Off muscle command parameters.
 % num_muscles = 24;               % [#] Number of Muscles.
 % num_cycles = 5;                 % [#] Number of Cycles to Generate.
 % num_per_cycle = 100;            % [#] Number of Points per Cycle.
 % on_value = 450;                 % [-] Value that Micros will recognize as a high value.
-%
+% 
 % % Generate the On/Off muscle commands.
-% [animatlab_muscle_tensions, ts, num_commands] = GenerateOnOffCommands(num_muscles, num_cycles, num_per_cycle, on_value);
+% [animatlab_muscle_tensions, ts] = GenerateOnOffCommands(num_muscles, num_cycles, num_per_cycle, on_value);
+% 
+% % Retrieve the number of commands.
+% num_commands = length(ts);
 
 
+%% Generate Sinusoidal Muscle Commands.
 
-%% Generate Muscle Commands Using Sine Waves.
 
 % Define the sinusoidal muscle command parameters.
 num_muscles = 24;               % [#] Number of Muscles.
 num_cycles = 5;                 % [#] Number of Cycles to Generate.
 num_per_cycle = 100;            % [#] Number of Points per Cycle.
 on_value = 450;                 % [-] Value that Micros will recognize as a high value.
- 
-% Generate the sinusoidal muscle commands.
-[animatlab_muscle_tensions, ts, num_commands] = GenerateSinusoidalCommands(num_muscles, num_cycles, num_per_cycle, on_value);
 
+% Compute the total number of commands to be sent.
+num_commands = num_per_cycle*(num_cycles + 1);
+
+% Preallocate a value to store the muscle values.
+muscle_values = zeros(num_commands, num_muscles);
+
+for k = 1:num_muscles
+    
+    
+    
+end
 
 
 % % ONLY USE THE FRONT LEFT LEG.
@@ -252,14 +313,14 @@ for k1 = 1:num_front_back_states                            % Iterate through th
             
             %Plot the extensor for this muscle pair.
             %             plot(ts, front_left_leg_pressures(k3, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
-            %             plot(ts, muscle_pressures(k3, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
+%             plot(ts, muscle_pressures(k3, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
             plot(ts, muscle_pressures(k4, :), '.-', 'Color', colors(2*k3 - 1, :), 'Markersize', 20)
-            
+
             %Plot the flexor for this muscle pair.
             %             plot(ts, front_left_leg_pressures(k3 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
-            %             plot(ts, muscle_pressures(k3 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
+%             plot(ts, muscle_pressures(k3 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
             plot(ts, muscle_pressures(k4 + 1, :), '.-', 'Color', colors(2*k3, :), 'Markersize', 20)
-            
+
             %Add a legend to the plot.
             legend('Extensor', 'Flexor', 'Location', 'Best')
             
@@ -297,7 +358,7 @@ for k1 = 1:num_front_back_states                    % Iterate through the front 
         
         % Create a figure for the joint angles associated with this leg.
         fig = figure('Name', fig_name, 'Color', 'w');
-        
+    
         % Add the data for each joint to this figure.
         for k3 = 1:num_joints                   % Iterate through the joints associated with this limb...
             
