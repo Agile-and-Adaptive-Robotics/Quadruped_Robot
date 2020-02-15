@@ -883,7 +883,7 @@ END GROUP
  .debug_str     0x000006ab      0x1e5 Conversion_Functions.o
                                 0x37b (size before relaxing)
  .debug_str     0x00000890       0xcc Master_Micro_Testing_Main.o
-                                0x3e3 (size before relaxing)
+                                0x3cb (size before relaxing)
  .debug_str     0x0000095c      0x2be Serial_Communication_Functions.o
                                 0x603 (size before relaxing)
  .debug_str     0x00000c1a       0x53 Setup_Functions.o

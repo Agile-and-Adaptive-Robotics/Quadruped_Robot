@@ -151,7 +151,7 @@ unsigned int uint162ADC( uint16_t uint16_value )
 	unsigned int ADC_value;
 	
 	// Convert the uint16 to an ADC value.
-	ADC_value = round( (1023/65535)*uint16_value );
+	ADC_value = round( (1023./65535.)*uint16_value );
 	
 	// Return the ADC value.
 	return ADC_value;

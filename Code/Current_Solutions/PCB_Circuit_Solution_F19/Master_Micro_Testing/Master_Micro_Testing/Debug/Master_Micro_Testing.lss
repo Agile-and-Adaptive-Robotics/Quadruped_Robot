@@ -690,10 +690,22 @@ uint8_t GetMuscleIndex( uint8_t muscle_ID_target )
  4a2:	08 95       	ret
 
 000004a4 <main>:
+//Implement the main function.
+int main (void)
+{
+	
+	//Setup the microcontroller.
+	SetupMicro();
  4a4:	ed d1       	rcall	.+986    	; 0x880 <SetupMicro>
  4a6:	ff cf       	rjmp	.-2      	; 0x4a6 <main+0x2>
 
 000004a8 <__vector_11>:
+
+}
+
+//Implement the first timer interrupt function.
+ISR(TIMER1_COMPA_vect)
+{
  4a8:	1f 92       	push	r1
  4aa:	0f 92       	push	r0
  4ac:	0f b6       	in	r0, 0x3f	; 63
@@ -719,17 +731,37 @@ uint8_t GetMuscleIndex( uint8_t muscle_ID_target )
  4d4:	d1 09       	sbc	r29, r1
  4d6:	de bf       	out	0x3e, r29	; 62
  4d8:	cd bf       	out	0x3d, r28	; 61
+	uint16_t dac_value;
+	struct int_array_struct command_data;
+	struct int_array_struct sensor_data;
+			
+	//Read the command uint16s from matlab.
+	serial_read_matlab_muscle_command_ints( &command_data );
  4da:	ce 01       	movw	r24, r28
  4dc:	01 96       	adiw	r24, 0x01	; 1
  4de:	56 d1       	rcall	.+684    	; 0x78c <serial_read_matlab_muscle_command_ints>
+	
+	//Write the command data to the slaves.
+	WriteCommandData2Slaves( &command_data );
  4e0:	ce 01       	movw	r24, r28
  4e2:	01 96       	adiw	r24, 0x01	; 1
  4e4:	f2 d1       	rcall	.+996    	; 0x8ca <WriteCommandData2Slaves>
+		
+	//Relinquish control of the slave select pin.
+	DDRB &= ~(1 << 0);					//Set the SS pin to input.
  4e6:	20 98       	cbi	0x04, 0	; 4
+		
+	//Retrieve the latest sensor data.
+	GetSensorData( &sensor_data );
  4e8:	ce 01       	movw	r24, r28
  4ea:	8c 58       	subi	r24, 0x8C	; 140
  4ec:	9f 4f       	sbci	r25, 0xFF	; 255
  4ee:	58 df       	rcall	.-336    	; 0x3a0 <GetSensorData>
+			
+
+
+	//Convert the ADC value to a DAC value.
+	dac_value = ADC2DAC( sensor_data.values[24] );
  4f0:	c6 53       	subi	r28, 0x36	; 54
  4f2:	df 4f       	sbci	r29, 0xFF	; 255
  4f4:	88 81       	ld	r24, Y
@@ -737,11 +769,26 @@ uint8_t GetMuscleIndex( uint8_t muscle_ID_target )
  4f8:	ca 5c       	subi	r28, 0xCA	; 202
  4fa:	d0 40       	sbci	r29, 0x00	; 0
  4fc:	c7 dd       	rcall	.-1138   	; 0x8c <ADC2DAC>
+	
+	//Write a value to the DAC.
+	write2DAC( dac_value );
  4fe:	0a de       	rcall	.-1004   	; 0x114 <write2DAC>
+			
+				
+	//Write to the serial port.
+
+	//Write the sensor data uint16 values to matlab.
+	serial_write_sensor_data_ints2matlab( &sensor_data );
  500:	ce 01       	movw	r24, r28
  502:	8c 58       	subi	r24, 0x8C	; 140
  504:	9f 4f       	sbci	r25, 0xFF	; 255
  506:	55 d0       	rcall	.+170    	; 0x5b2 <serial_write_sensor_data_ints2matlab>
+	////write2slave( 1023, 21 );
+	////write2slave( 1023, 22 );
+	////write2slave( 1023, 23 );
+	////write2slave( 1023, 24 );
+
+}
  508:	ca 51       	subi	r28, 0x1A	; 26
  50a:	df 4f       	sbci	r29, 0xFF	; 255
  50c:	0f b6       	in	r0, 0x3f	; 63

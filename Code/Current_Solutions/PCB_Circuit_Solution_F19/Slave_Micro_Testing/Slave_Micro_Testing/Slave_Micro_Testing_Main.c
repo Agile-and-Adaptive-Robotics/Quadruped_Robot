@@ -66,22 +66,6 @@ ISR(TIMER1_COMPA_vect)
 		//
 	//// Treat the spi value as an activation level.  If the activation level is above the activation threshold, open the valve.
 	//on_off_threshold_control( spi_value );
-		
-		
-	//// THIS IS ON OFF CONTORL WITHOUT MY FUNCTION.
-	//
-	//// Determine whether to open or close the valve.
-	//if (activation_level >= activation_threshold)			// If the activation level is greater than or equal to the activation threshold...
-	//{
-		//// Open the valve.
-		//PORTB |= (1 << 1);
-	//}
-	//else
-	//{
-		//// Close the valve.
-		//PORTB &= ~(1 << 1);
-	//}
-	
 	
 	
 	// THIS IS BANG-BANG CONTROL WITH MY FUNCTION.
@@ -92,6 +76,8 @@ ISR(TIMER1_COMPA_vect)
 		
 	// Retrieve the desired pressure value from the SPI bytes.
 	p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-5] Desired pressure as a floating point voltage.
+		
+	//p_desired = 2.5;
 		
 	// Read in the current pressure value.
 	p_actual = ADC2Voltage( readADC( 0 ) );														// [0-5] Actual pressure as a floating point voltage.

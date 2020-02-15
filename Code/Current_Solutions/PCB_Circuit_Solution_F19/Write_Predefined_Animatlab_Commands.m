@@ -78,9 +78,9 @@ sensor_IDs_crit = 1:38;
 % num_cycles = 5;                 % [#] Number of Cycles to Generate.
 % num_per_cycle = 100;            % [#] Number of Points per Cycle.
 % on_value = 450;                 % [-] Value that Micros will recognize as a high value.
-%
+% 
 % % Generate the On/Off muscle commands.
-% [animatlab_muscle_tensions, ts, num_commands] = GenerateOnOffCommands(num_muscles, num_cycles, num_per_cycle, on_value);
+% [animatlab_muscle_tensions, ts, num_commands] = GenerateSquareCommands(num_muscles, num_cycles, num_per_cycle, on_value);
 
 
 
@@ -97,8 +97,18 @@ on_value = 450;                 % [-] Value that Micros will recognize as a high
 
 
 
-% % ONLY USE THE FRONT LEFT LEG.
+% % Front left leg only.
 % animatlab_muscle_tensions(:, 7:end) = 0;
+
+% Front left ankle only.
+% animatlab_muscle_tensions(:, 3:end) = 0;
+animatlab_muscle_tensions(:, 17:end) = 0;
+
+% % Front left ankle only.
+% animatlab_muscle_tensions(:, 1:4) = 0; animatlab_muscle_tensions(:, 7:end) = 0;
+
+% % Back right ankle only.
+% animatlab_muscle_tensions(:, 1:end-2) = 0;
 
 
 %% Pass Information Between Animatlab & the Micro Controller.

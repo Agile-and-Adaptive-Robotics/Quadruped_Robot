@@ -13,12 +13,8 @@ const uint8_t multiplexer_pins1[3] = {2, 3, 4};
 const uint8_t multiplexer_pins2[3] = {5, 6, 7};
 const uint8_t * multiplexer_port = &PORTD;
 const struct muscle_info_struct muscle_info[NUM_FRONT_LEG_MUSCLES] = { {39, &PORTB, 2}, {40, &PORTC, 3}, {41, &PORTC, 1}, {42, &PORTC, 4}, {43, &PORTC, 2}, {44, &PORTC, 5} };
-//const struct slave_info_struct slave_info[NUM_FRONT_LEG_MUSCLES] = { {39, 1}, {40, 1}, {41, 2}, {42, 2}, {43, 3}, {44, 3} };		// Used with old PCB boards or breadboard solution.
-//const struct slave_info_struct slave_info[NUM_FRONT_LEG_MUSCLES] = { {39, 1}, {40, 2}, {41, 3}, {42, 4}, {43, 5}, {44, 6} };		// Used with new PCB boards.  Back Right Leg.
-//const struct slave_info_struct slave_info[NUM_FRONT_LEG_MUSCLES] = { {39, 7}, {40, 8}, {41, 9}, {42, 10}, {43, 11}, {44, 12} };	// Used with new PCB boards.  Front Right Leg.
-//const struct slave_info_struct slave_info[NUM_FRONT_LEG_MUSCLES] = { {39, 13}, {40, 14}, {41, 15}, {42, 16}, {43, 17}, {44, 18} };	// Used with new PCB boards.  Back Left Leg.
-//const struct slave_info_struct slave_info[NUM_FRONT_LEG_MUSCLES] = { {39, 19}, {40, 20}, {41, 21}, {42, 22}, {43, 23}, {44, 24} };	// Used with new PCB boards.  Front Left Leg.
-const struct slave_info_struct slave_info[NUM_TOTAL_MUSCLES] = { {39, 24}, {40, 23}, {41, 22}, {42, 21}, {43, 20}, {44, 19}, {45, 18}, {46, 17}, {47, 16}, {48, 15}, {49, 14}, {50, 13}, {51, 12}, {52, 11}, {53, 10}, {54, 9}, {55, 8}, {56, 7}, {57, 6}, {58, 5}, {59, 4}, {60, 3}, {61, 2}, {62, 1}  };	// Used with new PCB boards.
+//const struct slave_info_struct slave_info[NUM_TOTAL_MUSCLES] = { {39, 24}, {40, 23}, {41, 22}, {42, 21}, {43, 20}, {44, 19}, {45, 18}, {46, 17}, {47, 16}, {48, 15}, {49, 14}, {50, 13}, {51, 12}, {52, 11}, {53, 10}, {54, 9}, {55, 8}, {56, 7}, {57, 6}, {58, 5}, {59, 4}, {60, 3}, {61, 2}, {62, 1}  };	// Used with new PCB boards.
+const struct slave_info_struct slave_info[NUM_TOTAL_MUSCLES] = { {39, 1}, {40, 2}, {41, 3}, {42, 4}, {43, 5}, {44, 6}, {45, 7}, {46, 8}, {47, 9}, {48, 10}, {49, 11}, {50, 12}, {51, 13}, {52, 14}, {53, 15}, {54, 16}, {55, 17}, {56, 18}, {57, 19}, {58, 20}, {59, 21}, {60, 22}, {61, 23}, {62, 24}  };	// Used with new PCB boards.
 
 //const uint16_t activation_threshold = 32767;
 const uint16_t activation_threshold = 5000;
