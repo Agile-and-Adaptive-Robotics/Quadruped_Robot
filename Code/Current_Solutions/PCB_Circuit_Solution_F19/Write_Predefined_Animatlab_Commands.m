@@ -102,7 +102,7 @@ on_value = 450;                 % [-] Value that Micros will recognize as a high
 
 % Front left ankle only.
 % animatlab_muscle_tensions(:, 3:end) = 0;
-animatlab_muscle_tensions(:, 17:end) = 0;
+% animatlab_muscle_tensions(:, 23:end) = 0;
 
 % % Front left ankle only.
 % animatlab_muscle_tensions(:, 1:4) = 0; animatlab_muscle_tensions(:, 7:end) = 0;
