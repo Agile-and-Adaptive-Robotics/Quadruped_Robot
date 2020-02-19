@@ -166,8 +166,9 @@ float ADC2Voltage( unsigned int ADC_value )
 	float voltage;
 	
 	// Convert the ADC value to a voltage.
-	voltage = (5./1023)*ADC_value;
-	
+	//voltage = (5./1023)*ADC_value;
+	voltage = (4.3/1023)*ADC_value;
+
 	// Return the voltage.
 	return voltage;
 	

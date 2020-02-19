@@ -13,8 +13,9 @@
 #define sbi(var, mask)   ((var) |= (uint8_t)(1 << mask))
 #define cbi(var, mask)   ((var) &= (uint8_t)~(1 << mask))
 
-//Define SPIF value (used for SPI communication).
-#define SPIF 7
+// Define SPI Parameters.
+#define SPIF 7						// SPIF value (used for SPI communication).
+#define NUM_SPI_BYTES 2
 
 //Define USART Parameters.
 #define FOSC F_CPU					//CPU Clock Frequency must be set correctly for the USART to work
@@ -160,4 +161,6 @@ extern const float p_threshold;
 extern unsigned int dac_data;										//[#] Value to send to dac.
 extern unsigned int count;											//[#] Counter for the number of interrupt cycles.
 extern unsigned char clock_pin_state;								//[T/F] Clock Pin State.
-extern volatile unsigned char spi_bytes[NUM_BYTES_PER_UINT16];		//[#] Bytes of uint16 recieved over SPI.
+extern volatile unsigned char spi_bytes[NUM_BYTES_PER_UINT16];		//[#] Bytes of uint16 received over SPI.
+extern volatile unsigned char spi_bytes_to_send[NUM_BYTES_PER_UINT16];
+extern volatile uint8_t spi_index;

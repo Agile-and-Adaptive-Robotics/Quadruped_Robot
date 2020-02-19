@@ -32,7 +32,9 @@ const float p_threshold = (5./90)*10;				// [V] Represents 10 psi as a voltage [
 unsigned int dac_data = 0;									//[#] Value to send to dac.
 unsigned int count = 0;										//[#] Counter for the number of interrupt cycles.
 unsigned char clock_pin_state = 0;							//[T/F] Clock Pin State.
-volatile unsigned char spi_bytes[NUM_BYTES_PER_UINT16];
+volatile unsigned char spi_bytes[NUM_BYTES_PER_UINT16] = {0b00000000, 0b00000000};
+volatile unsigned char spi_bytes_to_send[NUM_SPI_BYTES] = {0b00000000, 0b00000000};
+volatile uint8_t spi_index = 0;
 
 //Implement the main function.
 int main (void)
@@ -56,7 +58,7 @@ int main (void)
 ISR(TIMER1_COMPA_vect)
 {			
 	
-	//// THIS IS ON OFF CONTROL USING MY FUNCTION.
+	//// ON/OFF CONTROL.
 	//
 	////Define local variables.
 	//uint16_t spi_value;
@@ -68,60 +70,45 @@ ISR(TIMER1_COMPA_vect)
 	//on_off_threshold_control( spi_value );
 	
 	
-	// THIS IS BANG-BANG CONTROL WITH MY FUNCTION.
+	// BANG-BANG CONTROL.
 		
 	// Define local variables.
 	float p_desired;
 	float p_actual;
-		
+	uint16_t p_actual_int;
+	unsigned char p_actual_bytes[2];
+	
 	// Retrieve the desired pressure value from the SPI bytes.
-	p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-5] Desired pressure as a floating point voltage.
+	p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-4.3] Desired pressure as a floating point voltage.
 		
 	//p_desired = 2.5;
 		
-	// Read in the current pressure value.
-	p_actual = ADC2Voltage( readADC( 0 ) );														// [0-5] Actual pressure as a floating point voltage.
+	// Read in the current pressure value integer.
+	//p_actual = ADC2Voltage( readADC( 0 ) );													// [0-4.3] Actual pressure as a floating point voltage.
+	p_actual_int = readADC( 0 );																// [0-1023] Actual pressure as a uint16_t.
+	
+	// Convert the current pressure integer into its constitute byte array.
+	int2byte_array( p_actual_int, p_actual_bytes );
+	
+	// Determine whether we finished sending the last spi byte array to the master.
+	if (spi_index == 0)							// If we finished sending the last spi byte array to the master...
+	{
+	
+		// Store the current pressure byte array into the spi bytes to send array.
+		spi_bytes_to_send[0] = p_actual_bytes[0];
+		spi_bytes_to_send[1] = p_actual_bytes[1];
+		
+		// Load the spi data register with the first byte of the new array to send.
+		SPDR = spi_bytes_to_send[0];
+		
+	}
+
+	// Convert the current pressure ADC integer to a voltage.
+	p_actual = ADC2Voltage( p_actual_int );														// [0-4.3] Actual pressure as a floating point voltage.
+
 		
 	// Perform bang-bang control.  i.e., if the actual pressure is sufficiently far below the desired pressure, open the valve to increase the pressure.  If the actual pressure is sufficiently far above the actual pressure, close the valve to decrease the pressure.
 	bang_bang_pressure_control( p_desired, p_actual );
-		
-
-	
-
-	//// THIS IS BANG-BANG CONTROL WITHOUT MY FUNCTION.
-	//
-	//// Define local variables.
-	//float p_desired;
-	//float p_actual;
-	//float p_upper;
-	//float p_lower;
-	//
-	//// Retrieve the desired pressure value from the SPI bytes.
-	//p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-5] Desired pressure as a floating point voltage.
-//
-	//// Compute the lower and upper pressure bounds.
-	//p_lower = p_desired - p_threshold;
-	//p_upper = p_desired + p_threshold;
-//
-	//// Read in the current pressure value.
-	//p_actual = ADC2Voltage( readADC( 0 ) );
-		//
-	//// Determine whether to open or close the valve.
-	//if (p_actual > p_upper)				// If the current pressure is above the upper pressure limit...
-	//{
-		//// Close the valve to exhaust air.
-		//PORTB &= ~(1 << 1);
-	//}
-	//else if (p_actual < p_lower)		// If the current pressure is below the lower pressure limit...
-	//{
-		//// Open the valve to add air.
-		//PORTB |= (1 << 1);
-	//}
-	
-	
-	
-	
-	
 	
 	
 	// Toggle a pin each time this interrupt executes.
@@ -139,6 +126,12 @@ ISR(SPI_STC_vect)
 
 	//Read in the SPI value.
 	spi_byte = SPDR;
+	
+	// Advance the spi index & ensure that it is in bounds.
+	spi_index = (spi_index + 1) % NUM_SPI_BYTES;
+	
+	// Set the spi data register to contain the next byte we want to send.
+	SPDR = spi_bytes_to_send[spi_index];
 	
 	//Cycle the SPI bytes.
 	spi_bytes[0] = spi_bytes[1];
