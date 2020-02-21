@@ -25,7 +25,8 @@ const unsigned char num_sensors_total = 38;
 const struct muscle_info_struct muscle_info[NUM_FRONT_LEG_MUSCLES] = { {39, &PORTB, 2}, {40, &PORTC, 3}, {41, &PORTC, 1}, {42, &PORTC, 4}, {43, &PORTC, 2}, {44, &PORTC, 5} };
 //const uint16_t activation_threshold = 32767;
 const uint16_t activation_threshold = 5000;
-const float p_threshold = (4.3/90)*10;				// [V] Represents 10 psi as a voltage [0-5].
+//const float p_threshold = (4.3/90)*10;				// [V] Represents 10 psi as a voltage [0-5].
+const float p_threshold = (4.3/90)*1;				// [V] Represents 10 psi as a voltage [0-5].
 
 
 //Define global variables.
