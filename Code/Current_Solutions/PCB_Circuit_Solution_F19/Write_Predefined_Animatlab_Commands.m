@@ -88,8 +88,8 @@ sensor_IDs_crit = 1:38;
 
 % Define the sinusoidal muscle command parameters.
 num_muscles = 24;               % [#] Number of Muscles.
-num_cycles = 5;                 % [#] Number of Cycles to Generate.
-num_per_cycle = 100;            % [#] Number of Points per Cycle.
+num_cycles = 2;                 % [#] Number of Cycles to Generate.
+num_per_cycle = 200;            % [#] Number of Points per Cycle.
 on_value = 450;                 % [-] Value that Micros will recognize as a high value.
  
 % Generate the sinusoidal muscle commands.
@@ -100,15 +100,28 @@ on_value = 450;                 % [-] Value that Micros will recognize as a high
 % % Front left leg only.
 % animatlab_muscle_tensions(:, 7:end) = 0;
 
+% % Back left leg only.
+% animatlab_muscle_tensions(:, 1:6) = 0; animatlab_muscle_tensions(:, 13:end) = 0;
+
+% % Front right leg only.
+% animatlab_muscle_tensions(:, 1:12) = 0; animatlab_muscle_tensions(:, 19:end) = 0;
+
+% % Back right leg only.
+% animatlab_muscle_tensions(:, 1:18) = 0;
+
+
 % Front left ankle only.
 % animatlab_muscle_tensions(:, 3:end) = 0;
-% animatlab_muscle_tensions(:, 23:end) = 0;
+% animatlab_muscle_tensions(:, 13:end) = 0;
 
 % % Front left ankle only.
 % animatlab_muscle_tensions(:, 1:4) = 0; animatlab_muscle_tensions(:, 7:end) = 0;
 
 % % Back right ankle only.
 % animatlab_muscle_tensions(:, 1:end-2) = 0;
+
+
+
 
 
 %% Pass Information Between Animatlab & the Micro Controller.

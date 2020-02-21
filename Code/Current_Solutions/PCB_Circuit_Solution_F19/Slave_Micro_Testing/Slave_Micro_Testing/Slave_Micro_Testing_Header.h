@@ -79,7 +79,8 @@ unsigned int sensor_volt2sensor_int(unsigned int sensor_volt);
 uint16_t ADC2uint16( unsigned int ADC_value );
 unsigned int uint162ADC( uint16_t uint16_value );
 float ADC2Voltage( unsigned int ADC_value );
-
+uint16_t voltage2uint16( float voltage );
+uint16_t ScaleADC( uint16_t ADC_value );
 
 //Low Level UART Functions.
 void uart_putchar(char c, FILE *stream);

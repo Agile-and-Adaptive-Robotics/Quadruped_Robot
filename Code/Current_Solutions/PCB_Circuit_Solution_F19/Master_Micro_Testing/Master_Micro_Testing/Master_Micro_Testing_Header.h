@@ -98,7 +98,9 @@ unsigned char spi_read_write(unsigned char spi_data);
 
 //High Level SPI Functions.
 void write2slave( uint16_t value_to_write, uint8_t slave_num );
+uint16_t spi_read_write_uint16( uint16_t value_to_write, uint8_t slave_num );
 void WriteCommandData2Slaves( struct int_array_struct * command_data_ptr );
+void SwapMasterSlaveData( struct int_array_struct * command_data_ptr, struct int_array_struct * sensor_data_ptr );
 
 //Low Level Pin State Setting Function.
 void set_pin_state( unsigned char * port_num, unsigned char pin_num, unsigned char pin_state);

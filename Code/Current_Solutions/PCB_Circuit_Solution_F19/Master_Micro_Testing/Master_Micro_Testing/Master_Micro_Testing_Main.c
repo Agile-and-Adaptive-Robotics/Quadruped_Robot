@@ -50,16 +50,17 @@ ISR(TIMER1_COMPA_vect)
 	//Read the command uint16s from matlab.
 	serial_read_matlab_muscle_command_ints( &command_data );
 	
-	//Write the command data to the slaves.
-	WriteCommandData2Slaves( &command_data );
-		
-	//Relinquish control of the slave select pin.
-	DDRB &= ~(1 << 0);					//Set the SS pin to input.
-		
-	//Retrieve the latest sensor data.
-	GetSensorData( &sensor_data );
-			
-
+	////Write the command data to the slaves.
+	//WriteCommandData2Slaves( &command_data );
+		//
+	////Relinquish control of the slave select pin.
+	//DDRB &= ~(1 << 0);					//Set the SS pin to input.
+		//
+	////Retrieve the latest sensor data.
+	//GetSensorData( &sensor_data );
+	
+	// Write commands to the slaves while simultaneously collecting sensor data.
+	SwapMasterSlaveData( &command_data, &sensor_data );
 
 	//Convert the ADC value to a DAC value.
 	dac_value = ADC2DAC( sensor_data.values[24] );

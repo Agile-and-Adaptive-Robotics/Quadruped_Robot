@@ -173,3 +173,41 @@ float ADC2Voltage( unsigned int ADC_value )
 	return voltage;
 	
 }
+
+
+// Implement a function to convert a voltage (0-4.3 float) to a uint16 (0-65535).
+uint16_t voltage2uint16( float voltage )
+{
+	
+	// Define local variables.
+	uint16_t value;
+	
+	// Convert the voltage to a uint16.
+	value = round( (65535/4.3)*voltage );
+	
+	// Return the uint16.
+	return value;
+	
+}
+
+// Implement a function to scale the ADC values.
+uint16_t ScaleADC( uint16_t ADC_value )
+{
+	
+	// Define local variables.
+	uint16_t nADC_value;
+	
+	// Determine whether we need to prevent overflow.
+	if (ADC_value > 880)			// If this value would cause overflow...
+	{
+		// Set the ADC value to the maximum allowable value.
+		ADC_value = 880;
+	}
+	
+	// Compute the scaled ADC value.
+	nADC_value = floor((1023./880.)*ADC_value);
+	
+	// Return the scaled ADC value.
+	return nADC_value;
+	
+}

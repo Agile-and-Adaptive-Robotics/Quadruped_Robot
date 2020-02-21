@@ -25,7 +25,7 @@ const unsigned char num_sensors_total = 38;
 const struct muscle_info_struct muscle_info[NUM_FRONT_LEG_MUSCLES] = { {39, &PORTB, 2}, {40, &PORTC, 3}, {41, &PORTC, 1}, {42, &PORTC, 4}, {43, &PORTC, 2}, {44, &PORTC, 5} };
 //const uint16_t activation_threshold = 32767;
 const uint16_t activation_threshold = 5000;
-const float p_threshold = (5./90)*10;				// [V] Represents 10 psi as a voltage [0-5].
+const float p_threshold = (4.3/90)*10;				// [V] Represents 10 psi as a voltage [0-5].
 
 
 //Define global variables.
@@ -75,17 +75,22 @@ ISR(TIMER1_COMPA_vect)
 	// Define local variables.
 	float p_desired;
 	float p_actual;
+	uint16_t p_actual_ADC;
 	uint16_t p_actual_int;
 	unsigned char p_actual_bytes[2];
 	
 	// Retrieve the desired pressure value from the SPI bytes.
 	p_desired = ADC2Voltage( uint162ADC( byte_array2int( spi_bytes ) ) );						// [0-4.3] Desired pressure as a floating point voltage.
 		
-	//p_desired = 2.5;
+	//p_desired = 2.15;
 		
 	// Read in the current pressure value integer.
 	//p_actual = ADC2Voltage( readADC( 0 ) );													// [0-4.3] Actual pressure as a floating point voltage.
-	p_actual_int = readADC( 0 );																// [0-1023] Actual pressure as a uint16_t.
+	//p_actual_ADC = readADC( 0 );																// [0-1023] Actual pressure as a uint16_t (12 bit).
+	p_actual_ADC = ScaleADC( readADC( 0 ) );																// [0-1023] Actual pressure as a uint16_t (12 bit).
+	
+	// Convert the current pressure value integer to a uint16.
+	p_actual_int = ADC2uint16( p_actual_ADC );													// [0-65535] Actual pressure as a uint16_t (16 bit)
 	
 	// Convert the current pressure integer into its constitute byte array.
 	int2byte_array( p_actual_int, p_actual_bytes );
@@ -98,18 +103,32 @@ ISR(TIMER1_COMPA_vect)
 		spi_bytes_to_send[0] = p_actual_bytes[0];
 		spi_bytes_to_send[1] = p_actual_bytes[1];
 		
+		//spi_bytes_to_send[0] = 0b00000000;
+		//spi_bytes_to_send[1] = 0b00000000;
+
+		//spi_bytes_to_send[0] = 0b11111111;
+		//spi_bytes_to_send[1] = 0b11111111;
+		
+		//spi_bytes_to_send[0] = 0b11111111;
+		//spi_bytes_to_send[1] = 0b00001111;
+		
+		//p_actual_int = 0b0000111111111111;
+		//p_actual_int = 0;
+
+		//spi_bytes_to_send[0] = p_actual_int & 0x00FF;
+		//spi_bytes_to_send[1] = p_actual_int >> 8;
+
+		
 		// Load the spi data register with the first byte of the new array to send.
 		SPDR = spi_bytes_to_send[0];
 		
 	}
 
 	// Convert the current pressure ADC integer to a voltage.
-	p_actual = ADC2Voltage( p_actual_int );														// [0-4.3] Actual pressure as a floating point voltage.
-
-		
+	p_actual = ADC2Voltage( p_actual_ADC );														// [0-4.3] Actual pressure as a floating point voltage.
+			
 	// Perform bang-bang control.  i.e., if the actual pressure is sufficiently far below the desired pressure, open the valve to increase the pressure.  If the actual pressure is sufficiently far above the actual pressure, close the valve to decrease the pressure.
 	bang_bang_pressure_control( p_desired, p_actual );
-	
 	
 	// Toggle a pin each time this interrupt executes.
 	PORTD ^= (1 << 3);
@@ -118,8 +137,8 @@ ISR(TIMER1_COMPA_vect)
 
 ISR(SPI_STC_vect)
 {
-	////Disable global interrupts.
-	//cli();
+	//Disable global interrupts.
+	cli();
 
 	//Define local variables.
 	unsigned char spi_byte;
@@ -132,6 +151,8 @@ ISR(SPI_STC_vect)
 	
 	// Set the spi data register to contain the next byte we want to send.
 	SPDR = spi_bytes_to_send[spi_index];
+	//SPDR = 0b00000000;
+	//SPDR = 0b11111111;
 	
 	//Cycle the SPI bytes.
 	spi_bytes[0] = spi_bytes[1];
@@ -142,6 +163,6 @@ ISR(SPI_STC_vect)
 	//PORTD |= (1 << 4);
 	//PORTD &= ~(1 << 4);
 	
-	////Enable global interrupts.
-	//sei();
+	//Enable global interrupts.
+	sei();
 }

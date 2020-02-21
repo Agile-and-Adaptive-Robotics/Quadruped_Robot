@@ -17,7 +17,7 @@ if nargin < 1, num_muscles = 24; end                    % [#] Number of Muscles.
 %% Generate the On/Off Commands.
 
 % Compute the total number of commands to be sent.
-num_commands = num_per_cycle*(num_cycles + 1);
+num_commands = num_per_cycle*(num_cycles/2 + 1);
 
 %Define a time vector for data collection and simulation.
 ts = 1:num_commands;

@@ -88,7 +88,9 @@ if end_byte ~= mod(check_sum, 256)
         
         % Retrieve the current bytes of interest.
         these_bytes = byte_array(k:(k + 1));
-                
+        
+        disp(these_bytes)
+        
         % Determine whether these bytes match the erroneous sequence.
         if all(these_bytes == [13; 10])                      % If these bytes match the erroneous sequence...
             
@@ -101,31 +103,23 @@ if end_byte ~= mod(check_sum, 256)
         
     end
     
-    % Determine whether any bytes should be removed.
-    if num_bytes_removed > 0                   % If we have bytes to remove...
-
-        % Remove the entries that were converted to negative ones.
-        byte_array(byte_array == -1) = [];
-
-        % Wait for any additional bytes that might explain this check sum error.
-        while serial_port.BytesAvailable < num_bytes_removed, if bDebugPrint, fprintf('Check sum error detected.  Waiting for extra bytes...\n'), end, end
-
-        % Add the previous end byte to the byte array, because this wasn't actually the last byte.
-        byte_array = [byte_array; end_byte];
-
-        % Read in the missing bytes.
-        missing_bytes = fread(serial_port, num_bytes_removed);
-
-        % Add the missing bytes (less the check sum) to the byte array.
-        byte_array = [byte_array; missing_bytes(1:end - 1)];
-
-        % Set the end byte to be the last of the missing bytes.
-        end_byte = missing_bytes(end);
-
-        %Recompute the check sum.
-        check_sum = 255 + 255 + num_pairs + sum(byte_array);
-        
-    end
+    % Remove the entries that were converted to negative ones.
+    byte_array(byte_array == -1) = [];
+    
+    % Wait for any additional bytes that might explain this check sum error.
+    while serial_port.BytesAvailable < num_bytes_removed, if bDebugPrint, fprintf('Check sum error detected.  Waiting for extra bytes...\n'), end, end
+    
+    % Add the previous end byte to the byte array, because this wasn't actually the last byte.
+    byte_array = [byte_array; end_byte];
+    
+    % Read in the missing bytes.
+    missing_bytes = fread(serial_port, num_bytes_removed);
+    
+    % Add the missing bytes (less  to the byte array.
+    byte_array = [byte_array; missing_bytes];
+    
+    % Set the end byte to be the last of the missing bytes.
+    end_byte = missing_bytes(end);
     
 end
 

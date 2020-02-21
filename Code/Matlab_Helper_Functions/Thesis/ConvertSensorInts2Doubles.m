@@ -8,6 +8,8 @@ function [ sensor_data_doubles, sensor_data_voltages ] = ConvertSensorInts2Doubl
 
 %% Set the Number of Expected Sensors of Each Type.
 
+% sensor_data_ints = [sensor_data_ints zeros(1, 14)];
+
 %Define the total number of expected sensors, the expected number of pressure sensors, and the expected number of angle sensors.
 num_pressure_sensors = 24; num_angle_sensors = 14; num_sensors = num_pressure_sensors + num_angle_sensors;
 
@@ -18,8 +20,9 @@ if (length(sensor_data_ints) ~= num_sensors), error('There must be 38 sensor val
 
 %Set the voltage bounds for each sensor.
 % voltage_bounds = [0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5];
-voltage_bounds = [0 4.83; 0 4.83; 0 4.88; 0 4.88; 0.120 4.82; 0.278 4.96; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0.600 3.96; 0 4.30; 0 4.16; 0.0593 4.28; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5];
+% voltage_bounds = [0 4.83; 0 4.83; 0 4.88; 0 4.88; 0.120 4.82; 0.278 4.96; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0.600 3.96; 0 4.30; 0 4.16; 0.0593 4.28; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5];
 % voltage_bounds = [0 3.81; 0 3.81; 0 3.81; 0 3.81; 0.120 3.81; 0.278 3.81; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0.600 3.96; 0 4.30; 0 4.16; 0.0593 4.28; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5];
+voltage_bounds = [0 4.3; 0 4.3; 0 4.3; 0 4.3; 0.120 4.3; 0.278 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0 4.3; 0.600 3.96; 0 4.30; 0 4.16; 0.0593 4.28; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5; 0 5];
 
 %Set the pressure bounds.
 pressure_bounds = [0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90; 0 90];
