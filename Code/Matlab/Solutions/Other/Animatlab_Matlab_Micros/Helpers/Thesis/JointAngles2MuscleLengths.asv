@@ -1,0 +1,36 @@
+function [ Ls ] = JointAngles2MuscleLengths( S, M, L, thetas )
+
+%Compute the point paths.
+ps = JointAngles2PartTrajectory( S, M, L, thetas );
+
+%Compute the muscle lengths.
+for k = 1:size(ps, 2)                   %Iterate through the points at each angle.
+    
+    %Create arrays of the point paths.
+    [xs, ys, zs] = deal( reshape(ps(1, k, :), [1 size(ps, 3)]), reshape(ps(2, k, :), [1 size(ps, 3)]), reshape(ps(3, k, :), [1 size(ps, 3)]) );
+    
+    %Reshpse the point paths.
+    Ps = reshape(Ps, [size(Ps, 1) size(Ps, 3), 1])
+    
+    %Compute the muscle vectors.
+    p_front_hip_ext = xs(:, asdf) - xs(:, qwer);
+    p_front_knee_ext
+    p_front_ankle_ext
+    
+    p_back_hip_ext
+    p_back_knee_ext
+    p_back_ankle_ext   
+    
+    p_front_hip_flx
+    p_front_knee_flx
+    p_front_ankle_flx
+    
+    p_back_hip_flx
+    p_back_knee_flx
+    p_back_ankle_flx
+    
+end
+
+
+end
+
