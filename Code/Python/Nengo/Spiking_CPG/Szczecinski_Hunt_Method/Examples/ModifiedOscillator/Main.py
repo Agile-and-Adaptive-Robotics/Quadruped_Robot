@@ -21,18 +21,20 @@ from graphviz import Source
 # Define simulation properties.
 dt_sim = 0.001                  # [s] Simulation Step Size.
 t_sim_duration = 10             # [s] Total Simulation Duration.
-x0 = [0, 0]                     # [-] Initial Condition.
+# x0 = [0, 0]                     # [-] Initial Condition.
+x0 = [1, 0]                     # [-] Initial Condition.
 t_start = 1                     # [s] Define the time to start the input.
 
 # Define the network properties.
-n_neurons = 100                 # [#] Number of neurons in the ensemble.
+n_neurons = 1000                # [#] Number of neurons in the ensemble.
 dim = 2                         # [#] Number of dimensions of the ensemble.
 radius = 1.5                    # [V] Radius of the output of the ensemble.
 seed = 0                        # [-] Seed used for random number generation.
-tau = 0.2                       # [s] Post-synaptic time constant.
+tau = 0.1                       # [s] Post-synaptic time constant.
 
 # Define the input function.
-input_func = Piecewise({0: 0, t_start: 1})  # [V] System Input Function.
+# input_func = Piecewise({0: 0, t_start: 1})  # [V] System Input Function.
+input_func = Piecewise({0: 0, t_start: 0})  # [V] System Input Function.
 
 # Define the initial condition function.
 initial_cond_func = Piecewise({0: x0, t_start: [0, 0]})  # [-] Initial Condition Function.
@@ -40,14 +42,28 @@ initial_cond_func = Piecewise({0: x0, t_start: [0, 0]})  # [-] Initial Condition
 
 # --------------------------- DEFINE THE DYNAMICAL SYSTEM TO APPROXIMATE ---------------------------
 
-# Define the dynamical system properties.
-m = 1           # [kg] System Mass.
-c = 1           # [Ns/m] System Viscous Damping Coefficient.
-k = 1           # [N/m] System Stiffness.
+# # Define the dynamical system properties.
+# m = 1           # [kg] System Mass.
+# c = 1           # [Ns/m] System Viscous Damping Coefficient.
+# k = 1           # [N/m] System Stiffness.
+#
+# # Define the system matrices.
+# A = [[0, 1], [-k/m, -c/m]]
+# B = [[0], [1/m]]
+
+# # Define the dynamical system properties.
+# fn = 10                     # [Hz] Natural Frequency.
+# wn = 2*np.pi*fn             # [rad/s] Natural Frequency.
+# zeta = 0.3                  # [-] Damping Ratio.
+
+fn = 1/(2*np.pi)            # [Hz] Natural Frequency.
+wn = 2*np.pi*fn             # [rad/s] Natural Frequency.
+zeta = 0.5                  # [-] Damping Ratio.
+
 
 # Define the system matrices.
-A = [[0, 1], [-k/m, -c/m]]
-B = [[0], [1/m]]
+A = [[0, 1], [-(wn**2), -2*zeta*wn]]
+B = [[0], [wn**2]]
 
 
 # --------------------------- BUILD THE NETWORK ---------------------------
