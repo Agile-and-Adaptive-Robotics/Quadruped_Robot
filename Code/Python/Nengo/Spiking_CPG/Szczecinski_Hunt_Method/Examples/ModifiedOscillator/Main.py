@@ -34,14 +34,14 @@ u_neurons = 100                     # [#] Input Number of Neurons.
 x0_neurons = 100                    # [#] Initial Condition Number of Neurons.
 x_neurons = 3000                    # [#] State Number of Neurons.
 
-MUX1_neurons = 3000                 # [#] Multiplexer 1 Number of Neurons.
-MUX2_neurons = 3000                 # [#] Multiplexer 2 Number of Neurons.
-MUX3_neurons = 3000                 # [#] Multiplexer 3 Number of Neurons.
-term1_neurons = 3000                # [#] Intermediate Calculation 1 Number of Neurons.
-term2_neurons = 3000                # [#] Intermediate Calculation 2 Number of Neurons.
-term3_neurons = 3000                # [#] Intermediate Calculation 3 Number of Neurons.
+# MUX1_neurons = 3000                 # [#] Multiplexer 1 Number of Neurons.
+# MUX2_neurons = 3000                 # [#] Multiplexer 2 Number of Neurons.
+# MUX3_neurons = 3000                 # [#] Multiplexer 3 Number of Neurons.
+# term1_neurons = 3000                # [#] Intermediate Calculation 1 Number of Neurons.
+# term2_neurons = 3000                # [#] Intermediate Calculation 2 Number of Neurons.
+# term3_neurons = 3000                # [#] Intermediate Calculation 3 Number of Neurons.
 
-# xhat_neurons = 1000                 # [#] Composite State Number of Neurons.
+xhat_neurons = 1000                 # [#] Composite State Number of Neurons.
 dx_neurons = 3000                   # [#] State Derivative Number of Neurons.
 
 
@@ -54,14 +54,14 @@ u_dim = 1                                                               # [#] In
 x0_dim = 2                                                              # [#] Initial Condition Number of Dimensions.
 x_dim = 2                                                               # [#] State Space Number of Dimensions.
 
-MUX1_dim = 2                                                            # [#] Multiplexer 1 Number of Dimensions.
-MUX2_dim = 3                                                            # [#] Multiplexer 2 Number of Dimensions.
-MUX3_dim = 2                                                            # [#] Multiplexer 3 Number of Dimensions.
-term1_dim = 1                                                           # [#] Intermediate Calculation 1 Number of Dimensions.
-term2_dim = 1                                                           # [#] Intermediate Calculation 2 Number of Dimensions.
-term3_dim = 1                                                           # [#] Intermediate Calculation 3 Number of Dimensions.
+# MUX1_dim = 2                                                            # [#] Multiplexer 1 Number of Dimensions.
+# MUX2_dim = 3                                                            # [#] Multiplexer 2 Number of Dimensions.
+# MUX3_dim = 2                                                            # [#] Multiplexer 3 Number of Dimensions.
+# term1_dim = 1                                                           # [#] Intermediate Calculation 1 Number of Dimensions.
+# term2_dim = 1                                                           # [#] Intermediate Calculation 2 Number of Dimensions.
+# term3_dim = 1                                                           # [#] Intermediate Calculation 3 Number of Dimensions.
 
-# xhat_dim = wn_dim + zeta_dim + u_dim + x_dim                            # [#] Composite State Number of Dimensions.
+xhat_dim = wn_dim + zeta_dim + u_dim + x_dim                            # [#] Composite State Number of Dimensions.
 dx_dim = 2                                                              # [#] State Space Derivative Number of Dimensions.
 
 # Define the network radii.
@@ -73,14 +73,14 @@ u_radius = 1                                                            # [-] In
 x0_radius = 1                                                           # [-] Initial Condition Radius.
 x_radius = 1                                                            # [-] State Space Radius.
 
-MUX1_radius = np.amax([wn_squared_radius, x_radius])                    # [-] Multiplexer 1 Radius.
-MUX2_radius = np.amax([zeta_radius, wn_radius, x_radius])               # [-] Multiplexer 2 Radius.
-MUX3_radius = np.amax([wn_squared_radius, u_radius])                    # [-] Multiplexer 3 Radius.
-term1_radius = wn_squared_radius*x_radius                               # [-] Intermediate Calculation 1 Radius.
-term2_radius = 2*zeta_radius*wn_radius*x_radius                         # [-] Intermediate Calculation 2 Radius.
-term3_radius = wn_squared_radius*u_radius                               # [-] Intermediate Calculation 3 Radius.
+# MUX1_radius = np.amax([wn_squared_radius, x_radius])                    # [-] Multiplexer 1 Radius.
+# MUX2_radius = np.amax([zeta_radius, wn_radius, x_radius])               # [-] Multiplexer 2 Radius.
+# MUX3_radius = np.amax([wn_squared_radius, u_radius])                    # [-] Multiplexer 3 Radius.
+# term1_radius = wn_squared_radius*x_radius                               # [-] Intermediate Calculation 1 Radius.
+# term2_radius = 2*zeta_radius*wn_radius*x_radius                         # [-] Intermediate Calculation 2 Radius.
+# term3_radius = wn_squared_radius*u_radius                               # [-] Intermediate Calculation 3 Radius.
 
-# xhat_radius = np.amax([wn_radius, zeta_radius, u_radius, x_radius])     # [-] Composite State Radius.
+xhat_radius = np.amax([wn_radius, zeta_radius, u_radius, x_radius])     # [-] Composite State Radius.
 dx_radius = 1                                                           # [-] Derivative State Space Radius.
 
 # Define universal network parameters.
@@ -166,6 +166,58 @@ network.config[nengo.Ensemble].neuron_type = nengo.LIF(amplitude=0.001)  # [-] S
 # Build the network.
 with network:
 
+    # Create the network input nodes.
+    fn_node = nengo.Node(output=fn, label='fn Node')
+    zeta_node = nengo.Node(output=zeta, label='zeta Node')
+    u_node = nengo.Node(output=input_func, label='u Node')
+    x0_node = nengo.Node(output=initial_cond_func, label='x0 Node')
+
+    # Create the network ensembles.
+    fn_ens = nengo.Ensemble(n_neurons=fn_neurons, dimensions=fn_dim, radius=fn_radius, seed=seed, label='fn Ensemble')
+    wn_ens = nengo.Ensemble(n_neurons=wn_neurons, dimensions=wn_dim, radius=wn_radius, label='wn Ensemble')
+    # wn_squared_ens = nengo.Ensemble(n_neurons=wn_squared_neurons, dimensions=wn_squared_dim, radius=wn_squared_radius, label='wn^2 Ensemble')
+    zeta_ens = nengo.Ensemble(n_neurons=zeta_neurons, dimensions=zeta_dim, radius=zeta_radius, seed=seed, label='zeta Ensemble')
+    u_ens = nengo.Ensemble(n_neurons=u_neurons, dimensions=u_dim, radius=u_radius, seed=seed, label='u Ensemble')
+    x0_ens = nengo.Ensemble(n_neurons=x0_neurons, dimensions=x0_dim, radius=x0_radius, seed=seed, label='x0 Ensemble')
+    x_ens = nengo.Ensemble(n_neurons=x_neurons, dimensions=x_dim, radius=x_radius, seed=seed, label='x Ensemble')
+    xhat_ens = nengo.Ensemble(n_neurons=xhat_neurons, dimensions=xhat_dim, radius=xhat_radius, seed=seed, label='xhat Ensemble')
+    dx_ens = nengo.Ensemble(n_neurons=dx_neurons, dimensions=dx_dim, radius=dx_radius, seed=seed, label='dx Ensemble')
+
+    # Create the network connections.
+    nengo.Connection(fn_node, fn_ens, synapse=tau_synapse)
+    nengo.Connection(fn_ens, wn_ens, transform=2*np.pi, synapse=tau_synapse)
+    # nengo.Connection(wn_ens, wn_squared_ens, function=square_func, synapse=tau_synapse)
+    nengo.Connection(zeta_node, zeta_ens, synapse=tau_synapse)
+    nengo.Connection(u_node, u_ens, synapse=tau_synapse)
+    nengo.Connection(x0_node, x0_ens, synapse=tau_synapse)
+    nengo.Connection(x0_ens, x_ens, synapse=tau_synapse)
+
+    nengo.Connection(wn_ens, xhat_ens[0], synapse=tau_synapse)
+    nengo.Connection(zeta_ens, xhat_ens[1], synapse=tau_synapse)
+    nengo.Connection(u_ens, xhat_ens[2], synapse=tau_synapse)
+    # nengo.Connection(fn_node, xhat_ens[0], transform=2*np.pi, synapse=tau_synapse)
+    # nengo.Connection(zeta_node, xhat_ens[1], synapse=tau_synapse)
+    # nengo.Connection(u_node, xhat_ens[2], synapse=tau_synapse)
+
+    nengo.Connection(x_ens[0], xhat_ens[3], synapse=tau_synapse)
+    nengo.Connection(x_ens[1], xhat_ens[4], synapse=tau_synapse)
+
+    nengo.Connection(xhat_ens, dx_ens, function=oscillator_func, synapse=tau_synapse)
+
+    nengo.Connection(dx_ens, x_ens, transform=tau_synapse, synapse=tau_synapse)
+    nengo.Connection(x_ens, x_ens, synapse=tau_synapse)
+
+    # Create objects to store network data.
+    fn_probe = nengo.Probe(fn_ens, synapse=tau_probe)
+    wn_probe = nengo.Probe(wn_ens, synapse=tau_probe)
+    # wn_squared_probe = nengo.Probe(wn_squared_ens, synapse=tau_probe)
+    zeta_probe = nengo.Probe(zeta_ens, synapse=tau_probe)
+    u_probe = nengo.Probe(u_ens, synapse=tau_probe)
+    x0_probe = nengo.Probe(x0_ens, synapse=tau_probe)
+    x_probe = nengo.Probe(x_ens, synapse=tau_probe)
+    xhat_probe = nengo.Probe(xhat_ens, synapse=tau_probe)
+    dx_probe = nengo.Probe(dx_ens, synapse=tau_probe)
+
     # # Create the network input nodes.
     # fn_node = nengo.Node(output=fn, label='fn Node')
     # zeta_node = nengo.Node(output=zeta, label='zeta Node')
@@ -180,7 +232,14 @@ with network:
     # u_ens = nengo.Ensemble(n_neurons=u_neurons, dimensions=u_dim, radius=u_radius, seed=seed, label='u Ensemble')
     # x0_ens = nengo.Ensemble(n_neurons=x0_neurons, dimensions=x0_dim, radius=x0_radius, seed=seed, label='x0 Ensemble')
     # x_ens = nengo.Ensemble(n_neurons=x_neurons, dimensions=x_dim, radius=x_radius, seed=seed, label='x Ensemble')
-    # xhat_ens = nengo.Ensemble(n_neurons=xhat_neurons, dimensions=xhat_dim, radius=xhat_radius, seed=seed, label='xhat Ensemble')
+    #
+    # MUX1_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dim, radius=MUX1_radius, seed=seed, label='MUX1 Ensemble')
+    # MUX2_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dim, radius=MUX2_radius, seed=seed, label='MUX2 Ensemble')
+    # MUX3_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dim, radius=MUX3_radius, seed=seed, label='MUX3 Ensemble')
+    # term1_ens = nengo.Ensemble(n_neurons=term1_neurons, dimensions=term1_dim, radius=term1_radius, seed=seed, label='term1 Ensemble')
+    # term2_ens = nengo.Ensemble(n_neurons=term2_neurons, dimensions=term2_dim, radius=term2_radius, seed=seed, label='term2 Ensemble')
+    # term3_ens = nengo.Ensemble(n_neurons=term3_neurons, dimensions=term3_dim, radius=term3_radius, seed=seed, label='term3 Ensemble')
+    #
     # dx_ens = nengo.Ensemble(n_neurons=dx_neurons, dimensions=dx_dim, radius=dx_radius, seed=seed, label='dx Ensemble')
     #
     # # Create the network connections.
@@ -192,17 +251,22 @@ with network:
     # nengo.Connection(x0_node, x0_ens, synapse=tau_synapse)
     # nengo.Connection(x0_ens, x_ens, synapse=tau_synapse)
     #
-    # nengo.Connection(wn_ens, xhat_ens[0], synapse=tau_synapse)
-    # nengo.Connection(zeta_ens, xhat_ens[1], synapse=tau_synapse)
-    # nengo.Connection(u_ens, xhat_ens[2], synapse=tau_synapse)
-    # # nengo.Connection(fn_node, xhat_ens[0], transform=2*np.pi, synapse=tau_synapse)
-    # # nengo.Connection(zeta_node, xhat_ens[1], synapse=tau_synapse)
-    # # nengo.Connection(u_node, xhat_ens[2], synapse=tau_synapse)
+    # nengo.Connection(wn_squared_ens, MUX1_ens[0], synapse=tau_synapse)
+    # nengo.Connection(x_ens[0], MUX1_ens[1], synapse=tau_synapse)
+    # nengo.Connection(zeta_ens, MUX2_ens[0], synapse=tau_synapse)
+    # nengo.Connection(wn_ens, MUX2_ens[1], synapse=tau_synapse)
+    # nengo.Connection(x_ens[1], MUX2_ens[2], synapse=tau_synapse)
+    # nengo.Connection(wn_squared_ens, MUX3_ens[0], synapse=tau_synapse)
+    # nengo.Connection(u_ens, MUX3_ens[1], synapse=tau_synapse)
     #
-    # nengo.Connection(x_ens[0], xhat_ens[3], synapse=tau_synapse)
-    # nengo.Connection(x_ens[1], xhat_ens[4], synapse=tau_synapse)
+    # nengo.Connection(MUX1_ens, term1_ens, function=first_term_func, synapse=tau_synapse)
+    # nengo.Connection(MUX2_ens, term2_ens, function=second_term_func, synapse=tau_synapse)
+    # nengo.Connection(MUX3_ens, term3_ens, function=third_term_func, synapse=tau_synapse)
     #
-    # nengo.Connection(xhat_ens, dx_ens, function=oscillator_func, synapse=tau_synapse)
+    # nengo.Connection(x_ens[1], dx_ens[0], synapse=tau_synapse)
+    # nengo.Connection(term1_ens, dx_ens[1], synapse=tau_synapse)
+    # nengo.Connection(term2_ens, dx_ens[1], synapse=tau_synapse)
+    # nengo.Connection(term3_ens, dx_ens[1], synapse=tau_synapse)
     #
     # nengo.Connection(dx_ens, x_ens, transform=tau_synapse, synapse=tau_synapse)
     # nengo.Connection(x_ens, x_ens, synapse=tau_synapse)
@@ -215,80 +279,16 @@ with network:
     # u_probe = nengo.Probe(u_ens, synapse=tau_probe)
     # x0_probe = nengo.Probe(x0_ens, synapse=tau_probe)
     # x_probe = nengo.Probe(x_ens, synapse=tau_probe)
-    # xhat_probe = nengo.Probe(xhat_ens, synapse=tau_probe)
+    #
+    # MUX1_probe = nengo.Probe(MUX1_ens, synapse=tau_probe)
+    # MUX2_probe = nengo.Probe(MUX2_ens, synapse=tau_probe)
+    # MUX3_probe = nengo.Probe(MUX3_ens, synapse=tau_probe)
+    #
+    # term1_probe = nengo.Probe(term1_ens, synapse=tau_probe)
+    # term2_probe = nengo.Probe(term2_ens, synapse=tau_probe)
+    # term3_probe = nengo.Probe(term3_ens, synapse=tau_probe)
+    #
     # dx_probe = nengo.Probe(dx_ens, synapse=tau_probe)
-
-    # Create the network input nodes.
-    fn_node = nengo.Node(output=fn, label='fn Node')
-    zeta_node = nengo.Node(output=zeta, label='zeta Node')
-    u_node = nengo.Node(output=input_func, label='u Node')
-    x0_node = nengo.Node(output=initial_cond_func, label='x0 Node')
-
-    # Create the network ensembles.
-    fn_ens = nengo.Ensemble(n_neurons=fn_neurons, dimensions=fn_dim, radius=fn_radius, seed=seed, label='fn Ensemble')
-    wn_ens = nengo.Ensemble(n_neurons=wn_neurons, dimensions=wn_dim, radius=wn_radius, label='wn Ensemble')
-    wn_squared_ens = nengo.Ensemble(n_neurons=wn_squared_neurons, dimensions=wn_squared_dim, radius=wn_squared_radius, label='wn^2 Ensemble')
-    zeta_ens = nengo.Ensemble(n_neurons=zeta_neurons, dimensions=zeta_dim, radius=zeta_radius, seed=seed, label='zeta Ensemble')
-    u_ens = nengo.Ensemble(n_neurons=u_neurons, dimensions=u_dim, radius=u_radius, seed=seed, label='u Ensemble')
-    x0_ens = nengo.Ensemble(n_neurons=x0_neurons, dimensions=x0_dim, radius=x0_radius, seed=seed, label='x0 Ensemble')
-    x_ens = nengo.Ensemble(n_neurons=x_neurons, dimensions=x_dim, radius=x_radius, seed=seed, label='x Ensemble')
-
-    MUX1_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dim, radius=MUX1_radius, seed=seed, label='MUX1 Ensemble')
-    MUX2_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dim, radius=MUX2_radius, seed=seed, label='MUX2 Ensemble')
-    MUX3_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dim, radius=MUX3_radius, seed=seed, label='MUX3 Ensemble')
-    term1_ens = nengo.Ensemble(n_neurons=term1_neurons, dimensions=term1_dim, radius=term1_radius, seed=seed, label='term1 Ensemble')
-    term2_ens = nengo.Ensemble(n_neurons=term2_neurons, dimensions=term2_dim, radius=term2_radius, seed=seed, label='term2 Ensemble')
-    term3_ens = nengo.Ensemble(n_neurons=term3_neurons, dimensions=term3_dim, radius=term3_radius, seed=seed, label='term3 Ensemble')
-
-    dx_ens = nengo.Ensemble(n_neurons=dx_neurons, dimensions=dx_dim, radius=dx_radius, seed=seed, label='dx Ensemble')
-
-    # Create the network connections.
-    nengo.Connection(fn_node, fn_ens, synapse=tau_synapse)
-    nengo.Connection(fn_ens, wn_ens, transform=2*np.pi, synapse=tau_synapse)
-    nengo.Connection(wn_ens, wn_squared_ens, function=square_func, synapse=tau_synapse)
-    nengo.Connection(zeta_node, zeta_ens, synapse=tau_synapse)
-    nengo.Connection(u_node, u_ens, synapse=tau_synapse)
-    nengo.Connection(x0_node, x0_ens, synapse=tau_synapse)
-    nengo.Connection(x0_ens, x_ens, synapse=tau_synapse)
-
-    nengo.Connection(wn_squared_ens, MUX1_ens[0], synapse=tau_synapse)
-    nengo.Connection(x_ens[0], MUX1_ens[1], synapse=tau_synapse)
-    nengo.Connection(zeta_ens, MUX2_ens[0], synapse=tau_synapse)
-    nengo.Connection(wn_ens, MUX2_ens[1], synapse=tau_synapse)
-    nengo.Connection(x_ens[1], MUX2_ens[2], synapse=tau_synapse)
-    nengo.Connection(wn_squared_ens, MUX3_ens[0], synapse=tau_synapse)
-    nengo.Connection(u_ens, MUX3_ens[1], synapse=tau_synapse)
-
-    nengo.Connection(MUX1_ens, term1_ens, function=first_term_func, synapse=tau_synapse)
-    nengo.Connection(MUX2_ens, term2_ens, function=second_term_func, synapse=tau_synapse)
-    nengo.Connection(MUX3_ens, term3_ens, function=third_term_func, synapse=tau_synapse)
-
-    nengo.Connection(x_ens[1], dx_ens[0], synapse=tau_synapse)
-    nengo.Connection(term1_ens, dx_ens[1], synapse=tau_synapse)
-    nengo.Connection(term2_ens, dx_ens[1], synapse=tau_synapse)
-    nengo.Connection(term3_ens, dx_ens[1], synapse=tau_synapse)
-
-    nengo.Connection(dx_ens, x_ens, transform=tau_synapse, synapse=tau_synapse)
-    nengo.Connection(x_ens, x_ens, synapse=tau_synapse)
-
-    # Create objects to store network data.
-    fn_probe = nengo.Probe(fn_ens, synapse=tau_probe)
-    wn_probe = nengo.Probe(wn_ens, synapse=tau_probe)
-    wn_squared_probe = nengo.Probe(wn_squared_ens, synapse=tau_probe)
-    zeta_probe = nengo.Probe(zeta_ens, synapse=tau_probe)
-    u_probe = nengo.Probe(u_ens, synapse=tau_probe)
-    x0_probe = nengo.Probe(x0_ens, synapse=tau_probe)
-    x_probe = nengo.Probe(x_ens, synapse=tau_probe)
-
-    MUX1_probe = nengo.Probe(MUX1_ens, synapse=tau_probe)
-    MUX2_probe = nengo.Probe(MUX2_ens, synapse=tau_probe)
-    MUX3_probe = nengo.Probe(MUX3_ens, synapse=tau_probe)
-
-    term1_probe = nengo.Probe(term1_ens, synapse=tau_probe)
-    term2_probe = nengo.Probe(term2_ens, synapse=tau_probe)
-    term3_probe = nengo.Probe(term3_ens, synapse=tau_probe)
-
-    dx_probe = nengo.Probe(dx_ens, synapse=tau_probe)
 
 
 # Generate the contents of a .dot file that describes the network.
@@ -320,9 +320,9 @@ plt.plot(sim.trange(), sim.data[fn_probe], label=r'$f_n$')
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Angular Natural Frequency, $w_n$ [rad/s]'); plt.title(r'Angular Natural Frequency, $w_n$ $\left[ \frac{\mathrm{rad}}{\mathrm{s}} \right]$ vs Time')
 plt.plot(sim.trange(), sim.data[wn_probe], label=r'$w_n$')
 
-# Plot the Squared Network Angular Natural Frequency (i.e., wn) over Time.
-plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Squared Angular Natural Frequency, $w_n^2$ $\left[ \frac{\mathrm{rad}^2}{\mathrm{s}^2} \right]$'); plt.title(r'Squared Angular Natural Frequency, $w_n^2$ $\left[ \frac{\mathrm{rad}^2}{\mathrm{s}^2} \right]$ vs Time')
-plt.plot(sim.trange(), sim.data[wn_squared_probe], label=r'$w_n^2$')
+# # Plot the Squared Network Angular Natural Frequency (i.e., wn) over Time.
+# plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Squared Angular Natural Frequency, $w_n^2$ $\left[ \frac{\mathrm{rad}^2}{\mathrm{s}^2} \right]$'); plt.title(r'Squared Angular Natural Frequency, $w_n^2$ $\left[ \frac{\mathrm{rad}^2}{\mathrm{s}^2} \right]$ vs Time')
+# plt.plot(sim.trange(), sim.data[wn_squared_probe], label=r'$w_n^2$')
 
 # Plot the Network Damping Ratio (i.e., zeta) over Time.
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Damping Ratio, $\zeta$ [-]'); plt.title(r'Damping Ratio, $\zeta$ [-] vs Time')
@@ -340,36 +340,38 @@ plt.plot(sim.trange(), sim.data[x0_probe], label=r'$x_0$')
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel('Network State, x [-]'); plt.title('Network State, x [-] vs Time')
 plt.plot(sim.trange(), sim.data[x_probe], label='x')
 
-# Plot the MUX1 State over Time
-plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('MUX 1 [-]'), plt.title('MUX 1 vs Time')
-plt.plot(sim.trange(), sim.data[MUX1_probe], label='MUX1')
-
-# Plot the MUX2 State over Time
-plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('MUX 2 [-]'), plt.title('MUX 2 vs Time')
-plt.plot(sim.trange(), sim.data[MUX2_probe], label='MUX2')
-
-# Plot the MUX3 State over Time
-plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('MUX 3 [-]'), plt.title('MUX 3 vs Time')
-plt.plot(sim.trange(), sim.data[MUX3_probe], label='MUX3')
-
-# Plot the Term 1 State over Time
-plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('Term 1 [-]'), plt.title('Term 1 vs Time')
-plt.plot(sim.trange(), sim.data[term1_probe], label='term1')
-
-# Plot the Term 2 State over Time
-plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('Term 2 [-]'), plt.title('Term 2 vs Time')
-plt.plot(sim.trange(), sim.data[term2_probe], label='term2')
-
-# Plot the Term 3 State over Time
-plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('Term 3 [-]'), plt.title('Term 3 vs Time')
-plt.plot(sim.trange(), sim.data[term3_probe], label='term3')
 
 
+# # Plot the MUX1 State over Time
+# plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('MUX 1 [-]'), plt.title('MUX 1 vs Time')
+# plt.plot(sim.trange(), sim.data[MUX1_probe], label='MUX1')
+#
+# # Plot the MUX2 State over Time
+# plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('MUX 2 [-]'), plt.title('MUX 2 vs Time')
+# plt.plot(sim.trange(), sim.data[MUX2_probe], label='MUX2')
+#
+# # Plot the MUX3 State over Time
+# plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('MUX 3 [-]'), plt.title('MUX 3 vs Time')
+# plt.plot(sim.trange(), sim.data[MUX3_probe], label='MUX3')
+#
+# # Plot the Term 1 State over Time
+# plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('Term 1 [-]'), plt.title('Term 1 vs Time')
+# plt.plot(sim.trange(), sim.data[term1_probe], label='term1')
+#
+# # Plot the Term 2 State over Time
+# plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('Term 2 [-]'), plt.title('Term 2 vs Time')
+# plt.plot(sim.trange(), sim.data[term2_probe], label='term2')
+#
+# # Plot the Term 3 State over Time
+# plt.figure(); plt.xlabel('Time [s]'), plt.ylabel('Term 3 [-]'), plt.title('Term 3 vs Time')
+# plt.plot(sim.trange(), sim.data[term3_probe], label='term3')
 
 
-# # Plot the Composite Network State (i.e., xhat) over Time.
-# plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Network State, $\hat{x}$ [-]'); plt.title(r'Network State, $\hat{x}$ [-] vs Time')
-# plt.plot(sim.trange(), sim.data[xhat_probe], label='xhat')
+
+
+# Plot the Composite Network State (i.e., xhat) over Time.
+plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Network State, $\hat{x}$ [-]'); plt.title(r'Network State, $\hat{x}$ [-] vs Time')
+plt.plot(sim.trange(), sim.data[xhat_probe], label='xhat')
 
 # Plot the Network State Derivative (i.e., dx) over Time.
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Network Output Derivative, $\dot{x}$ [-]'); plt.title(r'Network Output Derivative, $\dot{x}$ [-] vs Time')

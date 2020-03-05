@@ -118,8 +118,8 @@ plt.plot(sim.trange(), sim.data[dx_probe], label='dx')
 plt.figure(); plt.xlabel('Position, x [m]'); plt.ylabel(r'Velocity, $\dot{x}$ [m/s]'); plt.title('Network State Space Trajectory')
 plt.plot(sim.data[x_probe].T[0], sim.data[x_probe].T[1])
 
-# # Show the network.
-# gvz_source.view()
+# Show the network.
+gvz_source.view()
 
 # Show the figures.
 plt.show()
