@@ -38,6 +38,7 @@ hterm_neurons = 1000                                                # [#] Steady
 minf_neurons = 1000                                                 # [#] Steady State Sodium Channel Activation Parameter Number of Neurons.
 hinf_neurons = 1000                                                 # [#] Steady State Sodium Channel Deactivation Parameter Number of Neurons.
 h_neurons = 1000                                                    # [#] Sodium Channel Deactivation Parameter Number of Neurons.
+hgate_neurons = 1000                                                # [#] Sodium Channel Deactivation Parameter Gate Number of Neurons.
 tauterm_neurons = 1000                                              # [#] Sodium Channel Deactivation Time Constant Intermediate Calculation Number of Neurons.
 MUX2_neurons = 2000                                                 # [#] Multiplexer 2 Number of Neurons.
 tauh_neurons = 1000                                                 # [#] Sodium Channel Deactivation Time Constant Number of Neurons.
@@ -52,13 +53,14 @@ dV_neurons = 1000                                                   # [#] Membra
 Vpre_dims = 1                                                       # [#] Presynaptic Membrane Voltage Number of Dimensions.
 Gsi_dims = Vpre_dims                                                # [S] Synaptic Conductance Number of Dimensions.
 V_dims = 1                                                          # [#] Membrane Voltage Number of Dimensions.
-Vgate_dims = 1                                                      # [#] Membrane Voltage Gate Number of Dimensions.
+Vgate_dims = V_dims                                                 # [#] Membrane Voltage Gate Number of Dimensions.
 MUX1_dims = 2                                                       # [#] Multiplexer 1 Number of Dimensions.
 mterm_dims = 1                                                      # [#] Steady State Sodium Channel Activation Parameter Intermediate Calculation Number of Dimensions
 hterm_dims = 1                                                      # [#] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Number of Dimensions
 minf_dims = 1                                                       # [#] Steady State Sodium Channel Activation Parameter Number of Dimensions.
 hinf_dims = 1                                                       # [#] Steady State Sodium Channel Deactivation Parameter Number of Dimensions.
 h_dims = 1                                                          # [#] Sodium Channel Deactivation Parameter Number of Dimensions.
+hgate_dims = h_dims                                                 # [#] Sodium Channel Deactivation Parameter Gate Number of Dimensions.
 tauterm_dims = 1                                                    # [#] Sodium Channel Deactivation Time Constant Intermediate Calculation Number of Dimensions.
 MUX2_dims = 2                                                       # [#] Multiplexer 2 Number of Dimensions.
 tauh_dims = 1                                                       # [#] Sodium Channel Deactivation Time Constant Number of Dimensions.
@@ -73,13 +75,14 @@ dV_dims = 1                                                         # [#] Membra
 Vpre_radius = 2                                                     # [V] Presynaptic Membrane Voltage Radius.
 Gsi_radius = 1                                                      # [S] Synaptic Conductance Radius.
 V_radius = 2                                                        # [V] Membrane Voltage Radius.
-Vgate_radius = 2                                                    # [V] Membrane Voltage Gate Radius.
+Vgate_radius = V_radius                                             # [V] Membrane Voltage Gate Radius.
 MUX1_radius = np.amax([V_radius, Gsi_radius])                       # [-] Multiplexer 1 Radius.
 mterm_radius = 5                                                    # [-] Steady State Sodium Channel Activation Parameter Intermediate Calculation Radius
 hterm_radius = 5                                                    # [-] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Radius
 minf_radius = 1                                                     # [-] Steady State Sodium Channel Activation Parameter Radius.
 hinf_radius = 1                                                     # [-] Steady State Sodium Channel Deactivation Parameter Radius.
 h_radius = 1                                                        # [-] Sodium Channel Deactivation Parameter Radius.
+hgate_radius = h_radius                                             # [-] Sodium Channel Deactivation Parameter Gate Radius.
 tauterm_radius = np.sqrt(5)                                         # [s] Sodium Channel Deactivation Time Constant Intermediate Calculation Radius.
 MUX2_radius = np.amax([hinf_radius, tauterm_radius])                # [-] Multiplexer 2 Radius.
 tauh_radius = 5                                                     # [s] Sodium Channel Deactivation Time Constant Radius.
@@ -105,6 +108,9 @@ initial_cond_func = Piecewise({0: V0, t_start: 0})  # [-] Initial Condition Func
 
 # Define an inhibition function for the membrane voltage gate ensemble.
 Vgate_inhib_func = Piecewise({0: 1, t_start-t_offset: 0})  # [-] Membrane Voltage Inhibitory Function.
+
+# Define an inhibition function for the sodium channel deactivation parameter.
+hgate_inhib_func = Piecewise({0: 1, t_start-t_offset: 0})   # [-] Sodium Channel Deactivation Inhibitory Function.
 
 
 # --------------------------- DEFINE THE DYNAMICAL SYSTEM TO APPROXIMATE ---------------------------
@@ -208,88 +214,99 @@ network.config[nengo.Ensemble].neuron_type = nengo.LIF(amplitude=0.001)  # [-] S
 # Build the network.
 with network:
 
-    # Create the network nodes.
+    # -------------------- Create the Network Components --------------------
+
+    # Create the membrane voltage ensemble and associated network components.
     V0_node = nengo.Node(output=initial_cond_func, label='V0 Node')
-    Vgate_inhib_node = nengo.Node(output=Vgate_inhib_func, label='Vgate Node')
-    Vpre_node = nengo.Node(output=Vpre, label='Vpre node')
-
-    # Create the network ensembles.
-    Vpre_ens = nengo.Ensemble(n_neurons=Vpre_neurons, dimensions=Vpre_dims, radius=Vpre_radius, seed=seed, label='Vpre Ensemble')
-    Gsi_ens = nengo.Ensemble(n_neurons=Gsi_neurons, dimensions=Gsi_dims, radius=Gsi_radius, seed=seed, label='Gsi Ensemble')
-
     V_ens = nengo.Ensemble(n_neurons=V_neurons, dimensions=V_dims, radius=V_radius, seed=seed, label='V Ensemble')
+    Vgate_inhib_node = nengo.Node(output=Vgate_inhib_func, label='Vgate Node')
     Vgate_ens = nengo.Ensemble(n_neurons=Vgate_neurons, dimensions=Vgate_dims, radius=Vgate_radius, seed=seed, label='Vgate Ensemble')
 
+    # Create the leak current pathway.
+    Ileak_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak Ensemble')
+
+    # Create the presynaptic current pathway.
+    Vpre_node = nengo.Node(output=Vpre, label='Vpre node')
+    Vpre_ens = nengo.Ensemble(n_neurons=Vpre_neurons, dimensions=Vpre_dims, radius=Vpre_radius, seed=seed, label='Vpre Ensemble')
+    Gsi_ens = nengo.Ensemble(n_neurons=Gsi_neurons, dimensions=Gsi_dims, radius=Gsi_radius, seed=seed, label='Gsi Ensemble')
+    MUX1_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dims, radius=MUX1_radius, seed=seed, label='MUX1 Ensemble')
+    Isyn_ens = nengo.Ensemble(n_neurons=Isyn_neurons, dimensions=Isyn_dims, radius=Isyn_radius, seed=seed, label='Isyn Ensemble')
+
+    # Create the sodium channel deactivation parameter ensemble and associated network components.
     mterm_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm Ensemble')
     hterm_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm Ensemble')
-
     minf_ens = nengo.Ensemble(n_neurons=minf_neurons, dimensions=minf_dims, radius=minf_radius, seed=seed, label='minf Ensemble')
     hinf_ens = nengo.Ensemble(n_neurons=hinf_neurons, dimensions=hinf_dims, radius=hinf_radius, seed=seed, label='hinf Ensemble')
-
     tauterm_ens = nengo.Ensemble(n_neurons=tauterm_neurons, dimensions=tauterm_dims, radius=tauterm_radius, seed=seed, label='tauterm Ensemble')
-
+    MUX2_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dims, radius=MUX2_radius, seed=seed, label='MUX2 Ensemble')
     tauh_ens = nengo.Ensemble(n_neurons=tauh_neurons, dimensions=tauh_dims, radius=tauh_radius, seed=seed, label='tauh Ensemble')
-
     h_ens = nengo.Ensemble(n_neurons=h_neurons, dimensions=h_dims, radius=h_radius, seed=seed, label='h Ensemble')
+    hgate_inhib_node = nengo.Node(output=hgate_inhib_func, label='hgate Node')
+    hgate_ens = nengo.Ensemble(n_neurons=hgate_neurons, dimensions=hgate_dims, radius=hgate_radius, seed=seed, label='hgate Ensemble')
+    MUX3_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dims, radius=MUX3_radius, seed=seed, label='MUX3 Ensemble')
     dh_ens = nengo.Ensemble(n_neurons=dh_neurons, dimensions=dh_dims, radius=dh_radius, seed=seed, label='dh Ensemble')
 
-    MUX1_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dims, radius=MUX1_radius, seed=seed, label='MUX1 Ensemble')
-    MUX2_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dims, radius=MUX2_radius, seed=seed, label='MUX2 Ensemble')
-    MUX3_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dims, radius=MUX3_radius, seed=seed, label='MUX3 Ensemble')
-
-    Ileak_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak Ensemble')
-    Isyn_ens = nengo.Ensemble(n_neurons=Isyn_neurons, dimensions=Isyn_dims, radius=Isyn_radius, seed=seed, label='Isyn Ensemble')
+    # Create the membrane voltage derivative pathway.
     Itotal_ens = nengo.Ensemble(n_neurons=Itotal_neurons, dimensions=Itotal_dims, radius=Itotal_radius, seed=seed, label='Itotal Ensemble')
     dV_ens = nengo.Ensemble(n_neurons=dV_neurons, dimensions=dV_dims, radius=dV_radius, seed=seed, label='dV Ensemble')
 
-    # Connect the network components.
-    nengo.Connection(Vpre_node, Vpre_ens, synapse=tau_synapse)
-    nengo.Connection(Vpre_ens, Gsi_ens, synapse=tau_synapse, function=synaptic_conductance_func)
+    # -------------------- Connect the Network Components --------------------
 
+    # Connect the membrane voltage and associated network components.
     nengo.Connection(V0_node, V_ens, synapse=tau_synapse)
     nengo.Connection(V_ens, Vgate_ens, synapse=tau_synapse)
     nengo.Connection(Vgate_inhib_node, Vgate_ens.neurons, transform=[[-2.5]]*Vgate_neurons)
     nengo.Connection(Vgate_ens, V_ens, synapse=tau_synapse)
 
+    # Connect the components of the leak current pathway.
+    nengo.Connection(V_ens, Ileak_ens, synapse=tau_synapse, function=leak_current_func)
 
+    # Create the presynaptic current pathway.
+    nengo.Connection(Vpre_node, Vpre_ens, synapse=tau_synapse)
+    nengo.Connection(Vpre_ens, Gsi_ens, synapse=tau_synapse, function=synaptic_conductance_func)
+    nengo.Connection(V_ens, MUX1_ens[0], synapse=tau_synapse)
+    nengo.Connection(Gsi_ens, MUX1_ens[1], synapse=tau_synapse)
+    nengo.Connection(MUX1_ens, Isyn_ens, synapse=tau_synapse, function=synapse_current_func)
+
+    # Connect the sodium channel deactivation parameter ensemble and associated network components.
+    nengo.Connection(h_ens, hgate_ens, synapse=tau_synapse)
+    nengo.Connection(hgate_inhib_node, hgate_ens.neurons, transform=[[-2.5]]*hgate_neurons)
+    nengo.Connection(hgate_ens, h_ens, synapse=tau_synapse)
     nengo.Connection(V_ens, mterm_ens, synapse=tau_synapse, function=sodium_channel_activation_intermediate_calc_func)
     nengo.Connection(V_ens, hterm_ens, synapse=tau_synapse, function=sodium_channel_deactivation_intermediate_calc_func)
     nengo.Connection(mterm_ens, minf_ens, synapse=tau_synapse, function=sodium_channel_activation_func)
     nengo.Connection(hterm_ens, hinf_ens, synapse=tau_synapse, function=sodium_channel_deactivation_func)
-
-    # nengo.Connection(V_ens, minf_ens, synapse=tau_synapse, function=sodium_channel_activation_func)
-    # nengo.Connection(V_ens, hinf_ens, synapse=tau_synapse, function=sodium_channel_deactivation_func)
-
     nengo.Connection(hterm_ens, tauterm_ens, synapse=tau_synapse, function=sodium_channel_time_constant_intermediate_calc_func)
-
-    nengo.Connection(V_ens, MUX1_ens[0], synapse=tau_synapse)
-    nengo.Connection(Gsi_ens, MUX1_ens[1], synapse=tau_synapse)
-
     nengo.Connection(hinf_ens, MUX2_ens[0], synapse=tau_synapse)
     nengo.Connection(tauterm_ens, MUX2_ens[1], synapse=tau_synapse)
-
     nengo.Connection(MUX2_ens, tauh_ens, synapse=tau_synapse, function=sodium_channel_time_constant_func)
-
     nengo.Connection(hinf_ens, MUX3_ens[0], synapse=tau_synapse)
     nengo.Connection(h_ens, MUX3_ens[1], synapse=tau_synapse)
     nengo.Connection(tauh_ens, MUX3_ens[2], synapse=tau_synapse)
-
     nengo.Connection(MUX3_ens, dh_ens, synapse=tau_synapse, function=sodium_channel_derivative_func)
+    nengo.Connection(dh_ens, h_ens, synapse=tau_synapse, transform=tau_synapse)
 
-    nengo.Connection(V_ens, Ileak_ens, synapse=tau_synapse, function=leak_current_func)
-    nengo.Connection(MUX1_ens, Isyn_ens, synapse=tau_synapse, function=synapse_current_func)
-
-
+    # Connect the membrane voltage derivative pathway.
     nengo.Connection(Ileak_ens, Itotal_ens, synapse=tau_synapse)
     nengo.Connection(Isyn_ens, Itotal_ens, synapse=tau_synapse)
     nengo.Connection(Itotal_ens, dV_ens, synapse=tau_synapse, transform=1/Cm)
     nengo.Connection(dV_ens, V_ens, synapse=tau_synapse, transform=tau_synapse)
 
-    # Create probes to store network data.
-    Vpre_probe = nengo.Probe(Vpre_ens, synapse=tau_probe)
-    Gsi_probe = nengo.Probe(Gsi_ens, synapse=tau_probe)
+    # -------------------- Connect the Network Components --------------------
+
+    # Collect data from the membrane voltage ensemble and associated components.
     V_probe = nengo.Probe(V_ens, synapse=tau_probe)
     Vgate_probe = nengo.Probe(Vgate_ens, synapse=tau_probe)
+
+    # Collect data from the leak current pathway.
+    Ileak_probe = nengo.Probe(Ileak_ens, synapse=tau_probe)
+
+    # Collect data from the presynaptic current pathway.
+    Vpre_probe = nengo.Probe(Vpre_ens, synapse=tau_probe)
+    Gsi_probe = nengo.Probe(Gsi_ens, synapse=tau_probe)
+    Isyn_probe = nengo.Probe(Isyn_ens, synapse=tau_probe)
+
+    # Collect data from the sodium channel deactivation parameter ensemble and associated network components.
     mterm_probe = nengo.Probe(mterm_ens, synapse=tau_probe)
     hterm_probe = nengo.Probe(hterm_ens, synapse=tau_probe)
     minf_probe = nengo.Probe(minf_ens, synapse=tau_probe)
@@ -297,9 +314,10 @@ with network:
     tauterm_probe = nengo.Probe(tauterm_ens, synapse=tau_probe)
     tauh_probe = nengo.Probe(tauh_ens, synapse=tau_probe)
     h_probe = nengo.Probe(h_ens, synapse=tau_probe)
+    hgate_probe = nengo.Probe(hgate_ens, synapse=tau_probe)
     dh_probe = nengo.Probe(dh_ens, synapse=tau_probe)
-    Ileak_probe = nengo.Probe(Ileak_ens, synapse=tau_probe)
-    Isyn_probe = nengo.Probe(Isyn_ens, synapse=tau_probe)
+
+    # Collect data from the membrane voltage derivative pathway.
     Itotal_probe = nengo.Probe(Itotal_ens, synapse=tau_probe)
     dV_probe = nengo.Probe(dV_ens, synapse=tau_probe)
 
@@ -364,9 +382,13 @@ plt.plot(sim.trange(), sim.data[tauterm_probe], label=r'$tauterm$')
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Na Channel Deactivation Parameter Time Constant, $\tau_{h}$ [s]'); plt.title(r'Na Channel Deactivation Parameter Time Constant, $\tau_{h}$ [s] vs Time')
 plt.plot(sim.trange(), sim.data[tauh_probe], label=r'$tauh$')
 
-# Plot the Sodium Channel Deactivation Parameter Derivative over Time.
+# Plot the Sodium Channel Deactivation Parameter over Time.
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Na Channel Deactivation Parameter, $h$ [-]'); plt.title(r'Na Channel Deactivation Parameter, $h$ [-] vs Time')
 plt.plot(sim.trange(), sim.data[h_probe], label=r'$h$')
+
+# Plot the Sodium Channel Deactivation Parameter Gate over Time.
+plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Na Channel Deactivation Parameter Gate, $h_{gate}$ [-]'); plt.title(r'Na Channel Deactivation Parameter, $h_{gate}$ [-] vs Time')
+plt.plot(sim.trange(), sim.data[hgate_probe], label=r'$h_{gate}$')
 
 # Plot the Sodium Channel Deactivation Parameter Derivative over Time.
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Na Channel Deactivation Parameter Derivative, $\dot{h}$ [-]'); plt.title(r'Na Channel Deactivation Parameter Derivative, $\dot{h}$ [-] vs Time')
@@ -383,8 +405,6 @@ plt.plot(sim.trange(), sim.data[Isyn_probe], label=r'$Isyn$')
 # Plot the Total Current over Time.
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Total Current, $I_{total}$ [A]'); plt.title(r'Total Current, $I_{total}$ [A] vs Time')
 plt.plot(sim.trange(), sim.data[Itotal_probe], label=r'$Itotal$')
-
-
 
 # Plot the Membrane Voltage Derivative over Time.
 plt.figure(); plt.xlabel('Time [s]'); plt.ylabel(r'Membrane Voltage Derivative, $\dot{V}$ $\left[ \frac{V}{s} \right]$'); plt.title(r'Membrane Voltage Derivative, $\dot{V}$ $\left[ \frac{V}{s} \right]$ vs Time')
