@@ -3,10 +3,62 @@
 % Clear Everything.
 clear, close('all'), clc
 
-%% Simulate the System.
+%% Define the Network Properties.
 
 % Define the number of neurons in the simulation.
 num_neurons = 2;
+
+% Define the voltage range for the CPG to oscillator over.
+R = 20e-3;                                          % [V] Biphasic Equilibrium Voltage Range.
+
+% Define membrane properties.
+Cm = 5e-9;                   % [C] Membrane Capacitance.
+Gm = 1e-6;                   % [S] Membrane Conductance.
+Er = -60e-3;                 % [V] Membrane Resting (Equilibrium) Potential.
+
+% Define synapse properties.
+Elo = Er;                    % [V] Presynaptic Threshold.
+Ehi = Elo + R;               % [V] Presynaptic Saturation Level.
+Es = -100e-3;                % [V] Synaptic Equilibrium Potential.
+
+% Define sodium channel activation properties.
+Am = 1;
+Sm = -50;
+Em = Ehi;
+Em_tilde = Em - Er;
+
+% Define sodium channel deactivation properties.
+Ah = 0.5;
+Sh = 50;
+Eh = Elo;
+Eh_tilde = Eh - Er;
+
+% Define the steady state sodium channel activation & deactivation parameters.
+minf_func = @(U) 1./(1 + Am.*exp(-Sm.*(Em_tilde - U)));
+hinf_func = @(U) 1./(1 + Ah.*exp(-Sh.*(Eh_tilde - U)));
+
+% Us = (-R):0.0001:(3*R);
+% minfs = minf_func(Us);
+% hinfs = hinf_func(Us);
+% 
+% figure, hold on, grid on, xlabel('U [V]'), ylabel('m_{inf} [-]'), title('m_{inf} vs U'), plot(Us, minfs)
+% figure, hold on, grid on, xlabel('U [V]'), ylabel('h_{inf} [-]'), title('h_{inf} vs U'), plot(Us, hinfs)
+
+% Define the sodium channel reversal potential.
+Ena = 50e-3;                % [V] Sodium Channel Reversal Potential.
+Ena_tilde = Ena - Er;       % [V] Sodium Channel Reversal Potential With Respect to the Resting Potential.
+
+% Compute the sodium channel conductance.
+Gna = (Gm*R)/(minf_func(R)*hinf_func(R)*(Ena_tilde - R));       % [S] Sodium Channel Conductance.
+
+% Define the maximum sodium channel time constant.
+tauhmaxs = 0.3;             % [s] Maximum Sodium Channel Time Constant.
+
+
+
+%% Simulate the System.
+
+
 
 % Define the simulation properties.
 V0 = [-60e-3; -60e-3; -60e-3; -60e-3];
