@@ -1,6 +1,6 @@
-# --------------------------- HALF CENTER DYNAMICS ---------------------------
+# --------------------------- CPG DYNAMICS ---------------------------
 
-# This script creates a SNN that approximates the dynamics of a half-center neuron.
+# This script creates a SNN that approximates the dynamics of a two neuron CPG.
 
 
 # --------------------------- IMPORT LIBRARIES ---------------------------
@@ -60,37 +60,44 @@ Gna = (Gm*R)/(minf_func(R)*hinf_func(R)*(Ena_tilde - R))       # [S] Sodium Chan
 # Define the maximum sodium channel time constant.
 tauhmax = 0.3              # [s] Maximum Sodium Channel Time Constant.
 
+# Define a function to compute the sodium channel deactivation time constant.
+tauh_func = lambda U: tauhmax*hinf_func(U)*np.sqrt(Ah*np.exp(-Sh*(Eh_tilde - U)))        # [s] Sodium Channel Time Constant.
+
 # Compute the maximum synaptic conductance.
 gsynmax = (-delta*(10**(-6)) - delta*Gna*minf_func(delta)*hinf_func(delta) + Gna*minf_func(delta)*hinf_func(delta)*Ena_tilde)/(delta - Es_tilde)
 
+# Define the network initial conditions.
+U0 = 0                      # [V] Initial Membrane Voltage w.r.t. Resting Potential.
+h0 = hinf_func(U0)          # [-] Initial Sodium Channel Deactivation Parameter.
 
+# --------------------------- DEFINE FUNCTIONS TO APPROXIMATE WHEN CREATING THE NETWORK ---------------------------
 
 # Define a function to compute the leak current.
-def leak_current_func(V):
+def leak_current_func(U):
 
     # Return the leak current.
-    return Gm*(Er - V)
+    return -Gm*U
 
 # Define a function to compute the synaptic conductance.
-def synaptic_conductance_func(Vpre):
+def synaptic_conductance_func(Upre):
 
     # Compute the synaptic conductance.
-    return gsynmax*np.minimum(np.maximum((Vpre - Elo)/(Ehi - Elo), 0), 1)
+    return gsynmax*np.minimum(np.maximum(Upre/R, 0), 1)
 
 # Define a function to compute the synaptic current.
 def synapse_current_func(x):
 
     # Retrieve the components of the input vector.
-    V, Gsi = x
+    U, Gsi = x
 
     # Compute the synaptic current.
-    return Gsi*(Es - V)
+    return Gsi*(Es_tilde - U)
 
 # Define a function to compute the steady state sodium channel activation parameter intermediate calculation (mterm)
-def sodium_channel_activation_intermediate_calc_func(V):
+def sodium_channel_activation_intermediate_calc_func(U):
 
     # Compute the steady state sodium channel activation parameter intermediate calculation (mterm).
-    return Am*np.exp(Sm*(V - Em))
+    return Am*np.exp(-Sm*(Em_tilde - U))
 
 # Define a function to compute the steady state sodium channel activation parameter (minf).
 def sodium_channel_activation_func(mterm):
@@ -99,10 +106,10 @@ def sodium_channel_activation_func(mterm):
     return 1/(1 + mterm)
 
 # Define a function to compute the steady state sodium channel deactivation parameter intermediate calculation (hterm)
-def sodium_channel_deactivation_intermediate_calc_func(V):
+def sodium_channel_deactivation_intermediate_calc_func(U):
 
     # Compute the steady state sodium channel deactivation parameter intermediate calculation (hterm).
-    return Ah*np.exp(Sh*(V - Eh))
+    return Ah*np.exp(-Sh*(Eh_tilde - U))
 
 # Define a function to compute the steady state sodium channel deactivation parameter (hinf).
 def sodium_channel_deactivation_func(hterm):
@@ -134,81 +141,95 @@ def sodium_channel_derivative_func(x):
     # Compute the sodium channel deactivation parameter derivative.
     return (hinf - h)/tauh
 
+# Define a function to compute the sodium channel current.
+def sodium_channel_current(x):
+
+    # Retrieve the components of the input vector.
+    minf, h, U = x
+
+    # Compute the sodium channel current.
+    return Gna*minf*h*(Ena_tilde - U)
+
+
 # --------------------------- SETUP NETWORK PROPERTIES ---------------------------
 
 # Define simulation properties.
 dt_sim = 0.001                                                      # [s] Simulation Step Size.
-t_sim_duration = 10                                                 # [s] Total Simulation Duration.
-# x0 = [0, 0]                                                       # [-] Initial Condition.
-V0 = 1                                                              # [-] Initial Condition.
+t_sim_duration = 6                                                 # [s] Total Simulation Duration.
 t_start = 1                                                         # [s] Simulation Start Time.
 t_offset = 0.01                                                     # [s] Offset Time for Inhibition Functions.
 
 # Define the network neuron quantities.
-Vpre_neurons = 1000                                                 # [#] Presynaptic Membrane Voltage Number of Neurons.
-Gsi_neurons = 1000                                                  # [#] Synaptic Conductance Number of Neurons.
-V_neurons = 1000                                                    # [#] Membrane Voltage Number of Neurons.
-Vgate_neurons = 1000                                                # [#] Membrane Voltage Gate Number of Neurons.
+U_neurons = 1000                                                    # [#] Membrane Voltage w.r.t. Resting Potential Number of Neurons.
+Ugate_neurons = 1000                                                # [#] Membrane Voltage w.r.t. Resting Potential Gate Number of Neurons.
+gsyn_neurons = 1000                                                 # [#] Synaptic Conductance Number of Neurons.
 MUX1_neurons = 2000                                                 # [#] Multiplexer 1 Number of Neurons.
 mterm_neurons = 1000                                                # [#] Steady State Sodium Channel Activation Parameter Intermediate Calculation Number of Neurons.
 hterm_neurons = 1000                                                # [#] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Number of Neurons.
 minf_neurons = 1000                                                 # [#] Steady State Sodium Channel Activation Parameter Number of Neurons.
 hinf_neurons = 1000                                                 # [#] Steady State Sodium Channel Deactivation Parameter Number of Neurons.
+tauterm_neurons = 1000                                              # [#] Sodium Channel Deactivation Time Constant Intermediate Calculation Number of Neurons.
 h_neurons = 1000                                                    # [#] Sodium Channel Deactivation Parameter Number of Neurons.
 hgate_neurons = 1000                                                # [#] Sodium Channel Deactivation Parameter Gate Number of Neurons.
-tauterm_neurons = 1000                                              # [#] Sodium Channel Deactivation Time Constant Intermediate Calculation Number of Neurons.
 MUX2_neurons = 2000                                                 # [#] Multiplexer 2 Number of Neurons.
 tauh_neurons = 1000                                                 # [#] Sodium Channel Deactivation Time Constant Number of Neurons.
 MUX3_neurons = 3000                                                 # [#] Multiplexer 3 Number of Neurons.
 dh_neurons = 1000                                                   # [#] Sodium Channel Deactivation Parameter Derivative Number of Neurons.
 Ileak_neurons = 1000                                                # [#] Leak Current Number of Neurons.
 Isyn_neurons = 2000                                                 # [#] Synaptic Current Number of Neurons.
+MUX4_neurons = 3000                                                 # [#] Multiplexer 4 Number of Neurons.
+Ina_neurons = 2000                                                  # [#] Sodium Channel Current Number of Neurons.
+Iapp_neurons = 1000                                                 # [#] Applied Current Number of Neurons.
 Itotal_neurons = 1000                                               # [#] Total Current Number of Neurons.
-dV_neurons = 1000                                                   # [#] Membrane Voltage Derivative Number of Neurons.
+dU_neurons = 1000                                                   # [#] Membrane Voltage w.r.t. Resting Potential Derivative Number of Neurons.
 
 # Define the network dimensions.
-Vpre_dims = 1                                                       # [#] Presynaptic Membrane Voltage Number of Dimensions.
-Gsi_dims = Vpre_dims                                                # [S] Synaptic Conductance Number of Dimensions.
-V_dims = 1                                                          # [#] Membrane Voltage Number of Dimensions.
-Vgate_dims = V_dims                                                 # [#] Membrane Voltage Gate Number of Dimensions.
-MUX1_dims = 2                                                       # [#] Multiplexer 1 Number of Dimensions.
-mterm_dims = 1                                                      # [#] Steady State Sodium Channel Activation Parameter Intermediate Calculation Number of Dimensions
-hterm_dims = 1                                                      # [#] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Number of Dimensions
-minf_dims = 1                                                       # [#] Steady State Sodium Channel Activation Parameter Number of Dimensions.
-hinf_dims = 1                                                       # [#] Steady State Sodium Channel Deactivation Parameter Number of Dimensions.
-h_dims = 1                                                          # [#] Sodium Channel Deactivation Parameter Number of Dimensions.
+U_dims = 1                                                          # [#] Membrane Voltage Number w.r.t. Resting Potentialof Dimensions.
+Ugate_dims = U_dims                                                 # [#] Membrane Voltage w.r.t. Resting Potential Gate Number of Dimensions.
+gsyn_dims = U_dims                                                  # [S] Synaptic Conductance Number of Dimensions.
+MUX1_dims = 2*U_dims                                                # [#] Multiplexer 1 Number of Dimensions.
+mterm_dims = U_dims                                                 # [#] Steady State Sodium Channel Activation Parameter Intermediate Calculation Number of Dimensions
+hterm_dims = U_dims                                                 # [#] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Number of Dimensions
+minf_dims = mterm_dims                                              # [#] Steady State Sodium Channel Activation Parameter Number of Dimensions.
+hinf_dims = hterm_dims                                              # [#] Steady State Sodium Channel Deactivation Parameter Number of Dimensions.
+tauterm_dims = hterm_dims                                           # [#] Sodium Channel Deactivation Time Constant Intermediate Calculation Number of Dimensions.
+h_dims = hinf_dims                                                  # [#] Sodium Channel Deactivation Parameter Number of Dimensions.
 hgate_dims = h_dims                                                 # [#] Sodium Channel Deactivation Parameter Gate Number of Dimensions.
-tauterm_dims = 1                                                    # [#] Sodium Channel Deactivation Time Constant Intermediate Calculation Number of Dimensions.
-MUX2_dims = 2                                                       # [#] Multiplexer 2 Number of Dimensions.
-tauh_dims = 1                                                       # [#] Sodium Channel Deactivation Time Constant Number of Dimensions.
-MUX3_dims = 3                                                       # [#] Multiplexer 3 Number of Dimensions.
-dh_dims = 1                                                         # [#] Sodium Channel Deactivation Parameter Derivative Number of Dimensions.
-Ileak_dims = 1                                                      # [#] Leak Current Number of Dimensions.
-Isyn_dims = 1                                                       # [#] Synaptic Current Number of Dimensions.
-Itotal_dims = 1                                                     # [#] Total Current Number of Dimensions.
-dV_dims = 1                                                         # [#] Membrane Voltage Number of Dimensions.
+MUX2_dims = hinf_dims + tauterm_dims                                # [#] Multiplexer 2 Number of Dimensions.
+tauh_dims = h_dims                                                  # [#] Sodium Channel Deactivation Time Constant Number of Dimensions.
+MUX3_dims = hinf_dims + h_dims + tauh_dims                          # [#] Multiplexer 3 Number of Dimensions.
+dh_dims = h_dims                                                    # [#] Sodium Channel Deactivation Parameter Derivative Number of Dimensions.
+Ileak_dims = U_dims                                                 # [#] Leak Current Number of Dimensions.
+Isyn_dims = U_dims                                                  # [#] Synaptic Current Number of Dimensions.
+MUX4_dims = minf_dims + h_dims + U_dims                             # [#] Multiplexer 4 Number of Dimensions.
+Ina_dims = U_dims                                                   # [#] Sodium Channel Current Number of Dimensions.
+Iapp_dims = U_dims                                                  # [#] Applied Current Number of Dimensions.
+Itotal_dims = U_dims                                                # [#] Total Current Number of Dimensions.
+dU_dims = U_dims                                                    # [#] Membrane Voltage  w.r.t. Resting Potential Number of Dimensions.
 
 # Define the network radii.
-Vpre_radius = 2                                                     # [V] Presynaptic Membrane Voltage Radius.
-Gsi_radius = 1                                                      # [S] Synaptic Conductance Radius.
-V_radius = 2                                                        # [V] Membrane Voltage Radius.
-Vgate_radius = V_radius                                             # [V] Membrane Voltage Gate Radius.
-MUX1_radius = np.amax([V_radius, Gsi_radius])                       # [-] Multiplexer 1 Radius.
-mterm_radius = 5                                                    # [-] Steady State Sodium Channel Activation Parameter Intermediate Calculation Radius
-hterm_radius = 5                                                    # [-] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Radius
-minf_radius = 1                                                     # [-] Steady State Sodium Channel Activation Parameter Radius.
-hinf_radius = 1                                                     # [-] Steady State Sodium Channel Deactivation Parameter Radius.
-h_radius = 1                                                        # [-] Sodium Channel Deactivation Parameter Radius.
-hgate_radius = h_radius                                             # [-] Sodium Channel Deactivation Parameter Gate Radius.
-tauterm_radius = np.sqrt(5)                                         # [s] Sodium Channel Deactivation Time Constant Intermediate Calculation Radius.
-MUX2_radius = np.amax([hinf_radius, tauterm_radius])                # [-] Multiplexer 2 Radius.
-tauh_radius = 5                                                     # [s] Sodium Channel Deactivation Time Constant Radius.
-MUX3_radius = np.amax([hinf_radius, h_radius, tauh_radius])         # [-] Multiplexer 3 Radius.
-dh_radius = 2                                                       # [-] Sodium Channel Deactivation Parameter Derivative Radius.
-Ileak_radius = 2                                                    # [A] Leak Current Radius.
-Isyn_radius = 2                                                     # [A] Synaptic Current Radius.
-Itotal_radius = 2                                                   # [A] Total Current Radius.
-dV_radius = 2                                                       # [V/s] Membrane Voltage Derivative Radius.
+U_radius = 2*R                                                                          # [V] Membrane Voltage w.r.t. Resting Potential Radius.
+Ugate_radius = U_radius                                                                 # [V] Membrane Voltage w.r.t. Resting Potential Gate Radius.
+gsyn_radius = 1.25*gsynmax                                                               # [S] Synaptic Conductance Radius.
+MUX1_radius = np.amax([U_radius, gsyn_radius])                                           # [-] Multiplexer 1 Radius.
+mterm_radius = sodium_channel_activation_intermediate_calc_func(0)                      # [-] Steady State Sodium Channel Activation Parameter Intermediate Calculation Radius
+hterm_radius = sodium_channel_deactivation_intermediate_calc_func(U_radius)             # [-] Steady State Sodium Channel Deactivation Parameter Intermediate Calculation Radius
+minf_radius = minf_func(U_radius)                                                       # [-] Steady State Sodium Channel Activation Parameter Radius.
+hinf_radius = hinf_func(0)                                                              # [-] Steady State Sodium Channel Deactivation Parameter Radius.
+tauterm_radius = np.sqrt(hterm_radius)                                                  # [s] Sodium Channel Deactivation Time Constant Intermediate Calculation Radius.
+h_radius = 0.75                                                                         # [-] Sodium Channel Deactivation Parameter Radius.  NOT SURE IF THIS CAN BE SET PROGRAMMICALLY. 0.70 is as low as possible.
+hgate_radius = h_radius                                                                 # [-] Sodium Channel Deactivation Parameter Gate Radius.
+MUX2_radius = np.amax([hinf_radius, tauterm_radius])                                    # [-] Multiplexer 2 Radius.
+tauh_radius = 0.30                                                                      # [s] Sodium Channel Deactivation Time Constant Radius. THIS COULD BE SET PROGRAMMICALLY, BUT THE MAXIMUM DOES NOT OCCUR AT THE END POINTS. 0.15 is as low as possible.
+MUX3_radius = np.amax([hinf_radius, h_radius, tauh_radius])                             # [-] Multiplexer 3 Radius.
+dh_radius = 3                                                                           # [-] Sodium Channel Deactivation Parameter Derivative Radius. NOT SURE IF THIS CAN BE SET PROGRAMMICALLY.  2.5 is as low as possible.
+Ileak_radius = -leak_current_func(U_radius)                                             # [A] Leak Current Radius.
+Isyn_radius = np.abs(synapse_current_func([0, gsynmax]))                                # [A] Synaptic Current Radius.
+MUX4_radius = np.amax([minf_radius, h_radius, U_radius])                                # [-] Multiplexer 4 Radius.
+Ina_radius = sodium_channel_current([minf_radius, h_radius, 0])                         # [A] Sodium Channel Current Radius.
+Iapp_radius = 1                                                                         # [A] Applied Current Radius.
+Itotal_radius = Ileak_radius + Isyn_radius + Ina_radius                                 # [A] Total Current Radius.
+dU_radius = 3                                                                           # [V/s] Membrane Voltage Derivative Radius. NOT SURE IF THIS CAN BE SET PROGRAMMICALLY.  2 is as low as possible.
 
 # Define universal network parameters.
 seed = 0                                                            # [-] Seed for Random Number Generation.
@@ -216,15 +237,15 @@ tau_synapse = 0.1                                                   # [s] Post-S
 tau_probe = 0.1                                                     # [s] Probe Time Constant.
 
 
-# Define the input function.
-# input_func = Piecewise({0: 0, t_start: 1})  # [V] System Input Function.
-input_func = Piecewise({0: 0, t_start: 0})  # [V] System Input Function.
+# Define the applied current functions.
+Iapp1_func = Piecewise({0: 0, t_start: 1e-9, t_start+dt_sim: 0})  # [V] System Input Function.
+Iapp2_func = lambda x: 0  # [V] System Input Function.
 
 # Define the initial condition function.
-initial_cond_func = Piecewise({0: V0, t_start: 0})  # [-] Initial Condition Function.
+U0_func = Piecewise({0: U0, t_start: 0})  # [-] Initial Condition Function.
 
 # Define an inhibition function for the membrane voltage gate ensemble.
-Vgate_inhib_func = Piecewise({0: 1, t_start-t_offset: 0})  # [-] Membrane Voltage Inhibitory Function.
+Ugate_inhib_func = Piecewise({0: 1, t_start-t_offset: 0})  # [-] Membrane Voltage Inhibitory Function.
 
 # Define an inhibition function for the sodium channel deactivation parameter.
 hgate_inhib_func = Piecewise({0: 1, t_start-t_offset: 0})   # [-] Sodium Channel Deactivation Inhibitory Function.
@@ -245,46 +266,83 @@ with network:
     # -------------------- Create the Network Components --------------------
 
     # Create the membrane voltage ensemble and associated network components.
-    V0_node = nengo.Node(output=initial_cond_func, label='V0 Node')
-    V_ens = nengo.Ensemble(n_neurons=V_neurons, dimensions=V_dims, radius=V_radius, seed=seed, label='V Ensemble')
-    Vgate_inhib_node = nengo.Node(output=Vgate_inhib_func, label='Vgate Node')
-    Vgate_ens = nengo.Ensemble(n_neurons=Vgate_neurons, dimensions=Vgate_dims, radius=Vgate_radius, seed=seed, label='Vgate Ensemble')
+    U01_node = nengo.Node(output=U0_func, label='U01 Node')
+    U1_ens = nengo.Ensemble(n_neurons=U_neurons, dimensions=U_dims, radius=U_radius, seed=seed, label='U1 Ensemble')
+    U1gate_inhib_node = nengo.Node(output=Ugate_inhib_func, label='U1gate Node')
+    U1gate_ens = nengo.Ensemble(n_neurons=Ugate_neurons, dimensions=Ugate_dims, radius=Ugate_radius, seed=seed, label='U1gate Ensemble')
+
+    U02_node = nengo.Node(output=U0_func, label='U02 Node')
+    U2_ens = nengo.Ensemble(n_neurons=U_neurons, dimensions=U_dims, radius=U_radius, seed=seed, label='U2 Ensemble')
+    U2gate_inhib_node = nengo.Node(output=Ugate_inhib_func, label='U2gate Node')
+    U2gate_ens = nengo.Ensemble(n_neurons=Ugate_neurons, dimensions=Ugate_dims, radius=Ugate_radius, seed=seed, label='U2gate Ensemble')
 
     # Create the leak current pathway.
-    Ileak_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak Ensemble')
+    I1leak_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='I1leak Ensemble')
+    I2leak_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='I2leak Ensemble')
 
-    # Create the presynaptic current pathway.
-    Vpre_node = nengo.Node(output=Vpre, label='Vpre node')
-    Vpre_ens = nengo.Ensemble(n_neurons=Vpre_neurons, dimensions=Vpre_dims, radius=Vpre_radius, seed=seed, label='Vpre Ensemble')
-    Gsi_ens = nengo.Ensemble(n_neurons=Gsi_neurons, dimensions=Gsi_dims, radius=Gsi_radius, seed=seed, label='Gsi Ensemble')
-    MUX1_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dims, radius=MUX1_radius, seed=seed, label='MUX1 Ensemble')
-    Isyn_ens = nengo.Ensemble(n_neurons=Isyn_neurons, dimensions=Isyn_dims, radius=Isyn_radius, seed=seed, label='Isyn Ensemble')
+    # Create the synaptic current pathway.
+    gsyn1_ens = nengo.Ensemble(n_neurons=gsyn_neurons, dimensions=gsyn_dims, radius=gsyn_radius, seed=seed, label='gsyn1 Ensemble')
+    MUX11_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dims, radius=MUX1_radius, seed=seed, label='MUX11 Ensemble')
+    Isyn1_ens = nengo.Ensemble(n_neurons=Isyn_neurons, dimensions=Isyn_dims, radius=Isyn_radius, seed=seed, label='Isyn1 Ensemble')
+
+    gsyn2_ens = nengo.Ensemble(n_neurons=gsyn_neurons, dimensions=gsyn_dims, radius=gsyn_radius, seed=seed, label='gsyn2 Ensemble')
+    MUX12_ens = nengo.Ensemble(n_neurons=MUX1_neurons, dimensions=MUX1_dims, radius=MUX1_radius, seed=seed, label='MUX12 Ensemble')
+    Isyn2_ens = nengo.Ensemble(n_neurons=Isyn_neurons, dimensions=Isyn_dims, radius=Isyn_radius, seed=seed, label='Isyn2 Ensemble')
 
     # Create the sodium channel deactivation parameter ensemble and associated network components.
-    mterm_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm Ensemble')
-    hterm_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm Ensemble')
-    minf_ens = nengo.Ensemble(n_neurons=minf_neurons, dimensions=minf_dims, radius=minf_radius, seed=seed, label='minf Ensemble')
-    hinf_ens = nengo.Ensemble(n_neurons=hinf_neurons, dimensions=hinf_dims, radius=hinf_radius, seed=seed, label='hinf Ensemble')
-    tauterm_ens = nengo.Ensemble(n_neurons=tauterm_neurons, dimensions=tauterm_dims, radius=tauterm_radius, seed=seed, label='tauterm Ensemble')
-    MUX2_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dims, radius=MUX2_radius, seed=seed, label='MUX2 Ensemble')
-    tauh_ens = nengo.Ensemble(n_neurons=tauh_neurons, dimensions=tauh_dims, radius=tauh_radius, seed=seed, label='tauh Ensemble')
-    h_ens = nengo.Ensemble(n_neurons=h_neurons, dimensions=h_dims, radius=h_radius, seed=seed, label='h Ensemble')
-    hgate_inhib_node = nengo.Node(output=hgate_inhib_func, label='hgate Node')
-    hgate_ens = nengo.Ensemble(n_neurons=hgate_neurons, dimensions=hgate_dims, radius=hgate_radius, seed=seed, label='hgate Ensemble')
-    MUX3_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dims, radius=MUX3_radius, seed=seed, label='MUX3 Ensemble')
-    dh_ens = nengo.Ensemble(n_neurons=dh_neurons, dimensions=dh_dims, radius=dh_radius, seed=seed, label='dh Ensemble')
+    mterm1_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm1 Ensemble')
+    hterm1_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm1 Ensemble')
+    minf1_ens = nengo.Ensemble(n_neurons=minf_neurons, dimensions=minf_dims, radius=minf_radius, seed=seed, label='minf1 Ensemble')
+    hinf1_ens = nengo.Ensemble(n_neurons=hinf_neurons, dimensions=hinf_dims, radius=hinf_radius, seed=seed, label='hinf1 Ensemble')
+    tauterm1_ens = nengo.Ensemble(n_neurons=tauterm_neurons, dimensions=tauterm_dims, radius=tauterm_radius, seed=seed, label='tauterm1 Ensemble')
+    MUX21_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dims, radius=MUX2_radius, seed=seed, label='MUX21 Ensemble')
+    tauh1_ens = nengo.Ensemble(n_neurons=tauh_neurons, dimensions=tauh_dims, radius=tauh_radius, seed=seed, label='tauh1 Ensemble')
+    h1_ens = nengo.Ensemble(n_neurons=h_neurons, dimensions=h_dims, radius=h_radius, seed=seed, label='h1 Ensemble')
+    h1gate_inhib_node = nengo.Node(output=hgate_inhib_func, label='h1gate Node')
+    h1gate_ens = nengo.Ensemble(n_neurons=hgate_neurons, dimensions=hgate_dims, radius=hgate_radius, seed=seed, label='h1gate Ensemble')
+    MUX31_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dims, radius=MUX3_radius, seed=seed, label='MUX31 Ensemble')
+    dh1_ens = nengo.Ensemble(n_neurons=dh_neurons, dimensions=dh_dims, radius=dh_radius, seed=seed, label='dh1 Ensemble')
+
+    mterm2_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm2 Ensemble')
+    hterm2_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm2 Ensemble')
+    minf2_ens = nengo.Ensemble(n_neurons=minf_neurons, dimensions=minf_dims, radius=minf_radius, seed=seed, label='minf2 Ensemble')
+    hinf2_ens = nengo.Ensemble(n_neurons=hinf_neurons, dimensions=hinf_dims, radius=hinf_radius, seed=seed, label='hinf2 Ensemble')
+    tauterm2_ens = nengo.Ensemble(n_neurons=tauterm_neurons, dimensions=tauterm_dims, radius=tauterm_radius, seed=seed, label='tauterm2 Ensemble')
+    MUX22_ens = nengo.Ensemble(n_neurons=MUX2_neurons, dimensions=MUX2_dims, radius=MUX2_radius, seed=seed, label='MUX22 Ensemble')
+    tauh2_ens = nengo.Ensemble(n_neurons=tauh_neurons, dimensions=tauh_dims, radius=tauh_radius, seed=seed, label='tauh2 Ensemble')
+    h2_ens = nengo.Ensemble(n_neurons=h_neurons, dimensions=h_dims, radius=h_radius, seed=seed, label='h2 Ensemble')
+    h2gate_inhib_node = nengo.Node(output=hgate_inhib_func, label='h2gate Node')
+    h2gate_ens = nengo.Ensemble(n_neurons=hgate_neurons, dimensions=hgate_dims, radius=hgate_radius, seed=seed, label='h2gate Ensemble')
+    MUX32_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dims, radius=MUX3_radius, seed=seed, label='MUX32 Ensemble')
+    dh2_ens = nengo.Ensemble(n_neurons=dh_neurons, dimensions=dh_dims, radius=dh_radius, seed=seed, label='dh2 Ensemble')
+
+    # Create the sodium channel current pathway.
+    MUX41_ens = nengo.Ensemble(n_neurons=MUX4_neurons, dimensions=MUX4_dims, radius=MUX4_radius, seed=seed, label='MUX41 Ensemble')
+    Ina1_ens = nengo.Ensemble(n_neurons=Ina_neurons, dimensions=Ina_dims, radius=Ina_radius, seed=seed, label='Ina1 Ensemble')
+
+    MUX42_ens = nengo.Ensemble(n_neurons=MUX4_neurons, dimensions=MUX4_dims, radius=MUX4_radius, seed=seed, label='MUX42 Ensemble')
+    Ina2_ens = nengo.Ensemble(n_neurons=Ina_neurons, dimensions=Ina_dims, radius=Ina_radius, seed=seed, label='Ina2 Ensemble')
+
+    # Create the applied current pathway.
+    Iapp1_node = nengo.Node(output=Iapp1_func, label='Iapp1 Node')
+    Iapp1_ens = nengo.Ensemble(n_neurons=Iapp_neurons, dimensions=Iapp_dims, radius=Iapp_radius, seed=seed, label='Iapp1 Ensemble')
+
+    Iapp2_node = nengo.Node(output=Iapp2_func, label='Iapp2 Node')
+    Iapp2_ens = nengo.Ensemble(n_neurons=Iapp_neurons, dimensions=Iapp_dims, radius=Iapp_radius, seed=seed, label='Iapp2 Ensemble')
+
+    # Create the total current pathway.
+    Itotal_ens = nengo.Ensemble(n_neurons=Itotal_neurons, dimensions=Itotal_dims, radius=Itotal_radius, seed=seed, label='Itotal Ensemble')
 
     # Create the membrane voltage derivative pathway.
-    Itotal_ens = nengo.Ensemble(n_neurons=Itotal_neurons, dimensions=Itotal_dims, radius=Itotal_radius, seed=seed, label='Itotal Ensemble')
-    dV_ens = nengo.Ensemble(n_neurons=dV_neurons, dimensions=dV_dims, radius=dV_radius, seed=seed, label='dV Ensemble')
+    dU_ens = nengo.Ensemble(n_neurons=dU_neurons, dimensions=dU_dims, radius=dU_radius, seed=seed, label='dU Ensemble')
 
     # -------------------- Connect the Network Components --------------------
 
     # Connect the membrane voltage and associated network components.
-    nengo.Connection(V0_node, V_ens, synapse=tau_synapse)
-    nengo.Connection(V_ens, Vgate_ens, synapse=tau_synapse)
-    nengo.Connection(Vgate_inhib_node, Vgate_ens.neurons, transform=[[-2.5]]*Vgate_neurons)
-    nengo.Connection(Vgate_ens, V_ens, synapse=tau_synapse)
+    nengo.Connection(U0_node, U_ens, synapse=tau_synapse)
+    nengo.Connection(U_ens, Ugate_ens, synapse=tau_synapse)
+    nengo.Connection(Ugate_inhib_node, Ugate_ens.neurons, transform=[[-2.5]]*Ugate_neurons)
+    nengo.Connection(Ugate_ens, V_ens, synapse=tau_synapse)
 
     # Connect the components of the leak current pathway.
     nengo.Connection(V_ens, Ileak_ens, synapse=tau_synapse, function=leak_current_func)
