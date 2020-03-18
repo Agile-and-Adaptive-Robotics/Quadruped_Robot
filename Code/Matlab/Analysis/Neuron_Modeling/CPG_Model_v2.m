@@ -88,6 +88,7 @@ Iapp_func = @(t) zeros(num_neurons, 1);
 % Define simulation properties.
 t_sim_duration = 5;         % [s] Simulation Duration.
 dt_sim = 1e-3;              % [s] Simulation Time Step.
+% dt_sim = 1e-2;              % [s] Simulation Time Step.
 
 % Create the simulation time vector.
 ts = 0:dt_sim:t_sim_duration;       % [s] Simulation Time Vector.
@@ -99,8 +100,9 @@ num_steps = length(ts) - 1;
 [Us, hs, dUs, dhs, Ileaks, Isyns, Inas, Iapps, Itotals, Gsyns, minfs, hinfs, tauhs] = deal( zeros(num_neurons, length(ts)) );
 
 % Initialize the simulation.
-hs(:, 1) = hinf_func(Us(:, 1));
-Iapps(1, 1) = 1e-9;
+% hs(:, 1) = hinf_func(Us(:, 1));
+% Iapps(1, 1) = 1e-9;
+Iapps(1, :) = 1e-9*ones(1, size(Iapps, 2));
 
 % Run the Simulation.
 for k = 1:num_steps             % Iterate through each of the simulation time steps...
@@ -129,6 +131,8 @@ for k = 1:num_steps             % Iterate through each of the simulation time st
     
     % Compute the total current.
     Itotals(:, k) = Ileaks(:, k) + Isyns(:, k) + Inas(:, k) + Iapps(:, k);
+%     Itotals(:, k) = Ileaks(:, k) + Iapps(:, k);
+%     Itotals(:, k) = Ileaks(:, k) + Isyns(:, k) + Iapps(:, k);
 
     % Compute the membrane voltage derivative.
     dUs(:, k) = Itotals(:, k)/Cm;
