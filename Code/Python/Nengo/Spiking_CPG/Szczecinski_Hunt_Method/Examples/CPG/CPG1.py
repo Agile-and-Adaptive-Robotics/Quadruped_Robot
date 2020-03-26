@@ -371,10 +371,10 @@ with network:
     # U2gate_ens = nengo.Ensemble(n_neurons=Ugate_neurons, dimensions=Ugate_dims, radius=Ugate_radius, seed=seed, label='U2gate Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
 
     # Create the leak current pathway.
-    Ileak1_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak1 Ensemble', neuron_type=nengo.Direct())
-    Ileak2_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak2 Ensemble', neuron_type=nengo.Direct())
-    # Ileak1_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak1 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
-    # Ileak2_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak2 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
+    # Ileak1_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak1 Ensemble', neuron_type=nengo.Direct())
+    # Ileak2_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak2 Ensemble', neuron_type=nengo.Direct())
+    Ileak1_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak1 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
+    Ileak2_ens = nengo.Ensemble(n_neurons=Ileak_neurons, dimensions=Ileak_dims, radius=Ileak_radius, seed=seed, label='Ileak2 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
 
     # Create the synaptic current pathway.
     # gsyn1_ens = nengo.Ensemble(n_neurons=gsyn_neurons, dimensions=gsyn_dims, radius=gsyn_radius, seed=seed, label='gsyn1 Ensemble', neuron_type=nengo.Direct())
@@ -390,8 +390,8 @@ with network:
     Isyn2_ens = nengo.Ensemble(n_neurons=Isyn_neurons, dimensions=Isyn_dims, radius=Isyn_radius, seed=seed, label='Isyn2 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
 
     # Create the sodium channel deactivation parameter ensemble and associated network components.
-    mterm1_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm1 Ensemble', neuron_type=nengo.Direct())
-    # mterm1_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm1 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
+    # mterm1_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm1 Ensemble', neuron_type=nengo.Direct())
+    mterm1_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm1 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
     hterm1_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm1 Ensemble', neuron_type=nengo.Direct())
     # hterm1_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm1 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
 
@@ -407,8 +407,8 @@ with network:
     MUX31_ens = nengo.Ensemble(n_neurons=MUX3_neurons, dimensions=MUX3_dims, radius=MUX3_radius, seed=seed, label='MUX31 Ensemble', neuron_type=nengo.Direct())
     dh1_ens = nengo.Ensemble(n_neurons=dh_neurons, dimensions=dh_dims, radius=dh_radius, seed=seed, label='dh1 Ensemble', neuron_type=nengo.Direct())
 
-    mterm2_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm2 Ensemble', neuron_type=nengo.Direct())
-    # mterm2_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm2 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
+    # mterm2_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm2 Ensemble', neuron_type=nengo.Direct())
+    mterm2_ens = nengo.Ensemble(n_neurons=mterm_neurons, dimensions=mterm_dims, radius=mterm_radius, seed=seed, label='mterm2 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
     hterm2_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm2 Ensemble', neuron_type=nengo.Direct())
     # hterm2_ens = nengo.Ensemble(n_neurons=hterm_neurons, dimensions=hterm_dims, radius=hterm_radius, seed=seed, label='hterm2 Ensemble', neuron_type=nengo.LIF(amplitude=LIF_amplitude))
 

@@ -36,6 +36,10 @@ Sh = 50;
 Eh = Elo;
 Eh_tilde = Eh - Er;
 
+% Define the steady state sodium channel activation & deactivation parameters intermediate calculations.
+minfterm_func = @(U) Am.*exp(-Sm.*(Em_tilde - U));
+hinfterm_func = @(U) Ah.*exp(-Sh.*(Eh_tilde - U));
+
 % Define the steady state sodium channel activation & deactivation parameters.
 minf_func = @(U) 1./(1 + Am.*exp(-Sm.*(Em_tilde - U)));
 hinf_func = @(U) 1./(1 + Ah.*exp(-Sh.*(Eh_tilde - U)));
@@ -49,6 +53,10 @@ Gna = (Gm*R)/(minf_func(R)*hinf_func(R)*(Ena_tilde - R));       % [S] Sodium Cha
 
 % Define the maximum sodium channel time constant.
 tauhmax = 0.3;             % [s] Maximum Sodium Channel Time Constant.
+
+% Define the sodium channel time constant intermediate calculation.
+tauhterm1_func = @(U) Ah.*exp(-Sh.*(Eh_tilde - U));
+tauhterm2_func = @(U) sqrt(Ah.*exp(-Sh.*(Eh_tilde - U)));
 
 % Define the sodium channel time constant.
 tauh_func = @(U) tauhmax*hinf_func(U).*sqrt(Ah.*exp(-Sh.*(Eh_tilde - U)));       % [s] Sodium Channel Time Constant.
@@ -72,15 +80,33 @@ Ina_func = @(U, h) Gna*minf_func(U).*h.*( Ena_tilde - U );
 Iapp_func = @(t) zeros(num_neurons, 1);
 
 
-% Us = (-R):0.0001:(3*R);
-% minfs = minf_func(Us);
-% hinfs = hinf_func(Us);
-% tauhs = tauh_func(Us);
-% 
-% figure, hold on, grid on, xlabel('U [V]'), ylabel('m_{inf} [-]'), title('m_{inf} vs U'), plot(Us, minfs)
-% figure, hold on, grid on, xlabel('U [V]'), ylabel('h_{inf} [-]'), title('h_{inf} vs U'), plot(Us, hinfs)
-% figure, hold on, grid on, xlabel('U [V]'), ylabel('$\tau_{inf}$ [s]', 'Interpreter', 'latex'), title('$\tau_{inf}$ [s] vs U', 'Interpreter', 'latex'), plot(Us, tauhs)
+Us = (-4*R):0.0001:(6*R);
+gsyns = gsyn_func(Us);
+minfterms = minfterm_func(Us);
+hinfterms = hinfterm_func(Us);
+minfs = minf_func(Us);
+hinfs = hinf_func(Us);
+tauhterms1 = tauhterm1_func(Us);
+tauhterms2 = tauhterm2_func(Us);
+tauhs = tauh_func(Us);
+Ileaks = Ileak_func(Us);
+Isyns = Isyn_func(Us, Us);
 
+[USpre, USpost] = meshgrid(Us, Us);
+
+Isyns_surf = Isyn_func(USpre, USpost);
+
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$m_{\infty}$ [-] Intermediate Calculation', 'Interpreter', 'latex'), title('$m_{\infty}$ vs U (Intermediate Calculation)', 'Interpreter', 'latex'), plot(Us, minfterms)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$h_{\infty}$ [-] Intermediate Calculation', 'Interpreter', 'latex'), title('$h_{\infty}$ vs U (Intermediate Calculation)', 'Interpreter', 'latex'), plot(Us, hinfterms)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$m_{\infty}$ [-]', 'Interpreter', 'latex'), title('$m_{\infty}$ vs U', 'Interpreter', 'latex'), plot(Us, minfs)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$h_{\infty}$ [-]', 'Interpreter', 'latex'), title('$h_{\infty}$ vs U', 'Interpreter', 'latex'), plot(Us, hinfs)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$\tau_{h}$ [s] Intermediate Calculation 1', 'Interpreter', 'latex'), title('$\tau_{h}$ [s] Intermediate Calculation 1 vs U', 'Interpreter', 'latex'), plot(Us, tauhterms1)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$\tau_{h}$ [s] Intermediate Calculation 2', 'Interpreter', 'latex'), title('$\tau_{h}$ [s] Intermediate Calculation 2 vs U', 'Interpreter', 'latex'), plot(Us, tauhterms2)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$\tau_{h}$ [s] Complete Calculation', 'Interpreter', 'latex'), title('$\tau_{h}$ [s] Full Calculation vs U', 'Interpreter', 'latex'), plot(Us, tauhs)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$I_{leak}$ [A]', 'Interpreter', 'latex'), title('$I_{leak}$ [s] vs U', 'Interpreter', 'latex'), plot(Us, Ileaks)
+figure, hold on, grid on, xlabel('U [V]'), ylabel('$I_{syn}$ [A]', 'Interpreter', 'latex'), title('$I_{syn}$ [s] vs U', 'Interpreter', 'latex'), plot(Us, Isyns)
+figure, hold on, grid on, rotate3d on, xlabel('$U_{pre}$ [V]'), ylabel('$U_{post}$ [V]', 'Interpreter', 'latex'), zlabel('$I_{syn}$ [A]', 'Interpreter', 'latex'), title('$I_{syn}$ vs $U_{pre}$ \& $U_{post}$', 'Interpreter', 'latex'), surf(USpre, USpost, Isyns_surf, 'Edgecolor', 'none')
+plot3(Us, Us, Isyns, '-r', 'Linewidth', 3)
 
 %% Simulate the System.
 
@@ -101,8 +127,8 @@ num_steps = length(ts) - 1;
 
 % Initialize the simulation.
 % hs(:, 1) = hinf_func(Us(:, 1));
-% Iapps(1, 1) = 1e-9;
-Iapps(1, :) = 1e-9*ones(1, size(Iapps, 2));
+Iapps(1, 1) = 1e-9;
+% Iapps(1, :) = 1e-9*ones(1, size(Iapps, 2));
 
 % Run the Simulation.
 for k = 1:num_steps             % Iterate through each of the simulation time steps...
