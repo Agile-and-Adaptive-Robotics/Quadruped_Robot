@@ -16,6 +16,7 @@ micro_data_bits = serial.EIGHTBITS
 micro_byte_order = 'little'
 micro_parity = serial.PARITY_NONE
 micro_stopbits = serial.STOPBITS_ONE
+# a comment to test git in vscode
 
 start_sequence_pattern = 'ff' # 255
 end_sequence_pattern   = '00' # 0
