@@ -2,18 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="978646b5-6eb0-4059-ad50-cfdaffe4d4a6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/LeakCurrentApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NaChtimeConstantApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SqrtApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SteadyStateNaChParameterApprox2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SteadyStateNaChParametersApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SynapticCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.m" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../CPG/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../CPG/CPG1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../CPG/network_diagram" beforeDir="false" afterPath="$PROJECT_DIR$/../CPG/network_diagram" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/Motor_Position.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/SystemIdentification.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/NengoDL.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NengoDL/SinApprox.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NaChTimeConstantApprox2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SynapticCurrentApproxParams.npz" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeakCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/LeakCurrentApprox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NaChtimeConstantApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/NaChtimeConstantApprox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SteadyStateNaChParameterApprox2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SteadyStateNaChParametersApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/SteadyStateNaChParametersApprox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SynapticConductanceApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/SynapticConductanceApprox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SynapticCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/SynapticCurrentApprox.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/network_diagram" beforeDir="false" afterPath="$PROJECT_DIR$/network_diagram" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/network_diagram.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/network_diagram.jpg" afterDir="false" />
     </list>
@@ -28,8 +38,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/EncoderRectifiedLinear.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="61">
-              <caret line="39" selection-end-line="163" />
+            <state relative-caret-position="27">
+              <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
               <folding>
                 <element signature="e#249#267#0" expanded="true" />
               </folding>
@@ -52,8 +62,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LeakCurrentApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="170" selection-start-line="170" selection-end-line="170" />
+            <state relative-caret-position="299">
+              <caret line="207" column="147" selection-start-line="207" selection-start-column="147" selection-end-line="207" selection-end-column="147" />
               <folding>
                 <element signature="e#290#308#0" expanded="true" />
               </folding>
@@ -64,10 +74,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SynapticConductanceApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" selection-start-line="3" selection-end-line="3" />
+            <state relative-caret-position="578">
+              <caret line="118" column="24" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
               <folding>
-                <element signature="e#312#330#0" expanded="true" />
+                <element signature="e#299#317#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -76,8 +86,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SynapticCurrentApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1547">
-              <caret line="11" selection-start-line="11" selection-end-line="11" />
+            <state relative-caret-position="126">
+              <caret line="529" column="192" selection-start-line="529" selection-start-column="192" selection-end-line="529" selection-end-column="192" />
+              <folding>
+                <element signature="e#299#317#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -85,23 +98,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="85" column="21" selection-start-line="85" selection-start-column="21" selection-end-line="85" selection-end-column="21" />
+            <state relative-caret-position="197">
+              <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
               <folding>
                 <element signature="e#299#317#0" expanded="true" />
-                <marker date="1585091161598" expanded="true" signature="6030:6471" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2805">
-              <caret line="246" column="60" selection-start-line="246" selection-start-column="60" selection-end-line="246" selection-end-column="60" />
-              <folding>
-                <element signature="e#299#317#0" expanded="true" />
+                <marker date="1585612186555" expanded="true" signature="6493:6934" ph="..." />
               </folding>
             </state>
           </provider>
@@ -119,11 +120,26 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="272">
-              <caret line="16" column="15" lean-forward="true" selection-start-line="16" selection-start-column="15" selection-end-line="16" selection-end-column="15" />
+              <caret line="196" column="36" selection-start-line="196" selection-start-column="36" selection-end-line="196" selection-end-column="36" />
+              <folding>
+                <element signature="e#299#317#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox2.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="336">
+              <caret line="536" selection-start-line="536" selection-end-line="537" selection-end-column="10" />
+              <folding>
+                <element signature="e#306#324#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -148,6 +164,11 @@
       <find>rectlin_probe</find>
       <find>gsyn_eval_pts</find>
       <find>activites1</find>
+      <find>output_probe</find>
+      <find>output_probe_nofilt</find>
+      <find>marker</find>
+      <find>LIF_amplitude</find>
+      <find>input_sim</find>
     </findStrings>
     <replaceStrings>
       <replace>rectlin1_ens</replace>
@@ -160,6 +181,7 @@
       <replace>gsyn_probe</replace>
       <replace>gsyn_evals</replace>
       <replace>gsyn_activites</replace>
+      <replace>Isyn_probe_nofilt</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -172,21 +194,22 @@
         <option value="$PROJECT_DIR$/MappedRectifiedLinear.py" />
         <option value="$PROJECT_DIR$/EncoderRectifiedLinear.py" />
         <option value="$PROJECT_DIR$/RectifiedLinearFuncApprox.py" />
-        <option value="$PROJECT_DIR$/SynapticConductanceApprox.py" />
-        <option value="$PROJECT_DIR$/SynapticCurrentApprox.py" />
-        <option value="$PROJECT_DIR$/LeakCurrentApprox.py" />
         <option value="$PROJECT_DIR$/SteadyStateNaChApprox.py" />
         <option value="$PROJECT_DIR$/NaChtimeConstantApprox.py" />
         <option value="$PROJECT_DIR$/SteadyStateNAChParameterApprox2.py" />
         <option value="$PROJECT_DIR$/SqrtApprox.py" />
         <option value="$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py" />
+        <option value="$PROJECT_DIR$/SynapticConductanceApprox.py" />
+        <option value="$PROJECT_DIR$/SynapticCurrentApprox.py" />
+        <option value="$PROJECT_DIR$/LeakCurrentApprox.py" />
         <option value="$PROJECT_DIR$/SteadyStateNaChParametersApprox.py" />
         <option value="$PROJECT_DIR$/NaChTimeConstantApprox.py" />
+        <option value="$PROJECT_DIR$/NaChTimeConstantApprox2.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="-1928" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
     <option name="height" value="1056" />
@@ -231,7 +254,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.NaChTimeConstantApprox">
+  <component name="RunManager" selected="Python.NaChTimeConstantApprox2">
+    <configuration name="LeakCurrentApprox" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="RectifiedLinear" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/LeakCurrentApprox.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="NaChTimeConstantApprox" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="RectifiedLinear" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -253,7 +297,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="SqrtApprox" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="NaChTimeConstantApprox2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="RectifiedLinear" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -265,49 +309,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/SqrtApprox.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="SteadyStateNAChParameterApprox2" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="RectifiedLinear" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Python\Nengo\Spiking_CPG\Szczecinski_Hunt_Method\Examples\RectifiedLinear\SteadyStateNaChParameterApprox2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="SteadyStateNaChParameterApprox3" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="RectifiedLinear" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NaChTimeConstantApprox2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -337,13 +339,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="SynapticCurrentApprox" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="RectifiedLinear" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/SynapticCurrentApprox.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.NaChTimeConstantApprox" />
+        <item itemvalue="Python.NaChTimeConstantApprox2" />
         <item itemvalue="Python.SteadyStateNaChParametersApprox" />
-        <item itemvalue="Python.SteadyStateNaChParameterApprox3" />
-        <item itemvalue="Python.SteadyStateNAChParameterApprox2" />
-        <item itemvalue="Python.SqrtApprox" />
+        <item itemvalue="Python.NaChTimeConstantApprox" />
+        <item itemvalue="Python.LeakCurrentApprox" />
+        <item itemvalue="Python.SynapticCurrentApprox" />
       </list>
     </recent_temporary>
   </component>
@@ -361,16 +384,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-1928" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10958904" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.22181243" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32936078" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997833" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32936078" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.3997833" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -401,22 +424,6 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout-to-restore>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SynapticCurrentApprox.py</url>
-          <line>138</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py</url>
-          <line>172</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
@@ -479,26 +486,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/EncoderRectifiedLinear.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="61">
-          <caret line="39" selection-end-line="163" />
-          <folding>
-            <element signature="e#249#267#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LeakCurrentApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="170" selection-start-line="170" selection-end-line="170" />
-          <folding>
-            <element signature="e#290#308#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/RectifiedLinearFuncApprox.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="146">
@@ -515,34 +502,6 @@
           <caret line="120" column="63" lean-forward="true" selection-start-line="120" selection-start-column="63" selection-end-line="120" selection-end-column="63" />
           <folding>
             <element signature="e#299#317#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SynapticConductanceApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
-          <folding>
-            <element signature="e#312#330#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SynapticCurrentApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1547">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="85" column="21" selection-start-line="85" selection-start-column="21" selection-end-line="85" selection-end-column="21" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-            <marker date="1585091161598" expanded="true" signature="6030:6471" ph="..." />
           </folding>
         </state>
       </provider>
@@ -567,10 +526,74 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/SynapticConductanceApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="118" column="24" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
+          <folding>
+            <element signature="e#299#317#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LeakCurrentApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="207" column="147" selection-start-line="207" selection-start-column="147" selection-end-line="207" selection-end-column="147" />
+          <folding>
+            <element signature="e#290#308#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EncoderRectifiedLinear.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="27">
+          <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
+          <folding>
+            <element signature="e#249#267#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
+          <folding>
+            <element signature="e#299#317#0" expanded="true" />
+            <marker date="1585612186555" expanded="true" signature="6493:6934" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
-          <caret line="16" column="15" lean-forward="true" selection-start-line="16" selection-start-column="15" selection-end-line="16" selection-end-column="15" />
+          <caret line="196" column="36" selection-start-line="196" selection-start-column="36" selection-end-line="196" selection-end-column="36" />
+          <folding>
+            <element signature="e#299#317#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SynapticCurrentApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="529" column="192" selection-start-line="529" selection-start-column="192" selection-end-line="529" selection-end-column="192" />
+          <folding>
+            <element signature="e#299#317#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="536" selection-start-line="536" selection-end-line="537" selection-end-column="10" />
+          <folding>
+            <element signature="e#306#324#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

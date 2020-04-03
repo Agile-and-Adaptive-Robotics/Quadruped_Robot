@@ -97,7 +97,8 @@ Ileak_radius = 80e-9
 
 # Define network properties.
 seed = 0                                                            # [-] Seed for Random Number Generation.
-tau_synapse = 0.001                                                 # [s] Post-Synaptic Time Constant.
+# tau_synapse = 0.001                                                 # [s] Post-Synaptic Time Constant.
+tau_synapse = None                                                 # [s] Post-Synaptic Time Constant.
 tau_probe = 0.1                                                     # [s] Probe Time Constant.
 
 # --------------------------- DEFINE THE FUNCTIONS TO APPROXIMATE ---------------------------
@@ -113,6 +114,16 @@ def leak_current_func(x):
 
     # Return the leak current.
     return -Gm*x
+
+
+# --------------------------- COMPUTE THE GROUND TRUTH SIMULATIONS RESULTS ---------------------------
+
+# Compute the ground truth simulation results.
+ts_true = np.arange(0, t_sim_duration, dt_sim)
+input_true = input_func(ts_true)
+Us_true = input_true
+Ileak_true = leak_current_func(Us_true)
+
 
 # --------------------------- BUILD THE NETWORK ---------------------------
 
@@ -144,13 +155,14 @@ with network:
     input_probe = nengo.Probe(input_node, synapse=tau_probe)
     U_probe = nengo.Probe(U_ens, synapse=tau_probe)
     Ileak_probe = nengo.Probe(Ileak_ens, synapse=tau_probe)
-    output_probe = nengo.Probe(output_node, synapse=tau_probe)
+    Ileak_probe_nofilt = nengo.Probe(Ileak_ens)
 
 # Generate the contents of a .dot file that describes the network.
 network_contents = gvz.net_diagram(network)
 
 # Create a graphviz document using the network contents.
 gvz_source = Source(network_contents, filename="network_diagram", format="jpg")
+
 
 # --------------------------- SIMULATE THE NETWORK ---------------------------
 
@@ -163,6 +175,12 @@ with nengo.Simulator(network=network, dt=dt_sim) as sim:
     # # Retrieve the tuning curve data.
     # gsyn_evals, gsyn_activites = tuning_curves(gsyn_ens, sim)
 
+# Retrieve the untrained simulation results.
+ts_untrained = sim.trange()
+input_untrained = sim.data[input_probe]
+Us_untrained = sim.data[U_probe]
+Ileak_untrained = sim.data[Ileak_probe]
+
 
 # --------------------------- PLOT THE NETWORK RESULTS ---------------------------
 
@@ -171,20 +189,26 @@ plt.rc('text', usetex=True)
 
 # Plot the network input.
 plt.figure(); plt.xlabel(r'Time [s]'); plt.ylabel(r'Input [-]'); plt.title(r'Network Input vs Time')
-plt.plot(sim.trange(), sim.data[input_probe], label=r'Input')
+plt.plot(ts_untrained, input_untrained, label=r'Input Node')
+plt.plot(ts_true, input_true, label=r'Input True')
+plt.legend()
 
 # Plot the membrane voltage.
 plt.figure(); plt.xlabel(r'Time [s]'); plt.ylabel(r'Membrane Voltage, $U$ [V]'); plt.title(r'Membrane Voltage $U$ vs Time')
-plt.plot(sim.trange(), sim.data[U_probe], label=r'$U$')
+plt.plot(ts_untrained, Us_untrained, label=r'$U$ Untrained')
+plt.plot(ts_true, Us_true, label=r'$U$ True')
+plt.legend()
 
 # Plot the synaptic current.
-plt.figure(); plt.xlabel(r'Time [s]'); plt.ylabel(r'Leak Current, $I_{leak}$ [A]'); plt.title(r'$I_{leak}$ vs Time')
-plt.plot(sim.trange(), sim.data[Ileak_probe], label=r'$I_{leak}$')
-
-# # Plot the tuning curves associated with the second rectified linear ensemble.
-# plt.figure(); plt.xlabel('Input [-]'); plt.ylabel('Firing Frequency [Hz]'); plt.title('Firing Frequency vs Input')
-# plt.plot(gsyn_evals, gsyn_activites)
-
+fig, axs = plt.subplots(2, 1)
+axs[0].set_xlabel(r'Time [s]'); axs[0].set_ylabel(r'Leak Current, $I_{leak}$ [A]'); axs[0].set_title(r'$I_{leak}$ vs Time')
+axs[0].plot(ts_untrained, Ileak_untrained, label=r'$I_{leak}$ Untrained')
+axs[0].plot(ts_true, Ileak_true, label=r'$I_{leak}$ True')
+axs[0].legend()
+axs[1].set_xlabel(r'Membrane Voltage, $U$ [V]'); axs[1].set_ylabel(r'Leak Current, $I_{leak}$ [A]'); axs[1].set_title(r'$I_{leak}$ vs Membrane Voltage')
+axs[1].plot(Us_untrained, Ileak_untrained, label=r'$I_{leak}$ Untrained')
+axs[1].plot(Us_true, Ileak_true, label=r'$I_{leak}$ True')
+axs[1].legend()
 
 
 # # Show the network.

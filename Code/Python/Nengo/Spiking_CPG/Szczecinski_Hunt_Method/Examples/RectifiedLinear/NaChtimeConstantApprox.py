@@ -1,6 +1,6 @@
-# --------------------------- SYNAPTIC CONDUCTANCE FUNCTION APPROXIMATION ---------------------------
+# --------------------------- SODIUM CHANNEL TIME CONSTANT FUNCTION APPROXIMATION ---------------------------
 
-# This script tests a methods of approximating the synaptic conductance function.
+# This script tests a methods of approximating the sodium channel time constant.
 
 
 # --------------------------- IMPORT LIBRARIES ---------------------------
@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 
 # Import nengo libraries.
 import nengo
-# import tensorflow
 import nengo_dl
+import tensorflow as tf
 from nengo.processes import Piecewise
 import nengo_extras.graphviz as gvz
 from graphviz import Source
