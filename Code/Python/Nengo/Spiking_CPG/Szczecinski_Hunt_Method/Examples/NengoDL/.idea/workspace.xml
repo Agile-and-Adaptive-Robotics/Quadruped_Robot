@@ -2,30 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2cbd24c4-93e3-4dfa-95db-77eabe9325b8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/Motor_Position.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/SystemIdentification.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/NengoDL.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SinApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../RectifiedLinear/NaChTimeConstantApprox2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../RectifiedLinear/SynapticCurrentApproxParams.npz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/LeakCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/LeakCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/NaChtimeConstantApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/NaChtimeConstantApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/SteadyStateNaChParameterApprox2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/SteadyStateNaChParameterApprox3.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/SteadyStateNaChParametersApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/SteadyStateNaChParametersApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/SynapticConductanceApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/SynapticConductanceApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/SynapticCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/SynapticCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/network_diagram" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/network_diagram" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/network_diagram.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/network_diagram.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

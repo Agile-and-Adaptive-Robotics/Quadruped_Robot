@@ -2,30 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03e80c19-074e-46bf-a1b5-f0bd219a1d55" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Motor_Position.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SystemIdentification.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/NengoDL/.idea/NengoDL.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/NengoDL/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/NengoDL/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/NengoDL/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/NengoDL/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/NengoDL/SinApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/NaChTimeConstantApprox2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SynapticCurrentApproxParams.npz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/LeakCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/LeakCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/NaChtimeConstantApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/NaChtimeConstantApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SteadyStateNaChParameterApprox2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SteadyStateNaChParameterApprox3.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SteadyStateNaChParametersApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SteadyStateNaChParametersApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SynapticConductanceApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SynapticConductanceApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SynapticCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/SynapticCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/network_diagram" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/network_diagram" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/network_diagram.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../../Spiking_CPG/Szczecinski_Hunt_Method/Examples/RectifiedLinear/network_diagram.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -38,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SystemIdentification.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="104" lean-forward="true" selection-start-line="104" selection-end-line="104" />
+            <state relative-caret-position="435">
+              <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
               <folding>
                 <element signature="e#292#310#0" expanded="true" />
               </folding>
@@ -185,8 +162,8 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/SystemIdentification.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="104" lean-forward="true" selection-start-line="104" selection-end-line="104" />
+        <state relative-caret-position="435">
+          <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
           <folding>
             <element signature="e#292#310#0" expanded="true" />
           </folding>

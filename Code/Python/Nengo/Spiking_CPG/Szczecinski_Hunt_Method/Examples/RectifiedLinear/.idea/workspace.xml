@@ -2,30 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="978646b5-6eb0-4059-ad50-cfdaffe4d4a6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/Motor_Position.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/SystemIdentification.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/NengoDL.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../NengoDL/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../NengoDL/SinApprox.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NaChTimeConstantApprox2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SynapticCurrentApproxParams.npz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LeakCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/LeakCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NaChtimeConstantApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/NaChtimeConstantApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteadyStateNaChParameterApprox2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteadyStateNaChParametersApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/SteadyStateNaChParametersApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SynapticConductanceApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/SynapticConductanceApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SynapticCurrentApprox.py" beforeDir="false" afterPath="$PROJECT_DIR$/SynapticCurrentApprox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network_diagram" beforeDir="false" afterPath="$PROJECT_DIR$/network_diagram" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network_diagram.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/network_diagram.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
