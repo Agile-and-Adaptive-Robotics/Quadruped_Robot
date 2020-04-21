@@ -1,4 +1,4 @@
-%% Joint Position Control
+%% Quadruped Simulation
 
 % This script constructs position controllers for the joints of a quadruped robot.
 
