@@ -1,12 +1,12 @@
 <Form>
 <Form>
-<ID>bcebe33e-f74b-4356-842e-21d12ac305e7</ID>
-<Title>Back Left Leg Membrane Voltages</Title>
-<TabPageName>Back Left Leg Membrane Voltages</TabPageName>
+<ID>880a91cb-d7e7-47a5-9d02-dc25e65407c1</ID>
+<Title>Back Left Leg Muscle Velocities (Type Ia)</Title>
+<TabPageName>Back Left Leg Muscle Velocities (Type Ia)</TabPageName>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.Forms.Charts.LineChart</ClassName>
 <AutoCollectInterval>True</AutoCollectInterval>
-<CollectDataInterval Value="0.2" Scale="milli" Actual="0.0002"/>
+<CollectDataInterval Value="0.6" Scale="milli" Actual="0.0006"/>
 <CollectTimeWindow Value="11" Scale="None" Actual="11"/>
 <UpdateDataInterval Value="200" Scale="milli" Actual="0.2"/>
 <SetStartEndTime>True</SetStartEndTime>
@@ -16,19 +16,19 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(1) Hip Ext MN</Name>
+<Name>(1) Hip Ext Velocity</Name>
 <WorkingAxis>0</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(1) Hip Ext MN</Name>
-<ID>fadead6b-fe00-4a97-b5da-9f35811962b7</ID>
-<DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
+<Name>Back_Left_Hip_Extensor</Name>
+<ID>bc9cde78-0221-4066-901f-d5fcca8cbb64</ID>
+<DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillMuscle</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>c1debf97-52de-4538-92c3-df49030bdf19</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>6ebd499e-dd78-4d11-b614-dc5a35ba82ee</DataItemID>
+<SelectedDataType>Vmuscle</SelectedDataType>
 <DataSubSet>0</DataSubSet>
 <PrevDataSubset>0</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -42,19 +42,19 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(2) Hip Flx MN</Name>
+<Name>(2) Hip Flx Velocity</Name>
 <WorkingAxis>1</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(2) Hip Flx MN</Name>
-<ID>09bbba91-d206-4f6a-a8ef-c6a05f00b710</ID>
-<DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
+<Name>Back_Left_Hip_Flexor</Name>
+<ID>0c5ad672-e971-42a8-afb4-5d73a9f8db74</ID>
+<DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillMuscle</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>fce0b111-98fd-4799-81f3-1181da03e930</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>6cd3002a-44a8-4f22-941d-fe58a3ca44a4</DataItemID>
+<SelectedDataType>Vmuscle</SelectedDataType>
 <DataSubSet>1</DataSubSet>
 <PrevDataSubset>1</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -68,19 +68,19 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(3) Knee Ext MN</Name>
+<Name>(3) Knee Ext Velocity</Name>
 <WorkingAxis>2</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(3) Knee Ext MN</Name>
-<ID>2f0b8e2d-7625-4c85-a12d-ec85111f272f</ID>
-<DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
+<Name>Back_Left_Knee_Extensor</Name>
+<ID>fdef9ee2-fc6f-4646-87d5-fc752f2a7628</ID>
+<DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillMuscle</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>67649ad1-ee70-4278-8a25-1f1126bbb02d</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>976764a9-1d0c-4c43-8bf7-0f952887ea36</DataItemID>
+<SelectedDataType>Vmuscle</SelectedDataType>
 <DataSubSet>2</DataSubSet>
 <PrevDataSubset>2</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -94,19 +94,19 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(4) Knee Flx MN</Name>
+<Name>(4) Knee Flx Velocity</Name>
 <WorkingAxis>3</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(4) Knee Flx MN</Name>
-<ID>a02b4062-5a75-443a-a13a-3859943b2e8d</ID>
-<DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
+<Name>Back_Left_Knee_Flexor</Name>
+<ID>d258519c-9cc5-44be-a105-631382343f80</ID>
+<DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillMuscle</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>8e9d30f5-6be3-4759-bfe9-526b779060e1</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>2a2be1aa-dda3-49f7-ad3f-a754d616dfe0</DataItemID>
+<SelectedDataType>Vmuscle</SelectedDataType>
 <DataSubSet>3</DataSubSet>
 <PrevDataSubset>3</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -120,19 +120,19 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(5) Hip Ext Feedback</Name>
+<Name>(5) Ankle Ext Velocity</Name>
 <WorkingAxis>4</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(5) Hip Ext Ib</Name>
-<ID>e5b4b319-b17b-48b6-888d-5353b5c03144</ID>
-<DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
+<Name>Back_Left_Ankle_Extensor</Name>
+<ID>1377af37-0faa-47a6-b2fe-79736ab942a8</ID>
+<DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillMuscle</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>577cae99-80bc-4d9a-b3d6-000607cb2f04</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>0e7ca38f-956d-4d99-8e5d-02a898bd6558</DataItemID>
+<SelectedDataType>Vmuscle</SelectedDataType>
 <DataSubSet>4</DataSubSet>
 <PrevDataSubset>4</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -146,19 +146,19 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(6) Knee Ext Feedback</Name>
+<Name>(6) Ankle Flx Velocity</Name>
 <WorkingAxis>5</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(6) Knee Ext Ib</Name>
-<ID>540c6a67-4146-44d9-bc3f-b1d4c65ca98b</ID>
-<DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
+<Name>Back_Left_Ankle_Flexor</Name>
+<ID>58e8d871-5dab-4490-bc46-03dd6ff800bf</ID>
+<DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillMuscle</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>a774e69d-0155-4fc5-8314-eb2ee06053b3</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>138ad106-c5b6-42ba-a1a8-302a27eb22a7</DataItemID>
+<SelectedDataType>Vmuscle</SelectedDataType>
 <DataSubSet>5</DataSubSet>
 <PrevDataSubset>5</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -172,8 +172,8 @@
 </AxisList>
 <SaveDataWhenClosed>False</SaveDataWhenClosed>
 <UpdateChartAtEnd>True</UpdateChartAtEnd>
-<PointsToKeep>55000</PointsToKeep>
+<PointsToKeep>18334</PointsToKeep>
 <YAxisOffset>0</YAxisOffset>
-<GraphConfig ByteCount="9105"/>
+<GraphConfig ByteCount="9177"/>
 </Form>
 </Form>

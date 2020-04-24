@@ -35,24 +35,24 @@ Gm4 = 1e-6;                     % [S] Membrane Conductance.
 Er4 = -60e-3;                   % [V] Membrane Resting (Equilibrium) Potential.
 R4 = 20e-3;                     % [V] Biphasic Equilibrium Voltage Range.
 
-% Define Hip Extensor Ib Neuron Properties (Neuron 5).
+% Define Hip Feedback Neuron Properties (Neuron 5).
 Cm5 = 5e-9;                     % [C] Membrane Capacitance.
 Gm5 = 1e-6;                     % [S] Membrane Conductance.
 Er5 = -60e-3;                   % [V] Membrane Resting (Equilibrium) Potential.
 R5 = 20e-3;                     % [V] Biphasic Equilibrium Voltage Range.
 
-% Define Knee Extensor Ib Neuron Properties (Neuron 6).
+% Define Knee Feedback Neuron Properties (Neuron 6).
 Cm6 = 5e-9;                     % [C] Membrane Capacitance.
 Gm6 = 1e-6;                     % [S] Membrane Conductance.
 Er6 = -60e-3;                   % [V] Membrane Resting (Equilibrium) Potential.
 R6 = 20e-3;                     % [V] Biphasic Equilibrium Voltage Range.
 
 % Store the neuron properties into arrays.
-% Cms = [Cm1; Cm2; Cm3; Cm4; Cm5; Cm6];
-Cms = 5e-9*ones(num_neurons, 1);
+Cms = [Cm1; Cm2; Cm3; Cm4; Cm5; Cm6];
+% Cms = 5e-9*ones(num_neurons, 1);
 Gms = [Gm1; Gm2; Gm3; Gm4; Gm5; Gm6];
 Ers = [Er1; Er2; Er3; Er4; Er5; Er6];
-Rs = [R1; R2; R3; R4; R5; R6];
+Rs = [R1; R2; R3; R4; R5; R6]; Rs = repmat(Rs', [num_neurons, 1]);
 
 
 %% Define Applied Current Magnitudes.
@@ -69,20 +69,20 @@ Iapp6 = Gm6*R6;                % [A] Applied Current.
 %% Define Synapse Properties.
 
 % Define synapse reversal potentials.
-Es61_tilde = 2*R1;              % [V] Synapse Reversal Potential.
-Es64_tilde = -2*R4;             % [V] Synapse Reversal Potential.
-Es52_tilde = -2*R2;             % [V] Synapse Reversal Potential.
-Es53_tilde = 2*R3;              % [V] Synapse Reversal Potential.
+dEsyn61 = 2*R1;              % [V] Synapse Reversal Potential.
+dEsyn64 = -2*R4;             % [V] Synapse Reversal Potential.
+dEsyn52 = -2*R2;             % [V] Synapse Reversal Potential.
+dEsyn53 = 2*R3;              % [V] Synapse Reversal Potential.
 
 % Compute the synapse conductances.
-gs61max = Gm1*R1/(Es61_tilde - R1);
-gs64max = -Iapp4/Es64_tilde;
-gs52max = -Iapp2/Es52_tilde;
-gs53max = Gm3*R3/(Es53_tilde - R3);
+gsyn61_max = Gm1*R1/(dEsyn61 - R1);
+gsyn64_max = -Iapp4/dEsyn64;
+gsyn52_max = -Iapp2/dEsyn52;
+gsyn53_max = Gm3*R3/(dEsyn53 - R3);
 
 % Store the synapse properties into arrays.
-Ess_tilde = zeros(num_neurons, num_neurons); Ess_tilde(1, 6) = Es61_tilde; Ess_tilde(4, 6) = Es64_tilde; Ess_tilde(2, 5) = Es52_tilde; Ess_tilde(3, 5) = Es53_tilde;
-gsmaxs = zeros(num_neurons, num_neurons); gsmaxs(1, 6) = gs61max; gsmaxs(4, 6) = gs64max; gsmaxs(2, 5) = gs52max; gsmaxs(3, 5) = gs53max;
+dEsyns = zeros(num_neurons, num_neurons); dEsyns(1, 6) = dEsyn61; dEsyns(4, 6) = dEsyn64; dEsyns(2, 5) = dEsyn52; dEsyns(3, 5) = dEsyn53;
+gsyn_maxs = zeros(num_neurons, num_neurons); gsyn_maxs(1, 6) = gsyn61_max; gsyn_maxs(4, 6) = gsyn64_max; gsyn_maxs(2, 5) = gsyn52_max; gsyn_maxs(3, 5) = gsyn53_max;
 
 
 %% Define Simulation Properties.
@@ -108,13 +108,12 @@ Iapp1s = Iapp1*ones(1, num_timesteps);
 Iapp2s = Iapp2*ones(1, num_timesteps);
 Iapp3s = Iapp3*ones(1, num_timesteps);
 Iapp4s = Iapp4*ones(1, num_timesteps);
-% Iapp5s = zeros(1, num_timesteps);
-% Iapp6s = zeros(1, num_timesteps);
+Iapp5s = zeros(1, num_timesteps);
+Iapp6s = zeros(1, num_timesteps);
 % Iapp5s = Iapp5*ones(1, num_timesteps);
 % Iapp6s = Iapp6*ones(1, num_timesteps);
-Iapp5s = (Iapp5/2)*(1 + sin(2*pi*num_cycles*ts));
-Iapp6s = (Iapp6/2)*(1 + sin(2*pi*num_cycles*ts));
-
+% Iapp5s = (Iapp5/2)*(1 + sin(2*pi*num_cycles*ts));
+% Iapp6s = (Iapp6/2)*(1 + sin(2*pi*num_cycles*ts));
 
 % Store the applied currents into arrays.
 Iapps = [Iapp1s; Iapp2s; Iapp3s; Iapp4s; Iapp5s; Iapp6s];
@@ -122,62 +121,8 @@ Iapps = [Iapp1s; Iapp2s; Iapp3s; Iapp4s; Iapp5s; Iapp6s];
 
 %% Simulate the Network
 
-% Preallocate arrays to store the simulation data.
-[Us, dUs, Ileaks, Isyns, Itotals] = deal( zeros(num_neurons, num_timesteps) );
-Gs = zeros(num_neurons, num_neurons, num_timesteps);
-
-% Set the initial network condition.
-Us(:, 1) = Us0;
-
 % Simulate the network.
-for k = 1:(num_timesteps - 1)
-    
-    % Compute the synaptic conductances.
-    Gs(:, :, k) = gsmaxs.*(min( max( Us(:, k)./Rs, 0 ), 1 )');
-    
-    % Compute the leak currents.
-    Ileaks(:, k) = -Gms.*Us(:, k);
-    
-    % Compute synaptic currents.
-    Isyns(:, k) = sum(Gs(:, :, k).*( Ess_tilde - Us(:, k) ), 2);
-    
-    % Compute the total currents.
-    Itotals(:, k) = Ileaks(:, k) + Isyns(:, k) + Iapps(:, k);
-    
-    % Compute the membrane voltage derivatives.
-    dUs(:, k) = Itotals(:, k)./Cms;
-    
-    % Compute the membrane voltage at the next time step.
-    Us(:, k + 1) = Us(:, k) + dt*dUs(:, k);
-    
-    %     fprintf('---------- STEP %0.0f ----------\n', k)
-    %     fprintf('Us(:, k)./Rs = \n'), disp(Us(:, k)./Rs)
-    %     fprintf('Gs(:, :, k) = \n'), disp(Gs(:, :, k))
-    % %     fprintf('Ileaks(:, k) = \n'), disp(Ileaks(:, k))
-    %     fprintf('Isyns(:, k) = \n'), disp(Isyns(:, k))
-    % %     fprintf('Iapps(:, k) = \n'), disp(Iapps(:, k))
-    % %     fprintf('Us(:, k + 1) = \n'), disp(Us(:, k + 1))
-    %     fprintf('----------------------------\n\n')
-    
-end
-
-% Advance the counter a final time.
-k = k + 1;
-
-% Compute the synaptic conductances.
-Gs(:, :, k) = gsmaxs.*(min( max( Us(:, k)./Rs, 1 ), 0 )');
-
-% Compute the leak currents.
-Ileaks(:, k) = Gms.*Us(:, k);
-
-% Compute synaptic currents.
-Isyns(:, k) = sum(Gs(:, :, k).*( Ess_tilde - Us(:, k) ), 2);
-
-% Compute the total currents.
-Itotals(:, k) = Ileaks(:, k) + Isyns(:, k) + Iapps(:, k);
-
-% Compute the membrane voltage derivatives.
-dUs(:, k) = Itotals(:, k)./Cms;
+[ts, Us, dUs, Gs, Ileaks, Isyns, Itotals] = SimulateNetworkNoNa(Us0, Gms, Cms, Rs, gsyn_maxs, dEsyns, Iapps, tf, dt);
 
 
 %% Plot the Network Membrane Voltages.

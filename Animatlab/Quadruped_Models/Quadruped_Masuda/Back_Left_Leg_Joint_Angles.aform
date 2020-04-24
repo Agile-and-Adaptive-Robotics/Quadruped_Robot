@@ -1,8 +1,8 @@
 <Form>
 <Form>
-<ID>4d5f945a-c2a0-4e5e-9032-900b89b32f1e</ID>
-<Title>Back Left Leg Stretch Receptors</Title>
-<TabPageName>Back Left Leg Stretch Receptors</TabPageName>
+<ID>e9ec09ea-d5cd-4d27-be6d-41de9ac9b357</ID>
+<Title>Back Left Leg Joint Angles</Title>
+<TabPageName>Back Left Leg Joint Angles</TabPageName>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.Forms.Charts.LineChart</ClassName>
 <AutoCollectInterval>True</AutoCollectInterval>
@@ -16,45 +16,45 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(9) Hip Ext Ia</Name>
-<WorkingAxis>1</WorkingAxis>
+<Name>Ankle Angle</Name>
+<WorkingAxis>2</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>Back_Left_Hip_Extensor</Name>
-<ID>1ef2e8cd-2235-42b7-85b2-ad433cfa5ce5</ID>
+<Name>Back_Left_Ankle</Name>
+<ID>8f1311a1-095d-4ff6-bc96-7c6c240704d9</ID>
 <DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillStretchReceptor</DataItemClassName>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Joints.Hinge</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>edb5e2c1-75f5-45a7-9ec6-5099c1ec65ac</DataItemID>
-<SelectedDataType>Ia</SelectedDataType>
-<DataSubSet>1</DataSubSet>
-<PrevDataSubset>1</PrevDataSubset>
+<DataItemID>234e486d-65fd-4f20-89fc-9cb69acb922f</DataItemID>
+<SelectedDataType>JointRotation</SelectedDataType>
+<DataSubSet>2</DataSubSet>
+<PrevDataSubset>2</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-65536</LineColor>
+<LineColor>-16776961</LineColor>
 </DataColumn>
 </DataColumns>
 </Axis>
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(9) Hip Ext Ib</Name>
+<Name>Hip Angle</Name>
 <WorkingAxis>0</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>Back_Left_Hip_Extensor</Name>
-<ID>e1fdd568-0ab3-48a0-8593-f07755e33d74</ID>
+<Name>Back_Left_Hip_Joint</Name>
+<ID>2d713db2-a277-4c71-bd0f-c00af6442eee</ID>
 <DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillStretchReceptor</DataItemClassName>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Joints.Hinge</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>edb5e2c1-75f5-45a7-9ec6-5099c1ec65ac</DataItemID>
-<SelectedDataType>Ib</SelectedDataType>
+<DataItemID>d59a827d-528f-482c-b054-0a34fc1b9459</DataItemID>
+<SelectedDataType>JointRotation</SelectedDataType>
 <DataSubSet>0</DataSubSet>
 <PrevDataSubset>0</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
@@ -68,21 +68,21 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(9) Hip Ext II</Name>
-<WorkingAxis>2</WorkingAxis>
+<Name>Knee Angle</Name>
+<WorkingAxis>1</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>Back_Left_Hip_Extensor</Name>
-<ID>f9b2af0a-a0c6-43f4-9247-92ca62af25ba</ID>
+<Name>Back_Left_Knee_Joint</Name>
+<ID>1abf571e-6992-44fe-b1f2-893a83e0496e</ID>
 <DataItemAssemblyFile>AnimatGUI.dll</DataItemAssemblyFile>
-<DataItemClassName>AnimatGUI.DataObjects.Physical.Bodies.LinearHillStretchReceptor</DataItemClassName>
+<DataItemClassName>AnimatGUI.DataObjects.Physical.Joints.Hinge</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>edb5e2c1-75f5-45a7-9ec6-5099c1ec65ac</DataItemID>
-<SelectedDataType>II</SelectedDataType>
-<DataSubSet>2</DataSubSet>
-<PrevDataSubset>2</PrevDataSubset>
+<DataItemID>199b795a-982c-4e06-a108-1af261499213</DataItemID>
+<SelectedDataType>JointRotation</SelectedDataType>
+<DataSubSet>1</DataSubSet>
+<PrevDataSubset>1</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
@@ -96,6 +96,6 @@
 <UpdateChartAtEnd>True</UpdateChartAtEnd>
 <PointsToKeep>18334</PointsToKeep>
 <YAxisOffset>0</YAxisOffset>
-<GraphConfig ByteCount="9027"/>
+<GraphConfig ByteCount="9003"/>
 </Form>
 </Form>
