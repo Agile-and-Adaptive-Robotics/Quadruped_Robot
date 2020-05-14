@@ -22,18 +22,23 @@ Elo = Er;                    % [V] Presynaptic Threshold.
 Ehi = Elo + R;               % [V] Presynaptic Saturation Level.
 Esyn = -100e-3;                % [V] Synaptic Equilibrium Potential.
 dEsyn = Esyn - Er;          % [V] Synaptic Equilibrium Potential With Respect to
+% delta = 10.0e-3;             % [V] Voltage Difference Between Inhibited Neuron's Equilibrium Potential & the Presynaptic Threshold.
 delta = 0.01e-3;             % [V] Voltage Difference Between Inhibited Neuron's Equilibrium Potential & the Presynaptic Threshold.
-% delta = -0.01e-3;            % [V] Voltage Difference Between Inhibited Neuron's Equilibrium Potential & the Presynaptic Threshold.
+% delta = 0;            % [V] Voltage Difference Between Inhibited Neuron's Equilibrium Potential & the Presynaptic Threshold.
+% delta = -0.01e-3;             % [V] Voltage Difference Between Inhibited Neuron's Equilibrium Potential & the Presynaptic Threshold.
+% delta = -10.0e-3;             % [V] Voltage Difference Between Inhibited Neuron's Equilibrium Potential & the Presynaptic Threshold.
 
 % Define sodium channel activation properties.
 Am = 1;
-Sm = -50;
+% Sm = -40;
+Sm = -10;
 Em = Ehi;
 dEm = Em - Er;
 
 % Define sodium channel deactivation properties.
 Ah = 0.5;
-Sh = 50;
+% Sh = 40;
+Sh = 10;
 Eh = Elo;
 dEh = Eh - Er;
 
