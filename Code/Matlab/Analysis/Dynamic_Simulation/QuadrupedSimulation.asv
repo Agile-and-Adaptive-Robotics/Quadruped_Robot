@@ -376,10 +376,7 @@ fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e.,
 %% Compute the Muscle Lengths Throughout the Desired Trajectory.
 
 % Compute the muscle lengths, velocities, and accelerations associated with the desired trajectory.
-Lmuscles_desired = GetMuscleLengths( Pmuscles_desired );
-
-% Compute the associated desired muscle velocities and accelerations.
-[dLmuscles_desired, ddLmuscles_desired] = GetMuscleVelAccel(Lmuscles_desired, ts);
+[Lmuscles_desired, dLmuscles_desired, ddLmuscles_desired] = GetMuscleLengths( Pmuscles_desired, ts );
 
 
 %% Compute the Moments of Inertia Associated with Each Body Throughout the Desired Trajectory.
@@ -421,15 +418,86 @@ fprintf('COMPUTING INVERSE DYNAMICS SOLUTION (i.e., Requied Joint Torques)... Do
 
 %% Compute the Total Muscle Forces Required to Achieve the Desired Trajectory.
 
+% Ensure that there are two muscles assigned to each joint.
+if num_muscles ~= 2*num_joints          % If there are not two muscles per joint...
+   
+    % Throw an error stating that we must have two muscles per joint.
+    error('The current muscle tension calculation alogrithm assumes that there are exactly two muscles per joint.\n')
+    
+end
+
 % Define the minimum allowable total muscle force.
 Fmuscles_total_lowbnd = zeros(num_muscles, 1);
 % Fmuscles_total_lowbnd = 25*ones(num_muscles, 1);
 
-% Compute the total muscle force required to achieved the desired trajectory.
-Fmuscles_total_desired = JointTorques2TotalMuscleForces( taus_desired, Pmuscles_desired, Pjoints_desired, muscle_joint_orientations, Fmuscles_total_lowbnd );
+% Initialize a variable to store the desired total muscle forces.
+Fmuscles_total_desired = zeros(num_muscles, num_timesteps);
 
-% Compute the rate of change of total muscle force with respect to time.
-dFmuscles_total_desired = Force2Yank( Fmuscles_total_desired, ts );
+% Compute the force required in each muscle.
+for k1 = 1:num_timesteps                % Iterate through each time step...
+    for k2 = 1:num_joints               % Iterate through each joint...
+
+        % Reset the primary and secondary muscle indexes.
+        muscle_index_primary = 2*k2 - 1;
+        muscle_index_secondary = 2*k2;
+        
+        % Determine which muscle type to use to create the desired torque.
+        if taus_desired(k2, k1) >= 0                                                                    % If the torque is greater than or equal to zero...
+            
+            % Set the muscle type to that associated with positive torque.
+            muscle_type = muscle_joint_orientations{k2};                
+            
+        else                                                                                    % Otherwise...
+            
+            % Set the muscle type to that associated with negative torque.
+            muscle_type = GetOppositeString('Ext', 'Flx', muscle_joint_orientations{k2});       
+            
+        end
+        
+        % Determine whether we need to swap the primary and secondary muscle indexes.
+        if strcmp(muscle_type, 'Flx')                   % If this is a flexor muscle...
+            
+            % Swap the primary and secondary muscle indexes.
+            [muscle_index_primary, muscle_index_secondary] = deal( muscle_index_secondary, muscle_index_primary );
+            
+        end
+
+        % Compute the moment arm for each muscle.
+        r_primary = Pmuscles_desired(:, 3, muscle_index_primary, k1) - Pjoints_desired(:, 1, k2, k1);
+        r_secondary = Pmuscles_desired(:, 3, muscle_index_secondary, k1) - Pjoints_desired(:, 1, k2, k1);
+
+        % Compute the direction of the total forces applied by the primary & secondary muscles.
+        Fmuscle_total_dir_primary = (Pmuscles_desired(:, 2, muscle_index_primary, k1) - Pmuscles_desired(:, 3, muscle_index_primary, k1))./norm(Pmuscles_desired(:, 2, muscle_index_primary, k1) - Pmuscles_desired(:, 3, muscle_index_primary, k1));
+        Fmuscle_total_dir_secondary = (Pmuscles_desired(:, 2, muscle_index_secondary, k1) - Pmuscles_desired(:, 3, muscle_index_secondary, k1))./norm(Pmuscles_desired(:, 2, muscle_index_secondary, k1) - Pmuscles_desired(:, 3, muscle_index_secondary, k1));
+        
+        % Set the secondary muscle to have the minimum allowable total force magnitude.
+        Fmuscle_total_mag_secondary = Fmuscles_total_lowbnd(muscle_index_secondary);
+        
+        % Compute the secondary muscle total force vector.
+        Fmuscle_total_secondary = Fmuscle_total_mag_secondary*Fmuscle_total_dir_secondary;
+        
+        % Compute the torque contributed to the joint by the secondary muscle.
+        tau_secondary = norm(cross(r_secondary, Fmuscle_total_secondary), 2);
+        
+        % Compute the torque that we need to create with the primary muscle.
+        tau_primary = abs(taus_desired(k2, k1)) + tau_secondary;
+
+        % Compute the angle between the primary force line of action and the moment arm.
+        phi = vecangle(r_primary, Fmuscle_total_dir_primary);
+        
+        % Compute the required total force magnitude in the primary muscle.
+        Fmuscle_total_mag_primary = tau_primary/(norm(r_primary, 2)*sin(phi));
+        
+        % Store the required total muscles forces into a matrix.
+        Fmuscles_total_desired(muscle_index_primary, k1) = Fmuscle_total_mag_primary;
+        Fmuscles_total_desired(muscle_index_secondary, k1) = Fmuscle_total_mag_secondary;
+        
+    end
+end
+
+% Compute the time derivative of the total muscle tension.
+dFmuscles_total_desired = diff(Fmuscles_total_desired, 1, 2)./repmat(diff(ts), [num_muscles 1]);
+dFmuscles_total_desired = [dFmuscles_total_desired dFmuscles_total_desired(:, end)];
 
 
 %% Compute the Active Muscle Force Required to Achieved the Desired Trajectory.
@@ -440,11 +508,8 @@ Fmuscles_active_desired = InverseHillMuscle(Fmuscles_total_desired, dFmuscles_to
 % Compute the associated passive muscle force.
 Fmuscles_passive_desired = Fmuscles_total_desired - Fmuscles_active_desired;
 
-% Define the number of integration steps to perform when simulating the forward hill muscle model.
-intRes = 1;
-
 % Check the forward Hill Muscle model calculation.
-[Fmuscles_total_achieved, dFmuscles_total_achieved] = ForwardHillMuscle(Fmuscles_total_desired(:, 1), Lmuscles_desired, dLmuscles_desired, Fmuscles_active_desired, kse, kpe, b, dt, intRes);
+[Tnew, dTnew] = ForwardHillMuscle(Fmuscles_total_desired(:, 1), Lmuscles_desired, dLmuscles_desired, Fmuscles_active_desired, kse, kpe, b, dt);
 
 
 %% Compute the Actual Dynamics Response of the Open Kinematic Chain.
@@ -507,10 +572,7 @@ fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e.,
 %% Compute the Muscle Lengths Throughout the Achieved Trajectory.
 
 % Compute the muscle lengths, velocities, and accelerations associated with the achieved trajectory.
-Lmuscles_achieved = GetMuscleLengths( Pmuscles_achieved );
-
-% Compute the associated achieved muscle velocities and accelerations.
-[dLmuscles_achieved, ddLmuscles_achieved] = GetMuscleVelAccel( Lmuscles_achieved, ts );
+[Lmuscles_achieved, dLmuscles_achieved, ddLmuscles_achieved] = GetMuscleLengths( Pmuscles_achieved, ts );
 
 
 %% Compute Muscle Summary Statistics.
@@ -835,13 +897,12 @@ line_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
 line_styles = {'-', '--'};
 
 % Create a figure to store the muscle forces over time.
-fig_muscleforces = figure('Color', 'w', 'Name', 'Muscle Forces vs Time');
+fig_muscleforces = figure('Color', 'w', 'Name', 'Total Muscle Forces vs Time');
 subplot(3, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Muscle Force [N]'), title('Passive Muscle Force vs Time (Metric)')
 subplot(3, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Muscle Force [lbf]'), title('Passive Muscle Force vs Time (Imperial)')
+
 subplot(3, 2, 3), hold on, grid on, xlabel('Time [s]'), ylabel('Active Muscle Force [N]'), title('Active Muscle Force vs Time (Metric)')
 subplot(3, 2, 4), hold on, grid on, xlabel('Time [s]'), ylabel('Active Muscle Force [lbf]'), title('Active Muscle Force vs Time (Imperial)')
-subplot(3, 2, 5), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle Force [N]'), title('Total Muscle Force vs Time (Metric)')
-subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle Force [lbf]'), title('Total Muscle Force vs Time (Imperial)')
 
 % Initialize an array to store the legend entries.
 legstr = cell(num_muscles, 1);
@@ -857,12 +918,8 @@ for k1 = 1:num_joints                   % Iterate through each joint...
         k3 = k3 + 1;
         
         % Add the current muscle force over time to the plot.
-        subplot(3, 2, 1), plot(ts(2:end-3), Fmuscles_passive_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 2), plot(ts(2:end-3), 0.224809*Fmuscles_passive_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 3), plot(ts(2:end-3), Fmuscles_active_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 4), plot(ts(2:end-3), 0.224809*Fmuscles_active_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 5), plot(ts(1:end-2), Fmuscles_total_desired(k3, 1:end-2), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 6), plot(ts(1:end-2), 0.224809*Fmuscles_total_desired(k3, 1:end-2), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(1, 2, 1), plot(ts(1:end-2), Fmuscles_total_desired(k3, 1:end-2), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(1, 2, 2), plot(ts(1:end-2), 0.224809*Fmuscles_total_desired(k3, 1:end-2), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
         
         % Add an appropriate legend entry to our cell.
         legstr{k3} = muscle_names{k3};
@@ -878,6 +935,46 @@ filename = split(fig_muscleforces.Name, ' '); filename = strcat(filename{:}, '.j
 
 % Save the figure.
 SaveFigureAtSize(fig_muscleforces, filename, figure_size)
+
+
+%% Plot the Desired Muscle Activations Over Time.
+
+% Create a figure to store the muscle activations.
+fig_muscleactivations = figure('Color', 'w', 'Name', 'Desired Active Muscle Force vs Time');
+subplot(1, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Active Muscle Force [N]'), title('Desired Active Muscle Force vs Time (Metric)')
+subplot(1, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Active Muscle Force [lbf]'), title('Desired Active Muscle Force vs Time (Imperial)')
+
+% Initialize an array to store the legend entries.
+legstr = cell(num_muscles, 1);
+
+% Initialize a counter variable.
+k3 = 0;
+
+% Plot the force of each muscle over time.
+for k1 = 1:num_joints                   % Iterate through each joint...
+    for k2 = 1:num_muscle_types         % Iterate through each muscle type...
+        
+        % Advance the counter variable.
+        k3 = k3 + 1;
+        
+        % Add the current muscle force over time to the plot.
+        subplot(1, 2, 1), plot(ts(3:end-3), Fmuscles_active_desired(k3, 3:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(1, 2, 2), plot(ts(3:end-3), 0.224809*Fmuscles_active_desired(k3, 3:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        
+        % Add an appropriate legend entry to our cell.
+        legstr{k3} = muscle_names{k3};
+        
+    end
+end
+
+% Add display the legend.
+legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
+
+% Create a file name for the saved figure.
+filename = split(fig_muscleactivations.Name, ' '); filename = strcat(filename{:}, '.jpg');
+
+% Save the figure.
+SaveFigureAtSize(fig_muscleactivations, filename, figure_size)
 
 
 %% Animate the Open Kinematic Chain.
@@ -1030,5 +1127,8 @@ end
 
 % % Close the video object.
 % close(myVideo)
+
+
+%% Summarize Simulation Information
 
 

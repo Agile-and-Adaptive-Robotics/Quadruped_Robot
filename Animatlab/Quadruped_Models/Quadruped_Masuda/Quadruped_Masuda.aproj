@@ -19224,7 +19224,7 @@
 <Equation>0</Equation>
 <OrganismID>2203a445-ebfa-4ce2-a39f-f474600c21ad</OrganismID>
 <NodeID>18714a40-6987-4619-b539-1e938083bc47</NodeID>
-<CurrentOn Value="10" Scale="nano" Actual="1e-008"/>
+<CurrentOn Value="1" Scale="nano" Actual="1e-009"/>
 <CurrentOff Value="0" Scale="nano" Actual="0"/>
 <CurrentBurstOff Value="0" Scale="nano" Actual="0"/>
 <CycleOnDuration Value="10" Scale="milli" Actual="0.01"/>
@@ -19290,7 +19290,7 @@
 <Equation>0</Equation>
 <OrganismID>2203a445-ebfa-4ce2-a39f-f474600c21ad</OrganismID>
 <NodeID>a774e69d-0155-4fc5-8314-eb2ee06053b3</NodeID>
-<CurrentOn Value="10" Scale="nano" Actual="1e-008"/>
+<CurrentOn Value="1" Scale="nano" Actual="1e-009"/>
 <CurrentOff Value="0" Scale="nano" Actual="0"/>
 <CurrentBurstOff Value="0" Scale="nano" Actual="0"/>
 <CycleOnDuration Value="10" Scale="milli" Actual="0.01"/>
@@ -19356,7 +19356,7 @@
 <Equation>0</Equation>
 <OrganismID>2203a445-ebfa-4ce2-a39f-f474600c21ad</OrganismID>
 <NodeID>577cae99-80bc-4d9a-b3d6-000607cb2f04</NodeID>
-<CurrentOn Value="10" Scale="nano" Actual="1e-008"/>
+<CurrentOn Value="1" Scale="nano" Actual="1e-009"/>
 <CurrentOff Value="0" Scale="nano" Actual="0"/>
 <CurrentBurstOff Value="0" Scale="nano" Actual="0"/>
 <CycleOnDuration Value="10" Scale="milli" Actual="0.01"/>
@@ -19422,7 +19422,7 @@
 <Equation>0</Equation>
 <OrganismID>2203a445-ebfa-4ce2-a39f-f474600c21ad</OrganismID>
 <NodeID>69a522b8-91a9-4ee1-97d5-439fa0f3b91b</NodeID>
-<CurrentOn Value="10" Scale="nano" Actual="1e-008"/>
+<CurrentOn Value="1" Scale="nano" Actual="1e-009"/>
 <CurrentOff Value="0" Scale="nano" Actual="0"/>
 <CurrentBurstOff Value="0" Scale="nano" Actual="0"/>
 <CycleOnDuration Value="10" Scale="milli" Actual="0.01"/>
@@ -19572,7 +19572,7 @@
 <DockingConfig>&lt;?xml version="1.0" encoding="us-ascii"?&gt;
 &lt;!-- DotNetMagic, The User Interface library for .NET (www.crownwood.net) --&gt;
 &lt;!-- Modifying this generated file will probably render it invalid --&gt;
-&lt;DockingConfig FormatVersion="10" InsideFill="False" InnerMinimum="20, 20" SavedAt="05/14/2020 11:20:47"&gt;
+&lt;DockingConfig FormatVersion="10" InsideFill="False" InnerMinimum="20, 20" SavedAt="05/14/2020 12:42:38"&gt;
   &lt;Content Name="Errors" Visible="True" Docked="True" AutoHidden="False" CaptionBar="True" CloseButton="False" DisplaySize="150, 127" DisplayLocation="150, 150" AutoHideSize="150, 125" FloatingSize="150, 150" FullTitle="Errors" Office2003BackColor="Base" UniqueName="" Office2007BackColor="Base" MediaPlayerBackColor="Base"&gt;
     &lt;DefaultRestore Type="Crownwood.DotNetMagic.Docking.RestoreContentState"&gt;
       &lt;Content Name="Errors" UniqueName="" /&gt;
@@ -20045,7 +20045,7 @@
 &lt;/TabPage&gt;
 ]]&gt;&lt;/CustomPageData&gt;
       &lt;/Page&gt;
-      &lt;Page Title="Back Left Leg" ImageList="True" ImageIndex="1" Selected="False" Control="null" UniqueName=""&gt;
+      &lt;Page Title="Back Left Leg" ImageList="True" ImageIndex="1" Selected="True" Control="null" UniqueName=""&gt;
         &lt;CustomPageData&gt;&lt;![CDATA[&lt;TabPage&gt;
 &lt;Form&gt;
 &lt;ID&gt;81e99890-2187-4f19-a29c-4c32ffbbdf43&lt;/ID&gt;
@@ -20072,7 +20072,7 @@
 &lt;/TabPage&gt;
 ]]&gt;&lt;/CustomPageData&gt;
       &lt;/Page&gt;
-      &lt;Page Title="Back Left Leg Bistable Voltages" ImageList="True" ImageIndex="2" Selected="True" Control="null" UniqueName=""&gt;
+      &lt;Page Title="Back Left Leg Bistable Voltages" ImageList="True" ImageIndex="2" Selected="False" Control="null" UniqueName=""&gt;
         &lt;CustomPageData&gt;&lt;![CDATA[&lt;TabPage&gt;
 &lt;Form&gt;
 &lt;ID&gt;2a8cd9b4-a3e0-4983-bc7b-dafc701ac0fa&lt;/ID&gt;
