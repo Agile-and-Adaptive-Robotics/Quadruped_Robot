@@ -1,8 +1,8 @@
 <Form>
 <Form>
-<ID>bcebe33e-f74b-4356-842e-21d12ac305e7</ID>
-<Title>Back Left Leg MN Voltages</Title>
-<TabPageName>Back Left Leg MN Voltages</TabPageName>
+<ID>fae9fd2d-1dea-45da-b984-600e822e319f</ID>
+<Title>Back Left Leg Feedback</Title>
+<TabPageName>Back Left Leg Feedback</TabPageName>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.Forms.Charts.LineChart</ClassName>
 <AutoCollectInterval>True</AutoCollectInterval>
@@ -16,88 +16,88 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(1) Hip MN</Name>
+<Name>Hip Bistable Replica Feedback Current</Name>
 <WorkingAxis>0</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(2) Hip Flx MN</Name>
-<ID>75c93136-5385-4ca5-8591-cfe3b4dda7b9</ID>
+<Name>(5) Hip Bistable 1 Replica</Name>
+<ID>4ff312af-5935-45fd-81d1-d17408f25680</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>fce0b111-98fd-4799-81f3-1181da03e930</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>eb5f9c23-fede-4c6a-b561-5305b54c3247</DataItemID>
+<SelectedDataType>AdapterCurrent</SelectedDataType>
 <DataSubSet>0</DataSubSet>
 <PrevDataSubset>0</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-16776961</LineColor>
+<LineColor>-65536</LineColor>
 </DataColumn>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(1) Hip Ext MN</Name>
-<ID>fadead6b-fe00-4a97-b5da-9f35811962b7</ID>
+<Name>(7) Hip Bistable 2 Replica</Name>
+<ID>85e3c361-dd55-4019-9c6e-4db53c8359d6</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>c1debf97-52de-4538-92c3-df49030bdf19</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>af6c2cb7-c082-4621-99e6-f90a922c6b6b</DataItemID>
+<SelectedDataType>AdapterCurrent</SelectedDataType>
 <DataSubSet>1</DataSubSet>
 <PrevDataSubset>1</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-65536</LineColor>
+<LineColor>-16776961</LineColor>
 </DataColumn>
 </DataColumns>
 </Axis>
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(3) Knee MN</Name>
+<Name>Knee Bistable Replica Feedback Current</Name>
 <WorkingAxis>1</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(3) Knee Ext MN</Name>
-<ID>2f0b8e2d-7625-4c85-a12d-ec85111f272f</ID>
+<Name>(8) Knee Bistable 2 Replica</Name>
+<ID>46115921-db7b-4b78-bf0d-d2082b14d03c</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>67649ad1-ee70-4278-8a25-1f1126bbb02d</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>22d41bf1-e7c4-43a6-8652-e915eb6362fe</DataItemID>
+<SelectedDataType>AdapterCurrent</SelectedDataType>
 <DataSubSet>2</DataSubSet>
 <PrevDataSubset>2</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-65536</LineColor>
+<LineColor>-16776961</LineColor>
 </DataColumn>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(4) Knee Flx MN</Name>
-<ID>47a27992-b505-4ef6-85b4-32b21bbf3b17</ID>
+<Name>(6) Knee Bistable 1 Replica</Name>
+<ID>6cc094bb-901e-4551-8132-d28473ff2f23</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>8e9d30f5-6be3-4759-bfe9-526b779060e1</DataItemID>
-<SelectedDataType>MembraneVoltage</SelectedDataType>
+<DataItemID>92e4424b-dde4-4a61-8281-3fcd7f424ef6</DataItemID>
+<SelectedDataType>AdapterCurrent</SelectedDataType>
 <DataSubSet>3</DataSubSet>
 <PrevDataSubset>3</PrevDataSubset>
 <UseIncomingDataType>False</UseIncomingDataType>
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-16776961</LineColor>
+<LineColor>-65536</LineColor>
 </DataColumn>
 </DataColumns>
 </Axis>
@@ -106,6 +106,6 @@
 <UpdateChartAtEnd>True</UpdateChartAtEnd>
 <PointsToKeep>55000</PointsToKeep>
 <YAxisOffset>0</YAxisOffset>
-<GraphConfig ByteCount="9000"/>
+<GraphConfig ByteCount="9102"/>
 </Form>
 </Form>

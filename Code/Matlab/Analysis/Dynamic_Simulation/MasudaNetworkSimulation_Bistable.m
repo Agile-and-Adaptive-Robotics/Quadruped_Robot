@@ -25,12 +25,12 @@ Er = -60e-3;                                                                    
 R = 20e-3;                                                                                          % [V] Biphasic Equilibrium Voltage Range.
 Am = 1;                                                                                             % [-] Sodium Channel Activation Parameter A.
 Sm = -50;                                                                                           % [-] Sodium Channel Activation Parametter S.
-dEm = R;                                                                                            % [V] Sodium Channel Activation Reversal Potential w.r.t. Equilibrium Potential.
-Ah = 1;                                                                                             % [-] Sodium Channel Deactivation Parameter A.
+dEm = 2*R;                                                                                            % [V] Sodium Channel Activation Reversal Potential w.r.t. Equilibrium Potential.
+Ah = 0.5;                                                                                             % [-] Sodium Channel Deactivation Parameter A.
 Sh = 50;                                                                                            % [-] Sodium Channel Deactivation Parameter S.
 dEh = 0;                                                                                            % [V] Sodium Channel Deactivation Reversal Potential  w.r.t. Equilibrium Potential.
 dEna = 110e-3;                                                                                      % [V] Sodium Channel Reversal Potential With Respect to the Resting Potential.
-tauh_max = 0.350;                                                                                   % [s] Maximum Sodium Channel Deactivation Time Constant.
+tauh_max = 0.250;                                                                                   % [s] Maximum Sodium Channel Deactivation Time Constant.
 
 % Define Hip Extensor Motor Neuron Properties (Neuron 1).
 Cm1 = Cm;                                                                                             % [F] Membrane Capacitance.
@@ -237,10 +237,10 @@ dEsyn53 = 2*R3;              % [V] Synapse Reversal Potential.
 % dEsyn86 = -40e-3;            % [V] Synapse Reversal Potential.
 
 % USe these to match Hunt's Rat example.
-dEsyn57 = -10e-3;            % [V] Synapse Reversal Potential.
-dEsyn75 = -10e-3;            % [V] Synapse Reversal Potential.
-dEsyn68 = -10e-3;            % [V] Synapse Reversal Potential.
-dEsyn86 = -10e-3;            % [V] Synapse Reversal Potential.
+dEsyn57 = -40e-3;            % [V] Synapse Reversal Potential.
+dEsyn75 = -40e-3;            % [V] Synapse Reversal Potential.
+dEsyn68 = -40e-3;            % [V] Synapse Reversal Potential.
+dEsyn86 = -40e-3;            % [V] Synapse Reversal Potential.
 
 
 % Compute the synapse conductances.
@@ -303,8 +303,8 @@ Iapp4s = Iapp4*ones(1, num_timesteps);
 
 Iapp5s = zeros(1, num_timesteps); Iapp5s(1, 1) = Iapp5;
 Iapp6s = zeros(1, num_timesteps); Iapp6s(1, 1) = Iapp6;
-Iapp7s = zeros(1, num_timesteps); Iapp7s(1, floor(num_timesteps/2)) = Iapp7;
-Iapp8s = zeros(1, num_timesteps); Iapp8s(1, floor(num_timesteps/2)) = Iapp8;
+Iapp7s = zeros(1, num_timesteps); %Iapp7s(1, floor(num_timesteps/2)) = Iapp7;
+Iapp8s = zeros(1, num_timesteps); %Iapp8s(1, floor(num_timesteps/2)) = Iapp8;
 
 % Iapp5s = zeros(1, num_timesteps);
 % Iapp6s = zeros(1, num_timesteps);
@@ -465,13 +465,13 @@ fprintf('Ca Equil Potential: \t%0.16f \t[mV]\n', (dEna5 + Er5)*10^3)
 fprintf('\n\n-------------------- NEURON PROPERTIES --------------------\n\n')
 
 fprintf('Ca Activation:\n')
-fprintf('\tMidPoint: \t\t\t%0.16f \t[mV]\n', (Umidm5 + Er5)*10^3)
-fprintf('\tSlope: \t\t\t\t%0.16f \t\t[-]\n', Smidm5/1000)
-fprintf('\tTimeConstant: \t\t%0.16f \t\t[ms]\n', 2)
+fprintf('\tMidPoint: \t\t\t%0.16f \t[mV]\n', (dEm5 + Er5)*10^3)
+fprintf('\tSlope: \t\t\t\t%0.16f \t\t[-]\n', -Sm5/1000)
+fprintf('\tTimeConstant: \t\t%0.16f \t\t[ms]\n', 1)
 
 fprintf('\nCa Deactivation:\n')
-fprintf('\tMidPoint: \t\t\t%0.16f \t\t[mV]\n', (Umidh5 + Er5)*10^3)
-fprintf('\tSlope: \t\t\t\t%0.16f \t[-]\n', Smidh5/1000)
+fprintf('\tMidPoint: \t\t\t%0.16f \t\t[mV]\n', (dEh5 + Er5)*10^3)
+fprintf('\tSlope: \t\t\t\t%0.16f \t[-]\n', -Sh5/1000)
 fprintf('\tTimeConstant: \t\t%0.16f \t[ms]\n', tauh5_max*10^3)
 
 fprintf('\nMax Ca Conductance: \t%0.16f \t\t[uS]\n', Gna5*10^6)

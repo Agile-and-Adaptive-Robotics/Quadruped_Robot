@@ -1,8 +1,8 @@
 <Form>
 <Form>
-<ID>bcebe33e-f74b-4356-842e-21d12ac305e7</ID>
-<Title>Back Left Leg MN Voltages</Title>
-<TabPageName>Back Left Leg MN Voltages</TabPageName>
+<ID>2a4e4e31-75a2-4a82-b4bc-5b83ffc2ad30</ID>
+<Title>BL CPG Voltages</Title>
+<TabPageName>BL CPG Voltages</TabPageName>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.Forms.Charts.LineChart</ClassName>
 <AutoCollectInterval>True</AutoCollectInterval>
@@ -16,18 +16,18 @@
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(1) Hip MN</Name>
+<Name>BL Hip CPG Voltages [V]</Name>
 <WorkingAxis>0</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(2) Hip Flx MN</Name>
-<ID>75c93136-5385-4ca5-8591-cfe3b4dda7b9</ID>
+<Name>(5) Hip Bistable 1</Name>
+<ID>360c7da2-f291-4528-9cfb-45d874f6802f</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>fce0b111-98fd-4799-81f3-1181da03e930</DataItemID>
+<DataItemID>577cae99-80bc-4d9a-b3d6-000607cb2f04</DataItemID>
 <SelectedDataType>MembraneVoltage</SelectedDataType>
 <DataSubSet>0</DataSubSet>
 <PrevDataSubset>0</PrevDataSubset>
@@ -35,17 +35,17 @@
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-16776961</LineColor>
+<LineColor>-65536</LineColor>
 </DataColumn>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(1) Hip Ext MN</Name>
-<ID>fadead6b-fe00-4a97-b5da-9f35811962b7</ID>
+<Name>(7) Hip Bistable 2</Name>
+<ID>6ae4398d-9846-4c7f-ab8e-30d344c58720</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>c1debf97-52de-4538-92c3-df49030bdf19</DataItemID>
+<DataItemID>18714a40-6987-4619-b539-1e938083bc47</DataItemID>
 <SelectedDataType>MembraneVoltage</SelectedDataType>
 <DataSubSet>1</DataSubSet>
 <PrevDataSubset>1</PrevDataSubset>
@@ -53,25 +53,25 @@
 <LineType>MediumSolid</LineType>
 <PointType>Plus</PointType>
 <PlotMethodType>Line</PlotMethodType>
-<LineColor>-65536</LineColor>
+<LineColor>-16776961</LineColor>
 </DataColumn>
 </DataColumns>
 </Axis>
 <Axis>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DAxis</ClassName>
-<Name>(3) Knee MN</Name>
+<Name>BL Knee CPG Voltages [V]</Name>
 <WorkingAxis>1</WorkingAxis>
 <DataColumns>
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(3) Knee Ext MN</Name>
-<ID>2f0b8e2d-7625-4c85-a12d-ec85111f272f</ID>
+<Name>(6) Knee Bistable 1</Name>
+<ID>631b894c-b080-4758-bc0b-b7860691330e</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>67649ad1-ee70-4278-8a25-1f1126bbb02d</DataItemID>
+<DataItemID>a774e69d-0155-4fc5-8314-eb2ee06053b3</DataItemID>
 <SelectedDataType>MembraneVoltage</SelectedDataType>
 <DataSubSet>2</DataSubSet>
 <PrevDataSubset>2</PrevDataSubset>
@@ -84,12 +84,12 @@
 <DataColumn>
 <AssemblyFile>LicensedAnimatGUI.dll</AssemblyFile>
 <ClassName>LicensedAnimatGUI.DataObjects.Charting.Pro2DColumn</ClassName>
-<Name>(4) Knee Flx MN</Name>
-<ID>47a27992-b505-4ef6-85b4-32b21bbf3b17</ID>
+<Name>(8) Knee Bistable 2</Name>
+<ID>c3c731a6-d0b9-4343-a213-548df31b55e0</ID>
 <DataItemAssemblyFile>IntegrateFireGUI.dll</DataItemAssemblyFile>
 <DataItemClassName>IntegrateFireGUI.DataObjects.Behavior.Neurons.NonSpiking</DataItemClassName>
 <StructureID>2203a445-ebfa-4ce2-a39f-f474600c21ad</StructureID>
-<DataItemID>8e9d30f5-6be3-4759-bfe9-526b779060e1</DataItemID>
+<DataItemID>69a522b8-91a9-4ee1-97d5-439fa0f3b91b</DataItemID>
 <SelectedDataType>MembraneVoltage</SelectedDataType>
 <DataSubSet>3</DataSubSet>
 <PrevDataSubset>3</PrevDataSubset>
@@ -106,6 +106,6 @@
 <UpdateChartAtEnd>True</UpdateChartAtEnd>
 <PointsToKeep>55000</PointsToKeep>
 <YAxisOffset>0</YAxisOffset>
-<GraphConfig ByteCount="9000"/>
+<GraphConfig ByteCount="9042"/>
 </Form>
 </Form>
