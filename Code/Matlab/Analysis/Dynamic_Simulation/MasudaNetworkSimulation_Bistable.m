@@ -236,7 +236,7 @@ dEsyn53 = 2*R3;              % [V] Synapse Reversal Potential.
 % dEsyn68 = -40e-3;            % [V] Synapse Reversal Potential.
 % dEsyn86 = -40e-3;            % [V] Synapse Reversal Potential.
 
-% USe these to match Hunt's Rat example.
+% Use these to match Hunt's Rat example.
 dEsyn57 = -40e-3;            % [V] Synapse Reversal Potential.
 dEsyn75 = -40e-3;            % [V] Synapse Reversal Potential.
 dEsyn68 = -40e-3;            % [V] Synapse Reversal Potential.
@@ -248,9 +248,9 @@ gsyn61_max = Gm1*R1/(dEsyn61 - R1);
 gsyn64_max = -Iapp4/dEsyn64;
 gsyn52_max = -Iapp2/dEsyn52;
 gsyn53_max = Gm3*R3/(dEsyn53 - R3);
-gsyn57_max = TwoNeuronCPGSubnetworkSynConductance(delta57, dEsyn57, Am5, Sm5, dEm5, Ah5, Sh5, dEh5, dEna5, Gna5);
+gsyn57_max = TwoNeuronCPGSubnetworkSynConductance(delta57, Gm5, dEsyn57, Am5, Sm5, dEm5, Ah5, Sh5, dEh5, dEna5, Gna5);
 gsyn75_max = gsyn57_max;
-gsyn68_max = TwoNeuronCPGSubnetworkSynConductance(delta68, dEsyn68, Am6, Sm6, dEm6, Ah6, Sh6, dEh6, dEna6, Gna6);
+gsyn68_max = TwoNeuronCPGSubnetworkSynConductance(delta68, Gm6, dEsyn68, Am6, Sm6, dEm6, Ah6, Sh6, dEh6, dEna6, Gna6);
 gsyn86_max = gsyn68_max;
 
 % Store the synapse reversal potentials into a matrix.
