@@ -68,29 +68,15 @@ dEsyn = -40e-3;             % [V] Synapse Reversal Potential.
 dEsyns = dEsyn*ones(num_neurons, num_neurons); dEsyns(logical(eye(size(dEsyns)))) = 0;
 
 % Define the bistable and oscillatory delta values.
-% delta_bistable = -10e-3;
-delta_bistable = -0.1e-3;
+delta_bistable = -10e-3;
+% delta_bistable = -0.1e-3;
+delta_oscillatory = 0.01e-3;
 % delta_oscillatory = 0.1e-3;
-delta_oscillatory = 1e-3;
+% delta_oscillatory = 1e-3;
 % delta_oscillatory = 10e-3;
 
-% Initialize the delta matrix to be completely bistable.
-deltas = delta_bistable*ones(num_neurons, num_neurons);
-
-% Switch thte desired synapses to be oscillatory.
-for k = 1:num_neurons
-    
-    % Compute the index of the next neuron in the chain.
-    j = mod(k, num_neurons) + 1;
-    
-    % Compute the from and to indexes.
-    from_index = neuron_order(k);
-    to_index = neuron_order(j);
-    
-    % Set the appropriate synapse to be oscillatory.
-    deltas(to_index, from_index) = delta_oscillatory;
-    
-end
+% Compute the delta matrix that describes the type of synaptic connections we want to form.
+deltas = GetDeltaMatrix(neuron_order, delta_bistable, delta_oscillatory);
 
 % Compute the synaptic conductances necessary to achieve these deltas.
 gsyn_maxs = GetCPGChainSynapticConductances(deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic);
