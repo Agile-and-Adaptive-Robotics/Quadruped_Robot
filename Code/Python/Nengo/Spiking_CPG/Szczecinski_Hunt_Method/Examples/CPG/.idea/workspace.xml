@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="138d2923-cbe4-4917-b437-c8f9f9f47ac0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Master/.vs/Master_Micro_Testing/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Master/.vs/Master_Micro_Testing/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Slave/.vs/Slave_Micro_Testing/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Slave/.vs/Slave_Micro_Testing/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Other/Digital_PWM_Atmega88A/.vs/Digital_PWM_Atmega88A/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Other/Digital_PWM_Atmega88A/.vs/Digital_PWM_Atmega88A/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NengoDL/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../NengoDL/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../RectifiedLinear/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../RectifiedLinear/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -53,7 +58,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
@@ -162,8 +167,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="1" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10063224" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -199,16 +203,7 @@
     <entry file="file://$PROJECT_DIR$/network_diagram.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/CPG2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="180" lean-forward="true" selection-start-line="180" selection-end-line="180" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/CPG2.py" />
     <entry file="file://$PROJECT_DIR$/CPG1.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="305">
