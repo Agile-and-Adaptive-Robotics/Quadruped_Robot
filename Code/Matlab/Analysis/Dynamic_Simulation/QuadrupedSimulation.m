@@ -1,4 +1,4 @@
-%% Joint Position Control
+%% Quadruped Simulation
 
 % This script constructs position controllers for the joints of a quadruped robot.
 
@@ -280,10 +280,17 @@ xs_stance = linspace(xs_swing(end), xs_swing(1), ns_stance);
 ys_stance = -ground_height*ones(1, ns_stance);
 zs_stance = zeros(1, ns_stance);
 
-% Define the desired end effector path.
+% % Define the desired end effector path. (Use for testing other paths.)
+% xs_desired = (horizontal_shift - step_length)*ones(1, num_timesteps);
+% ys_desired = -ground_height*ones(1, num_timesteps);
+% zs_desired = zeros(1, num_timesteps);
+
+% Define the desired end effector path. (Use for circular swing and stance.)
 xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
 ys_desired = step_height*sin(2*pi*ts) - ground_height;
 zs_desired = zeros(1, num_timesteps);
+
+% % Define the desired end effector path. (Use for circular swing and horizontal stance.)
 % xs_desired = [xs_swing xs_stance];
 % ys_desired = [ys_swing ys_stance];
 % zs_desired = [zs_swing zs_stance];
@@ -368,29 +375,11 @@ fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e.,
 
 %% Compute the Muscle Lengths Throughout the Desired Trajectory.
 
-% Create a matrix to store the muscle lengths
-Lmuscles_desired = zeros(num_muscles, num_timesteps);
+% Compute the muscle lengths, velocities, and accelerations associated with the desired trajectory.
+Lmuscles_desired = GetMuscleLengths( Pmuscles_desired );
 
-% Compute the muscle lengths throughout the desired trajectory.
-for k1 = 1:num_timesteps            % Iterate through each of the time steps...
-    for k2 = 1:num_muscles          % Iterate through each of the muscles...
-        
-        % Compute the distance between the muscle attachment points for this muscle at this time step.
-        dPmuscles_desired = diff(Pmuscles_desired(:, :, k2, k1), 1, 2);
-        
-        % Compute the length of this muscle at this time step.
-        Lmuscles_desired(k2, k1) = sum(vecnorm(dPmuscles_desired, 2, 1));
-        
-    end
-end
-
-% Compute the desired muscle velocity.
-dLmuscles_desired = diff(Lmuscles_desired, 1, 2)./repmat(diff(ts), [num_muscles 1]);
-dLmuscles_desired = [dLmuscles_desired dLmuscles_desired(:, end)];
-
-% Compute the desired muscle accelerations.
-ddLmuscles_desired = diff(dLmuscles_desired, 1, 2)./repmat(diff(ts), [num_muscles 1]);
-ddLmuscles_desired = [ddLmuscles_desired ddLmuscles_desired(:, end)];
+% Compute the associated desired muscle velocities and accelerations.
+[dLmuscles_desired, ddLmuscles_desired] = GetMuscleVelAccel(Lmuscles_desired, ts);
 
 
 %% Compute the Moments of Inertia Associated with Each Body Throughout the Desired Trajectory.
@@ -424,103 +413,38 @@ Ftipmat = zeros(num_timesteps, 6);
 Mlist = cat(4, Mcms(:, :, 1, 1), reshape(TSpace2TRelative(reshape(cat(4, Mcms, Mend), [4, 4, num_joints + 1, 1])), [4, 4, 1, num_joints]));
 
 % Compute the joint torques necessary to achieve the desired trajectory.
-taus = InverseDynamicsTrajectory(thetas_desired', dthetas_desired', ddthetas_desired', g, Ftipmat, Mlist, Gs, Ss)';
+taus_desired = InverseDynamicsTrajectory(thetas_desired', dthetas_desired', ddthetas_desired', g, Ftipmat, Mlist, Gs, Ss)';
 
 % State that we are done computing the inverse dynamics solution.
 fprintf('COMPUTING INVERSE DYNAMICS SOLUTION (i.e., Requied Joint Torques)... Done.\n\n')
 
 
-%% Compute the Muscle Forces Required to Achieve the Desired Trajectory.
+%% Compute the Total Muscle Forces Required to Achieve the Desired Trajectory.
 
-% Ensure that there are two muscles assigned to each joint.
-if num_muscles ~= 2*num_joints          % If there are not two muscles per joint...
-   
-    % Throw an error stating that we must have two muscles per joint.
-    error('The current muscle tension calculation alogrithm assumes that there are exactly two muscles per joint.\n')
-    
-end
+% Define the minimum allowable total muscle force.
+Fmuscles_total_lowbnd = zeros(num_muscles, 1);
+% Fmuscles_total_lowbnd = 25*ones(num_muscles, 1);
 
-% Define the minimum allowable muscle force.
-Fmuscles_lowbnd = zeros(num_muscles, 1);
-% Fmuscles_lowbnd = 25*ones(num_muscles, 1);
+% Compute the total muscle force required to achieved the desired trajectory.
+Fmuscles_total_desired = JointTorques2TotalMuscleForces( taus_desired, Pmuscles_desired, Pjoints_desired, muscle_joint_orientations, Fmuscles_total_lowbnd );
 
-% Initialize a variable to store the desired muscle forces.
-Fmuscles_desired = zeros(num_muscles, num_timesteps);
-
-% Compute the force required in each muscle.
-for k1 = 1:num_timesteps                % Iterate through each time step...
-    for k2 = 1:num_joints               % Iterate through each joint...
-
-        % Reset the primary and secondary muscle indexes.
-        muscle_index_primary = 2*k2 - 1;
-        muscle_index_secondary = 2*k2;
-        
-        % Determine which muscle type to use to create the desired torque.
-        if taus(k2, k1) >= 0                                                                    % If the torque is greater than or equal to zero...
-            
-            % Set the muscle type to that associated with positive torque.
-            muscle_type = muscle_joint_orientations{k2};                
-            
-        else                                                                                    % Otherwise...
-            
-            % Set the muscle type to that associated with negative torque.
-            muscle_type = GetOppositeString('Ext', 'Flx', muscle_joint_orientations{k2});       
-            
-        end
-        
-        % Determine whether we need to swap the primary and secondary muscle indexes.
-        if strcmp(muscle_type, 'Flx')                   % If this is a flexor muscle...
-            
-            % Swap the primary and secondary muscle indexes.
-            [muscle_index_primary, muscle_index_secondary] = deal( muscle_index_secondary, muscle_index_primary );
-            
-        end
-
-        % Compute the moment arm for each muscle.
-        r_primary = Pmuscles_desired(:, 3, muscle_index_primary, k1) - Pjoints_desired(:, 1, k2, k1);
-        r_secondary = Pmuscles_desired(:, 3, muscle_index_secondary, k1) - Pjoints_desired(:, 1, k2, k1);
-
-        % Compute the direction of the forces applied by the primary & secondary muscles.
-        Fmuscle_dir_primary = (Pmuscles_desired(:, 2, muscle_index_primary, k1) - Pmuscles_desired(:, 3, muscle_index_primary, k1))./norm(Pmuscles_desired(:, 2, muscle_index_primary, k1) - Pmuscles_desired(:, 3, muscle_index_primary, k1));
-        Fmuscle_dir_secondary = (Pmuscles_desired(:, 2, muscle_index_secondary, k1) - Pmuscles_desired(:, 3, muscle_index_secondary, k1))./norm(Pmuscles_desired(:, 2, muscle_index_secondary, k1) - Pmuscles_desired(:, 3, muscle_index_secondary, k1));
-        
-        % Set the secondary muscle to have the minimum allowable force magnitude.
-        Fmuscle_mag_secondary = Fmuscles_lowbnd(muscle_index_secondary);
-        
-        % Compute the secondary muscle force vector.
-        Fmuscle_secondary = Fmuscle_mag_secondary*Fmuscle_dir_secondary;
-        
-        % Compute the torque contributed to the joint by the secondary muscle.
-        tau_secondary = norm(cross(r_secondary, Fmuscle_secondary), 2);
-        
-        % Compute the torque that we need to create with the primary muscle.
-        tau_primary = abs(taus(k2, k1)) + tau_secondary;
-
-        % Compute the angle between the primary force line of action and the moment arm.
-        phi = vecangle(r_primary, Fmuscle_dir_primary);
-        
-        % Compute the required force magnitude in the primary muscle.
-        Fmuscle_mag_primary = tau_primary/(norm(r_primary, 2)*sin(phi));
-        
-        % Store the required muscles forces into a matrix.
-        Fmuscles_desired(muscle_index_primary, k1) = Fmuscle_mag_primary;
-        Fmuscles_desired(muscle_index_secondary, k1) = Fmuscle_mag_secondary;
-        
-    end
-end
-
-% Compute the time derivative of the muscle tension.
-dFmuscles_desired = diff(Fmuscles_desired, 1, 2)./repmat(diff(ts), [num_muscles 1]);
-dFmuscles_desired = [dFmuscles_desired dFmuscles_desired(:, end)];
+% Compute the rate of change of total muscle force with respect to time.
+dFmuscles_total_desired = Force2Yank( Fmuscles_total_desired, ts );
 
 
-%% Compute the Muscle Activations Required to Achieved the Desired Trajectory.
+%% Compute the Active Muscle Force Required to Achieved the Desired Trajectory.
 
-% Compute the muscle activations requied to achieve the desired trajectory.
-Amuscles_desired = InverseHillMuscle(Fmuscles_desired, dFmuscles_desired, Lmuscles_desired, dLmuscles_desired, kse, kpe, b);
+% Compute the active muscle force requied to achieve the desired trajectory.
+Fmuscles_active_desired = InverseHillMuscle(Fmuscles_total_desired, dFmuscles_total_desired, Lmuscles_desired, dLmuscles_desired, kse, kpe, b);
+
+% Compute the associated passive muscle force.
+Fmuscles_passive_desired = Fmuscles_total_desired - Fmuscles_active_desired;
+
+% Define the number of integration steps to perform when simulating the forward hill muscle model.
+intRes = 1;
 
 % Check the forward Hill Muscle model calculation.
-[Tnew, dTnew] = ForwardHillMuscle(Fmuscles_desired(:, 1), Lmuscles_desired, dLmuscles_desired, Amuscles_desired, kse, kpe, b, dt);
+[Fmuscles_total_achieved, dFmuscles_total_achieved] = ForwardHillMuscle(Fmuscles_total_desired(:, 1), Lmuscles_desired, dLmuscles_desired, Fmuscles_active_desired, kse, kpe, b, dt, intRes);
 
 
 %% Compute the Actual Dynamics Response of the Open Kinematic Chain.
@@ -536,7 +460,7 @@ dtheta0 = dthetas_desired(:, 1);
 intRes = 10;
 
 % Compute the actual joint angles and velocities that the open kinematic chain achieves.
-[thetas_achieved, dthetas_achieved] = ForwardDynamicsTrajectory(theta0, dtheta0, taus', g, Ftipmat, Mlist, Gs, Ss, dt, intRes);
+[thetas_achieved, dthetas_achieved] = ForwardDynamicsTrajectory(theta0, dtheta0, taus_desired', g, Ftipmat, Mlist, Gs, Ss, dt, intRes);
 
 % Transpose the achieved joint angles and velocities to have shapes consistent with our convention.
 thetas_achieved = thetas_achieved'; dthetas_achieved = dthetas_achieved';
@@ -580,30 +504,112 @@ ddPs_achieved = diff(dPs_achieved, 1, 2)./diff(ts(1:end-1));
 fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e., Achieved Non-End Effector Trajectories)... Done.\n\n')
 
 
-%% Plot the Desired Trajectory Information in the Global Frame.
+%% Compute the Muscle Lengths Throughout the Achieved Trajectory.
+
+% Compute the muscle lengths, velocities, and accelerations associated with the achieved trajectory.
+Lmuscles_achieved = GetMuscleLengths( Pmuscles_achieved );
+
+% Compute the associated achieved muscle velocities and accelerations.
+[dLmuscles_achieved, ddLmuscles_achieved] = GetMuscleVelAccel( Lmuscles_achieved, ts );
+
+
+%% Compute Muscle Summary Statistics.
+
+% Define the muscle variable names.
+muscle_var_names_desired_metric = {'Min Length [m]', 'Max Length [m]', 'Length Range [m]', 'Muscle Width [m]', 'Resting Length [m]', 'Min Velocity [m/s]', 'Max Velocity [m/s]', 'Min Acceleration [m/s^2]', 'Max Acceleration [m/s^2]', 'Min Force [N]', 'Max Force [N]'};
+muscle_var_names_desired_imperial = {'Min Length [in]', 'Max Length [in]', 'Length Range [in]', 'Muscle Width [in]', 'Resting Length [in]', 'Min Velocity [in/s]', 'Max Velocity [in/s]', 'Min Acceleration [in/s^2]', 'Max Acceleration [in/s^2]', 'Min Force [lb]', 'Max Force [lb]'};
+muscle_var_names_achieved_metric = {'Min Length [m]', 'Max Length [m]', 'Length Range [m]', 'Muscle Width [m]', 'Resting Length [m]', 'Min Velocity [m/s]', 'Max Velocity [m/s]', 'Min Acceleration [m/s^2]', 'Max Acceleration [m/s^2]'};
+muscle_var_names_achieved_imperial = {'Min Length [in]', 'Max Length [in]', 'Length Range [in]', 'Muscle Width [in]', 'Resting Length [in]', 'Min Velocity [in/s]', 'Max Velocity [in/s]', 'Min Acceleration [in/s^2]', 'Max Acceleration [in/s^2]'};
+
+% Retrieve summary information about the desired muscle results.
+Lmuscles_min_desired = min(Lmuscles_desired, [], 2); Lmuscles_max_desired = max(Lmuscles_desired, [], 2); Lmuscles_range_desired = Lmuscles_max_desired - Lmuscles_min_desired; Lmuscles_width_desired = Lmuscles_range_desired/2; Lmuscles_rest_desired = Lmuscles_max_desired - Lmuscles_width_desired;
+dLmuscles_min_desired = min(dLmuscles_desired, [], 2); dLmuscles_max_desired = max(dLmuscles_desired, [], 2);
+ddLmuscles_min_desired = min(ddLmuscles_desired, [], 2); ddLmuscles_max_desired = max(ddLmuscles_desired, [], 2);
+Fmuscles_min_desired = min(Fmuscles_total_desired(:, 1:end-2), [], 2); Fmuscles_max_desired = max(Fmuscles_total_desired(:, 1:end-2), [], 2);
+
+% Retrieve summary information about the achieved muscle results.
+Lmuscles_min_achieved = min(Lmuscles_achieved, [], 2); Lmuscles_max_achieved = max(Lmuscles_achieved, [], 2); Lmuscles_range_achieved = Lmuscles_max_achieved - Lmuscles_min_achieved; Lmuscles_width_achieved = Lmuscles_range_achieved/2; Lmuscles_rest_achieved = Lmuscles_max_achieved - Lmuscles_width_achieved;
+dLmuscles_min_achieved = min(dLmuscles_achieved, [], 2); dLmuscles_max_achieved = max(dLmuscles_achieved, [], 2);
+ddLmuscles_min_achieved = min(ddLmuscles_achieved, [], 2); ddLmuscles_max_achieved = max(ddLmuscles_achieved, [], 2);
+
+% Store the desired muscle summary information into a matrix. 
+Muscle_Info_Matrix_Desired_Metric = [Lmuscles_min_desired, Lmuscles_max_desired, Lmuscles_range_desired, Lmuscles_width_desired, Lmuscles_rest_desired, dLmuscles_min_desired, dLmuscles_max_desired, ddLmuscles_min_desired, ddLmuscles_max_desired, Fmuscles_min_desired, Fmuscles_max_desired];
+Muscle_Info_Matrix_Desired_Imperial = [39.3701*Lmuscles_min_desired, 39.3701*Lmuscles_max_desired, 39.3701*Lmuscles_range_desired, 39.3701*Lmuscles_width_desired, 39.3701*Lmuscles_rest_desired, 39.3701*dLmuscles_min_desired, 39.3701*dLmuscles_max_desired, 39.3701*ddLmuscles_min_desired, 39.3701*ddLmuscles_max_desired, 0.224809*Fmuscles_min_desired, 0.224809*Fmuscles_max_desired];
+
+% Store the desired muscle summary information into a matrix.
+Muscle_Info_Matrix_Achieved_Metric = [Lmuscles_min_achieved, Lmuscles_max_achieved, Lmuscles_range_achieved, Lmuscles_width_achieved, Lmuscles_rest_achieved, dLmuscles_min_achieved, dLmuscles_max_achieved, ddLmuscles_min_achieved, ddLmuscles_max_achieved];
+Muscle_Info_Matrix_Achieved_Imperial = [39.3701*Lmuscles_min_achieved, 39.3701*Lmuscles_max_achieved, 39.3701*Lmuscles_range_achieved, 39.3701*Lmuscles_width_achieved, 39.3701*Lmuscles_rest_achieved, 39.3701*dLmuscles_min_achieved, 39.3701*dLmuscles_max_achieved, 39.3701*ddLmuscles_min_achieved, 39.3701*ddLmuscles_max_achieved];
+
+% Create a table of desired muscle information.
+Muscle_Table_Desired_Metric = array2table(Muscle_Info_Matrix_Desired_Metric, 'RowNames', muscle_names, 'VariableNames', muscle_var_names_desired_metric);
+Muscle_Table_Desired_Imperial = array2table(Muscle_Info_Matrix_Desired_Imperial, 'RowNames', muscle_names, 'VariableNames', muscle_var_names_desired_imperial);
+
+% Create a table of achieved muscle information.
+Muscle_Table_Achieved_Metric = array2table(Muscle_Info_Matrix_Achieved_Metric, 'RowNames', muscle_names, 'VariableNames', muscle_var_names_achieved_metric);
+Muscle_Table_Achieved_Imperial = array2table(Muscle_Info_Matrix_Achieved_Imperial, 'RowNames', muscle_names, 'VariableNames', muscle_var_names_achieved_imperial);
+
+% Print the muscle information table.
+fprintf('\n\nMETRIC DESIRED MUSCLE SUMMARY INFORMATION:\n\n')
+disp(Muscle_Table_Desired_Metric)
+
+fprintf('\n\nIMPERIAL DESIRED MUSCLE SUMMARY INFORMATION:\n\n')
+disp(Muscle_Table_Desired_Imperial)
+
+fprintf('\n\nMETRIC ACHIEVED MUSCLE SUMMARY INFORMATION:\n\n')
+disp(Muscle_Table_Achieved_Metric)
+
+fprintf('\n\nIMPERIAL ACHIEVED MUSCLE SUMMARY INFORMATION:\n\n')
+disp(Muscle_Table_Achieved_Imperial)
+
+
+%% Plot the Desired & Achieved Trajectory Over Time.
 
 % Define the size ratio to use for figures.
 figure_size = 0.5;
 
 % Create a plot of the desired trajectory vs time.
 fig_trajectory1 = figure('Color', 'w', 'Name', 'End Effector Trajectory vs Time');
-subplot(3, 1, 1), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Position [m]'), title('Position vs Time')
+subplot(3, 2, 1), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Position [m]'), title('Position vs Time (Metric)')
 plt = plot(ts, Ps_desired(1, :), '--', 'Linewidth', 3); plot(ts, Ps_achieved(1, :), '-', 'Linewidth', 3, 'Color', plt.Color)
 plt = plot(ts, Ps_desired(2, :), '--', 'Linewidth', 3); plot(ts, Ps_achieved(2, :), '-', 'Linewidth', 3, 'Color', plt.Color)
 plt = plot(ts, Ps_desired(3, :), '--', 'Linewidth', 3); plot(ts, Ps_achieved(3, :), '-', 'Linewidth', 3, 'Color', plt.Color)
-legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
+plt = plot(ts, vecnorm(Ps_desired), '--', 'Linewidth', 3); plot(ts, vecnorm(Ps_achieved), '-', 'Linewidth', 3, 'Color', plt.Color)
+legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved', 'Mag Desired', 'Mag Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
 
-subplot(3, 1, 2), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Velocity [m/s]'), title('Velocity vs Time')
+subplot(3, 2, 2), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Position [in]'), title('Position vs Time (Imperial)')
+plt = plot(ts, 39.3701*Ps_desired(1, :), '--', 'Linewidth', 3); plot(ts, 39.3701*Ps_achieved(1, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts, 39.3701*Ps_desired(2, :), '--', 'Linewidth', 3); plot(ts, 39.3701*Ps_achieved(2, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts, 39.3701*Ps_desired(3, :), '--', 'Linewidth', 3); plot(ts, 39.3701*Ps_achieved(3, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts, vecnorm(39.3701*Ps_desired), '--', 'Linewidth', 3); plot(ts, vecnorm(39.3701*Ps_achieved), '-', 'Linewidth', 3, 'Color', plt.Color)
+legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved', 'Mag Desired', 'Mag Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
+
+subplot(3, 2, 3), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Velocity [m/s]'), title('Velocity vs Time (Metric)')
 plt = plot(ts(1:end-1), dPs_desired(1, :), '--', 'Linewidth', 3); plot(ts(1:end-1), dPs_achieved(1, :), '-', 'Linewidth', 3, 'Color', plt.Color)
 plt = plot(ts(1:end-1), dPs_desired(2, :), '--', 'Linewidth', 3); plot(ts(1:end-1), dPs_achieved(2, :), '-', 'Linewidth', 3, 'Color', plt.Color)
 plt = plot(ts(1:end-1), dPs_desired(3, :), '--', 'Linewidth', 3); plot(ts(1:end-1), dPs_achieved(3, :), '-', 'Linewidth', 3, 'Color', plt.Color)
-legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
+plt = plot(ts(1:end-1), vecnorm(dPs_desired), '--', 'Linewidth', 3); plot(ts(1:end-1), vecnorm(dPs_achieved), '-', 'Linewidth', 3, 'Color', plt.Color)
+legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved', 'Mag Desired', 'Mag Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
 
-subplot(3, 1, 3), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Acceleration [m/s^2]'), title('Acceleration vs Time')
+subplot(3, 2, 4), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Velocity [in/s]'), title('Velocity vs Time (Imperial)')
+plt = plot(ts(1:end-1), 39.3701*dPs_desired(1, :), '--', 'Linewidth', 3); plot(ts(1:end-1), 39.3701*dPs_achieved(1, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts(1:end-1), 39.3701*dPs_desired(2, :), '--', 'Linewidth', 3); plot(ts(1:end-1), 39.3701*dPs_achieved(2, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts(1:end-1), 39.3701*dPs_desired(3, :), '--', 'Linewidth', 3); plot(ts(1:end-1), 39.3701*dPs_achieved(3, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts(1:end-1), vecnorm(39.3701*dPs_desired), '--', 'Linewidth', 3); plot(ts(1:end-1), vecnorm(39.3701*dPs_achieved), '-', 'Linewidth', 3, 'Color', plt.Color)
+legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved', 'Mag Desired', 'Mag Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
+
+subplot(3, 2, 5), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Acceleration [m/s^2]'), title('Acceleration vs Time (Metric)')
 plt = plot(ts(1:end-2), ddPs_desired(1, :), '--', 'Linewidth', 3); plot(ts(1:end-2), ddPs_achieved(1, :), '-', 'Linewidth', 3, 'Color', plt.Color)
 plt = plot(ts(1:end-2), ddPs_desired(2, :), '--', 'Linewidth', 3); plot(ts(1:end-2), ddPs_achieved(2, :), '-', 'Linewidth', 3, 'Color', plt.Color)
 plt = plot(ts(1:end-2), ddPs_desired(3, :), '--', 'Linewidth', 3); plot(ts(1:end-2), ddPs_achieved(3, :), '-', 'Linewidth', 3, 'Color', plt.Color)
-legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
+plt = plot(ts(1:end-2), vecnorm(ddPs_desired), '--', 'Linewidth', 3); plot(ts(1:end-2), vecnorm(ddPs_achieved), '-', 'Linewidth', 3, 'Color', plt.Color)
+legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved', 'Mag Desired', 'Mag Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
+
+subplot(3, 2, 6), hold on, grid on, rotate3d on, xlabel('Time [s]'), ylabel('Acceleration [in/s^2]'), title('Acceleration vs Time (Imperial)')
+plt = plot(ts(1:end-2), 39.3701*ddPs_desired(1, :), '--', 'Linewidth', 3); plot(ts(1:end-2), 39.3701*ddPs_achieved(1, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts(1:end-2), 39.3701*ddPs_desired(2, :), '--', 'Linewidth', 3); plot(ts(1:end-2), 39.3701*ddPs_achieved(2, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts(1:end-2), 39.3701*ddPs_desired(3, :), '--', 'Linewidth', 3); plot(ts(1:end-2), 39.3701*ddPs_achieved(3, :), '-', 'Linewidth', 3, 'Color', plt.Color)
+plt = plot(ts(1:end-2), vecnorm(39.3701*ddPs_desired), '--', 'Linewidth', 3); plot(ts(1:end-2), vecnorm(39.3701*ddPs_achieved), '-', 'Linewidth', 3, 'Color', plt.Color)
+legend({'x Desired', 'x Achieved', 'y Desired', 'y Achieved', 'z Desired', 'z Achieved', 'Mag Desired', 'Mag Achieved'}, 'Location', 'South', 'Orientation', 'Horizontal')
 
 % Create a file name for the saved figure.
 filename = split(fig_trajectory1.Name, ' '); filename = strcat(filename{:}, '.jpg');
@@ -611,21 +617,39 @@ filename = split(fig_trajectory1.Name, ' '); filename = strcat(filename{:}, '.jp
 % Save the figure.
 SaveFigureAtSize(fig_trajectory1, filename, figure_size)
 
-% Create a plot of the desired trajectory in the state space.
+
+%% Plot the Desired & Achieved Trajectories in the State Space.
+
+% Create a plot of both the desired and achieved trajectories in the state space.
 fig_trajectory2 = figure('Color', 'w', 'Name', 'End Effector Trajectory in the State Space');
-subplot(3, 1, 1), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Position in the State Space')
+subplot(3, 2, 1), hold on, grid on, rotate3d on, xlabel('x Position [m]'), ylabel('y Position [m]'), zlabel('z Position [m]'), title('Position in the State Space (Metric)')
 plot3(Ps_desired(1, :), Ps_desired(2, :), Ps_desired(3, :), '--', 'Linewidth', 3)
 plot3(Ps_achieved(1, :), Ps_achieved(2, :), Ps_achieved(3, :), '-', 'Linewidth', 3)
 legend('Desired', 'Achieved', 'Location', 'South', 'Orientation', 'Horizontal')
 
-subplot(3, 1, 2), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Velocity in the State Space')
+subplot(3, 2, 2), hold on, grid on, rotate3d on, xlabel('x Position [in]'), ylabel('y Position [in]'), zlabel('z Position [in]'), title('Position in the State Space (Imperial)')
+plot3(39.3701*Ps_desired(1, :), 39.3701*Ps_desired(2, :), 39.3701*Ps_desired(3, :), '--', 'Linewidth', 3)
+plot3(39.3701*Ps_achieved(1, :), 39.3701*Ps_achieved(2, :), 39.3701*Ps_achieved(3, :), '-', 'Linewidth', 3)
+legend('Desired', 'Achieved', 'Location', 'South', 'Orientation', 'Horizontal')
+
+subplot(3, 2, 3), hold on, grid on, rotate3d on, xlabel('x Velocity [m/s]'), ylabel('y Velocity [m/s]'), zlabel('z Velocity [m/s]'), title('Velocity in the State Space (Metric)')
 plot3(dPs_desired(1, :), dPs_desired(2, :), dPs_desired(3, :), '--', 'Linewidth', 3)
 plot3(dPs_achieved(1, :), dPs_achieved(2, :), dPs_achieved(3, :), '-', 'Linewidth', 3)
 legend('Desired', 'Achieved', 'Location', 'South', 'Orientation', 'Horizontal')
 
-subplot(3, 1, 3), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Acceleration in the State Space')
+subplot(3, 2, 4), hold on, grid on, rotate3d on, xlabel('x Velocity [in/s]'), ylabel('y Velocity [in/s]'), zlabel('z Velocity [in/s]'), title('Velocity in the State Space (Imperial)')
+plot3(39.3701*dPs_desired(1, :), 39.3701*dPs_desired(2, :), 39.3701*dPs_desired(3, :), '--', 'Linewidth', 3)
+plot3(39.3701*dPs_achieved(1, :), 39.3701*dPs_achieved(2, :), 39.3701*dPs_achieved(3, :), '-', 'Linewidth', 3)
+legend('Desired', 'Achieved', 'Location', 'South', 'Orientation', 'Horizontal')
+
+subplot(3, 2, 5), hold on, grid on, rotate3d on, xlabel('x Acceleration [m/s^2]'), ylabel('y Acceleration [m/s^2]'), zlabel('z Acceleration [m/s^2]'), title('Acceleration in the State Space (Metric)')
 plot3(ddPs_desired(1, :), ddPs_desired(2, :), ddPs_desired(3, :), '--', 'Linewidth', 3)
 plot3(ddPs_achieved(1, :), ddPs_achieved(2, :), ddPs_achieved(3, :), '-', 'Linewidth', 3)
+legend('Desired', 'Achieved', 'Location', 'South', 'Orientation', 'Horizontal')
+
+subplot(3, 2, 6), hold on, grid on, rotate3d on, xlabel('x Acceleration [in/s^2]'), ylabel('y Acceleration [in/s^2]'), zlabel('z Acceleration [in/s^2]'), title('Acceleration in the State Space (Imperial)')
+plot3(39.3701*ddPs_desired(1, :), 39.3701*ddPs_desired(2, :), 39.3701*ddPs_desired(3, :), '--', 'Linewidth', 3)
+plot3(39.3701*ddPs_achieved(1, :), 39.3701*ddPs_achieved(2, :), 39.3701*ddPs_achieved(3, :), '-', 'Linewidth', 3)
 legend('Desired', 'Achieved', 'Location', 'South', 'Orientation', 'Horizontal')
 
 % Create a file name for the saved figure.
@@ -635,16 +659,16 @@ filename = split(fig_trajectory2.Name, ' '); filename = strcat(filename{:}, '.jp
 SaveFigureAtSize(fig_trajectory2, filename, figure_size)
 
 
-%% Plot the Desired Trajectory in the Joint Space.
+%% Plot the Desired & Achieved Trajectory over Time in the Joint Space.
 
 % Create a plot of the desired trajectory in the joint space over time.
 fig_jointspace = figure('Color', 'w', 'Name', 'End Effector Trajectory in Joint Space');
-subplot(3, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angles, $\theta$ [rad]', 'Interpreter', 'Latex'), title('Joint Angles vs Time')
-subplot(3, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angles, $\theta$ [deg]', 'Interpreter', 'Latex'), title('Joint Angles vs Time')
-subplot(3, 2, 3), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Velocities, $\dot{\theta}$ [rad/s]', 'Interpreter', 'Latex'), title('Joint Angular Velocity vs Time')
-subplot(3, 2, 4), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Velocities, $\dot{\theta}$ [deg/s]', 'Interpreter', 'Latex'), title('Joint Angular Velocity vs Time')
-subplot(3, 2, 5), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Accelerations, $\ddot{\theta}$ [rad/$\mathrm{s}^2$]', 'Interpreter', 'Latex'), title('Joint Angular Acceleration vs Time')
-subplot(3, 2, 6), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Accelerations, $\ddot{\theta}$ [deg/$\mathrm{s}^2$]', 'Interpreter', 'Latex'), title('Joint Angular Acceleration vs Time')
+subplot(3, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angles, $\theta$ [rad]', 'Interpreter', 'Latex'), title('Joint Angles vs Time (Metric)')
+subplot(3, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angles, $\theta$ [deg]', 'Interpreter', 'Latex'), title('Joint Angles vs Time (Imperial)')
+subplot(3, 2, 3), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Velocities, $\dot{\theta}$ [rad/s]', 'Interpreter', 'Latex'), title('Joint Angular Velocity vs Time (Metric)')
+subplot(3, 2, 4), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Velocities, $\dot{\theta}$ [deg/s]', 'Interpreter', 'Latex'), title('Joint Angular Velocity vs Time (Imperial)')
+subplot(3, 2, 5), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Accelerations, $\ddot{\theta}$ [rad/$\mathrm{s}^2$]', 'Interpreter', 'Latex'), title('Joint Angular Acceleration vs Time (Metric)')
+subplot(3, 2, 6), hold  on, grid on, xlabel('Time [s]'), ylabel('Joint Angular Accelerations, $\ddot{\theta}$ [deg/$\mathrm{s}^2$]', 'Interpreter', 'Latex'), title('Joint Angular Acceleration vs Time (Imperial)')
 
 % Initialize a cell array to store the legend entries.
 legstr = cell(2*num_joints, 1);
@@ -665,8 +689,6 @@ for k = 1:num_joints        % Iterate through each of the joints...
     subplot(3, 2, 6), plt = plot(ts, (180/pi)*ddthetas_desired(k, :), '--', 'Linewidth', 3); plot(ts, (180/pi)*ddthetas_achieved(k, :), '-', 'Linewidth', 3, 'Color', plt.Color)
     
     % Create this legend entry.
-%     legstr{2*k - 1} = sprintf('J%0.0f Desired', k);
-%     legstr{2*k} = sprintf('J%0.0f Achieved', k);
     legstr{2*k - 1} = [joint_names{k} ' Desired'];
     legstr{2*k} = [joint_names{k} ' Achieved'];    
 
@@ -697,10 +719,12 @@ filename = split(fig_MOI.Name, ' '); filename = strcat(filename{:}, '.jpg');
 SaveFigureAtSize(fig_MOI, filename, figure_size)
 
 
-%% Plot the Necessary Joint Torques.
+%% Plot the Desired Joint Torques.
 
 % Create a figure to store the necessary joint torques over time.
-fig_jointtorques = figure('Color', 'w', 'Name', 'Joint Torques vs Time'); hold on, grid on, xlabel('Time [s]'), ylabel('Joint Torque [Nm]'), title('Joint Torque vs Time')
+fig_jointtorques = figure('Color', 'w', 'Name', 'Joint Torques vs Time');
+subplot(1, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Torque [Nm]'), title('Joint Torque vs Time (Metric)')
+subplot(1, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Torque [lb-in]'), title('Joint Torque vs Time (Imperial)')
 
 % Initialize a variable to store the legend entries.
 legstr = cell(num_joints, 1);
@@ -709,8 +733,9 @@ legstr = cell(num_joints, 1);
 for k = 1:num_joints            % Iterate through each joint..
     
     % Plot the required torque for this joint.
-    plot(ts, taus(k, :), '-', 'Linewidth', 3)
-    
+    subplot(1, 2, 1), plot(ts(1:end-2), taus_desired(k, 1:end-2), '-', 'Linewidth', 3)
+    subplot(1, 2, 2), plot(ts(1:end-2), 8.8507457673787*taus_desired(k, 1:end-2), '-', 'Linewidth', 3)
+
     % Add an entry to the legend cell.
 %     legstr{k} = sprintf('Joint %0.0f', k);
     legstr{k} = joint_names{k};
@@ -718,7 +743,8 @@ for k = 1:num_joints            % Iterate through each joint..
 end
 
 % Display the legend.
-legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
+subplot(1, 2, 1), legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
+subplot(1, 2, 2), legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
 
 % Create a file name for the saved figure.
 filename = split(fig_jointtorques.Name, ' '); filename = strcat(filename{:}, '.jpg');
@@ -729,11 +755,14 @@ SaveFigureAtSize(fig_jointtorques, filename, figure_size)
 
 %% Plot the Muscle States (Length, Velocity, Acceleration) Over Time.
 
-% Define an array of colors to use on the plot.
-line_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
+% Define the extensor colors.
+ext_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
 
-% Define an array of line styles to use.
-line_styles = {'-', '--'};
+% Define the flexor colors.
+flx_colors = min(1.50*ext_colors, 1);
+
+% Define an array of colors to use on the plot.
+line_colors = cat(3, ext_colors, flx_colors);
 
 % Create a figure to store the muscle length vs time.
 fig_musclelengths = figure('Color', 'w', 'Name', 'Muscle Lengths vs Time');
@@ -745,30 +774,45 @@ subplot(3, 2, 5), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Accelerat
 subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Acceleration [in/s^2]'), title('Muscle Acceleration vs Time (Imperial)')
 
 % Initialize a cell array to store the legend entries.
-legstr = cell(num_muscles, 1);
+legstr = cell(2*num_muscles, 1);
 
-% Initialize a counter variable.
-k3 = 0;
+% Define a legend entry counter variable.
+legend_counter = 0;
+
+% Initialize a muscle counter variable.
+muscle_counter = 0;
 
 % Plot each of the muscle lengths over time.
 for k1 = 1:num_joints                   % Iterate through each joint...
     for k2 = 1:num_muscle_types         % Iterate through each muscle type...
         
-        % Advance the counter variable.
-        k3 = k3 + 1;
+        % Advance the legend counter variable.
+        legend_counter = legend_counter + 1;
         
-        % Plot this muscle length over time. ddLmuscles_desired
-        subplot(3, 2, 1), plot(ts, Lmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 2), plot(ts, 39.3701*Lmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 3), plot(ts, dLmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 4), plot(ts, 39.3701*dLmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 5), plot(ts, ddLmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(3, 2, 6), plot(ts, 39.3701*ddLmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-       
+        % Advance the muscle counter variable.
+        muscle_counter = muscle_counter + 1;
+        
+        % Plot the desired length of this muscle over time.
+        subplot(3, 2, 1), plot(ts, Lmuscles_desired(muscle_counter, :), '-', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 2), plot(ts, 39.3701*Lmuscles_desired(muscle_counter, :), '-', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 3), plot(ts, dLmuscles_desired(muscle_counter, :), '-', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 4), plot(ts, 39.3701*dLmuscles_desired(muscle_counter, :), '-', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 5), plot(ts, ddLmuscles_desired(muscle_counter, :), '-', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 6), plot(ts, 39.3701*ddLmuscles_desired(muscle_counter, :), '-', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))       
+
+        % Plot the achieved length of this muscle over time.
+        subplot(3, 2, 1), plot(ts, Lmuscles_achieved(muscle_counter, :), '--', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 2), plot(ts, 39.3701*Lmuscles_achieved(muscle_counter, :), '--', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 3), plot(ts, dLmuscles_achieved(muscle_counter, :), '--', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 4), plot(ts, 39.3701*dLmuscles_achieved(muscle_counter, :), '--', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 5), plot(ts, ddLmuscles_achieved(muscle_counter, :), '--', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))
+        subplot(3, 2, 6), plot(ts, 39.3701*ddLmuscles_achieved(muscle_counter, :), '--', 'Linewidth', 3, 'Color', line_colors(k1, :, k2))  
+        
         % Create an appropriate legend entry for this figure element.
-        %     legstr{k3} = sprintf('Muscle %0.0f', k3);
-        legstr{k3} = muscle_names{k3};
-        
+        legstr{legend_counter} = [muscle_names{muscle_counter}, ' Desired'];
+        legend_counter = legend_counter + 1;
+        legstr{legend_counter} = [muscle_names{muscle_counter}, ' Achieved'];
+
     end
 end
 
@@ -784,10 +828,20 @@ SaveFigureAtSize(fig_musclelengths, filename, figure_size)
 
 %% Plot the Muscle Forces Over Time.
 
+% Define an array of colors to use on the plot.
+line_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
+
+% Define an array of line styles to use.
+line_styles = {'-', '--'};
+
 % Create a figure to store the muscle forces over time.
 fig_muscleforces = figure('Color', 'w', 'Name', 'Muscle Forces vs Time');
-subplot(1, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Force [N]'), title('Muscle Force vs Time (Metric)'), ylim([0 250])
-subplot(1, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Force [lbf]'), title('Muscle Force vs Time (Imperial)'), ylim([0 0.224809*250])
+subplot(3, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Muscle Force [N]'), title('Passive Muscle Force vs Time (Metric)')
+subplot(3, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Muscle Force [lbf]'), title('Passive Muscle Force vs Time (Imperial)')
+subplot(3, 2, 3), hold on, grid on, xlabel('Time [s]'), ylabel('Active Muscle Force [N]'), title('Active Muscle Force vs Time (Metric)')
+subplot(3, 2, 4), hold on, grid on, xlabel('Time [s]'), ylabel('Active Muscle Force [lbf]'), title('Active Muscle Force vs Time (Imperial)')
+subplot(3, 2, 5), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle Force [N]'), title('Total Muscle Force vs Time (Metric)')
+subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle Force [lbf]'), title('Total Muscle Force vs Time (Imperial)')
 
 % Initialize an array to store the legend entries.
 legstr = cell(num_muscles, 1);
@@ -803,11 +857,14 @@ for k1 = 1:num_joints                   % Iterate through each joint...
         k3 = k3 + 1;
         
         % Add the current muscle force over time to the plot.
-        subplot(1, 2, 1), plot(ts, Fmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(1, 2, 2), plot(ts, 0.224809*Fmuscles_desired(k3, :), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(3, 2, 1), plot(ts(2:end-3), Fmuscles_passive_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(3, 2, 2), plot(ts(2:end-3), 0.224809*Fmuscles_passive_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(3, 2, 3), plot(ts(2:end-3), Fmuscles_active_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(3, 2, 4), plot(ts(2:end-3), 0.224809*Fmuscles_active_desired(k3, 2:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(3, 2, 5), plot(ts(1:end-2), Fmuscles_total_desired(k3, 1:end-2), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
+        subplot(3, 2, 6), plot(ts(1:end-2), 0.224809*Fmuscles_total_desired(k3, 1:end-2), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
         
         % Add an appropriate legend entry to our cell.
-        %     legstr{k3} = sprintf('Muscle %0.0f', k3);
         legstr{k3} = muscle_names{k3};
         
     end
@@ -821,45 +878,6 @@ filename = split(fig_muscleforces.Name, ' '); filename = strcat(filename{:}, '.j
 
 % Save the figure.
 SaveFigureAtSize(fig_muscleforces, filename, figure_size)
-
-
-%% Plot the Necessary Muscle Activations Over Time.
-
-fig_muscleactivations = figure('Color', 'w', 'Name', 'Muscle Activations vs Time');
-subplot(1, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Activation [N]'), title('Muscle Activation vs Time (Metric)')
-subplot(1, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Activation [lbf]'), title('Muscle Activation vs Time (Imperial)')
-
-% Initialize an array to store the legend entries.
-legstr = cell(num_muscles, 1);
-
-% Initialize a counter variable.
-k3 = 0;
-
-% Plot the force of each muscle over time.
-for k1 = 1:num_joints                   % Iterate through each joint...
-    for k2 = 1:num_muscle_types         % Iterate through each muscle type...
-        
-        % Advance the counter variable.
-        k3 = k3 + 1;
-        
-        % Add the current muscle force over time to the plot.
-        subplot(1, 2, 1), plot(ts(3:end-3), Amuscles_desired(k3, 3:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        subplot(1, 2, 2), plot(ts(3:end-3), 0.224809*Amuscles_desired(k3, 3:end-3), line_styles{k2}, 'Linewidth', 3, 'Color', line_colors(k1, :))
-        
-        % Add an appropriate legend entry to our cell.
-        legstr{k3} = muscle_names{k3};
-        
-    end
-end
-
-% Add display the legend.
-legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
-
-% Create a file name for the saved figure.
-filename = split(fig_muscleactivations.Name, ' '); filename = strcat(filename{:}, '.jpg');
-
-% Save the figure.
-SaveFigureAtSize(fig_muscleactivations, filename, figure_size)
 
 
 %% Animate the Open Kinematic Chain.
@@ -1012,4 +1030,5 @@ end
 
 % % Close the video object.
 % close(myVideo)
+
 

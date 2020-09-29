@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="978646b5-6eb0-4059-ad50-cfdaffe4d4a6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../../../../../Matlab/Analysis/Neuron_Modeling/CPG_Model_v2.asv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Master/.vs/Master_Micro_Testing/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Master/.vs/Master_Micro_Testing/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Slave/.vs/Slave_Micro_Testing/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Main/Bang_Bang_Control/Slave/.vs/Slave_Micro_Testing/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Other/Digital_PWM_Atmega88A/.vs/Digital_PWM_Atmega88A/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../../C/Atmega88/Solutions/Other/Digital_PWM_Atmega88A/.vs/Digital_PWM_Atmega88A/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Controls/Motor_Position/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../CPG/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../CPG/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NengoDL/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../NengoDL/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,11 +20,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/EncoderRectifiedLinear.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="27">
+            <state relative-caret-position="442">
               <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
-              <folding>
-                <element signature="e#249#267#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -27,11 +29,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RectifiedLinearFuncApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="146">
+            <state relative-caret-position="1122">
               <caret line="77" selection-start-line="77" selection-end-line="77" />
-              <folding>
-                <element signature="e#344#362#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -39,11 +38,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LeakCurrentApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
+            <state relative-caret-position="3332">
               <caret line="207" column="147" selection-start-line="207" selection-start-column="147" selection-end-line="207" selection-end-column="147" />
-              <folding>
-                <element signature="e#290#308#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -51,7 +47,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SynapticConductanceApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
+            <state relative-caret-position="1785">
               <caret line="118" column="24" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
               <folding>
                 <element signature="e#299#317#0" expanded="true" />
@@ -63,11 +59,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SynapticCurrentApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
+            <state relative-caret-position="8772">
               <caret line="529" column="192" selection-start-line="529" selection-start-column="192" selection-end-line="529" selection-end-column="192" />
-              <folding>
-                <element signature="e#299#317#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -75,11 +68,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="197">
+            <state relative-caret-position="3502">
               <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
               <folding>
                 <element signature="e#299#317#0" expanded="true" />
-                <marker date="1585612186555" expanded="true" signature="6493:6934" ph="..." />
+                <marker date="1592595409705" expanded="true" signature="6493:6934" ph="..." />
               </folding>
             </state>
           </provider>
@@ -88,7 +81,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SqrtApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
+            <state relative-caret-position="1462">
               <caret line="97" column="28" selection-start-line="97" selection-start-column="28" selection-end-line="97" selection-end-column="28" />
               <folding>
                 <element signature="e#299#317#0" expanded="true" />
@@ -98,13 +91,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox.py">
+        <entry file="file://$PROJECT_DIR$/NaChtimeConstantApprox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
+            <state relative-caret-position="3111">
               <caret line="196" column="36" selection-start-line="196" selection-start-column="36" selection-end-line="196" selection-end-column="36" />
-              <folding>
-                <element signature="e#299#317#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -112,7 +102,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
+            <state relative-caret-position="415">
               <caret line="536" selection-start-line="536" selection-end-line="537" selection-end-column="10" />
               <folding>
                 <element signature="e#306#324#0" expanded="true" />
@@ -185,11 +175,11 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="-1928" />
-    <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="381" />
+    <option name="y" value="293" />
+    <option name="width" value="1440" />
+    <option name="height" value="780" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -361,8 +351,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1928" y="-8" width="1936" height="1056" extended-state="7" />
-    <editor active="true" />
+    <frame x="381" y="293" width="1440" height="780" extended-state="1" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.22181243" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -463,91 +452,33 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParameterApprox2.py" />
+    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py" />
+    <entry file="file://$PROJECT_DIR$/EncoderRectifiedLinear.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/RectifiedLinearFuncApprox.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="146">
+        <state relative-caret-position="1122">
           <caret line="77" selection-start-line="77" selection-end-line="77" />
-          <folding>
-            <element signature="e#344#362#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParameterApprox2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="265">
-          <caret line="120" column="63" lean-forward="true" selection-start-line="120" selection-start-column="63" selection-end-line="120" selection-end-column="63" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParameterApprox3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2805">
-          <caret line="246" column="60" selection-start-line="246" selection-start-column="60" selection-end-line="246" selection-end-column="60" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SqrtApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="97" column="28" selection-start-line="97" selection-start-column="28" selection-end-line="97" selection-end-column="28" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SynapticConductanceApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="118" column="24" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LeakCurrentApprox.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
+        <state relative-caret-position="3332">
           <caret line="207" column="147" selection-start-line="207" selection-start-column="147" selection-end-line="207" selection-end-column="147" />
-          <folding>
-            <element signature="e#290#308#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/EncoderRectifiedLinear.py">
+    <entry file="file://$PROJECT_DIR$/SynapticConductanceApprox.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="27">
-          <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
-          <folding>
-            <element signature="e#249#267#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
-          <folding>
-            <element signature="e#299#317#0" expanded="true" />
-            <marker date="1585612186555" expanded="true" signature="6493:6934" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="196" column="36" selection-start-line="196" selection-start-column="36" selection-end-line="196" selection-end-column="36" />
+        <state relative-caret-position="1785">
+          <caret line="118" column="24" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
           <folding>
             <element signature="e#299#317#0" expanded="true" />
           </folding>
@@ -556,17 +487,42 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SynapticCurrentApprox.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
+        <state relative-caret-position="8772">
           <caret line="529" column="192" selection-start-line="529" selection-start-column="192" selection-end-line="529" selection-end-column="192" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SteadyStateNaChParametersApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3502">
+          <caret line="219" column="36" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
+          <folding>
+            <element signature="e#299#317#0" expanded="true" />
+            <marker date="1592595409705" expanded="true" signature="6493:6934" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SqrtApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1462">
+          <caret line="97" column="28" selection-start-line="97" selection-start-column="28" selection-end-line="97" selection-end-column="28" />
           <folding>
             <element signature="e#299#317#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/NaChtimeConstantApprox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3111">
+          <caret line="196" column="36" selection-start-line="196" selection-start-column="36" selection-end-line="196" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/NaChTimeConstantApprox2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
+        <state relative-caret-position="415">
           <caret line="536" selection-start-line="536" selection-end-line="537" selection-end-column="10" />
           <folding>
             <element signature="e#306#324#0" expanded="true" />
