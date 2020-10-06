@@ -1,0 +1,1331 @@
+' ******************************************************************************
+' swxJRNL.swj - journal recorded on 10/05/20 by USER
+' *****************************************************************************
+Dim swApp As Object
+
+Dim Part As Object
+Dim boolstatus As Boolean
+Dim longstatus As Long, longwarnings As Long
+
+Sub main()
+
+Set swApp = Application.SldWorks
+
+swApp.ActivateDoc2 "AARL_Puppy_18_03_03_000.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+Set Part = swApp.ActiveDoc
+Dim myModelView As Object
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 0
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_04_000-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_04_000-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_04_000-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_04_000-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+
+' Save
+Dim swErrors As Long
+Dim swWarnings As Long
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-3@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-3@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-3@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PA_000-Pressure_Sensor_Array-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Dim myFeature As Object
+Set myFeature = Part.FeatureManager.InsertFeatureTreeFolder2(swFeatureTreeFolderType_e.swFeatureTreeFolder_Containing)
+boolstatus = Part.SelectedFeatureProperties(0, 0, 0, 0, 0, 0, 0, 1, 0, "Pressure  Sensor Array")
+boolstatus = Part.Extension.SelectByID2("Pressure  Sensor Array", "FTRFOLDER", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Zoom To Selection
+Part.ViewZoomToSelection
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PP_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PP_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Zoom In/Out (MouseWheel)
+Dim swModelView As Object
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.8840339360132286606
+Dim swTranslation() As Double
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.043471795818077065
+swTranslation(1) = -0.008815429095634902401
+swTranslation(2) = -0.02064959872818964565
+Dim swTranslationVar As Variant
+swTranslationVar = swTranslation
+Dim swMathUtils As Object
+Set swMathUtils = swApp.GetMathUtility()
+Dim swTranslationVector As MathVector
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.736694946677690532
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04342316318173085332
+swTranslation(1) = -0.007346190913029089671
+swTranslation(2) = -0.01720799894015803688
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.6139124555647421655
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04338263598477572897
+swTranslation(1) = -0.00612182576085757487
+swTranslation(2) = -0.01433999911679836349
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.5115937129706185083
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04334886332064646214
+swTranslation(1) = -0.005101521467381317163
+swTranslation(2) = -0.01194999926399863653
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.6163779674344801451
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.0524702765742186758
+swTranslation(1) = 0.001642297270922744769
+swTranslation(2) = -0.01439758947469715368
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.7426240571499761467
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.0633363008001281147
+swTranslation(1) = 0.009767380088156571438
+swTranslation(2) = -0.01734649334300861906
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.OpenCompFile
+
+' Open
+Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_EL-Electronics\AARL_Puppy_18_03_05_000-Wiring\AARL_Puppy_18_03_05_001.SLDPRT", 1, 0, "", longstatus, longwarnings)
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 22
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_Puppy_18_03_05_001.SLDPRT", False, longstatus
+Set Part = swApp.ActiveDoc
+Part.ClearSelection2 True
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+
+' Close Document
+swPart = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_Puppy_18_03_05_001.SLDPRT"
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 0
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_Puppy_18_03_03_000.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+boolstatus = Part.Extension.SelectByID2("Pressure  Sensor Array", "FTRFOLDER", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-16@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_WA_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-16@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-15@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-14@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-13@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-12@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-11@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-10@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-9@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-8@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-7@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-6@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-5@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-3@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-16@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_002-16@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_WA_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.8983210639545848863
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.05183734867629990334
+swTranslation(1) = 0.006087977849477436802
+swTranslation(2) = -0.02098332286133524488
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 1.082314534885042034
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04755265604698374893
+swTranslation(1) = 0.002884222398855979148
+swTranslation(2) = -0.02528111188112680194
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 1.303993415524147048
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04523387258943490502
+swTranslation(1) = 0.001867772891541660558
+swTranslation(2) = -0.0304591709411166367
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 1.571076404245960401
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04176019094977263119
+swTranslation(1) = 0.0008285803756221365697
+swTranslation(2) = -0.03669779631459835906
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+boolstatus = Part.Extension.SelectByID2("Concentric4", "MATE", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-16@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-15@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-14@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-13@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-12@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-11@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-10@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-9@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-8@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-7@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-6@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-5@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-3@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-16@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.OpenCompFile
+
+' Open
+Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_HW-Hardware\AARL_QR_HW_SP-Spacer\AARL_Puppy_18_04_06_001.SLDPRT", 1, 0, "", longstatus, longwarnings)
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 22
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_Puppy_18_04_06_001.SLDPRT", False, longstatus
+Set Part = swApp.ActiveDoc
+Part.ClearSelection2 True
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Close Document
+swPart = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_Puppy_18_04_06_001.SLDPRT"
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 0
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_Puppy_18_03_03_000.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SketchBoxSelect("0.000000", "0.000000", "0.000000", "0.000000", "0.000000", "0.000000")
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_06_001-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_01_004-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_01_004-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_04_01_004-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.ReplaceComponents2("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_HW-Hardware\AARL_QR_HW_CS-SHCS\AARL_QR_HW_CS_004.SLDPRT", "Default", True, 1, True)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_CS_004-1@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("#4-40x0.25 SHCS Pattern", "COMPPATTERN", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_CS_004-2@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_CS_004-3@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_CS_004-6@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_CS_004-5@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_HW_CS_004-4@AARL_Puppy_18_03_03_000", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Close Document
+swAssembly = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_Puppy_18_03_03_000.SLDASM"
+swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 0
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR_BO_016-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_000-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_000-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2078898535374522627
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03875621700153819571
+swTranslation(1) = 0.04236042779930992291
+swTranslation(2) = 0.01880255708360386441
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2504697030571714222
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03580205750828344829
+swTranslation(1) = 0.04633870873343148844
+swTranslation(2) = 0.0226536832332576675
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.3017707265749053347
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03236645949962400903
+swTranslation(1) = 0.05100818799614733473
+swTranslation(2) = 0.0272935942569369587
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.3635791886444643128
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.02853626053156270437
+swTranslation(1) = 0.05638680603299190547
+swTranslation(2) = 0.03288384850233368184
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.438047215234294407
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.02404519327614836055
+swTranslation(1) = 0.06286706872798537848
+swTranslation(2) = 0.03961909458112491955
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.5277677291979451235
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.0186960840202681014
+swTranslation(1) = 0.07067461414364016592
+swTranslation(2) = 0.04773384889292158623
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.6358647339734279091
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.01237500436989117519
+swTranslation(1) = 0.0801431105155539919
+swTranslation(2) = 0.05751066131677300824
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.5298872783111899798
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.01892424521460969733
+swTranslation(1) = 0.0667859254296283289
+swTranslation(2) = 0.04792555109731083673
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.07687583718000465249, 0.09636570723932758042, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.2271331553045591867, 0.1260166940821976223, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.09784197459273319408, 0.04447648026430504192, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.03843791859000232625, 0.02223824013215252096, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.04193227482545708318, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.04892098729636659704, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.03843791859000232625, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.04193227482545708318, 0.02223824013215252096, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02446049364818329852, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.03144920611909281238, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02795484988363805198, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02446049364818329852, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02096613741272854159, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.03144920611909281238, -0.01482549342143501397, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02446049364818329852, -0.01482549342143501397, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.03144920611909281238, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02096613741272854159, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02446049364818329852, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02446049364818329852, -0.01482549342143501397, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01048306870636427079, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01747178117727378119, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, -0.01482549342143501397, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02096613741272854159, -0.01482549342143501397, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01048306870636427079, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01747178117727378119, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, -0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.02096613741272854159, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.006988712470909512996, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.003494356235454756498, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.006988712470909512996, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01048306870636427079, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01048306870636427079, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01397742494181902599, 0.007412746710717506987, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.01747178117727378119, 0.01482549342143501397, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.003494356235454756498, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutPoint -0.003494356235454756498, 0, 0.08783050778606593667, -0.1025848746393762667, 0.03928024184887135561
+
+' Roll View
+Set swModelView = Part.ActiveView
+swModelView.RollBy 0
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_03_000-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.1429624592590949816
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.04353362029207687167
+swTranslation(1) = 0.03211376180200752745
+swTranslation(2) = 0.01273916842808225404
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.1722439268181867322
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03519100481920726942
+swTranslation(1) = 0.04097843976416234296
+swTranslation(2) = 0.01534839569648464679
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2075228033954057139
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.02619051839595834888
+swTranslation(1) = 0.05079336258305736096
+swTranslation(2) = 0.01849204300781282645
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.1729356694961714236
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03043717356966570489
+swTranslation(1) = 0.04232780215254781236
+swTranslation(2) = 0.01541003583984402493
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.1441130579134762002
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.0339760528810884449
+swTranslation(1) = 0.03527316846045650683
+swTranslation(2) = 0.01284169653320335266
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.1736301902572002509
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03591526271039494067
+swTranslation(1) = 0.02896027586274034157
+swTranslation(2) = 0.01547192353397994734
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2091930003098798341
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03806621465040137264
+swTranslation(1) = 0.02135438116669675923
+swTranslation(2) = 0.01864087172768668504
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2520397594094938021
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03626884748728471247
+swTranslation(1) = 0.01565230091831611159
+swTranslation(2) = 0.02245888159962251135
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2100331328412448351
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.0388357811457709784
+swTranslation(1) = 0.01304358409859676833
+swTranslation(2) = 0.01871573466635209279
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2530519672786082364
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.0296545879514500503
+swTranslation(1) = 0.02838726695241792705
+swTranslation(2) = 0.02254907791126757946
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.3048818882874798075
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.01859290940407546874
+swTranslation(1) = 0.04687363183653982246
+swTranslation(2) = 0.02716756374851515832
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.254068240239566534
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.02410583274309661267
+swTranslation(1) = 0.03906135986378318076
+swTranslation(2) = 0.02263963645709596989
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2117235335329721302
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.02869993552561421121
+swTranslation(1) = 0.03255113321981931845
+swTranslation(2) = 0.01886636371424664158
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2550885946180387331
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.02912578877459950921
+swTranslation(1) = 0.04206172961369865348
+swTranslation(2) = 0.02273055869186342906
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR_BO_016-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_03_05_001-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Zoom In/Out (MouseWheel)
+Set swModelView = Part.ActiveView
+swModelView.Scale2 = 0.2125738288483656202
+ReDim swTranslation(0 To 2) As Double
+swTranslation(0) = 0.03288323221853326622
+swTranslation(1) = 0.03505144134474887097
+swTranslation(2) = 0.01894213224321952133
+swTranslationVar = swTranslation
+Set swMathUtils = swApp.GetMathUtility()
+Set swTranslationVector = swMathUtils.CreateVector((swTranslationVar))
+swModelView.Translation3 = swTranslationVector
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-25@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-24@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-23@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-22@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-21@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-20@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-19@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-18@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-17@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-16@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-15@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-14@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-13@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-12@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-11@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-10@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-9@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-8@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-7@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-6@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-5@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-25@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-25@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-24@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-23@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-22@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-21@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-20@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-19@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-18@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-17@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-16@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-15@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-14@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-13@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-12@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-11@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-10@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-9@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-8@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-7@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-6@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-5@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-24@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-23@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-22@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-21@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-20@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-19@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-18@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-17@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-16@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-15@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-14@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-13@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-12@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-11@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-10@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-9@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-8@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-7@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-6@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-5@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_087-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_088-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_110-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_109-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_108-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_107-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_106-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_105-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_104-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_103-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_102-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_101-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_100-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_099-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_098-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_097-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_096-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_095-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_094-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_093-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_092-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_091-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_090-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_089-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_114-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_113-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_114-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_136-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_135-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_134-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_133-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_132-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_131-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_130-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_129-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_128-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_127-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_126-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_125-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_124-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_123-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_122-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_121-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_120-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_119-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_118-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_117-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_116-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_115-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_114-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_082-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-25@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-24@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-23@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-22@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-21@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-20@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-19@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-18@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-17@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-16@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-15@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-14@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-13@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-12@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-11@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-10@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-9@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-8@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-7@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-6@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-5@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_112-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_082-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-25@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-24@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-23@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-22@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-21@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-20@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-19@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-18@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-17@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-16@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-15@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-14@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-13@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-12@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-11@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-10@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-9@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-8@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-7@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-6@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-5@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_112-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_081-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_111-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, True, 0, Nothing, 0)
+Part.EditUnsuppress2
+Part.ClearSelection2 True
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-3@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_084-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_085-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_086-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_087-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_087-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_089-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_088-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_088-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_089-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_089-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_090-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_090-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_091-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_091-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_092-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_092-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_093-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_092-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_092-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_093-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_093-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_094-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_094-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_095-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_095-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_095-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_096-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_096-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_097-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_097-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_098-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_098-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_099-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_099-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_100-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_100-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_101-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_101-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_102-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_102-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_103-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_103-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_104-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_104-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_105-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_PN_TU_104-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_105-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_105-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_106-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_106-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_107-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_107-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_108-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_108-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_109-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_109-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_110-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_110-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_113-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_113-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_114-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_114-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_115-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_115-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_116-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_117-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_116-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_116-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_117-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_117-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_118-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_118-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_119-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_119-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_120-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_120-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_121-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_121-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_122-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_122-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_123-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_123-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_124-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_124-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_125-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_125-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_126-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_126-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_127-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_127-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_128-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_128-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_129-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_129-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_130-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_130-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_131-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_131-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_132-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_132-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_133-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_133-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_134-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_134-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_135-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_135-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_136-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_136-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_083-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_081-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_081-2@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_111-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+boolstatus = Part.Extension.SelectByID2("AARL_Puppy_18_02_32_111-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PP_000-Pressure_Sensor_Package-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("Custom Pressure Sensor Array", "FTRFOLDER", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PP_000-Pressure_Sensor_Package-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_FR_BO_016-4@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PP_000-Pressure_Sensor_Package-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.ClearSelection2 True
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_PN_MN_000-Manifold-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+boolstatus = Part.Extension.SelectByID2("AARL_QR_PN_MN_000-Manifold-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.OpenCompFile
+
+' Open
+Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_PN-Pneumatics\AARL_QR_PN_MN-Manifold\AARL_QR_PN_MN_000-Manifold.sldasm", 2, 0, "", longstatus, longwarnings)
+Dim swAssembly As Object
+Set swAssembly = Part
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 22
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_QR_PN_MN_000-Manifold.sldasm", False, longstatus
+Set Part = swApp.ActiveDoc
+Part.ClearSelection2 True
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Close Document
+Set swAssembly = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_QR_PN_MN_000-Manifold.SLDASM"
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 0
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+boolstatus = Part.Extension.SelectByID2("AARL_QR_EL_PP_000-Pressure_Sensor_Package-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Part.OpenCompFile
+
+' Open
+Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_EL-Electronics\AARL_QR_EL_PP-Pressure_Sensor_Package\AARL_QR_EL_PP_000-Pressure_Sensor_Package.SLDASM", 2, 0, "", longstatus, longwarnings)
+Set swAssembly = Part
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 22
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_QR_EL_PP_000-Pressure_Sensor_Package.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+
+' Take Snapshot
+Dim swSnapShot As SnapShot
+Set swSnapShot = Part.ModelViewManager.AddSnapShot("Home")
+Part.ClearSelection2 True
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Close Document
+Set swAssembly = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_QR_EL_PP_000-Pressure_Sensor_Package.SLDASM"
+Set Part = swApp.ActiveDoc
+Set myModelView = Part.ActiveView
+myModelView.FrameLeft = 0
+myModelView.FrameTop = 0
+Set myModelView = Part.ActiveView
+myModelView.FrameState = swWindowState_e.swWindowMaximized
+swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
+Set Part = swApp.ActiveDoc
+
+' Named View
+Part.ShowNamedView2 "*Isometric", 7
+Part.ViewZoomtofit2
+boolstatus = Part.EditRebuild3()
+
+' Save
+boolstatus = Part.Save3(1, swErrors, swWarnings)
+
+' Close Document
+Set swAssembly = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_QR-Quadruped.SLDASM"
+swApp.ExitApp
+End Sub

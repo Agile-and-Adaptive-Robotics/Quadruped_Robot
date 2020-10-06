@@ -8,8 +8,6 @@ clear, close('all'), clc
 
 %% Define Neuron Properties.
 
-% Note that most of the neurons have the same universal properties, but each neuron's properties are still set individually to allow for future variation if it becomes necessary.
-
 % Define the number of neurons.
 num_neurons = 4;    
 
