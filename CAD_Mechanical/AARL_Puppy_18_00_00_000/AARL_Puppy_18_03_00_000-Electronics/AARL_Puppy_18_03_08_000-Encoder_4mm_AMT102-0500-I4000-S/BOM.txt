@@ -1,3 +1,0 @@
-3DX_CUI_DEVICES_Supplier: CUI Devices
-3DX_CUI_DEVICES_Description: AMT10 Radial, Fixed Resolution, 500 PPR, Single Index Pulse, 4 mm Bore, Standard, Incremental, Capacitive Modular Encoder
-3DX_CUI_DEVICES_Model Number: AMT102-0500-I4000-S
