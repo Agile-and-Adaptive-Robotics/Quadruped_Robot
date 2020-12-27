@@ -60,7 +60,7 @@ class Network:
         return post_map
 
     
-    def SetSimulationProperties(self, tf, dt):
+    def SetSimulationProperties(self, tf, dt, Iapps = None):
         '''
         Can be called multiple times after the object has been constructed
         '''
@@ -75,14 +75,16 @@ class Network:
         self.num_timesteps = len(self.ts)
 
         # Set the network initial conditions.
-        self.Vs0 = np.zeros(self.num_neurons)
+        self.Vs0 = self.Ers
         self.hs0 = Nprops.GetSteadyStateNaActDeactValue(self.Vs0, self.Ahs, self.Shs, self.Ehs)
 
 
         # Define the Applied Currents.
 
         # Create the applied currents to use during simulation.
-        self.Iapps = np.zeros((self.num_timesteps, self.num_neurons)) 
+        self.Iapps = Iapps
+        if self.Iapps is None:
+            self.Iapps = np.zeros((self.num_timesteps, self.num_neurons))
 
 
     def Simulate(self):
