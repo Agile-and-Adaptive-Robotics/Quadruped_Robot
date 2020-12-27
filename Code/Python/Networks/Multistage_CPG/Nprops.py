@@ -23,11 +23,11 @@ class Nprops:
         self.Er = Er                # [V] Membrane Resting (Equilibrium) Potential.
         self.Am = Am                # [-] Sodium Channel Activation Parameter A.
         self.Sm = Sm                # [-] Sodium Channel Activation Parametter S.
-        self.Em = Em              # [V] Sodium Channel Activation Reversal Potential (absolute)
+        self.Em = Em                # [V] Sodium Channel Activation Reversal Potential (absolute)
         self.Ah = Ah                # [-] Sodiu  Channel Deactivation Parameter A.
         self.Sh = Sh                # [-] Sodium Channel Deactivation Parameter S.
-        self.Eh = Eh              # [V] Sodium Channel Deactivation Reversal Potential (absolute)
-        self.Ena = Ena            # [V] Sodium Channel Reversal Potential (absolute)
+        self.Eh = Eh                # [V] Sodium Channel Deactivation Reversal Potential (absolute)
+        self.Ena = Ena              # [V] Sodium Channel Reversal Potential (absolute)
         self.tauh_max = tauh_max    # [s] Maximum Sodium Channel Deactivation Time Constant.
         self.Gna = Gna              # [S] Sodium Channel Conductance.  (A zero value means that sodium channel currents will not be applied to this neuron.)
         
@@ -38,13 +38,13 @@ class Nprops:
         This function computes the steady state sodium channel activation / deactivation parameter for every neuron in a network.
 
         Inputs:
-            Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials for each neuron in the network.
-            Amhs = num_neurons x 1 vector of neuron sodium channel activation / deactivation A parameters.
-            Smhs = num_neurons x 1 vector of neuron sodium channel activation / deactivation S parameters.
-            Emhs = num_neurons x 1 vector of neuron sodium channel activation / deactivation reversal potential w.r.t thier resting potentials.
+            Vs   = 1 x num_neurons vector of neuron membrane voltages
+            Amhs = 1 x num_neurons vector of neuron sodium channel activation / deactivation A parameters.
+            Smhs = 1 x num_neurons vector of neuron sodium channel activation / deactivation S parameters.
+            Emhs = 1 x num_neurons vector of neuron sodium channel activation / deactivation reversal potential
 
         Outputs:
-            mhinfs = num_neurons x 1 vector of neuron steady state sodium channel activation /deactivation values.
+            mhinfs = 1 x num_neurons vector of neuron steady state sodium channel activation /deactivation values.
         '''
         mhinfs = 1/(1 + Amhs*np.exp(-Smhs*(Emhs - Vs)))
 
@@ -57,15 +57,17 @@ class Nprops:
         This function computes the sodium channel deactivation time constant associated with each neuron in a network.
 
         Inputs:
-            Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potential.
-            tauh_maxs = num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
-            hinfs = num_neurons x 1 vector of steady state sodium channel deactivation parameter values.
-            Ahs = num_neurons x 1 vector of sodium channel deactivation A parameter values.
-            Shs = num_neurons x 1 vector of sodium channel deactivation S parameter values.
-            Ehs = num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
+            Vs  = 1 x num_neurons vector of neuron membrane voltages
+            tauh_maxs
+                = 1 x num_neurons vector of maximum sodium channel deactivation parameter time constants.
+            hinfs
+                = 1 x num_neurons vector of steady state sodium channel deactivation parameter values.
+            Ahs = 1 x num_neurons vector of sodium channel deactivation A parameter values.
+            Shs = 1 x num_neurons vector of sodium channel deactivation S parameter values.
+            Ehs = 1 x num_neurons vector of sodium channel deactivation parameter reversal potentials.
 
         % Outputs:
-            tauhs = num_neurons x 1 vector of sodium channel deactivation parameter time constants.
+            tauhs = 1 x num_neurons vector of sodium channel deactivation parameter time constants.
         '''
         # Compute the sodium channel deactivation time constant.
         tauhs = tauh_maxs * hinfs * np.sqrt( Ahs * np.exp( -Shs * (Ehs - Vs) ) );

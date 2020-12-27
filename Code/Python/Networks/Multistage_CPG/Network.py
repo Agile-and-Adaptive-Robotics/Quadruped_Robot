@@ -52,7 +52,8 @@ class Network:
 
     def PostsynapticMap(self, synapses):
         '''
-        ij-th entry of the matrix is 1 if neuron j is the postsynaptic neuron for synapse i, 0 otherwise
+        Used to add synaptic currents based on which neurons connect to which.
+        The ij-th entry of the matrix is 1 if neuron j is the postsynaptic neuron for synapse i, 0 otherwise
         '''
         post_map = np.zeros((self.num_synapses, self.num_neurons))
         for i in range(self.num_synapses):
@@ -89,43 +90,48 @@ class Network:
 
     def Simulate(self):
         '''
-        This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, Esyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
+        This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, Esyns with an initial condition of V0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
 
         Inputs:
-            Vs0 = num_neurons x 1 vector of initial membrane voltages of each neuron w.r.t their resting potentials.
-            hs0 = num_neurons x 1 vector of initial sodium channel deactivation parameters for each neuron.
-            Gms = num_neurons x 1 vector of neuron membrane conductances.
-            Cms = num_neurons x 1 vector of neuron membrane capacitances.
-            Rs = num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
-            gsyn_maxs = num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
-            Esyns = num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
-            Ams = num_neurons x 1 vector of sodium channel activation A parameter values.
-            Sms = num_neurons x 1 vector of sodium channel activation S parameter values.
-            Ems = num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
-            Ahs = num_neurons x 1 vector of sodium channel deactivation A parameter values.
-            Shs = num_neurons x 1 vector of sodium channel deactivation S parameter values.
-            Ehs = num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
-            tauh_maxs = num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
-            Gnas = num_neurons x 1 vector of sodium channel conductances for each neuron.
-            Enas = num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
-            Iapp = num_neurons x num_timesteps vector of applied currents for each neuron.
-            tf = Scalar that represents the simulation duration.
-            dt = Scalar that represents the simulation time step.
+            Vs0  = 1 x num_neurons vector of initial membrane voltages of each neuron
+            hs0  = 1 x num_neurons vector of initial sodium channel deactivation parameters for each neuron.
+            Gms  = 1 x num_neurons vector of neuron membrane conductances.
+            Cms  = 1 x num_neurons vector of neuron membrane capacitances.
+            Rs   = 1 x num_synapses vector of synapse voltage ranges.
+            gsyn_maxs
+                 = 1 x num_synapses vector of maximum synaptic conductances.
+            Esyns
+                 = 1 x num_synapses vector of synaptic reversal potentials.
+            Ams  = 1 x num_neurons vector of sodium channel activation A parameter values.
+            Sms  = 1 x num_neurons vector of sodium channel activation S parameter values.
+            Ems  = 1 x num_neurons vector of sodium channel activation parameter reversal potentials.
+            Ahs  = 1 x num_neurons vector of sodium channel deactivation A parameter values.
+            Shs  = 1 x num_neurons vector of sodium channel deactivation S parameter values.
+            Ehs  = 1 x num_neurons vector of sodium channel deactivation parameter reversal potentials.
+            tauh_maxs
+                 = 1 x num_neurons vector of maximum sodium channel deactivation parameter time constants.
+            Gnas = 1 x num_neurons vector of sodium channel conductances for each neuron.
+            Enas = 1 x num_neurons vector of sodium channel reversal potentials for each neuron.
+            Iapp = num_timesteps x num_neurons matrix of applied currents for each neuron.
+            tf   = Scalar that represents the simulation duration.
+            dt   = Scalar that represents the simulation time step.
 
         Outputs:
-            ts = 1 x num_timesteps vector of the time associated with each simulation step.
-            Vs = num_neurons x num_timesteps matrix of the neuron membrane voltages over time w.r.t. their resting potentials.
-            hs = num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameters.
-            dVs = num_neurons x num_timesteps matrix of neuron membrane voltage derivatives over time w.r.t their resting potentials.
-            dhs = num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameter derivatives.
-            Gsyns = num_neurons x num_neurons x num_neurons tensor of synapse conductances over time.  The ijk entry represens the synaptic condutance from neuron j to neuron i at time step k.
-            Ileaks = num_neurons x num_timsteps matrix of neuron leak currents over time.
-            Isyns = num_neurons x num_timesteps matrix of synaptic currents over time.
-            Inas = num_neurons x num_timesteps matrix of sodium channel currents for each neuron.
-            Itotals = num_neurons x num_timesteps matrix of total currents for each neuron.
-            minfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel activation values.
-            hinfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel deactivation values.
-            tauhs = num_neurons x num_timesteps matrix of sodium channel deactivation parameter time constants.
+            ts    = 1 x num_timesteps vector of the time associated with each simulation step.
+            Vs    = num_timesteps x num_neurons matrix of the neuron membrane voltages over time
+            hs    = num_timesteps x num_neurons matrix of neuron sodium channel deactivation parameters.
+            dVs   = num_timesteps x num_neurons matrix of neuron membrane voltage derivatives over time
+            dhs   = num_timesteps x num_neurons matrix of neuron sodium channel deactivation parameter derivatives.
+            Gsyns = num_timesteps x num_synapses matrix of synapse conductances over time.
+            Ileaks
+                  = num_timsteps x num_neurons matrix of neuron leak currents over time.
+            Isyns = num_timesteps x num_neurons matrix of synaptic currents over time.
+            Inas  = num_timesteps x num_neurons matrix of sodium channel currents for each neuron.
+            Itotals
+                  = num_timesteps x num_neurons matrix of total currents for each neuron.
+            minfs = num_timesteps x num_neurons matrix of neuron steady state sodium channel activation values.
+            hinfs = num_timesteps x num_neurons matrix of neuron steady state sodium channel deactivation values.
+            tauhs = num_timesteps x num_neurons matrix of sodium channel deactivation parameter time constants.
         '''
         #import pdb; pdb.set_trace()
         # Ensure that there are the correct number of applied currents.
@@ -167,21 +173,23 @@ class Network:
         This function computes a single step of a neural network without sodium channels.
 
         Inputs, from the previous network step:
-            Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
-            hs = num_neurons x 1 vector of neuron sodium channel deactivation parameters.
-            Iapps = num_neurons x 1 vector of applied currents for each neuron
+            Vs    = 1 x num_neurons vector of neuron membrane voltages
+            hs    = 1 x num_neurons vector of neuron sodium channel deactivation parameters.
+            Iapps = 1 x num_neurons vector of applied currents for each neuron
 
         Outputs:
-            dVs = num_neurons x 1 vector of neuron membrane voltage derivatives w.r.t their resting potentials.
-            dhs = num_neurons x 1 vector of neuron sodium channel deactivation parameter derivatives.
-            Gsyns = num_neurons x num_neurons x 1 matrix of synaptic conductances.  Entry ij represents the synaptic conductance from neuron j to neuron i.
-            Ileaks = num_neurons x 1 vector of leak currents for each neuron.
-            Isyns = num_neurons x 1 vector of synaptic currents for each neuron.
-            Inas = num_neurons x 1 vector of sodium channel currents for each neuron.
-            Itotals = num_neurons x 1 vector of total currents for each neuron.
-            minfs = num_neurons x 1 vector of neuron steady state sodium channel activation values.
-            hinfs = num_neurons x 1 vector of neuron steady state sodium channel deactivation values.
-            tauhs = num_neurons x 1 vector of sodium channel deactivation parameter time constants.
+            dVs   = 1 x num_neurons vector of neuron membrane voltage derivatives
+            dhs   = 1 x num_neurons vector of neuron sodium channel deactivation parameter derivatives.
+            Gsyns = 1 x num_neurons vector of synaptic conductances.
+            Ileaks
+                  = 1 x num_neurons vector of leak currents for each neuron.
+            Isyns = 1 x num_neurons vector of synaptic currents for each neuron.
+            Inas  = 1 x num_neurons vector of sodium channel currents for each neuron.
+            Itotals
+                  = 1 x num_neurons vector of total currents for each neuron.
+            minfs = 1 x num_neurons vector of neuron steady state sodium channel activation values.
+            hinfs = 1 x num_neurons vector of neuron steady state sodium channel deactivation values.
+            tauhs = 1 x num_neurons vector of sodium channel deactivation parameter time constants.
 
         ''' 
         # Compute the leak currents.
@@ -210,10 +218,10 @@ class Network:
 	This function computes the leak current associated with each neuron in a network.
 
 	Inputs:
-	    Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
+	    Vs = 1 x num_neurons vector of neuron membrane voltages
 
 	% Outputs:
-	    Ileaks = num_neurons x 1 vector of the leak current associated with each neuron in the network.
+	    Ileaks = 1 x num_neurons vector of the leak current associated with each neuron in the network.
         '''
         return self.Gms * (self.Ers - Vs)
 
@@ -223,11 +231,11 @@ class Network:
         This function computes the synaptic current associated with each neuron in a network.
 
         Inputs:
-            Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
+            Vs = 1 x num_neurons vector of neuron membrane voltages
 
         Outputs:
-            Isyns = num_neurons x 1 vector of synaptic currents for each neuron in the network.
-            Gsyns = num_neurons x num_neurons matrix of synapse conductances over time.  The ijkentry represens the synaptic condutance from neuron j to neuron i.
+            Isyns = 1 x num_neurons vector of synaptic currents for each neuron in the network.
+            Gsyns = 1 x num_neurons vectir of synapse conductances.
         '''
 
         # Compute the synaptic conductances of each synapse in the network.
@@ -244,10 +252,10 @@ class Network:
         This function computes the synaptic condutance associated with each synapse in a network.
 
         Inputs:
-            Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
+            Vs = 1 x num_neurons vector of neuron membrane voltages
 
         Outputs:
-            Gsyns = num_neurons x num_neurons matrix of synapse conductances over time.  The ijkentry represens the synaptic condutance from neuron j to neuron i.
+            Gsyns = 1 x num_neurons matrix of synapse conductances.
         '''
 
         # Compute the synaptic conductance associated with each synapse in the network.
@@ -261,14 +269,14 @@ class Network:
         This function computes the sodium channel current for each neuron in a network.
 
         Inputs:
-            Vs = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potential.
-            hs = num_neurons x 1 vector of neuron sodium channel deactivation parameters.
+            Vs = 1 x num_neurons vector of neuron membrane voltages
+            hs = 1 x num_neurons vector of neuron sodium channel deactivation parameters.
         
         Outputs:
-            Inas = num_neurons x 1 vector of sodium channel currents for each neuron.
-            minfs = num_neurons x 1 vector of neuron steady state sodium channel activation values.
-            hinfs = num_neurons x 1 vector of neuron steady state sodium channel deactivation values.
-            tauhs = num_neurons x 1 vector of sodium channel deactivation parameter time constants.
+            Inas = 1 x num_neurons vector of sodium channel currents for each neuron.
+            minfs = 1 x num_neurons vector of neuron steady state sodium channel activation values.
+            hinfs = 1 x num_neurons vector of neuron steady state sodium channel deactivation values.
+            tauhs = 1 x num_neurons vector of sodium channel deactivation parameter time constants.
         '''
 
         # Compute the steady state sodium channel activation parameters.
@@ -288,7 +296,7 @@ class Network:
 
     def ForwardEulerStep(self, U, dU, dt):
         '''
-        his function performs a single forward Euler step.
+        This function performs a single forward Euler step.
         '''
         # Compute the membrane voltage at the next time step.
         U = U + dt*dU
