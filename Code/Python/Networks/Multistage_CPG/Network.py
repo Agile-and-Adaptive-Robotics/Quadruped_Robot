@@ -1,5 +1,7 @@
 import numpy as np
+from scipy.integrate import solve_ivp
 from Nprops import Nprops
+
 
 class Network:
     def __init__(self, neurons, synapses):
@@ -88,6 +90,42 @@ class Network:
             self.Iapps = np.zeros((self.num_timesteps, self.num_neurons))
 
 
+    def SetSimulationPropertiesRK(self, tf, dt, Iapps_function):
+        '''
+        Can be called multiple times after the object has been constructed
+        '''
+        # Set the simulation time.
+        self.tf = tf         # [s] Simulation Duration.
+        self.dt = dt      # [s] Simulation Time Step.
+
+        # Compute the simulation time vector.
+        self.ts = np.arange(0, tf+dt, dt)
+
+        # Compute the number of time steps.
+        self.num_timesteps = len(self.ts)
+
+        # Set the network initial conditions.
+        self.Vs0 = self.Ers
+        self.hs0 = Nprops.GetSteadyStateNaActDeactValue(self.Vs0, self.Ahs, self.Shs, self.Ehs)
+
+        # Define the Applied Currents.
+
+        # Create the applied currents to use during simulation.
+        self.Iapps_function = Iapps_function
+
+
+    def SimulateRK(self, **kwargs):
+        '''
+        Simulates network with one of scipy's built-in solvers
+
+        Inputs:
+            method - see manual for scipy.integrate.solve_ivp
+        '''
+        results = solve_ivp(self.NetworkStep_dydt, [self.ts.min(), self.ts.max()], np.append(self.Vs0, self.hs0), t_eval=self.ts, vectorized=False, **kwargs)
+        Vs, hs = results.y[:self.num_neurons], results.y[self.num_neurons:]
+        return Vs, hs
+
+
     def Simulate(self):
         '''
         This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, Esyns with an initial condition of V0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
@@ -133,7 +171,6 @@ class Network:
             hinfs = num_timesteps x num_neurons matrix of neuron steady state sodium channel deactivation values.
             tauhs = num_timesteps x num_neurons matrix of sodium channel deactivation parameter time constants.
         '''
-        #import pdb; pdb.set_trace()
         # Ensure that there are the correct number of applied currents.
         if self.Iapps.shape[0] != self.num_timesteps:                  # If the number of Iapps columns is not equal to the number of timesteps...
             # Throw an error.
@@ -160,7 +197,6 @@ class Network:
 
             # Compute the sodium channel deactivation parameters at the next time step.
             self.hs[k+1] = self.ForwardEulerStep(self.hs[k], self.dhs[k], self.dt)
-
 
         # Advance the loop counter variable to perform one more network step.
         k = k + 1
@@ -220,7 +256,7 @@ class Network:
 	Inputs:
 	    Vs = 1 x num_neurons vector of neuron membrane voltages
 
-	% Outputs:
+	Outputs:
 	    Ileaks = 1 x num_neurons vector of the leak current associated with each neuron in the network.
         '''
         return self.Gms * (self.Ers - Vs)
@@ -302,3 +338,8 @@ class Network:
         U = U + dt*dU
 
         return U
+
+
+    def NetworkStep_dydt(self, t, y):
+        dVs, dhs = self.NetworkStep(y[:self.num_neurons], y[self.num_neurons:], self.Iapps_function(t))[0:2]
+        return np.append(dVs, dhs)
