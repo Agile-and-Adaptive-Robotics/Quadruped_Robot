@@ -6,11 +6,20 @@ clear, close('all'), clc
 
 %%  Define the Animatlab Parameters.
 
+% Define the Animatlab properties file directory.
+directory = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Animatlab\Quadruped_Models\Rat_Model';
+
+% Define the file name to read.
+file_name = 'AnimatlabProperties.xlsx';
+
+% Define the full path to the file to read.
+file_path = [directory, '\', file_name];
+
 % Read in the Animatlab neuron data.
-animatlab_neuron_data = readtable('C:\Users\USER\Documents\GitHub\Quadruped_Robot\Animatlab\Quadruped_Models\Quadruped_Multistate_CPG\AnimatlabProperties.xlsx', 'Sheet', 'Neuron_Properties', 'DataRange', 'A3', 'VariableNamesRange', 'A2');
+animatlab_neuron_data = readtable(file_path, 'Sheet', 'Neuron_Properties', 'DataRange', 'A3', 'VariableNamesRange', 'A2');
 
 % Read in the Animatlab syanpse data.
-animatlab_synapse_data = readtable('C:\Users\USER\Documents\GitHub\Quadruped_Robot\Animatlab\Quadruped_Models\Quadruped_Multistate_CPG\AnimatlabProperties.xlsx', 'Sheet', 'Synapse_Properties', 'DataRange', 'A2', 'VariableNamesRange', 'A1');
+animatlab_synapse_data = readtable(file_path, 'Sheet', 'Synapse_Properties', 'DataRange', 'A2', 'VariableNamesRange', 'A1');
 
 
 %% Convert the Animatlab Parameters to Mathematical Model Parameters.
@@ -36,7 +45,7 @@ Shs = -(10^3)*animatlab_neuron_data.CaDeactivationSlope;
 dEhs = animatlab_neuron_data.CaDeactivationMidPoint - Ers;
 tauh_maxs = animatlab_neuron_data.CaDeactivationTimeConstant;
 Gnas = animatlab_neuron_data.MaxCaConductance;
-dEnas = animatlab_neuron_data.CaEquilPotential;
+dEnas = animatlab_neuron_data.CaEquilPotential - Ers;
 
 % Convert the synapse properties.
 for k = 1:num_synapses                      % Iterate through each of the synapses...
