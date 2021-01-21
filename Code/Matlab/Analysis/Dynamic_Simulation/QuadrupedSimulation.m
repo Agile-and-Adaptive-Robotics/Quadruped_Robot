@@ -1,6 +1,6 @@
 %% Quadruped Simulation
 
-% This script constructs position controllers for the joints of a quadruped robot.
+% This script performs forward and inverse dynamics calculations for a single leg.
 
 % Clear Everything.
 clear, close('all'), clc
