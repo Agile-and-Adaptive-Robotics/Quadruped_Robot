@@ -32,7 +32,7 @@ m3 = 0.09814; %kg
 k_max = 0.1667;
 
 %Pick a range of possible attachment radii
-r_KF = 0.002:0.001:0.06; %meters, 1mm to 6cm range
+r_KF = 0.005:0.001:0.06; %meters, 1mm to 6cm range
 
 %Solving torque from gravity
 T_leg = (l2/2) * (m2 + m_AE + m_AF) * g; %N-m, torque from frame and actuator
@@ -41,7 +41,7 @@ T_encoder = l2 * me * g; %torque from encoder at ankle
 Tg = T_leg + T_ankle + T_encoder;
 
 %setting torque from actuator equal to torque from gravity, solving for F
-SF = 1; %safety factor
+SF = 1.9; %safety factor
 F_KF = SF * (Tg ./ r_KF); %N
 
 %Setting a and S constants for pressure equation (eq 4 from paper)
