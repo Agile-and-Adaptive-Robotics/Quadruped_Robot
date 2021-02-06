@@ -15,7 +15,7 @@ L_AF = (4:0.5:8) * (0.0254);        % [m] Ankle flexor length (inches to meters 
 L_AE = (4:0.5:8) * (0.0254);        % [m] Ankle extensor length (inches to meters conversion)
 L_KF = (6:0.5:10) * (0.0254);       % [m] Knee flexor length (inches to meters conversion)
 L_KE = (6:0.5:10) * (0.0254);       % [m] Knee extensor length (inches to meters conversion)
-L_KFb = 8 * (0.0254);               % [m] Biarticular knee length (inches to meters conversion)
+L_KFb = 14 * (0.0254);               % [m] Biarticular knee flexor length (inches to meters conversion)
 
 % Define actuator masses based on linear density estimate of 1.698 kg/m
 m_AF = 1.698 * L_AF;                % [kg] Ankle flexor mass
@@ -50,7 +50,8 @@ b_length = 1 * (0.0254);             % [m] (inches to meter conversion)
 
 % Define where point of rotation of the upper end of the actuator is in the
 % xy plane, with the hip point of rotation as the origin
-b_KFb_top = [2.52, -0.6] * (0.0254); % [m] (inches to meter conversion)
+x = 6 * (0.0254);                    % [m] (inches to meter conversion)
+b_KFb_top = [(n_KFb + x * cosd(60)), (x*sind(60))]; % [m] (inches to meter conversion)
 
 % Define the safety factor of required force
 SF = 1.6;                           % [-]
