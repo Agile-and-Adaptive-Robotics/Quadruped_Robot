@@ -42,11 +42,11 @@ r_AE = 0.005:0.001:0.06;            % [m] Ankle extensor (5mm to 6cm range)
 n_KFb = 0.7188 * (0.0254);           % [m] (inches to meter conversion)
 
 % Define radius of attachment from knee to point of insertion on the tibia
-r_KFb = 0.557 * (0.0254);            % [m] (inches to meter conversion)
+r_KFb1 = 0.5 * (0.0254);            % [m] (inches to meter conversion)
 
 % Define where point of rotation of the upper end of the actuator is in the
 % xy plane, with the hip point of rotation as the origin
-b_KFb_top = [0.5, 0; % [m] (inches to meter conversion)
+b_KFb_top = [1, 0]* (0.0254);     % [m] (inches to meter conversion)
 
 % Define the safety factor of required force
 SF = 1.6;                           % [-]
@@ -80,7 +80,7 @@ knee_pos1(2) = (-l1 * cosd(theta1_pos1));                      % [m]
 
 % Define the length of the radius of attatchment end point (the point where
 % the string inserts to the frame) from known angles and length of r
-r_KFb_pos1 = [(knee_pos1(1) - r_KFb * sind(theta1_pos1)), (knee_pos1(2) - r_KFb * cosd(theta1_pos1))]; % [m]
+r_KFb_pos1 = [(knee_pos1(1) - r_KFb1 * sind(theta1_pos1)), (knee_pos1(2) - r_KFb1 * cosd(theta1_pos1))]; % [m]
 
 % Define the position in the xy plane of the fixed head of the "pin" from
 % the defined location of the radius of attchment and defined angles
@@ -129,8 +129,6 @@ plot(b_KFb_top(1), b_KFb_top(2), 'xr', 'LineWidth', 5)
 % Plot the lines representing string
 plot([b_KFb_top(1) KFb_pin_pos1(1)], [b_KFb_top(2) KFb_pin_pos1(2)])
 
-% Plot the actuator fastening to body
-plot([b_KFb_top(1) KFb_upper_pos1(1)], [b_KFb_top(2) KFb_upper_pos1(2)], '-g', 'LineWidth', 4)
 
 
 % Finish labeling the plot
@@ -159,14 +157,10 @@ rot_knee = input(sprintf('\nEnter the desired knee rotation from fully extended:
 
 %Rotate the all points below the knee about the knee 90 degrees
 ankle_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * ankle_pos1') - knee_pos2)+ knee_pos2;
-KFb_pin_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * KFb_pin_pos1')- knee_pos2) + knee_pos2;
 r_KFb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r_KFb_pos1') - knee_pos2) + knee_pos2;
-
-% Define the upper and lower points of the actuator again based on known
-% vectors
-KFb_upper_pos2 = b_KFb_top + b_length * ((KFb_pin_pos2' - b_KFb_top) / norm(KFb_pin_pos2' - b_KFb_top));
-KFb_lower_pos2 = KFb_pin_pos2' - s * ((KFb_pin_pos2' - b_KFb_top) / norm(KFb_pin_pos2' - b_KFb_top));
-
+r_KFb_pos2 = r_KFb_pos2 + (0.25 * 0.0254) *[(r_KFb_pos2 - knee_pos2)/norm(r_KFb_pos2 - knee_pos2)];
+KFb_pin_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * KFb_pin_pos1')- knee_pos2) + knee_pos2;
+KFb_pin_pos2 = KFb_pin_pos2 + (0.25 * 0.0254) *[(r_KFb_pos2 - knee_pos2)/norm(r_KFb_pos2 - knee_pos2)];
 %% Plot fully flexed position of the knee in 2D space (position 2)
 subplot(1, 2, 2)
 hold on
@@ -194,21 +188,11 @@ plot([-1, .1], [0, 0], '-k', 'LineWidth', 12)
 % Mark the hip joint as the origin
 plot(0,0, 'x', 'LineWidth', 3)
 
-% Plot the lines representing actuator and string
-plot([KFb_upper_pos2(1) KFb_lower_pos2(1)], [KFb_upper_pos2(2) KFb_lower_pos2(2)], '-b', 'Linewidth', 6)
-plot([KFb_lower_pos2(1) KFb_pin_pos2(1)], [KFb_lower_pos2(2) KFb_pin_pos2(2)])
-
-% Plot the actuator fastening to body
-plot([b_KFb_top(1) KFb_upper_pos2(1)], [b_KFb_top(2) KFb_upper_pos2(2)], '-g', 'LineWidth', 4)
+% Plot the lines representing string
+plot([b_KFb_top(1) KFb_pin_pos2(1)], [b_KFb_top(2) KFb_pin_pos2(2)])
 
 % Plot the upper point of rotation of the actuator
 plot(b_KFb_top(1), b_KFb_top(2), 'xr', 'LineWidth', 5)
-
-% Plot end of actuator
-plot(KFb_lower_pos2(1), KFb_lower_pos2(2), '*r')
-
-% Plot upper actuator insertion point
-plot(KFb_upper_pos2(1), KFb_upper_pos2(2), 'xr', 'LineWidth', 3)
 
 % Finish labeling the plot
 xlim([-0.3 0.5])
@@ -223,13 +207,12 @@ daspect([1 1 1])
 
 % Define length of fully contracted actuator based on previously defined
 % vectors
-L_KFb_contract = norm(KFb_lower_pos2 - KFb_upper_pos2);
-
+delta_L_KFb = norm(KFb_pin_pos1 - b_KFb_top) - norm(KFb_pin_pos2' - b_KFb_top);
 % Calculate strain from contracted and resting lengths
-k_KFb = (L_KFb - L_KFb_contract) / L_KFb;
+k_KFb = delta_L_KFb / L_KFb;
 fprintf('\n\nActuator length: %.0f inches', L_KFb/0.0254)
 fprintf('\nHip rotation: %.0f degrees', rot_hip)
 fprintf('\nKnee rotation: %.0f degrees', rot_knee)
 fprintf('\nStrain to achieve this position: %.2f\n', k_KFb)
 
-
+%% Torque calculations
