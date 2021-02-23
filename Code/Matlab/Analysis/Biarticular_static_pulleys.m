@@ -94,6 +94,8 @@ r2_KEb_pos1 = [(knee_pos1(1) + r2_KEb_length * sind(theta1_pos1)), (knee_pos1(2)
 ankle_pos1(1) = (knee_pos1(1) - l2 * sind(theta1_pos1));        % [m]
 ankle_pos1(2) = (knee_pos1(2) - l2 * cosd(theta1_pos1));        % [m]
 
+% Define 
+
 
 %% Plot fully extended position of the knee in 2D space (position 1)
 figure(1)
