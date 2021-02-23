@@ -21,8 +21,8 @@ L_AF = 9 * (0.0254);                % [m] Ankle flexor length (inches to meters 
 L_AE = 9 * (0.0254);                % [m] Ankle extensor length (inches to meters conversion)
 L_KF = 8 * (0.0254);                % [m] Knee flexor length (inches to meters conversion)
 L_KE = 8 * (0.0254);                % [m] Knee extensor length (inches to meters conversion)
-L_KFb = 14 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
-L_KEb = 14 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
+L_KFb = 12 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
+L_KEb = 12 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
 
 % Define actuator masses based on linear density estimate of 1.698 kg/m
 m_AF = 1.698 * L_AF;                % [kg] Ankle flexor mass
@@ -88,7 +88,7 @@ knee_pos1(2) = (-l1 * cosd(theta1_pos1));                      % [m]
 r1_KFb_pos1 = [(knee_pos1(1) + r1_KFb_length * cosd(theta1_pos1)), (knee_pos1(2) - r1_KFb_length * sind(theta1_pos1))]; % [m]
 r2_KFb_pos1 = [(knee_pos1(1) - r2_KFb_length * sind(theta1_pos1)), (knee_pos1(2) - r2_KFb_length * cosd(theta1_pos1))]; % [m]
 r1_KEb_pos1 = [(knee_pos1(1) - r1_KEb_length * cosd(theta1_pos1)), (knee_pos1(2) + r1_KEb_length * sind(theta1_pos1))]; % [m]
-r2_KEb_pos1 = [(knee_pos1(1) + r1_KEb_length * sind(theta1_pos1)), (knee_pos1(2) + r2_KEb_length * cosd(theta1_pos1))]; % [m]
+r2_KEb_pos1 = [(knee_pos1(1) + r2_KEb_length * sind(theta1_pos1)), (knee_pos1(2) + r2_KEb_length * cosd(theta1_pos1))]; % [m]
 
 % Define the ankle position from the defined angles, knee position, and
 % tibia length
@@ -112,7 +112,7 @@ plot([knee_pos1(1), ankle_pos1(1)], [knee_pos1(2), ankle_pos1(2)], '-m', 'LineWi
 % Plot the cam radii for flexor and extensor (2 each) for position 1 as
 % points
 plot(r1_KFb_pos1(1), r1_KFb_pos1(2), '*c')
-plot(r2_KFb_pos1(1), r1_KFb_pos1(2), '*c')
+plot(r2_KFb_pos1(1), r2_KFb_pos1(2), '*c')
 plot(r1_KEb_pos1(1), r1_KEb_pos1(2), '*b')
 plot(r2_KEb_pos1(1), r2_KEb_pos1(2), '*b')
 
@@ -285,6 +285,8 @@ end
 plot(k_KFb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KFb./ (a4 * F_KFb + k_max)) + a3))) + (a5 * F_KFb) + (a6 * S)), 'xr', 'LineWidth', 2)
 plot(k_KEb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KEb./ (a4 * F_KEb + k_max)) + a3))) + (a5 * F_KEb) + (a6 * S)), 'xr', 'LineWidth', 2)
 
+% Plot maximum pressure line at P = 620 kPa
+plot([0 .2], [620 620], '-r')
 key(8) = 'BA KE at pos1';
 key(9) = 'BA KF at pos2';
 legend(key)
@@ -293,5 +295,5 @@ xlabel('Strain')
 ylabel('Pressure (kPa)')
 xlim([0 0.2])
 ylim([0 700])
-title('14 inch biarticular knee actuators')
+title(sprintf('%.1f inch biarticular knee actuators', L_KFb/0.0254))
 
