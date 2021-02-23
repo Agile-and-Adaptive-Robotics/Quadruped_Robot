@@ -39,7 +39,6 @@ m3 = 0.09814;                       % [kg] Section 3 leg mass
 % Define maximum actuator strain estimate 
 k_max = 0.1667;                     % [-]
 
-
 % Define r1 and r2 for the flexor and extensor, corresponding to the cam
 % radius at positon one and two
 r1_KFb_length = 0.5 * (0.0254);          % [m] (inches to meter conversion)
