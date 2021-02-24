@@ -11,7 +11,7 @@ clear, close('all'), clc
 % Defining hind leg section lengths
 l1 = 8.92 * (0.0254);               % [m] Limb length 1 (inches to meters conversion)
 l2 = 9.37 * (0.0254);               % [m] Limb length 2 (inches to meters conversion)
-l3 = 6.5 * (0.0254);                % [m] Limb length 3 (inches to meters conversion)
+l3 = 5 * (0.0254);                % [m] Limb length 3 (inches to meters conversion)
 
 % Define gravitational constant
 g = 9.8;                            % [m/s^2]
@@ -23,6 +23,7 @@ L_KF = 8 * (0.0254);                % [m] Knee flexor length (inches to meters c
 L_KE = 8 * (0.0254);                % [m] Knee extensor length (inches to meters conversion)
 L_KFb = 12 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
 L_KEb = 12 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
+L_AEb = 10 * (0.0254);              % [m] Biarticular ankle extensor length (inches to meters conversion)
 
 % Define actuator masses based on linear density estimate of 1.698 kg/m
 m_AF = 1.698 * L_AF;                % [kg] Ankle flexor mass
@@ -46,10 +47,13 @@ r1_KEb_length = 0.75 * (0.0254);         % [m] (inches to meter conversion)
 r2_KFb_length = 0.75 * (0.0254);         % [m] (inches to meter conversion)
 r2_KEb_length = 0.5 * (0.0254);          % [m] (inches to meter conversion)
 
-% Define where point of rotation of the upper end of the actuator is in the
+% Define where point of rotation of the upper end of the knee actuators is in the
 % xy plane, with the hip point of rotation as the origin
-b_KFb_top = [1, 0]* (0.0254);     % [m] (inches to meter conversion)
-b_KEb_top = [-1, 0]* (0.0254);     % [m] (inches to meter conversion)
+b_KFb_top = [1, 0]* (0.0254);            % [m] (inches to meter conversion)
+b_KEb_top = [-1, 0]* (0.0254);           % [m] (inches to meter conversion)
+
+% Define ankle spike length
+spike_length = .5 * (0.0254);             % [m] (inches to meter conversion)
 
 % Define the safety factor of required force
 SF = 1;                           % [-]
@@ -94,8 +98,17 @@ r2_KEb_pos1 = [(knee_pos1(1) + r2_KEb_length * sind(theta1_pos1)), (knee_pos1(2)
 ankle_pos1(1) = (knee_pos1(1) - l2 * sind(theta1_pos1));        % [m]
 ankle_pos1(2) = (knee_pos1(2) - l2 * cosd(theta1_pos1));        % [m]
 
-% Define 
+% Define the toe postion, modeling the foot as a straight line
+toe_pos1 = [(ankle_pos1(1) - l3 * cosd(theta1_pos1)) (ankle_pos1(2) + l3 * sind(theta1_pos1))];
 
+% Define the ankle spike position
+spike_pos1 = [(ankle_pos1(1) + spike_length * sind(15)) (ankle_pos1(2) - spike_length * cosd(15))];
+
+%Define upper actuator position 1
+upper_AEb_pos1 = spike_pos1 + L_AEb * ((r1_KFb_pos1 - spike_pos1) / norm(spike_pos1 - r1_KFb_pos1));
+
+%Define string length
+string = norm(upper_AEb_pos1 - r1_KFb_pos1);
 
 %% Plot fully extended position of the knee in 2D space (position 1)
 figure(1)
@@ -117,14 +130,26 @@ plot(r2_KFb_pos1(1), r2_KFb_pos1(2), '*c')
 plot(r1_KEb_pos1(1), r1_KEb_pos1(2), '*b')
 plot(r2_KEb_pos1(1), r2_KEb_pos1(2), '*b')
 
-% Plot the ankle/foot as a triangle
-plot(ankle_pos1(1), ankle_pos1(2), '<k', 'LineWidth', 4)
+% Plot the ankle/foot as a circle
+plot(ankle_pos1(1), ankle_pos1(2), 'o', 'LineWidth', 3)
+
+% Plot the foot as a straight line
+plot([ankle_pos1(1) toe_pos1(1)], [ankle_pos1(2) toe_pos1(2)], '-m', 'LineWidth', 4) 
+
+% Plot the spike as a straight line
+plot([ankle_pos1(1) spike_pos1(1)], [ankle_pos1(2) spike_pos1(2)], '-m', 'LineWidth', 2) 
+
+% Plot the ankle extensor actuator
+plot([upper_AEb_pos1(1) spike_pos1(1)], [upper_AEb_pos1(2) spike_pos1(2)], '-b', 'LineWidth', 3)
+
+% Plot the string from the ankle actuator to the knee
+plot([upper_AEb_pos1(1) r1_KFb_pos1(1)], [upper_AEb_pos1(2) r1_KFb_pos1(2)])
 
 % Plot the hip/body as a horizontal line for reference
 plot([-1, .1], [0, 0], '-k', 'LineWidth', 12)
 
 % Mark the hip joint as the origin
-plot(0,0, 'x', 'LineWidth', 3)
+plot(0,0, 'xg', 'LineWidth', 3)
 
 % Plot the final pulley point before string goes to the tibia for the
 % lfexor and extensor
@@ -137,8 +162,8 @@ plot([b_KEb_top(1) r1_KEb_pos1(1)], [b_KEb_top(2) r1_KEb_pos1(2)], 'b')
 
 % Finish labeling the plot
 hold off
-xlim([-0.3 0.5])
-ylim([-0.6 0.2])
+xlim([-0.5 0.5])
+ylim([-0.7 0.3])
 title(sprintf('Knee flexor at position 1: \nFully extended'))
 xlabel('x position (m)')
 ylabel('y position (m)')
@@ -165,6 +190,15 @@ r1_KFb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r1_KFb_pos1') - knee_pos2) + kn
 r2_KFb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r2_KFb_pos1') - knee_pos2) + knee_pos2;
 r1_KEb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r1_KEb_pos1') - knee_pos2) + knee_pos2;
 r2_KEb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r2_KEb_pos1') - knee_pos2) + knee_pos2;
+toe_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * toe_pos1') - knee_pos2)+ knee_pos2;
+spike_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * spike_pos1') - knee_pos2)+ knee_pos2;
+
+%Rotate the foot and spike about the ankle 90 degrees
+toe_pos2 = rotz(90) * (toe_pos2 - ankle_pos2)+ ankle_pos2;
+spike_pos2 = rotz(90) * (spike_pos2 - ankle_pos2)+ ankle_pos2;
+
+% Define upper ankle actuator position
+upper_AEb_pos2 = r1_KFb_pos2 + string * ((spike_pos2 - r1_KFb_pos2)/ norm(spike_pos2 - r1_KFb_pos2));
 
 %% Plot fully flexed position of the knee in 2D space (position 2)
 subplot(1, 2, 2)
@@ -185,13 +219,25 @@ plot(r1_KEb_pos2(1), r1_KEb_pos2(2), '*b')
 plot(r2_KEb_pos2(1), r2_KEb_pos2(2), '*b')
 
 % Plot the ankle/foot as a triangle
-plot(ankle_pos2(1), ankle_pos2(2), '<k', 'LineWidth', 5)
+plot(ankle_pos2(1), ankle_pos2(2), 'o', 'LineWidth', 3)
 
 % Plot the hip/body as a horizontal line for reference
 plot([-1, .1], [0, 0], '-k', 'LineWidth', 12)
 
 % Mark the hip joint as the origin
-plot(0,0, 'x', 'LineWidth', 3)
+plot(0,0, 'xg', 'LineWidth', 3)
+
+% Plot the foot as a straight line
+plot([ankle_pos2(1) toe_pos2(1)], [ankle_pos2(2) toe_pos2(2)], '-m', 'LineWidth', 4)
+
+% Plot the spike as a straight line
+plot([ankle_pos2(1) spike_pos2(1)], [ankle_pos2(2) spike_pos2(2)], '-m', 'LineWidth', 2) 
+
+% Plot the ankle extensor actuator
+plot([upper_AEb_pos2(1) spike_pos2(1)], [upper_AEb_pos2(2) spike_pos2(2)], '-b', 'LineWidth', 3)
+
+% Plot the string from the ankle actuator to the knee
+plot([upper_AEb_pos2(1) r1_KFb_pos2(1)], [upper_AEb_pos2(2) r1_KFb_pos2(2)])
 
 % Plot the final pulley point before string goes to the tibia for the
 % lfexor and extensor
@@ -203,8 +249,8 @@ plot([b_KFb_top(1) r2_KFb_pos2(1)], [b_KFb_top(2) r2_KFb_pos2(2)], 'b')
 plot([b_KEb_top(1) r2_KEb_pos2(1)], [b_KEb_top(2) r2_KEb_pos2(2)], 'b')
 
 % Finish labeling the plot
-xlim([-0.3 0.5])
-ylim([-0.6 0.2])
+xlim([-0.5 0.5])
+ylim([-0.7 0.3])
 title(sprintf('Knee flexor at position 2:\nHip extended %.0f degrees, knee flexed %.0f degrees', rot_hip, rot_knee))
 xlabel('x position (m)')
 ylabel('y position (m)')
@@ -217,25 +263,32 @@ daspect([1 1 1])
 % vectors
 delta_L_KFb = norm(r1_KFb_pos1 - b_KFb_top) - norm(r2_KFb_pos2' - b_KFb_top);
 delta_L_KEb = -norm(r1_KEb_pos1 - b_KEb_top) + norm(r2_KEb_pos2' - b_KEb_top);
+delta_L_AEb = norm(spike_pos1 - upper_AEb_pos1) - norm(spike_pos2 - upper_AEb_pos2);
 
 % Calculate strain from contracted and resting lengths
 k_KFb = delta_L_KFb / L_KFb;
 k_KEb = delta_L_KEb / L_KEb;
+k_AEb = delta_L_AEb / L_AEb;
 
 %Print out actuator lengths and strains
 fprintf('\nHip rotation: %.0f degrees', rot_hip)
 fprintf('\nKnee rotation: %.0f degrees', rot_knee)
+
 fprintf('\n\nBA knee flexor actuator length: %.0f inches', L_KFb/0.0254)
 fprintf('\nBA knee flexor strain to achieve this position: %.2f', k_KFb)
+
 fprintf('\n\nBA knee extensor actuator length: %.0f inches', L_KEb/0.0254)
-fprintf('\nBA knee extensor to achieve this position: %.2f\n', k_KEb)
+fprintf('\nBA knee extensor strain to achieve this position: %.2f\n', k_KEb)
+
+fprintf('\n\nBA ankle extensor actuator length: %.0f inches', L_AEb/0.0254)
+fprintf('\nBA ankle extensor strain to achieve this position: %.2f\n', k_AEb)
 
 %% Torque calculations for the biarticular knee flexor and knee extensor
 
 % NOTE: THESE HAVE ONLY BEEN SET UP TO DEFINE TORQUE AT SET POSITIONS.
 % Needs modification to find force at a given rotation.
 
-% Torque requirements for flexor:
+% Torque requirements for knee flexor:
 % Define torques created by the weight of the different leg segments
 T1_KFb = 0.5 * l1 * cosd(60) * (m1 + m_KF + m_KE) * g;                      % [N-m]
 T2_KFb = (l1 * cosd(60) + 0.5 * l2 * sind(60)) * (m1 + m_AF + m_AE) * g;    % [N-m]
@@ -245,19 +298,29 @@ T3_KFb = (l1 * cosd(60) + (l2 + l3/2) * sind(60)) * m3 * g;                 % [N
 F_KFb = (T1_KFb + T2_KFb + T3_KFb) / r2_KFb_length;                % [N]         
 
 
-% Torque requirements for extensor:
+% Torque requirements for knee extensor:
 % Define torques created by the weight of the different leg segments
-T1_KEb = 0.5 * l1 * sind(30) * (m1 + m_KF + m_KE) * g;                      % [N-m]
+T1_KEb = 0.5 * l1 * sind(30) * (m1 + m_KF + m_KE) * g;             % [N-m]
 T2_KEb = ((l1 + 0.5 * l2) * sind(30)) * (m1 + m_AF + m_AE) * g;    % [N-m]
-T3_KEb = (((l1 + l2) * sind(30)) + (l3/2)) * m3 * g;                 % [N-m]
+T3_KEb = (((l1 + l2) * sind(30)) + (l3/2)) * m3 * g;               % [N-m]
 
 % Define force necessary for actuator to exert to hold leg at position 1
 F_KEb = (T1_KEb + T2_KEb + T3_KEb) / r1_KEb_length;                % [N] 
+
+
+% Torque requirements for extensor extensor:
+% Define torques created by the weight of the different leg segments
+T2_AEb = (0.5 * l2 * cosd(30)) * (m2 + m_AF + m_AE) * g;           % [N-m]
+T3_AEb = ((l2 + 0.5 * l3) * cosd(30)) * m3 * g;                    % [N-m]
+
+% Define force necessary for actuator to exert to hold leg at position 1
+F_AEb = (T2_AEb + T3_KEb) / (spike_length * sind(45));                % [N] 
 
 % Print out force required to hold position 1 and 2 for the knee extensor
 % and flexor, respectfully
 fprintf('\nThe required force for the BA knee flexor to hold position 2 is %.1f pounds', F_KFb/4.448)
 fprintf('\nThe required force for the BA knee extensor to hold position 1 is %.1f pounds', F_KEb/4.448)
+fprintf('\nThe required force for the BA ankle extensor to hold position 1 is %.1f pounds', F_AEb/4.448)
 
 %% Plotting strain vs necessary pressure for a given force
 
@@ -284,17 +347,17 @@ end
 % Plot strain and forces required for position 1 and 2 for biarticular knee
 % muscles
 plot(k_KFb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KFb./ (a4 * F_KFb + k_max)) + a3))) + (a5 * F_KFb) + (a6 * S)), 'xr', 'LineWidth', 2)
-plot(k_KEb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KEb./ (a4 * F_KEb + k_max)) + a3))) + (a5 * F_KEb) + (a6 * S)), 'xr', 'LineWidth', 2)
+plot(k_KEb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KEb./ (a4 * F_KEb + k_max)) + a3))) + (a5 * F_KEb) + (a6 * S)), 'xb', 'LineWidth', 2)
 
 % Plot maximum pressure line at P = 620 kPa
 plot([0 .2], [620 620], '-r')
+
+% Finish plot formatting
 key(8) = 'BA KE at pos1';
 key(9) = 'BA KF at pos2';
 legend(key)
-
 xlabel('Strain')
 ylabel('Pressure (kPa)')
 xlim([0 0.2])
 ylim([0 700])
 title(sprintf('%.1f inch biarticular knee actuators', L_KFb/0.0254))
-
