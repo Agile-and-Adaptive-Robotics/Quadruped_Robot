@@ -1,6 +1,6 @@
 %% Quadruped Simulation
 
-% This script constructs position controllers for the joints of a quadruped robot.
+% This script performs forward and inverse dynamics calculations for a single leg.
 
 % Clear Everything.
 clear, close('all'), clc
@@ -79,7 +79,7 @@ Rhome_joint2 = Rhome_body2;                                                     
 Rhome_joint3 = Rhome_body3;                                                                                     % [-] Joint Orientation in the Global Frame.
 Rhome_joints = cat(3, Rhome_joint1, Rhome_joint2, Rhome_joint3);                                                % [-] Joint Orientations in the Global Frame.
 
-% Define the joint axes of ration.
+% Define the joint axes of rotation.
 w1_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 w2_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 w3_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
