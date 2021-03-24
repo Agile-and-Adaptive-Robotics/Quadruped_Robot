@@ -10,7 +10,7 @@ Master_Micro_Main.c
 
 Pin_Functions.c
 
-Serial_Communication_Functions.c
+USART_Functions.c
 
 Setup_Functions.c
 

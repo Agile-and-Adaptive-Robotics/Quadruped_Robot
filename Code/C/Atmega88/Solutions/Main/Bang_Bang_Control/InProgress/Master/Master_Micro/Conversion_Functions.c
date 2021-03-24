@@ -6,38 +6,6 @@
 #include "Master_Micro_Header.h"
 
 
-// Implement a function to convert integers to their low and high bytes.
-uint8_t * uint162lowhighbytes( uint16_t myint )
-{
-	
-	// Define an array to store the integer bytes.
-	static uint8_t int_bytes[2];
-	
-	// Calculate the low byte.
-	int_bytes[0] = myint % 256;
-	
-	// Calculate the high byte.
-	int_bytes[1] = floor(myint/256);
-	
-	// Return the integer array.
-	return int_bytes;
-	
-}
-
-
-// Implement a function to convert integers to their low and high bytes.
-uint16_t lowhighbytes2uint16( uint8_t low_byte, uint8_t high_byte )
-{
-	
-	// Compute the integer represented by these low and high bytes.
-	uint16_t myint = low_byte + 256*high_byte;
-	
-	// Return the integer array.
-	return myint;
-	
-}
-
-
 // Implement a function to convert a byte array to an uint16.
 uint16_t byte_array2uint16( uint8_t byte_array[] )
 {
@@ -169,14 +137,14 @@ uint16_t uint162uint10( uint16_t my_uint16 )
 
 
 // Implement a function to convert a 12 bit integer to a 16 bit integer.
-uint16_t uint122uint16( uint16_t my_uint10 )
+uint16_t uint122uint16( uint16_t my_uint12 )
 {
 	
 	// Define a variable to store the uint16 value.
 	uint16_t my_uint16;
 	
 	// Convert the uint12 value to a uint16 value.
-	my_uint16 = round((65535./4095.)*my_uint10);
+	my_uint16 = round((65535./4095.)*my_uint12);
 
 	// Return the uint16 value associated with the given uint12.
 	return my_uint16;
@@ -230,15 +198,6 @@ uint16_t volt_float2volt_uint16( float volt_float )
 
 	// Return the voltage integer.
 	return volt_int;
-	
-}
-
-
-// Implement a function to retrieve character bits.
-char get_char_bits( char mychar, char no_of_bits )
-{
-	
-    return mychar & ((no_of_bits << 1) - 1);
 	
 }
 

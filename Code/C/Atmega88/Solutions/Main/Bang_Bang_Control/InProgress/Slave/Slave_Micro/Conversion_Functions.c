@@ -1,48 +1,20 @@
 // Conversion Functions.
+
 // This script implements microcontroller data type conversion functions.
 
 // Include the associated header file.
 #include "Slave_Micro_Header.h"
 
-// Implement a function to convert integers to their low and high bytes.
-uint8_t * int2lowhighbytes( uint16_t myint )
-{
-	
-	// Define an array to store the integer bytes.
-	static uint8_t int_bytes[2];
-	
-	// Calculate the low byte.
-	int_bytes[0] = myint % 256;
-	
-	// Calculate the high byte.
-	int_bytes[1] = floor(myint/256);
-	
-	// Return the integer array.
-	return int_bytes;
-	
-}
-
-// Implement a function to convert integers to their low and high bytes.
-uint16_t lowhighbytes2int( uint8_t low_byte, uint8_t high_byte )
-{
-	
-	// Compute the integer represented by these low and high bytes.
-	uint16_t myint = low_byte + 256*high_byte;
-	
-	// Return the integer array.
-	return myint;
-	
-}
 
 // Implement a function to convert a byte array to an uint16.
-uint16_t byte_array2int( uint8_t byte_array[] )
+uint16_t byte_array2uint16( uint8_t byte_array[] )
 {
 	
 	// Define a uint16 value for output.
 	uint16_t my_int;
 	
-	// Assign each byte of the uint16 individually.
-	for ( int k = 0; k < 2; ++k )
+	// Assign each byte of the float individually.
+	for ( uint8_t k = 0; k < NUM_BYTES_PER_UINT16; ++k )
 	{
 		*((uint8_t*)(&my_int) + k) = byte_array[k];
 	}
@@ -52,6 +24,20 @@ uint16_t byte_array2int( uint8_t byte_array[] )
 	
 }
 
+
+// Implement a function to convert an uint16 to a byte array.
+void uint162byte_array( uint16_t my_int, uint8_t byte_array[] )
+{
+	
+	// Iterate through each of the uint16's bytes and store them in an array.
+	for ( uint8_t k = 0; k < NUM_BYTES_PER_UINT16; ++k )
+	{
+		byte_array[k] = *((uint8_t*)(&my_int) + k);
+	}
+	
+}
+
+
 // Implement a function to convert a byte array to a single.
 float byte_array2float( uint8_t byte_array[] )
 {
@@ -59,11 +45,8 @@ float byte_array2float( uint8_t byte_array[] )
 	// Define a floating point value for output.
 	float my_float;
 	
-	// Define the number of bytes to expect.
-	uint8_t num_bytes_per_float = 4;
-	
 	// Assign each byte of the float individually.
-	for ( int k = 0; k < num_bytes_per_float; ++k )
+	for ( uint8_t k = 0; k < NUM_BYTES_PER_FLOAT; ++k )
 	{
 		*((uint8_t*)(&my_float) + k) = byte_array[k];
 	}
@@ -73,109 +56,192 @@ float byte_array2float( uint8_t byte_array[] )
 	
 }
 
-// Implement a function to convert an uint16 to a byte array.
-void int2byte_array( uint16_t my_int, uint8_t byte_array[] )
-{
-	
-	// Iterate through each of the uint16's bytes and store them in an array.
-	for ( int k = 0; k < 2; ++k )
-	{
-		byte_array[k] = *((uint8_t*)(&my_int) + k);
-	}
-	
-}
 
 // Implement a function to convert a single to a byte array.
 void float2byte_array( float my_float, uint8_t byte_array[] )
 {
 	
 	// Iterate through each of the float's bytes and store them in an array.
-	for ( int k = 0; k < 4; ++k )
+	for ( uint8_t k = 0; k < NUM_BYTES_PER_FLOAT; ++k )
 	{
 		byte_array[k] = *((uint8_t*)(&my_float) + k);
 	}
 	
 }
 
-// Implement a function to convert an adc value to an uint16.
-uint16_t ADC2uint16( uint16_t ADC_value )
+
+// Implement a function to convert a 10 bit integer to a 12 bit integer.
+uint16_t uint102uint12( uint16_t my_uint10 )
 {
 	
-	// Define a variable to store the uint16 ADC value.
-	uint16_t ADCuint16;
+	// Define a variable to store the uint12 value.
+	uint16_t my_uint12;
 	
-	// Convert the ADC value to a uint16.
-	ADCuint16 = round( (65535./1023.)*ADC_value );
-
-	// Return the uint16 value associated with the ADC value.
-	return ADCuint16;
+	// Convert the uint10 value to a uint12 value.
+	my_uint12 = round((MAX_UINT12_VALUE/MAX_UINT10_VALUE)*my_uint10);
+	
+	// Return the uint12 value associated with the given uint10.
+	return my_uint12;
 	
 }
 
-// Implement a function to convert an uint16 value to an adc value.
-uint16_t uint162ADC( uint16_t uint16_value )
+
+// Implement a function to convert a 12 bit integer to a 10 bit integer.
+uint16_t uint122uint10( uint16_t my_uint12 )
 {
 	
-	// Define a variable to store the ADC value.
-	uint16_t ADC_value;
+	// Define a variable to store the uint10 value.
+	uint16_t my_uint10;
 	
-	// Convert the uint16 to an ADC value.
-	ADC_value = round( (1023./65535.)*uint16_value );
+	// Convert the uint12 value to a uint10 value.
+	my_uint10 = round((MAX_UINT10_VALUE/MAX_UINT12_VALUE)*my_uint12);
 	
-	// Return the ADC value.
-	return ADC_value;
+	// Return the uint10 value associated with the given uint12.
+	return my_uint10;
 	
 }
 
-// Implement a function to convert an ADC value to a voltage (0-5 float).
-float ADC2Voltage( uint16_t ADC_value )
+
+// Implement a function to convert a 10 bit integer to a 16 bit integer.
+uint16_t uint102uint16( uint16_t my_uint10 )
 {
 	
-	// Define local variables.
-	float voltage;
+	// Define a variable to store the uint16 value.
+	uint16_t my_uint16;
 	
-	// Convert the ADC value to a voltage.
-	// voltage = (5./1023)*ADC_value;
-	voltage = (4.3/1023)*ADC_value;
+	// Convert the uint10 value to a uint16 value.
+	my_uint16 = round((MAX_UINT16_VALUE/MAX_UINT10_VALUE)*my_uint10);
 
-	// Return the voltage.
-	return voltage;
+	// Return the uint16 value associated with the given uint10.
+	return my_uint16;
 	
 }
 
-// Implement a function to convert a voltage (0-4.3 float) to a uint16 (0-65535).
-uint16_t voltage2uint16( float voltage )
+
+// Implement a function to convert a 16 bit integer to a 10 bit integer.
+uint16_t uint162uint10( uint16_t my_uint16 )
 {
 	
-	// Define local variables.
-	uint16_t value;
+	// Define a variable to store the uint10 value.
+	uint16_t my_uint10;
 	
-	// Convert the voltage to a uint16.
-	value = round( (65535/4.3)*voltage );
-	
-	// Return the uint16.
-	return value;
+	// Convert the uint16 value to a uint10 value.
+	my_uint10 = round((MAX_UINT10_VALUE/MAX_UINT16_VALUE)*my_uint16);
+
+	// Return the uint10 value associated with the given uint16.
+	return my_uint10;
 	
 }
 
-// Implement a function to scale the ADC values.
-uint16_t ScaleADC( uint16_t ADC_value )
+
+// Implement a function to convert a 12 bit integer to a 16 bit integer.
+uint16_t uint122uint16( uint16_t my_uint12 )
 {
 	
-	// Define local variables.
-	uint16_t nADC_value;
+	// Define a variable to store the uint16 value.
+	uint16_t my_uint16;
 	
-	// Determine whether we need to prevent overflow.
-	if (ADC_value > 880)			// If this value would cause overflow...
-	{
-		// Set the ADC value to the maximum allowable value.
-		ADC_value = 880;
-	}
-	
-	// Compute the scaled ADC value.
-	nADC_value = floor((1023./880.)*ADC_value);
-	
-	// Return the scaled ADC value.
-	return nADC_value;
+	// Convert the uint12 value to a uint16 value.
+	my_uint16 = round((MAX_UINT16_VALUE/MAX_UINT12_VALUE)*my_uint12);
+
+	// Return the uint16 value associated with the given uint12.
+	return my_uint16;
 	
 }
+
+
+// Implement a function to convert a 16 bit integer to a 12 bit integer.
+uint16_t uint162uint12( uint16_t my_uint16 )
+{
+	
+	// Define a variable to store the uint12 value.
+	uint16_t my_uint12;
+	
+	// Convert the uint16 value to a uint12 value.
+	my_uint12 = round((MAX_UINT12_VALUE/MAX_UINT16_VALUE)*my_uint16);
+
+	// Return the uint12 value associated with the given uint16.
+	return my_uint12;
+	
+}
+
+
+// Implement a function to convert voltage uint16s to voltage floats.
+float volt_uint162volt_float( uint16_t volt_uint16 )
+{
+	
+	// Create a variable to store the voltage float.
+	float volt_float;
+	
+	// Convert the voltage uint16 to a voltage float.
+	volt_float = (MAX_VOLTAGE/MAX_UINT16_VALUE)*volt_uint16;
+
+	// Return the voltage float.
+	return volt_float;
+	
+}
+
+
+// Implement a function to convert voltage floats to voltage uint16s.
+uint16_t volt_float2volt_uint16( float volt_float )
+{
+	
+	// Create a variable to store the voltage uint16.
+	uint16_t volt_int;
+	
+	// Convert the voltage float to a voltage uint16.
+	volt_int = round((MAX_UINT16_VALUE/MAX_VOLTAGE)*volt_float);
+
+	// Return the voltage integer.
+	return volt_int;
+	
+}
+
+
+// Implement a function to convert a uint16 desired pressure to a float desired pressure.
+float desired_pressure_uint162desired_pressure_float( uint16_t desired_pressure_uint16 )
+{
+	
+	// Define a variable to store the desired pressure float.
+	float desired_pressure_float;	
+	
+	// Convert the desired pressure uint16 to a desired pressure float.
+	desired_pressure_float = (MAX_PRESSURE/MAX_UINT16_VALUE)*desired_pressure_uint16;
+	
+	// Return the desired pressure float.
+	return desired_pressure_float;
+	
+}
+
+
+// Implement a function to convert a desired voltage float to a desired pressure float.
+float volt_float2desired_pressure_float( float volt_float )
+{
+	
+	// Define a desired pressure float.
+	float desired_pressure_float;
+	
+	// Compute the desired pressure float.
+	desired_pressure_float = (MAX_PRESSURE/MAX_VOLTAGE)*volt_float;
+	
+	// Return the desired pressure float.
+	return desired_pressure_float;
+	
+}
+
+
+// Implement a function to convert a measured voltage float to a measured pressure float.
+float volt_float2measured_pressure_float( float volt_float )
+{
+	
+	// Define a measured pressure float.
+	float measured_pressure_float;
+	
+	// Compute the measured pressure float.
+	measured_pressure_float = (MAX_PRESSURE/PRESSURE_SENSOR_MAX_VOLTAGE)*volt_float;
+	
+	// Return the measured pressure float.
+	return measured_pressure_float;
+	
+}
+

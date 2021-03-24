@@ -168,7 +168,7 @@ for k = 1:num_commands
     received_muscle_commands(:, k) = GetSpecificMuscleValues( muscle_IDs, muscle_value_ints_old, muscle_value_ints, muscle_ID_crits )';
     
     %Write the commands as ints to the microcontroller.
-    serial_write_command_data_ints2micro(serial_port_micro_input_output, muscle_value_ints, muscle_IDs )
+    serial_write_command_data_ints2micro( serial_port_micro_input_output, muscle_value_ints, muscle_IDs )
     
     %Wait until the microcontroller sends a sentence to matlab.
     while (serial_port_micro_input_output.BytesAvailable < min_num_bytes_per_sentence_micro), if bDebugPrint, fprintf('Waiting for Micro to Send Value. Bytes Available = %0.0f.\n', serial_port_micro_input_output.BytesAvailable), end, end

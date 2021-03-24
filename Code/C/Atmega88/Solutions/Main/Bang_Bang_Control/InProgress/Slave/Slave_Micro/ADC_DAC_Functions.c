@@ -1,80 +1,67 @@
 // ADC & DAC Functions.
+
 // This script implements functions for ADC and DAC.
 
 // Include the associated header file.
 #include "Slave_Micro_Header.h"
 
-// Implement the SPI write function.
-void spi_write( uint8_t spi_data )
-{
-	SPDR = spi_data;
-	while ((SPSR & (1<<SPIF))==0);	// Wait until the data transfer is complete.
-}
 
-// Implement the SPI read function.
-uint8_t spi_read( void )
-{
-	// Create a variable to store the SPI data.
-	unsigned char spi_data;
-	
-	// Wait for a SPI data transfer to be complete.
-	while (!(SPSR & (1<<SPIF)));
-	
-	// Read in the SPI data.
-	spi_data = SPDR;
-	
-	// Return the SPI data.
-	return spi_data;
-	
-}
-
-// Implement a function to perform SPI read and write.
-uint8_t spi_read_write( uint8_t spi_data )
+// Implement a function to convert from a ADC value to a DAC value.
+uint16_t ADC2DAC( uint16_t adc_value )
 {
 	
-	// Write the SPI data.
-	SPDR = spi_data;
+	// Define local variables.
+	uint16_t dac_value;
 	
-	// Wait for a SPI data transfer to be complete.
-	while (!(SPSR & (1<<SPIF)));
+	// Convert the ADC value to a DAC value.
+	dac_value = uint102uint12( adc_value );
 	
-	// Read in the SPI data.
-	spi_data = SPDR;
+	// Constrain the DAC value to the desired range.
+	if (dac_value > 4095)				// If the DAC value is greater than the maximum acceptable value...
+	{
+		dac_value = 4095;				// Set the DAC value to the maximum acceptable value.
+	}
+	else if (dac_value < 0)				// If the DAC value is less than the minimum acceptable value...
+	{
+		dac_value = 0;					// Set the DAC value to the minimum acceptable value.
+	}
 	
-	// Return the SPI data.
-	return spi_data;
-
+	// Return the constrained DAC value.
+	return dac_value;
+	
 }
+
 
 // Implement a function to read from an ADC channel.
 uint16_t readADC( uint8_t channel_num )
 {
+	
 	// Determine the correct bit pattern to send to the ADMUX register based on the desired channel number.
 	switch ( channel_num )
 	{
-	case 0 :
+		case 0 :
 		ADMUX  = 0b00000000;
 		break;
-	case 1 :
+		case 1 :
 		ADMUX  = 0b00000001;
 		break;
-	case 2 :
+		case 2 :
 		ADMUX  = 0b00000010;
 		break;
-	case 3 :
+		case 3 :
 		ADMUX  = 0b00000011;
 		break;
-	case 4 :
-		ADMUX  = 0b00000100;	
+		case 4 :
+		ADMUX  = 0b00000100;
 		break;
-	case 5 :
+		case 5 :
 		ADMUX  = 0b00000101;
 		break;
-	case 6 :
-		ADMUX  = 0b00000110;	
+		case 6 :
+		ADMUX  = 0b00000110;
 		break;
-	case 7 :
-		ADMUX  = 0b00000111;	
+		case 7 :
+		ADMUX  = 0b00000111;
 		break;
 	}
 	
@@ -85,4 +72,15 @@ uint16_t readADC( uint8_t channel_num )
 	
 }
 
+
+// Implement a function to retrieve data from all of the sensors.
+void read_analog_sensors( struct sensor_data_struct * sensor_data_ptr )
+{
 	
+	// Read in the first pressure sensor value.
+	sensor_data_ptr->pressure_sensor_value1 = uint102uint16( readADC( 0 ) );
+	
+	// Read in the second pressure sensor value.
+	sensor_data_ptr->pressure_sensor_value2 = uint102uint16( readADC( 1 ) );
+	
+}

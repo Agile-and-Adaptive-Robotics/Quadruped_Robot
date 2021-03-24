@@ -169,6 +169,12 @@
     <Compile Include="Conversion_Functions.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Encoder_Functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Pin_Functions.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Setup_Functions.c">
       <SubType>compile</SubType>
     </Compile>
@@ -176,6 +182,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Slave_Micro_Main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="SPI_Functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USART_Functions.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

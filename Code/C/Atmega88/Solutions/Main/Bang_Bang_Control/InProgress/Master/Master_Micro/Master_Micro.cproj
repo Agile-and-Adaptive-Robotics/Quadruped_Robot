@@ -175,7 +175,7 @@
     <Compile Include="Pin_Functions.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Serial_Communication_Functions.c">
+    <Compile Include="USART_Functions.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Setup_Functions.c">

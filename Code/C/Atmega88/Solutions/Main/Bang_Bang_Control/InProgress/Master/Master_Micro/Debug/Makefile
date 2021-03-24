@@ -41,7 +41,7 @@ C_SRCS +=  \
 ../Conversion_Functions.c \
 ../Master_Micro_Main.c \
 ../Pin_Functions.c \
-../Serial_Communication_Functions.c \
+../USART_Functions.c \
 ../Setup_Functions.c \
 ../SPI_Functions.c
 
@@ -57,7 +57,7 @@ ADC_DAC_Functions.o \
 Conversion_Functions.o \
 Master_Micro_Main.o \
 Pin_Functions.o \
-Serial_Communication_Functions.o \
+USART_Functions.o \
 Setup_Functions.o \
 SPI_Functions.o
 
@@ -66,7 +66,7 @@ ADC_DAC_Functions.o \
 Conversion_Functions.o \
 Master_Micro_Main.o \
 Pin_Functions.o \
-Serial_Communication_Functions.o \
+USART_Functions.o \
 Setup_Functions.o \
 SPI_Functions.o
 
@@ -75,7 +75,7 @@ ADC_DAC_Functions.d \
 Conversion_Functions.d \
 Master_Micro_Main.d \
 Pin_Functions.d \
-Serial_Communication_Functions.d \
+USART_Functions.d \
 Setup_Functions.d \
 SPI_Functions.d
 
@@ -84,7 +84,7 @@ ADC_DAC_Functions.d \
 Conversion_Functions.d \
 Master_Micro_Main.d \
 Pin_Functions.d \
-Serial_Communication_Functions.d \
+USART_Functions.d \
 Setup_Functions.d \
 SPI_Functions.d
 

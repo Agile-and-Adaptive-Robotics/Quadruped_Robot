@@ -176,172 +176,65 @@ void set_multiplexer_channel( uint8_t channel_num )
 	
 }
 
-
-void get_sensor_data( struct int_array_struct * sensor_data_ptr )
+	
+// Implement a function to determine the slave index associated with a specific muscle ID.
+uint8_t get_slave_index_from_muscle_ID( struct slave_struct_array * slave_ptr, uint8_t muscle_ID )
 {
 	
-	// Create a variable to temporarily store the ADC reads.
-	volatile uint16_t adc_uint10_temp;
-	volatile uint16_t adc_uint16_temp;
-	
-	// Initialize the sensor data structure length to zero.
-	sensor_data_ptr->length = 0;
-	
-	// Read in from each multiplexer channel associated with a pressure sensor and store these values into an array.
-	for (uint8_t i = 0; i < NUM_SENSORS_TOTAL; ++i)							// Iterate through each sensor...
-	{
-		// Set the multiplexer channel.
-		set_multiplexer_channel( i );										// Set the current multiplexer channel.
-
-		// Read from the ADC into a temporary integer.
-		adc_uint10_temp = readADC( 0 );
-		
-		// Convert the ADC integer value into a temporary uint16.
-		adc_uint16_temp = uint102uint16( adc_uint10_temp );
-		
-		// Store the sensor data ID, sensor data ADC uint16 value, and sensor data length values.
-		sensor_data_ptr->IDs[i] = i + 1;									// Set the sensor data ID.
-		sensor_data_ptr->values[i] = adc_uint16_temp;			// Read in from the current multiplexer channel.
-		++sensor_data_ptr->length;											// Increase the sensor data array length counter by one.
-	}
-	
-}
-
-
-// Implement a function to retrieve the muscle index associated with a specific muscle ID.
-uint8_t get_muscle_index( uint8_t muscle_ID )
-{
-	
-	// Create a variable to store the associated muscle index.
+	// Create a variable to store the slave index.
 	uint8_t k = 0;
-	
-	// Iterate through each of the muscles in the muscle info structure searching for a matching ID.
-	while ( (k < NUM_FRONT_LEG_MUSCLES) && (!(muscle_ID == muscle_info[k].ID)) )
+		
+	// Determine which slave has a muscle ID that matches the muscle ID we want.
+	while ( (k < slave_ptr->num_slaves) && (!(muscle_ID == slave_ptr->slave[k].muscle_ID)) )			// While we haven't gone through all of the slaves and we haven't found a match...
 	{
+		
+		// Advance to the next slave.
 		++k;
+		
 	}
-	
-	// Determine whether a matching index was found.
-	if ( (k >= NUM_FRONT_LEG_MUSCLES) )
+		
+	// Determine whether to set the slave index to an error value.
+	if ( (k >= slave_ptr->num_slaves) )				// If the slave index number is greater than or equal to the number of slaves...
 	{
+		
+		// Set the slave index to be 255.  We interpret this as an error value.
 		k = 255;
+		
 	}
-	
-	// Return the associated index.
+		
+	// Return the slave index.
 	return k;
 	
 }
 
 
-// Implement a function to update the muscle states on/off based on the associated command values.
-void update_muscle_on_off_states( struct int_array_struct * command_data_ptr)
+// Implement a function to determine the slave index associated with a specific slave ID.
+uint8_t get_slave_index_from_slave_ID( struct slave_struct_array * slave_ptr, uint8_t slave_ID )
 {
 	
-	// Define a variable to store the muscle info index associated with each command muscle id.
-	uint8_t k2;
-	
-	// Set each of the muscle pin states on/off according to whether the command value exceeds a certain threshold.
-	for (uint8_t k1 = 0; k1 < command_data_ptr->length; ++k1)						// Iterate through each of the commands...
-	{
-		// Retrieve the muscle info index associated with this command.
-		k2 = get_muscle_index( command_data_ptr->IDs[k1] );
-		
-		// Determine whether a matching muscle index was found.
-		if (!(k2 == 255))																// If a matching muscle index was found...
-		{
-			// Determine whether to set the pin associated with this muscle high or low based on whether the associated command value exceeds a certain threshold.
-			if (command_data_ptr->values[k1] > activation_threshold)				// If the command value for this muscle exceeds the activation threshold...
-			{
-				
-				// Set the pin state to high.
-				//sbi(*(muscle_info[k2].port), muscle_info[k2].pin);					// Set the pin associated with this muscle high...
-				set_pin_state( muscle_info[k2].port, muscle_info[k2].pin, 1 )
-				
-			}
-			else
-			{
-				
-				// Set the pin state to low.
-				//cbi(*(muscle_info[k2].port), muscle_info[k2].pin);					// Set the pin associated with this muscle low...
-				set_pin_state( muscle_info[k2].port, muscle_info[k2].pin, 0 )
-				
-			}
-		}
-	}
-	
-}
-
-
-// Implement a temporary function to use the DAC as one of the muscle pins.
-void use_dac_as_muscle_pin( struct int_array_struct * command_data_ptr )
-{
-
-	// Define local variables.
-	uint8_t bCriticalMuscleFound = 0;
+	// Create a variable to store the slave index.
 	uint8_t k = 0;
-
-	// Determine whether the critical muscle is included in the command data.
-	while ( (k < command_data_ptr->length) && (!bCriticalMuscleFound))
+	
+	// Determine which slave has a slave ID that matches the slave ID we want.
+	while ( (k < slave_ptr->num_slaves) && (!(slave_ID == slave_ptr->slave[k].slave_ID)) )			// While we haven't gone through all of the slaves and we haven't found a match...
 	{
 		
-		// If the command data matches the critical command data index.
-		if (command_data_ptr->IDs[k] == 39)
-		{
-			
-			// Set the critical muscle found flag to true.
-			bCriticalMuscleFound = 1;
-			
-		}
-		
-		// Advance the counter variable.
+		// Advance to the next slave.
 		++k;
 		
 	}
-		
-	// Decrease the counter variable by one.
-	--k;
 	
-	// Determine whether to write the dac low or high.
-	if ((bCriticalMuscleFound) && (command_data_ptr->values[k] > activation_threshold))
+	// Determine whether to set the slave index to an error value.
+	if ( (k >= slave_ptr->num_slaves) )				// If the slave index number is greater than or equal to the number of slaves...
 	{
 		
-		// Turn the dac on to its maximum value.
-		write2DAC(DAC_ON_VALUE);
-		
-	}
-	else
-	{
-		
-		// Turn the dac on to its minimum value.
-		write2DAC(DAC_OFF_VALUE);
-		
-	}
-	
-}
-	
-	
-// Implement a function to retrieve the slave index associated with a specific muscle ID.
-uint8_t get_slave_index( uint8_t muscle_ID )
-{
-	
-	// Create a variable to store the associated muscle index.
-	uint8_t k = 0;
-			
-	// Iterate through each of the muscles in the muscle info structure searching for a matching ID.
-	while ( (k < NUM_TOTAL_MUSCLES) && (!(muscle_ID == slave_info[k].muscle_ID)) )
-	{
-		++k;
-	}
-			
-	// Determine whether a matching index was found.
-	if ( (k >= NUM_TOTAL_MUSCLES) )
-	{
+		// Set the slave index to be 255.  We interpret this as an error value.
 		k = 255;
-	}
-			
-	// Return the associated index.
-	return k;
 		
+	}
+	
+	// Return the slave index.
+	return k;
+	
 }
 
-	

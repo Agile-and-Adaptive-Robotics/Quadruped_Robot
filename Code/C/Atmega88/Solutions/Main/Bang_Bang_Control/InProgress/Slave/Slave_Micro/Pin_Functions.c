@@ -1,8 +1,10 @@
 // Pin Functions.
+
 // This script implements miscellaneous functions that control microcontroller pins.
 
 // Include the associated header file.
 #include "Slave_Micro_Header.h"
+
 
 // Implement a function to set a pin state.
 void set_pin_state( unsigned char * port_num, uint8_t pin_num, uint8_t pin_state )
@@ -19,6 +21,7 @@ void set_pin_state( unsigned char * port_num, uint8_t pin_num, uint8_t pin_state
 
 }
 
+
 // Implement a function to toggle a pin.
 void toggle_pin( unsigned char * port_num, uint8_t pin_num )
 {
@@ -27,3 +30,4 @@ void toggle_pin( unsigned char * port_num, uint8_t pin_num )
 	*port_num ^= (1 << pin_num);
 	
 }
+

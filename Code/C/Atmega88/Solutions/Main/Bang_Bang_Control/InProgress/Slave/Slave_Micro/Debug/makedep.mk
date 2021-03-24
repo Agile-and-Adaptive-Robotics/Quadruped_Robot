@@ -8,9 +8,15 @@ Control_Functions.c
 
 Conversion_Functions.c
 
-Serial_Communication_Functions.c
+Encoder_Functions.c
+
+Pin_Functions.c
 
 Setup_Functions.c
 
-Slave_Micro_Testing_Main.c
+Slave_Micro_Main.c
+
+SPI_Functions.c
+
+USART_Functions.c
 

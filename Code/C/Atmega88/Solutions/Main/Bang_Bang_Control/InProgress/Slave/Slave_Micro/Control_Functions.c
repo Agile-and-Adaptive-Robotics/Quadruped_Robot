@@ -5,6 +5,7 @@
 // Include the associated header file.
 #include "Slave_Micro_Header.h"
 
+
 // Implement a function that causes the appropriate valve to open when the activation level is above a set threshold and close when the activation level is below this same threshold.
 void on_off_threshold_control( uint16_t activation_level )
 {
@@ -28,13 +29,9 @@ void on_off_threshold_control( uint16_t activation_level )
 void bang_bang_pressure_control( float p_desired, float p_actual )
 {
 	
-	// Define local variables.
-	float p_lower;
-	float p_upper;
-	
 	// Compute the lower and upper pressure bounds.
-	p_lower = p_desired - p_threshold;
-	p_upper = p_desired + p_threshold;
+	float p_lower = p_desired - p_threshold;
+	float p_upper = p_desired + p_threshold;
 
 	// Determine whether to open or close the valve.
 	if (p_actual > p_upper)				// If the current pressure is above the upper pressure limit...
