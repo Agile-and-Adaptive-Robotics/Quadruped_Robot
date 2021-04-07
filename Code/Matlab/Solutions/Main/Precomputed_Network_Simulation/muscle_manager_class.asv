@@ -13,9 +13,11 @@ classdef muscle_manager_class
     methods
         
         % Implement the class constructor.
-        function self = muscle_manager_class( IDs, names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, lengths, resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s )
+        function self = muscle_manager_class( IDs, names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, lengths, resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s, network_dt, num_int_steps )
             
             % Define the default class properties.
+            if nargin < 35, num_int_steps = 10; end
+            if nargin < 34, network_dt = 1e-3; end
             if nargin < 33, c6s = 1; end
             if nargin < 32, c5s = 1; end
             if nargin < 31, c4s = 1; end
@@ -54,6 +56,8 @@ classdef muscle_manager_class
             self.num_muscles = length(IDs);
             
             % Ensure that we have the correct number of properties for each muscle.
+            num_int_steps = self.validate_property( num_int_steps, 'num_int_steps' );
+
             c6s = self.validate_property( c6s, 'c6s' );
             c5s = self.validate_property( c5s, 'c5s' );
             c4s = self.validate_property( c4s, 'c4s' );
@@ -95,7 +99,7 @@ classdef muscle_manager_class
             for k = 1:self.num_muscles              % Iterate through each muscle...
                 
                 % Create this muscle.
-                self.muscles(k) = muscle_class( IDs(k), names{k}, activations(k), activation_domains{k}, desired_total_tensions(k), desired_active_tensions(k), desired_passive_tensions(k), measured_total_tensions(k), measured_active_tensions(k), measured_passive_tensions(k), tension_domains{k}, desired_pressures(k), measured_pressures(k), pressure_domains{k}, lengths(k), resting_lengths(k), strains(k), max_strains(k), velocities(k), yanks(k), typeIa_feedbacks(k), typeIb_feedbacks(k), typeII_feedbacks(k), kses(k), kpes(k), bs(k), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k) );
+                self.muscles(k) = muscle_class( IDs(k), names{k}, activations(k), activation_domains{k}, desired_total_tensions(k), desired_active_tensions(k), desired_passive_tensions(k), measured_total_tensions(k), measured_active_tensions(k), measured_passive_tensions(k), tension_domains{k}, desired_pressures(k), measured_pressures(k), pressure_domains{k}, lengths(k), resting_lengths(k), strains(k), max_strains(k), velocities(k), yanks(k), typeIa_feedbacks(k), typeIb_feedbacks(k), typeII_feedbacks(k), kses(k), kpes(k), bs(k), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k), num_int_steps(k) );
                 
             end
             
@@ -262,38 +266,39 @@ classdef muscle_manager_class
             % Preallocate an array to store the pressures.
             pressures = zeros(1, slave_manager.num_slaves);
   
-            
-            for k = 1:slave_manager.num_slaves
+            % Set the measured pressures for each slave / muscle pair.
+            for k = 1:slave_manager.num_slaves                  % Iterate through each slave...
                
-
-                
-                if mod(k, 2) == 1
+                % Determine how to compute the muscle pressures.
+                if mod(k, 2) == 1                   % If this slave is index is odd...
                     
                     % Get the muscle index for the muscles associated with this slave and the next slave.
                     muscle_index1 = self.get_muscle_index( slave_manager.slaves(k).muscle_ID );
                     muscle_index2 = self.get_muscle_index( slave_manager.slaves(k + 1).muscle_ID );
 
                     % Store the muscle pressures associated with this slave.
-                    pressures(k) = self.conversion_manager.uint162double( self, slave_manager.slaves(k).measured_pressure_value1, self.muscles(muscle_index1).pressure_domain );
-                    pressures(k + 1) = self.conversion_manager.uint162double( self, slave_manager.slaves(k).measured_pressure_value2, self.muscles(muscle_index2).pressure_domain );
+                    pressures(k) = self.conversion_manager.uint162double( slave_manager.slaves(k).measured_pressure_value1, self.muscles(muscle_index1).pressure_domain );
+                    pressures(k + 1) = self.conversion_manager.uint162double( slave_manager.slaves(k).measured_pressure_value2, self.muscles(muscle_index2).pressure_domain );
 
                     
-                else
+                else                                % Otherwise...
                     
                     % Get the muscle index for the muscles associated with this slave and the previous slave.
                     muscle_index1 = self.get_muscle_index( slave_manager.slaves(k).muscle_ID );
                     muscle_index2 = self.get_muscle_index( slave_manager.slaves(k - 1).muscle_ID );
                     
-                    % Store the average of these pressures associated with this slave
-                    pressures(k) = mean( [ pressures(k), self.conversion_manager.uint162double( self, slave_manager.slaves(k).measured_pressure_value1, self.muscles(muscle_index1).pressure_domain ) ] );
-                    pressures(k - 1) = mean( [ pressures(k - 1), self.conversion_manager.uint162double( self, slave_manager.slaves(k).measured_pressure_value2, self.muscles(muscle_index2).pressure_domain ) ] );
+                    % Store the average of the pressures associated with this slave.
+                    pressures(k) = mean( [ pressures(k), self.conversion_manager.uint162double( slave_manager.slaves(k).measured_pressure_value1, self.muscles(muscle_index1).pressure_domain ) ] );
+                    pressures(k - 1) = mean( [ pressures(k - 1), self.conversion_manager.uint162double( slave_manager.slaves(k).measured_pressure_value2, self.muscles(muscle_index2).pressure_domain ) ] );
                     
+                    % Store the muscle pressures.
+                    self.muscles(muscle_index1).measured_pressure = pressures(k);
+                    self.muscles(muscle_index2).measured_pressure = pressures(k - 1);
+
                 end
                 
             end
             
-            measured_pressure
-
             
         end
         

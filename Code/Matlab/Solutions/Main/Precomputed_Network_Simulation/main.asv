@@ -6,6 +6,23 @@
 clear, close('all'), clc
 
 
+%% Load Precomputed Simulation Data.
+
+% Define the path to the file we want to load.
+load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Solutions\Main\Precomputed_Network_Simulation';
+file_name = 'Precomputed_Network_Simulation_Data.xlsx';
+file_path = [load_path, '\', file_name];
+
+% Define the maximum number of data points to load.
+max_num_data_points = 1000;
+
+% Create an instance of the simulation data class.
+simulation_manager = simulation_manager_class();
+
+% Load the precomputed simulation data.
+simulation_manager = simulation_manager.load_simulation_data( file_path, max_num_data_points );
+
+
 %% Initialize Slave Data Managers.
 
 % Define the number of slaves.
@@ -128,8 +145,11 @@ c4s = -0.331e-3;                     % [1/N] Model Parameter 4
 c5s = 1.23e3;                        % [Pa/N] Model Parameter 5
 c6s = 15.6e3;                        % [Pa] Model Parameter 6
 
+% Define the number of steps to perform per simulation time step when integrating the Hill Muscle Model.
+num_int_steps = 10;
+
 % Create an instance of the muscle manager class.
-muscle_manager = muscle_manager_class( muscle_IDs, muscle_names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, muscle_lengths, muscle_resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s );
+muscle_manager = muscle_manager_class( muscle_IDs, muscle_names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, muscle_lengths, muscle_resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s, simulation_manager.dt, num_int_steps );
 
 
 %% Initialize USART Communication.
@@ -148,23 +168,6 @@ usart_manager = usart_manager_class();
 
 % Initialize the USART serial ports.
 usart_manager = usart_manager.initialize_serial_ports( COM_port_names, baud_rate_physical_ports, baud_rate_virtual_ports );
-
-
-%% Load Precomputed Simulation Data.
-
-% Define the path to the file we want to load.
-load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Solutions\Main\Precomputed_Network_Simulation';
-file_name = 'Precomputed_Network_Simulation_Data.xlsx';
-file_path = [load_path, '\', file_name];
-
-% Define the maximum number of data points to load.
-max_num_data_points = 1000;
-
-% Create an instance of the simulation data class.
-simulation_manager = simulation_manager_class();
-
-% Load the precomputed simulation data.
-simulation_manager = simulation_manager.load_simulation_data( file_path, max_num_data_points );
 
 
 %% Initialize Sensor Data Manager.
@@ -206,10 +209,10 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     muscle_manager = muscle_manager.set_muscle_activations( simulation_manager.muscle_IDs, simulation_manager.activations(k, :) );
     
     % Compute the desired total muscle tensions associated with the current muscle activations.
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_total_tension' );
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_active_tension' );
     
     % Compute the desired active and desired passive muscle tensions associated with the current total muscle activations.
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_active_passive_tension' );
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
 
     % Compute the desired pressure for each muscle.
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_pressure' );
@@ -223,8 +226,8 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     % Write the desired BPA pressures to the master microcontroller.
     usart_manager.write_bytes_to_master( master_port_type );
     
-    
-    if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')
+    % Determine whether we need to emulate the master microcontroller behavior.
+    if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')                   % If we are using a virtual port for the master microcontroller...
     
         % Emulate the master microcontroller reporting sensory information to Matlab.
         usart_manager.emulate_master_read_write( slave_manager );
@@ -235,10 +238,28 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     usart_manager = usart_manager.read_bytes_from_master( slave_manager.slave_packet_size, master_port_type );
     
     % Store the sensor data into the associated slave in the slave manager.
-    slave_manager.store_sensor_data( usart_manager );
+    slave_manager = slave_manager.store_sensor_data( usart_manager );
+    
     
     % Store the muscle sensory data into the appropriate muscle in the muscle manager.
+    muscle_manager = muscle_manager.set_measured_pressures( slave_manager );
     
+    % Compute the measured total tension associated with the measured muscle pressure.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_pressure2measured_total_tension' );
+
+    % Compute the measured active and passive tension associated with the measured total tension.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2measured_active_passive_tension' );
+
+    
+    % Compute the Type Ia (muscle velocity) feedback.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'velocity2typeIa_feedback' );
+    
+    % Compute the Type Ib (muscle tension) feedback.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2typeIb_feedback' );
+
+    % Compute the Type II (muscle velocity) feedback.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'length2typeII_feedback' );
+
     
     % Store the sensor data into the sensor data manager.
     

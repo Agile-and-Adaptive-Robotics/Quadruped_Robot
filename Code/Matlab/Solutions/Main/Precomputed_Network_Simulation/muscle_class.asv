@@ -2,6 +2,8 @@ classdef muscle_class
     
     % This class contains properties and methods related to muscles.
     
+    %% MUSCLE PROPERTIES
+    
     % Define the muscle data class properties.
     properties
         ID
@@ -20,9 +22,11 @@ classdef muscle_class
         pressure_domain
         length
         resting_length
+        length_domain
         strain
         max_strain
         velocity
+        velocity_domain
         yank
         typeIa_feedback                 % [V] Velocity Feedback
         typeIb_feedback                 % [V] Tension Feedback
@@ -37,17 +41,23 @@ classdef muscle_class
         c4
         c5
         c6
+        network_dt
+        num_int_steps
         numerical_method_utilities
     end
     
+    
+    %% MUSCLE METHODS SETUP
     
     % Define the muscle class methods.
     methods
         
         % Implement the class constructor.
-        function self = muscle_class( ID, name, activation, activation_domain, desired_total_tension, desired_active_tension, desired_passive_tension, measured_total_tension, measured_active_tension, measured_passive_tension, tension_domain, desired_pressure, measured_pressure, pressure_domain, length, resting_length, strain, max_strain, velocity, yank, typeIa_feedback, typeIb_feedback, typeII_feedback, kse, kpe, b, c0, c1, c2, c3, c4, c5, c6 )
+        function self = muscle_class( ID, name, activation, activation_domain, desired_total_tension, desired_active_tension, desired_passive_tension, measured_total_tension, measured_active_tension, measured_passive_tension, tension_domain, desired_pressure, measured_pressure, pressure_domain, length, resting_length, strain, max_strain, velocity, yank, typeIa_feedback, typeIb_feedback, typeII_feedback, kse, kpe, b, c0, c1, c2, c3, c4, c5, c6, network_dt, num_int_steps )
             
             % Define the default class properties.
+            if nargin < 35, self.num_int_steps = 10; else, self.num_int_steps = num_int_steps; end
+            if nargin < 34, self.network_dt = 1e-3; else, self.network_dt = network_dt; end
             if nargin < 33, self.c6 = 1; else, self.c6 = c6; end
             if nargin < 32, self.c5 = 1; else, self.c5 = c5; end
             if nargin < 31, self.c4 = 1; else, self.c4 = c4; end
@@ -82,11 +92,19 @@ classdef muscle_class
             if nargin < 2, self.name = ''; else, self.name = name; end
             if nargin < 1, self.ID = 0; else, self.ID = ID; end
             
+            % Compute the length domain.
+            self.length_domain = [ self.max_strain*self.resting_length, self.resting_length ];
+            
+            % Compute the maximum muscle speed.
+            self.velocity_domain = ( range( self.length_domain )/self.network_dt )*[-1, 1];
+            
             % Create an instance of the numerical methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class();
             
         end
         
+        
+        %% HILL MUSCLE MODEL FUNCTIONS
         
         % Implement a function to compute a single step of the forward hill muscle model.  (Active Tension, Yank, Length, Velocity -> Total Tension)
         function dT = forward_hill_muscle_step( ~, T, L, dL, A, kse, kpe, b )
@@ -173,6 +191,8 @@ classdef muscle_class
         end
         
         
+        %% BPA FUNCTIONS
+        
         % Implement a function to compute the forward BPA muscle model (epsilon, P -> F).
         function F = forward_BPA_model( ~, P, F_guess, epsilon, epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 )
             
@@ -194,6 +214,27 @@ classdef muscle_class
         end
         
         
+        % Implement a function to compute the hystersis factor.
+        function S = get_hystersis_factor( self )
+            
+            % Determine the hytersis factor.
+            if self.velocity <= 0                       % If the muscle is contracting or not moving...
+                
+                % Set the hystersis factor to zero.
+                S = 0;
+                
+            else                                        % Otherwise...
+                
+                % Set the hystersis factor to one.
+                S = 1;
+                
+            end
+            
+        end
+        
+        
+        %% STRAIN FUNCTIONS
+        
         % Implement a function to compute the muscle strain associated with the current muscle length.
         function self = length2strain( self )
             
@@ -212,80 +253,207 @@ classdef muscle_class
         end
         
         
-        % Implement a function to compute the total muscle tension associated with the a given muscle activation.
-        function total_tension = activation2total_tension( ~, activation_domain, tension_domain, activation )
+        %% MUSCLE ACTIVATION FUNCTIONS
+        
+        % Implement a function to compute the muscle tension (total or active) associated with a given muscle activation.
+        function tension = activation2tension( ~, activation_domain, tension_domain, activation )
             
-            % Convert the muscle activation to total muscle tension.
-            total_tension = interp1( activation_domain, tension_domain, activation );
+            % Convert the muscle activation to muscle tension (desired or active).
+            tension = interp1( activation_domain, tension_domain, activation );
             
         end
         
         
-        % Implement a function to compute the muscle activation associated with the a given total muscle tension.
-        function activation = total_tension2activation( ~, tension_domain, activation_domain, tension )
-           
-            % Convert the total muscle tension to muscle activation.
+        % Implement a function to compute the muscle activation associated with the a given muscle tension (total or active).
+        function activation = tension2activation( ~, tension_domain, activation_domain, tension )
+            
+            % Convert the muscle tension (desired or active) to muscle activation.
             activation = interp1( tension_domain, activation_domain, tension );
             
         end
-            
+        
         
         % Implement a function to compute the desired total muscle tension associated with the current muscle activation.
         function self = activation2desired_total_tension( self )
             
             % Convert the muscle activation to a desired total muscle tension.
-            self.desired_total_tension = self.activation2total_tension( self.activation_domain, self.tension_domain, self.activation );
-                        
+            self.desired_total_tension = self.activation2tension( self.activation_domain, self.tension_domain, self.activation );
+            
         end
         
         
+        % Implement a function to compute the desired active muscle tension associated with the current muscle activation.
+        function self = activation2desired_active_tension( self )
+            
+            % Convert the muscle activation to a desired total muscle tension.
+            self.desired_active_tension = self.activation2tension( self.activation_domain, self.tension_domain, self.activation );
+            
+        end
+        
+        
+        %% TOTAL, ACTIVE, AND PASSIVE MUSCLE TENSION FUNCTIONS
+        
         % Implement a function to compute the active and passive muscle tension associated with a given total muscle tension.
         function [ active_tension, passive_tension ] = total_tension2active_passive_tension( self, total_tension, yank, delta_L, velocity, kse, kpe, b )
-        
-           % Compute the active muscle tension.
+            
+            % Compute the active muscle tension.
             active_tension = self.inverse_hill_muscle( total_tension, yank, delta_L, velocity, kse, kpe, b );
             
             % Compute the passive muscle tension.
             passive_tension = total_tension - active_tension;
             
         end
+        
+        
+        % Implement a function to compute the total and passive muscle tension associated with a given active muscle tension.
+        function [ total_tension, passive_tension ] = active_tension2total_passive_tension( self, total_tension0, delta_L0, velocity, active_tension, kse, kpe, b, dt, num_steps )
             
+            % Compute the total tension associated with the current active tension.
+            total_tension = self.integrate_forward_hill_muscle( total_tension0, delta_L0, velocity, active_tension, kse, kpe, b, dt, num_steps );
+            
+            % Compute the passive tension associated with the current active tension.
+            passive_tension = total_tension - active_tension;
+            
+        end
+        
         
         % Implement a function to compute the desired active and desired passive muscle tension associated with the current desired total muscle tension.
         function self = desired_total_tension2desired_active_passive_tension( self )
             
-            [ active_tension, passive_tension ] = total_tension2active_passive_tension( self, total_tension, yank, delta_L, velocity, kse, kpe, b )
+            % Compute the desired active and desired passive tension associated with the current desired total tension.
+            [ self.desired_active_tension, self.desired_passive_tension ] = self.total_tension2active_passive_tension( self.desired_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
             
-            % Compute the desired active muscle tension.
-            self.desired_active_tension = self.inverse_hill_muscle( self.desired_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
+        end
+        
+        
+        % Implement a function to compute the desired total and desired passive muscle tension associated with the current desired active muscle tension.
+        function self = desired_active_tension2desired_total_passive_tension( self )
             
-            % Compute the desired passive muscle tension.
-            self.desired_passive_tension = self.desired_total_tension - self.desired_active_tension;
+            [ self.desired_total_tension, self.desired_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.length - self.resting_length, self.velocity, self.desired_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
+            
+        end
+        
+        
+        % Implement a function to compute the measured active and measured passive muscle tension associated with the current measured total muscle tension.
+        function self = measured_total_tension2measured_active_passive_tension( self )
+            
+            % Compute the desired active and desired passive tension associated with the current desired total tension.
+            [ self.measured_active_tension, self.measured_passive_tension ] = self.total_tension2active_passive_tension( self.measured_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
+            
+        end
+        
+        
+        % Implement a function to compute the measured total and measured passive muscle tension associated with the current measured active muscle tension.
+        function self = measured_active_tension2measured_total_passive_tension( self )
+            
+            [ self.measured_total_tension, self.measured_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.length - self.resting_length, self.velocity, self.measured_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
             
         end
         
         
         % Implement a function to compute the desired muscle pressure associated with the current desired total muscle tension.
         function self = desired_total_tension2desired_pressure( self )
-
-            % Determine the hytersis factor.
-            if self.velocity <= 0                       % If the muscle is contracting or not moving...
-                
-                % Set the hystersis factor to zero.
-                S = 0;
-                
-            else                                        % Otherwise...
-                
-                % Set the hystersis factor to one.
-                S = 1;
-                
-            end
+            
+            % Compute the hystersis factor.
+            S = self.get_hystersis_factor(  );
             
             % Compute the desired pressure associated with this desired total tension.
             self.desired_pressure = self.inverse_BPA_model( self.desired_total_tension, abs(self.strain), self.max_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
-
+            
         end
         
+        
+        % Implement a function to compute the desired total muscle pressure from the current desired total muscle tension.
+        function self = desired_pressure2desired_total_tension( self )
+            
+            % Compute the hystersis factor.
+            S = self.get_hystersis_factor(  );
+            
+            % Compute the desired total tension.
+            self.desired_total_tension = self.forward_BPA_model( self.desired_pressure, self.desired_total_tension, abs(self.strain), self.max_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
+            
+        end
+        
+        
+        % Implement a function to compute the measured muscle pressure associated with the current measured total muscle tension.
+        function self = measured_total_tension2measured_pressure( self )
+            
+            % Compute the hystersis factor.
+            S = self.get_hystersis_factor(  );
+            
+            % Compute the measured pressure associated with this measured total tension.
+            self.measured_pressure = self.inverse_BPA_model( self.measured_total_tension, abs(self.strain), self.max_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
+            
+        end
+        
+        
+        % Implement a function to compute the measured total muscle pressure from the current measured total muscle tension.
+        function self = measured_pressure2measured_total_tension( self )
+            
+            % Compute the hystersis factor.
+            S = self.get_hystersis_factor(  );
+            
+            % Compute the measured total tension.
+            self.measured_total_tension = self.forward_BPA_model( self.measured_pressure, self.measured_total_tension, abs(self.strain), self.max_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
+            
+        end
+        
+        
+        %% MUSCLE FEEDBACK FUNCTIONS
+        
+        % Implement a function to saturate a muscle property.
+        function value = saturate_value( value, domain )
+            
+            % Saturate the given value.
+            if value < domain(1)                 % If the measured total tension is below the lower tension bound...
+                
+                % Set the saturated tension to be the lower tension bound.
+                value = domain(1);
+                
+            elseif value > domain(2)                 % If the measured total tension is below the upper tension bound...
+                
+                % Set the saturated tension to be the upper tension bound.
+                value = domain(2);
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute Type Ia feedback from muscle velocity.
+        function self = velocity2typeIa_feedback( self )
+            
+            % Saturate the muscle velocity.
+            saturated_velocity = self.saturate_value( self.velocity, self.velocity_domain );
+            
+            % Compute the Typa Ia feedback from the saturated muscle velocity.
+            self.typeIa_feedback = interp1( self.velocity_domain, self.activation_domain, saturated_velocity );
+            
+        end
+        
+        
+        % Implement a function to compute Type Ib feedback from the measured total tension.
+        function self = measured_total_tension2typeIb_feedback( self )
+            
+            % Saturate the measured total tension.
+            saturated_tension = self.saturate_value( self.measured_total_tension, self.tension_domain );
+            
+            % Compute the type Ib feedback associated with the saturated muscle tension.
+            self.typeIb_feedback = interp1( self.tension_domain, self.activation_domain, saturated_tension );
+            
+        end
+        
+        
+        % Implement a function to compute Type feedback from the muscle length.
+        function self = length2typeII_feedback( self )
+            
+            % Saturate the muscle length.
+            saturated_length = self.saturate_value( self.length, self.length_domain );
+            
+            % Compute the typeII feedback associated with the saturated muscle length.
+            self.typeII_feedback = interp1( self.length_domain, self.activation_domain, saturated_length );
+            
+        end
         
         
     end

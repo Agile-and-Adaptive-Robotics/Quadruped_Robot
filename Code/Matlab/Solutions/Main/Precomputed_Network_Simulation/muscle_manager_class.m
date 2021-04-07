@@ -13,9 +13,11 @@ classdef muscle_manager_class
     methods
         
         % Implement the class constructor.
-        function self = muscle_manager_class( IDs, names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, lengths, resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s )
+        function self = muscle_manager_class( IDs, names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, lengths, resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s, network_dt, num_int_steps )
             
             % Define the default class properties.
+            if nargin < 35, num_int_steps = 10; end
+            if nargin < 34, network_dt = 1e-3; end
             if nargin < 33, c6s = 1; end
             if nargin < 32, c5s = 1; end
             if nargin < 31, c4s = 1; end
@@ -54,6 +56,8 @@ classdef muscle_manager_class
             self.num_muscles = length(IDs);
             
             % Ensure that we have the correct number of properties for each muscle.
+            num_int_steps = self.validate_property( num_int_steps, 'num_int_steps' );
+            network_dt = self.validate_property( network_dt, 'network_dt' );
             c6s = self.validate_property( c6s, 'c6s' );
             c5s = self.validate_property( c5s, 'c5s' );
             c4s = self.validate_property( c4s, 'c4s' );
@@ -95,7 +99,7 @@ classdef muscle_manager_class
             for k = 1:self.num_muscles              % Iterate through each muscle...
                 
                 % Create this muscle.
-                self.muscles(k) = muscle_class( IDs(k), names{k}, activations(k), activation_domains{k}, desired_total_tensions(k), desired_active_tensions(k), desired_passive_tensions(k), measured_total_tensions(k), measured_active_tensions(k), measured_passive_tensions(k), tension_domains{k}, desired_pressures(k), measured_pressures(k), pressure_domains{k}, lengths(k), resting_lengths(k), strains(k), max_strains(k), velocities(k), yanks(k), typeIa_feedbacks(k), typeIb_feedbacks(k), typeII_feedbacks(k), kses(k), kpes(k), bs(k), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k) );
+                self.muscles(k) = muscle_class( IDs(k), names{k}, activations(k), activation_domains{k}, desired_total_tensions(k), desired_active_tensions(k), desired_passive_tensions(k), measured_total_tensions(k), measured_active_tensions(k), measured_passive_tensions(k), tension_domains{k}, desired_pressures(k), measured_pressures(k), pressure_domains{k}, lengths(k), resting_lengths(k), strains(k), max_strains(k), velocities(k), yanks(k), typeIa_feedbacks(k), typeIb_feedbacks(k), typeII_feedbacks(k), kses(k), kpes(k), bs(k), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k), num_int_steps(k) );
                 
             end
             
