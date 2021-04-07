@@ -372,10 +372,10 @@ classdef usart_manager_class
             total_bytes = self.num_start_bytes + 1 + slave_packet_size*num_slaves + 1;
             
             % Preallocate the read from master bytes.
-            read_bytes = uint8( zeros( 1, total_bytes ) );
+            read_bytes = uint8( zeros( 1, total_bytes );
             
             % Set the first several of the read from master bytes.
-            read_bytes(1:self.num_start_bytes) = uint8( 255*ones(1, self.num_start_bytes) ); read_bytes(self.num_start_bytes + 1) = uint8( num_slaves );
+            read_bytes(1:self.num_start_bytes) = 255*ones(1, self.num_start_bytes); read_bytes(self.num_start_bytes + 1) = num_slaves;
             
             % Set the rest of the bytes.
             read_bytes(4:end) = read( serial_port, total_bytes - 3, 'uint8' );

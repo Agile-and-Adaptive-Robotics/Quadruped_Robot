@@ -223,8 +223,8 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     % Write the desired BPA pressures to the master microcontroller.
     usart_manager.write_bytes_to_master( master_port_type );
     
-    % Determine whether we need to emulate the master microcontroller behavior.
-    if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')                   % If we are using a virtual port for the master microcontroller...
+    
+    if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')
     
         % Emulate the master microcontroller reporting sensory information to Matlab.
         usart_manager.emulate_master_read_write( slave_manager );
@@ -235,10 +235,10 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     usart_manager = usart_manager.read_bytes_from_master( slave_manager.slave_packet_size, master_port_type );
     
     % Store the sensor data into the associated slave in the slave manager.
-    slave_manager = slave_manager.store_sensor_data( usart_manager );
+    slave_manager.store_sensor_data( usart_manager );
     
     % Store the muscle sensory data into the appropriate muscle in the muscle manager.
-    muscle_manager = muscle_manager.set_measured_pressures( slave_manager );
+    
     
     % Store the sensor data into the sensor data manager.
     

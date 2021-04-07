@@ -178,7 +178,7 @@ classdef slave_manager_class
             read_bytes = usart_manager.read_from_master_bytes;
             
             % Initialize the byte index.
-            byte_index = usart_manager.num_start_bytes + 1;
+            byte_index = self.num_start_bytes + 1;
             
             % Retrieve the number of sensor data packets received.
             num_packets = read_bytes(byte_index);
@@ -196,22 +196,26 @@ classdef slave_manager_class
                 slave_index = self.get_slave_index( slave_ID );
                 
                 % Retrieve the first pressure sensor value.
-                self.slaves(slave_index).measured_pressure_value1 = typecast( read_bytes( (byte_index + 1):(byte_index + 2) ), 'uint16' );
+                self.slaves(slave_index).pressure_sensor_value1 = typecast( read_bytes(byte_index+ );
                 
-                % Retrieve the second pressure sensor value.
-                self.slaves(slave_index).measured_pressure_value2 = typecast( read_bytes( (byte_index + 3):(byte_index + 4) ), 'uint16' );
-
-                % Retrieve the joint value.
-                self.slaves(slave_index).measured_joint_value = typecast( read_bytes( (byte_index + 5):(byte_index + 6) ), 'uint16' );
-
                 % Advance the byte index.
                 byte_index = byte_index + self.slave_packet_size;
+                
+                muscle_ID
+                muscle_name
+                pressure_sensor_ID1
+                pressure_sensor_ID2
+                joint_ID
+                joint_name
+                measured_pressure_value1
+                measured_pressure_value2
+                measured_joint_value
+                desired_pressure
            
             end
             
             
         end
-        
         
     end
 end

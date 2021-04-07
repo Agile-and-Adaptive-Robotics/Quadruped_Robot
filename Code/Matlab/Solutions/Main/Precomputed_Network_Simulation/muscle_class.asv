@@ -254,8 +254,13 @@ classdef muscle_class
         % Implement a function to compute the desired active and desired passive muscle tension associated with the current desired total muscle tension.
         function self = desired_total_tension2desired_active_passive_tension( self )
             
-            % Compute the desired active and desired passive tension associated with the current desired total tension.
-            [ self.desired_active_tension, self.desired_passive_tension ] = self.total_tension2active_passive_tension( self.desired_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
+            [ active_tension, passive_tension ] = total_tension2active_passive_tension( self, total_tension, yank, delta_L, velocity, kse, kpe, b )
+            
+            % Compute the desired active muscle tension.
+            self.desired_active_tension = self.inverse_hill_muscle( self.desired_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
+            
+            % Compute the desired passive muscle tension.
+            self.desired_passive_tension = self.desired_total_tension - self.desired_active_tension;
             
         end
         

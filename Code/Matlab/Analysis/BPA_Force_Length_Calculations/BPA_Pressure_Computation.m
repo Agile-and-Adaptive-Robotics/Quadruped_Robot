@@ -33,8 +33,8 @@ Ss = [0 1];
 
 %Define the applied force values.
 % Fs = [0 53.378659539010805e3 106.75731907802161e3];                 %[mN] Force applied to muscle.
-% Fs = 0;
-Fs = [0 12 24];
+Fs = 0;
+% Fs = [0 12 24];
 % Fs = (4.4482216282509*1000)*Fs;
 Fs = 4.4482216282509*Fs;
 
