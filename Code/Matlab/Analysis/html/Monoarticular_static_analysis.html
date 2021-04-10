@@ -1,0 +1,519 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Monoarticular_static_analysis</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-04-09"><meta name="DC.source" content="Monoarticular_static_analysis.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Monoarticular static analysis</a></li><li><a href="#2">Define geometric and physical constants</a></li><li><a href="#3">Computing static force requirements</a></li><li><a href="#4">Plot relationship between necessary knee flexor actuator pressure and attachment radii, varying actuator lengths</a></li><li><a href="#5">Plot relationship between necessary knee extensor actuator pressure and attachment radii, varying actuator lengths</a></li><li><a href="#6">Plot relationship between necessary ankle flexor actuator pressure and attachment radii, varying actuator lengths</a></li><li><a href="#7">Plot relationship between necessary ankle extensor actuator pressure and attachment radii, varying actuator lengths</a></li></ul></div><h2 id="1">Monoarticular static analysis</h2><pre class="codeinput"><span class="comment">% For quadruped robot hind legs</span>
+
+clear, close(<span class="string">'all'</span>), clc
+</pre><h2 id="2">Define geometric and physical constants</h2><pre class="codeinput"><span class="comment">% Defining hind leg section lengths</span>
+l1 = 8.625 * (0.0254);              <span class="comment">% [m] Limb length 1 (inches to meters conversion)</span>
+l2 = 8.625 * (0.0254);              <span class="comment">% [m] Limb length 2 (inches to meters conversion)</span>
+l3 = 6.5 * (0.0254);                <span class="comment">% [m] Limb length 3 (inches to meters conversion)</span>
+
+<span class="comment">% Define gravitational constant</span>
+g = 9.8;                            <span class="comment">% [m/s^2]</span>
+
+<span class="comment">% Define length of actuators</span>
+L_AF = (6:0.25:7.5) * (0.0254);        <span class="comment">% [m] Ankle flexor length (inches to meters conversion)</span>
+L_AE = (6:0.25:7.5) * (0.0254);        <span class="comment">% [m] Ankle extensor length (inches to meters conversion)</span>
+L_KF = (7:0.5:10) * (0.0254);       <span class="comment">% [m] Knee flexor length (inches to meters conversion)</span>
+L_KE = (7.5:0.5:10) * (0.0254);       <span class="comment">% [m] Knee extensor length (inches to meters conversion)</span>
+
+<span class="comment">% Define actuator masses based on linear density estimate of 1.698 kg/m</span>
+m_AF = 1.698 * L_AF;                <span class="comment">% [kg] Ankle flexor mass</span>
+m_AE = 1.698 * L_AE;                <span class="comment">% [kg] Ankle extensor mass</span>
+m_KF = 1.698 * L_KF;                <span class="comment">% [kg] Knee flexor mass</span>
+m_KE = 1.698 * L_KE;                <span class="comment">% [kg] Knee extensor mass</span>
+
+<span class="comment">% Define mass values of the hind leg sections</span>
+me = 0.0205;                        <span class="comment">% [kg] Mass of encoders</span>
+m1 = 0.1302;                        <span class="comment">% [kg] Section 1 leg mass</span>
+m2 = 0.1302;                        <span class="comment">% [kg] Section 2 leg mass</span>
+m3 = 0.09814;                       <span class="comment">% [kg] Section 2 leg mass</span>
+
+<span class="comment">% Define maximum actuator strain estimate</span>
+k_max = 0.1667;                     <span class="comment">% [-]</span>
+
+<span class="comment">% Define range of attachment radii</span>
+r_KF = 0.005:0.001:0.06;            <span class="comment">% [m] Knee flexor (5mm to 6cm range)</span>
+r_KE = 0.005:0.001:0.06;            <span class="comment">% [m] Knee extensor (5mm to 6cm range)</span>
+r_AF = 0.005:0.001:0.06;            <span class="comment">% [m] Ankle flexor (5mm to 6cm range)</span>
+r_AE = 0.005:0.001:0.06;            <span class="comment">% [m] Ankle extensor (5mm to 6cm range)</span>
+
+<span class="comment">% Define the safety factor of required force</span>
+SF = 1.6;                           <span class="comment">% [-]</span>
+
+<span class="comment">%Define BPA model constants (eq 4 from paper)</span>
+a0 = 254.3e3;                       <span class="comment">% [Pa] Model Parameter 0</span>
+a1 = 192e3;                         <span class="comment">% [Pa] Model Parameter 1</span>
+a2 = 2.0265;                        <span class="comment">% [-] Model Parameter 2</span>
+a3 = -0.461;                        <span class="comment">% [-] Model Parameter 3</span>
+a4 = -0.331e-3;                     <span class="comment">% [1/N] Model Parameter 4</span>
+a5 = 1.23e3;                        <span class="comment">% [Pa/N] Model Parameter 5</span>
+a6 = 15.6e3;                        <span class="comment">% [Pa] Model Parameter 6</span>
+
+<span class="comment">% Define the hysteresis factor</span>
+S = 1;                              <span class="comment">% [0,1]</span>
+</pre><h2 id="3">Computing static force requirements</h2><pre class="codeinput"><span class="comment">% Knee flexor: Compute torque from gravity at a maximally flexed position</span>
+T_KF_leg = (l2/2) * (m2 + m_AE + m_AF) * g;               <span class="comment">% [Nm] Torque from tibia frame and lower limb actuators</span>
+T_KF_ankle = (l2 + l3/2) * m3 * g;                        <span class="comment">% [Nm] Torque from ankle, at extended position</span>
+T__KF_encoder = l2 * me * g;                              <span class="comment">% [Nm] Torque from encoder at ankle</span>
+Tg_KF = T_KF_leg + T_KF_ankle + T__KF_encoder;            <span class="comment">% [Nm] Total torque on knee from gravity</span>
+
+<span class="comment">% Knee extensor: Compute torque from gravity at a maximally extended position</span>
+T_KE_leg = (l2/2) * (m2 + m_AE + m_AF) * g * cosd(60);    <span class="comment">% [Nm] Torque from tibia frame and lower limb actuators</span>
+T_KE_ankle = (l2 + l3 * cosd(60)/2) * m3 * g * cosd(60);  <span class="comment">% [Nm] Torque from foot, at extended position</span>
+T_KE_encoder = l2 * me * g * cosd(60);                    <span class="comment">% [Nm] Torque from encoder at ankle</span>
+Tg_KE = T_KE_leg + T_KE_ankle + T_KE_encoder;             <span class="comment">% [Nm] Total torque on knee from gravity</span>
+
+<span class="comment">% Ankle flexor: Compute torque from gravity at a maximally flexed position</span>
+Tg_AE = (l3 / 2) * (m3) * g;                              <span class="comment">% [Nm] Torque from flexed ankle position</span>
+
+<span class="comment">% Ankle extensor: Compute torque from gravity at a maximally extended position</span>
+Tg_AF = (l3 / 2) * (m3) * g;                              <span class="comment">% [Nm] Torque from extended ankle position</span>
+</pre><h2 id="4">Plot relationship between necessary knee flexor actuator pressure and attachment radii, varying actuator lengths</h2><pre class="codeinput"><span class="comment">% Preallocating an array for plot legend</span>
+key_KF = strings(1,length(L_KF));
+
+<span class="comment">% Setup the plot</span>
+fig = figure(<span class="string">'Color'</span>, <span class="string">'w'</span>); hold <span class="string">on</span>, grid <span class="string">on</span>, xlabel(<span class="string">'Attachment Radius [mm]'</span>), ylabel(<span class="string">'Required Pressure [kPa]'</span>), title(<span class="string">'Monoarticular Knee Flexor: Required Pressure'</span>), ylim([350 800])
+
+<span class="comment">% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length</span>
+<span class="keyword">for</span> n = 1:length(L_KF)                  <span class="comment">% Iterate through each resting muscle length</span>
+
+    <span class="comment">% Compute muscle strain at max flexion</span>
+    k_KF = (r_KF * pi() / 2) ./ L_KF(n);	<span class="comment">% [-] Knee flexor strain</span>
+
+    <span class="comment">% Remove strains that exceed max strain</span>
+    k_KF(k_KF &gt; k_max) = [];            <span class="comment">% [-] Knee flexor strain updated</span>
+
+    <span class="comment">% Compute necessary force for each actuator to resist gravity</span>
+    F_KF = SF * (Tg_KF(n) ./ r_KF);     <span class="comment">% [N] Knee flexor actuator force</span>
+
+    <span class="comment">% Compute necessary pressure to hold flexed position for each actuator</span>
+    P_KF = a0 + (a1 * tan( a2 * (( k_KF ./ (a4 * F_KF(1:length(k_KF)) + k_max)) + a3))) + (a5 * F_KF(1:length(k_KF))) + (a6 * S); <span class="comment">% [Pa]</span>
+
+    <span class="comment">% Plot attachment radius vs required pressure to achieve static</span>
+    <span class="comment">% requirements in appropriate units for each actuator and add legend</span>
+    <span class="comment">% entry for varying actuator curves</span>
+    figure(1)                           <span class="comment">% Knee flexor plot</span>
+    plot((r_KF(1:length(k_KF))*1000), (P_KF/1000), <span class="string">'-'</span>, <span class="string">'LineWidth'</span>, 3)
+    key_KF(n) = sprintf(<span class="string">'Actuator length: %.1f inch'</span>, (L_KF(n)/0.0254));
+
+<span class="keyword">end</span>
+
+<span class="comment">% Add a line on the plot representing max pressure available</span>
+yline(620, <span class="string">'--r'</span>, <span class="string">'LineWidth'</span>, 3);
+
+<span class="comment">% Add the legend                             % Knee flexor plot</span>
+legend(key_KF)
+</pre><img vspace="5" hspace="5" src="Monoarticular_static_analysis_01.png" alt=""> <h2 id="5">Plot relationship between necessary knee extensor actuator pressure and attachment radii, varying actuator lengths</h2><pre class="codeinput"><span class="comment">% Preallocating an array for plot legend</span>
+key_KE = strings(1,length(L_KE));
+
+<span class="comment">% Setup the plot</span>
+fig = figure(<span class="string">'Color'</span>, <span class="string">'w'</span>); hold <span class="string">on</span>, grid <span class="string">on</span>, xlabel(<span class="string">'Attachment Radius [mm]'</span>), ylabel(<span class="string">'Required Pressure [kPa]'</span>), title(<span class="string">'Monoarticular Knee Extensor: Required Pressure'</span>), ylim([350 800])
+
+<span class="comment">% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length</span>
+<span class="keyword">for</span> n = 1:length(L_KE)                  <span class="comment">% Iterate through each resting muscle length</span>
+
+    <span class="comment">% Compute muscle strain at max flexion</span>
+    k_KE = (r_KE * pi()/2) ./ L_KE(n);	<span class="comment">% [-] Knee flexor strain</span>
+
+    <span class="comment">% Remove strains that exceed max strain</span>
+    k_KE(k_KE &gt; k_max) = [];            <span class="comment">% [-] Knee flexor strain updated</span>
+
+    <span class="comment">% Compute necessary force for each actuator to resist gravity</span>
+    F_KE = SF * (Tg_KE(n) ./ r_KE);     <span class="comment">% [N] Knee flexor actuator force</span>
+
+    <span class="comment">% Compute necessary pressure to hold flexed position for each actuator</span>
+    P_KE = a0 + (a1 * tan( a2 * (( k_KE ./ (a4 * F_KE(1:length(k_KE)) + k_max)) + a3))) + (a5 * F_KE(1:length(k_KE))) + (a6 * S); <span class="comment">% [Pa]</span>
+
+    <span class="comment">% Plot attachment radius vs required pressure to achieve static</span>
+    <span class="comment">% requirements in appropriate units for each actuator and add legend</span>
+    <span class="comment">% entry for varying actuator curves</span>
+    figure(2)                           <span class="comment">% Knee flexor plot</span>
+    plot((r_KE(1:length(k_KE))*1000), (P_KE/1000), <span class="string">'-'</span>, <span class="string">'LineWidth'</span>, 3)
+    key_KE(n) = sprintf(<span class="string">'Actuator length: %.1f inch'</span>, (L_KE(n)/0.0254));
+
+<span class="keyword">end</span>
+
+<span class="comment">% Add a line on the plot representing max pressure available</span>
+figure(2)                              <span class="comment">% Knee flexor plot</span>
+yline(620, <span class="string">'--r'</span>, <span class="string">'LineWidth'</span>, 3);
+
+<span class="comment">% Add the legend</span>
+figure(2)                              <span class="comment">% Knee flexor plot</span>
+legend(key_KF)
+</pre><img vspace="5" hspace="5" src="Monoarticular_static_analysis_02.png" alt=""> <h2 id="6">Plot relationship between necessary ankle flexor actuator pressure and attachment radii, varying actuator lengths</h2><p>Preallocating an array for plot legend</p><pre class="codeinput">key_AF = strings(1,length(L_AF));
+
+<span class="comment">% Setup the plot</span>
+fig = figure(<span class="string">'Color'</span>, <span class="string">'w'</span>); hold <span class="string">on</span>, grid <span class="string">on</span>, xlabel(<span class="string">'Attachment Radius [mm]'</span>), ylabel(<span class="string">'Required Pressure [kPa]'</span>), title(<span class="string">'Monoarticular Ankle Flexor: Required Pressure'</span>)
+
+<span class="comment">% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length</span>
+<span class="keyword">for</span> n = 1:length(L_AF)                  <span class="comment">% Iterate through each resting muscle length</span>
+
+    <span class="comment">% Compute muscle strain at max flexion</span>
+    k_AF = (r_AF * pi()/2) ./ L_AF(n); <span class="comment">% [-] Ankle extensotr strain</span>
+
+    <span class="comment">% Remove strains that exceed max strain</span>
+    k_AF(k_AF &gt; k_max) = [];            <span class="comment">% [-] Ankle extensor strain updated</span>
+
+    <span class="comment">% Compute necessary force for each actuator to resist gravity</span>
+    F_AF = SF * (Tg_AF ./ r_AF);        <span class="comment">% [N] Ankle extensor actuator force</span>
+
+    <span class="comment">% Compute necessary pressure to hold flexed position for each actuator</span>
+
+    P_AF = a0 + (a1 * tan( a2 * (( k_AF ./ (a4 * F_AF(1:length(k_AF)) + k_max)) + a3))) + (a5 * F_AF(1:length(k_AF))) + (a6 * S); <span class="comment">% [Pa]</span>
+
+    <span class="comment">% Plot attachment radius vs required pressure to achieve static</span>
+    <span class="comment">% requirements in appropriate units for each actuator and add legend</span>
+    <span class="comment">% entry for varying actuator curves</span>
+
+    figure(3)                           <span class="comment">% Ankle extensor plot</span>
+    plot((r_AF(1:length(k_AF))*1000), (P_AF/1000), <span class="string">'-'</span>, <span class="string">'LineWidth'</span>, 3)
+    key_AF(n) = sprintf(<span class="string">'Actuator length: %.1f inch'</span>, (L_AF(n)/0.0254));
+
+<span class="keyword">end</span>
+
+<span class="comment">% Add a line on the plot representing max pressure available</span>
+yline(620, <span class="string">'--r'</span>, <span class="string">'LineWidth'</span>, 3);
+
+<span class="comment">% Add the legend</span>
+legend(key_AF)
+</pre><img vspace="5" hspace="5" src="Monoarticular_static_analysis_03.png" alt=""> <h2 id="7">Plot relationship between necessary ankle extensor actuator pressure and attachment radii, varying actuator lengths</h2><p>Preallocating an array for plot legend</p><pre class="codeinput">key_AE = strings(1,length(L_AE));
+
+<span class="comment">% Setup the plot</span>
+fig = figure(<span class="string">'Color'</span>, <span class="string">'w'</span>); hold <span class="string">on</span>, grid <span class="string">on</span>, xlabel(<span class="string">'Attachment Radius [mm]'</span>), ylabel(<span class="string">'Required Pressure [kPa]'</span>), title(<span class="string">'Monoarticular Ankle Extensor: Required Pressure'</span>)
+
+<span class="comment">% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length</span>
+<span class="keyword">for</span> n = 1:length(L_AE)                  <span class="comment">% Iterate through each resting muscle length</span>
+
+    <span class="comment">% Compute muscle strain at max flexion</span>
+    k_AE = (r_AE * pi()/2) ./ L_AE(n); <span class="comment">% [-] Ankle extensotr strain</span>
+
+    <span class="comment">% Remove strains that exceed max strain</span>
+    k_AE(k_AE &gt; k_max) = [];            <span class="comment">% [-] Ankle extensor strain updated</span>
+
+    <span class="comment">% Compute necessary force for each actuator to resist gravity</span>
+    F_AE = SF * (Tg_AE ./ r_AE);        <span class="comment">% [N] Ankle extensor actuator force</span>
+
+    <span class="comment">% Compute necessary pressure to hold flexed position for each actuator</span>
+
+    P_AE = a0 + (a1 * tan( a2 * (( k_AE ./ (a4 * F_AE(1:length(k_AE)) + k_max)) + a3))) + (a5 * F_AE(1:length(k_AE))) + (a6 * S); <span class="comment">% [Pa]</span>
+
+    <span class="comment">% Plot attachment radius vs required pressure to achieve static</span>
+    <span class="comment">% requirements in appropriate units for each actuator and add legend</span>
+    <span class="comment">% entry for varying actuator curves</span>
+
+    figure(4)                           <span class="comment">% Ankle extensor plot</span>
+    plot((r_AE(1:length(k_AE))*1000), (P_AE/1000), <span class="string">'-'</span>, <span class="string">'LineWidth'</span>, 3)
+    key_AE(n) = sprintf(<span class="string">'Actuator length: %.1f inch'</span>, (L_AE(n)/0.0254));
+
+<span class="keyword">end</span>
+
+<span class="comment">% Add a line on the plot representing max pressure available</span>
+yline(620, <span class="string">'--r'</span>, <span class="string">'LineWidth'</span>, 3);
+
+<span class="comment">% Add the legend</span>
+legend(key_AE)
+</pre><img vspace="5" hspace="5" src="Monoarticular_static_analysis_04.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Monoarticular static analysis 
+
+% For quadruped robot hind legs
+
+clear, close('all'), clc
+%% Define geometric and physical constants
+
+% Defining hind leg section lengths
+l1 = 8.625 * (0.0254);              % [m] Limb length 1 (inches to meters conversion)
+l2 = 8.625 * (0.0254);              % [m] Limb length 2 (inches to meters conversion)
+l3 = 6.5 * (0.0254);                % [m] Limb length 3 (inches to meters conversion)
+
+% Define gravitational constant
+g = 9.8;                            % [m/s^2]
+
+% Define length of actuators
+L_AF = (6:0.25:7.5) * (0.0254);        % [m] Ankle flexor length (inches to meters conversion)
+L_AE = (6:0.25:7.5) * (0.0254);        % [m] Ankle extensor length (inches to meters conversion)
+L_KF = (7:0.5:10) * (0.0254);       % [m] Knee flexor length (inches to meters conversion)
+L_KE = (7.5:0.5:10) * (0.0254);       % [m] Knee extensor length (inches to meters conversion)
+
+% Define actuator masses based on linear density estimate of 1.698 kg/m
+m_AF = 1.698 * L_AF;                % [kg] Ankle flexor mass
+m_AE = 1.698 * L_AE;                % [kg] Ankle extensor mass
+m_KF = 1.698 * L_KF;                % [kg] Knee flexor mass
+m_KE = 1.698 * L_KE;                % [kg] Knee extensor mass
+
+% Define mass values of the hind leg sections
+me = 0.0205;                        % [kg] Mass of encoders
+m1 = 0.1302;                        % [kg] Section 1 leg mass
+m2 = 0.1302;                        % [kg] Section 2 leg mass
+m3 = 0.09814;                       % [kg] Section 2 leg mass
+
+% Define maximum actuator strain estimate 
+k_max = 0.1667;                     % [-]
+
+% Define range of attachment radii
+r_KF = 0.005:0.001:0.06;            % [m] Knee flexor (5mm to 6cm range)
+r_KE = 0.005:0.001:0.06;            % [m] Knee extensor (5mm to 6cm range)
+r_AF = 0.005:0.001:0.06;            % [m] Ankle flexor (5mm to 6cm range)
+r_AE = 0.005:0.001:0.06;            % [m] Ankle extensor (5mm to 6cm range)
+
+% Define the safety factor of required force
+SF = 1.6;                           % [-]
+
+%Define BPA model constants (eq 4 from paper)
+a0 = 254.3e3;                       % [Pa] Model Parameter 0
+a1 = 192e3;                         % [Pa] Model Parameter 1
+a2 = 2.0265;                        % [-] Model Parameter 2
+a3 = -0.461;                        % [-] Model Parameter 3
+a4 = -0.331e-3;                     % [1/N] Model Parameter 4
+a5 = 1.23e3;                        % [Pa/N] Model Parameter 5
+a6 = 15.6e3;                        % [Pa] Model Parameter 6
+
+% Define the hysteresis factor
+S = 1;                              % [0,1]
+
+%% Computing static force requirements
+
+% Knee flexor: Compute torque from gravity at a maximally flexed position
+T_KF_leg = (l2/2) * (m2 + m_AE + m_AF) * g;               % [Nm] Torque from tibia frame and lower limb actuators
+T_KF_ankle = (l2 + l3/2) * m3 * g;                        % [Nm] Torque from ankle, at extended position
+T__KF_encoder = l2 * me * g;                              % [Nm] Torque from encoder at ankle
+Tg_KF = T_KF_leg + T_KF_ankle + T__KF_encoder;            % [Nm] Total torque on knee from gravity
+
+% Knee extensor: Compute torque from gravity at a maximally extended position
+T_KE_leg = (l2/2) * (m2 + m_AE + m_AF) * g * cosd(60);    % [Nm] Torque from tibia frame and lower limb actuators
+T_KE_ankle = (l2 + l3 * cosd(60)/2) * m3 * g * cosd(60);  % [Nm] Torque from foot, at extended position
+T_KE_encoder = l2 * me * g * cosd(60);                    % [Nm] Torque from encoder at ankle
+Tg_KE = T_KE_leg + T_KE_ankle + T_KE_encoder;             % [Nm] Total torque on knee from gravity
+
+% Ankle flexor: Compute torque from gravity at a maximally flexed position
+Tg_AE = (l3 / 2) * (m3) * g;                              % [Nm] Torque from flexed ankle position
+
+% Ankle extensor: Compute torque from gravity at a maximally extended position
+Tg_AF = (l3 / 2) * (m3) * g;                              % [Nm] Torque from extended ankle position
+
+
+
+%% Plot relationship between necessary knee flexor actuator pressure and attachment radii, varying actuator lengths
+
+% Preallocating an array for plot legend
+key_KF = strings(1,length(L_KF)); 
+
+% Setup the plot
+fig = figure('Color', 'w'); hold on, grid on, xlabel('Attachment Radius [mm]'), ylabel('Required Pressure [kPa]'), title('Monoarticular Knee Flexor: Required Pressure'), ylim([350 800])
+
+% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length
+for n = 1:length(L_KF)                  % Iterate through each resting muscle length
+   
+    % Compute muscle strain at max flexion
+    k_KF = (r_KF * pi() / 2) ./ L_KF(n);	% [-] Knee flexor strain
+    
+    % Remove strains that exceed max strain
+    k_KF(k_KF > k_max) = [];            % [-] Knee flexor strain updated
+    
+    % Compute necessary force for each actuator to resist gravity
+    F_KF = SF * (Tg_KF(n) ./ r_KF);     % [N] Knee flexor actuator force
+   
+    % Compute necessary pressure to hold flexed position for each actuator
+    P_KF = a0 + (a1 * tan( a2 * (( k_KF ./ (a4 * F_KF(1:length(k_KF)) + k_max)) + a3))) + (a5 * F_KF(1:length(k_KF))) + (a6 * S); % [Pa]
+    
+    % Plot attachment radius vs required pressure to achieve static
+    % requirements in appropriate units for each actuator and add legend
+    % entry for varying actuator curves
+    figure(1)                           % Knee flexor plot
+    plot((r_KF(1:length(k_KF))*1000), (P_KF/1000), '-', 'LineWidth', 3)
+    key_KF(n) = sprintf('Actuator length: %.1f inch', (L_KF(n)/0.0254));
+
+end
+
+% Add a line on the plot representing max pressure available 
+yline(620, 'REPLACE_WITH_DASH_DASHr', 'LineWidth', 3);
+
+% Add the legend                             % Knee flexor plot
+legend(key_KF)
+
+%% Plot relationship between necessary knee extensor actuator pressure and attachment radii, varying actuator lengths
+
+% Preallocating an array for plot legend
+key_KE = strings(1,length(L_KE)); 
+
+% Setup the plot
+fig = figure('Color', 'w'); hold on, grid on, xlabel('Attachment Radius [mm]'), ylabel('Required Pressure [kPa]'), title('Monoarticular Knee Extensor: Required Pressure'), ylim([350 800])
+
+% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length
+for n = 1:length(L_KE)                  % Iterate through each resting muscle length
+   
+    % Compute muscle strain at max flexion
+    k_KE = (r_KE * pi()/2) ./ L_KE(n);	% [-] Knee flexor strain
+    
+    % Remove strains that exceed max strain
+    k_KE(k_KE > k_max) = [];            % [-] Knee flexor strain updated
+    
+    % Compute necessary force for each actuator to resist gravity
+    F_KE = SF * (Tg_KE(n) ./ r_KE);     % [N] Knee flexor actuator force
+   
+    % Compute necessary pressure to hold flexed position for each actuator
+    P_KE = a0 + (a1 * tan( a2 * (( k_KE ./ (a4 * F_KE(1:length(k_KE)) + k_max)) + a3))) + (a5 * F_KE(1:length(k_KE))) + (a6 * S); % [Pa]
+    
+    % Plot attachment radius vs required pressure to achieve static
+    % requirements in appropriate units for each actuator and add legend
+    % entry for varying actuator curves
+    figure(2)                           % Knee flexor plot
+    plot((r_KE(1:length(k_KE))*1000), (P_KE/1000), '-', 'LineWidth', 3)
+    key_KE(n) = sprintf('Actuator length: %.1f inch', (L_KE(n)/0.0254));
+    
+end
+
+% Add a line on the plot representing max pressure available
+figure(2)                              % Knee flexor plot
+yline(620, 'REPLACE_WITH_DASH_DASHr', 'LineWidth', 3);
+
+% Add the legend
+figure(2)                              % Knee flexor plot
+legend(key_KF)
+
+%% Plot relationship between necessary ankle flexor actuator pressure and attachment radii, varying actuator lengths
+% Preallocating an array for plot legend
+key_AF = strings(1,length(L_AF));
+
+% Setup the plot
+fig = figure('Color', 'w'); hold on, grid on, xlabel('Attachment Radius [mm]'), ylabel('Required Pressure [kPa]'), title('Monoarticular Ankle Flexor: Required Pressure')
+
+% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length
+for n = 1:length(L_AF)                  % Iterate through each resting muscle length
+   
+    % Compute muscle strain at max flexion
+    k_AF = (r_AF * pi()/2) ./ L_AF(n); % [-] Ankle extensotr strain
+    
+    % Remove strains that exceed max strain
+    k_AF(k_AF > k_max) = [];            % [-] Ankle extensor strain updated
+    
+    % Compute necessary force for each actuator to resist gravity
+    F_AF = SF * (Tg_AF ./ r_AF);        % [N] Ankle extensor actuator force
+   
+    % Compute necessary pressure to hold flexed position for each actuator
+    
+    P_AF = a0 + (a1 * tan( a2 * (( k_AF ./ (a4 * F_AF(1:length(k_AF)) + k_max)) + a3))) + (a5 * F_AF(1:length(k_AF))) + (a6 * S); % [Pa]
+    
+    % Plot attachment radius vs required pressure to achieve static
+    % requirements in appropriate units for each actuator and add legend
+    % entry for varying actuator curves
+    
+    figure(3)                           % Ankle extensor plot
+    plot((r_AF(1:length(k_AF))*1000), (P_AF/1000), '-', 'LineWidth', 3)
+    key_AF(n) = sprintf('Actuator length: %.1f inch', (L_AF(n)/0.0254));
+    
+end
+
+% Add a line on the plot representing max pressure available       
+yline(620, 'REPLACE_WITH_DASH_DASHr', 'LineWidth', 3);
+
+% Add the legend                           
+legend(key_AF)
+
+%% Plot relationship between necessary ankle extensor actuator pressure and attachment radii, varying actuator lengths
+% Preallocating an array for plot legend
+key_AE = strings(1,length(L_AE));
+
+% Setup the plot
+fig = figure('Color', 'w'); hold on, grid on, xlabel('Attachment Radius [mm]'), ylabel('Required Pressure [kPa]'), title('Monoarticular Ankle Extensor: Required Pressure')
+
+% Plot the pressure required to resist gravity vs muscle attachment radii for each resting muscle length
+for n = 1:length(L_AE)                  % Iterate through each resting muscle length
+   
+    % Compute muscle strain at max flexion
+    k_AE = (r_AE * pi()/2) ./ L_AE(n); % [-] Ankle extensotr strain
+    
+    % Remove strains that exceed max strain
+    k_AE(k_AE > k_max) = [];            % [-] Ankle extensor strain updated
+    
+    % Compute necessary force for each actuator to resist gravity
+    F_AE = SF * (Tg_AE ./ r_AE);        % [N] Ankle extensor actuator force
+   
+    % Compute necessary pressure to hold flexed position for each actuator
+    
+    P_AE = a0 + (a1 * tan( a2 * (( k_AE ./ (a4 * F_AE(1:length(k_AE)) + k_max)) + a3))) + (a5 * F_AE(1:length(k_AE))) + (a6 * S); % [Pa]
+    
+    % Plot attachment radius vs required pressure to achieve static
+    % requirements in appropriate units for each actuator and add legend
+    % entry for varying actuator curves
+    
+    figure(4)                           % Ankle extensor plot
+    plot((r_AE(1:length(k_AE))*1000), (P_AE/1000), '-', 'LineWidth', 3)
+    key_AE(n) = sprintf('Actuator length: %.1f inch', (L_AE(n)/0.0254));
+    
+end
+
+% Add a line on the plot representing max pressure available       
+yline(620, 'REPLACE_WITH_DASH_DASHr', 'LineWidth', 3);
+
+% Add the legend                           
+legend(key_AE)
+##### SOURCE END #####
+--></body></html>
