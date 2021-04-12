@@ -205,20 +205,16 @@ sensor_manager = sensor_manager.initialize_sensor_data( simulation_manager.num_t
 % Send each simulation data value to the master mircocontoller and collect the associated sensory feedback.
 for k = 1:simulation_manager.num_timesteps                  % Iterate through each simulation time step...
     
+    %% Retrieve Network Simulation Data For This Iteration.
+    
     % Store the simulation data into the muscle manager.
     muscle_manager = muscle_manager.set_muscle_activations( simulation_manager.muscle_IDs, simulation_manager.activations(k, :) );
     
     % Compute the desired total muscle tensions associated with the current muscle activations.
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_active_tension' );
     
-    % Compute the desired active and desired passive muscle tensions associated with the current total muscle activations.
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
 
-    % Compute the desired pressure for each muscle.
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_pressure' );
-
-    % Delegate the desired BPA pressures to the appropriate slave in the slave manager.
-    slave_manager = slave_manager.set_desired_pressure( slave_IDs, muscle_manager );
+    %% Write the Desired Muscle Pressures to the Master Microcontroller & Read Sensor Data.
     
     % Stage the desired BPA pressures for USART transmission to the master microcontroller.
     usart_manager = usart_manager.stage_desired_pressures( slave_manager );
@@ -237,6 +233,9 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     % Retrieve the sensor data from the master microcontroller via USART transmission.
     usart_manager = usart_manager.read_bytes_from_master( slave_manager.slave_packet_size, master_port_type );
     
+    
+    %% Store the Sensor Data Received From the Master Microcontroller.
+    
     % Store the sensor data into the associated slave in the slave manager.
     slave_manager = slave_manager.store_sensor_data( usart_manager );
     
@@ -251,6 +250,8 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2measured_active_passive_tension' );
 
     
+    %% Compute the Derived Muscle Properties From the Sensory Information.
+    
     % Compute the Type Ia (muscle velocity) feedback.
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'velocity2typeIa_feedback' );
     
@@ -261,11 +262,95 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'length2typeII_feedback' );
 
     
+    %% Compute the Desired Total Muscle Tensions and Desired Pressures for the Next Iteration.
+    
+    % Compute the desired total muscle tension associated with the current active muscle tension.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
+
+    % Compute the desired pressure for each muscle.
+    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_pressure' );
+
+    % Delegate the desired BPA pressures to the appropriate slave in the slave manager.
+    slave_manager = slave_manager.set_desired_pressure( slave_IDs, muscle_manager );
+    
+    
+    %% Record the Command & Sensor Data For Plotting.
+    
     % Store the sensor data into the sensor data manager.
     
     asdf = 1;
     
 end
+
+
+% %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
+% 
+% % Send each simulation data value to the master mircocontoller and collect the associated sensory feedback.
+% for k = 1:simulation_manager.num_timesteps                  % Iterate through each simulation time step...
+%     
+%     % Store the simulation data into the muscle manager.
+%     muscle_manager = muscle_manager.set_muscle_activations( simulation_manager.muscle_IDs, simulation_manager.activations(k, :) );
+%     
+%     % Compute the desired total muscle tensions associated with the current muscle activations.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_active_tension' );
+%     
+%     % Compute the desired active and desired passive muscle tensions associated with the current total muscle activations.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
+% 
+%     % Compute the desired pressure for each muscle.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_pressure' );
+% 
+%     % Delegate the desired BPA pressures to the appropriate slave in the slave manager.
+%     slave_manager = slave_manager.set_desired_pressure( slave_IDs, muscle_manager );
+%     
+%     
+%     % Stage the desired BPA pressures for USART transmission to the master microcontroller.
+%     usart_manager = usart_manager.stage_desired_pressures( slave_manager );
+%     
+%     % Write the desired BPA pressures to the master microcontroller.
+%     usart_manager.write_bytes_to_master( master_port_type );
+%     
+%     % Determine whether we need to emulate the master microcontroller behavior.
+%     if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')                   % If we are using a virtual port for the master microcontroller...
+%     
+%         % Emulate the master microcontroller reporting sensory information to Matlab.
+%         usart_manager.emulate_master_read_write( slave_manager );
+%     
+%     end
+%     
+%     % Retrieve the sensor data from the master microcontroller via USART transmission.
+%     usart_manager = usart_manager.read_bytes_from_master( slave_manager.slave_packet_size, master_port_type );
+%     
+%     
+%     % Store the sensor data into the associated slave in the slave manager.
+%     slave_manager = slave_manager.store_sensor_data( usart_manager );
+%     
+%     
+%     % Store the muscle sensory data into the appropriate muscle in the muscle manager.
+%     muscle_manager = muscle_manager.set_measured_pressures( slave_manager );
+%     
+%     % Compute the measured total tension associated with the measured muscle pressure.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_pressure2measured_total_tension' );
+% 
+%     % Compute the measured active and passive tension associated with the measured total tension.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2measured_active_passive_tension' );
+% 
+%     
+%     % Compute the Type Ia (muscle velocity) feedback.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'velocity2typeIa_feedback' );
+%     
+%     % Compute the Type Ib (muscle tension) feedback.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2typeIb_feedback' );
+% 
+%     % Compute the Type II (muscle velocity) feedback.
+%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'length2typeII_feedback' );
+% 
+%     
+%     % Store the sensor data into the sensor data manager.
+%     
+%     asdf = 1;
+%     
+% end
 
 
 %% Plot Simulation Results.
