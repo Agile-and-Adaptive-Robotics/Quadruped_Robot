@@ -70,10 +70,10 @@ classdef sensor_manager_class
         end
         
         % Implement a function to initialize the sensor data.
-        function self = initialize_sensor_data( self, muscle_manager, limb_manager, num_timesteps )
+        function self = initialize_sensor_data( self, muscle_manager, num_timesteps )
         
             % Set the default number of time steps.
-            if nargin < 4, num_timesteps = 1; end
+            if nargin < 3, num_timesteps = 1; end
             
             % Set the muscle properties record to zero.
             [ self.muscle_activations, self.muscle_desired_pressures, self.muscle_measured_pressures, self.muscle_desired_total_tensions, self.muscle_desired_active_tensions, self.muscle_desired_passive_tensions, self.muscle_measured_total_tensions, self.muscle_measured_active_tensions, self.muscle_measured_passive_tensions, self.muscle_lengths, self.muscle_strains, self.muscle_velocities, self.muscle_yanks, self.muscle_typeIa_feedbacks, self.muscle_typeIb_feedbacks, self.muscle_typeII_feedbacks ] = deal( zeros( num_timesteps, length(self.muscle_IDs) ) );
@@ -82,23 +82,28 @@ classdef sensor_manager_class
             self.joint_angles = zeros( num_timesteps, length(self.encoder_IDs) );
 
             % Define the muscle property initial conditions.
+            
             self.muscle_activations(1, :) = muscle_manager.get_muscle_property( 'all', 'activation' );
-            self.muscle_desired_pressures(1, :) = muscle_manager.get_muscle_property( 'all', 'desired_pressure' );
-            self.muscle_measured_pressures(1, :) = muscle_manager.get_muscle_property( 'all', 'measured_pressure' );
-            self.muscle_desired_total_tensions(1, :) = muscle_manager.get_muscle_property( 'all', 'desired_total_tension' );
-            self.muscle_desired_active_tensions(1, :) = muscle_manager.get_muscle_property( 'all', 'desired_active_tension' );
-            self.muscle_desired_passive_tensions(1, :) = muscle_manager.get_muscle_property( 'all', 'desired_passive_tension' );
-            self.muscle_measured_total_tensions(1, :) = muscle_manager.get_muscle_property( 'all', 'measured_total_tension' );
-            self.muscle_measured_active_tensions(1, :) = muscle_manager.get_muscle_property( 'all', 'measured_active_tension' );
-            self.muscle_measured_passive_tensions(1, :) = muscle_manager.get_muscle_property( 'all', 'measured_passive_tension' );
-            self.muscle_lengths(1, :) = muscle_manager.get_muscle_property( 'all', 'length' );
-            self.muscle_strains(1, :) = muscle_manager.get_muscle_property( 'all', 'strain' );
-            self.muscle_velocities(1, :) = muscle_manager.get_muscle_property( 'all', 'velocity' );
-            self.muscle_yanks(1, :) = muscle_manager.get_muscle_property( 'all', 'yank' );
-            self.muscle_typeIa_feedbacks(1, :) = muscle_manager.get_muscle_property( 'all', 'typeIa_feedback' );
-            self.muscle_typeIb_feedbacks(1, :) = muscle_manager.get_muscle_property( 'all', 'typeIb_feedback' );
-            self.muscle_typeII_feedbacks(1, :) = muscle_manager.get_muscle_property( 'all', 'typeII_feedback' );
-%             self.joint_angles(1, :) = limb_manager.get_limb_property( 'all', 'joint_angles' );
+        
+            self.muscle_desired_pressures(1, :)
+            self.muscle_measured_pressures(1, :)
+
+            self.muscle_desired_total_tensions(1, :)
+            self.muscle_desired_active_tensions(1, :)
+            self.muscle_desired_passive_tensions(1, :)
+
+            self.muscle_measured_total_tensions(1, :)
+            self.muscle_measured_active_tensions(1, :)
+            self.muscle_measured_passive_tensions(1, :)
+
+            self.muscle_lengths(1, :)
+            self.muscle_strains(1, :)
+            self.muscle_velocities(1, :)
+            self.muscle_yanks(1, :)
+
+            self.muscle_typeIa_feedbacks(1, :)
+            self.muscle_typeIb_feedbacks()
+            self.muscle_typeII_feedbacks(0)
             
         end
             

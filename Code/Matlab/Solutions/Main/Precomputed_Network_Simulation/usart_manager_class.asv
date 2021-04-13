@@ -372,10 +372,10 @@ classdef usart_manager_class
             total_bytes = self.num_start_bytes + 1 + slave_packet_size*num_slaves + 1;
             
             % Preallocate the read from master bytes.
-            read_bytes = uint8( zeros( 1, total_bytes );
+            read_bytes = uint8( zeros( 1, total_bytes ) );
             
             % Set the first several of the read from master bytes.
-            read_bytes(1:self.num_start_bytes) = 255*ones(1, self.num_start_bytes); read_bytes(self.num_start_bytes + 1) = num_slaves;
+            read_bytes(1:self.num_start_bytes) = uint8( 255*ones(1, self.num_start_bytes) ); read_bytes(self.num_start_bytes + 1) = uint8( num_slaves );
             
             % Set the rest of the bytes.
             read_bytes(4:end) = read( serial_port, total_bytes - 3, 'uint8' );
@@ -403,8 +403,28 @@ classdef usart_manager_class
         
         
         % Implement a function to emulate the master microcontoller reading and writing commands to the virtual master serial port.
-        function emulate_master_read_write( self, slave_manager )
+        function emulate_master_read_write( self, slave_manager, write_value )
             
+            % Determine whether we need to set the default write value.
+            if nargin < 3               % If we were not given a write value...
+                
+                % Set the sensor byte
+                sensor_value_bytes = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
+                
+            else
+                
+                if (write_value >= 0) && (write_value <= 255)
+                    
+                    sensor_value_bytes = uint8( write_value*ones(1, slave_manager.slave_packet_size - 1) );
+            
+                else
+                   
+                    error('write_value must be in the domain [0, 255].')
+                    
+                end
+                
+            end
+                
             % Emulate the master microcontroller reading the bytes sent from Matlab.
             temp = read( self.master_output_virtual_serial_port, self.master_output_virtual_serial_port.NumBytesAvailable, 'uint8' );
             
@@ -424,8 +444,9 @@ classdef usart_manager_class
                write_bytes(byte_index) = uint8( k );
                
                % Add the sensor value bytes for each sensor.
-               write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
-                
+%                write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
+               write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = sensor_value_bytes;
+
                % Advance the byte index.
                byte_index = byte_index + slave_manager.slave_packet_size;
                

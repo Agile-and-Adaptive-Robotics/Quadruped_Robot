@@ -152,6 +152,11 @@ num_int_steps = 10;
 muscle_manager = muscle_manager_class( muscle_IDs, muscle_names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, muscle_lengths, muscle_resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s, simulation_manager.dt, num_int_steps );
 
 
+%% Initialize the Limb Manager.
+
+
+
+
 %% Initialize USART Communication.
 
 %Define the baud rates.
@@ -197,7 +202,7 @@ joint_names = { 'Front Left Scapula', 'Front Left Shoulder', 'Front Left Wrist',
 sensor_manager = sensor_manager_class( muscle_IDs, pressure_sensor_IDs, encoder_IDs, muscle_names, joint_names );
 
 % Initialize the sensor data values to be zero.
-sensor_manager = sensor_manager.initialize_sensor_data( simulation_manager.num_timesteps );
+sensor_manager = sensor_manager.initialize_sensor_data( muscle_manager, limb_manager, simulation_manager.num_timesteps );
 
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
@@ -250,7 +255,12 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2measured_active_passive_tension' );
 
     
-    %% Compute the Derived Muscle Properties From the Sensory Information.
+    %% Compute Derived Muscle Properties (Length, Strain, Velocity, Yank) for the Next Iteration.
+    
+    
+    
+    
+    %% Compute the Muscle Feedback Properties (Type Ia, Type Ib, and Type II Feedback) for the Next Iteration.
     
     % Compute the Type Ia (muscle velocity) feedback.
     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'velocity2typeIa_feedback' );
@@ -274,7 +284,7 @@ for k = 1:simulation_manager.num_timesteps                  % Iterate through ea
     slave_manager = slave_manager.set_desired_pressure( slave_IDs, muscle_manager );
     
     
-    %% Record the Command & Sensor Data For Plotting.
+    %% Record the Muscle & Slave Data for Plotting.
     
     % Store the sensor data into the sensor data manager.
     

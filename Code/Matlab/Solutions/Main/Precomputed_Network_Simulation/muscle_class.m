@@ -194,7 +194,7 @@ classdef muscle_class
         %% BPA FUNCTIONS
         
         % Implement a function to compute the forward BPA muscle model (epsilon, P -> F).
-        function F = forward_BPA_model( ~, P, F_guess, epsilon, epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 )
+        function F = forward_BPA_model( self, P, F_guess, epsilon, epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 )
             
             % Define the modified inverse BPA anonymous function.
             inv_BPA_func = @(F) P - self.inverse_BPA_model( F, epsilon, epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
@@ -402,7 +402,7 @@ classdef muscle_class
         %% MUSCLE FEEDBACK FUNCTIONS
         
         % Implement a function to saturate a muscle property.
-        function value = saturate_value( value, domain )
+        function value = saturate_value( ~, value, domain )
             
             % Saturate the given value.
             if value < domain(1)                 % If the measured total tension is below the lower tension bound...

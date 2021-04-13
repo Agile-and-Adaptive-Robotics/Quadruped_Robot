@@ -1,0 +1,32 @@
+classdef limb_class
+
+    % This class contains properties and methods related to limbs.
+
+    %% LIMB PROPERTIES
+    
+    % Define the class properties.
+    properties
+        ID
+        name
+        links
+        screw_axes
+        home_matrices
+        
+    end
+    
+    %% LIMB METHODS SETUP
+
+    % Define the class methods.
+    methods
+        
+        % Implement the class constructor.
+        function self = limb_class( inputArg1, inputArg2 )
+
+            
+
+        end
+        
+        
+    end
+end
+

@@ -403,8 +403,31 @@ classdef usart_manager_class
         
         
         % Implement a function to emulate the master microcontoller reading and writing commands to the virtual master serial port.
-        function emulate_master_read_write( self, slave_manager )
+        function emulate_master_read_write( self, slave_manager, write_value )
             
+            % Determine whether we need to set the default write value.
+            if nargin < 3               % If we were not given a write value...
+                
+                % Set the sensor value bytes to be random.
+                sensor_value_bytes = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
+                
+            else                        % Otherwise...
+                
+                % Validate the write value.
+                if (write_value >= 0) && (write_value <= 255)           % If the write value is valid...
+                    
+                    % Set the sensor value bytes to be the specified write value.
+                    sensor_value_bytes = uint8( write_value*ones(1, slave_manager.slave_packet_size - 1) );
+                    
+                else                                                    % Otherwise...
+                    
+                    % Throw an error.
+                    error('write_value must be in the domain [0, 255].')
+                    
+                end
+                
+            end
+                
             % Emulate the master microcontroller reading the bytes sent from Matlab.
             temp = read( self.master_output_virtual_serial_port, self.master_output_virtual_serial_port.NumBytesAvailable, 'uint8' );
             
@@ -424,8 +447,9 @@ classdef usart_manager_class
                write_bytes(byte_index) = uint8( k );
                
                % Add the sensor value bytes for each sensor.
-               write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
-                
+%                write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
+               write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = sensor_value_bytes;
+
                % Advance the byte index.
                byte_index = byte_index + slave_manager.slave_packet_size;
                

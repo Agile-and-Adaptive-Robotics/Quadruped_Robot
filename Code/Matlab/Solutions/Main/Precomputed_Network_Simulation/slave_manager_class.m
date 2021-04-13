@@ -44,7 +44,7 @@ classdef slave_manager_class
             measured_pressure_value2s = self.validate_property( measured_pressure_value2s, 'measured_pressure_value2s' );
             measured_joint_values = self.validate_property( measured_joint_values, 'measured_joint_values' );
             desired_pressures = self.validate_property( desired_pressures, 'desired_pressures' );
-
+            
             % Preallocate an array of muscles.
             self.slaves = repmat( slave_class(), 1, self.num_slaves );
             
@@ -67,13 +67,13 @@ classdef slave_manager_class
         
         % Implement a function to validate the input properties.
         function x = validate_property( self, x, var_name )
-        
+            
             % Set the default variable name.
             if nargin < 3, var_name = 'properties'; end
             
             % Determine whether we need to repeat this property for each muscle.
             if length(x) ~= self.num_slaves                % If the number of instances of this property do not agree with the number of slaves...
-               
+                
                 % Determine whether to repeat this property for each muscle.
                 if length(x) == 1                               % If only one slave property was provided...
                     
@@ -90,6 +90,7 @@ classdef slave_manager_class
             end
             
         end
+        
         
         
         % Implement a function to retrieve the index associated with a given slave ID.
@@ -127,15 +128,68 @@ classdef slave_manager_class
         end
         
         
+        % Implement a function to retrieve the properties of specific slaves.
+        function xs = get_slave_property( self, slave_IDs, slave_property )
+            
+            % Determine whether we want get the desired slave property from all of the slaves.
+            if isa(slave_IDs, 'char')                                                      % If the slave IDs variable is a character array instead of an integer srray...
+                
+                % Determine whether this is a valid character array.
+                if  strcmp(slave_IDs, 'all') || strcmp(slave_IDs, 'All')                  % If the character array is either 'all' or 'All'...
+                    
+                    % Preallocate an array to store the slave IDs.
+                    slave_IDs = zeros(1, self.num_slaves);
+                    
+                    % Retrieve the slave ID associated with each slave.
+                    for k = 1:self.num_slaves                   % Iterate through each slave...
+                        
+                        % Store the slave ID associated with the current slave ID.
+                        slave_IDs(k) = self.slaves(k).slave_ID;
+                        
+                    end
+                    
+                else                                                                        % Otherwise...
+                    
+                    % Throw an error.
+                    error('Slave_IDs must be either an array of valid slave IDs or one of the strings: ''all'' or ''All''.')
+                    
+                end
+                
+            end
+            
+            % Determine how many muscles to which we are going to apply the given method.
+            num_properties_to_get = length(slave_IDs);
+            
+            % Preallocate a variable to store the slave properties.
+            xs = zeros(1, num_properties_to_get);
+            
+            % Retrieve the given slave property for each slave.
+            for k = 1:num_properties_to_get
+                
+                % Retrieve the index associated with this slave ID.
+                slave_index = self.get_slave_index( slave_IDs(k) );
+                
+                % Define the eval string.
+                eval_str = sprintf( 'xs(k) = self.slaves(%0.0f).%s;', slave_index, slave_property );
+                
+                % Evaluate the given muscle property.
+                eval(eval_str);
+                
+            end
+            
+        end
+        
+        
+        
         % Implement a function to set the desired pressure of each slave by retrieving the desired pressure for the associated muscle.
         function self = set_desired_pressure( self, slave_IDs, muscle_manager )
-        
+            
             % Determine how many slaves we want to set.
             num_slaves_to_set = length(slave_IDs);
             
             % Set the desired pressure for each of the given slaves.
             for k = 1:num_slaves_to_set                     % Iterate through each of the slaves we want to set...
-            
+                
                 % Retrieve the index associated with this slave.
                 slave_index = self.get_slave_index( slave_IDs(k) );
                 
@@ -147,7 +201,7 @@ classdef slave_manager_class
                 
                 % Determine how to set this slave's desired pressure.
                 if muscle_manager.muscles(muscle_index).desired_pressure < muscle_manager.muscles(muscle_index).pressure_domain(1)              % If the desired pressure for this muscle is less than the minimum acceptable pressure...
-                
+                    
                     % Set the desired pressure for this slave to be the minimum acceptable pressure.
                     desired_pressure = muscle_manager.muscles(muscle_index).pressure_domain(1);
                     
@@ -155,12 +209,12 @@ classdef slave_manager_class
                     
                     % Set the deisred pressure for this slave to be the maximum acceptable pressure.
                     desired_pressure = muscle_manager.muscles(muscle_index).pressure_domain(2);
-
+                    
                 else                                                                                                                            % Otherwise...
                     
                     % Set the desired pressure of this slave to be the desired pressure of its associated muscle.
                     desired_pressure = muscle_manager.muscles(muscle_index).desired_pressure;
-
+                    
                 end
                 
                 % Convert the desired pressure double to a uint16.
@@ -169,11 +223,11 @@ classdef slave_manager_class
             end
             
         end
-       
+        
         
         % Implement a function to store the sensor data into the slave manager.
         function self = store_sensor_data( self, usart_manager )
-           
+            
             % Retrieve the read bytes.
             read_bytes = usart_manager.read_from_master_bytes;
             
@@ -188,7 +242,7 @@ classdef slave_manager_class
             
             % Store the sensor data associated with each slave.
             for k = 1:num_packets                    % Iterate through each sensor data packet...
-            
+                
                 % Retrieve the slave ID associated with this sensor data packet.
                 slave_ID = read_bytes(byte_index);
                 
@@ -200,13 +254,13 @@ classdef slave_manager_class
                 
                 % Retrieve the second pressure sensor value.
                 self.slaves(slave_index).measured_pressure_value2 = typecast( read_bytes( (byte_index + 3):(byte_index + 4) ), 'uint16' );
-
+                
                 % Retrieve the joint value.
                 self.slaves(slave_index).measured_joint_value = typecast( read_bytes( (byte_index + 5):(byte_index + 6) ), 'uint16' );
-
+                
                 % Advance the byte index.
                 byte_index = byte_index + self.slave_packet_size;
-           
+                
             end
             
             
