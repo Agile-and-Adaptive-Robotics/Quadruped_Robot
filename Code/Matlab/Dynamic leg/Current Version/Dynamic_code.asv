@@ -1,4 +1,4 @@
-function dy = Dynamic_code(y,u)
+function dy = Dynamic_code(y,u,P)
 
 y1 = y(1);
 y2 = y(2);
@@ -10,16 +10,16 @@ u1 = u(1);
 u2 = u(2);
 u3 = u(3);
 
-L1=1;
-L2=1;
-L3=1;
-M1=1;
-M2=1;
-M3=1;
-R1 = .5;
-R2 = .5;
-R3 = .5;
-g=9.8;
+L1=P.L1;
+P.L2=L2;
+P.L3=L3;
+P.M1=M1;
+P.M2=M2;
+P.M3=M3;
+P.R1 = R1;
+P.R2 = R2;
+P.R3 = R3;
+P.g=9.8;
 
 dy1 = y2;
 dy2 = (2*L2^2*M3*R3*u1 - 2*L2^2*M3*R3*u2 + 4*M2*R2^2*R3*u1 - 4*M2*R2^2*R3*u2 + 2*L1*L2^2*M3*u3*cos(y3 - y5) - 2*L2^2*M3*R3*u1*cos(2*y5) + 2*L2^2*M3*R3*u2*cos(2*y5) - 2*L1*L2^2*M3*u3*cos(y3 + y5) - 4*L1*M2*R2^2*u3*cos(y3 + y5) + 2*L1*L2*M2*R2*u3*cos(y3 - y5) + 2*L1*L2*M3*R3*u2*cos(y3 + 2*y5) - 2*L1*L2*M3*R3*u3*cos(y3 + 2*y5) + 4*L1*M2^2*R2^3*R3*y2^2*sin(y3) + 4*L1*M2^2*R2^3*R3*y4^2*sin(y3) - 2*L1*M2^2*R2^2*R3*g*cos(y1) + 2*L1*L2*M2*R2*u3*cos(y3 + y5) + 2*L1*M2^2*R2^2*R3*g*cos(y1 + 2*y3) + 2*L1^2*M2^2*R2^2*R3*y2^2*sin(2*y3) - 2*L1*L2*M3*R3*u2*cos(y3) + 2*L1*L2*M3*R3*u3*cos(y3) - 4*L1*M2*R2*R3*u2*cos(y3) + 4*L1*M2*R2*R3*u3*cos(y3) + 2*L1^2*M2*M3*R2^2*R3*y2^2*sin(2*y3 + 2*y5) + 8*L1*M2^2*R2^3*R3*y2*y4*sin(y3) + 4*L1*M2*M3*R2^2*R3^2*y2^2*sin(y3 + y5) + 4*L1*M2*M3*R2^2*R3^2*y4^2*sin(y3 + y5) + 4*L1*M2*M3*R2^2*R3^2*y6^2*sin(y3 + y5) - 2*L1*L2^2*M2*M3*R3*g*cos(y1) - 2*L2^2*M1*M3*R1*R3*g*cos(y1) - 2*L1*M2*M3*R2^2*R3*g*cos(y1) - 4*M1*M2*R1*R2^2*R3*g*cos(y1) + 2*L1*M2*M3*R2^2*R3*g*cos(y1 + 2*y3 + 2*y5) + L1*L2^2*M2*M3*R3*g*cos(y1 - 2*y5) + L1*L2^2*M2*M3*R3*g*cos(y1 + 2*y5) + L2^2*M1*M3*R1*R3*g*cos(y1 - 2*y5) + L2^2*M1*M3*R1*R3*g*cos(y1 + 2*y5) - 2*L1*L2*M2*M3*R2*R3^2*y2^2*sin(y3 + y5) - 2*L1*L2*M2*M3*R2*R3^2*y4^2*sin(y3 + y5) - 2*L1*L2*M2*M3*R2*R3^2*y6^2*sin(y3 + y5) + 2*L1*L2*M2*M3*R2^2*R3*y2^2*sin(y3) + 2*L1*L2^2*M2*M3*R2*R3*y2^2*sin(y3) + 2*L1*L2*M2*M3*R2^2*R3*y4^2*sin(y3) + 2*L1*L2^2*M2*M3*R2*R3*y4^2*sin(y3) + 8*L1*M2*M3*R2^2*R3^2*y2*y4*sin(y3 + y5) + 8*L1*M2*M3*R2^2*R3^2*y2*y6*sin(y3 + y5) + 8*L1*M2*M3*R2^2*R3^2*y4*y6*sin(y3 + y5) + 2*L1*L2*M2*M3*R2*R3*g*cos(y1) - 2*L1*L2*M2*M3*R2*R3*g*cos(y1 + 2*y3 + 2*y5) + 2*L1*L2*M2*M3*R2*R3^2*y2^2*sin(y3 - y5) + 2*L1*L2*M2*M3*R2^2*R3*y2^2*sin(y3 + 2*y5) - 2*L1*L2^2*M2*M3*R2*R3*y2^2*sin(y3 + 2*y5) + 2*L1*L2*M2*M3*R2*R3^2*y4^2*sin(y3 - y5) + 2*L1*L2*M2*M3*R2^2*R3*y4^2*sin(y3 + 2*y5) - 2*L1*L2^2*M2*M3*R2*R3*y4^2*sin(y3 + 2*y5) + 2*L1*L2*M2*M3*R2*R3^2*y6^2*sin(y3 - y5) + 2*L1*L2*M2*M3*R2*R3*g*cos(y1 + 2*y3) - L1*L2*M2*M3*R2*R3*g*cos(y1 - 2*y5) - L1*L2*M2*M3*R2*R3*g*cos(y1 + 2*y5) + 2*L1^2*L2*M2*M3*R2*R3*y2^2*sin(2*y3) - 2*L1^2*L2*M2*M3*R2*R3*y2^2*sin(2*y3 + 2*y5) - 4*L1*L2*M2*M3*R2*R3^2*y2*y4*sin(y3 + y5) - 4*L1*L2*M2*M3*R2*R3^2*y2*y6*sin(y3 + y5) - 4*L1*L2*M2*M3*R2*R3^2*y4*y6*sin(y3 + y5) + 4*L1*L2*M2*M3*R2^2*R3*y2*y4*sin(y3) + 4*L1*L2^2*M2*M3*R2*R3*y2*y4*sin(y3) + 4*L1*L2*M2*M3*R2*R3^2*y2*y4*sin(y3 - y5) + 4*L1*L2*M2*M3*R2^2*R3*y2*y4*sin(y3 + 2*y5) - 4*L1*L2^2*M2*M3*R2*R3*y2*y4*sin(y3 + 2*y5) + 4*L1*L2*M2*M3*R2*R3^2*y2*y6*sin(y3 - y5) + 4*L1*L2*M2*M3*R2*R3^2*y4*y6*sin(y3 - y5))/(2*R3*(L1^2*M2^2*R2^2 + L1^2*L2^2*M2*M3 + L2^2*M1*M3*R1^2 + L1^2*M2*M3*R2^2 + 2*M1*M2*R1^2*R2^2 - L1^2*M2^2*R2^2*cos(2*y3) - L1^2*L2*M2*M3*R2 - L1^2*L2^2*M2*M3*cos(2*y5) - L2^2*M1*M3*R1^2*cos(2*y5) - L1^2*M2*M3*R2^2*cos(2*y3 + 2*y5) - L1^2*L2*M2*M3*R2*cos(2*y3) + L1^2*L2*M2*M3*R2*cos(2*y5) + L1^2*L2*M2*M3*R2*cos(2*y3 + 2*y5)))

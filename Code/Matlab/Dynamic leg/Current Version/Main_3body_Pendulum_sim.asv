@@ -1,5 +1,25 @@
 clear;close all;clc;
+%% Define Mechanical Properties and create Stucture P to store values
 
+% Define the mechanical properties of link 1.
+P.M1 = .716;  %[lb] Mass of femur with encoder                   
+P.R1 = 4.75; % [in]
+P.I1 = 496.26; %[in^4]
+P.L1 = 9.25; %[in]
+
+% Define the mechanical properties of link 2.
+P.M2 = .4299; %[lb]
+P.R2 = 4.75; %[in]
+P.I2 = 496.26; %[in^4]
+P.L2 = 9.25; %[in
+% Define the mechanical properties of link 3.
+
+P.M3 = 0.00992; %[lb]
+P.R3 = 3.5; %[in]
+P.I3 = 122.09; %[in^4]
+P.L3 = 7.875;
+P.g = 9.81;
+%% Sim
 init_t=0;
 final_t=10;
 dt=0.001;
@@ -11,13 +31,13 @@ x0=[0 0 0 0 0 0]';
 x=zeros(6,N);
 x(:,1)=x0;
 
-[t,y] = ode45(@Dynamic_code_ode,t_span,x0);
+[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0);
 
 
-L1=1;
-L2=1;
-L3=1;
-M1=1;
+L1=P.L1;
+L2=P.L2;
+L3=P.L3;
+M1=P.M1;
 M2=1;
 M3=1;
 g=9.8;
@@ -43,7 +63,7 @@ for i=1:N-1
         px=[p0x p1x p2x p3x];
         py=[p0y p1y p2y p3y];
         plot(px,py,'ro-');
-        axis([-4 4 -4 4]);
+        axis([-(P.L1+P.L2+P.L3+4) (P.L1+P.L2+P.L3+4) -(P.L1+P.L2+P.L3+4) (P.L1+P.L2+P.L3+4)]);
         pause(0.001);
         MM(mov_cnt)=getframe;
         mov_cnt=mov_cnt+1;
