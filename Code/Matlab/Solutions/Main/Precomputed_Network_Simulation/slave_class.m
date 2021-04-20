@@ -9,11 +9,11 @@ classdef slave_class
         muscle_name
         pressure_sensor_ID1
         pressure_sensor_ID2
-        joint_ID
-        joint_name
+        encoder_ID
+        encoder_name
         measured_pressure_value1
         measured_pressure_value2
-        measured_joint_value
+        measured_encoder_value
         desired_pressure
     end
     
@@ -21,13 +21,13 @@ classdef slave_class
     methods
         
         % Implement the class constructor.
-        function self = slave_class( slave_ID, muscle_ID, muscle_name, pressure_sensor_ID1, pressure_sensor_ID2, joint_ID, joint_name, measured_pressure_value1, measured_pressure_value2, measured_joint_value, desired_pressure )
+        function self = slave_class( slave_ID, muscle_ID, muscle_name, pressure_sensor_ID1, pressure_sensor_ID2, encoder_ID, encoder_name, measured_pressure_value1, measured_pressure_value2, measured_encoder_value, desired_pressure )
             
             % Define the desired pressure.
             if nargin < 11, self.desired_pressure = uint16( 0 ); else, self.desired_pressure = desired_pressure; end
 
             % Define the joint value.
-            if nargin < 10, self.measured_joint_value = uint16( 0 ); else, self.measured_joint_value = measured_joint_value; end
+            if nargin < 10, self.measured_encoder_value = uint16( 0 ); else, self.measured_encoder_value = measured_encoder_value; end
             
             % Define the second pressure sensor value.
             if nargin < 9, self.measured_pressure_value2 = uint16( 0 ); else, self.measured_pressure_value2 = measured_pressure_value2; end
@@ -36,10 +36,10 @@ classdef slave_class
             if nargin < 8, self.measured_pressure_value1 = uint16( 0 ); else, self.measured_pressure_value1 = measured_pressure_value1; end
             
             % Define the joint name.
-            if nargin < 7, self.joint_name = {''}; else, self.joint_name = joint_name; end
+            if nargin < 7, self.encoder_name = {''}; else, self.encoder_name = encoder_name; end
             
             % Define the joint ID.
-            if nargin < 6, self.joint_ID = uint8( 0 ); else, self.joint_ID = joint_ID; end
+            if nargin < 6, self.encoder_ID = uint8( 0 ); else, self.encoder_ID = encoder_ID; end
             
             % Define the second pressure sensor ID.
             if nargin < 5, self.pressure_sensor_ID2 = uint8( 0 ); else, self.pressure_sensor_ID2 = pressure_sensor_ID2; end

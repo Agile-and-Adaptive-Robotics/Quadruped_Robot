@@ -1,0 +1,35 @@
+classdef body_class
+
+    % This class contains properties and methods related to bodies.
+    
+    % Define the body properties.
+    properties
+        mass
+        length
+        width
+        Icm
+        pcm
+        vcm
+        wcm
+        mesh
+        limbs
+    end
+    
+    % Define the body methods.
+    methods
+        
+        % Define the class constructor.
+        function self = body_class(  )
+        
+        mass
+        length
+        width
+      Icm, pcm, vcm, wcm, mesh, limbs
+        
+        end
+
+        
+        
+    end
+end
+

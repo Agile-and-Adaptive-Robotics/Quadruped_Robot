@@ -47,40 +47,40 @@ pressure_sensor_ID1s = 1:num_slaves;
 pressure_sensor_ID2s = zeros(1, num_slaves); pressure_sensor_ID2s(1:2:end) = 2:2:num_slaves; pressure_sensor_ID2s(2:2:end) = 1:2:num_slaves;
 
 % Define the ID of the joint associated with each slave.
-joint_IDs = reshape(repmat((1:(num_slaves/2)), 2, 1), 1, num_slaves);
+encoder_IDs = reshape(repmat((1:(num_slaves/2)), 2, 1), 1, num_slaves);
 
 % Define the name of the joint associated with each slave.
-joint_names = { 'Front Left Scapula', 'Front Left Shoulder', 'Front Left Wrist', ...
+encoder_names = { 'Front Left Scapula', 'Front Left Shoulder', 'Front Left Wrist', ...
                 'Back Left Hip', 'Back Left Knee', 'Back Left Ankle', ...
                 'Front Right Scapula', 'Front Right Shoulder', 'Front Right Wrist', ...
                 'Back Right Hip', 'Back Right Knee', 'Back Right Ankle' };
 
-joint_names = reshape( repmat( joint_names, 2, 1 ), 1, num_slaves );
+encoder_names = reshape( repmat( encoder_names, 2, 1 ), 1, num_slaves );
                  
 % Set the measured pressure values for each slave to zero.
 measured_pressure_value1s = 0;
 measured_pressure_value2s = 0;
 
 % Set the measured joint angle for each slave to zero.
-measured_joint_values = 0;
+measured_encoder_values = 0;
           
 % Set the desired pressure for each slave to zero.
 desired_pressures = 0;
 
 % Create an instance of the slave manager class.
-slave_manager = slave_manager_class( slave_IDs, muscle_IDs, muscle_names, pressure_sensor_ID1s, pressure_sensor_ID2s, joint_IDs, joint_names, measured_pressure_value1s, measured_pressure_value2s, measured_joint_values, desired_pressures );
+slave_manager = slave_manager_class( slave_IDs, muscle_IDs, muscle_names, pressure_sensor_ID1s, pressure_sensor_ID2s, encoder_IDs, encoder_names, measured_pressure_value1s, measured_pressure_value2s, measured_encoder_values, desired_pressures );
 
 
 %% Initialize the Muscle Manager.
 
-% Define the muscle IDs.
-muscle_IDs = linspace2( 39, 1, 24 );
-
-% Define the muscle names.
-muscle_names = { 'Front Left Scapula Extensor', 'Front Left Scapula Flexor', 'Front Left Shoulder Extensor', 'Front Left Shoulder Flexor', 'Front Left Wrist Extensor', 'Front Left Wrist Flexor', ...
-                 'Back Left Hip Extensor', 'Back Left Hip Flexor', 'Back Left Knee Extensor', 'Back Left Knee Flexor', 'Back Left Ankle Extensor', 'Back Left Ankle Flexor', ...
-                 'Front Right Scapula Extensor', 'Front Right Scapula Flexor', 'Front Right Shoulder Extensor', 'Front Right Shoulder Flexor', 'Front Right Wrist Extensor', 'Front Right Wrist Flexor', ...
-                 'Back Right Hip Extensor', 'Back Right Hip Flexor', 'Back Right Knee Extensor', 'Back Right Knee Flexor', 'Back Right Ankle Extensor', 'Back Right Ankle Flexor' };
+% % Define the muscle IDs.
+% muscle_IDs = linspace2( 39, 1, 24 );
+% 
+% % Define the muscle names.
+% muscle_names = { 'Front Left Scapula Extensor', 'Front Left Scapula Flexor', 'Front Left Shoulder Extensor', 'Front Left Shoulder Flexor', 'Front Left Wrist Extensor', 'Front Left Wrist Flexor', ...
+%                  'Back Left Hip Extensor', 'Back Left Hip Flexor', 'Back Left Knee Extensor', 'Back Left Knee Flexor', 'Back Left Ankle Extensor', 'Back Left Ankle Flexor', ...
+%                  'Front Right Scapula Extensor', 'Front Right Scapula Flexor', 'Front Right Shoulder Extensor', 'Front Right Shoulder Flexor', 'Front Right Wrist Extensor', 'Front Right Wrist Flexor', ...
+%                  'Back Right Hip Extensor', 'Back Right Hip Flexor', 'Back Right Knee Extensor', 'Back Right Knee Flexor', 'Back Right Ankle Extensor', 'Back Right Ankle Flexor' };
 
 % Define the muscle activations.
 activations = 0;                                                    % [V] Motor Neuron Activation.
@@ -152,9 +152,175 @@ num_int_steps = 10;
 muscle_manager = muscle_manager_class( muscle_IDs, muscle_names, activations, activation_domains, desired_total_tensions, desired_active_tensions, desired_passive_tensions, measured_total_tensions, measured_active_tensions, measured_passive_tensions, tension_domains, desired_pressures, measured_pressures, pressure_domains, muscle_lengths, muscle_resting_lengths, strains, max_strains, velocities, yanks, typeIa_feedbacks, typeIb_feedbacks, typeII_feedbacks, kses, kpes, bs, c0s, c1s, c2s, c3s, c4s, c5s, c6s, simulation_manager.dt, num_int_steps );
 
 
-%% Initialize the Limb Manager.
+%% Initialize the Joints.
+
+% Define the number of joints.
+num_joints = 14;
+
+% Define the ID of the joint associated with each slave.
+joint_IDs = 1:num_joints;
+
+% Define the name of the joint associated with each slave.
+joint_names = { 'Front Left Scapula', 'Front Left Shoulder', 'Front Left Elbow', 'Front Left Wrist', ...
+                'Back Left Hip', 'Back Left Knee', 'Back Left Ankle', ...
+                'Front Right Scapula', 'Front Right Shoulder', 'Front Right Elbow', 'Front Right Wrist', ...
+                'Back Right Hip', 'Back Right Knee', 'Back Right Ankle' };
+
+% Define the parent link IDs.
+joint_parent_link_IDs = [ 0, 1, 2, 3, ...
+                          0, 5, 6, ...
+                          0, 8, 9, 10, ...
+                          0, 12, 13 ];
+
+% Define the child link IDs.
+joint_child_link_IDs = [ 1, 2, 3, 4, ...
+                         5, 6, 7, ...
+                         8, 9, 10, 11, ...
+                         12, 13, 14 ];
+
+% Define the joint locations.
+joint_ps = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
+             1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5, 1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5;
+             4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
+
+% Define the joint orientations.
+joint_Rs = repmat( eye(3), [ 1, 1, num_joints ] );
+
+% Define the joint translational velocities.
+joint_vs = zeros( 3, num_joints );
+
+% Define the joint rotational velocities.
+joint_ws = zeros( 3, num_joints );
+
+% Define the joint axes of rotation.
+joint_w_screws = repmat( [ 0; 0; 1 ], [ 1, num_joints ] );
+
+% Define the joint angles.
+joint_thetas = zeros( 1, num_joints );
 
 
+%% Initialize the Links.
+
+% Define the number of links.
+num_links = 14;
+
+% Define the link IDs.
+link_IDs = [ 1, 2, 3, 4, ...
+             5, 6, 7, ...
+             8, 9, 10, 11, ...
+             12, 13, 14 ];
+
+% Define the link names.
+link_names = { 'Front Left Scapula', 'Front Left Humerous', 'Front Left Radius Ulna', 'Front Left Hand', ...
+               'Back Left Femur', 'Back Left Tibia Fibula', 'Back Left Foot', ...
+               'Front Right Scapula', 'Front Right Humerous', 'Front Right Radius Ulna', 'Front Right Hand', ...
+               'Back Right Femur', 'Back Right Tibia Fibula', 'Back Right Foot' };
+
+% Define the link parent joint IDs.
+link_parent_joint_IDs = [ 1, 2, 3, 4, ...
+                          5, 6, 7, ...
+                          8, 9, 10, 11, ...
+                          12, 13, 14 ];
+
+% Define the link child joint IDs.
+link_child_joint_IDs = [ 2, 3, 4, -1, ...
+                         6, 7, -1, ...
+                         9, 10, 11, -1, ...
+                         13, 14, -1 ];
+
+% Define the link start points.
+link_ps_start = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
+                      1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5, 1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5;
+                      4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
+
+% Define the link end points.
+link_ps_end = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
+                    -5.1875, -12.6875, -21, -25.625, -9.875, -18.5, -24.75, -5.1875, -12.6875, -21, -25.625, -9.875, -18.5, -24.75;
+                    4.0625, 4.0625, 3.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
+
+% Define the link lengths.
+link_lens = vecnorm( link_ps_end - link_ps_start, 2, 1);
+
+% Define the link widths.
+link_widths = 1.125*ones(1, num_joints);
+
+% Define the link masses.
+link_masses = ones( 1, num_links );
+
+% Define the link center of mass locations.
+link_ps_cm = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
+              -1.96875, -8.9375, -16.84375, -23.3125, -5.5625, -14.1875, -21.625, -1.96875, -8.9375, -16.84375, -23.3125, -5.5625, -14.1875, -21.625;
+              4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
+
+% Define the link center of mass translational velocities.
+link_vs_cm = zeros( 3, num_links );
+
+% Define the link center of mass rotational velocities.
+link_ws_cm = zeros( 3, num_links );
+
+% Define the link mesh types.
+link_mesh_types = repmat( {'Cuboid'}, [ 1, num_links ] );
+        
+        
+
+%% Initialize the Limbs.
+
+% Define the limb origins.
+limb1_origin = [ -9.5625; 1.25; 4.0625 ];
+limb2_origin = [ 9.5625; -1.25; 4.0625 ];
+limb3_origin = [ -9.5625; 1.25; -4.0625 ];
+limb4_origin = [ 9.5625; -1.25; -4.0625 ];
+
+% Define the joints indexes for each limb.
+joint_indexes1 = 1:4;
+joint_indexes2 = 5:7;
+joint_indexes3 = 8:11;
+joint_indexes4 = 12:14;
+
+% Define the link indexes for each limb.
+link_indexes1 = 1:4;
+link_indexes2 = 5:7;
+link_indexes3 = 8:11;
+link_indexes4 = 12:14;
+
+% Initialize the limb objects.
+limb1 = limb_class( 1, 'Front Left', limb1_origin );
+limb2 = limb_class( 2, 'Back Left', limb2_origin );
+limb3 = limb_class( 3, 'Front Right', limb3_origin );
+limb4 = limb_class( 4, 'Back Right', limb4_origin );
+
+% Initialize the joints of each limb.
+limb1 = limb1.initialize_joints( joint_IDs(joint_indexes1), joint_names(joint_indexes1), joint_parent_link_IDs(joint_indexes1), joint_child_link_IDs(joint_indexes1), joint_ps(:, joint_indexes1), joint_Rs(:, :, joint_indexes1), joint_vs(:, joint_indexes1), joint_ws(:, joint_indexes1), joint_w_screws(:, joint_indexes1), joint_thetas(joint_indexes1) );
+limb2 = limb2.initialize_joints( joint_IDs(joint_indexes2), joint_names(joint_indexes2), joint_parent_link_IDs(joint_indexes2), joint_child_link_IDs(joint_indexes2), joint_ps(:, joint_indexes2), joint_Rs(:, :, joint_indexes2), joint_vs(:, joint_indexes2), joint_ws(:, joint_indexes2), joint_w_screws(:, joint_indexes2), joint_thetas(joint_indexes2) );
+limb3 = limb3.initialize_joints( joint_IDs(joint_indexes3), joint_names(joint_indexes3), joint_parent_link_IDs(joint_indexes3), joint_child_link_IDs(joint_indexes3), joint_ps(:, joint_indexes3), joint_Rs(:, :, joint_indexes3), joint_vs(:, joint_indexes3), joint_ws(:, joint_indexes3), joint_w_screws(:, joint_indexes3), joint_thetas(joint_indexes3) );
+limb4 = limb4.initialize_joints( joint_IDs(joint_indexes4), joint_names(joint_indexes4), joint_parent_link_IDs(joint_indexes4), joint_child_link_IDs(joint_indexes4), joint_ps(:, joint_indexes4), joint_Rs(:, :, joint_indexes4), joint_vs(:, joint_indexes4), joint_ws(:, joint_indexes4), joint_w_screws(:, joint_indexes4), joint_thetas(joint_indexes4) );
+
+% Initialize the joints of each joint.
+limb1 = limb1.initialize_links( link_IDs(link_indexes1), link_names(link_indexes1), link_parent_joint_IDs(link_indexes1), link_child_joint_IDs(link_indexes1), link_ps_start(:, link_indexes1), link_ps_end(:, link_indexes1), link_lens(link_indexes1), link_widths(link_indexes1), link_masses(link_indexes1), link_ps_cm(:, link_indexes1), link_vs_cm(:, link_indexes1), link_ws_cm(:, link_indexes1), link_mesh_types(link_indexes1) );
+limb2 = limb2.initialize_links( link_IDs(link_indexes2), link_names(link_indexes2), link_parent_joint_IDs(link_indexes2), link_child_joint_IDs(link_indexes2), link_ps_start(:, link_indexes2), link_ps_end(:, link_indexes2), link_lens(link_indexes2), link_widths(link_indexes2), link_masses(link_indexes2), link_ps_cm(:, link_indexes2), link_vs_cm(:, link_indexes2), link_ws_cm(:, link_indexes2), link_mesh_types(link_indexes2) );
+limb3 = limb3.initialize_links( link_IDs(link_indexes3), link_names(link_indexes3), link_parent_joint_IDs(link_indexes3), link_child_joint_IDs(link_indexes3), link_ps_start(:, link_indexes3), link_ps_end(:, link_indexes3), link_lens(link_indexes3), link_widths(link_indexes3), link_masses(link_indexes3), link_ps_cm(:, link_indexes3), link_vs_cm(:, link_indexes3), link_ws_cm(:, link_indexes3), link_mesh_types(link_indexes3) );
+limb4 = limb4.initialize_links( link_IDs(link_indexes4), link_names(link_indexes4), link_parent_joint_IDs(link_indexes4), link_child_joint_IDs(link_indexes4), link_ps_start(:, link_indexes4), link_ps_end(:, link_indexes4), link_lens(link_indexes4), link_widths(link_indexes4), link_masses(link_indexes4), link_ps_cm(:, link_indexes4), link_vs_cm(:, link_indexes4), link_ws_cm(:, link_indexes4), link_mesh_types(link_indexes4) );
+
+% Set the screw axes of each limb.
+limb1 = limb1.set_screw_axes( );
+limb2 = limb2.set_screw_axes( );
+limb3 = limb3.set_screw_axes( );
+limb4 = limb4.set_screw_axes( );
+
+% Set the home and joint assignment matrices for the joints of each limb (i.e., setting M and J for each limb).
+limb1 = limb1.set_joint_home_assignment_matrices( );
+limb2 = limb2.set_joint_home_assignment_matrices( );
+limb3 = limb3.set_joint_home_assignment_matrices( );
+limb4 = limb4.set_joint_home_assignment_matrices( );
+
+
+
+% NEED TO ADD JOINT PROPERTIES LIKE K AND C TO JOINTS.
+% NEED TO DEFINE OTHER LIMB PROPERTIES.
+
+% NEED TO DEFINE HOME MATRICES FOR JOINTS.
+% NEED TO DEFINE HOME MATRICES FOR LINKS CMS, END POINTS, AND MESHES.
+% NEED TO ADD HOME MATRICES FROM JOINTS AND LINKS TO LIMB.
 
 
 %% Initialize USART Communication.

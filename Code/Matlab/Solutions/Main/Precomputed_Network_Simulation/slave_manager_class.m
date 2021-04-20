@@ -14,15 +14,15 @@ classdef slave_manager_class
     methods
         
         % Implement the class constructor.
-        function self = slave_manager_class( slave_IDs, muscle_IDs, muscle_names, pressure_sensor_ID1s, pressure_sensor_ID2s, joint_IDs, joint_names, measured_pressure_value1s, measured_pressure_value2s, measured_joint_values, desired_pressures )
+        function self = slave_manager_class( slave_IDs, muscle_IDs, muscle_names, pressure_sensor_ID1s, pressure_sensor_ID2s, encoder_IDs, encoder_names, measured_pressure_value1s, measured_pressure_value2s, measured_encoder_values, desired_pressures )
             
             % Define the default class properties.
             if nargin < 11, desired_pressures = uint16( 0 ); end
-            if nargin < 10, measured_joint_values = uint16( 0 ); end
+            if nargin < 10, measured_encoder_values = uint16( 0 ); end
             if nargin < 9, measured_pressure_value2s = uint16( 0 ); end
             if nargin < 8, measured_pressure_value1s = uint16( 0 ); end
-            if nargin < 7, joint_names = {''}; end
-            if nargin < 6, joint_IDs = uint8( 0 ); end
+            if nargin < 7, encoder_names = {''}; end
+            if nargin < 6, encoder_IDs = uint8( 0 ); end
             if nargin < 5, pressure_sensor_ID2s = uint8( 0 ); end
             if nargin < 4, pressure_sensor_ID1s = uint8( 0 ); end
             if nargin < 3, muscle_names = {''}; end
@@ -38,11 +38,11 @@ classdef slave_manager_class
             muscle_names = self.validate_property( muscle_names, 'muscle_names' );
             pressure_sensor_ID1s = self.validate_property( pressure_sensor_ID1s, 'pressure_sensor_ID1s' );
             pressure_sensor_ID2s = self.validate_property( pressure_sensor_ID2s, 'pressure_sensor_ID2s' );
-            joint_IDs = self.validate_property( joint_IDs, 'joint_IDs' );
-            joint_names = self.validate_property( joint_names, 'joint_names' );
+            encoder_IDs = self.validate_property( encoder_IDs, 'encoder_IDs' );
+            encoder_names = self.validate_property( encoder_names, 'encoder_names' );
             measured_pressure_value1s = self.validate_property( measured_pressure_value1s, 'measured_pressure_value1s' );
             measured_pressure_value2s = self.validate_property( measured_pressure_value2s, 'measured_pressure_value2s' );
-            measured_joint_values = self.validate_property( measured_joint_values, 'measured_joint_values' );
+            measured_encoder_values = self.validate_property( measured_encoder_values, 'measured_encoder_values' );
             desired_pressures = self.validate_property( desired_pressures, 'desired_pressures' );
             
             % Preallocate an array of muscles.
@@ -52,7 +52,7 @@ classdef slave_manager_class
             for k = 1:self.num_slaves              % Iterate through each slave...
                 
                 % Create this slave.
-                self.slaves(k) = slave_class( slave_IDs(k), muscle_IDs(k), muscle_names{k}, pressure_sensor_ID1s(k), pressure_sensor_ID2s(k), joint_IDs(k), joint_names{k}, measured_pressure_value1s(k), measured_pressure_value2s(k), measured_joint_values(k), desired_pressures(k) );
+                self.slaves(k) = slave_class( slave_IDs(k), muscle_IDs(k), muscle_names{k}, pressure_sensor_ID1s(k), pressure_sensor_ID2s(k), encoder_IDs(k), encoder_names{k}, measured_pressure_value1s(k), measured_pressure_value2s(k), measured_encoder_values(k), desired_pressures(k) );
                 
             end
             
