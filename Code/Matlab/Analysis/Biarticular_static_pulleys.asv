@@ -110,7 +110,7 @@ r2_AEb_pos1 = [(ankle_pos1(1) - r2_AEb_length * sind(theta1_pos1)), (ankle_pos1(
 toe_pos1 = [(ankle_pos1(1) - l3 * cosd(theta1_pos1)) (ankle_pos1(2) + l3 * sind(theta1_pos1))];
 
 %Define upper actuator position 1
-upper_AEb_pos1 = knee_pos1 + 0.0254*[(1.25 * sind(30) + cosd(30)) (1.25 * cosd(30) - sind(30))];
+upper_AEb_pos1 = knee_pos1 + [(1.25 * cosd(30)) (1 * sind;
 
 %Define string length
 string = norm(upper_AEb_pos1 - r1_KFb_pos1);
@@ -166,6 +166,8 @@ plot(r2_AEb_pos1(1), r2_AEb_pos1(2), '*b')
 % Plot the ankle extensor actuator
 plot([upper_AEb_pos1(1) r1_AEb_pos1(1)], [upper_AEb_pos1(2) r1_AEb_pos1(2)], '-b', 'LineWidth', 3)
 
+% Plot the string from the ankle actuator to the knee
+plot([upper_AEb_pos1(1) r1_KFb_pos1(1)], [upper_AEb_pos1(2) r1_KFb_pos1(2)])
 
 % Plot the hip/body as a horizontal line for reference
 plot([-1, .1], [0, 0], '-k', 'LineWidth', 12)
@@ -239,8 +241,7 @@ knee_pos2_extended = rotz(60) * knee_pos1';
 r1_KEb_extended = rotz(90) * ((rotz(60) * r1_KEb_pos1') - knee_pos2_extended) + knee_pos2_extended;
 r2_KEb_extended = rotz(90) * ((rotz(60) * r2_KEb_pos1') - knee_pos2_extended) + knee_pos2_extended;
 
-string_length = (pi()/2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5;
-lower_AEb_pos2 = r2_AEb_pos2' + string_length * (upper_AEb_pos2' - r2_AEb_pos2')/norm(upper_AEb_pos2' - r2_AEb_pos2');
+
 %% Plot fully flexed position of the knee in 2D space (position 2)
 subplot(1, 2, 2)
 hold on
@@ -278,10 +279,10 @@ plot(r1_AEb_pos2(1), r1_AEb_pos2(2), '*b')
 plot(r2_AEb_pos2(1), r2_AEb_pos2(2), '*b')
 
 % Plot the ankle extensor actuator
-plot([upper_AEb_pos2(1) lower_AEb_pos2(1)], [upper_AEb_pos2(2) lower_AEb_pos2(2)], '-b', 'LineWidth', 3)
+plot([upper_AEb_pos2(1) r2_AEb_pos2(1)], [upper_AEb_pos2(2) r2_AEb_pos2(2)], '-b', 'LineWidth', 3)
 
-% Plot the string from ankle to actuator
-plot([r2_AEb_pos2(1) lower_AEb_pos2(1)], [r2_AEb_pos2(2) lower_AEb_pos2(2)])
+% Plot the string from the ankle actuator to the knee
+plot([upper_AEb_pos2(1) r1_KFb_pos2(1)], [upper_AEb_pos2(2) r1_KFb_pos2(2)])
 
 % Plot the final pulley point before string goes to the tibia for the
 % lfexor and extensor
