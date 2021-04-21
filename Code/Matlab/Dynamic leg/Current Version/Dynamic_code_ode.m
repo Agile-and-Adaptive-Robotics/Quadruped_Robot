@@ -1,5 +1,6 @@
 function dy = Dynamic_code_ode(t,y,P)
 
+
 y1 = y(1);
 y2 = y(2);
 y3 = y(3);
@@ -14,8 +15,8 @@ M1=P.M1;
 M2=P.M2;
 M3=P.M3;
 g=P.g;
-
-u1 = 0;
+c=1;
+u1 = c*y1;
 u2 = 0;
 u3= 0;
 

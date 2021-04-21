@@ -31,7 +31,7 @@ x0=[0 0 0 0 0 0]';
 x=zeros(6,N);
 x(:,1)=x0;
 
-[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0);
+[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0)
 
 
 L1=P.L1;
