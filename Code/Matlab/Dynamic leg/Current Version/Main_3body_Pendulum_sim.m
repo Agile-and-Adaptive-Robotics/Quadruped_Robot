@@ -65,9 +65,7 @@ for i=1:N-1
         plot(px,py,'ro-');
         axis([-(P.L1+P.L2+P.L3+4) (P.L1+P.L2+P.L3+4) -(P.L1+P.L2+P.L3+4) (P.L1+P.L2+P.L3+4)]);
         pause(0.001);
-        MM(mov_cnt)=getframe;
-        mov_cnt=mov_cnt+1;
+       
     end
 end
 
-movie(MM)
