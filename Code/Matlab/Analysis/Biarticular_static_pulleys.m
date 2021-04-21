@@ -28,7 +28,7 @@ L_KF = 8 * (0.0254);                % [m] Knee flexor length (inches to meters c
 L_KE = 8 * (0.0254);                % [m] Knee extensor length (inches to meters conversion)
 L_KFb = 12 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
 L_KEb = 12 * (0.0254);              % [m] Biarticular knee flexor length (inches to meters conversion)
-L_AEb = 9 * (0.0254);              % [m] Biarticular ankle extensor length (inches to meters conversion)
+L_AEb = 8.5 * (0.0254);              % [m] Biarticular ankle extensor length (inches to meters conversion)
 
 % Define actuator masses based on linear density estimate of 1.698 kg/m
 m_AF = 1.698 * L_AF;                % [kg] Ankle flexor mass
@@ -51,8 +51,8 @@ r1_KFb_length = .75 * (0.0254);         % [m] (inches to meter conversion)
 r1_KEb_length = 0.5 * (0.0254);         % [m] (inches to meter conversion)
 r2_KFb_length = 0.5 * (0.0254);         % [m] (inches to meter conversion)
 r2_KEb_length = .75* (0.0254);          % [m] (inches to meter conversion)
-r1_AEb_length = 0.8 * (0.0254);         % [m] (inches to meter conversion)
-r2_AEb_length = 0.65 * (0.0254);        % [m] (inches to meter conversion)
+r1_AEb_length = 0.5 * (0.0254);         % [m] (inches to meter conversion)
+r2_AEb_length = 0.5 * (0.0254);        % [m] (inches to meter conversion)
 
 % Define where point of rotation of the upper end of the knee actuators is in the
 % xy plane, with the hip point of rotation as the origin
@@ -110,8 +110,7 @@ r2_AEb_pos1 = [(ankle_pos1(1) - r2_AEb_length * sind(theta1_pos1)), (ankle_pos1(
 toe_pos1 = [(ankle_pos1(1) - l3 * cosd(theta1_pos1)) (ankle_pos1(2) + l3 * sind(theta1_pos1))];
 
 %Define upper actuator position 1
-upper_AEb_pos1 = knee_pos1 + 0.0254*[(1.25 * sind(30) + cosd(30)) (1.25 * cosd(30) - sind(30))];
-
+upper_AEb_pos1 = knee_pos1 + 0.0254*1.25*[sind(30) cosd(30)]; 
 %Define string length
 string = norm(upper_AEb_pos1 - r1_KFb_pos1);
 
@@ -220,7 +219,8 @@ r1_AEb_pos2 = rotz(90) * (r1_AEb_pos2 - ankle_pos2)+ ankle_pos2;
 r2_AEb_pos2 = rotz(90) * (r2_AEb_pos2 - ankle_pos2)+ ankle_pos2;
 
 % Define upper ankle actuator position
-upper_AEb_pos2 = r1_KFb_pos2 + string * ((r2_AEb_pos2 - r1_KFb_pos2)/ norm(r2_AEb_pos2 - r1_KFb_pos2));
+%upper_AEb_pos2 = r1_KFb_pos2 + string * ((r2_AEb_pos2 - r1_KFb_pos2)/ norm(r2_AEb_pos2 - r1_KFb_pos2));
+upper_AEb_pos2 = rotz(rot_hip) * upper_AEb_pos1';
 
 % Define the EFFECTIVE radius based on knee rotation
 rKFb_eff_length = (r1_KFb_length * r2_KFb_length)/((r2_KFb_length * cosd(rot_knee))^2 + (r1_KFb_length * sind(rot_knee))^2)^.5;
@@ -240,7 +240,9 @@ r1_KEb_extended = rotz(90) * ((rotz(60) * r1_KEb_pos1') - knee_pos2_extended) + 
 r2_KEb_extended = rotz(90) * ((rotz(60) * r2_KEb_pos1') - knee_pos2_extended) + knee_pos2_extended;
 
 string_length = (pi()/2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5;
+
 lower_AEb_pos2 = r2_AEb_pos2' + string_length * (upper_AEb_pos2' - r2_AEb_pos2')/norm(upper_AEb_pos2' - r2_AEb_pos2');
+
 %% Plot fully flexed position of the knee in 2D space (position 2)
 subplot(1, 2, 2)
 hold on
