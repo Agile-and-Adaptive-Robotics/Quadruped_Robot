@@ -324,9 +324,6 @@ fprintf('\nKnee rotation: %.0f degrees\n', rot_knee)
 fprintf('\n\nBA knee flexor actuator length: %.0f inches', L_KFb/0.0254)
 fprintf('\nBA knee extensor actuator length: %.0f inches\n', L_KEb/0.0254)
 
-fprintf('\nBA knee flexor strain to achieve position 2: %.2f', k_KFb)
-fprintf('\nBA knee extensor strain to achieve position 1: %.2f\n', k_KEb)
-fprintf('\nBA ankle extensor strain to achieve this position: %.2f\n', k_AEb)
 %fprintf('\n\nBA ankle extensor actuator length: %.0f inches', L_AEb/0.0254)
 
 
@@ -350,7 +347,7 @@ F_KFb = (T1_KFb + T2_KFb + T3_KFb + T_knee_KFb + T_ankle_KFb) / r2_KFb_length;  
 % Torque requirements for knee extensor:
 % Define torques created by the weight of the different leg segments
 T1_KEb = 0.5 * l1 * sind(30) * (m1 + m_KF + m_KE) * g;             % [N-m]
-T2_KEb = ((l1 + 0.5 * l2) * sind(30)) * (m1 + m_AF + m_AE) * g;    % [N-m]
+T2_KEb = ((l1 + 0.5 * l2) * sind(30)) * (m2 + m_AF + m_AE) * g;    % [N-m]
 T3_KEb = (((l1 + l2) * sind(30)) + (l3/2)) * m3 * g;               % [N-m]
 T_knee_KEb = l1 * sind(30) * me * g;                               % [N-m]
 T_ankle_KEb = (l1 + l2) * sind(30) * me * g;                       % [N-m]
@@ -371,8 +368,13 @@ F_AEb = (T2_AEb + T3_KEb + T_ankle_AEb) / r2_AEb_length;                % [N]
 
 % Print out force required to hold position 1 and 2 for the knee extensor
 % and flexor, respectively
-fprintf('\nThe required force for the BA knee flexor to hold a fully contracted position is %.1f pounds', F_KFb/4.448)
-fprintf('\nThe required force for the BA knee extensor to hold a fully contracted position is %.1f pounds', F_KEb/4.448)
+fprintf('\nBA knee flexor strain to achieve position 2: %.2f', k_KFb)
+fprintf('\nThe required force for the BA knee flexor to hold a fully contracted position is %.1f pounds\n', F_KFb/4.448)
+
+fprintf('\nBA knee extensor strain to achieve position 1: %.2f', k_KEb)
+fprintf('\nThe required force for the BA knee extensor to hold a fully contracted position is %.1f pounds\n', F_KEb/4.448)
+
+fprintf('\nBA ankle extensor strain to achieve this position: %.2f', k_AEb)
 fprintf('\nThe required force for the BA ankle extensor to hold position 1 is %.1f pounds', F_AEb/4.448)
 
 %% Plotting strain vs necessary pressure for a given force
@@ -391,8 +393,10 @@ key = strings(1,length(F));
 figure(2)
 % plot pressure vs strain, each loop doing a different applied force
 for n = 1:length(F)
-    P = a0 + (a1 * tan( a2 * ((k./ (a4 * F(n) + k_max)) + a3))) + (a5 * F(n)) + (a6 * S); % [Pa]
-    plot(k, P/1000, '.')
+    tangent = a2 * ((k./ (a4 * F(n) + k_max)) + a3);
+    tangent(tangent > (pi()/2)) = [];
+    P = a0 + (a1 * tan(tangent)) + (a5 * F(n)) + (a6 * S); % [Pa]
+    plot(k(1:length(P)), P/1000, '.')
     hold on
     key(n) = sprintf('Applied force: %.1f pounds', F(n)/4.448);
 end
@@ -405,12 +409,10 @@ plot(k_KEb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KEb./ (a4 * F_KEb + k_max)) + a3))
 % Plot maximum pressure line at P = 620 kPa
 plot([0 .2], [620 620], '-r')
 
-% Finish plot formatting
-%key(8) = 'BA KF at pos1';
-%key(9) = 'BA KE at pos2';
 legend(key)
 xlabel('Strain')
 ylabel('Pressure (kPa)')
-xlim([0 0.18])
-ylim([0 800])
-title(sprintf('%.1f inch biarticular knee actuators', L_KFb/0.0254))
+xlim([0 0.2])
+ylim([0 900])
+title(sprintf('Required pressure to achieve a given strain with varied applied force'))
+set(gcf,'color','w');
