@@ -167,7 +167,7 @@ plot([upper_AEb_pos1(1) r1_AEb_pos1(1)], [upper_AEb_pos1(2) r1_AEb_pos1(2)], '-b
 
 
 % Plot the hip/body as a horizontal line for reference
-plot([-1, .1], [0, 0], '-k', 'LineWidth', 12)
+plot([-.1, .1], [0, 0], '-k', 'LineWidth', 12)
 
 % Mark the hip joint as the origin
 plot(0,0, 'xg', 'LineWidth', 3)
@@ -183,12 +183,13 @@ plot([b_KEb_top(1) r1_KEb_pos1(1)], [b_KEb_top(2) r1_KEb_pos1(2)], 'b')
 
 % Finish labeling the plot
 hold off
-xlim([-0.5 0.5])
-ylim([-0.7 0.3])
+xlim([-0.4 0.2])
+ylim([-0.5 0.1])
 title(sprintf('Knee flexor at position 1: \nFully extended'))
 xlabel('x position (m)')
 ylabel('y position (m)')
 daspect([1 1 1])
+set(gcf,'color','w');
 
 %% Define fully flexed position (position 2) using rotational matrices
 
@@ -267,7 +268,7 @@ plot(camKE(1,:), camKE(2,:))
 plot(ankle_pos2(1), ankle_pos2(2), 'o', 'LineWidth', 3)
 
 % Plot the hip/body as a horizontal line for reference
-plot([-1, .1], [0, 0], '-k', 'LineWidth', 12)
+plot([-.1, .1], [0, 0], '-k', 'LineWidth', 12)
 
 % Mark the hip joint as the origin
 plot(0,0, 'xg', 'LineWidth', 3)
@@ -295,8 +296,8 @@ plot([b_KFb_top(1) rKFb_eff(1)], [b_KFb_top(2) rKFb_eff(2)], 'b')
 plot([b_KEb_top(1) rKEb_eff(1)], [b_KEb_top(2) rKEb_eff(2)], 'b')
 
 % Finish labeling the plot
-xlim([-0.5 0.5])
-ylim([-0.7 0.3])
+xlim([-0.1 0.5])
+ylim([-0.4 0.2])
 title(sprintf('Knee flexor at position 2:\nHip extended %.0f degrees, knee flexed %.0f degrees', rot_hip, rot_knee))
 xlabel('x position (m)')
 ylabel('y position (m)')
@@ -398,8 +399,8 @@ end
 
 % Plot strain and forces required for position 1 and 2 for biarticular knee
 % muscles
-%plot(k_KFb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KFb./ (a4 * F_KFb + k_max)) + a3))) + (a5 * F_KFb) + (a6 * S)), 'xr', 'LineWidth', 2)
-%plot(k_KEb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KEb./ (a4 * F_KEb + k_max)) + a3))) + (a5 * F_KEb) + (a6 * S)), 'xb', 'LineWidth', 2)
+plot(k_KFb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KFb./ (a4 * F_KFb + k_max)) + a3))) + (a5 * F_KFb) + (a6 * S)), 'xr', 'LineWidth', 2)
+plot(k_KEb, 0.001 * (a0 + (a1 * tan( a2 * ((k_KEb./ (a4 * F_KEb + k_max)) + a3))) + (a5 * F_KEb) + (a6 * S)), 'xb', 'LineWidth', 2)
 
 % Plot maximum pressure line at P = 620 kPa
 plot([0 .2], [620 620], '-r')
@@ -410,6 +411,6 @@ plot([0 .2], [620 620], '-r')
 legend(key)
 xlabel('Strain')
 ylabel('Pressure (kPa)')
-xlim([0 0.2])
-ylim([0 700])
+xlim([0 0.18])
+ylim([0 800])
 title(sprintf('%.1f inch biarticular knee actuators', L_KFb/0.0254))

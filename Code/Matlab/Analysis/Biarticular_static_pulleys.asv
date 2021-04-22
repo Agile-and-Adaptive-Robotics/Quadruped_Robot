@@ -183,8 +183,8 @@ plot([b_KEb_top(1) r1_KEb_pos1(1)], [b_KEb_top(2) r1_KEb_pos1(2)], 'b')
 
 % Finish labeling the plot
 hold off
-xlim([-0.5 0.5])
-ylim([-0.7 0.3])
+xlim([-0.4 0.4])
+ylim([-0.6 0.2])
 title(sprintf('Knee flexor at position 1: \nFully extended'))
 xlabel('x position (m)')
 ylabel('y position (m)')
@@ -220,6 +220,7 @@ r2_AEb_pos2 = rotz(90) * (r2_AEb_pos2 - ankle_pos2)+ ankle_pos2;
 
 % Define upper ankle actuator position
 %upper_AEb_pos2 = r1_KFb_pos2 + string * ((r2_AEb_pos2 - r1_KFb_pos2)/ norm(r2_AEb_pos2 - r1_KFb_pos2));
+upper_AEb_pos2 = rotz(rot_hip) * upper_AEb_pos1';
 
 % Define the EFFECTIVE radius based on knee rotation
 rKFb_eff_length = (r1_KFb_length * r2_KFb_length)/((r2_KFb_length * cosd(rot_knee))^2 + (r1_KFb_length * sind(rot_knee))^2)^.5;
@@ -239,7 +240,9 @@ r1_KEb_extended = rotz(90) * ((rotz(60) * r1_KEb_pos1') - knee_pos2_extended) + 
 r2_KEb_extended = rotz(90) * ((rotz(60) * r2_KEb_pos1') - knee_pos2_extended) + knee_pos2_extended;
 
 string_length = (pi()/2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5;
+
 lower_AEb_pos2 = r2_AEb_pos2' + string_length * (upper_AEb_pos2' - r2_AEb_pos2')/norm(upper_AEb_pos2' - r2_AEb_pos2');
+
 %% Plot fully flexed position of the knee in 2D space (position 2)
 subplot(1, 2, 2)
 hold on
@@ -292,8 +295,8 @@ plot([b_KFb_top(1) rKFb_eff(1)], [b_KFb_top(2) rKFb_eff(2)], 'b')
 plot([b_KEb_top(1) rKEb_eff(1)], [b_KEb_top(2) rKEb_eff(2)], 'b')
 
 % Finish labeling the plot
-xlim([-0.5 0.5])
-ylim([-0.7 0.3])
+xlim([-0.1 0.5])
+ylim([-0.4 0.2])
 title(sprintf('Knee flexor at position 2:\nHip extended %.0f degrees, knee flexed %.0f degrees', rot_hip, rot_knee))
 xlabel('x position (m)')
 ylabel('y position (m)')
