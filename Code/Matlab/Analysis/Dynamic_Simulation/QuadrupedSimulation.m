@@ -14,46 +14,52 @@ standing
 %}
 
 % Define the mechanical properties of link 1.
-m1 = 1;                                                                                                         % [kg] Link Mass.
+m1 = .327252;                                                                                                         % [kg] Link Mass.
 ct1 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt1 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx1 = 1; Ly1 = 0.1; Lz1 = 0.1; Ls1 = [Lx1; Ly1; Lz1];                                                         % [m] Link Length in each direction of the local link frame.
-Lx1 = 0.254; Ly1 = 0.019; Lz1 = 0.019; Ls1 = [Lx1; Ly1; Lz1];                                                   % [m] Link Length in each direction of the local link frame.
+Lx1 = 0.331795; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];                                                   % [m] Link Length in each direction of the local link frame.
 % Lx1 = 0.1524; Ly1 = 0.0254; Lz1 = 0.0254; Ls1 = [Lx1; Ly1; Lz1];                                              % [m] Link Length in each direction of the local link frame.
 % Phome_cm1 = [Lx1/2; 0; 0];                                                                                    % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm1 = [46e-3; 0; 0];                                                                                      % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm1 = [0.068613; -0.000333 ;0.049822];                                                                                      % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm1 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm1 = [(1/12)*m1*(Ly1^2 + Lz1^2) 0 0; 0 (1/12)*m1*(Lx1^2 + Lz1^2) 0; 0 0 (1/12)*m1*(Lx1^2 + Ly1^2)];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm1 = [0.00012	-2.2e-05	4.6e-05
+	-2.2e-05	0.003467	0
+	4.6e-05	0	0.003389];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G1 = [Ihome_cm1, zeros(3, 3); zeros(3, 3), m1*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body1 = GetCuboidPoints(Ls1(1), Ls1(2), Ls1(3), Phome_cm1(1), Phome_cm1(2), Phome_cm1(3), 0, 0, 0);       % [m] Link Points
 Rhome_body1 = Rhome_cm1;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
 % Define the mechanical properties of link 2.
-m2 = 1;                                                                                                         % [kg] Link Mass.
+m2 = .220478;                                                                                                         % [kg] Link Mass.
 ct2 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt2 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx2 = 1; Ly2 = 0.1; Lz2 = 0.1; Ls2 = [Lx2; Ly2; Lz2];                                                         % [m] Link Length in each direction of the local link frame.
-Lx2 = 0.21; Ly2 = 0.019; Lz2 = 0.019; Ls2 = [Lx2; Ly2; Lz2];                                                    % [m] Link Length in each direction of the local link frame.
+Lx2 = 0.275273; Ly2 = 0.02856; Lz2 = 0.032385; Ls2 = [Lx2; Ly2; Lz2];                                                    % [m] Link Length in each direction of the local link frame.
 % Lx2 = 0.20955; Ly2 = 0.0254; Lz2 = 0.0254; Ls2 = [Lx2; Ly2; Lz2];                                             % [m] Link Length in each direction of the local link frame.
 % Phome_cm2 = [Lx1 + Lx2/2; 0; 0];                                                                              % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm2 = [Phome_cm1(1) + Lx1/2 + Lx2/2; 0; 0];                                                               % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm2 = [0.406474; -.001466; 0.052155];                                                                      % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm2 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm2 = [(1/12)*m2*(Ly2^2 + Lz2^2) 0 0; 0 (1/12)*m2*(Lx2^2 + Lz2^2) 0; 0 0 (1/12)*m2*(Lx2^2 + Ly2^2)];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm2 = [4.1e-05	-2.5e-05	3e-06
+	-2.5e-05	0.002226	1e-06
+	3e-06	1e-06	0.002222];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G2 = [Ihome_cm2, zeros(3, 3); zeros(3, 3), m2*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body2 = GetCuboidPoints(Ls2(1), Ls2(2), Ls2(3), Phome_cm2(1), Phome_cm2(2), Phome_cm2(3), 0, 0, 0);       % [m] Link Points
 Rhome_body2 = Rhome_cm2;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
 % Define the mechanical properties of link 3.
-m3 = 1;                                                                                                         % [kg] Link Mass.
+m3 = 0.032522;                                                                                                         % [kg] Link Mass.
 ct3 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt3 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx3 = 1; Ly3 = 0.1; Lz3 = 0.1; Ls3 = [Lx3; Ly3; Lz3];                                                         % [m] Link Length in each direction of the local link frame.
-Lx3 = 0.148; Ly3 = 0.019; Lz3 = 0.019; Ls3 = [Lx3; Ly3; Lz3];                                                   % [m] Link Length in each direction of the local link frame.
+Lx3 = 0.159075; Ly3 = 0.02567; Lz3 = 0.025400; Ls3 = [Lx3; Ly3; Lz3];                                                   % [m] Link Length in each direction of the local link frame.
 % Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                              % [m] Link Length in each direction of the local link frame.
 % Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                        % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm3 = [Phome_cm2(1) + Lx2/2 + Lx3/2; 0; 0];                                                               % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm3 = [.50927; -.0102273 ; 0.050266];                                                               % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm3 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm3 = [(1/12)*m3*(Ly3^2 + Lz3^2) 0 0; 0 (1/12)*m3*(Lx3^2 + Lz3^2) 0; 0 0 (1/12)*m3*(Lx3^2 + Ly3^2)];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm3 = [7.6e-05	3e-05	0
+	3e-05	2.1e-05 0
+	0	 0	9.5e-05];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G3 = [Ihome_cm3, zeros(3, 3); zeros(3, 3), m3*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body3 = GetCuboidPoints(Ls3(1), Ls3(2), Ls3(3), Phome_cm3(1), Phome_cm3(2), Phome_cm3(3), 0, 0, 0);       % [m] Link Points
 Rhome_body3 = Rhome_cm3;                                                                                        % [-] Orientation of the Link in the Global Frame.
