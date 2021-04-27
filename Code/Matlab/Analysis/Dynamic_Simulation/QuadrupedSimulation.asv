@@ -68,7 +68,7 @@ Rhome_body3 = Rhome_cm3;                                                        
 
 %{
 Add information to incorporate Ad/Abduction Joint at hip
-Needs new joint location, orientation, axis of rotation
+Needs new joint location, orientation, axis of 
 %}
 
 % Compile information about each link into arrays.
@@ -257,13 +257,6 @@ S2 = [0; 0; 1; 0; -Phome_joint2(1); 0];
 S3 = [0; 0; 1; 0; -Phome_joint3(1); 0];
 Ss = [S1 S2 S3];
 
-% With lateral hip axis
-%S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
-%S2 = [1;0,0;0;-Phome_joint2(1); 0];
-%S3 = [0; 0; 1; 0; -Phome_joint2(1); 0];
-%S4 = [0; 0; 1; 0; -Phome_joint3(1); 0];
-%Ss = [S1 S2 S3 S4];
-
 
 %% Define the Simulation Properties.
 
@@ -287,7 +280,7 @@ g = [0; -9.81; 0];
 
 %% Define the Trajectory Properties.
 
-% Define the stance duty cycle. - Unused?
+% Define the stance duty cycle.
 stance_duty = 0.5;
 % stance_duty = 0.25;
 
