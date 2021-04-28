@@ -22,7 +22,7 @@ P.g = 9.81;
 %% Sim
 init_t=0;
 final_t=10;
-dt=0.001;
+dt=0.01;
 N= (final_t-init_t)/dt;
 t_span=linspace(init_t,final_t,N);
 
@@ -31,8 +31,7 @@ x0=[0 0 0 0 0 0]';
 x=zeros(6,N);
 x(:,1)=x0;
 
-[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0)
-
+[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0);
 
 L1=P.L1;
 L2=P.L2;

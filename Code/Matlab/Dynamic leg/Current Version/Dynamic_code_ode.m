@@ -16,10 +16,11 @@ M2=P.M2;
 M3=P.M3;
 g=P.g;
 %}
-c1=0; c2 = 0;c3 =0;K1 = 0;K2=0;K3 = 0; theta1b=0;theta2b = 0;theta3b = 0;
-u1 = c1*y2+K1*(y1+theta1b);
-u2 = c2*y4+K2*(y3+theta2b);
-u3= c3*y6+K3*(y5+theta3b);
+b1=0; b2 = 0;b3 =0;K1 = 0;K2=0;K3 = 0; theta1bias=0;theta2bias = 0;theta3bias = 0;
+u1 = b1*y2+K1*(y1+theta1bias);
+u2 = b2*y4+K2*(y3+theta2bias);
+u3= b3*y6+K3*(y5+theta3bias);
 
-u=[u1 u2 u3]';
+%u=[u1 u2 u3]';
+u = [0 0 0]';
 dy = Dynamic_code(y,u,P);
