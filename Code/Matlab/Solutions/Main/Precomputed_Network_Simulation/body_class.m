@@ -4,34 +4,76 @@ classdef body_class
     
     % Define the body properties.
     properties
+        
+        ID
+        name
+        
         mass
         length
         width
-        Icm
-        pcm
-        vcm
-        wcm
-        mesh
-        limbs
+        height
+        
+        p_cm
+        R_cm
+        M_cm
+        T_cm
+        I_cm
+        v_cm
+        w_cm
+       
+        ps_mesh
+        Ms_mesh
+        Ts_mesh
+        mesh_type
+        
+        mesh_utilities
+        physics_manager
+        
     end
     
     % Define the body methods.
     methods
         
         % Define the class constructor.
-        function self = body_class( mass, length, width, Icm, pcm, vcm, wcm, mesh, limbs )
+        function self = body_class( ID, name, mass, body_length, body_width, body_height, p_cm, R_cm, v_cm, w_cm, mesh_type )
         
-            % Set the class properties.
-            if nargin < 9, self.limbs = []; else, self.limbs = limbs; end
-            if nargin < 8, self.mesh = []; else, self.mesh = mesh; end
-            if nargin < 7, self.wcm = []; else, self.wcm = wcm; end
-            if nargin < 6, self.vcm = []; else, self.vcm = vcm; end
-            if nargin < 5, self.pcm = []; else, self.pcm = pcm; end
-            if nargin < 4, self.Icm = []; else, self.Icm = Icm; end
-            if nargin < 3, self.width = []; else, self.width = width; end
-            if nargin < 2, self.length = []; else, self.length = length; end
-            if nargin < 1, self.mass = []; else, self.mass = mass; end
-        
+            % Create an instance of the mesh utilities class.
+            self.mesh_utilities = mesh_utilities_class(  );
+            
+            % Create an instance of the physics manager class.
+            self.physics_manager = physics_manager_class(  );
+            
+            % Set the default class properties.
+            if nargin < 11, self.mesh_type = ''; else, self.mesh_type = mesh_type; end
+            if nargin < 10, self.w_cm = zeros( 3, 1 ); else, self.w_cm = w_cm; end
+            if nargin < 9, self.v_cm = zeros( 3, 1 ); else, self.v_cm = v_cm; end
+            if nargin < 8, self.R_cm = eye(3); else, self.R_cm = R_cm; end
+            if nargin < 7, self.p_cm = zeros( 3, 1 ); else, self.p_cm = p_cm; end
+            if nargin < 6, self.height = 0; else, self.height = body_height; end
+            if nargin < 5, self.width = 0; else, self.width = body_width; end
+            if nargin < 4, self.length = 0; else, self.length = body_length; end
+            if nargin < 3, self.mass = 0; else, self.mass = mass; end
+            if nargin < 2, self.name = ''; else, self.name = name; end
+            if nargin < 1, self.ID = 0; else, self.ID = ID; end
+
+            % Define the home configuration of the center of mass.
+            self.M_cm = RpToTrans( self.R_cm, self.p_cm );
+
+            % Set the current configuration of the center of mass to be the home configuration.
+            self.T_cm = self.M_cm;
+
+            % Compute the moment of inertia of the body.
+            self.I_cm = self.mesh_utilities.compute_Icm( self.mesh_type, self.mass, [ self.length; self.height; self.width ] );
+
+            % Compute the mesh points of the body.
+            self.ps_mesh = self.mesh_utilities.generate_mesh( self.mesh_type, [ self.length; self.height; self.width ], self.p_cm, [0; 0; 0] );
+
+            % Compute the home configuration of the body's mesh.
+            self.Ms_mesh = self.physics_manager.PR2T( self.ps_mesh, self.R_cm );
+            
+            % Set the current mesh configuration to be the home configuration.
+            self.Ts_mesh = self.Ms_mesh;
+            
         end
 
         

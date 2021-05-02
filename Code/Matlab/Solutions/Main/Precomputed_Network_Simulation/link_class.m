@@ -11,16 +11,21 @@ classdef link_class
         name
         parent_joint_ID
         child_joint_ID
-        p_start
-        p_end
         mass
         len
         width
-        I_cm
+        R
+        p_start
+        p_end
         p_cm
+        M_cm
+        I_cm
         v_cm
         w_cm
         ps_mesh
+        Ms_mesh
+        ps_link
+        Ms_link
         mesh_type
     end
     
@@ -31,10 +36,11 @@ classdef link_class
     methods
         
         % Implement the class constructor.
-        function self = link_class( ID, name, parent_joint_ID, child_joint_ID, p_start, p_end, len, width, mass, p_cm, v_cm, w_cm, mesh_type )
+        function self = link_class( ID, name, parent_joint_ID, child_joint_ID, p_start, p_end, len, width, mass, p_cm, v_cm, w_cm, R, mesh_type )
             
             % Set the class properties.
-            if nargin < 13, self.mesh_type = ''; else, self.mesh_type = mesh_type; end
+            if nargin < 14, self.mesh_type = ''; else, self.mesh_type = mesh_type; end
+            if nargin < 13, self.R = eye(3); else, self.R = R; end
             if nargin < 12, self.w_cm = zeros(3, 1); else, self.w_cm = w_cm; end
             if nargin < 11, self.v_cm = zeros(3, 1); else, self.v_cm = v_cm; end
             if nargin < 10, self.p_cm = zeros(3, 1); else, self.p_cm = p_cm; end
@@ -53,6 +59,26 @@ classdef link_class
             
             % Compute the moment of inertia of the link.
             self = self.compute_Icm(  );
+            
+            % Define the link points.
+            self.ps_link = [ self.p_start, self.p_end ];
+            
+            % Set the home matrices for the link's start point, end point, and com point.
+            M_start = RpToTrans( self.R, self.p_start );
+            M_end = RpToTrans( self.R, self.p_end );
+            self.Ms_link = cat( 3, M_start, M_end );
+            self.M_cm = RpToTrans( self. R, self.p_cm );
+            
+            % Preallocate the link's mesh home configurations.
+            self.Ms_mesh = zeros( 4, 4, size( self.ps_mesh, 2 ) );
+            
+            % Set the link's mesh home configuration.
+            for k = 1:size( self.ps_mesh, 2 )               % Iterate through each mesh point...
+            
+                % Set the home configuration for this mesh point.
+                self.Ms_mesh(:, :, k) = RpToTrans( self.R, self.ps_mesh(:, k) );
+            
+            end
             
         end
         
@@ -168,7 +194,6 @@ classdef link_class
             if strcmp( self.mesh_type, 'Cuboid' ) || strcmp( self.mesh_type, 'cuboid' )                     % If the link is a cuboid...
                 
                 % Compute the moment of inertia of the link as a cuboid.
-%                 self.I_cm = self.compute_cuboid_Icm( self.mass, self.len, self.width, self.width );
                 self.I_cm = self.compute_cuboid_Icm( self.mass, self.width, self.len, self.width );
 
             elseif isempty( self.mesh_type )                                                                % If no mesh type was specified...

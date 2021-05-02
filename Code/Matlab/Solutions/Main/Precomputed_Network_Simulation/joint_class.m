@@ -50,12 +50,12 @@ classdef joint_class
             self.S = [self.w_screw; self.v_screw];
             
             % Compute the home configuration of this joint.
-            self.M = [self.R, self.p; zeros(1, 3), 1];
-            
+            self.M = RpToTrans( self.R, self.p );
+
             % Compute the current configuration of this joint.
             self.T = self.M;
             
-        end
+        end        
         
         
     end

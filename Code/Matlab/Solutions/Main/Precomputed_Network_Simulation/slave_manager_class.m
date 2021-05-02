@@ -6,16 +6,62 @@ classdef slave_manager_class
     properties
         slaves
         num_slaves
-        slave_packet_size
         conversion_manager
+    end
+    
+    properties ( Constant = true )
+        SLAVE_PACKET_SIZE = 7;
     end
     
     % Define the class methods.
     methods
         
         % Implement the class constructor.
-        function self = slave_manager_class( slave_IDs, muscle_IDs, muscle_names, pressure_sensor_ID1s, pressure_sensor_ID2s, encoder_IDs, encoder_names, measured_pressure_value1s, measured_pressure_value2s, measured_encoder_values, desired_pressures )
+        function self = slave_manager_class( slaves )
             
+            % Create an instance of the conversion manager class.
+            self.conversion_manager = conversion_manager_class(  );
+            
+            % Define the default class properties.
+            if nargin < 1, self.slaves = slave_class(  ); else, self.slaves = slaves; end
+
+            % Compute the number of slaves.
+            self.num_slaves = length(self.slaves);
+            
+        end
+        
+        
+        
+        % Implement a function to validate the input properties.
+        function x = validate_property( self, x, var_name )
+            
+            % Set the default variable name.
+            if nargin < 3, var_name = 'properties'; end
+            
+            % Determine whether we need to repeat this property for each muscle.
+            if length(x) ~= self.num_slaves                % If the number of instances of this property do not agree with the number of slaves...
+                
+                % Determine whether to repeat this property for each muscle.
+                if length(x) == 1                               % If only one slave property was provided...
+                    
+                    % Repeat the slave property.
+                    x = repmat( x, 1, self.num_slaves );
+                    
+                else                                            % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'The number of provided %s must match the number of slaves being created.', var_name )
+                    
+                end
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to initialize the slave manager from slave data.
+        function self = initialize_from_slave_data( slave_IDs, muscle_IDs, muscle_names, pressure_sensor_ID1s, pressure_sensor_ID2s, encoder_IDs, encoder_names, measured_pressure_value1s, measured_pressure_value2s, measured_encoder_values, desired_pressures )
+        
             % Define the default class properties.
             if nargin < 11, desired_pressures = uint16( 0 ); end
             if nargin < 10, measured_encoder_values = uint16( 0 ); end
@@ -55,43 +101,12 @@ classdef slave_manager_class
                 self.slaves(k) = slave_class( slave_IDs(k), muscle_IDs(k), muscle_names{k}, pressure_sensor_ID1s(k), pressure_sensor_ID2s(k), encoder_IDs(k), encoder_names{k}, measured_pressure_value1s(k), measured_pressure_value2s(k), measured_encoder_values(k), desired_pressures(k) );
                 
             end
-            
-            % Set the slave packet size to seven.
-            self.slave_packet_size = 7;
-            
+
             % Set the conversion manager.
             self.conversion_manager = conversion_manager_class();
             
         end
-        
-        
-        % Implement a function to validate the input properties.
-        function x = validate_property( self, x, var_name )
             
-            % Set the default variable name.
-            if nargin < 3, var_name = 'properties'; end
-            
-            % Determine whether we need to repeat this property for each muscle.
-            if length(x) ~= self.num_slaves                % If the number of instances of this property do not agree with the number of slaves...
-                
-                % Determine whether to repeat this property for each muscle.
-                if length(x) == 1                               % If only one slave property was provided...
-                    
-                    % Repeat the slave property.
-                    x = repmat( x, 1, self.num_slaves );
-                    
-                else                                            % Otherwise...
-                    
-                    % Throw an error.
-                    error( 'The number of provided %s must match the number of slaves being created.', var_name )
-                    
-                end
-                
-            end
-            
-        end
-        
-        
         
         % Implement a function to retrieve the index associated with a given slave ID.
         function slave_index = get_slave_index( self, slave_ID )
@@ -180,9 +195,52 @@ classdef slave_manager_class
         end
         
         
+        % Implement a function to set specific slave property values.
+        function self = set_slave_property( self, slave_IDs, slave_property_values, slave_property, bSaturateValues )
+            
+            % Set the default staturate value flag.
+            if nargin < 5, bSaturateValues = false; end
+            
+            % Ensure that the number of slave IDs matches the number of provided slave property values.
+            if length(slave_IDs) ~= length(slave_property_values)                     % If the number of slave IDs does not match the number of slave property values...
+                
+                % Throw an error.
+                error('The number of provided slave IDs must match the number of provided slave property values.')
+                
+            end
+            
+            % Retrieve the number of slave property values.
+            num_slave_IDs = length(slave_IDs);
+            
+            % Store each slave property value in the appropriate slave of the slave manager.
+            for k = 1:num_slave_IDs                   % Iterate through each slave ID whose property we want to set...
+                
+                % Determine the slave index associated with this slave ID.
+                slave_index = self.get_slave_index( slave_IDs(k) );
+                
+                % Define the eval string.
+                if bSaturateValues                      % Determine whether we want to saturate the slave propery...
+                    
+                    % Create the evaluation string including saturation.
+                    eval_str = sprintf( 'self.slaves(%0.0f).%s = self.slaves(%0.0f).saturate_value( slave_property_values(%0.0f), self.slaves(%0.0f).%s );', slave_index, slave_property, slave_index, k, slave_index, strcat(slave_property, '_domain') );
+                
+                else                                    % Otherwise...
+                    
+                    % Create the evaluation string excluding saturation.
+                    eval_str = sprintf( 'self.slaves(%0.0f).%s = slave_property_values(%0.0f);', slave_index, slave_property, k );
+                    
+                end
+                
+                % Evaluate the given slave property.
+                eval(eval_str);
+                
+            end
+            
+        end
+        
         
         % Implement a function to set the desired pressure of each slave by retrieving the desired pressure for the associated muscle.
-        function self = set_desired_pressure( self, slave_IDs, muscle_manager )
+        function self = set_desired_pressure_from_BPA_muscle_manager( self, slave_IDs, BPA_muscle_manager )
             
             % Determine how many slaves we want to set.
             num_slaves_to_set = length(slave_IDs);
@@ -197,28 +255,28 @@ classdef slave_manager_class
                 muscle_ID = self.slaves(slave_index).muscle_ID;
                 
                 % Retrieve the index associated with this slave's muscle.
-                muscle_index = muscle_manager.get_muscle_index( muscle_ID );
+                muscle_index = BPA_muscle_manager.get_muscle_index( muscle_ID );
                 
                 % Determine how to set this slave's desired pressure.
-                if muscle_manager.muscles(muscle_index).desired_pressure < muscle_manager.muscles(muscle_index).pressure_domain(1)              % If the desired pressure for this muscle is less than the minimum acceptable pressure...
+                if BPA_muscle_manager.muscles(muscle_index).desired_pressure < BPA_muscle_manager.muscles(muscle_index).pressure_domain(1)              % If the desired pressure for this muscle is less than the minimum acceptable pressure...
                     
                     % Set the desired pressure for this slave to be the minimum acceptable pressure.
-                    desired_pressure = muscle_manager.muscles(muscle_index).pressure_domain(1);
+                    desired_pressure = BPA_muscle_manager.muscles(muscle_index).pressure_domain(1);
                     
-                elseif muscle_manager.muscles(muscle_index).desired_pressure > muscle_manager.muscles(muscle_index).pressure_domain(2)          % If the desired pressure for this muscle is greater than the maximum acceptable pressure...
+                elseif BPA_muscle_manager.muscles(muscle_index).desired_pressure > BPA_muscle_manager.muscles(muscle_index).pressure_domain(2)          % If the desired pressure for this muscle is greater than the maximum acceptable pressure...
                     
                     % Set the deisred pressure for this slave to be the maximum acceptable pressure.
-                    desired_pressure = muscle_manager.muscles(muscle_index).pressure_domain(2);
+                    desired_pressure = BPA_muscle_manager.muscles(muscle_index).pressure_domain(2);
                     
                 else                                                                                                                            % Otherwise...
                     
                     % Set the desired pressure of this slave to be the desired pressure of its associated muscle.
-                    desired_pressure = muscle_manager.muscles(muscle_index).desired_pressure;
+                    desired_pressure = BPA_muscle_manager.muscles(muscle_index).desired_pressure;
                     
                 end
                 
                 % Convert the desired pressure double to a uint16.
-                self.slaves(k).desired_pressure = self.conversion_manager.double2uint16( desired_pressure, muscle_manager.muscles(muscle_index).pressure_domain );
+                self.slaves(slave_index).desired_pressure = self.conversion_manager.double2uint16( desired_pressure, BPA_muscle_manager.muscles(muscle_index).pressure_domain );
                 
             end
             
@@ -256,10 +314,10 @@ classdef slave_manager_class
                 self.slaves(slave_index).measured_pressure_value2 = typecast( read_bytes( (byte_index + 3):(byte_index + 4) ), 'uint16' );
                 
                 % Retrieve the joint value.
-                self.slaves(slave_index).measured_joint_value = typecast( read_bytes( (byte_index + 5):(byte_index + 6) ), 'uint16' );
+                self.slaves(slave_index).measured_encoder_value = typecast( read_bytes( (byte_index + 5):(byte_index + 6) ), 'uint16' );
                 
                 % Advance the byte index.
-                byte_index = byte_index + self.slave_packet_size;
+                byte_index = byte_index + self.SLAVE_PACKET_SIZE;
                 
             end
             

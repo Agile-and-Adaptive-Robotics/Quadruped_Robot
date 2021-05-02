@@ -3,8 +3,8 @@ classdef conversion_manager_class
     % This class constains properties and methods related to converting data types.
     
     % Define the class properties.
-    properties
-        MAX_UINT16_VALUE
+    properties ( Constant = true )
+        MAX_UINT16_VALUE = 65535;
     end
     
     % Define the class methods.
@@ -13,8 +13,6 @@ classdef conversion_manager_class
         % Implement the class constructor.
         function self = conversion_manager_class()
 
-            % Set the maximum uint16 value constant.
-            self.MAX_UINT16_VALUE = 65535;
             
         end
         
@@ -33,6 +31,7 @@ classdef conversion_manager_class
             double_value = interp1( [0 self.MAX_UINT16_VALUE], double_domain, double( uint16_value ) );
             
         end
+        
         
     end
 end

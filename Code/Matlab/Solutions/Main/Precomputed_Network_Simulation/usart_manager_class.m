@@ -23,49 +23,38 @@ classdef usart_manager_class
         
         num_start_bytes
         
+        master_port_type
+        
+    end
+    
+    properties ( Constant = true )
+        SLAVE_PACKET_SIZE = 7;
     end
     
     % Define the class methods.
     methods
         
         % Implement the class constructor.
-        function self = usart_manager_class( master_physical_serial_port, master_input_virtual_serial_port, master_output_virtual_serial_port, matlab_input_serial_port, matlab_output_serial_port, animatlab_input_serial_port, animatlab_output_serial_port, num_start_bytes, write_to_animatlab_bytes, read_from_master_bytes, write_to_master_bytes, read_from_animatlab_bytes )
+        function self = usart_manager_class( num_start_bytes, master_port_type )
             
-            % Define the bytes that have been read from animatlab.
-            if nargin < 12, self.read_from_animatlab_bytes = 0; else, self.read_from_animatlab_bytes = read_from_animatlab_bytes; end
+            % Define the default class properties.
+            if nargin < 2, self.master_port_type = 'Virtual'; else, self.master_port_type = master_port_type; end
+            if nargin < 1, self.num_start_bytes = 2; else, self.num_start_bytes = num_start_bytes; end
+
+            % Set all of the ports to be empty.
+            self.master_physical_serial_port = [];
+            self.master_input_virtual_serial_port = [];
+            self.master_output_virtual_serial_port = [];
+            self.matlab_input_serial_port = [];
+            self.matlab_output_serial_port = [];
+            self.animatlab_input_serial_port = [];
+            self.animatlab_output_serial_port = [];
             
-            % Define the bytes to write to the master microcontroller.
-            if nargin < 11, self.write_to_master_bytes = 0; else, self.write_to_master_bytes = write_to_master_bytes; end
-            
-            % Define the bytes that have beenb read from the master microcontroller.
-            if nargin < 10, self.read_from_master_bytes = 0; else, self.read_from_master_bytes = read_from_master_bytes; end
-            
-            % Define the bytes to write to animatlab.
-            if nargin < 9, self.write_to_animatlab_bytes = 0; else, self.write_to_animatlab_bytes = write_to_animatlab_bytes; end
-            
-            % Define the number of start bytes to write at the beginning of USART transmissions to the master microcontroller.
-            if nargin < 8, self.num_start_bytes = 2; else, self.num_start_bytes = num_start_bytes; end
-            
-            % Define the animatlab output serial port.
-            if nargin < 7, self.animatlab_output_serial_port = 0; else, self.animatlab_output_serial_port = animatlab_output_serial_port; end
-            
-            % Define the animatlab input serial port.
-            if nargin < 6, self.animatlab_input_serial_port = 0; else, self.animatlab_input_serial_port = animatlab_input_serial_port; end
-            
-            % Define the matlab input serial port.
-            if nargin < 5, self.matlab_output_serial_port = 0; else, self.matlab_output_serial_port = matlab_output_serial_port; end
-            
-            % Define the matlab input serial port.
-            if nargin < 4, self.matlab_input_serial_port = 0; else, self.matlab_input_serial_port = matlab_input_serial_port; end
-            
-            % Define the virtual master microcontoller serial port output.
-            if nargin < 3, self.master_output_virtual_serial_port = 0; else, self.master_output_virtual_serial_port = master_output_virtual_serial_port; end
-            
-            % Define the virtual master microcontoller serial port input.
-            if nargin < 2, self.master_input_virtual_serial_port = 0; else, self.master_input_virtual_serial_port = master_input_virtual_serial_port; end
-            
-            % Define the physical master microcontroller serial port.
-            if nargin < 1, self.master_physical_serial_port = 0; else, self.master_physical_serial_port = master_physical_serial_port; end
+            % Set all of the read and write bytes to be empty.
+            self.write_to_animatlab_bytes = 0;
+            self.read_from_master_bytes = 0;
+            self.write_to_master_bytes = 0;
+            self.read_from_animatlab_bytes = 0;
             
         end
         
@@ -311,13 +300,10 @@ classdef usart_manager_class
         
         
         % Implement a function to write the staged bytes to the master microcontoller.
-        function write_bytes_to_master( self, master_port_type )
-            
-            % Define the default master port type.
-            if nargin < 2, master_port_type = 'virtual'; end
+        function write_bytes_to_master( self )
             
             % Determine how to write the staged bytes.
-            if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')                   % If we want to write to the virtual port...
+            if strcmp( self.master_port_type, 'virtual' ) || strcmp( self.master_port_type, 'Virtual' )                   % If we want to write to the virtual port...
                 
                 % Write the staged bytes to the virtual master port.
                 write( self.master_input_virtual_serial_port, self.write_to_master_bytes, 'uint8' );
@@ -342,15 +328,13 @@ classdef usart_manager_class
         
         
         % Implement a function to read the bytes from the master microcontoller.
-        function self = read_bytes_from_master( self, slave_packet_size, master_port_type, bverbose )
+        function self = read_bytes_from_master( self, bverbose )
             
             % Define the default input arguments.
-            if nargin < 4, bverbose = false; end
-            if nargin < 3, master_port_type = 'virtual'; end
-            if nargin < 2, slave_packet_size = 7; end
+            if nargin < 3, bverbose = false; end
 
             % Define the serial port from which we want to read.
-            if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')                   % If we want to write to the virtual port...
+            if strcmp( self.master_port_type, 'virtual' ) || strcmp( self.master_port_type, 'Virtual' )                   % If we want to write to the virtual port...
                 
                 % Retrieve the virtual master input serial port.
                 serial_port = self.master_input_virtual_serial_port;
@@ -369,7 +353,7 @@ classdef usart_manager_class
             num_slaves = read( serial_port, 1, 'uint8' );
             
             % Compute the total number of bytes in this message.
-            total_bytes = self.num_start_bytes + 1 + slave_packet_size*num_slaves + 1;
+            total_bytes = self.num_start_bytes + 1 + self.SLAVE_PACKET_SIZE*num_slaves + 1;
             
             % Preallocate the read from master bytes.
             read_bytes = uint8( zeros( 1, total_bytes ) );
@@ -401,67 +385,6 @@ classdef usart_manager_class
             
         end
         
-        
-        % Implement a function to emulate the master microcontoller reading and writing commands to the virtual master serial port.
-        function emulate_master_read_write( self, slave_manager, write_value )
-            
-            % Determine whether we need to set the default write value.
-            if nargin < 3               % If we were not given a write value...
-                
-                % Set the sensor value bytes to be random.
-                sensor_value_bytes = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
-                
-            else                        % Otherwise...
-                
-                % Validate the write value.
-                if (write_value >= 0) && (write_value <= 255)           % If the write value is valid...
-                    
-                    % Set the sensor value bytes to be the specified write value.
-                    sensor_value_bytes = uint8( write_value*ones(1, slave_manager.slave_packet_size - 1) );
-                    
-                else                                                    % Otherwise...
-                    
-                    % Throw an error.
-                    error('write_value must be in the domain [0, 255].')
-                    
-                end
-                
-            end
-                
-            % Emulate the master microcontroller reading the bytes sent from Matlab.
-            temp = read( self.master_output_virtual_serial_port, self.master_output_virtual_serial_port.NumBytesAvailable, 'uint8' );
-            
-            % Create an array of bytes that we will emulate the master microcontroller writing.
-            write_bytes = uint8( zeros( 1, self.num_start_bytes + 1 + slave_manager.slave_packet_size*slave_manager.num_slaves + 1 ) );
-            
-            % Define the first several write bytes.
-            write_bytes(1:self.num_start_bytes) = uint8( 255*ones( 1, self.num_start_bytes ) ); write_bytes(self.num_start_bytes + 1) = uint8( slave_manager.num_slaves );
-
-            % Initialize the byte index.
-            byte_index = self.num_start_bytes + 2;
-            
-            % Define the sensor data bytes.
-            for k = 1:slave_manager.num_slaves                      % Iterate through each of the slaves...
-                
-                % Add the slave ID of this packet to the write bytes.
-               write_bytes(byte_index) = uint8( k );
-               
-               % Add the sensor value bytes for each sensor.
-%                write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = uint8( randi(255, 1, (slave_manager.slave_packet_size - 1)) );
-               write_bytes(byte_index + (1:(slave_manager.slave_packet_size - 1))) = sensor_value_bytes;
-
-               % Advance the byte index.
-               byte_index = byte_index + slave_manager.slave_packet_size;
-               
-            end
-            
-            % Add the check sum index to the write bytes.
-            write_bytes(end) = uint8( mod( sum( write_bytes ), 256 ) );
-            
-            % Emulate the master microcontroller writing these bytes to Matlab.
-            write( self.master_output_virtual_serial_port, write_bytes, 'uint8' )
-            
-        end
         
         
     end
