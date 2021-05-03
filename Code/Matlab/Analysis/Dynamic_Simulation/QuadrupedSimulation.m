@@ -13,15 +13,12 @@ Add Total Body Weight Component for calculating normal force during
 standing
 %}
 
-% Define the mechanical properties of link 1 - Femur.
+% Define the mechanical properties of link 1 - abduction/adduction rotation
+% point to hip rotation point
 m1 = .327252;                                                                                                   % [kg] Link Mass.
 ct1 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt1 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
-% Lx1 = 1; Ly1 = 0.1; Lz1 = 0.1; Ls1 = [Lx1; Ly1; Lz1];                                                         % [m] Link Length in each direction of the local link frame.
-% Original Lx1 = 0.331795; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];                               % [m] Link Length in each direction of the local link frame.
-Lx1 = 0.262128; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];
-% Lx1 = 0.1524; Ly1 = 0.0254; Lz1 = 0.0254; Ls1 = [Lx1; Ly1; Lz1];                                              % [m] Link Length in each direction of the local link frame.
-% Phome_cm1 = [Lx1/2; 0; 0];                                                                                    % [m] Link Center of Mass Location in the Global Frame.
+Lx1 = 0.262128; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];                                          % [m] Link Length in each direction of the local link frame.                               % [m] Link Center of Mass Location in the Global Frame.
 Phome_cm1 = [0.068613; -0.000333 ;0.049822];                                                                    % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm1 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm1 = [0.00012	-2.2e-05	4.6e-05
@@ -105,6 +102,7 @@ Add Adduction and Abduction by adding hip joint with w = {0,0,1}
 %}
 
 w1_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
+w1z_local = [1; 0; 0];                                                                                           % [rad/s] Axis of Rotation of for a(b/d)duction This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 w2_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 w3_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 ws_local = [w1_local w2_local w3_local];                                                                        % [rad/s] Axes of Rotation of Each Link in its Local Frame.
@@ -131,7 +129,7 @@ b = 1;                  % [Ns/m] Hill Muscle Model Damping Coefficient.
 joint_names = {'Hip', 'Knee', 'Ankle'};
 
 % Define the possible muscle types.
-muscle_type_names = {'Ext', 'Flx'};
+muscle_type_names = {'Ext', 'Flx', 'Abd', 'Add'};
 
 % Comute the number of muscle types.
 num_muscle_types = length(muscle_type_names);
@@ -155,6 +153,10 @@ for k1 = 1:num_joints                       % Iterate through each joint...
     end
 end
 
+% Get rid of adbuction/adduction for knee and ankle
+muscle_names = {muscle_names{1:6}, muscle_names{9:10}};
+muscle_names = muscle_names';
+
 % Define the joint orientations.  i.e., the first joint is moved in the positive direction by the extensor, the second by the flexor, and the third by the extensor.
 muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 
@@ -164,6 +166,8 @@ muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 Adjust text files to reflect BiArticular Design
 %}
 
+Ps_hipadd = dlmread('Ps_hipadd.txt');
+Ps_hipabd = dlmread('Ps_hipabd.txt');
 Ps_hipext = dlmread('Ps_hipext.txt');
 Ps_hipflx = dlmread('Ps_hipflx.txt');
 Ps_kneeext = dlmread('Ps_kneeext.txt');
