@@ -7,66 +7,44 @@ clear, close('all'), clc
 
 %% Define the Robot Geometry & Mechanical Properties.
 
-%{
-Modify parameters to match Biarticulating Design
-Add Total Body Weight Component for calculating normal force during
-standing
-%}
+% Setting global origin to coordinate system 1 as defined by Miles
 
-% Define the mechanical properties of link 1 - abduction/adduction rotation
-% point to hip rotation point
-m1 = .327252;                                                                                                   % [kg] Link Mass.
+% Define the mechanical properties of link 2 - defined by
+% abduction/adduction (hip swivel, femur, upper knee)
+m1 = 0.186595;                                                                                                  % [kg] Link Mass.
 ct1 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt1 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
-Lx1 = 0.262128; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];                                          % [m] Link Length in each direction of the local link frame.                               % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm1 = [0.068613; -0.000333 ;0.049822];                                                                    % [m] Link Center of Mass Location in the Global Frame.
+Lx1 = 0.35065; Ly1 = 0.02111; Lz1 = 0.0254; Ls1 = [Lx1; Ly1; Lz1];                                               % [m] Link Length in each direction of the local link frame.
+Phome_cm1 = [0.111622; -0.000577 ; 0.050078];                                                                   % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm1 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm1 = [0.00012	-2.2e-05	4.6e-05
-	-2.2e-05	0.003467	0
-	4.6e-05	0	0.003389];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm1 = [0.000031, -0.000017, 0; -0.000017, 0.002070, 0; 0, 0, 0.002075];                                   % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G1 = [Ihome_cm1, zeros(3, 3); zeros(3, 3), m1*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body1 = GetCuboidPoints(Ls1(1), Ls1(2), Ls1(3), Phome_cm1(1), Phome_cm1(2), Phome_cm1(3), 0, 0, 0);       % [m] Link Points
 Rhome_body1 = Rhome_cm1;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
-% Define the mechanical properties of link 2 - Tibia.
-m2 = .220478;                                                                                                   % [kg] Link Mass.
+% Define the mechanical properties of link 3 - Tibia.
+m2 = .170503;                                                                                                   % [kg] Link Mass.
 ct2 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt2 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
-% Lx2 = 1; Ly2 = 0.1; Lz2 = 0.1; Ls2 = [Lx2; Ly2; Lz2];                                                         % [m] Link Length in each direction of the local link frame.
-% Original Lx2 = 0.275273; Ly2 = 0.02856; Lz2 = 0.032385; Ls2 = [Lx2; Ly2; Lz2];                                % [m] Link Length in each direction of the local link frame.
-Lx2 = 0.237744; Ly2 = 0.02856; Lz2 = 0.032385; Ls2 = [Lx2; Ly2; Lz2];
-% Lx2 = 0.20955; Ly2 = 0.0254; Lz2 = 0.0254; Ls2 = [Lx2; Ly2; Lz2];                                             % [m] Link Length in each direction of the local link frame.
-% Phome_cm2 = [Lx1 + Lx2/2; 0; 0];                                                                              % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm2 = [0.406474; -.001466; 0.052155];                                                                     % [m] Link Center of Mass Location in the Global Frame.
+Lx2 = 0.23422; Ly2 = 0.01588; Lz2 = 0.01619; Ls2 = [Lx2; Ly2; Lz2];                                             % [m] Link Length in each direction of the local link frame.    
+Phome_cm2 = [0.366555; -.000297; 0.053825];                                                                     % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm2 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm2 = [4.1e-05	-2.5e-05	3e-06
-	-2.5e-05	0.002226	1e-06
-	3e-06	1e-06	0.002222];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm2 = [0.000033, 0.000005, 0.00001; 0.000005, 0.001383, 0; 0.00001, 0, 0.001372];                         % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G2 = [Ihome_cm2, zeros(3, 3); zeros(3, 3), m2*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body2 = GetCuboidPoints(Ls2(1), Ls2(2), Ls2(3), Phome_cm2(1), Phome_cm2(2), Phome_cm2(3), 0, 0, 0);       % [m] Link Points
 Rhome_body2 = Rhome_cm2;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
-% Define the mechanical properties of link 3 - Foot.
-m3 = 0.032522;                                                                                                  % [kg] Link Mass.
+% Define the mechanical properties of link 4 - Foot.
+m3 = 0.087102;                                                                                                  % [kg] Link Mass.
 ct3 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt3 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
-% Lx3 = 1; Ly3 = 0.1; Lz3 = 0.1; Ls3 = [Lx3; Ly3; Lz3];                                                         % [m] Link Length in each direction of the local link frame.
-Lx3 = 0.159075; Ly3 = 0.02567; Lz3 = 0.025400; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
-% Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                              % [m] Link Length in each direction of the local link frame.
-% Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                        % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm3 = [.50927; -.0102273 ; 0.050266];                                                                     % [m] Link Center of Mass Location in the Global Frame.
+Lx3 = 0.539952; Ly3 = 0.014351; Lz3 = 0.049821; Ls3 = [Lx3; Ly3; Lz3];                                          % [m] Link Length in each direction of the local link frame.
+Phome_cm3 = [.539952; 0.014351 ; 0.049821];                                                                     % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm3 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm3 = [7.6e-05	3e-05	0
-	3e-05	2.1e-05 0
-	0	 0	9.5e-05];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm3 = [0.000038, -0.000042, 0.000001; -0.000042, 0.000277, 0; 0.000001, 0, 0.000306];                     % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G3 = [Ihome_cm3, zeros(3, 3); zeros(3, 3), m3*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body3 = GetCuboidPoints(Ls3(1), Ls3(2), Ls3(3), Phome_cm3(1), Phome_cm3(2), Phome_cm3(3), 0, 0, 0);       % [m] Link Points
 Rhome_body3 = Rhome_cm3;                                                                                        % [-] Orientation of the Link in the Global Frame.
-
-%{
-Add information to incorporate Ad/Abduction Joint at hip
-Needs new joint location, orientation, axis of rotation
-%}
 
 % Compile information about each link into arrays.
 ms = [m1; m2; m3];                                                                                              % [kg] Mass of Each Link.
@@ -101,11 +79,11 @@ Rhome_joints = cat(3, Rhome_joint1, Rhome_joint2, Rhome_joint3);                
 Add Adduction and Abduction by adding hip joint with w = {0,0,1}
 %}
 
-w1_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
-w1z_local = [1; 0; 0];                                                                                           % [rad/s] Axis of Rotation of for a(b/d)duction This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
-w2_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
+w1_local = [1; 0; 0];                                                                                           % [rad/s] Axis of Rotation of for a(b/d)duction This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
+w2_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).                     
 w3_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
-ws_local = [w1_local w2_local w3_local];                                                                        % [rad/s] Axes of Rotation of Each Link in its Local Frame.
+w4_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
+ws_local = [w1_local w2_local w3_local w4_local];                                                                        % [rad/s] Axes of Rotation of Each Link in its Local Frame.
 
 % Define the end effector location & orientation.
 % Phome_end = [Lx1 + Lx2 + Lx3; 0; 0];                                                                    % [m] End Effector Location in the Global Frame.
