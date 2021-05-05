@@ -19,6 +19,17 @@ P.R3 = 3.5; %[in]
 P.I3 = 122.09; %[in^4]
 P.L3 = 7.875;
 P.g = 9.81;
+
+%Joint torqes
+b1 = 1.2; 
+b2 = 1.5;
+b3 = 0;
+K1 = 0;
+K2 = 0;
+K3 = 0; 
+theta1bias=0;
+theta2bias = 0;
+theta3bias = 0;
 %% Sim
 init_t=0;
 final_t=10;
@@ -31,23 +42,22 @@ x0=[0 0 0 0 0 0]';
 x=zeros(6,N);
 x(:,1)=x0;
 
-[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0);
-
-
+[t,y] = ode45(@(t,y) Dynamic_code(t,y,b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias,P),t_span,x0);
+[theta1Data] = sin(3*t);
+[theta2Data] = sin(5*t);
+[theta3Data] = sin(2*t);
 L1=P.L1;
 L2=P.L2;
 L3=P.L3;
 M1=P.M1;
-M2=1;
-M3=1;
+M2=P.M2;
+M3=P.M3;
 g=9.8;
 
 x=y;
 
-mov_cnt = 1;
 figure; hold on;
 for i=1:N-1
-    if(mod(i,50)==1)
         clf;
         x1=x(i,1);
         x2=x(i,3);
@@ -65,9 +75,7 @@ for i=1:N-1
         plot(px,py,'ro-');
         axis([-(P.L1+P.L2+P.L3+4) (P.L1+P.L2+P.L3+4) -(P.L1+P.L2+P.L3+4) (P.L1+P.L2+P.L3+4)]);
         pause(0.001);
-        MM(mov_cnt)=getframe;
-        mov_cnt=mov_cnt+1;
+       
     end
 end
 
-movie(MM)

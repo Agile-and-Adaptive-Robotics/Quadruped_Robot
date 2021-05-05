@@ -14,15 +14,26 @@ P.I2 = 496.26; %[in^4]
 P.L2 = 9.25; %[in
 % Define the mechanical properties of link 3.
 
-P.M3 = 0.00992; %[lb]
+P.M3 = 0.10992; %[lb]
 P.R3 = 3.5; %[in]
 P.I3 = 122.09; %[in^4]
 P.L3 = 7.875;
 P.g = 9.81;
+
+%Joint torqes
+U.b1 = 1.2; 
+U.b2 = 1.5;
+U.b3 = -1;
+U.K1 = 0;
+U.K2 = 0;
+U.K3 = 0; 
+U.theta1bias=0;
+U.theta2bias = 0;
+U.theta3bias = 0;
 %% Sim
 init_t=0;
 final_t=10;
-dt=0.01;
+dt=0.001;
 N= (final_t-init_t)/dt;
 t_span=linspace(init_t,final_t,N);
 
@@ -31,8 +42,10 @@ x0=[0 0 0 0 0 0]';
 x=zeros(6,N);
 x(:,1)=x0;
 
-[t,y] = ode45(@(t,q) Dynamic_code_ode(t,q,P),t_span,x0);
-
+[t,y] = ode45(@(t,y) Dynamic_code(t,y,P,U),t_span,x0);
+[theta1Data] = sin(3*t);
+[theta2Data] = sin(5*t);
+[theta3Data] = sin(2*t);
 L1=P.L1;
 L2=P.L2;
 L3=P.L3;
@@ -43,7 +56,6 @@ g=9.8;
 
 x=y;
 
-mov_cnt = 1;
 figure; hold on;
 for i=1:N-1
     if(mod(i,50)==1)
