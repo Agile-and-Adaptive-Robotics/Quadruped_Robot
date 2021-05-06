@@ -113,7 +113,7 @@ b = 1;                  % [Ns/m] Hill Muscle Model Damping Coefficient.
 joint_names = {'Hip', 'Knee', 'Ankle'};
 
 % Define the possible muscle types.
-muscle_type_names = {'Ext', 'Flx', 'Abd', 'Add'};
+muscle_type_names = {'Ext', 'Flx'};
 
 % Comute the number of muscle types.
 num_muscle_types = length(muscle_type_names);

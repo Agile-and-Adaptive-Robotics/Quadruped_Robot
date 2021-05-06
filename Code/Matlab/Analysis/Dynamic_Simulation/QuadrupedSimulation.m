@@ -109,11 +109,13 @@ kse = 30;                % [N/m] Hill Muscle Model Series Stiffness.
 kpe = 30;                % [N/m] Hill Muscle Model Parallel Stiffness.
 b = 1;                  % [Ns/m] Hill Muscle Model Damping Coefficient.
 
-% Define the joint names.
-joint_names = {'Hip', 'Knee', 'Ankle'};
+% Define the joint names. Hip x is the joint for abduction/adduction, as it
+% rotates around the x-axis, hip z s the joint for flexion/extension as it
+% rotates around the z axis
+joint_names = {'Hip_z', 'Hip_x', 'Knee', 'Ankle'};
 
 % Define the possible muscle types.
-muscle_type_names = {'Ext', 'Flx', 'Abd', 'Add'};
+muscle_type_names = {'Ext', 'Flx'};
 
 % Comute the number of muscle types.
 num_muscle_types = length(muscle_type_names);
@@ -137,19 +139,10 @@ for k1 = 1:num_joints                       % Iterate through each joint...
     end
 end
 
-% Get rid of adbuction/adduction for knee and ankle
-muscle_names = {muscle_names{1:6}, muscle_names{9:10}};
-muscle_names = muscle_names';
-
 % Define the joint orientations.  i.e., the first joint is moved in the positive direction by the extensor, the second by the flexor, and the third by the extensor.
-muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
+muscle_joint_orientations = {'Ext', 'Flx', 'Flx', 'Ext'};
 
 % Read in the muscle location data.
-
-%{
-Adjust text files to reflect BiArticular Design
-%}
-
 Ps_hipadd = dlmread('Ps_hipadd.txt');
 Ps_hipabd = dlmread('Ps_hipabd.txt');
 Ps_hipext = dlmread('Ps_hipext.txt');
@@ -160,7 +153,7 @@ Ps_ankleext = dlmread('Ps_ankleext.txt');
 Ps_ankleflx = dlmread('Ps_ankleflx.txt');
 
 % Store the muscle attachment locations in a high order tensor.
-Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx);
+Phome_muscles = cat(3, Ps_hipadd, Ps_hipabd, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx);
 
 % Define the home orientation of the muscles.
 Rhome_muscles = eye(3);
@@ -232,26 +225,11 @@ Mend = [Rhome_end, Phome_end; zeros(1, 3), 1];
 Jend = num_joints;
 
 % Define the screw axes.
-
-%{
-Add Screw Axis for the Hip Adduction and Abduction S2 = {1,0,0,0,0,0}';
-%}
-
-% S1 = [0; 0; 1; 0; 0; 0];
-% S2 = [0; 0; 1; 0; -Lx1; 0];
-% S3 = [0; 0; 1; 0; -(Lx1 + Lx2); 0];
-S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
-S2 = [0; 0; 1; 0; -Phome_joint3(1); 0];
-S3 = [0; 0; 1; 0; -Phome_joint4(1); 0];
-Ss = [S1 S2 S3];
-
-% With lateral hip axis
-%S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
-%S2 = [1;0,0;0;-Phome_joint2(1); 0];
-%S3 = [0; 0; 1; 0; -Phome_joint2(1); 0];
-%S4 = [0; 0; 1; 0; -Phome_joint3(1); 0];
-%Ss = [S1 S2 S3 S4];
-
+S1 = [w1_local; cross(Phome_joint1, w1_local)];
+S2 = [w2_local; cross(Phome_joint2, w2_local)];
+S3 = [w3_local; cross(Phome_joint3, w3_local)];
+S4 = [w4_local; cross(Phome_joint4, w4_local)];
+Ss = [S1 S2 S3 S4];
 
 %% Define the Simulation Properties.
 
