@@ -266,17 +266,13 @@ ts_stance = ts(ns_swing + 1:num_timesteps);
 ts_swing = ts(1:ns_swing);
 
 % Define the ground height.
-
-%{
-Adjust to fit current model
-%}
-
-% ground_height = 0.5;
-ground_height = 0.46;               % [m] Ground Height Relative to Body.
-% ground_height = 0.381;
+femur_length = Phome_joint3(1) - Phome_joint1(1);
+tibia_length = Phome_joint4(1) - Phome_joint3(1);
+foot_length = Lx4;
+ground_height = femur_length + (sind(45) * tibia_length) + foot_length;    % [m] Ground Height Relative to Body.
 
 % Define the horizontal step shift.
-horizontal_shift = 0.075;           % [m] Horizontal Shift to Apply to Step Trajectory.
+horizontal_shift = 0.5 * sind(45) * tibia_length;                          % [m] Horizontal Shift to Apply to Step Trajectory.
 
 % Define the step height and stride length.
 
@@ -370,7 +366,7 @@ eomg = 1e-6; ev = 1e-6;
 
 % Define the starting joint angle values for the inverse kinematics algorithm.
 % theta_guess = zeros(num_joints, 1);
-theta_guess = (pi/180)*[-143; 63; -10.21];
+theta_guess = (pi/180)*[-143; 0; 63; -10.21];
 
 % Compute the joint angles associated with the desired trajectory.
 [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
