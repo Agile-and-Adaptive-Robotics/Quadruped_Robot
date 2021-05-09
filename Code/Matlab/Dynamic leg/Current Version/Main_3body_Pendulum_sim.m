@@ -20,7 +20,7 @@ P.I3 = 122.09; %[in^4]
 P.L3 = 7.875;
 P.g = 9.81;
 
-%Joint torqes
+%Joint parameters
 U.b1 = 1.2; 
 U.b2 = 1.5;
 U.b3 = -1;

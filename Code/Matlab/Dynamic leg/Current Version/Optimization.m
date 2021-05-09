@@ -3,6 +3,6 @@ initialGuess = [0.25,0.25,-0.25,0,0,0,0,0,0];
 %get cost
 f = objectiveFunc2(initialGuess);
 %optimization
-values = fminsearch(@objectiveFunc2,initialGuess)
+jointValues = fminsearch(@objectiveFunc2,initialGuess)
 
 
