@@ -53,7 +53,4 @@ e3 = (theta3Data - x(5));
 
 f = e1'*e1 + e2'*e2 + e3'*e3;
 
-
-
-
 end

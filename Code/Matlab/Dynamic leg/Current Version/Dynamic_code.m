@@ -8,25 +8,32 @@ y5 = y(5);
 y6 = y(6);
 
 
-L1=P.L1;
-L2=P.L2;
-M1=P.M1;
-M2=P.M2;
-M3=P.M3;
-R1 = P.R1;
-R2 = P.R2;
-R3 = P.R3;
-g=P.g;
+M1=P(1);
+R1=P(2);
+I1=P(3);
+L1=P(4);
 
-b1 = U.b1; 
-b2 = U.b2;
-b3 = U.b3;
-K1 = U.K1;
-K2 = U.K2;
-K3 = U.K3; 
-theta1bias = U.theta1bias;
-theta2bias = U.theta2bias;
-theta3bias = U.theta3bias;
+M2=P(5);
+R2=P(6);
+I2=P(7);
+L2=P(8);
+
+M3=P(9);
+R2=P(10);
+I3=P(11);
+R3=P(12);
+
+g=P(13);
+
+b1 = U(1); 
+b2 = U(2);
+b3 = U(3);
+K1 = U(4);
+K2 = U(5);
+K3 = U(6); 
+theta1bias = U(7);
+theta2bias = U(8);
+theta3bias = U(9);
 
 dy1 = y2;
 dy2 = (2*K1*L2^2*M3*R3*theta1bias - 2*K2*L2^2*M3*R3*theta2bias + 2*K1*L2^2*M3*R3*y1 - 2*K2*L2^2*M3*R3*y3 + 4*K1*M2*R2^2*R3*theta1bias - 4*K2*M2*R2^2*R3*theta2bias + 4*K1*M2*R2^2*R3*y1 - 4*K2*M2*R2^2*R3*y3 + 2*L2^2*M3*R3*b1*y2 - 2*L2^2*M3*R3*b2*y4 + 4*M2*R2^2*R3*b1*y2 - 4*M2*R2^2*R3*b2*y4 - 2*K3*L1*L2^2*M3*theta3bias*cos(y3 + y5) - 2*K3*L1*L2^2*M3*y5*cos(y3 + y5) - 4*K3*L1*M2*R2^2*theta3bias*cos(y3 + y5) + 4*L1*M2^2*R2^3*R3*y2^2*sin(y3) + 4*L1*M2^2*R2^3*R3*y4^2*sin(y3) - 4*K3*L1*M2*R2^2*y5*cos(y3 + y5) - 2*L1*L2^2*M3*b3*y6*cos(y3 + y5) - 4*L1*M2*R2^2*b3*y6*cos(y3 + y5) + 2*K3*L1*L2^2*M3*theta3bias*cos(y3 - y5) + 2*K3*L1*L2^2*M3*y5*cos(y3 - y5) + 2*L1*L2^2*M3*b3*y6*cos(y3 - y5) - 2*L1*M2^2*R2^2*R3*g*cos(y1) - 2*K1*L2^2*M3*R3*theta1bias*cos(2*y5) + 2*K2*L2^2*M3*R3*theta2bias*cos(2*y5) - 2*K1*L2^2*M3*R3*y1*cos(2*y5) + 2*K2*L2^2*M3*R3*y3*cos(2*y5) - 2*L2^2*M3*R3*b1*y2*cos(2*y5) + 2*L2^2*M3*R3*b2*y4*cos(2*y5) + 2*L1*M2^2*R2^2*R3*g*cos(y1 + 2*y3) + 2*L1^2*M2^2*R2^2*R3*y2^2*sin(2*y3) + 2*L1^2*M2*M3*R2^2*R3*y2^2*sin(2*y3 + 2*y5) + 2*K3*L1*L2*M2*R2*theta3bias*cos(y3 + y5) + 2*K3*L1*L2*M2*R2*y5*cos(y3 + y5) + 2*L1*L2*M2*R2*b3*y6*cos(y3 + y5) - 2*K2*L1*L2*M3*R3*theta2bias*cos(y3) + 2*K3*L1*L2*M3*R3*theta3bias*cos(y3) - 2*K2*L1*L2*M3*R3*y3*cos(y3) + 2*K3*L1*L2*M3*R3*y5*cos(y3) - 4*K2*L1*M2*R2*R3*theta2bias*cos(y3) + 4*K3*L1*M2*R2*R3*theta3bias*cos(y3) + 8*L1*M2^2*R2^3*R3*y2*y4*sin(y3) - 4*K2*L1*M2*R2*R3*y3*cos(y3) + 4*K3*L1*M2*R2*R3*y5*cos(y3) + 4*L1*M2*M3*R2^2*R3^2*y2^2*sin(y3 + y5) + 4*L1*M2*M3*R2^2*R3^2*y4^2*sin(y3 + y5) + 4*L1*M2*M3*R2^2*R3^2*y6^2*sin(y3 + y5) - 2*L1*L2*M3*R3*b2*y4*cos(y3) + 2*L1*L2*M3*R3*b3*y6*cos(y3) - 4*L1*M2*R2*R3*b2*y4*cos(y3) + 4*L1*M2*R2*R3*b3*y6*cos(y3) + 2*K3*L1*L2*M2*R2*theta3bias*cos(y3 - y5) + 2*K2*L1*L2*M3*R3*theta2bias*cos(y3 + 2*y5) - 2*K3*L1*L2*M3*R3*theta3bias*cos(y3 + 2*y5) + 2*K2*L1*L2*M3*R3*y3*cos(y3 + 2*y5) + 2*K3*L1*L2*M2*R2*y5*cos(y3 - y5) - 2*K3*L1*L2*M3*R3*y5*cos(y3 + 2*y5) + 2*L1*L2*M2*R2*b3*y6*cos(y3 - y5) + 2*L1*L2*M3*R3*b2*y4*cos(y3 + 2*y5) - 2*L1*L2*M3*R3*b3*y6*cos(y3 + 2*y5) - 2*L1*L2^2*M2*M3*R3*g*cos(y1) - 2*L2^2*M1*M3*R1*R3*g*cos(y1) - 2*L1*M2*M3*R2^2*R3*g*cos(y1) - 4*M1*M2*R1*R2^2*R3*g*cos(y1) + 2*L1*M2*M3*R2^2*R3*g*cos(y1 + 2*y3 + 2*y5) + L1*L2^2*M2*M3*R3*g*cos(y1 - 2*y5) + L1*L2^2*M2*M3*R3*g*cos(y1 + 2*y5) + L2^2*M1*M3*R1*R3*g*cos(y1 - 2*y5) + L2^2*M1*M3*R1*R3*g*cos(y1 + 2*y5) - 2*L1*L2*M2*M3*R2*R3^2*y2^2*sin(y3 + y5) - 2*L1*L2*M2*M3*R2*R3^2*y4^2*sin(y3 + y5) - 2*L1*L2*M2*M3*R2*R3^2*y6^2*sin(y3 + y5) + 2*L1*L2*M2*M3*R2^2*R3*y2^2*sin(y3) + 2*L1*L2^2*M2*M3*R2*R3*y2^2*sin(y3) + 2*L1*L2*M2*M3*R2^2*R3*y4^2*sin(y3) + 2*L1*L2^2*M2*M3*R2*R3*y4^2*sin(y3) + 8*L1*M2*M3*R2^2*R3^2*y2*y4*sin(y3 + y5) + 8*L1*M2*M3*R2^2*R3^2*y2*y6*sin(y3 + y5) + 8*L1*M2*M3*R2^2*R3^2*y4*y6*sin(y3 + y5) + 2*L1*L2*M2*M3*R2*R3*g*cos(y1) - 2*L1*L2*M2*M3*R2*R3*g*cos(y1 + 2*y3 + 2*y5) + 2*L1*L2*M2*M3*R2*R3^2*y2^2*sin(y3 - y5) + 2*L1*L2*M2*M3*R2^2*R3*y2^2*sin(y3 + 2*y5) - 2*L1*L2^2*M2*M3*R2*R3*y2^2*sin(y3 + 2*y5) + 2*L1*L2*M2*M3*R2*R3^2*y4^2*sin(y3 - y5) + 2*L1*L2*M2*M3*R2^2*R3*y4^2*sin(y3 + 2*y5) - 2*L1*L2^2*M2*M3*R2*R3*y4^2*sin(y3 + 2*y5) + 2*L1*L2*M2*M3*R2*R3^2*y6^2*sin(y3 - y5) + 2*L1*L2*M2*M3*R2*R3*g*cos(y1 + 2*y3) - L1*L2*M2*M3*R2*R3*g*cos(y1 - 2*y5) - L1*L2*M2*M3*R2*R3*g*cos(y1 + 2*y5) + 2*L1^2*L2*M2*M3*R2*R3*y2^2*sin(2*y3) - 2*L1^2*L2*M2*M3*R2*R3*y2^2*sin(2*y3 + 2*y5) - 4*L1*L2*M2*M3*R2*R3^2*y2*y4*sin(y3 + y5) - 4*L1*L2*M2*M3*R2*R3^2*y2*y6*sin(y3 + y5) - 4*L1*L2*M2*M3*R2*R3^2*y4*y6*sin(y3 + y5) + 4*L1*L2*M2*M3*R2^2*R3*y2*y4*sin(y3) + 4*L1*L2^2*M2*M3*R2*R3*y2*y4*sin(y3) + 4*L1*L2*M2*M3*R2*R3^2*y2*y4*sin(y3 - y5) + 4*L1*L2*M2*M3*R2^2*R3*y2*y4*sin(y3 + 2*y5) - 4*L1*L2^2*M2*M3*R2*R3*y2*y4*sin(y3 + 2*y5) + 4*L1*L2*M2*M3*R2*R3^2*y2*y6*sin(y3 - y5) + 4*L1*L2*M2*M3*R2*R3^2*y4*y6*sin(y3 - y5))/(2*R3*(L1^2*M2^2*R2^2 + L1^2*L2^2*M2*M3 + L2^2*M1*M3*R1^2 + L1^2*M2*M3*R2^2 + 2*M1*M2*R1^2*R2^2 - L1^2*M2^2*R2^2*cos(2*y3) - L1^2*L2*M2*M3*R2 - L1^2*L2^2*M2*M3*cos(2*y5) - L2^2*M1*M3*R1^2*cos(2*y5) - L1^2*M2*M3*R2^2*cos(2*y3 + 2*y5) - L1^2*L2*M2*M3*R2*cos(2*y3) + L1^2*L2*M2*M3*R2*cos(2*y5) + L1^2*L2*M2*M3*R2*cos(2*y3 + 2*y5)));
