@@ -54,7 +54,7 @@ m3 = 0.087102;                                                                  
 ct3 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt3 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx3 = 1; Ly3 = 0.1; Lz3 = 0.1; Ls3 = [Lx3; Ly3; Lz3];                                                         % [m] Link Length in each direction of the local link frame.
-Lx3 = 0.14845; Ly3 = 0.078967; Lz3 = 0.032385; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
+Lx3 = 0.14845; Ly3 = 0.02856; Lz3 = 0.032385; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
 % Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                              % [m] Link Length in each direction of the local link frame.
 % Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                        % [m] Link Center of Mass Location in the Global Frame.
 Phome_cm3 = [.539952; .014351 ; 0.049821];                                                                     % [m] Link Center of Mass Location in the Global Frame.
@@ -69,6 +69,7 @@ Rhome_body3 = Rhome_cm3;                                                        
 %{
 Add information to incorporate Ad/Abduction Joint at hip
 Needs new joint location, orientation, axis of rotation
+
 %}
 
 % Compile information about each link into arrays.
@@ -90,9 +91,9 @@ Ltotal = Phome_cm3(1) + Lx3/2;                                                  
 % Define the home joint locations.
 Phome_joint1 = [0; 0; 0];                                                                                       % [m] Joint Location in the Global Frame.
 % Phome_joint2 = [Lx1; 0; 0];                                                                                   % [m] Joint Location in the Global Frame.
-Phome_joint2 = [Phome_cm1(1) + Lx1/2; 0; 0];                                                                    % [m] Joint Location in the Global Frame.
+Phome_joint2 = [Phome_cm1(1) + Lx1/2; Phome_cm1(2) + Ly1/2; Phome_cm1(3)];                                                                    % [m] Joint Location in the Global Frame.
 % Phome_joint3 = [Lx1 + Lx2; 0; 0];                                                                             % [m] Joint Location in the Global Frame.
-Phome_joint3 = [Phome_cm2(1) + Lx2/2; 0; 0];                                                                    % [m] Joint Location in the Global Frame.
+Phome_joint3 = [Phome_cm2(1) + Lx2/2; Phome_cm2(2) + Ly2/2; Phome_cm2(3)];                                                                    % [m] Joint Location in the Global Frame.
 Phome_joints = [Phome_joint1 Phome_joint2 Phome_joint3];                                                        % [m] Joint Locations in the Global Frame.
 
 % Define the home joint orientations.
@@ -118,7 +119,8 @@ Phome_end = [Ltotal; 0; 0];                                                     
 Rhome_end = eye(3);                                                                                     % [-] End Effector Orientation in the Global Frame.
 
 % Retrieve size information from the specified geometry.
-num_joints = size(Phome_joints, 2);                                                                             % [#] Number of Joints in the Open Kinematic Chain.
+%num_joints = size(Phome_joints, 2);                                                                             % [#] Number of Joints in the Open Kinematic Chain.
+num_joints = 3;                                                                             % [#] Number of Joints in the Open Kinematic Chain.
 num_body_points = size(Phome_bodies, 2);                                                                        % [#] Number of Points in Each Body of the Open Kinematic Chain.
 num_bodies = size(Phome_bodies, 3);                                                                             % [#] Number of Bodies in the Open Kinematic Chain.
 
@@ -134,17 +136,19 @@ b = 1;                  % [Ns/m] Hill Muscle Model Damping Coefficient.
 joint_names = {'Hip', 'Knee', 'Ankle'};
 
 % Define the possible muscle types.
-muscle_type_names = {'Ext', 'Flx'};
+muscle_type_names = {'Ext', 'Flx', 'Ba'};
 
 % Comute the number of muscle types.
 num_muscle_types = length(muscle_type_names);
 
 % Define a cell to store the muscle names.
-muscle_names = cell(num_muscle_types*num_joints, 1);
-
+%muscle_names = cell(num_muscle_types*num_joints, 1);
+%muscle_names = muscle_name + cell(
+muscle_names = cell(9,1);
+muscle_names = {'Ba Ankle Flx';'Ba Hip Ext';'Ba Hip Flx';'Hip Ext';'Hip Flx';'Knee Ext';'Knee Flx';'Ankle Ext';'Ankle Flx'};
 % Initialize a loop counter.
 k3 = 0;
-
+%{
 % Define the muscle names.
 for k1 = 1:num_joints                       % Iterate through each joint...
     for k2 = 1:num_muscle_types             % Iterate through each muscle type...
@@ -154,10 +158,13 @@ for k1 = 1:num_joints                       % Iterate through each joint...
         
         % Create the current muscle name.
         muscle_names{k3} = [joint_names{k1}, ' ', muscle_type_names{k2}];
-        
+
+
     end
 end
-
+muscle_names(6) = {'Hip Ba Ext'};
+muscle_names(3) = {'Hip Ba Flx'};
+%}
 % Define the joint orientations.  i.e., the first joint is moved in the positive direction by the extensor, the second by the flexor, and the third by the extensor.
 muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 
@@ -167,15 +174,20 @@ muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 Adjust text files to reflect BiArticular Design
 %}
 
-Ps_hipext = dlmread('Ps_hipext.txt');
-Ps_hipflx = dlmread('Ps_hipflx.txt');
-Ps_kneeext = dlmread('Ps_kneeext.txt');
-Ps_kneeflx = dlmread('Ps_kneeflx.txt');
-Ps_ankleext = dlmread('Ps_ankleext.txt');
-Ps_ankleflx = dlmread('Ps_ankleflx.txt');
+Ps_hipext = dlmread('Ma_hipext.txt');
+Ps_hipflx = dlmread('Ma_hipflx.txt');
+Ps_kneeext = dlmread('Ma_kneeext.txt');
+Ps_kneeflx = dlmread('Ma_kneeflx.txt');
+Ps_ankleext = dlmread('Ma_ankleext.txt');
+Ps_ankleflx = dlmread('Ma_ankleflx.txt');
+Ps_hipextbi = dlmread('Ba_hipext.txt');
+Ps_hipflxbi = dlmread('Ba_hipflx.txt');
+Ps_ankleflxbi = dlmread('Ba_ankleflx.txt');
+%
+
 
 % Store the muscle attachment locations in a high order tensor.
-Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx);
+Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx,Ps_hipextbi,Ps_hipflxbi,Ps_ankleflxbi);
 
 % Define the home orientation of the muscles.
 Rhome_muscles = eye(3);
@@ -240,7 +252,9 @@ for k1 = 1:num_muscles                      % Iterate through each of the muscle
     end
     
 end
-
+Jmuscles = [0,0,1,1,2,2,1,0,0;
+            0,0,1,1,2,2,1,0,0;
+            1,1,2,2,3,3,3,2,2];
 % Define the home matrix for the end effector.
 
 Mend = [Rhome_end, Phome_end; zeros(1, 3), 1];

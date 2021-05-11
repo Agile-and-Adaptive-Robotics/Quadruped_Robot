@@ -18,7 +18,7 @@ num_timesteps = size(Pmuscles, 4);
 num_joints = size(Pjoints, 3);
 
 % Ensure that there are two muscles assigned to each joint.
-if num_muscles ~= 2*num_joints          % If there are not two muscles per joint...
+if num_muscles ~= 3*num_joints          % If there are not two muscles per joint...
    
     % Throw an error stating that we must have two muscles per joint.
     error('The current muscle tension calculation alogrithm assumes that there are exactly two muscles per joint.\n')
