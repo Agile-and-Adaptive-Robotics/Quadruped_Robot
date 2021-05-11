@@ -27,7 +27,7 @@ classdef simulation_manager_class
             if nargin < 1, robot_state0 = quadruped_robot_class(); end
             
             % Preallocate an array to store the robot states.
-            self.robot_states = repmat( quadruped_robot_class(), 1, self.max_states );
+            self.robot_states = repmat( robot_class(), 1, self.max_states );
             
             % Set the initial robot state.
             self.robot_states(end) = robot_state0;
@@ -50,6 +50,20 @@ classdef simulation_manager_class
             self.ts(end) = self.ts(end - 1) + self.dt;
             
         end
+        
+        
+        % Implement a function to write command data to the robot while reading sensor data from the robot. ( Slave Manager Desired Pressures -> Master Microcontroller ( Real or Virtual ) Serial Port ) -> ( Master Microcontroller BPA Pressures & Joint Angles -> Slave Manager )
+        function self = write_commands_to_read_sensors_from_master( self )
+            
+           % Write the desired pressures stored in the slave manager to the master microcontroller ( Slave Manager Desired Pressures -> Master Microcontroller ( Real or Virtual ) Serial Port )
+            self.robot_states(end - 1).electrical_subsystem = self.robot_states(end - 1).electrical_subsystem.write_desired_pressures_to_master(  );
+
+            % Read the sensor data from the master microcontroller ( Master Microcontroller BPA Pressures & Joint Angles -> Slave Manager )
+            self.robot_states(end).electrical_subsystem = self.robot_states(end).electrical_subsystem.read_sensor_data_from_master(  );
+
+        end
+        
+        
         
     end
 end

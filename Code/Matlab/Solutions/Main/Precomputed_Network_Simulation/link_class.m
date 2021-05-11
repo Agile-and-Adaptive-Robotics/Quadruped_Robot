@@ -7,26 +7,40 @@ classdef link_class
     
     % Define class properties.
     properties
+        
         ID
         name
+        
         parent_joint_ID
         child_joint_ID
+        
         mass
         len
         width
+        
         R
+        
         p_start
         p_end
+        
         p_cm
         M_cm
+        T_cm
+        
         I_cm
         v_cm
         w_cm
+        
         ps_mesh
         Ms_mesh
+        Ts_mesh
+        
         ps_link
         Ms_link
+        Ts_link
+        
         mesh_type
+        
     end
     
     

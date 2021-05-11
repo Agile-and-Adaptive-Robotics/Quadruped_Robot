@@ -21,7 +21,7 @@ classdef hill_muscle_manager_class
         function self = hill_muscle_manager_class( hill_muscles )
             
             % Set the default hill muscle manager properties.
-            if nargin < 1, self.hill_muscles = hill_muscles_class(); else, self.hill_muscles = hill_muscles; end
+            if nargin < 1, self.hill_muscles = hill_muscle_class(); else, self.hill_muscles = hill_muscles; end
             
             % Set the number of hill muscles.
             self.num_hill_muscles = length(self.hill_muscles);

@@ -31,7 +31,7 @@ classdef BPA_muscle_manager_class
         %% BPA Muscle Manager Set & Get Functions
         
         % Implement a function to retrieve the index associated with a given muscle ID.
-        function muscle_index = get_muscle_index( self, muscle_ID )
+        function muscle_index = get_muscle_index( self, BPA_muscle_ID )
             
             % Set a flag variable to indicate whether a matching muscle index has been found.
             bMatchFound = false;
@@ -45,7 +45,7 @@ classdef BPA_muscle_manager_class
                 muscle_index = muscle_index + 1;
                 
                 % Check whether this muscle index is a match.
-                if self.BPA_muscles(muscle_index).ID == muscle_ID                       % If this muscle has the correct muscle ID...
+                if self.BPA_muscles(muscle_index).ID == BPA_muscle_ID                       % If this muscle has the correct muscle ID...
                     
                     % Set the match found flag to true.
                     bMatchFound = true;
@@ -58,7 +58,7 @@ classdef BPA_muscle_manager_class
             if ~bMatchFound                     % If a match was not found...
 %                 
 %                 % Throw an error.
-%                 error('No muscle with ID %0.0f.', muscle_ID)
+%                 error('No muscle with ID %0.0f.', BPA_muscle_ID)
                 
                 % Set the muscle index to -1.
                 muscle_index = -1;
@@ -68,23 +68,23 @@ classdef BPA_muscle_manager_class
         end
         
         
-        % Implement a function to retrieve the properties of specific muscles.
-        function xs = get_muscle_property( self, muscle_IDs, muscle_property )
+        % Implement a function to validate the BPA muscle IDs.
+        function BPA_muscle_IDs = validate_muscle_IDs( self, BPA_muscle_IDs )
             
             % Determine whether we want get the desired muscle property from all of the muscles.
-            if isa(muscle_IDs, 'char')                                                      % If the muscle IDs variable is a character array instead of an integer srray...
+            if isa( BPA_muscle_IDs, 'char' )                                                      % If the muscle IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmp(muscle_IDs, 'all') || strcmp(muscle_IDs, 'All')                  % If the character array is either 'all' or 'All'...
+                if  strcmp( BPA_muscle_IDs, 'all' ) || strcmp( BPA_muscle_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the muscle IDs.
-                    muscle_IDs = zeros(1, self.num_BPA_muscles);
+                    BPA_muscle_IDs = zeros( 1, self.num_BPA_muscles );
                     
                     % Retrieve the muscle ID associated with each muscle.
                     for k = 1:self.num_BPA_muscles                   % Iterate through each muscle...
                         
                         % Store the muscle ID associated with the current muscle ID.
-                        muscle_IDs(k) = self.BPA_muscles(k).ID;
+                        BPA_muscle_IDs(k) = self.BPA_muscles(k).ID;
                         
                     end
                     
@@ -97,8 +97,17 @@ classdef BPA_muscle_manager_class
                 
             end
             
+        end
+        
+        
+        % Implement a function to retrieve the properties of specific muscles.
+        function xs = get_muscle_property( self, BPA_muscle_IDs, muscle_property )
+            
+            % Validate the BPA muscle IDs.
+            BPA_muscle_IDs = self.validate_muscle_IDs( BPA_muscle_IDs );
+            
             % Determine how many muscles to which we are going to apply the given method.
-            num_properties_to_get = length(muscle_IDs);
+            num_properties_to_get = length(BPA_muscle_IDs);
             
             % Preallocate a variable to store the muscle properties.
             xs = zeros(1, num_properties_to_get);
@@ -107,7 +116,7 @@ classdef BPA_muscle_manager_class
             for k = 1:num_properties_to_get
                 
                 % Retrieve the index associated with this muscle ID.
-                muscle_index = self.get_muscle_index( muscle_IDs(k) );
+                muscle_index = self.get_muscle_index( BPA_muscle_IDs(k) );
                 
                 % Define the eval string.
                 eval_str = sprintf( 'xs(k) = self.BPA_muscles(%0.0f).%s;', muscle_index, muscle_property );
@@ -123,6 +132,9 @@ classdef BPA_muscle_manager_class
         % Implement a function to set the properties of specific BPA muscles.
         function self = set_BPA_muscle_property( self, BPA_muscle_IDs, BPA_muscle_property_values, BPA_muscle_property )
             
+            % Validate the BPA muscle IDs.
+            BPA_muscle_IDs = self.validate_muscle_IDs( BPA_muscle_IDs );
+            
             % Set the properties of each BPA muscle.
             for k = 1:self.num_BPA_muscles                   % Iterate through each BPA muscle...
                 
@@ -133,7 +145,7 @@ classdef BPA_muscle_manager_class
                 if ~isempty(index)                         % If a matching BPA muscle ID was detected...
                     
                     % Create an evaluation string that sets the desired BPA muscle property.
-                    eval_string = sprintf('self.BPA_muscles(%0.0f).%s = BPA_muscle_property_values(%0.0f);', k, BPA_muscle_property, index);
+                    eval_string = sprintf('self.BPA_muscles(%0.0f).%s = BPA_muscle_property_values{%0.0f};', k, BPA_muscle_property, index);
                     
                     % Evaluate the evaluation string.
                     eval(eval_string);
@@ -147,42 +159,19 @@ classdef BPA_muscle_manager_class
         %% BPA Muscle Manager Call Muscle Methods Function
         
         % Implement a function to that calls a specified muscle method for each of the specified muscles.
-        function self = call_muscle_method( self, muscle_IDs, muscle_method )
+        function self = call_muscle_method( self, BPA_muscle_IDs, muscle_method )
             
-            % Determine whether we want get the desired muscle property from all of the muscles.
-            if isa( muscle_IDs, 'char' )                                                      % If the muscle IDs variable is a character array instead of an integer srray...
-                
-                % Determine whether this is a valid character array.
-                if  strcmp( muscle_IDs, 'all' ) || strcmp( muscle_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
-                    
-                    % Preallocate an array to store the muscle IDs.
-                    muscle_IDs = zeros( 1, self.num_BPA_muscles );
-                    
-                    % Retrieve the muscle ID associated with each muscle.
-                    for k = 1:self.num_BPA_muscles                   % Iterate through each muscle...
-                        
-                        % Store the muscle ID associated with the current muscle ID.
-                        muscle_IDs(k) = self.BPA_muscles(k).ID;
-                        
-                    end
-                    
-                else                                                                        % Otherwise...
-                    
-                    % Throw an error.
-                    error('Muscle_IDs must be either an array of valid muscle IDs or one of the strings: ''all'' or ''All''.')
-                    
-                end
-                
-            end
+            % Validate the BPA muscle IDs.
+            BPA_muscle_IDs = self.validate_muscle_IDs( BPA_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(muscle_IDs);
+            num_muscles_to_evaluate = length(BPA_muscle_IDs);
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
                 
                 % Retrieve the index associated with this muscle ID.
-                muscle_index = self.get_muscle_index( muscle_IDs(k) );
+                muscle_index = self.get_muscle_index( BPA_muscle_IDs(k) );
                 
                 % Determine whether to evaluate the given method for this BPA muscle.
                 if muscle_index ~= -1                   % If a valid BPA muscle index was found...

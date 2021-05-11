@@ -521,7 +521,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     %% Compute the Robot Configuration Given the Current Joint Angles (i.e., Forward Kinematics). ( Joint Angles -> Robot Configuration )
     
-    % Compute the the configuration of the body. ( ??? )
+    % Compute the Configuration and Kinematic Properties of the Body.
     
     
     % Compute the configuration of the end effectors. ( Joints Angles -> End Effector Configuration )
@@ -533,9 +533,8 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Compute the configuration of the links. ( Joint Angles -> Link Configuration )
     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2link_configurations(  );
         
-    % Compute the configuration of the BPA Muscles. ( Joint Angles -> BPA Muscle Configutation )
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2BPA_muscle_configurations(  );
-
+    % Compute the Configuration of the BPA Muscles.
+    
     
     
     %% Compute Robot Kinematic Properties.
@@ -547,10 +546,6 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     
     % Compute link velocities (linear and rotational).
-    
-    
-    % Compute BPA muscle velocities (linear and rotational).
-    
     
     
     %% Compute Derived BPA Muscle Properties. ( BPA Muscle Tension, BPA Muscle Yank, BPA Muscle Length, BPA Muscle Strain, BPA Muscle Velocity )

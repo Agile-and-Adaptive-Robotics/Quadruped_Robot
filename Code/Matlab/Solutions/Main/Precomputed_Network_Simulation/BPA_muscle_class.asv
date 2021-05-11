@@ -40,8 +40,6 @@ classdef BPA_muscle_class
         c5
         c6
         
-        physics_manager
-        
     end
     
     
@@ -52,9 +50,6 @@ classdef BPA_muscle_class
         
         % Implement the class constructor.
         function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_length, max_strain, velocity, yank, ps, Rs, c0, c1, c2, c3, c4, c5, c6 )
-            
-            % Create an instance of the physics manager class.
-            self.physics_manager = physics_manager_class(  );
             
             % Set the default class properties.
             if nargin < 20, self.c6 = 15.6e3; else, self.c6 = c6; end
@@ -83,10 +78,10 @@ classdef BPA_muscle_class
             self.strain = self.length2strain( self.length, self.resting_length );
             
             % Compute the BPA muscle attachment point home configurations.
-            self.Ms = self.physics_manager.PR2T( ps, Rs );
-            
-            % Set the current BPA muscle attachment point configuration to be the home configuration.
-            self.Ts = self.Ms;
+            Ms = PR2T( ps, Rs );
+%             
+%             % Set the current BPA muscle attachment point configuration to be the home configuration.
+%             Ts
 %             
 %             % Set the BPA muscle attachment point joint assignment matrix.
 %             Js

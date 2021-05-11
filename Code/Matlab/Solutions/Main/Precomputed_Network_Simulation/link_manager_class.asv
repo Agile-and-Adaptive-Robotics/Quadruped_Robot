@@ -326,7 +326,7 @@ classdef link_manager_class
         
         
         % Implement a function to set the properties of specific links.
-        function self = set_link_property( self, link_IDs, link_property_values, link_property )
+        function self = set_link_property( self, link_IDs, link_property_values, link_property)
             
             % Validate the link IDs.
             link_IDs = self.validate_link_IDs( link_IDs );
@@ -341,7 +341,7 @@ classdef link_manager_class
                 if ~isempty(index)                         % If a matching link ID was detected...
                     
                     % Create an evaluation string that sets the desired link property.
-                    eval_string = sprintf('self.links(%0.0f).%s = link_property_values{%0.0f};', k, link_property, index);
+                    eval_string = sprintf('self.links(%0.0f).%s = link_property_values(%0.0f);', k, link_property, index);
                     
                     % Evaluate the evaluation string.
                     eval(eval_string);
@@ -351,14 +351,13 @@ classdef link_manager_class
             
         end
         
-         
+        
         %% Link Manager Call Link Methods Function
         
         % Implement a function to that calls a specified link method for each of the specified links.
         function self = call_link_method( self, link_IDs, link_method )
             
-            % Validate the link IDs.
-            link_IDs = self.validate_link_IDs( link_IDs );
+            % Validate the li
             
             % Determine how many links to which we are going to apply the given method.
             num_links_to_evaluate = length(link_IDs);

@@ -46,7 +46,7 @@ classdef robot_class
             num_pressure_sensors = length( pressure_IDs );
             
             % Preallocate an array to store the pressures.
-            pressures = cell( 1, num_pressure_sensors );
+            pressures = zeros(1, num_pressure_sensors);
             
             % Compute the pressure associated with each pressure sensor.
             for k = 1:num_pressure_sensors                              % Iterate through each pressure sensor.
@@ -70,7 +70,7 @@ classdef robot_class
                 pressure_value2 = self.conversion_manager.uint162double( pressure_value2_uint16, [0, max_pressure] );
 
                 % Take the average pressure sensor reading from all of the pressure readings across possibly many slaves.
-                pressures{k} = mean( [ pressure_value1, pressure_value2 ] );
+                pressures(k) = mean( [ pressure_value1, pressure_value2 ] );
                 
                 % Store the measured muscle pressure.                
                 self.mechanical_subsystem.limb_manager = self.mechanical_subsystem.limb_manager.set_BPA_muscle_property( BPA_muscle_ID, pressures(k), 'measured_pressure' );
@@ -118,7 +118,7 @@ classdef robot_class
         function self = slave_angle2joint_angle( self )
 
             % Retrieve the encoder IDs.
-            encoder_IDs = self.electrical_subsystem.slave_manager.get_slave_property( 'all', 'joint_ID' );
+            encoder_IDs = self.electrical_subsystem.slave_manager.get_slave_property( 'all', 'encoder_ID' );
             
             % Retrieve the encoder uint16s.
             encoder_uint16s = self.electrical_subsystem.slave_manager.get_slave_property( 'all', 'measured_encoder_value' );
@@ -147,17 +147,19 @@ classdef robot_class
                     % Store the average joint angle reported by each slaves that measure encoders for this joint.
                     joint_angles(k) = mean( encoder_doubles(encoder_indexes) );
                     
-                elseif ( k == 3 ) || ( k == 10 )        % If the current joint is one of the pantograph joints...
+                elseif ( k == 3 ) || ( k == 10 )
                     
-                    % Flip the sign of the previous joint.
-                    joint_angles(k) = -joint_angles(k - 1);
+                    joint
                     
                 end
                 
             end
                 
+            % Convert the measured encoder values into joint angles.
+            joint_angles = self.conversion_manager.uint162double( encoder_uint16s, [0, 2*pi] );
+            
             % Set the joint angle of each joint.
-            self.mechanical_subsystem.limb_manager = self.mechanical_subsystem.limb_manager.set_joint_property( joint_IDs, num2cell( joint_angles ), 'theta' );
+            self.mechanical_subsystem.limb_manager = self.mechanical_subsystem.limb_manager.set_joint_property( joint_IDs, joint_angles, 'theta' );
             
         end
 
@@ -199,7 +201,7 @@ classdef robot_class
             hill_muscle_IDs = self.neural_subsystem.hill_muscle_manager.get_muscle_property( 'all', 'ID' );
             
             % Preallocate a variable to store the BPA muscle tensions that we want to set.
-            BPA_muscle_tensions = cell( 1, num_BPA_muscles );
+            BPA_muscle_tensions = zeros( 1, num_BPA_muscles );
             
             % Set each BPA muscle measured tension to match the measured total tension of its associated hill muscle.
             for k = 1:num_BPA_muscles                    % Iterate through each BPA muscle...
@@ -211,7 +213,7 @@ classdef robot_class
                 if ~isempty(hill_muscle_index)                   % If we found a hill muscle with the same ID as this BPA muscle...
                     
                     % Store the hill muscle measured total tension associated with this BPA muscle.
-                   BPA_muscle_tensions{k} = self.neural_subsystem.hill_muscle_manager.hill_muscles(hill_muscle_index).measured_total_tension;
+                   BPA_muscle_tensions(k) = self.neural_subsystem.hill_muscle_manager.hill_muscles(hill_muscle_index).measured_total_tension;
                    
                 end
                 

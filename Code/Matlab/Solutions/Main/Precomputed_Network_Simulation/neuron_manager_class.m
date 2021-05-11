@@ -23,7 +23,7 @@ classdef neuron_manager_class
             if nargin < 1, self.neurons = neuron_class(); else, self.neurons = neurons; end
             
             % Compute the number of neurons.
-            self.num_neurons = length(neurons);
+            self.num_neurons = length(self.neurons);
             
         end
         

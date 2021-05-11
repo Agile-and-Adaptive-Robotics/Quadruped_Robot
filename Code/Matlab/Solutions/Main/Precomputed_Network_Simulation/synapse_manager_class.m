@@ -25,7 +25,7 @@ classdef synapse_manager_class
             if nargin < 1, self.synapses = synapse_class(); else, self.synapses = synapses; end
             
             % Compute the number of synapses.
-            self.num_synapses = length(synapses);
+            self.num_synapses = length(self.synapses);
             
         end
 

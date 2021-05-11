@@ -125,8 +125,8 @@ classdef limb_class
 
             % Compute the end effector position and orientation of the links.
             [ ps_cms, Rs_cms ] = self.physics_manager.T2PR( self.link_manager.Ts_cms );
-            [ ps_links, ~ ] = self.physics_manager.T2PR( self.link_manager.Ts_links );
-            [ ps_meshes, ~ ] = self.physics_manager.T2PR( self.link_manager.Ts_meshes );
+            [ ps_links, Rs_links ] = self.physics_manager.T2PR( self.link_manager.Ts_links );
+            [ ps_meshes, Rs_meshes ] = self.physics_manager.T2PR( self.link_manager.Ts_meshes );
 
             % Create cells to store the update link positions, orientations, and configurations.
             [ ps_cms_cell, ps_links_cell, ps_meshes_cell, Rs_cell, Ts_cms_cell, Ts_links_cell, Ts_meshes_cell ] = deal( cell( 1, self.link_manager.num_links ) );
@@ -134,30 +134,25 @@ classdef limb_class
             % Store the updated link positions, orientations, and configurations into cell arrays.
             for k = 1:self.link_manager.num_links               % Iterate through each link...
                 
-                % Store the updated positions of this link.
+                % Store the updated link positions 
                 ps_cms_cell{k} = ps_cms( :, :, k );
                 ps_links_cell{k} = ps_links( :, :, k );
                 ps_meshes_cell{k} = ps_meshes( :, :, k );
 
-                % Store the updated orientations of this link.
                 Rs_cell{k} = Rs_cms( :, :, :, k );
                 
-                % Store the updated configurations of this link.
                 Ts_cms_cell{k} = self.link_manager.Ts_cms( :, :, :, k );
                 Ts_links_cell{k} = self.link_manager.Ts_links( :, :, :, k );
                 Ts_meshes_cell{k} = self.link_manager.Ts_meshes( :, :, :, k );
 
             end
             
-            % Update the link position properties.
             self.link_manager = self.link_manager.set_link_property( 'all', ps_cms_cell, 'p_cm' );
             self.link_manager = self.link_manager.set_link_property( 'all', ps_links_cell, 'ps_link' );
             self.link_manager = self.link_manager.set_link_property( 'all', ps_meshes_cell, 'ps_mesh' );
 
-            % Update the link orientation properties.
             self.link_manager = self.link_manager.set_link_property( 'all', Rs_cell, 'R' );
 
-            % Update the link configuration properties.
             self.link_manager = self.link_manager.set_link_property( 'all', Ts_cms_cell, 'T_cm' );
             self.link_manager = self.link_manager.set_link_property( 'all', Ts_links_cell, 'Ts_link' );
             self.link_manager = self.link_manager.set_link_property( 'all', Ts_meshes_cell, 'Ts_mesh' );

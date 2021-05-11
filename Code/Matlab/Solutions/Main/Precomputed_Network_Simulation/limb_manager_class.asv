@@ -445,24 +445,10 @@ classdef limb_manager_class
             for k = 1:self.num_limbs                    % Iterate through each limb....
             
                 % Compute the position, orientation, and configuration of the links given the current joint angles for this limb.
-                self.limbs(k) = self.limbs(k).joint_angles2link_configurations(  );
+                self.limbs(k) = self.limbs(k).joint_angles2_configurations(  );
 
             end
 
-        end
-        
-        
-        % Implement a function to compute the position, orientation, and configuration of the BPA muscles given the current joint angles for each limb.
-        function self = joint_angles2BPA_muscle_configurations( self )
-            
-            % Compute the position, orientation, and configuration of the BPA muscles given the current joint angles for each limb.
-            for k = 1:self.num_limbs                    % Iterate through each limb....
-            
-                % Compute the position, orientation, and configuration of the BPA muscles given the current joint angles for this limb.
-                self.limbs(k) = self.limbs(k).joint_angles2BPA_muscle_configurations(  );
-
-            end
-            
         end
         
         

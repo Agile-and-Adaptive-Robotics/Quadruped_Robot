@@ -159,16 +159,16 @@ classdef electrical_subsystem_class
             end
             
             % Emulate the master microcontroller reading the bytes sent from Matlab.
-            temp = read( self.master_output_virtual_serial_port, self.master_output_virtual_serial_port.NumBytesAvailable, 'uint8' );
+            temp = read( self.usart_manager.master_output_virtual_serial_port, self.usart_manager.master_output_virtual_serial_port.NumBytesAvailable, 'uint8' );
             
             % Create an array of bytes that we will emulate the master microcontroller writing.
-            write_bytes = uint8( zeros( 1, self.num_start_bytes + 1 + self.slave_manager.SLAVE_PACKET_SIZE*self.slave_manager.num_slaves + 1 ) );
+            write_bytes = uint8( zeros( 1, self.usart_manager.num_start_bytes + 1 + self.slave_manager.SLAVE_PACKET_SIZE*self.slave_manager.num_slaves + 1 ) );
             
             % Define the first several write bytes.
-            write_bytes(1:self.num_start_bytes) = uint8( 255*ones( 1, self.num_start_bytes ) ); write_bytes(self.num_start_bytes + 1) = uint8( self.slave_manager.num_slaves );
+            write_bytes(1:self.usart_manager.num_start_bytes) = uint8( 255*ones( 1, self.usart_manager.num_start_bytes ) ); write_bytes(self.usart_manager.num_start_bytes + 1) = uint8( self.slave_manager.num_slaves );
             
             % Initialize the byte index.
-            byte_index = self.num_start_bytes + 2;
+            byte_index = self.usart_manager.num_start_bytes + 2;
             
             % Define the sensor data bytes.
             for k = 1:self.slave_manager.num_slaves                      % Iterate through each of the slaves...
@@ -189,7 +189,7 @@ classdef electrical_subsystem_class
             write_bytes(end) = uint8( mod( sum( write_bytes ), 256 ) );
             
             % Emulate the master microcontroller writing these bytes to Matlab.
-            write( self.master_output_virtual_serial_port, write_bytes, 'uint8' )
+            write( self.usart_manager.master_output_virtual_serial_port, write_bytes, 'uint8' )
             
         end
         
@@ -210,7 +210,7 @@ classdef electrical_subsystem_class
         function self = read_sensor_data_from_master( self )
             
             % Determine whether we need to emulate the master microcontroller behavior. ( Master Microcontroller ( Real or Virtual ) Serial Port -> Desktop Serial Port )
-            if strcmp( master_port_type, 'virtual' ) || strcmp( master_port_type, 'Virtual' )                   % If we are using a virtual port for the master microcontroller...
+            if strcmp( self.usart_manager.master_port_type, 'virtual' ) || strcmp( self.usart_manager.master_port_type, 'Virtual' )                   % If we are using a virtual port for the master microcontroller...
                 
                 % Emulate the master microcontroller reporting sensory information to Matlab.
                 self = self.emulate_master_read_write(  );
