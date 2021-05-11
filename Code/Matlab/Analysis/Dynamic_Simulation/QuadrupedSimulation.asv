@@ -312,8 +312,7 @@ for i = ns_stance - smoothing_step : ns_stance
     Fsmooth_swtost(i) = Fsmooth_swtost(i) * (1 - (i - (ns_stance - smoothing_step)) *0.01);
 end
 
-Ftip_norm = 36 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmooth_swtost];
-Ftip_friction = 10 * [zeros(ns_swing, 1); ones(ns_stance , 1)];
+Ftip_norm = 10 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmooth_swtost];
 
 % Define the ground height.
 
@@ -321,7 +320,7 @@ Ftip_friction = 10 * [zeros(ns_swing, 1); ones(ns_stance , 1)];
 Adjust to fit current model
 %}
 
-ground_height = 0.52;   % [m] Ground Height Relative to Body.
+ground_height = 0.5;   % [m] Ground Height Relative to Body.
 % ground_height = 0.381;
 
 % Define the horizontal step shift.
@@ -335,7 +334,7 @@ are used
 %}
 
 step_height = 0.04;         % [m] Step Heigth.
-step_length = 0.15;          % [m] Step Length.
+step_length = 0.16;          % [m] Step Length.
 
 
 %% Generate Desired End Effector Trajectory.
@@ -506,7 +505,7 @@ Add any ground forces during stance timesteps
 %}
 
 % Ftipmat = zeros(num_timesteps, 6);
-Ftipmat = [zeros(num_timesteps,4), -Ftip_norm, Ftip_friction];
+Ftipmat = [zeros(num_timesteps,4), Ftip_norm, zeros(num_timesteps, 1)];
 
 % Configure the relevant home matrices to have the shape required by the inverse dynamics function.  Note that the inverse dynamics function requires relative home matrices.
 Mlist = cat(4, Mcms(:, :, 1, 1), reshape(TSpace2TRelative(reshape(cat(4, Mcms, Mend), [4, 4, num_joints + 1, 1])), [4, 4, 1, num_joints]));
@@ -562,8 +561,7 @@ intRes = 10;
 [thetas_achieved, dthetas_achieved] = ForwardDynamicsTrajectory(theta0, dtheta0, taus_desired', g, Ftipmat, Mlist, Gs, Ss, dt, intRes);
 
 % Transpose the achieved joint angles and velocities to have shapes consistent with our convention.
-thetas_achieved = thetas_achieved'; 
-dthetas_achieved = dthetas_achieved';
+thetas_achieved = thetas_achieved'; dthetas_achieved = dthetas_achieved';
 
 % Compute the achieved joint angular accelerations.
 ddthetas_achieved = diff(dthetas_achieved, 1, 2)./repmat(diff(ts), [num_joints 1]);
