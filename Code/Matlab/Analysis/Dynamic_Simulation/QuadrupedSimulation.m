@@ -145,15 +145,15 @@ muscle_joint_orientations = {'Ext', 'Flx', 'Flx', 'Ext'};
 % Read in the muscle location data.
 Ps_hipadd = dlmread('Ps_hipadd.txt');
 Ps_hipabd = dlmread('Ps_hipabd.txt');
-Ps_hipext = dlmread('Ps_hipext.txt');
-Ps_hipflx = dlmread('Ps_hipflx.txt');
-Ps_kneeext = dlmread('Ps_kneeext.txt');
-Ps_kneeflx = dlmread('Ps_kneeflx.txt');
-Ps_ankleext = dlmread('Ps_ankleext.txt');
-Ps_ankleflx = dlmread('Ps_ankleflx.txt');
+Ma_hipext = dlmread('Ma_hipext.txt');
+Ma_hipflx = dlmread('Ma_hipflx.txt');
+Ma_kneeext = dlmread('Ma_kneeext.txt');
+Ma_kneeflx = dlmread('Ma_kneeflx.txt');
+Ma_ankleext = dlmread('Ma_ankleext.txt');
+Ma_ankleflx = dlmread('Ma_ankleflx.txt');
 
 % Store the muscle attachment locations in a high order tensor.
-Phome_muscles = cat(3, Ps_hipadd, Ps_hipabd, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx);
+Phome_muscles = cat(3, Ps_hipadd, Ps_hipabd, Ma_hipext, Ma_hipflx, Ma_kneeext, Ma_kneeflx, Ma_ankleext, Ma_ankleflx);
 
 % Define the home orientation of the muscles.
 Rhome_muscles = eye(3);
@@ -291,27 +291,15 @@ step_length = 0.1;          % [m] Step Length.
 fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY... Please Wait...\n')
 
 % Define the swing end effector path.
-
-%{
-First - adjust swing to reflect top half of circle
-Second - adjust swing to reflect oval dimensions
-Third - Add stability factors for account for stance to swing and swing to
-stance deformations.
-%}
-
 xs_swing = step_length*cos(pi*ts_swing);
 ys_swing = step_height*sin(pi*ts_swing) - ground_height;
-zs_swing = zeros(1, ns_swing);
+zs_swing = 0.05008 + zeros(1, ns_swing);
 
 % Define the stance end effector path.
 
-%{
-Verify that stance segment of path is added to model
-%}
-
 xs_stance = linspace(xs_swing(end), xs_swing(1), ns_stance);
 ys_stance = -ground_height*ones(1, ns_stance);
-zs_stance = zeros(1, ns_stance);
+zs_stance = 0.05008 + zeros(1, ns_stance);
 
 % % Define the desired end effector path. (Use for testing other paths.)
 % xs_desired = (horizontal_shift - step_length)*ones(1, num_timesteps);
@@ -319,14 +307,9 @@ zs_stance = zeros(1, ns_stance);
 % zs_desired = zeros(1, num_timesteps);
 
 % Define the desired end effector path. (Use for circular swing and stance.)
-
-%{
-Adjust to reflect stance and swing end effector paths
-%}
-
 xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
 ys_desired = step_height*sin(2*pi*ts) - ground_height;
-zs_desired = zeros(1, num_timesteps);
+zs_desired = 0.05008 + zeros(1, num_timesteps);
 
 % % Define the desired end effector path. (Use for circular swing and horizontal stance.)
 % xs_desired = [xs_swing xs_stance];
