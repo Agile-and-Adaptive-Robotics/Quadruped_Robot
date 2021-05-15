@@ -962,6 +962,7 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
 axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])
 axis equal
+xlim([-0.6 0.6])
 
 % Preallocate an array to store the legend entries.
 legstr = cell(num_bodies + 6, 1);
