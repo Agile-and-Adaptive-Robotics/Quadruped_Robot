@@ -93,7 +93,7 @@ w4_local = [0; 0; 1];                                                           
 ws_local = [w1_local w2_local w3_local w4_local];                                                                        % [rad/s] Axes of Rotation of Each Link in its Local Frame.
 
 % Define the end effector location & orientation.
-Phome_end = [Ltotal; 0; 0];                                                                    % [m] End Effector Location in the Global Frame.
+Phome_end = [Ltotal; 0; 0.05008];                                                                    % [m] End Effector Location in the Global Frame.
 Rhome_end = eye(3);                                                                                     % [-] End Effector Orientation in the Global Frame.
 
 % Retrieve size information from the specified geometry.
@@ -162,16 +162,6 @@ Rhome_muscles = eye(3);
 num_pts_per_muscle = size(Phome_muscles, 2);
 num_muscles = size(Phome_muscles, 3);
 
-%figure
-%hold on
-%plot3(Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1))
-% plot3(Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2))
-% plot3(Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3))
-% plot3(Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4))
-% plot3(Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5))
-% plot3(Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6))
-% plot3(Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7))
-% plot3(Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8))
 
 %% Define the Robot Home Matrices & Screw Axes.
 
@@ -284,7 +274,7 @@ ground_height = femur_length + (sind(45) * tibia_length) + foot_length;    % [m]
 % Define the horizontal step shift.
 % horizontal_shift = 0.5 * sind(45) * tibia_length;                          % [m] Horizontal Shift to Apply to Step Trajectory.
 horizontal_shift = 0;
-
+vertical_shift = 0.02;
 % Define the step height and stride length.
 
 %{
@@ -292,8 +282,8 @@ Verify this matches the step trajectory and check where in code thse vars
 are used
 %}
 
-step_height = 0.025;         % [m] Step Heigth.
-step_length = 0.05;          % [m] Step Length.
+step_height = 0.05;         % [m] Step Heigth.
+step_length = 0.1;          % [m] Step Length.
 
 
 %% Generate Desired End Effector Trajectory.
@@ -319,7 +309,7 @@ zs_stance = 0.05008 + zeros(1, ns_stance);
 
 % Define the desired end effector path. (Use for circular swing and stance.)
 xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
-ys_desired = step_height*sin(2*pi*ts) - ground_height;
+ys_desired = step_height*sin(2*pi*ts) - ground_height + vertical_shift;
 zs_desired = 0.05008 + zeros(1, num_timesteps);
 
 % % Define the desired end effector path. (Use for circular swing and horizontal stance.)
@@ -370,7 +360,7 @@ plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.', 'MarkerSize', 20)
 plot3(Ps_desired(1, :), Ps_desired(2, :), Ps_desired(3, :))
 axis equal
 
-thetas_desired = (pi/180)*[-120; 0; 90; -30];
+thetas_desired = (pi/180)*[-90; 0; 90; 30];
 %thetas_desired = (pi/180)*[-90; 0; 90; 90];
 
 % Retrieve the transformation matrices associated with the given angles.
@@ -395,6 +385,8 @@ Pjoints_desired = squeeze(Pjoints_desired);
 
 plot3(Pend_desired(1), Pend_desired(2), Pend_desired(3), '.', 'MarkerSize', 20)
 plot3(Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.', 'MarkerSize', 20)
+
+
 %% Compute the Joint Angles That Achieve the Desired Trajectory.
 
 % State that we are computing the inverse kinematics solution to achieve the desired trajectory.
@@ -840,7 +832,7 @@ SaveFigureAtSize(fig_jointtorques, filename, figure_size)
 %% Plot the Muscle States (Length, Velocity, Acceleration) Over Time.
 
 % Define the extensor colors.
-ext_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
+ext_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125; 0.4940 0.1840 0.5560];
 
 % Define the flexor colors.
 flx_colors = min(1.50*ext_colors, 1);
@@ -913,7 +905,7 @@ SaveFigureAtSize(fig_musclelengths, filename, figure_size)
 %% Plot the Muscle Forces Over Time.
 
 % Define an array of colors to use on the plot.
-line_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
+line_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125; 0.4940 0.1840 0.5560];
 
 % Define an array of line styles to use.
 line_styles = {'-', '--'};
