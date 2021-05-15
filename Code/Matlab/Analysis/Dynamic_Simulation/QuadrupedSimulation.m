@@ -269,7 +269,7 @@ Ss = [S1 S2 S3];
 %% Define the Simulation Properties.
 
 % Create a time vector.
-dt = 0.001;                  % [s] Simulation Step Size.
+dt = 0.0005;                  % [s] Simulation Step Size.
 % dt = 0.0001;                  % [s] Simulation Step Size.
 
 %{
@@ -302,18 +302,19 @@ ts_swing = ts(1:ns_swing);
 
 % Define reaction forces during the stance cycle
 smoothing_step = 50;
-Fsmooth_swtost = ones(ns_stance, 1);
+Fsmoothing = ones(ns_stance, 1);
 
 for i = 1:smoothing_step
-    Fsmooth_swtost(i) = Fsmooth_swtost(i) * (0.5+i*0.01);
+    Fsmoothing(i) = Fsmoothing(i) * (0.5+i*0.01);
 end
 
 for i = ns_stance - smoothing_step : ns_stance
-    Fsmooth_swtost(i) = Fsmooth_swtost(i) * (1 - (i - (ns_stance - smoothing_step)) *0.01);
+    Fsmoothing(i) = Fsmoothing(i) * (1 - (i - (ns_stance - smoothing_step)) *0.01);
 end
 
-Ftip_norm = 36 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmooth_swtost];
-Ftip_friction = 10 * [zeros(ns_swing, 1); ones(ns_stance , 1)];
+Ftip_norm = 20 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmoothing];
+Ftip_stride = 5 * [zeros(ns_swing, 1); ones(ns_stance , 1)];
+
 
 % Define the ground height.
 
@@ -506,7 +507,8 @@ Add any ground forces during stance timesteps
 %}
 
 % Ftipmat = zeros(num_timesteps, 6);
-Ftipmat = [zeros(num_timesteps,4), -Ftip_norm, Ftip_friction];
+Ftipmat = [zeros(num_timesteps,4), -Ftip_norm, zeros(num_timesteps,1)];
+%Ftipmat = [zeros(num_timesteps,3), Ftip_stride, -Ftip_norm, zeros(num_timesteps,1)];
 
 % Configure the relevant home matrices to have the shape required by the inverse dynamics function.  Note that the inverse dynamics function requires relative home matrices.
 Mlist = cat(4, Mcms(:, :, 1, 1), reshape(TSpace2TRelative(reshape(cat(4, Mcms, Mend), [4, 4, num_joints + 1, 1])), [4, 4, 1, num_joints]));
