@@ -379,6 +379,33 @@ classdef joint_manager_class
         end
         
         
+        %% Plot Functions.
+        
+        % Implement a function to plot the joint locations.
+        function fig = plot_joint_points( self, fig, plotting_options )
+                        
+            % Determine whether to specify default plotting options.
+            if nargin < 3, plotting_options = {  }; end
+            
+            % Determine whether we want to add these joint points to an existing plot or create a new plot.
+            if nargin < 2
+                
+                % Create a figure to store the joint points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Joint Points')
+                
+            end
+            
+            % Plot the position of each joint.
+            for k = 1:self.num_joints          % Iterate through each joint...
+            
+                % Plot the points for this joint.
+                fig = self.joints(k).plot_joint_position( fig, plotting_options );
+            
+            end
+
+        end
+        
+        
     end
 end
 

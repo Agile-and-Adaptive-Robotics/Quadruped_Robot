@@ -77,6 +77,69 @@ classdef body_class
         end
 
         
+        %% Plotting Functions
+        
+        % Implement a function to plot the body center of mass.
+        function fig = plot_body_com_point( self, fig, plotting_options )
+        
+            % Determine whether we need to set default plotting options.
+            if nargin < 3, plotting_options = { '.c', 'Markersize', 15 }; end
+       
+            % Determine whether we need to create a figure to store the body center of mass.
+            if nargin < 2
+               
+                % Create a figure to store teh body center of mass plot.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Body COM Point')
+                
+            end
+        
+            % Plot the body center of mass point.
+            plot3( self.p_cm(1), self.p_cm(2), self.p_cm(3), plotting_options{:} )
+            
+        end
+        
+        
+        % Implement a function to plot the body mesh.
+        function fig = plot_body_mesh_points( self, fig, plotting_options )
+            
+           % Determine whether to specify default plotting options.
+            if ( ( nargin < 3 ) || isempty( plotting_options ) ), plotting_options = { '.-k', 'Markersize', 15, 'Linewidth', 1 }; end
+            
+            % Determine whether we want to add these body mesh points to an existing plot or create a new plot.
+            if ( nargin < 2 ) || ( isempty(fig) )
+                
+                % Create a figure to store the body mesh points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Body Mesh Points')
+                
+            end
+            
+            % Plot the body mesh points.
+            plot3( self.ps_mesh(1, :), self.ps_mesh(2, :), self.ps_mesh(3, :), plotting_options{:} )
+            
+        end
+        
+        
+        % Implement a function to plot all of the body points.
+        function fig = plot_body_points( self, fig, plotting_options )
+            
+           % Determine whether to specify default plotting options.
+            if ( nargin < 3 ), plotting_options = {  }; end
+            
+            % Determine whether we want to add these body mesh points to an existing plot or create a new plot.
+            if ( nargin < 2 ) || ( isempty(fig) )
+                
+                % Create a figure to store the body mesh points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Body Points')
+                
+            end
+            
+            % Plot the body center of mass points.
+            fig = self.plot_body_com_point( fig, plotting_options );
+            
+            % Plot the body mesh points.
+            fig = self.plot_body_mesh_points( fig, plotting_options );
+            
+        end
         
     end
 end

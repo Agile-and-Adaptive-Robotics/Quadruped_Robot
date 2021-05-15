@@ -13,6 +13,9 @@ load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Solution
 file_name = 'Precomputed_Network_Simulation_Data.xlsx';
 file_path = [load_path, '\', file_name];
 
+% Create an instance of the data loader class.
+data_loader = data_loader_class( load_path );
+
 % Define the maximum number of data points to load.
 max_num_data_points = 1000;
 
@@ -87,89 +90,48 @@ network_dt = 1e-3;
 network = network_class( neuron_manager, synapse_manager, network_dt );
 
 
+%% Initialize the BPA Muscles.
+
+% Load the BPA muscle data.
+[ muscle_IDs, muscle_names, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, muscle_lengths, resting_muscle_lengths, max_strains, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s, ps, Js ] = data_loader.load_BPA_muscle_data( 'BPA_Muscle_Data.xlsx' );
+
+% Define the number of BPA muscles.
+num_BPA_muscles = length( muscle_IDs );
+
+% Set the BPA muscle attachment point orientations.
+Rs = repmat( eye( 3, 3 ), [ 1, 1, size( ps, 2 ) ] );
+
+% Preallocate an array of BPA muscles.
+BPA_muscles = repmat( BPA_muscle_class(), 1, num_BPA_muscles );
+
+% Create each BPA muscle object.
+for k = 1:num_BPA_muscles               % Iterate through each of the BPA muscles...
+    
+    % Create this BPA muscle.
+    BPA_muscles(k) = BPA_muscle_class( muscle_IDs(k), muscle_names{k}, desired_tensions(k), measured_tensions(k), desired_pressures(k), measured_pressures(k), max_pressures(k), muscle_lengths(k), resting_muscle_lengths(k), max_strains(k), velocities(k), yanks(k), ps(:, :, k), Rs, Js(k, :), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k) );
+    
+end
+
+
 %% Initialize the Hill Muscles.
 
+% Load the hill muscle data.
+[ muscle_IDs, muscle_names, activations, activation_domains, desired_active_tensions, measured_total_tensions, tension_domains, max_strains, muscle_lengths, resting_muscle_lengths, velocities, yanks, kses, kpes, bs ] = data_loader.load_hill_muscle_data( 'Hill_Muscle_Data.xlsx' );
+
 % Define the number of muscles.
-num_muscles = 24;
-
-% Define the muscle IDs.
-muscle_IDs = linspace2(39, 1, num_muscles);
-
-% Define the muscle names.
-muscle_names = { 'Front Left Scapula Extensor', 'Front Left Scapula Flexor', 'Front Left Shoulder Extensor', 'Front Left Shoulder Flexor', 'Front Left Wrist Extensor', 'Front Left Wrist Flexor', ...
-    'Back Left Hip Extensor', 'Back Left Hip Flexor', 'Back Left Knee Extensor', 'Back Left Knee Flexor', 'Back Left Ankle Extensor', 'Back Left Ankle Flexor', ...
-    'Front Right Scapula Extensor', 'Front Right Scapula Flexor', 'Front Right Shoulder Extensor', 'Front Right Shoulder Flexor', 'Front Right Wrist Extensor', 'Front Right Wrist Flexor', ...
-    'Back Right Hip Extensor', 'Back Right Hip Flexor', 'Back Right Knee Extensor', 'Back Right Knee Flexor', 'Back Right Ankle Extensor', 'Back Right Ankle Flexor' };
-
-% Define the muscle activations.
-activation = -0.050;                                                    % [V] Motor Neuron Activation.
-activation_domain = [-0.050, -0.019];                            % [V] Motor Neuron Activation Domain.
-
-% Define the initial desired muscle tensions.
-desired_total_tension = 0;                                         % [N] Desired Total Muscle Tension.  The "total" muscle tension is the real muscle tension that would be observed in the muscle if measured.  This tension is relevant to both BPA muscles and real muscles.
-desired_active_tension = 0;                                        % [N] Desired Active Muscle Tension.  The "active" muscle tension is the tension in the muscle that is developed due to motor neuron activation.  This tension is only relevant to real muscles (not BPAs).
-desired_passive_tension = 0;                                       % [N] Desired Passive Muscle Tension.  The "passive" muscle tension is the tension in the muscle that is developed naturally due to the internal dynamics of the muscle.  This tension is only relevant to real muscles (not BPAs).
-
-% Define the initial measured muscle tensions.
-measured_total_tension = 0;                                        % [N] Measured Total Muscle Tension.
-measured_active_tension = 0;                                       % [N] Measured Active Muscle Tension.  The "measured" active tension is inferred active muscle tension that would result from the measured total muscle tension.
-measured_passive_tension = 0;                                      % [N] Measured Passive Muscle Tension.  The "measured" passive tension is the inferred passive muscle tension that would result from the measured total muscle tension.
-
-% Define the tension domain.
-tension_domain = [0, 450];                                       % [N] Total Muscle Tension Domain.
-
-% Define the desired and measured pressures.
-desired_pressure = 0;
-measured_pressure = 0;
-% pressure_domain = [0, 6894.76*90];
-max_pressure = 6894.76*90;
-
-% Define the resting muscle lengths.
-muscle_lengths = 0.0254*[ 13, 13, 5.125, 5.125, 6.5, 5, ...         % [m] Muscle Lengths.
-    13, 13, 5.125, 5.125, 6.5, 5, ...
-    13, 13, 7.25, 7.25, 5, 6, ...
-    13, 13, 7.25, 7.25, 5, 6 ];
-
-muscle_resting_lengths = muscle_lengths;
-
-% Define the maximum muscle strains.
-max_strain = 0.16;
-
-% Define the initial muscle velocities.
-velocity = 0;                                                     % [m/s] Muscle Velocity.
-
-% Define the initial muscle yanks.
-yank = 0;                                                          % [N/s] Muscle Yank (Derivative of Total Muscle Tension with Respect to Time).
-
-% Define the hill muscle parameters.
-kse = 30;                                                          % [N/m] Hill Muscle Model Series Stiffness.
-kpe = 30;                                                          % [N/m] Hill Muscle Model Parallel Stiffness.
-b = 1;                                                             % [Ns/m] Hill Muscle Model Damping Coefficient.
-
-% Define the BPA muscle parameters.
-c0 = 254.3e3;                       % [Pa] Model Parameter 0
-c1 = 192e3;                         % [Pa] Model Parameter 1
-c2 = 2.0265;                        % [-] Model Parameter 2
-c3 = -0.461;                        % [-] Model Parameter 3
-c4 = -0.331e-3;                     % [1/N] Model Parameter 4
-c5 = 1.23e3;                        % [Pa/N] Model Parameter 5
-c6 = 15.6e3;                        % [Pa] Model Parameter 6
+num_hill_muscles = length(muscle_IDs);
 
 % Define the number of steps to perform per simulation time step when integrating the Hill Muscle Model.
 num_int_steps = 10;
 
-% Preallocate an array of hill and BPA muscles.
-hill_muscles = repmat( hill_muscle_class(), 1, num_muscles );
-BPA_muscles = repmat( BPA_muscle_class(), 1, num_muscles );
+% Preallocate an array of hill muscles.
+hill_muscles = repmat( hill_muscle_class(), 1, num_hill_muscles );
 
-% Create each hill and BPA muscle object.
-for k = 1:num_muscles               % Iterate through each of the hill and BPA muscles...
+% Create each hill muscle object.
+for k = 1:num_hill_muscles               % Iterate through each of the hill muscles...
     
     % Create this hill muscle.
-    hill_muscles(k) = hill_muscle_class( muscle_IDs(k), muscle_names{k}, activation, activation_domain, desired_total_tension, desired_active_tension, desired_passive_tension, measured_total_tension, measured_active_tension, measured_passive_tension, tension_domain, muscle_lengths(k), muscle_resting_lengths(k), max_strain, velocity, yank, kse, kpe, b, network_dt, num_int_steps );
-    
-    % Create this BPA muscle.
-    BPA_muscles(k) = BPA_muscle_class( muscle_IDs(k), muscle_names{k}, desired_total_tension, measured_total_tension, desired_pressure, measured_pressure, max_pressure, muscle_lengths(k), muscle_resting_lengths(k), max_strain, velocity, yank, c0, c1, c2, c3, c4, c5, c6 );
+    hill_muscles(k) = hill_muscle_class( muscle_IDs(k), muscle_names{k}, activations(k), activation_domains{k}, desired_active_tensions(k), measured_total_tensions(k), tension_domains{k}, muscle_lengths(k), resting_muscle_lengths(k), max_strains(k), velocities(k), yanks(k), kses(k), kpes(k), bs(k), network_dt, num_int_steps );
 
 end
 
@@ -195,7 +157,7 @@ body_height = 0.0254*1.0;          % [m] Body Height.
 
 % Define the center of mass properties.
 body_p_cm = zeros( 3, 1 );
-body_R_cm = eye(3);
+body_R_cm = eye( 3 );
 body_v_cm = zeros( 3, 1 );
 body_w_cm = zeros( 3, 1 );
 
@@ -208,68 +170,14 @@ body = body_class( body_ID, body_name, body_mass, body_length, body_width, body_
 
 %% Initialize the Robot Links.
 
-% Define the number of links.
-num_links = 14;
+% Load the link data.
+[ link_IDs, link_names, link_parent_joint_IDs, link_child_joint_IDs, link_ps_starts, link_ps_ends, link_ps_cms, link_lengths, link_widths, link_masses, link_vs_cms, link_ws_cms, link_mesh_types ] = data_loader.load_link_data( 'Link_Data.xlsx' );
 
-% Define the link IDs.
-link_IDs = [ 1, 2, 3, 4, ...
-    5, 6, 7, ...
-    8, 9, 10, 11, ...
-    12, 13, 14 ];
-
-% Define the link names.
-link_names = { 'Front Left Scapula', 'Front Left Humerous', 'Front Left Radius Ulna', 'Front Left Hand', ...
-    'Back Left Femur', 'Back Left Tibia Fibula', 'Back Left Foot', ...
-    'Front Right Scapula', 'Front Right Humerous', 'Front Right Radius Ulna', 'Front Right Hand', ...
-    'Back Right Femur', 'Back Right Tibia Fibula', 'Back Right Foot' };
-
-% Define the link parent joint IDs.
-link_parent_joint_IDs = [ 1, 2, 3, 4, ...
-    5, 6, 7, ...
-    8, 9, 10, 11, ...
-    12, 13, 14 ];
-
-% Define the link child joint IDs.
-link_child_joint_IDs = [ 2, 3, 4, -1, ...
-    6, 7, -1, ...
-    9, 10, 11, -1, ...
-    13, 14, -1 ];
-
-% Define the link start points.
-link_ps_starts = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
-    1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5, 1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5;
-    4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
-
-% Define the link end points.
-link_ps_ends = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
-    -5.1875, -12.6875, -21, -25.625, -9.875, -18.5, -24.75, -5.1875, -12.6875, -21, -25.625, -9.875, -18.5, -24.75;
-    4.0625, 4.0625, 3.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
-
-% Define the link lengths.
-link_lengths = vecnorm( link_ps_ends - link_ps_starts, 2, 1);
-
-% Define the link widths.
-link_widths = 1.125*ones( 1, num_links );
-
-% Define the link masses.
-link_masses = ones( 1, num_links );
-
-% Define the link center of mass locations.
-link_ps_cms = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
-    -1.96875, -8.9375, -16.84375, -23.3125, -5.5625, -14.1875, -21.625, -1.96875, -8.9375, -16.84375, -23.3125, -5.5625, -14.1875, -21.625;
-    4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
-
-% Define the link center of mass translational velocities.
-link_vs_cms = zeros( 3, num_links );
-
-% Define the link center of mass rotational velocities.
-link_ws_cms = zeros( 3, num_links );
+% Retrieve the number of links.
+num_links = length( link_IDs );
 
 % Define the link orientations.
 link_Rs = repmat( eye(3), [ 1, 1, num_links ] );
-
-% Define the link mesh types.
-link_mesh_types = repmat( {'Cuboid'}, [ 1, num_links ] );
 
 % Preallocate an array of links.
 links = repmat( link_class(), 1, num_links );
@@ -278,56 +186,21 @@ links = repmat( link_class(), 1, num_links );
 for k = 1:num_links               % Iterate through each of the links...
     
     % Create this link.
-    links(k) = link_class( link_IDs(k), link_names{k}, link_parent_joint_IDs(k), link_child_joint_IDs(k), link_ps_starts(:, k), link_ps_ends(:, k), link_lengths(:, k), link_widths(:, k), link_masses(k), link_ps_cms(:, k), link_vs_cms(:, k), link_ws_cms(:, k), link_Rs(:, :, k), link_mesh_types{k} );
+    links(k) = link_class( link_IDs(k), link_names{k}, link_parent_joint_IDs(k), link_child_joint_IDs(k), link_ps_starts(:, k), link_ps_ends(:, k), link_lengths(k), link_widths(k), link_masses(k), link_ps_cms(:, k), link_vs_cms(:, k), link_ws_cms(:, k), link_Rs(:, :, k), link_mesh_types{k} );
     
 end
 
 
 %% Initialize the Robot Joints.
 
+% Load the joint data.
+[ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
+
 % Define the number of joints.
-num_joints = 14;
-
-% Define the ID of the joint associated with each slave.
-joint_IDs = 1:num_joints;
-
-% Define the name of the joint associated with each slave.
-joint_names = { 'Front Left Scapula', 'Front Left Shoulder', 'Front Left Elbow', 'Front Left Wrist', ...
-    'Back Left Hip', 'Back Left Knee', 'Back Left Ankle', ...
-    'Front Right Scapula', 'Front Right Shoulder', 'Front Right Elbow', 'Front Right Wrist', ...
-    'Back Right Hip', 'Back Right Knee', 'Back Right Ankle' };
-
-% Define the parent link IDs.
-joint_parent_link_IDs = [ 0, 1, 2, 3, ...
-    0, 5, 6, ...
-    0, 8, 9, 10, ...
-    0, 12, 13 ];
-
-% Define the child link IDs.
-joint_child_link_IDs = [ 1, 2, 3, 4, ...
-    5, 6, 7, ...
-    8, 9, 10, 11, ...
-    12, 13, 14 ];
-
-% Define the joint locations.
-joint_ps = [ -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625, -9.5625, -9.5625, -9.5625, -9.5625, 9.5625, 9.5625, 9.5625;
-    1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5, 1.25, -5.1875, -12.6875, -21, -1.25, -9.875, -18.5;
-    4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, 4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625, -4.0625 ];
+num_joints = length(joint_IDs);
 
 % Define the joint orientations.
 joint_Rs = repmat( eye(3), [ 1, 1, num_joints ] );
-
-% Define the joint translational velocities.
-joint_vs = zeros( 3, num_joints );
-
-% Define the joint rotational velocities.
-joint_ws = zeros( 3, num_joints );
-
-% Define the joint axes of rotation.
-joint_w_screws = repmat( [ 0; 0; 1 ], [ 1, num_joints ] );
-
-% Define the joint angles.
-joint_thetas = zeros( 1, num_joints );
 
 % Preallocate an array of links.
 joints = repmat( joint_class(), 1, num_joints );
@@ -493,6 +366,37 @@ robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsyste
 simulation_manager = simulation_manager_class( robot_state0, max_states, precomputed_simulation_manager.dt );
 
 
+%% ( Testing: Plotting Stuff )
+
+
+
+
+fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.plot_limb_points(  );
+
+fig = simulation_manager.robot_states(end).mechanical_subsystem.body.plot_body_com_point( fig );
+fig = simulation_manager.robot_states(end).mechanical_subsystem.body.plot_body_mesh_points( fig );
+
+% fig = simulation_manager.robot_states(end).mechanical_subsystem.body.plot_body_points( fig );
+
+% fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points( fig );
+
+
+% fig = plot_limb_points( self, fig, plotting_options )
+
+% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).plot_limb_points(  );
+
+
+% fig = plot_limb_points( self, fig, plotting_options )
+% 
+% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.plot_BPA_muscle_points(  );
+% 
+% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).link_manager.plot_link_points( fig );
+% 
+% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager.plot_joint_points( fig );
+
+
+
+
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
 
 % Send each simulation data value to the master mircocontoller and collect the associated sensory feedback.
@@ -524,18 +428,20 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Compute the the configuration of the body. ( ??? )
     
     
-    % Compute the configuration of the end effectors. ( Joints Angles -> End Effector Configuration )
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2end_effector_configurations(  );
+%     % Compute the configuration of the end effectors. ( Joints Angles -> End Effector Configuration )
+%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2end_effector_configurations(  );
+% 
+%     % Compute the configuration of the joints. ( Joint Angles -> Joint Configuration )
+%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2joint_configurations(  );
+% 
+%     % Compute the configuration of the links. ( Joint Angles -> Link Configuration )
+%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2link_configurations(  );
+%         
+%     % Compute the configuration of the BPA Muscles. ( Joint Angles -> BPA Muscle Configutation )
+%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2BPA_muscle_configurations(  );
 
-    % Compute the configuration of the joints. ( Joint Angles -> Joint Configuration )
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2joint_configurations(  );
-
-    % Compute the configuration of the links. ( Joint Angles -> Link Configuration )
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2link_configurations(  );
-        
-    % Compute the configuration of the BPA Muscles. ( Joint Angles -> BPA Muscle Configutation )
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2BPA_muscle_configurations(  );
-
+    % Compute the configuration of each limb. ( Joint Angles -> Limb Configuration )
+    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2limb_configurations(  );
     
     
     %% Compute Robot Kinematic Properties.

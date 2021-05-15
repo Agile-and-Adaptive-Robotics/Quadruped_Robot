@@ -168,10 +168,80 @@ classdef limb_class
         % Implement a function to compute the position, orientation, and configuration of the BPA muscles based on the current joint angles of this limb.
         function self = joint_angles2BPA_muscle_configurations( self )
             
+            % Retrieve the angles of the joints on this limb.
+            thetas = self.joint_manager.get_joint_property( 'all', 'theta' )';
+            
+            % Compute the configuration of the BPA muscles.
+            self.BPA_muscle_manager.Ts = self.physics_manager.forward_kinematics( self.link_manager.Ms_cms, self.link_manager.Js_cms, self.joint_manager.Ss, thetas );
+
+            % Compute the position and configuration of the BPA muscles.
+            [ ps, Rs ] = self.physics_manager.T2PR( self.link_manager.Ts_cms );
+
+            % Create cells to store the update BPA muscle positions, orientations, and configurations.
+            [ ps_cell, Rs_cell, Ts_cell ] = deal( cell( 1, self.link_manager.num_links ) );
+            
+            % Store the updated BPA muscle positions, orientations, and configurations into cell arrays.
+            for k = 1:self.BPA_muscle_manager.num_BPA_muscles               % Iterate through each BPA muscle...
+                
+                % Store the updated positions of this BPA muscle.
+                ps_cell{k} = ps( :, :, k );
+
+                % Store the updated orientations of this BPA muscle.
+                Rs_cell{k} = Rs( :, :, :, k );
+                
+                % Store the updated configurations of this BPA muscle.
+                Ts_cell{k} = self.BPA_muscle_manager.Ts( :, :, :, k );
+
+            end
+            
+            % Update the BPA muscle position properties.
+            self.BPA_muscle_manager = self.BPA_muscle_manager.set_link_property( 'all', ps_cell, 'ps' );
+
+            % Update the BPA muscle orientation properties.
+            self.BPA_muscle_manager = self.BPA_muscle_manager.set_link_property( 'all', Rs_cell, 'Rs' );
+
+            % Update the BPA muscle configuration properties.
+            self.BPA_muscle_manager = self.BPA_muscle_manager.set_link_property( 'all', Ts_cell, 'Ts' );
+
+            
+        end
+        
+        
+        % Implement a function to compute the position, orientation, and configuration of all of the points on this limb given the current joint angles of this limb.
+        function self = joint_angles2limb_configurations( self )
+            
             
             
         end
         
+        
+        %% Plotting Functions
+        
+        % Implement a function to plot all of the points that comprise this limb ( BPA muscle attachment points, link points, and joint points ).
+        function fig = plot_limb_points( self, fig, plotting_options )
+        
+            % Determine whether we need to specify default plotting options.
+            if nargin < 3, plotting_options = {  }; end
+          
+            % Determine whether we need to create a figure for the limb points.
+            if nargin < 2
+               
+                % Create a figure to store the limb points.
+                fig = figure('Color', 'w'); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Limb Points')
+                
+            end
+            
+            % Plot the BPA muscle attachment points associated with this limb.
+            fig = self.BPA_muscle_manager.plot_BPA_muscle_points( fig, plotting_options );
+
+            % Plot the link points associated with this limb.
+            fig = self.link_manager.plot_link_points( fig, plotting_options );
+
+            % Plot the joint points associated with this limb.
+            fig = self.joint_manager.plot_joint_points( fig, plotting_options );
+            
+        end
+            
         
     end
 end

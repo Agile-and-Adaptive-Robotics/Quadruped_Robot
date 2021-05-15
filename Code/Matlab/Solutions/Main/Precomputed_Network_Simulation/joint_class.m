@@ -58,6 +58,8 @@ classdef joint_class
         end        
         
         
+        %% Configuration Functions
+        
         % Implement a function to set the current configuration of this joint to its home configuration.
         function self = send_home( self )
             
@@ -70,6 +72,28 @@ classdef joint_class
            % Set the current joint angle to zero (i.e., the home configuration).
            self.theta = 0;
            
+        end
+        
+        
+        %% Plotting Functions
+        
+        % Implement a function to plot the joint position.
+        function fig = plot_joint_position( self, fig, plotting_options )
+            
+            % Determine whether to specify default plotting options.
+            if ( ( nargin < 3 ) || ( isempty( plotting_options ) ) ), plotting_options = { '.r', 'Markersize', 15 }; end
+            
+            % Determine whether we want to add these joint position to an existing plot or create a new plot.
+            if ( nargin < 2 ) || ( isempty(fig) )
+                
+                % Create a figure to store the joint points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Joint Position')
+                
+            end
+            
+            % Plot the joint position.
+            plot3( self.p(1), self.p(2), self.p(3), plotting_options{:} )
+            
         end
         
         

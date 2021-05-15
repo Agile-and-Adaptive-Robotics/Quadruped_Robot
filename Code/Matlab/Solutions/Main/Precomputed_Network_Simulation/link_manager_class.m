@@ -379,6 +379,109 @@ classdef link_manager_class
             
         end
         
+        %% Plotting Functions
+        
+        % Implement a function to plot the end points of all of the links.
+        function fig = plot_link_end_points( self, fig, plotting_options )
+            
+            % Determine whether to specify default plotting options.
+            if nargin < 3, plotting_options = {  }; end
+            
+            % Determine whether we want to add these link end points to an existing plot or create a new plot.
+            if nargin < 2
+                
+                % Create a figure to store the link end points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Link End Points')
+                
+            end
+            
+            % Plot the end points of each link.
+            for k = 1:self.num_links          % Iterate through each link...
+            
+                % Plot the end points for this link.
+                fig = self.links(k).plot_link_end_points( fig, plotting_options );
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the com points of all of the links.
+        function fig = plot_link_com_points( self, fig, plotting_options )
+            
+            % Determine whether to specify default plotting options.
+            if nargin < 3, plotting_options = {  }; end
+            
+            % Determine whether we want to add these link com points to an existing plot or create a new plot.
+            if nargin < 2
+                
+                % Create a figure to store the link com points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Link COM Points')
+                
+            end
+            
+            % Plot the com points of each link.
+            for k = 1:self.num_links          % Iterate through each link...
+            
+                % Plot the com points for this link.
+                fig = self.links(k).plot_link_com_point( fig, plotting_options );
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the mesh points of all of the links.
+        function fig = plot_link_mesh_points( self, fig, plotting_options )
+            
+            % Determine whether to specify default plotting options.
+            if nargin < 3, plotting_options = {  }; end
+            
+            % Determine whether we want to add these link mesh points to an existing plot or create a new plot.
+            if nargin < 2
+                
+                % Create a figure to store the link mesh points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Link Mesh Points')
+                
+            end
+            
+            % Plot the mesh points of each link.
+            for k = 1:self.num_links          % Iterate through each link...
+            
+                % Plot the mesh points for this link.
+                fig = self.links(k).plot_link_mesh_points( fig, plotting_options );
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot any type of point for all of the links.
+        function fig = plot_link_points( self, fig, plotting_options, point_type )
+           
+            % Set the default types of points to plot.
+            if nargin < 4, point_type = 'All'; end
+            
+            % Determine whether to specify default plotting options.
+            if nargin < 3, plotting_options = {  }; end
+            
+            % Determine whether we want to add these link points to an existing plot or create a new plot.
+            if nargin < 2
+                
+                % Create a figure to store the link points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Link Points')
+                
+            end
+            
+            % Plot the points of each link.
+            for k = 1:self.num_links          % Iterate through each link...
+            
+                % Plot the points for this link.
+                fig = self.links(k).plot_link_points( fig, plotting_options, point_type );
+            
+            end
+                        
+        end
         
         
     end

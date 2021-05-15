@@ -40,6 +40,8 @@ classdef BPA_muscle_class
         c5
         c6
         
+        physics_manager
+        
     end
     
     
@@ -49,16 +51,20 @@ classdef BPA_muscle_class
     methods
         
         % Implement the class constructor.
-        function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_length, max_strain, velocity, yank, ps, Rs, c0, c1, c2, c3, c4, c5, c6 )
+        function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_length, max_strain, velocity, yank, ps, Rs, Js, c0, c1, c2, c3, c4, c5, c6 )
+            
+            % Create an instance of the physics manager class.
+            self.physics_manager = physics_manager_class(  );
             
             % Set the default class properties.
-            if nargin < 20, self.c6 = 15.6e3; else, self.c6 = c6; end
-            if nargin < 19, self.c5 = 1.23e3; else, self.c5 = c5; end
-            if nargin < 18, self.c4 = -0.331e-3; else, self.c4 = c4; end
-            if nargin < 17, self.c3 = -0.461; else, self.c3 = c3; end
-            if nargin < 16, self.c2 = 2.0265; else, self.c2 = c2; end
-            if nargin < 15, self.c1 = 192e3; else, self.c1 = c1; end
-            if nargin < 14, self.c0 = 254.3e3; else, self.c0 = c0; end
+            if nargin < 21, self.c6 = 15.6e3; else, self.c6 = c6; end
+            if nargin < 20, self.c5 = 1.23e3; else, self.c5 = c5; end
+            if nargin < 19, self.c4 = -0.331e-3; else, self.c4 = c4; end
+            if nargin < 18, self.c3 = -0.461; else, self.c3 = c3; end
+            if nargin < 17, self.c2 = 2.0265; else, self.c2 = c2; end
+            if nargin < 16, self.c1 = 192e3; else, self.c1 = c1; end
+            if nargin < 15, self.c0 = 254.3e3; else, self.c0 = c0; end
+            if nargin < 14, self.Js = zeros( 3, 1 ); else, self.Js = Js; end
             if nargin < 13, self.Rs = repmat( eye( 3, 3 ), [ 1, 1, 3 ] ); else, self.Rs = Rs; end
             if nargin < 12, self.ps = zeros( 3, 3 ); else, self.ps = ps; end
             if nargin < 11, self.yank = 0; else, self.yank = yank; end
@@ -78,13 +84,10 @@ classdef BPA_muscle_class
             self.strain = self.length2strain( self.length, self.resting_length );
             
             % Compute the BPA muscle attachment point home configurations.
-            Ms = PR2T( ps, Rs );
-%             
-%             % Set the current BPA muscle attachment point configuration to be the home configuration.
-%             Ts
-%             
-%             % Set the BPA muscle attachment point joint assignment matrix.
-%             Js
+            self.Ms = self.physics_manager.PR2T( self.ps, self.Rs );
+            
+            % Set the current BPA muscle attachment point configuration to be the home configuration.
+            self.Ts = self.Ms;
         
         end
         
@@ -197,6 +200,25 @@ classdef BPA_muscle_class
             
             % Compute the measured total tension.
             self.measured_tension = self.forward_BPA_model( self.measured_pressure, self.measured_tension, abs(self.strain), self.max_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
+            
+        end
+        
+        
+        %% Plotting Functions
+        
+        % Implement a function to plot the attachment points of this BPA muscle.
+        function fig = plot_points( self, fig )
+           
+            % Determine whether we want to add these attachment points to an existing plot or create a new plot.
+            if nargin < 2
+                
+                % Create a figure to store the BPA attachment points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('BPA Muscle Attachment Points')
+                
+            end
+            
+            % Plot the BPA muscle attachment points.
+            plot3( self.ps(1, :), self.ps(2, :), self.ps(3, :), '.-', 'Markersize', 20, 'Linewidth', 3 )
             
         end
         

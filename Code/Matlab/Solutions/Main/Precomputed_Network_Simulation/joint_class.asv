@@ -58,14 +58,25 @@ classdef joint_class
         end        
         
         
+        %% Configuration Functions.
+        
         % Implement a function to set the current configuration of this joint to its home configuration.
         function self = send_home( self )
             
-           self.T = self.M
+            % Set the current configuration to the home configuration.
+           self.T = self.M;
            
-           [self.R, 
+           % Set the current orientation and position to be the home configuration.
+           [ self.R, self.p ] = TransToRp( self.M );
             
+           % Set the current joint angle to zero (i.e., the home configuration).
+           self.theta = 0;
+           
         end
+        
+        
+        %% Plotting Functions.
+  
         
         
     end

@@ -192,26 +192,9 @@ classdef BPA_muscle_manager_class
         %% Plotting Functions.
         
         % Implement a function to plot the BPA muscle attachment points of the constituent BPA muscles.
-        function fig = plot_BPA_muscle_points( self, fig, plotting_options )
+        function fig = plot_points( self , fig )
             
-            % Determine whether to specify default plotting options.
-            if nargin < 3, plotting_options = {  }; end
-            
-            % Determine whether we want to add these attachment points to an existing plot or create a new plot.
-            if nargin < 2
-                
-                % Create a figure to store the BPA attachment points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('BPA Muscle Attachment Points')
-                
-            end
-            
-            % Plot the points of each BPA muscle.
-            for k = 1:self.num_BPA_muscles          % Iterate through each BPA muscle...
-            
-                % Plot the points for this BPA muscle.
-                fig = self.BPA_muscles(k).plot_BPA_muscle_points( fig, plotting_options );
-            
-            end
+            fig = self.plot_points( fig );
             
         end
         

@@ -347,14 +347,15 @@ classdef joint_manager_class
             % Retrieve the position and orientation associated with the configuration of each joint.
             [ Ps, Rs ] = self.physics_manager.T2PR( self.Ts_joints );
             
-            % Retrieve the spatial velocity (i.e., twist) associated with the current configuration.
-            Vs = self.physics_manager.T2V( self.Ts_joints );
+%             % Retrieve the spatial velocity (i.e., twist) associated with the current configuration.
+%             Vs = self.physics_manager.T2V( self.Ts_joints );
             
-            % Compute the linear and rotational velocity associated with each twist.
-            [ vs, ws ] = V2VW( Vs );
+%             % Compute the linear and rotational velocity associated with each twist.
+%             [ vs, ws ] = self.physics_manager.V2VW( Vs );
             
             % Preallocate a cell array to store the joint property values.
-            [ Ps_cell, Rs_cell, Ts_cell, Vs_cell ] = deal( cell( 1, self.num_joints ) );
+            [ Ps_cell, Rs_cell, Ts_cell ] = deal( cell( 1, self.num_joints ) );
+%             [ Ps_cell, Rs_cell, Ts_cell, vs_cell, ws_cell ] = deal( cell( 1, self.num_joints ) );
             
             % Store the joint property values.
             for k = 1:self.num_joints                   % Iterate through each joint...
@@ -363,16 +364,29 @@ classdef joint_manager_class
                 Ps_cell{k} = Ps( :, 1, k );
                 Rs_cell{k} = Rs( :, :, 1, k );
                 Ts_cell{k} = self.Ts_joints( :, :, 1, k );
-                Vs_cell{k} = Vs( :, 1, k );
-                
+%                 vs_cell{k} = vs( :, 1, k );
+%                 ws_cell{k} = ws( :, 1, k );
+
             end
             
             % Set the position, orientation, and configuration of each joint.
             self = self.set_joint_property( 'all', Ps_cell, 'p' );
             self = self.set_joint_property( 'all', Rs_cell, 'R' );
             self = self.set_joint_property( 'all', Ts_cell, 'T' );
-            self = self.set_joint_property( 'all', Ts_cell, 'T' );
+%             self = self.set_joint_property( 'all', vs_cell, 'v' );
+%             self = self.set_joint_property( 'all', ws_cell, 'w' );
 
+        end
+        
+        
+        %% Plot Functions.
+        
+        % Implement a function to plot the joint locations.
+        function fig = plot_joints( self, fig )
+            
+            
+            
+            
         end
         
         

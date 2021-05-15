@@ -466,6 +466,48 @@ classdef limb_manager_class
         end
         
         
+        % Implement a function to compute the position, orientation, and configuration of the points on each limb given the limb's current joint angles.
+        function self = joint_angles2limb_configurations( self )
+            
+            % Compute the position, orientation, and configuration of all of the points on each limb given the limb's current joint angles.
+            for k = 1:self.num_limbs                    % Iterate through each limb....
+            
+                % Compute the position, orientation, and configuration of all of the points on this limb given the limb's current joint angles.
+                self.limbs(k) = self.limbs(k).joint_angles2limb_configurations(  );
+
+            end
+            
+        end
+        
+        
+        %% Plotting Functions
+        
+        % Implement a function to plot the all of the points for each limb.
+        function fig = plot_limb_points( self, fig, plotting_options )
+            
+           % Determine whether we need to set the default plotting options.
+           if nargin < 3, plotting_options = {  }; end
+           
+           % Determine whether we need to create a figure to store the limb points.
+           if nargin < 2
+               
+               % Create a figure to store the limb points.
+                fig = figure('Color', 'w'); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Limb Points')
+               
+           end
+           
+           % Plot the limb points.
+           for k = 1:self.num_limbs                 % Iterate through each limb...
+               
+               % Plot the points associated with this limb.
+               fig = self.limbs(k).plot_limb_points( fig, plotting_options );
+               
+           end
+           
+            
+        end
+        
+        
     end
 end
 
