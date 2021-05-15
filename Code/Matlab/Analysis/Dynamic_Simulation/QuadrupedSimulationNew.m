@@ -178,6 +178,23 @@ Ps_Ba_hipext = dlmread('Ba_hipext.txt');
 Ps_Ba_hipflx = dlmread('Ba_hipflx.txt');
 Ps_Ba_ankleflx = dlmread('Ba_ankleflx.txt')
 
+
+
+
+
+
+% plot3(Ps_hipext(1,:,1),Ps_hipext(2,:,1),Ps_hipext(3,:,1),'-or', 'linewidth', 4);
+% plot3(Ps_hipflx(1,:,:),Ps_hipflx(2,:,:),Ps_hipflx(3,:,:), 'linewidth', 4);
+% plot3(Ps_kneeext(1,:,:),Ps_kneeext(2,:,:),Ps_kneeext(3,:,:), 'linewidth', 4);
+% plot3(Ps_kneeflx(1,:,:),Ps_kneeflx(2,:,:),Ps_kneeflx(3,:,:), 'linewidth', 4)
+% plot3(Ps_ankleext(1,:,:),Ps_ankleext(2,:,:),Ps_ankleext(3,:,:), 'linewidth', 4)
+% plot3(Ps_ankleflx(1,:,:),Ps_ankleflx(2,:,:),Ps_ankleflx(3,:,:), 'linewidth', 4)
+% plot3(Ps_Ba_hipext(1,:,:),Ps_Ba_hipext(2,:,:),Ps_Ba_hipext(3,:,:), 'linewidth', 4)
+% plot3(Ps_Ba_hipflx(1,:,:),Ps_Ba_hipflx(2,:,:),Ps_Ba_hipflx(3,:,:), 'linewidth', 4)
+% plot3(Ps_Ba_ankleflx(1,:,:),Ps_Ba_ankleflx(2,:,:),Ps_Ba_ankleflx(3,:,:), 'linewidth', 4)
+% 
+
+
 % add names of new muscles to existing list
 new_muscle_names = cell(3, 1);
 new_muscle_names{1} = 'Ba_hip ext';
@@ -193,6 +210,21 @@ muscle_names = cat(1, muscle_names, new_muscle_names);
 % dimension 4: timesteps
 
 Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx, Ps_Ba_hipext, Ps_Ba_hipflx, Ps_Ba_ankleflx);
+figure 
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+hold on
+axis equal
+plot3(Phome_muscles(1,:,1),Phome_muscles(2,:,1),Phome_muscles(3,:,1));
+plot3(Phome_muscles(1,:,2),Phome_muscles(2,:,2),Phome_muscles(3,:,2));
+plot3(Phome_muscles(1,:,3),Phome_muscles(2,:,3),Phome_muscles(3,:,3));
+plot3(Phome_muscles(1,:,4),Phome_muscles(2,:,4),Phome_muscles(3,:,4));
+plot3(Phome_muscles(1,:,5),Phome_muscles(2,:,5),Phome_muscles(3,:,5));
+plot3(Phome_muscles(1,:,6),Phome_muscles(2,:,6),Phome_muscles(3,:,6));
+plot3(Phome_muscles(1,:,7),Phome_muscles(2,:,7),Phome_muscles(3,:,7),'-b','linewidth',4);
+plot3(Phome_muscles(1,:,8),Phome_muscles(2,:,8),Phome_muscles(3,:,8),'-b','linewidth',4);
+plot3(Phome_muscles(1,:,9),Phome_muscles(2,:,9),Phome_muscles(3,:,9),'-b','linewidth',4);
 
 
 % Define the home orientation of the muscles.
@@ -267,8 +299,8 @@ for k1 = 1:9                      % Iterate through each of the muscles...
     
 end
 
-Jmuscles = [0,0,1,1,2,2,0,0,1;
-            0,0,1,1,2,2,2,2,3;
+Jmuscles = [0,0,1,1,2,2,1,1,1;
+            0,0,1,1,2,2,1,1,3;
             1,1,2,2,3,3,2,2,3];
     
 

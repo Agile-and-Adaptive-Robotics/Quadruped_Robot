@@ -189,6 +189,24 @@ Ps_ankleflxbi = dlmread('Ba_ankleflx.txt');
 % Store the muscle attachment locations in a high order tensor.
 Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx,Ps_hipextbi,Ps_hipflxbi,Ps_ankleflxbi);
 
+
+
+figure 
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+hold on
+axis equal
+plot3(Phome_muscles(1,:,1),Phome_muscles(2,:,1),Phome_muscles(3,:,1));
+plot3(Phome_muscles(1,:,2),Phome_muscles(2,:,2),Phome_muscles(3,:,2));
+plot3(Phome_muscles(1,:,3),Phome_muscles(2,:,3),Phome_muscles(3,:,3));
+plot3(Phome_muscles(1,:,4),Phome_muscles(2,:,4),Phome_muscles(3,:,4));
+plot3(Phome_muscles(1,:,5),Phome_muscles(2,:,5),Phome_muscles(3,:,5));
+plot3(Phome_muscles(1,:,6),Phome_muscles(2,:,6),Phome_muscles(3,:,6));
+plot3(Phome_muscles(1,:,7),Phome_muscles(2,:,7),Phome_muscles(3,:,7),'-b','linewidth',4);
+plot3(Phome_muscles(1,:,8),Phome_muscles(2,:,8),Phome_muscles(3,:,8),'-b','linewidth',4);
+plot3(Phome_muscles(1,:,9),Phome_muscles(2,:,9),Phome_muscles(3,:,9),'-b','linewidth',4);
+
 % Define the home orientation of the muscles.
 Rhome_muscles = eye(3);
 
