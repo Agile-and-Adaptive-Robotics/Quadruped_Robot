@@ -162,6 +162,16 @@ Rhome_muscles = eye(3);
 num_pts_per_muscle = size(Phome_muscles, 2);
 num_muscles = size(Phome_muscles, 3);
 
+%figure
+%hold on
+%plot3(Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1))
+% plot3(Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2))
+% plot3(Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3))
+% plot3(Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4))
+% plot3(Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5))
+% plot3(Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6))
+% plot3(Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7))
+% plot3(Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8))
 
 %% Define the Robot Home Matrices & Screw Axes.
 
@@ -272,7 +282,8 @@ foot_length = Lx4;
 ground_height = femur_length + (sind(45) * tibia_length) + foot_length;    % [m] Ground Height Relative to Body.
 
 % Define the horizontal step shift.
-horizontal_shift = 0.5 * sind(45) * tibia_length;                          % [m] Horizontal Shift to Apply to Step Trajectory.
+% horizontal_shift = 0.5 * sind(45) * tibia_length;                          % [m] Horizontal Shift to Apply to Step Trajectory.
+horizontal_shift = 0;
 
 % Define the step height and stride length.
 
@@ -281,8 +292,8 @@ Verify this matches the step trajectory and check where in code thse vars
 are used
 %}
 
-step_height = 0.05;         % [m] Step Heigth.
-step_length = 0.1;          % [m] Step Length.
+step_height = 0.025;         % [m] Step Heigth.
+step_length = 0.05;          % [m] Step Length.
 
 
 %% Generate Desired End Effector Trajectory.
@@ -338,7 +349,52 @@ end
 % State that we are done generating a desired trajectory.
 fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY... Done.\n\n')
 
+figure
+hold on
+plot3(Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1))
+plot3(Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2))
+plot3(Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3))
+plot3(Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4))
+plot3(Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5))
+plot3(Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6))
+plot3(Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7))
+plot3(Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8))
 
+plot3(Phome_joints(1, 1), Phome_joints(2, 1), Phome_joints(3, 1), '.', 'MarkerSize', 20)
+plot3(Phome_joints(1, 2), Phome_joints(2, 2), Phome_joints(3, 2),'.', 'MarkerSize', 20)
+plot3(Phome_joints(1, 3), Phome_joints(2, 3), Phome_joints(3, 3),'.', 'MarkerSize', 20)
+plot3(Phome_joints(1, 4), Phome_joints(2, 4), Phome_joints(3, 4),'.', 'MarkerSize', 20)
+
+plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.', 'MarkerSize', 20)
+
+plot3(Ps_desired(1, :), Ps_desired(2, :), Ps_desired(3, :))
+axis equal
+
+thetas_desired = (pi/180)*[-120; 0; 90; -30];
+%thetas_desired = (pi/180)*[-90; 0; 90; 90];
+
+% Retrieve the transformation matrices associated with the given angles.
+Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
+Tcms_desired = ForwardKinematics( Mcms, Jcms, Ss, thetas_desired );
+Tjoints_desired = ForwardKinematics( Mjoints, Jjoints, Ss, thetas_desired );
+Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
+Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
+
+eomg = 1e-6; ev = 1e-6;
+
+[thetas_desired, successes] = InverseKinematics(Ss, Mend, Tend_desired, thetas_desired, eomg, ev);
+
+% Retrieve the rotational and translational components associated with the given transformation matrices.
+[Rbodies_desired, Pbodies_desired] = TransToRpAllBodies(Tbodies_desired);
+[Rcms_desired, Pcms_desired] = TransToRpAllBodies(Tcms_desired);
+[Rjoints_desired, Pjoints_desired] = TransToRpAllBodies(Tjoints_desired);
+[Rmuscles_desired, Pmuscles_desired] = TransToRpAllBodies(Tmuscles_desired);
+[Rend_desired, Pend_desired] = TransToRpAllBodies(Tend_desired);
+
+Pjoints_desired = squeeze(Pjoints_desired);
+
+plot3(Pend_desired(1), Pend_desired(2), Pend_desired(3), '.', 'MarkerSize', 20)
+plot3(Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.', 'MarkerSize', 20)
 %% Compute the Joint Angles That Achieve the Desired Trajectory.
 
 % State that we are computing the inverse kinematics solution to achieve the desired trajectory.
@@ -349,7 +405,8 @@ eomg = 1e-6; ev = 1e-6;
 
 % Define the starting joint angle values for the inverse kinematics algorithm.
 % theta_guess = zeros(num_joints, 1);
-theta_guess = (pi/180)*[-143; 0; 63; -10.21];
+%theta_guess = (pi/180)*[-143; 0; 63; -10.21];
+theta_guess = (pi/180)*[-90; 0; 30; -10.21];
 
 % Compute the joint angles associated with the desired trajectory.
 [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
@@ -369,6 +426,7 @@ ddthetas_desired = [ddthetas_desired ddthetas_desired(:, end)];
 
 % State that we are done computing the inverse kinematics solution to achieve the desired trajectory.
 fprintf('COMPUTING INVERSE KINEMATICS SOLUTION (i.e., Desired Joint Angles)... Done.\n\n')
+
 
 
 %% Compute the Desired Path of Key Points on the Open Kinematic Chain (In Addition to the End Effector).
