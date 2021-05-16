@@ -5,6 +5,12 @@
 % Clear Everything.
 clear, close('all'), clc
 
+%% Decide whether to run step simulation or abduction/adduction simulation
+prompt = 'Would you like to run this as an abduction/adduction simluation instead? y/n: ';
+answer = input(prompt, 's');
+tf = strcmp(answer, 'y');
+
+
 %% Define the Robot Geometry & Mechanical Properties.
 
 % Setting global origin to coordinate system 1 as defined by Miles
@@ -252,224 +258,239 @@ g = [0; -9.81; 0];
 
 
 %% Define the Trajectory Properties of flexion/extension simulation.
+if tf == 0
+    % Define the stance duty cycle. - Unused?
+    stance_duty = 0.5;
+    % stance_duty = 0.25;
 
-% Define the stance duty cycle. - Unused?
-stance_duty = 0.5;
-% stance_duty = 0.25;
+    % Retrieve the time indexes associated with stance and swing.
+    ns_stance = round(stance_duty*num_timesteps);
+    ns_swing = num_timesteps - ns_stance;
 
-% Retrieve the time indexes associated with stance and swing.
-ns_stance = round(stance_duty*num_timesteps);
-ns_swing = num_timesteps - ns_stance;
+    % Retrieve the time associated with stance and swing.
+    ts_stance = ts(ns_swing + 1:num_timesteps);
+    ts_swing = ts(1:ns_swing);
 
-% Retrieve the time associated with stance and swing.
-ts_stance = ts(ns_swing + 1:num_timesteps);
-ts_swing = ts(1:ns_swing);
+    % Define the ground height.
+    femur_length = Phome_joint3(1) - Phome_joint1(1);
+    tibia_length = Phome_joint4(1) - Phome_joint3(1);
+    foot_length = Lx4;
+    ground_height = femur_length + (sind(45) * tibia_length) + foot_length;    % [m] Ground Height Relative to Body.
 
-% Define the ground height.
-femur_length = Phome_joint3(1) - Phome_joint1(1);
-tibia_length = Phome_joint4(1) - Phome_joint3(1);
-foot_length = Lx4;
-ground_height = femur_length + (sind(45) * tibia_length) + foot_length;    % [m] Ground Height Relative to Body.
+    % Define the horizontal step shift.
+    % horizontal_shift = 0.5 * sind(45) * tibia_length;                          % [m] Horizontal Shift to Apply to Step Trajectory.
+    horizontal_shift = 0;
+    vertical_shift = 0.02;
+    % Define the step height and stride length.
 
-% Define the horizontal step shift.
-% horizontal_shift = 0.5 * sind(45) * tibia_length;                          % [m] Horizontal Shift to Apply to Step Trajectory.
-horizontal_shift = 0;
-vertical_shift = 0.02;
-% Define the step height and stride length.
+    %{
+    Verify this matches the step trajectory and check where in code thse vars
+    are used
+    %}
 
-%{
-Verify this matches the step trajectory and check where in code thse vars
-are used
-%}
-
-step_height = 0.05;         % [m] Step Heigth.
-step_length = 0.1;          % [m] Step Length.
-
+    step_height = 0.05;         % [m] Step Heigth.
+    step_length = 0.1;          % [m] Step Length.
+end
 %% Define the Trajectory Properties of abduction/adduction simulation.
-
-% Define the step shift.
-radius_y = Phome_joint4(1);
-horizontal_shift_y = Phome_end(3);
-vertical_shift_y = Phome_end(1) - Phome_joint4(1);
-
+    if tf == 1
+    % Define the step shift.
+    radius_y = Phome_end(1);
+    horizontal_shift_y = Phome_end(3);
+    %vertical_shift_y = Phome_end(1) - Phome_joint4(1);
+end
 
 %% Generate Desired End Effector Trajectory for y rotation.
-
+if tf == 1
 % State that we are generating a desired trajectory.
-fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Please Wait...\n')
+    fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Please Wait...\n')
 
-% Define the desired end effector path. (For y rotation.)
-%xs_desired_y = step_length*cos(2*pi*ts) + horizontal_shift;
-xs_desired_y = zeros(1, num_timesteps);
-ys_desired_y = -(vertical_shift_y + radius_y * sin(pi*ts));
-zs_desired_y = -(-horizontal_shift_y + radius_y * cos(pi*ts));
+    % Define the desired end effector path. (For y rotation.)
 
-% Eliminate desired path points to reduce from half circle to +/- degrees/
-% side
-cut_half = round((158/180) * length(xs_desired_y)/2);
-xs_desired_y = xs_desired_y(cut_half:(end - cut_half));
-ys_desired_y = ys_desired_y(cut_half:(end - cut_half));
-zs_desired_y = zs_desired_y(cut_half:(end - cut_half));
-ts = ts(1:length(xs_desired_y));
-num_timesteps = length(ts);
+    xs_desired = zeros(1, num_timesteps);
+    ys_desired = -(radius_y * sin(pi*ts));
+    zs_desired = -(-horizontal_shift_y + radius_y * cos(pi*ts));
 
-% Store the desired end effector path into an array.
-Ps_desired_y = [xs_desired_y; ys_desired_y; zs_desired_y];
-dPs_desired_y = diff(Ps_desired_y, 1, 2)./diff(ts);
-ddPs_desired_y = diff(dPs_desired_y, 1, 2)./diff(ts(1:end-1));
+    % Eliminate desired path points to reduce from half circle to +/- degrees/
+    % side
+    cut_half = round((158/180) * length(xs_desired)/2);
+    xs_desired = xs_desired(cut_half:(end - cut_half));
+    ys_desired = ys_desired(cut_half:(end - cut_half));
+    zs_desired = zs_desired(cut_half:(end - cut_half));
+    ts = ts(1:length(xs_desired));
+    num_timesteps = length(ts);
 
-% Compute the desired end effector orientation.
-Rs_desired_y = [0 1 0; -1 0 0; 0 0 1];
+    % Store the desired end effector path into an array.
+    Ps_desired = [xs_desired; ys_desired; zs_desired];
+    dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
+    ddPs_desired = diff(dPs_desired, 1, 2)./diff(ts(1:end-1));
 
-% Initialize a high order matrix to store the desired end effect trajectory.
-Ts_desired_y = zeros(4, 4, 1, 1, num_timesteps);
+    % Compute the desired end effector orientation.
+    Rs_desired = [0 1 0; -1 0 0; 0 0 1];
 
-% Compute the desired end effector trajectory at each time step.
-for k = 1:num_timesteps                 % Iterate through each time step...
-    
-    % Generate the desired end effector trajectory.
-    Ts_desired_y(:, :, 1, 1, k) = RpToTrans(Rs_desired_y, Ps_desired_y(:, k));
-    
+    % Initialize a high order matrix to store the desired end effect trajectory.
+    Ts_desired = zeros(4, 4, 1, 1, num_timesteps);
+
+    % Compute the desired end effector trajectory at each time step.
+    for k = 1:num_timesteps                 % Iterate through each time step...
+
+        % Generate the desired end effector trajectory.
+        Ts_desired(:, :, 1, 1, k) = RpToTrans(Rs_desired, Ps_desired(:, k));
+
+    end
+
+    % State that we are done generating a desired trajectory.
+    fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Done.\n\n')
 end
-
-% State that we are done generating a desired trajectory.
-fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Done.\n\n')
-
 %% Generate Desired End Effector Trajectory.
+if tf == 0
+    % State that we are generating a desired trajectory.
+    fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Z ROTATION... Please Wait...\n')
 
-% State that we are generating a desired trajectory.
-fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Z ROTATION... Please Wait...\n')
+    % Define the swing end effector path.
+    xs_swing = step_length*cos(pi*ts_swing);
+    ys_swing = step_height*sin(pi*ts_swing) - ground_height;
+    zs_swing = 0.05008 + zeros(1, ns_swing);
 
-% Define the swing end effector path.
-xs_swing = step_length*cos(pi*ts_swing);
-ys_swing = step_height*sin(pi*ts_swing) - ground_height;
-zs_swing = 0.05008 + zeros(1, ns_swing);
+    % Define the stance end effector path.
 
-% Define the stance end effector path.
+    xs_stance = linspace(xs_swing(end), xs_swing(1), ns_stance);
+    ys_stance = -ground_height*ones(1, ns_stance);
+    zs_stance = 0.05008 + zeros(1, ns_stance);
 
-xs_stance = linspace(xs_swing(end), xs_swing(1), ns_stance);
-ys_stance = -ground_height*ones(1, ns_stance);
-zs_stance = 0.05008 + zeros(1, ns_stance);
+    % Define the desired end effector path. (Use for circular swing and stance.)
+    xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
+    ys_desired = step_height*sin(2*pi*ts) - ground_height + vertical_shift;
+    zs_desired = 0.05008 + zeros(1, num_timesteps);
 
-% % Define the desired end effector path. (Use for testing other paths.)
-% xs_desired = (horizontal_shift - step_length)*ones(1, num_timesteps);
-% ys_desired = -ground_height*ones(1, num_timesteps);
-% zs_desired = zeros(1, num_timesteps);
+    % Store the desired end effector path into an array.
+    Ps_desired = [xs_desired; ys_desired; zs_desired];
+    dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
+    ddPs_desired = diff(dPs_desired, 1, 2)./diff(ts(1:end-1));
 
-% Define the desired end effector path. (Use for circular swing and stance.)
-xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
-ys_desired = step_height*sin(2*pi*ts) - ground_height + vertical_shift;
-zs_desired = 0.05008 + zeros(1, num_timesteps);
+    % Compute the desired end effector orientation.
+    Rs_desired = [0 1 0; -1 0 0; 0 0 1];
 
-% % Define the desired end effector path. (Use for circular swing and horizontal stance.)
-% xs_desired = [xs_swing xs_stance];
-% ys_desired = [ys_swing ys_stance];
-% zs_desired = [zs_swing zs_stance];
+    % Initialize a high order matrix to store the desired end effect trajectory.
+    Ts_desired = zeros(4, 4, 1, 1, num_timesteps);
 
-% Store the desired end effector path into an array.
-Ps_desired = [xs_desired; ys_desired; zs_desired];
-dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
-ddPs_desired = diff(dPs_desired, 1, 2)./diff(ts(1:end-1));
+    % Compute the desired end effector trajectory at each time step.
+    for k = 1:num_timesteps                 % Iterate through each time step...
 
-% Compute the desired end effector orientation.
-Rs_desired = [0 1 0; -1 0 0; 0 0 1];
+        % Generate the desired end effector trajectory.
+        Ts_desired(:, :, 1, 1, k) = RpToTrans(Rs_desired, Ps_desired(:, k));
 
-% Initialize a high order matrix to store the desired end effect trajectory.
-Ts_desired = zeros(4, 4, 1, 1, num_timesteps);
+    end
 
-% Compute the desired end effector trajectory at each time step.
-for k = 1:num_timesteps                 % Iterate through each time step...
-    
-    % Generate the desired end effector trajectory.
-    Ts_desired(:, :, 1, 1, k) = RpToTrans(Rs_desired, Ps_desired(:, k));
-    
+    % State that we are done generating a desired trajectory.
+    fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Z ROTATION... Done.\n\n')
 end
 
-% State that we are done generating a desired trajectory.
-fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Z ROTATION... Done.\n\n')
 
-figure
-hold on
-plot3(Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1))
-plot3(Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2))
-plot3(Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3))
-plot3(Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4))
-plot3(Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5))
-plot3(Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6))
-plot3(Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7))
-plot3(Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8))
-
-plot3(Phome_joints(1, 1), Phome_joints(2, 1), Phome_joints(3, 1), '.', 'MarkerSize', 20)
-plot3(Phome_joints(1, 2), Phome_joints(2, 2), Phome_joints(3, 2),'.', 'MarkerSize', 20)
-plot3(Phome_joints(1, 3), Phome_joints(2, 3), Phome_joints(3, 3),'.', 'MarkerSize', 20)
-plot3(Phome_joints(1, 4), Phome_joints(2, 4), Phome_joints(3, 4),'.', 'MarkerSize', 20)
-
-plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.', 'MarkerSize', 20)
-
-plot3(Ps_desired_y(1, :), Ps_desired_y(2, :), Ps_desired_y(3, :))
-axis equal
-
-thetas_desired = (pi/180)*[-90; 0; 90; 30];
-%thetas_desired = (pi/180)*[-90; 0; 90; 90];
-
-% Retrieve the transformation matrices associated with the given angles.
-Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
-Tcms_desired = ForwardKinematics( Mcms, Jcms, Ss, thetas_desired );
-Tjoints_desired = ForwardKinematics( Mjoints, Jjoints, Ss, thetas_desired );
-Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
-Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
-
-eomg = 1e-6; ev = 1e-6;
-
-[thetas_desired, successes] = InverseKinematics(Ss, Mend, Tend_desired, thetas_desired, eomg, ev);
-
-% Retrieve the rotational and translational components associated with the given transformation matrices.
-[Rbodies_desired, Pbodies_desired] = TransToRpAllBodies(Tbodies_desired);
-[Rcms_desired, Pcms_desired] = TransToRpAllBodies(Tcms_desired);
-[Rjoints_desired, Pjoints_desired] = TransToRpAllBodies(Tjoints_desired);
-[Rmuscles_desired, Pmuscles_desired] = TransToRpAllBodies(Tmuscles_desired);
-[Rend_desired, Pend_desired] = TransToRpAllBodies(Tend_desired);
-
-Pjoints_desired = squeeze(Pjoints_desired);
-
-plot3(Pend_desired(1), Pend_desired(2), Pend_desired(3), '.', 'MarkerSize', 20)
-plot3(Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.', 'MarkerSize', 20)
+% figure
+% hold on
+% plot3(Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1))
+% plot3(Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2))
+% plot3(Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3))
+% plot3(Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4))
+% plot3(Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5))
+% plot3(Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6))
+% plot3(Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7))
+% plot3(Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8))
+% 
+% plot3(Phome_joints(1, 1), Phome_joints(2, 1), Phome_joints(3, 1), '.', 'MarkerSize', 20)
+% plot3(Phome_joints(1, 2), Phome_joints(2, 2), Phome_joints(3, 2),'.', 'MarkerSize', 20)
+% plot3(Phome_joints(1, 3), Phome_joints(2, 3), Phome_joints(3, 3),'.', 'MarkerSize', 20)
+% plot3(Phome_joints(1, 4), Phome_joints(2, 4), Phome_joints(3, 4),'.', 'MarkerSize', 20)
+% 
+% plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.', 'MarkerSize', 20)
+% 
+% plot3(Ps_desired_y(1, :), Ps_desired_y(2, :), Ps_desired_y(3, :))
+% axis equal
+% 
+% thetas_desired = (pi/180)*[-90; 6; 0; 0];
+% %thetas_desired = (pi/180)*[-90; 0; 90; 90];
+% 
+% % Retrieve the transformation matrices associated with the given angles.
+% Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
+% Tcms_desired = ForwardKinematics( Mcms, Jcms, Ss, thetas_desired );
+% Tjoints_desired = ForwardKinematics( Mjoints, Jjoints, Ss, thetas_desired );
+% Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
+% Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
+% 
+% eomg = 1e-1; ev = 1e-1;
+% 
+% [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired_y, thetas_desired, eomg, ev);
+% 
+% % Retrieve the rotational and translational components associated with the given transformation matrices.
+% [Rbodies_desired, Pbodies_desired] = TransToRpAllBodies(Tbodies_desired);
+% [Rcms_desired, Pcms_desired] = TransToRpAllBodies(Tcms_desired);
+% [Rjoints_desired, Pjoints_desired] = TransToRpAllBodies(Tjoints_desired);
+% [Rmuscles_desired, Pmuscles_desired] = TransToRpAllBodies(Tmuscles_desired);
+% [Rend_desired, Pend_desired] = TransToRpAllBodies(Tend_desired);
+% 
+% Pjoints_desired = squeeze(Pjoints_desired);
+% 
+% plot3(Pend_desired(1), Pend_desired(2), Pend_desired(3), '.', 'MarkerSize', 20)
+% plot3(Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.', 'MarkerSize', 20)
 
 
-%% Compute the Joint Angles That Achieve the Desired Trajectory.
+%% Compute the Joint Angles That Achieve the Desired Trajectory for z rotation.
+if tf == 0
+    % State that we are computing the inverse kinematics solution to achieve the desired trajectory.
+    fprintf('COMPUTING INVERSE KINEMATICS SOLUTION (i.e., Desired Joint Angles)... Please Wait...\n')
 
-% State that we are computing the inverse kinematics solution to achieve the desired trajectory.
-fprintf('COMPUTING INVERSE KINEMATICS SOLUTION (i.e., Desired Joint Angles)... Please Wait...\n')
+    % Define the inverse kinematics error parameters.
+    eomg = 1e-6; ev = 1e-6;
 
-% Define the inverse kinematics error parameters.
-eomg = 1e-6; ev = 1e-6;
+    % Define the starting joint angle values for the inverse kinematics algorithm.
+    theta_guess = (pi/180)*[-90; 0; 30; -10.21];
 
-% Define the starting joint angle values for the inverse kinematics algorithm.
-% theta_guess = zeros(num_joints, 1);
-%theta_guess = (pi/180)*[-143; 0; 63; -10.21];
-theta_guess = (pi/180)*[-90; 0; 30; -10.21];
-
-% Compute the joint angles associated with the desired trajectory.
-[thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
-% theta1 = linspace(0, 2*pi, num_timesteps); theta2 = linspace(0, 2*pi, num_timesteps); theta3 = linspace(0, 2*pi, num_timesteps); thetas_desired = [theta1; theta2; theta3];
-% theta1 = (pi/4)*ones(1, num_timesteps); theta2 = 0*ones(1, num_timesteps); theta3 = 0*ones(1, num_timesteps); thetas_desired = [theta1; theta2; theta3];
-% theta1 = linspace(0, 2*pi, num_timesteps); theta2 = 0*ones(1, num_timesteps); theta3 = 0*ones(1, num_timesteps); thetas_desired = [theta1; theta2; theta3];
-% theta1 = 0*ones(1, num_timesteps); theta2 = linspace(0, 2*pi, num_timesteps); theta3 = 0*ones(1, num_timesteps); thetas_desired = [theta1; theta2; theta3];
-% theta1 = 0*ones(1, num_timesteps); theta2 = 0*ones(1, num_timesteps); theta3 = linspace(0, 2*pi, num_timesteps); thetas_desired = [theta1; theta2; theta3];
-
-% Compute the joint velocities associated with the desired trajectory.
-dthetas_desired = diff(thetas_desired, 1, 2)./repmat(diff(ts), [num_joints 1]);
-dthetas_desired = [dthetas_desired dthetas_desired(:, end)];
-
-% Compute the joint acceleration associated with the desired trajectory.
-ddthetas_desired = diff(dthetas_desired, 1, 2)./repmat(diff(ts(1:end)), [num_joints 1]);
-ddthetas_desired = [ddthetas_desired ddthetas_desired(:, end)];
-
-% State that we are done computing the inverse kinematics solution to achieve the desired trajectory.
-fprintf('COMPUTING INVERSE KINEMATICS SOLUTION (i.e., Desired Joint Angles)... Done.\n\n')
+    % Compute the joint angles associated with the desired trajectory.
+    [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
 
 
+    % Compute the joint velocities associated with the desired trajectory.
+    dthetas_desired = diff(thetas_desired, 1, 2)./repmat(diff(ts), [num_joints 1]);
+    dthetas_desired = [dthetas_desired dthetas_desired(:, end)];
 
+    % Compute the joint acceleration associated with the desired trajectory.
+    ddthetas_desired = diff(dthetas_desired, 1, 2)./repmat(diff(ts(1:end)), [num_joints 1]);
+    ddthetas_desired = [ddthetas_desired ddthetas_desired(:, end)];
+
+    % State that we are done computing the inverse kinematics solution to achieve the desired trajectory.
+    fprintf('COMPUTING INVERSE KINEMATICS SOLUTION FOR Z ROTATION(i.e., Desired Joint Angles)... Done.\n\n')
+end
+
+
+%% Compute the Joint Angles That Achieve the Desired Trajectory for y rotation.
+if tf == 1
+    % State that we are computing the inverse kinematics solution to achieve the desired trajectory.
+    fprintf('COMPUTING INVERSE KINEMATICS SOLUTION FOR Y ROTATION (i.e., Desired Joint Angles)... Please Wait...\n')
+
+    % Define the inverse kinematics error parameters.
+    eomg = 1e-1; ev = 1e-1;
+
+    % Define the starting joint angle values for the inverse kinematics algorithm.
+    theta_guess = (pi/180)*[-90; 0; 0; 0];
+
+    % Compute the joint angles associated with the desired trajectory.
+  [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
+    % Assign thetas_desired directly
+%     thetas_desired = zeros(4, length(ts));
+%     thetas_desired(1, :) = -90;
+%     thetas_desired(2, :) = linspace(-10, 10, length(ts));
+
+    % Compute the joint velocities associated with the desired trajectory.
+    dthetas_desired = diff(thetas_desired, 1, 2)./repmat(diff(ts), [num_joints 1]);
+    dthetas_desired = [dthetas_desired dthetas_desired(:, end)];
+
+    % Compute the joint acceleration associated with the desired trajectory.
+    ddthetas_desired = diff(dthetas_desired, 1, 2)./repmat(diff(ts(1:end)), [num_joints 1]);
+    ddthetas_desired = [ddthetas_desired ddthetas_desired(:, end)];
+
+    % State that we are done computing the inverse kinematics solution to achieve the desired trajectory.
+    fprintf('COMPUTING INVERSE KINEMATICS SOLUTION FOR Y ROTATION(i.e., Desired Joint Angles)... Done.\n\n')
+end
 %% Compute the Desired Path of Key Points on the Open Kinematic Chain (In Addition to the End Effector).
 
 % State that we are propogating end effector trajectory to the rest of the rigid body.
