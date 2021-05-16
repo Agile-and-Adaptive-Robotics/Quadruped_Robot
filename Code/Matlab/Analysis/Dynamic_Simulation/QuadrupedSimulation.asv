@@ -306,12 +306,10 @@ zs_desired_y = -(-horizontal_shift_y + radius_y * cos(pi*ts));
 
 % Eliminate desired path points to reduce from half circle to +/- degrees/
 % side
-cut_half = round((158/180) * length(xs_desired_y)/2);
+cut_half = round((158/180) * len(xs_desired_y))/2;
 xs_desired_y = xs_desired_y(cut_half:(end - cut_half));
 ys_desired_y = ys_desired_y(cut_half:(end - cut_half));
 zs_desired_y = zs_desired_y(cut_half:(end - cut_half));
-ts = ts(1:length(xs_desired_y));
-num_timesteps = length(ts);
 
 % Store the desired end effector path into an array.
 Ps_desired_y = [xs_desired_y; ys_desired_y; zs_desired_y];
