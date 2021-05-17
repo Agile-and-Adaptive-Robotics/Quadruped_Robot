@@ -178,21 +178,20 @@ Ps_Ba_hipext = dlmread('Ba_hipext.txt');
 Ps_Ba_hipflx = dlmread('Ba_hipflx.txt');
 Ps_Ba_ankleflx = dlmread('Ba_ankleflx.txt')
 
+% initial muscle lengths 
+Ps_hipext = dlmread('Ma_hipext.txt');
+Ps_hipflx = dlmread('Ma_hipflx.txt');
+Ps_kneeext = dlmread('Ma_kneeext.txt');
+Ps_kneeflx = dlmread('Ma_kneeflx.txt');
+Ps_ankleext = dlmread('Ma_ankleext.txt');
+Ps_ankleflx = dlmread('Ma_ankleflx.txt');
+% the following files are for the biarticular muscles, uncomment when ready
+Ps_Ba_hipext = dlmread('Ba_hipext.txt');
+Ps_Ba_hipflx = dlmread('Ba_hipflx.txt');
+Ps_Ba_ankleflx = dlmread('Ba_ankleflx.txt')
 
 
 
-
-
-% plot3(Ps_hipext(1,:,1),Ps_hipext(2,:,1),Ps_hipext(3,:,1),'-or', 'linewidth', 4);
-% plot3(Ps_hipflx(1,:,:),Ps_hipflx(2,:,:),Ps_hipflx(3,:,:), 'linewidth', 4);
-% plot3(Ps_kneeext(1,:,:),Ps_kneeext(2,:,:),Ps_kneeext(3,:,:), 'linewidth', 4);
-% plot3(Ps_kneeflx(1,:,:),Ps_kneeflx(2,:,:),Ps_kneeflx(3,:,:), 'linewidth', 4)
-% plot3(Ps_ankleext(1,:,:),Ps_ankleext(2,:,:),Ps_ankleext(3,:,:), 'linewidth', 4)
-% plot3(Ps_ankleflx(1,:,:),Ps_ankleflx(2,:,:),Ps_ankleflx(3,:,:), 'linewidth', 4)
-% plot3(Ps_Ba_hipext(1,:,:),Ps_Ba_hipext(2,:,:),Ps_Ba_hipext(3,:,:), 'linewidth', 4)
-% plot3(Ps_Ba_hipflx(1,:,:),Ps_Ba_hipflx(2,:,:),Ps_Ba_hipflx(3,:,:), 'linewidth', 4)
-% plot3(Ps_Ba_ankleflx(1,:,:),Ps_Ba_ankleflx(2,:,:),Ps_Ba_ankleflx(3,:,:), 'linewidth', 4)
-% 
 
 
 % add names of new muscles to existing list
@@ -210,6 +209,9 @@ muscle_names = cat(1, muscle_names, new_muscle_names);
 % dimension 4: timesteps
 
 Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx, Ps_Ba_hipext, Ps_Ba_hipflx, Ps_Ba_ankleflx);
+
+
+
 figure 
 xlabel('X')
 ylabel('Y')
@@ -318,10 +320,22 @@ Add Screw Axis for the Hip Adduction and Abduction S2 = {1,0,0,0,0,0}';
 % S1 = [0; 0; 1; 0; 0; 0];
 % S2 = [0; 0; 1; 0; -Lx1; 0];
 % S3 = [0; 0; 1; 0; -(Lx1 + Lx2); 0];
+r1 = [Phome_joint1(1); Phome_joint1(2);Phome_joint1(3)];
+r2 = [Phome_joint2(1); Phome_joint2(2);Phome_joint2(3)];
+r3 = [Phome_joint3(1); Phome_joint3(2);Phome_joint3(3)];
 
-S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
-S2 = [0; 0; 1; 0; -Phome_joint2(1); 0];
-S3 = [0; 0; 1; 0; -Phome_joint3(1); 0];
+v1 = cross(r1,w1_local);
+v2 = cross(r2,w2_local);
+v3 = cross(r3,w3_local);
+
+S1 = [w1_local;v1];
+S2 = [w2_local;v2];
+S1 = [w3_local;v3];
+
+
+% S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
+% S2 = [0; 0; 1; 0; -Phome_joint2(1); 0];
+% S3 = [0; 0; 1; 0; -Phome_joint3(1); 0];
 Ss = [S1 S2 S3];
 
 % With lateral hip axis
@@ -474,7 +488,7 @@ eomg = 1e-6; ev = 1e-6;
 theta_guess = (pi/180)*[-143; 63; -10.21];
 
 % Compute the joint angles associated with the desired trajectory.
-[thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev)
+[thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
 % theta1 = linspace(0, 2*pi, num_timesteps); theta2 = linspace(0, 2*pi, num_timesteps); theta3 = linspace(0, 2*pi, num_timesteps); thetas_desired = [theta1; theta2; theta3];
 % theta1 = (pi/4)*ones(1, num_timesteps); theta2 = 0*ones(1, num_timesteps); theta3 = 0*ones(1, num_timesteps); thetas_desired = [theta1; theta2; theta3];
 % theta1 = linspace(0, 2*pi, num_timesteps); theta2 = 0*ones(1, num_timesteps); theta3 = 0*ones(1, num_timesteps); thetas_desired = [theta1; theta2; theta3];
@@ -518,7 +532,6 @@ fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e.,
 
 
 %% Compute the Muscle Lengths Throughout the Desired Trajectory.
-
 % Compute the muscle lengths, velocities, and accelerations associated with the desired trajectory.
 Lmuscles_desired = GetMuscleLengths( Pmuscles_desired );
 
