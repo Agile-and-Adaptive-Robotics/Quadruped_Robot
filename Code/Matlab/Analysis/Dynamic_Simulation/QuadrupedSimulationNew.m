@@ -208,10 +208,12 @@ muscle_names = cat(1, muscle_names, new_muscle_names);
 % dimension 3: individual muscles
 % dimension 4: timesteps
 
+%Concatenate the position
 Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx, Ps_Ba_hipext, Ps_Ba_hipflx, Ps_Ba_ankleflx);
 
 
 
+%Plot the muscles in their home positions
 figure 
 xlabel('X')
 ylabel('Y')
@@ -277,7 +279,7 @@ k3 = 0;
 %** belong to just one joint!                    **
 %**************************************************
 %**************************************************
-for k1 = 1:9                      % Iterate through each of the muscles...
+for k1 = 1:num_muscles                      % Iterate through each of the muscles...
     for k2 = 1:num_pts_per_muscle           % Iterate through each of the muscle attachment points...
         
         % Compute the home matrix asscoated with this point on this muscle.
@@ -301,6 +303,8 @@ for k1 = 1:9                      % Iterate through each of the muscles...
     
 end
 
+% Manually create the joint matrix for the muscles
+% This defines which joint each attachment point moves with
 Jmuscles = [0,0,1,1,2,2,1,1,1;
             0,0,1,1,2,2,1,1,3;
             1,1,2,2,3,3,2,2,3];
@@ -320,9 +324,12 @@ Add Screw Axis for the Hip Adduction and Abduction S2 = {1,0,0,0,0,0}';
 % S1 = [0; 0; 1; 0; 0; 0];
 % S2 = [0; 0; 1; 0; -Lx1; 0];
 % S3 = [0; 0; 1; 0; -(Lx1 + Lx2); 0];
+
+%Create position vector
 r1 = [Phome_joint1(1); Phome_joint1(2);Phome_joint1(3)];
 r2 = [Phome_joint2(1); Phome_joint2(2);Phome_joint2(3)];
 r3 = [Phome_joint3(1); Phome_joint3(2);Phome_joint3(3)];
+
 
 v1 = cross(r1,w1_local);
 v2 = cross(r2,w2_local);
@@ -330,7 +337,7 @@ v3 = cross(r3,w3_local);
 
 S1 = [w1_local;v1];
 S2 = [w2_local;v2];
-S1 = [w3_local;v3];
+S3 = [w3_local;v3];
 
 
 % S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
@@ -511,13 +518,13 @@ fprintf('COMPUTING INVERSE KINEMATICS SOLUTION (i.e., Desired Joint Angles)... D
 
 % State that we are propogating end effector trajectory to the rest of the rigid body.
 fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e., Desired Non-End Effector Trajectories)... Please Wait...\n')
-Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
+% Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
 
 % Retrieve the transformation matrices associated with the given angles.
 Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
 Tcms_desired = ForwardKinematics( Mcms, Jcms, Ss, thetas_desired );
 Tjoints_desired = ForwardKinematics( Mjoints, Jjoints, Ss, thetas_desired );
-%Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
+Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
 Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
 
 % Retrieve the rotational and translational components associated with the given transformation matrices.
