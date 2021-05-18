@@ -305,7 +305,7 @@ end
 
 % Manually create the joint matrix for the muscles
 % This defines which joint each attachment point moves with
-Jmuscles = [0,0,1,1,2,2,1,1,1;
+Jmuscles = [0,0,1,1,2,2,0,0,1;
             0,0,1,1,2,2,1,1,3;
             1,1,2,2,3,3,2,2,3];
     
