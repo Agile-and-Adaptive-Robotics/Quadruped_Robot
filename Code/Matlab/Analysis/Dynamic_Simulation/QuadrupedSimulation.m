@@ -269,12 +269,10 @@ Ss = [S1 S2 S3];
 %% Define the Simulation Properties.
 
 % Create a time vector.
-dt = 0.0005;                  % [s] Simulation Step Size.
-% dt = 0.0001;                  % [s] Simulation Step Size.
-
-%{
-Adjust to reflect walking motion loop time (1.5 ~ 2 seconds?)
-%}
+  dt = 0.001;                    % [s] Simulation Step Size
+% dt = 0.0001;                   % [s] Simulation Step Size
+% dt = 0.00005;                  % [s] Simulation Step Size
+% dt = 0.00001;                  % [s] Simulation Step Size
 
 tfinal = 1;                 % [s] Simulation Duration.
 ts = 0:dt:tfinal;           % [s] Simulation Time Vector.
@@ -301,20 +299,22 @@ ts_stance = ts(ns_swing + 1:num_timesteps);
 ts_swing = ts(1:ns_swing);
 
 % Define reaction forces during the stance cycle
-smoothing_step = 50;
+smoothing_step =  round(ns_stance * 0.4);
 Fsmoothing = ones(ns_stance, 1);
 
 for i = 1:smoothing_step
-    Fsmoothing(i) = Fsmoothing(i) * (0.5+i*0.01);
+    Fsmoothing(i) = Fsmoothing(i) * (i/smoothing_step);
 end
 
 for i = ns_stance - smoothing_step : ns_stance
-    Fsmoothing(i) = Fsmoothing(i) * (1 - (i - (ns_stance - smoothing_step)) *0.01);
+    Fsmoothing(i) = Fsmoothing(i) * ((ns_stance-i)/smoothing_step);
 end
 
-Ftip_norm = 20 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmoothing];
+Ftip_norm = 38 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmoothing];
 Ftip_stride = 5 * [zeros(ns_swing, 1); ones(ns_stance , 1)];
 
+% Ftip_norm = zeros(num_timesteps, 1);
+% Ftip_stride = zeros(num_timesteps, 1);
 
 % Define the ground height.
 
@@ -986,8 +986,8 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 
 % Create a figure to store the animation.
 fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
-axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])
-axis equal
+axis([-Ltotal Ltotal, -Ltotal Ltotal -Ltotal Ltotal])
+%axis equal
 
 % Preallocate an array to store the legend entries.
 legstr = cell(num_bodies + 6, 1);
@@ -1107,7 +1107,7 @@ legindex = legindex + 1;
 legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical')
 
 % Set the number of animation playbacks.
-num_playbacks = 5;
+num_playbacks = 3;
 
 % % Initialize a video object.
 % myVideo = VideoWriter('RobotAnimation'); %open video file
