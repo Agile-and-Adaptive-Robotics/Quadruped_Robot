@@ -111,8 +111,9 @@ classdef hill_muscle_manager_class
                 muscle_index = self.get_muscle_index( muscle_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs(k) = self.hill_muscles(%0.0f).%s;', muscle_index, muscle_property );
-                
+%                 eval_str = sprintf( 'xs(k) = self.hill_muscles(%0.0f).%s;', muscle_index, muscle_property );
+                eval_str = sprintf( 'xs{k} = self.hill_muscles(%0.0f).%s;', muscle_index, muscle_property );
+
                 % Evaluate the given muscle property.
                 eval(eval_str);
                 

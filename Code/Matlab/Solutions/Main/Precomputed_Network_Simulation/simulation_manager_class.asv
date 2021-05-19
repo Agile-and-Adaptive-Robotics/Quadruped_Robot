@@ -120,49 +120,17 @@ classdef simulation_manager_class
         
         
         % Implement a function to retrieve the history of a body property.
-        function body_property_history = get_body_property_history( self, body_property )
+        function body_property_history = get_body_property_history(  )
             
-           % Preallocate a variable to store the body property history.
-           body_property_history = cell( 1, self.max_states );
+           % Preallocate a variable to store the 
             
-           % Retrieve the body property values associated with each robot state.
-           for k = 1:self.max_states                    % Iterate through each robot state...
-               
-               % Define an string that, when evaluated, retrieves the body property for this robot state.
-               eval_str = sprintf( 'body_property_history{k} = self.robot_states(k).mechanical_subsystem.body.%s', body_property );
-               
-               % Evaluate the evaluation string.
-               eval(eval_str)
-               
-           end
-           
         end
         
         
-        % Implement a function to retrieve the history of a Hill muscle property.
-        function hill_muscle_property_history = get_hill_muscle_property_history( self, hill_muscle_IDs, hill_muscle_property )
-        
-            % Preallocate a variable to store the hill muscle property history.
-            hill_muscle_property_history = cell( 1, self.max_states );
-            
-            % Retrieve the hill muscle property values associated with each robot state.
-            for k = 1:self.max_states                   % Iterate through each robot state...
-                
-                % Retrieve the hill muscle property values for this robot state.
-                hill_muscle_property_history{k} = self.robot_states(k).neural_subsystem.hill_muscle_manager.get_muscle_property( hill_muscle_IDs, hill_muscle_property );
-
-            end
-            
-        end  
+        % Implement a function to retireve the history of a Hill muscle property.
         
         
-%         % Implement a funciton to retrieve the history of a slave property.
-%         function slave_property_history = get_slave_property_history( self, slave_IDs, slave_property )
-%         
-%             xs = get_slave_property( self, slave_IDs, slave_property )
-%             
-%             
-%         end
+        % Implement a funciton to retrieve the history of a slave property.
         
         
         % Implement a function to retrieve the history of a neuron property.

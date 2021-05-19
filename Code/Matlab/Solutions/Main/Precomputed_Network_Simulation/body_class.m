@@ -76,6 +76,10 @@ classdef body_class
             
         end
 
+        %% Get & Set Functions
+        
+        
+        
         
         %% Plotting Functions
         

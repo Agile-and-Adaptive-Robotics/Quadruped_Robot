@@ -31,6 +31,7 @@ classdef slave_manager_class
         end
         
         
+        %% Initialization Functions
         
         % Implement a function to validate the input properties.
         function x = validate_property( self, x, var_name )
@@ -106,7 +107,9 @@ classdef slave_manager_class
             self.conversion_manager = conversion_manager_class();
             
         end
+        
             
+        %% Get & Set Functions
         
         % Implement a function to retrieve the index associated with a given slave ID.
         function slave_index = get_slave_index( self, slave_ID )
@@ -238,6 +241,8 @@ classdef slave_manager_class
             
         end
         
+        
+        %% Sensor Interaction Functions
         
         % Implement a function to set the desired pressure of each slave by retrieving the desired pressure for the associated muscle.
         function self = set_desired_pressure_from_BPA_muscle_manager( self, slave_IDs, BPA_muscle_manager )
