@@ -31,6 +31,8 @@ classdef robot_class
 
         end
         
+        
+        %% Slave-BPA Functions
 
         % Implement a function to transfer slave manager measured pressures to BPA muscle manager measured pressures. ( Slave Measured Pressure -> BPA Measured Pressure )
         function self = slave_measured_pressures2BPA_measured_pressures( self )
@@ -114,6 +116,8 @@ classdef robot_class
         end
         
         
+        %% Slave-Joint Functions
+        
         % Implement a function to transfer slave manager joint angles to joint manager joint angles. ( Slave Angle -> Joint Angle )
         function self = slave_angle2joint_angle( self )
 
@@ -161,6 +165,8 @@ classdef robot_class
             
         end
 
+        
+        %% BPA Muscle - Hill Muscle Functions
         
         % Implement a function to transfer BPA muscle measured tension values to hill muscle measured total tension values.
         function self = BPA_muscle_measured_tensions2hill_muscle_measured_tensions( self )
@@ -218,11 +224,230 @@ classdef robot_class
             end
                             
             % Set the measured tension of each BPA muscle to match the tensions that we have collected from the associated hill muscles.
-            self.mechanical_subsystem.limb_manager.set_BPA_muscle_property( BPA_muscle_IDs, BPA_muscle_tensions, 'muscle_tension' );
+            self.mechanical_subsystem.limb_manager.set_BPA_muscle_property( BPA_muscle_IDs, BPA_muscle_tensions, 'measured_tension' );
+            
+        end
+        
+        
+        % Implement a function to transfer BPA muscle desired tension to hill muscle desired total tension.
+        function self = BPA_muscle_desired_tensions2hill_muscle_desired_tensions( self )
+            
+            % Retrieve the BPA muscle IDs and desired tensions.
+            BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+            BPA_muscle_desired_tensions = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'desired_tension' );
+            
+            % Set each hill muscle desired total tension to match the desired tension of its associated BPA muscle.
+            for k = 1:self.neural_subsystem.hill_muscle_manager.num_hill_muscles                    % Iterate through each hill muscle...
+                
+                % Determine the index of the BPA muscle associated with this hill muscle.
+                BPA_muscle_index = find( self.neural_subsystem.hill_muscle_manager.hill_muscles(k).ID == BPA_muscle_IDs, 1 );
+                
+                % Determine whether to set the desired total tension of this hill muscle.
+                if ~isempty(BPA_muscle_index)                   % If we found a BPA muscle with the same ID as this hill muscle...
+                    
+                    % Set the hill muscle to have the same desired total tension as the BPA muscle.
+                    self.neural_subsystem.hill_muscle_manager.hill_muscles(k).desired_total_tension = BPA_muscle_desired_tensions(BPA_muscle_index);
+                    
+                end
+                
+            end
             
             
         end
         
+        
+        % Implement a function to transfer hill muscle desired total tension to BPA muscle desired tension.
+        function self = hill_muscle_desired_tensions2BPA_muscle_desired_tensions( self )
+            
+            % Retrieve the number of BPA muscles.
+            num_BPA_muscles = self.mechanical_subsystem.limb_manager.get_number_of_BPA_muscles(  );
+            
+            % Retrieve the BPA and hill muscle IDs.
+            BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+            hill_muscle_IDs = self.neural_subsystem.hill_muscle_manager.get_muscle_property( 'all', 'ID' );
+            
+            % Preallocate a variable to store the BPA muscle tensions that we want to set.
+            BPA_muscle_tensions = cell( 1, num_BPA_muscles );
+            
+            % Set each BPA muscle desired tension to match the desired total tension of its associated hill muscle.
+            for k = 1:num_BPA_muscles                    % Iterate through each BPA muscle...
+                
+                % Determine the index of the BPA muscle associated with this hill muscle.
+                hill_muscle_index = find( BPA_muscle_IDs(k) == hill_muscle_IDs, 1 );
+                
+                % Determine whether to set the desired tension of this BPA muscle.
+                if ~isempty(hill_muscle_index)                   % If we found a hill muscle with the same ID as this BPA muscle...
+                    
+                    % Store the hill muscle desired total tension associated with this BPA muscle.
+                    BPA_muscle_tensions{k} = self.neural_subsystem.hill_muscle_manager.hill_muscles(hill_muscle_index).desired_total_tension;
+                    
+                end
+                
+            end
+            
+            % Set the measured tension of each BPA muscle to match the tensions that we have collected from the associated hill muscles.
+            self.mechanical_subsystem.limb_manager.set_BPA_muscle_property( BPA_muscle_IDs, BPA_muscle_tensions, 'desired_tension' );
+            
+        end
+        
+        
+        % Implement a function to transfer BPA muscle yank values to hill muscle yank values.
+        function self = BPA_muscle_yank2hill_muscle_yank( self )
+            
+            % Retrieve the BPA muscle IDs and yanks.
+            BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+            BPA_muscle_yanks = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'yank' );
+
+            % Set each hill muscle yank to match the yank of its associated BPA muscle.
+            for k = 1:self.neural_subsystem.hill_muscle_manager.num_hill_muscles                    % Iterate through each hill muscle...
+            
+                % Determine the index of the BPA muscle associated with this hill muscle.
+                BPA_muscle_index = find( self.neural_subsystem.hill_muscle_manager.hill_muscles(k).ID == BPA_muscle_IDs, 1 );
+                
+                % Determine whether to set the measured total tension of this hill muscle.
+                if ~isempty(BPA_muscle_index)                   % If we found a BPA muscle with the same ID as this hill muscle...
+                    
+                    % Set the hill muscle to have the same yank as the BPA muscle.
+                   self.neural_subsystem.hill_muscle_manager.hill_muscles(k).yank = BPA_muscle_yanks(BPA_muscle_index);
+                    
+                end
+                
+            end
+                            
+        end
+        
+        
+        % Implement a function to transfer hill muscle yank values to BPA muscle yank values.
+        function self = hill_muscle_yank2BPA_muscle_yank( self )
+            
+            % Retrieve the number of BPA muscles.
+            num_BPA_muscles = self.mechanical_subsystem.limb_manager.get_number_of_BPA_muscles(  );
+            
+            % Retrieve the BPA and hill muscle IDs.
+            BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+            hill_muscle_IDs = self.neural_subsystem.hill_muscle_manager.get_muscle_property( 'all', 'ID' );
+            
+            % Preallocate a variable to store the BPA muscle yanks that we want to set.
+            BPA_muscle_yanks = cell( 1, num_BPA_muscles );
+            
+            % Set each BPA muscle measured tension to match the measured total tension of its associated hill muscle.
+            for k = 1:num_BPA_muscles                    % Iterate through each BPA muscle...
+            
+                % Determine the index of the BPA muscle associated with this hill muscle.
+                hill_muscle_index = find( BPA_muscle_IDs(k) == hill_muscle_IDs, 1 );
+                
+                % Determine whether to set the yank of this BPA muscle.
+                if ~isempty(hill_muscle_index)                   % If we found a hill muscle with the same ID as this BPA muscle...
+                    
+                    % Store the hill muscle yank associated with this BPA muscle.
+                   BPA_muscle_yanks{k} = self.neural_subsystem.hill_muscle_manager.hill_muscles(hill_muscle_index).yank;
+                   
+                end
+                
+            end
+                            
+            % Set the yank of each BPA muscle to match the tensions that we have collected from the associated hill muscles.
+            self.mechanical_subsystem.limb_manager.set_BPA_muscle_property( BPA_muscle_IDs, BPA_muscle_yanks, 'yank' );
+            
+        end
+        
+        
+        % Implement a function to transfer a property from a BPA muscle to a Hill muscle.
+        function self = BPA_muscle_property2hill_muscle_property( self, muscle_property )
+            
+            % Determine how to transfer this BPA muscle property to the associated hill muscle property.
+            if strcmp( muscle_property, 'muscle_tension' )          % If we want to set the hill muscle tension...
+                
+                % Transfer the BPA muscle measured tension to hill muscle measured total tension.
+                self = self.BPA_muscle_measured_tensions2hill_muscle_measured_tensions;
+                
+            else                                                    % Otherwise...
+                
+                % Retrieve the BPA muscle IDs and yanks.
+                BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+                BPA_muscle_values = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', muscle_property );
+                
+                % Set each hill muscle yank to match the yank of its associated BPA muscle.
+                for k = 1:self.neural_subsystem.hill_muscle_manager.num_hill_muscles                    % Iterate through each hill muscle...
+                    
+                    % Determine the index of the BPA muscle associated with this hill muscle.
+                    BPA_muscle_index = find( self.neural_subsystem.hill_muscle_manager.hill_muscles(k).ID == BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether to set the property of this hill muscle.
+                    if ~isempty(BPA_muscle_index)                   % If we found a BPA muscle with the same ID as this hill muscle...
+                        
+                        % Create a string that, when evaluated, sets the Hill muscle to have the same property value as the associated BPA muscle.
+                        eval_str = sprintf( 'self.neural_subsystem.hill_muscle_manager.hill_muscles(k).%s = BPA_muscle_values(BPA_muscle_index);', muscle_property );
+                        
+                        % Evaluate the string.
+                        eval(eval_str)
+                        
+                    end
+                    
+                end
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to transfer a property value from a Hill muscle to a BPA muscle.
+        function self = hill_muscle_property2BPA_muscle_property( self, muscle_property )
+            
+            % Retrieve the number of BPA muscles.
+            num_BPA_muscles = self.mechanical_subsystem.limb_manager.get_number_of_BPA_muscles(  );
+            
+            % Retrieve the BPA and hill muscle IDs.
+            BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+            hill_muscle_IDs = self.neural_subsystem.hill_muscle_manager.get_muscle_property( 'all', 'ID' );
+            
+            % Preallocate a variable to store the BPA muscle property values that we want to set.
+            BPA_muscle_values = cell( 1, num_BPA_muscles );
+            
+            % Set each BPA muscle property value to match the property value of its associated hill muscle.
+            for k = 1:num_BPA_muscles                    % Iterate through each BPA muscle...
+            
+                % Determine the index of the BPA muscle associated with this hill muscle.
+                hill_muscle_index = find( BPA_muscle_IDs(k) == hill_muscle_IDs, 1 );
+                
+                % Determine whether to set the property of this BPA muscle.
+                if ~isempty(hill_muscle_index)                   % If we found a hill muscle with the same ID as this BPA muscle...
+                    
+                    % Create a string that, when evaluated, stores the hill  muscle property value associated with this BPA muscle.
+                    eval_str = sprintf( 'BPA_muscle_values{k} = self.neural_subsystem.hill_muscle_manager.hill_muscles(hill_muscle_index).%s;', muscle_property );
+                    
+                    % Evaluate the string.
+                    eval(eval_str)
+                                        
+                end
+                
+            end
+                            
+            % Set the yank of each BPA muscle to match the tensions that we have collected from the associated hill muscles.
+            self.mechanical_subsystem.limb_manager.set_BPA_muscle_property( BPA_muscle_IDs, BPA_muscle_values, muscle_property );
+            
+        end
+        
+        
+        % Implement a function to transfer all of the required properties from the BPA muscles to the Hill muscles.
+        function self = BPA_muscle_properties2hill_muscle_properties( self )
+            
+            % Compute the hill muscle measured total tension associated with the BPA muscle measured tension. ( BPA Muscle Measured Tension -> Hill Muscle Measured Total Tension )
+            self = self.BPA_muscle_property2hill_muscle_property( 'muscle_tension' );
+            
+            % Compute the hill muscle yank associated with the BPA muscle yank. ( BPA Muscle Yank -> Hill Muscle Yank )
+            self = self.BPA_muscle_property2hill_muscle_property( 'yank' );
+            
+            % Compute the hill muscle length associated with the BPA muscle length. ( BPA Muscle Length -> Hill Muscle Length )
+            self = self.BPA_muscle_property2hill_muscle_property( 'muscle_length' );
+            
+            % Compute the hill muscle strain associated with the BPA muscle strain. ( BPA Muscle Strain -> Hill Muscle Strain )
+            self = self.BPA_muscle_property2hill_muscle_property( 'muscle_strain' );
+            
+            % Compute the hill muscle velocity associated with the BPA muscle velocity. ( BPA Muscle Velocity -> Hill Muscle Velocity )
+            self = self.BPA_muscle_property2hill_muscle_property( 'velocity' );
+            
+        end
         
         
         

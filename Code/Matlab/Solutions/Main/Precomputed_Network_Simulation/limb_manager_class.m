@@ -408,6 +408,22 @@ classdef limb_manager_class
         end
         
         
+        % Implement a function to update BPA muscle measured tension, BPA muscle length, & BPA muscle strain.
+        function self = update_BPA_muscle_properties( self )
+               
+            % Compute the BPA muscle measured tension associated with the BPA muscle measured pressure. ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension )
+            self = self.call_BPA_muscle_method( 'all', 'measured_pressure2measured_tension' );
+
+            % Compute the BPA muscle length associated with the joint angles. ( BPA Muscle Attachment Positions -> BPA Muscle Length )
+            self = self.call_BPA_muscle_method( 'all', 'ps2muscle_length' );
+
+            % Compute the BPA muscle strain associated with the BPA muscle length. ( BPA Muscle Length -> BPA Muscle Strain )
+            self = self.call_BPA_muscle_method( 'all', 'muscle_length2muscle_strain' );
+
+            
+        end
+        
+        
         %% Configuration Functions.
         
         % Implement a function to compute the position, orientation, and configuration of the end effector given the current joint angles for each limb.
@@ -476,6 +492,18 @@ classdef limb_manager_class
                 self.limbs(k) = self.limbs(k).joint_angles2limb_configurations(  );
 
             end
+            
+        end
+        
+        
+        % Implement a function to set the position, orientation, and configuration of the points of each limb given a set of desired limb joint angles.
+        function self = set_limb_configuration( self, thetas )
+            
+            % Set the all of the joint angles on each limb.
+            self = self.set_joint_property( 'all', thetas, 'theta' );
+            
+            % Compute the configuration of all of the limb points given these joint angles.
+            self = self.joint_angles2limb_configurations(  );
             
         end
         

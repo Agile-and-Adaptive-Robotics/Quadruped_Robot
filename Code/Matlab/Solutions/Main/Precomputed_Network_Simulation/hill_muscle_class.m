@@ -23,12 +23,12 @@ classdef hill_muscle_class
         
         tension_domain
         
-        length
-        resting_length
+        muscle_length
+        resting_muscle_length
         length_domain
         
-        strain
-        max_strain
+        muscle_strain
+        max_muscle_strain
         
         velocity
         velocity_domain
@@ -57,7 +57,7 @@ classdef hill_muscle_class
     methods
         
         % Implement the class constructor.
-        function self = hill_muscle_class( ID, name, activation, activation_domain, desired_active_tension, measured_total_tension, tension_domain, muscle_length, resting_length, max_strain, velocity, yank, kse, kpe, b, network_dt, num_int_steps )
+        function self = hill_muscle_class( ID, name, activation, activation_domain, desired_active_tension, measured_total_tension, tension_domain, muscle_length, resting_muscle_length, max_muscle_strain, velocity, yank, kse, kpe, b, network_dt, num_int_steps )
             
             % Create an instance of the numerical methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class();
@@ -70,9 +70,9 @@ classdef hill_muscle_class
             if nargin < 13, self.kse = 30; else, self.kse = kse; end
             if nargin < 12, self.yank = 0; else, self.yank = yank; end
             if nargin < 11, self.velocity = 0; else, self.velocity = velocity; end
-            if nargin < 10, self.max_strain = 0.16; else, self.max_strain = max_strain; end
-            if nargin < 9, self.resting_length = 1; else, self.resting_length = resting_length; end
-            if nargin < 8, self.length = self.resting_length; else, self.length = muscle_length; end
+            if nargin < 10, self.max_muscle_strain = 0.16; else, self.max_muscle_strain = max_muscle_strain; end
+            if nargin < 9, self.resting_muscle_length = 1; else, self.resting_muscle_length = resting_muscle_length; end
+            if nargin < 8, self.muscle_length = self.resting_muscle_length; else, self.muscle_length = muscle_length; end
             if nargin < 7, self.tension_domain = [0, 450]; else, self.tension_domain = tension_domain; end
             if nargin < 6, self.measured_total_tension = 0; else, self.measured_total_tension = measured_total_tension; end
             if nargin < 5, self.desired_active_tension = 0; else, self.desired_active_tension = desired_active_tension; end
@@ -82,13 +82,13 @@ classdef hill_muscle_class
             if nargin < 1, self.ID = 0; else, self.ID = ID; end
             
             % Compute the muscle strain.
-            self.strain = self.length2strain( self.length, self.resting_length );
+            self.muscle_strain = self.length2strain( self.muscle_length, self.resting_muscle_length );
             
             % Compute the length domain.
-            self.length_domain = [ self.max_strain*self.resting_length, self.resting_length ];
+            self.length_domain = [ self.max_muscle_strain*self.resting_muscle_length, self.resting_muscle_length ];
             
             % Compute the muscle strain.
-            self.strain = self.length2strain( self.length, self.resting_length );
+            self.muscle_strain = self.length2strain( self.muscle_length, self.resting_muscle_length );
             
             % Compute the maximum muscle speed.
             self.velocity_domain = ( range( self.length_domain )/self.network_dt )*[-1, 1];
@@ -102,7 +102,7 @@ classdef hill_muscle_class
             % Compute the feedback sources.
             self.typeIa_feedback = self.muscle_value2muscle_feedback( self.velocity, self.velocity_domain, self.activation_domain );
             self.typeIb_feedback = self.muscle_value2muscle_feedback( self.measured_total_tension, self.tension_domain, self.activation_domain );
-            self.typeII_feedback = self.muscle_value2muscle_feedback( self.length, self.length_domain, self.activation_domain );
+            self.typeII_feedback = self.muscle_value2muscle_feedback( self.muscle_length, self.length_domain, self.activation_domain );
             
         end
         
@@ -112,19 +112,19 @@ classdef hill_muscle_class
         %% LENGTH-STRAIN FUNCTIONS
         
         % Implement a function to compute the muscle strain associated with a given muscle length and resting length.
-        function strain = length2strain( ~, muscle_length, resting_length )
+        function muscle_strain = length2strain( ~, muscle_length, resting_muscle_length )
             
             % Compute the current muscle strain.
-            strain = 1 - muscle_length/resting_length;
+            muscle_strain = 1 - muscle_length/resting_muscle_length;
             
         end
         
         
         % Implement a function to compute the current muscle length given the current muscle strain.
-        function muscle_length = strain2length( ~, strain, resting_length )
+        function muscle_length = strain2length( ~, muscle_strain, resting_muscle_length )
             
             % Compute the current muscle length.
-            muscle_length = resting_length*(1 - strain);
+            muscle_length = resting_muscle_length*(1 - muscle_strain);
             
         end
         
@@ -159,6 +159,33 @@ classdef hill_muscle_class
             % Compute the feedback associated with the given saturated muscle value.
             feedback = interp1( value_domain, feedback_domain, saturated_value );
             
+        end
+        
+        
+        % Implement a function to compute the Type Ia (muscle velocity) feedback associated with the current hill muscle velocity.
+        function self = velocity2typeIa_feedback( self )
+            
+            % Compute the type Ia feedback associated with the current hill muscle velocity.
+            self.typeIa_feedback = self.muscle_value2muscle_feedback( self.velocity, self.velocity_domain, self.activation_domain );
+            
+        end
+        
+        
+        % Implement a function to compute the Type Ib (total muscle tension) feedback associated with the current hill muscle total tension.
+        function self = measured_total_tension2typeIb_feedback( self )
+            
+            % Compute the type Ib feedback associated with the current hill muscle measured total tension.
+            self.typeIb_feedback = self.muscle_value2muscle_feedback( self.measured_total_tension, self.tension_domain, self.activation_domain );
+
+        end
+        
+        
+        % Implement a function to compute the Type II (muscle length) feedback associated with the current hill muscle length.
+        function self = length2typeII_feedback( self )
+            
+            % Compute the type II feeedback associated with the current hill muscle length.
+            self.typeII_feedback = self.muscle_value2muscle_feedback( self.muscle_length, self.length_domain, self.activation_domain );
+
         end
         
         
@@ -319,7 +346,7 @@ classdef hill_muscle_class
         function self = desired_total_tension2desired_active_passive_tension( self )
             
             % Compute the desired active and desired passive tension associated with the current desired total tension.
-            [ self.desired_active_tension, self.desired_passive_tension ] = self.total_tension2active_passive_tension( self.desired_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
+            [ self.desired_active_tension, self.desired_passive_tension ] = self.total_tension2active_passive_tension( self.desired_total_tension, self.yank, self.muscle_length - self.resting_muscle_length, self.velocity, self.kse, self.kpe, self.b );
             
         end
         
@@ -327,7 +354,7 @@ classdef hill_muscle_class
         % Implement a function to compute the desired total and desired passive muscle tension associated with the current desired active muscle tension.
         function self = desired_active_tension2desired_total_passive_tension( self )
             
-            [ self.desired_total_tension, self.desired_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.length - self.resting_length, self.velocity, self.desired_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
+            [ self.desired_total_tension, self.desired_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.muscle_length - self.resting_muscle_length, self.velocity, self.desired_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
             
         end
         
@@ -336,7 +363,7 @@ classdef hill_muscle_class
         function self = measured_total_tension2measured_active_passive_tension( self )
             
             % Compute the desired active and desired passive tension associated with the current desired total tension.
-            [ self.measured_active_tension, self.measured_passive_tension ] = self.total_tension2active_passive_tension( self.measured_total_tension, self.yank, self.length - self.resting_length, self.velocity, self.kse, self.kpe, self.b );
+            [ self.measured_active_tension, self.measured_passive_tension ] = self.total_tension2active_passive_tension( self.measured_total_tension, self.yank, self.muscle_length - self.resting_muscle_length, self.velocity, self.kse, self.kpe, self.b );
             
         end
         
@@ -344,7 +371,7 @@ classdef hill_muscle_class
         % Implement a function to compute the measured total and measured passive muscle tension associated with the current measured active muscle tension.
         function self = measured_active_tension2measured_total_passive_tension( self )
             
-            [ self.measured_total_tension, self.measured_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.length - self.resting_length, self.velocity, self.measured_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
+            [ self.measured_total_tension, self.measured_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.muscle_length - self.resting_muscle_length, self.velocity, self.measured_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
             
         end
         

@@ -26,8 +26,10 @@ classdef data_loader_class
         end
         
         
+        %% Data Loading Functions
+        
         % Implement a function to load BPA muscle data from a spreadsheet.
-        function [ muscle_IDs, muscle_names, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, muscle_lengths, resting_muscle_lengths, max_strains, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s, ps, Js ] = load_BPA_muscle_data( self, file_name, directory )
+        function [ muscle_IDs, muscle_names, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, muscle_lengths, resting_muscle_lengths, max_strains, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s, ps, Js, muscle_types ] = load_BPA_muscle_data( self, file_name, directory )
 
             % Determine whether to set the load directory to be the stored load directory.
             if nargin < 3, directory = self.load_path; end
@@ -46,9 +48,9 @@ classdef data_loader_class
             
             % Preallocate variables to store the BPA muscle data.
             [ muscle_IDs, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, max_strains, muscle_lengths, resting_muscle_lengths, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s ] = deal( zeros( 1, num_BPA_muscles ) );
-            muscle_names = cell( 1, num_BPA_muscles );
+            [ muscle_names, muscle_types ] = deal( cell( 1, num_BPA_muscles ) );
             ps = zeros( 3, num_attachment_points, num_BPA_muscles );
-            Js = zeros( num_BPA_muscles, 3 );
+            Js = zeros( num_attachment_points, num_BPA_muscles );
             
             % Retrieve the data for each BPA muscle.
             for k = 1:num_BPA_muscles                   % Iterate through each BPA muscle...
@@ -57,7 +59,10 @@ classdef data_loader_class
                 muscle_IDs(k) = data{k, 1};
                 
                 % Set the BPA muscle names.
-                muscle_names{k} = [ data{k, 2}, ' ', data{k, 3}, ' ', data{k, 4}, ' ', data{k, 5} ];
+                muscle_names{k} = [ data{ k, 2 }, ' ', data{ k, 3 }, ' ', data{ k, 4 }, ' ', data{ k, 5 } ];
+                
+                % Retrieve the BPA muscle types.
+                muscle_types{k} = data{ k, 5 };
                 
                 % Set the BPA muscle tension data.
                 desired_tensions(k) = data{k, 6};
@@ -92,7 +97,9 @@ classdef data_loader_class
                                   data{k, 33}, data{k, 40}, data{k, 47} ];
                 
                 % Set the BPA muscle attachment point joint assignments.
-                Js(k, :) = [ data{k, 27}, data{k, 34}, data{k, 41} ];
+                Js( :, k ) = [ data{k, 27};
+                               data{k, 34};
+                               data{k, 41} ];
                 
             end
             
@@ -213,7 +220,7 @@ classdef data_loader_class
         
         
         % Implement a function to load joint data from a spreadsheet.
-        function [ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas ] = load_joint_data( self, file_name, directory )
+        function [ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations ] = load_joint_data( self, file_name, directory )
             
             % Determine whether to set the load directory to be the stored load directory.
             if nargin < 3, directory = self.load_path; end
@@ -230,8 +237,8 @@ classdef data_loader_class
             % Preallocate variables to store the joint data.
             [ joint_IDs, joint_parent_link_IDs, joint_child_link_IDs, joint_thetas ] = deal( zeros( 1, num_joints ) );
             [ joint_ps, joint_vs, joint_ws, joint_w_screws ] = deal( zeros( 3, num_joints ) );
-            joint_names = cell( 1, num_joints );
-
+            joint_domains = zeros( 2, num_joints );
+            [ joint_names, joint_orientations ] = deal( cell( 1, num_joints ) );
             
             % Store the data associated with each joint.
             for k = 1:num_joints                                 % Iterate through each joint...
@@ -249,22 +256,23 @@ classdef data_loader_class
                 % Set the joint angle.
                 joint_thetas(k) = data{ k, 7 };
                 
+                % Set the joint domains.
+                joint_domains(:, k) = [ data{ k, 8 }; data{ k, 9 } ];
+                
                 % Set the joint points.
-                joint_ps(:, k) = [ data{ k, 9 }; data{ k, 11 }; data{ k, 13 } ];
+                joint_ps(:, k) = [ data{ k, 11 }; data{ k, 13 }; data{ k, 15 } ];
                 
                 % Set the joint axes of rotation.
-                joint_w_screws(:, k) = [ data{ k, 14 }; data{ k, 15 }; data{ k, 16 } ];
+                joint_w_screws(:, k) = [ data{ k, 16 }; data{ k, 17 }; data{ k, 18 } ];
                 
                 % Set the joint velocities.
-                joint_vs(:, k) = [ data{ k, 17 }; data{ k, 18 }; data{ k, 19 } ];
-                joint_ws(:, k) = [ data{ k, 20 }; data{ k, 21 }; data{ k, 22 } ];   
+                joint_vs(:, k) = [ data{ k, 19 }; data{ k, 20 }; data{ k, 21 } ];
+                joint_ws(:, k) = [ data{ k, 22 }; data{ k, 23 }; data{ k, 24 } ];   
+                
+                % Set the joint orientations.
+                joint_orientations{k} = data{ k, 25 };
                 
             end
-            
-            
-            
-
-            
             
         end
             

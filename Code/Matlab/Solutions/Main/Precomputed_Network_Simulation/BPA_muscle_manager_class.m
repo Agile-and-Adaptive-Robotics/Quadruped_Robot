@@ -6,8 +6,14 @@ classdef BPA_muscle_manager_class
     
     % Define the class properties.
     properties
+        
         BPA_muscles
         num_BPA_muscles
+        
+        Ms
+        Ts
+        Js
+        
     end
     
     
@@ -24,6 +30,59 @@ classdef BPA_muscle_manager_class
             
             % Compute the number of BPA muscles.
             self.num_BPA_muscles = length( self.BPA_muscles );
+            
+            % Retrieve the home configuration of the BPA muscle attachment points of each BPA muscle.
+            self.Ms = self.get_home_configurations(  );
+            
+            % Set the current configuration of the BPA muscle attachment points to be the home configuration of each BPA muscle.
+            self.Ts = self.Ms;
+                        
+            % Retrieve the joint assignments of the BPA muscles.
+            self.Js = self.get_joint_assignments(  );
+            
+        end
+        
+        
+        %% Initialization Functions
+        
+        % Implement a function to propogate the home configurations from the constituent BPA muscles to the BPA muscle manager.
+        function Ms = get_home_configurations( self )
+            
+            % Retrieve the number of BPA muscle attachment points.
+            num_attachment_points = size( self.BPA_muscles(1).Ms, 3 );
+            
+            % Preallocate the BPA muscle attachment points configuration matrix.
+            Ms = zeros( 4, 4, num_attachment_points, self.num_BPA_muscles );
+            
+            % Compute the BPA muscle attachment points configuration matrix.
+            for k1 = 1:self.num_BPA_muscles                                     % Iterate through each of the BPA muscles...
+                for k2 = 1:num_attachment_points                                % Iterate through each of the BPA muscle attachment points...
+                
+                    % Retrieve this BPA muscles home configuration.
+                    Ms( :, :, k2, k1 ) = self.BPA_muscles(k1).Ms( :, :, k2 );
+                
+                end
+            end
+            
+        end
+        
+        
+        % Implement a function to propogate the joint assignments from the consistuent BPA muscles to the BPA muscle manager.
+        function Js = get_joint_assignments( self )
+            
+            % Retrieve the number of BPA muscle attachment points.
+            num_attachment_points = size( self.BPA_muscles(1).Js, 1 );
+            
+            % Preallocate the BPA muscle attachment point joint assignment matrix.
+            Js = zeros( num_attachment_points, self.num_BPA_muscles );
+            
+            % Set the BPA muscle attachment point joint assignment matrix for each BPA muscle.
+            for k = 1:self.num_BPA_muscles                  % Iterate through each BPA muscle...
+               
+                % Store the joint assignment matrix associated with this BPA muscle.
+                Js( :, k ) = self.BPA_muscles(k).Js;
+                
+            end
             
         end
         
@@ -110,8 +169,9 @@ classdef BPA_muscle_manager_class
             num_properties_to_get = length(BPA_muscle_IDs);
             
             % Preallocate a variable to store the muscle properties.
-            xs = zeros(1, num_properties_to_get);
-            
+%             xs = zeros(1, num_properties_to_get);
+            xs = cell( 1, num_properties_to_get );
+
             % Retrieve the given muscle property for each muscle.
             for k = 1:num_properties_to_get
                 
@@ -119,8 +179,9 @@ classdef BPA_muscle_manager_class
                 muscle_index = self.get_muscle_index( BPA_muscle_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs(k) = self.BPA_muscles(%0.0f).%s;', muscle_index, muscle_property );
-                
+%                 eval_str = sprintf( 'xs(k) = self.BPA_muscles(%0.0f).%s;', muscle_index, muscle_property );
+                eval_str = sprintf( 'xs{k} = self.BPA_muscles(%0.0f).%s;', muscle_index, muscle_property );
+
                 % Evaluate the given muscle property.
                 eval(eval_str);
                 
@@ -134,6 +195,14 @@ classdef BPA_muscle_manager_class
             
             % Validate the BPA muscle IDs.
             BPA_muscle_IDs = self.validate_muscle_IDs( BPA_muscle_IDs );
+            
+            % Validate the BPA muscle property values.
+            if ~isa( BPA_muscle_property_values, 'cell' )               % If the provided muscle property values are not a cell array...
+               
+                % Convert the BPA muscle property values to a cell array.
+                BPA_muscle_property_values = num2cell( BPA_muscle_property_values );
+                
+            end
             
             % Set the properties of each BPA muscle.
             for k = 1:self.num_BPA_muscles                   % Iterate through each BPA muscle...

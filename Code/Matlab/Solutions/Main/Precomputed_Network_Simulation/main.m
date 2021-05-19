@@ -5,13 +5,16 @@
 % Clear Everything.
 clear, close('all'), clc
 
+% NEED TO COMPUTE TENDON LENGTHS BEFORE SIMULATING BASED ON JOINT LIMITS.
+% NEED TO UPDATE GET PROPERTY FUNCTIONS TO USE CELLS INSTEAD OF ARRAYS.
+
 
 %% Load Precomputed Simulation Data.
 
 % Define the path to the file we want to load.
 load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Solutions\Main\Precomputed_Network_Simulation';
 file_name = 'Precomputed_Network_Simulation_Data.xlsx';
-file_path = [load_path, '\', file_name];
+file_path = [ load_path, '\', file_name ];
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( load_path );
@@ -93,13 +96,16 @@ network = network_class( neuron_manager, synapse_manager, network_dt );
 %% Initialize the BPA Muscles.
 
 % Load the BPA muscle data.
-[ muscle_IDs, muscle_names, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, muscle_lengths, resting_muscle_lengths, max_strains, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s, ps, Js ] = data_loader.load_BPA_muscle_data( 'BPA_Muscle_Data.xlsx' );
+[ muscle_IDs, muscle_names, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, muscle_lengths, resting_muscle_lengths, max_strains, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s, ps, Js, muscle_types ] = data_loader.load_BPA_muscle_data( 'BPA_Muscle_Data.xlsx' );
 
 % Define the number of BPA muscles.
 num_BPA_muscles = length( muscle_IDs );
 
 % Set the BPA muscle attachment point orientations.
 Rs = repmat( eye( 3, 3 ), [ 1, 1, size( ps, 2 ) ] );
+
+% Set the BPA muscle tendon length. (This is just a placeholder.  We will use the BPA attachment point locations in the resting position to infer the actual tendon length.)
+tendon_length = 0;
 
 % Preallocate an array of BPA muscles.
 BPA_muscles = repmat( BPA_muscle_class(), 1, num_BPA_muscles );
@@ -108,7 +114,7 @@ BPA_muscles = repmat( BPA_muscle_class(), 1, num_BPA_muscles );
 for k = 1:num_BPA_muscles               % Iterate through each of the BPA muscles...
     
     % Create this BPA muscle.
-    BPA_muscles(k) = BPA_muscle_class( muscle_IDs(k), muscle_names{k}, desired_tensions(k), measured_tensions(k), desired_pressures(k), measured_pressures(k), max_pressures(k), muscle_lengths(k), resting_muscle_lengths(k), max_strains(k), velocities(k), yanks(k), ps(:, :, k), Rs, Js(k, :), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k) );
+    BPA_muscles(k) = BPA_muscle_class( muscle_IDs(k), muscle_names{k}, desired_tensions(k), measured_tensions(k), desired_pressures(k), measured_pressures(k), max_pressures(k), muscle_lengths(k), resting_muscle_lengths(k), tendon_length, max_strains(k), velocities(k), yanks(k), ps(:, :, k), Rs, Js(:, k), c0s(k), c1s(k), c2s(k), c3s(k), c4s(k), c5s(k), c6s(k), muscle_types{k} );
     
 end
 
@@ -194,7 +200,7 @@ end
 %% Initialize the Robot Joints.
 
 % Load the joint data.
-[ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
+[ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
 
 % Define the number of joints.
 num_joints = length(joint_IDs);
@@ -209,7 +215,7 @@ joints = repmat( joint_class(), 1, num_joints );
 for k = 1:num_joints               % Iterate through each of the joints...
     
     % Create this joint.
-    joints(k) = joint_class( joint_IDs(k), joint_names{k}, joint_parent_link_IDs(k), joint_child_link_IDs(k), joint_ps(:, k), joint_Rs(:, :, k), joint_vs(:, k), joint_ws(:, k), joint_w_screws(:, k), joint_thetas(k) );
+    joints(k) = joint_class( joint_IDs(k), joint_names{k}, joint_parent_link_IDs(k), joint_child_link_IDs(k), joint_ps(:, k), joint_Rs(:, :, k), joint_vs(:, k), joint_ws(:, k), joint_w_screws(:, k), joint_thetas(k), joint_domains(:, k), joint_orientations{k} );
     
 end
 
@@ -339,13 +345,13 @@ electrical_subsystem = electrical_subsystem_class( usart_manager, slave_manager 
 robot_state0 = robot_class( neural_subsystem, mechanical_subsystem, electrical_subsystem );
 
 
-%% Initialize the Simulation Data Recorder.
-
-% Create an instance of the simulation data recorder class.
-simulation_data_recorder = simulation_data_recorder_class( muscle_IDs, joint_IDs, muscle_names, joint_names );
-
-% Initialize the simulation data recorder values.
-simulation_data_recorder = simulation_data_recorder.initialize_recorded_data( limb_manager, hill_muscle_manager, precomputed_simulation_manager.num_timesteps );
+% %% Initialize the Simulation Data Recorder.
+% 
+% % Create an instance of the simulation data recorder class.
+% simulation_data_recorder = simulation_data_recorder_class( muscle_IDs, joint_IDs, muscle_names, joint_names );
+% 
+% % Initialize the simulation data recorder values.
+% simulation_data_recorder = simulation_data_recorder.initialize_recorded_data( limb_manager, hill_muscle_manager, precomputed_simulation_manager.num_timesteps );
 
 
 %% Initialzize the Simulation Manager.
@@ -370,30 +376,10 @@ simulation_manager = simulation_manager_class( robot_state0, max_states, precomp
 
 
 
-
-fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.plot_limb_points(  );
-
-fig = simulation_manager.robot_states(end).mechanical_subsystem.body.plot_body_com_point( fig );
-fig = simulation_manager.robot_states(end).mechanical_subsystem.body.plot_body_mesh_points( fig );
-
-% fig = simulation_manager.robot_states(end).mechanical_subsystem.body.plot_body_points( fig );
-
-% fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points( fig );
+fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
 
 
-% fig = plot_limb_points( self, fig, plotting_options )
-
-% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).plot_limb_points(  );
-
-
-% fig = plot_limb_points( self, fig, plotting_options )
-% 
-% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.plot_BPA_muscle_points(  );
-% 
-% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).link_manager.plot_link_points( fig );
-% 
-% fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager.plot_joint_points( fig );
-
+% BEFORE WE SIMULATE WE NEED TO COMPUTE THE REQUIRED TENDON LENGTH FOR EACH MUSCLE WHEN THE MUSCLE IS IN ITS RESTING POSITION.
 
 
 
@@ -404,7 +390,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     %% Initialize the Next Robot State.
     
-    % Set the next robot state to be the same as this robot state.
+    % Cycle the robot states.
     simulation_manager = simulation_manager.cycle_robot_states(  );
     
     
@@ -425,26 +411,18 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     %% Compute the Robot Configuration Given the Current Joint Angles (i.e., Forward Kinematics). ( Joint Angles -> Robot Configuration )
     
-    % Compute the the configuration of the body. ( ??? )
+    % Compute the configuration of the body. ( ??? )
     
-    
-%     % Compute the configuration of the end effectors. ( Joints Angles -> End Effector Configuration )
-%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2end_effector_configurations(  );
-% 
-%     % Compute the configuration of the joints. ( Joint Angles -> Joint Configuration )
-%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2joint_configurations(  );
-% 
-%     % Compute the configuration of the links. ( Joint Angles -> Link Configuration )
-%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2link_configurations(  );
-%         
-%     % Compute the configuration of the BPA Muscles. ( Joint Angles -> BPA Muscle Configutation )
-%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2BPA_muscle_configurations(  );
-
     % Compute the configuration of each limb. ( Joint Angles -> Limb Configuration )
     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2limb_configurations(  );
     
     
     %% Compute Robot Kinematic Properties.
+    
+    % NEED TO COMPUTE JACOBIANS IN ORDER TO PERFORM THESE CALCULATIONS.
+    
+    % Compute the body velocities (linear and rotational).
+    
     
     % Compute end effector velocities (linear and rotational).
     
@@ -453,84 +431,53 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     
     % Compute link velocities (linear and rotational).
-    
-    
-    % Compute BPA muscle velocities (linear and rotational).
-    
+        
     
     
     %% Compute Derived BPA Muscle Properties. ( BPA Muscle Tension, BPA Muscle Yank, BPA Muscle Length, BPA Muscle Strain, BPA Muscle Velocity )
     
-    % Compute the BPA muscle measured tension associated with the BPA muscle measured pressure. ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension )
-    simulation_manager.robot_states(k + 1).mechanical_subsystem.limb_manager = simulation_manager.robot_states(k + 1).mechanical_subsystem.limb_manager.call_BPA_muscle_method( 'all', 'measured_pressure2measured_tension' );
+    % Update the BPA muscle properties (muscle tension, muscle length, muscle strain) to reflect the sensor data info ( muscle pressure, muscle attachment point position ). ( BPA Muscle Pressure -> BPA Muscle Tension; BPA Muscle Attachment Locations -> BPA Muscle Length, BPA Muscle Strain )
+    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.update_BPA_muscle_properties(  );
     
-    % Compute the BPA muscle yank associated with the BPA muscle tension history. ( BPA Muscle Tension History -> BPA Muscle Yank )
-
-    
-    % Compute the BPA muscle length associated with the joint angles. ( Joint Angles & Robot Geometry -> BPA Muscle Length )
-    
-    
-    % Compute the BPA muscle strain associated with the BPA muscle length. ( BPA Muscle Length -> BPA Muscle Strain )
-    
-    
-    % Compute the BPA muscle velocity associated with the BPA muscle length history. ( BPA Musce Length History -> BPA Muscle Velocity )
-    
+    % Compute the BPA muscle property derivatives from the BPA muscle property histories. ( BPA Muscle Tension History -> BPA Muscle Yank; BPA Muscle Length History -> BPA Muscle Velocity )
+    simulation_manager = simulation_manager.BPA_muscle_property_histories2BPA_muscle_property_derivatives(  );
     
     
     %% Compute Derived Hill Muscle Properties. ( Hill Muscle Tension, Hill Muscle Yank, Hill Muscle Length, Hill Muscle Strain, Hill Muscle Velocity, Hill Muscle Type Ia Feedback, Hill Muscle Type Ib Feedback, and Hill Muscle Type II Feedback )
-    
-    % Compute the hill muscle measured total tension associated with the BPA muscle measured tension. ( BPA Muscle Measured Tension -> Hill Muscle Measured Total Tension )
-    simulation_manager.robot_states(k + 1) = simulation_manager.robot_states(k + 1).BPA_muscle_measured_tensions2hill_muscle_measured_tensions(  );
+
+    % Transfer the appropriate BPA muscle properties to the hill muscles. ( BPA Muscle Measured Tension, BPA Muscle Yank, BPA Muscle Muscle Length, BPA Muscle Muscle Strain, BPA Muscle Muscle Velocity -> Hill Muscle Measured Tension, Hill Muscle Yank, Hill Muscle Muscle Length, Hill Muscle Muscle Strain, Hill Muscle Muscle Velocity  )
+    simulation_manager.robot_states(end) = simulation_manager.robot_states(end).BPA_muscle_properties2hill_muscle_properties(  );
     
     % Compute the hill muscle measured active and passive tension associated with the hill muscle measured total tension. ( Hill Muscle Measured Tension -> Hill Muscle Measured Active Tension, Hill Muscle Measured Passive Tension )
-    simulation_manager.robot_states(k + 1).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(k + 1).neural_subsystem.hill_muscle_manager.call_muscle_method( 'all', 'measured_total_tension2measured_active_passive_tension' );
+    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.call_muscle_method( 'all', 'measured_total_tension2measured_active_passive_tension' );
     
-    % Compute the hill muscle yank associated with the BPA muscle yank. ( BPA Muscle Yank -> Hill Muscle Yank )
-    
-    
-    % Compute the hill muscle length associated with the BPA muscle length. ( BPA Muscle Length -> Hill Muscle Length )
-    
-    
-    % Compute the hill muscle strain associated with the BPA muscle strain. ( BPA Muscle Strain -> Hill Muscle Strain )
-    
-    
-    % Compute the hill muscle velocity associated with the BPA muscle velocity. ( BPA Muscle Velocity -> Hill Muscle Velocity )    
-    
-        
-    % Compute the hill muscle Type Ia (muscle velocity) feedback from the hill muscle velocity. ( Hill Muscle Velocity -> Hill Muscle Type Ia (Velocity) Feedback )
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'velocity2typeIa_feedback' );
-    
-    % Compute the hill muscle Type Ib (muscle tension) feedback from the hill muscle total tension. ( Hill Muscle Total Tension -> Hill Muscle Type Ib (Tension) Feedback )
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2typeIb_feedback' );
-    
-    % Compute the hill muscle Type II (muscle velocity) feedback from the hill muscle length. ( Hill Muscle Length -> Hill Muscle Type II (Length) Feedback )
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'length2typeII_feedback' );
-    
-    
+    % Compute the type Ia, type Ib, and type II feedback associated with the current hill muscle velocity, measured total tension, and length, respectively. ( Hill Muscle Velocity -> Hill Muscle Type Ia Feedback; Hill Muscle Measured Total Tension -> Hill Muscle Type Ib Feedback; Hill Muscle Length -> Hill Muscle Type II Feedback )
+    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.muscle_properties2muscle_feedback(  );
     
     
     %% Compute the Network Properties & Hill Muscle Activation.
     
     % Store the simulation data into the muscle manager. ( Precomputed Simulation Data -> Hill Muscle Activation )
-    simulation_manager.quadruped_robot.neural_subsystem.hill_muscle_manager = simulation_manager.quadruped_robot.neural_subsystem.hill_muscle_manager.set_muscle_property( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(k, :), 'activation', true );
+    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.set_muscle_property( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(k, :), 'activation', true );
     
     
     %% Compute the Derived Hill Muscle Properties. ( Hill Muscle Desired Active Tension, Hill Muscle Desired Passive Tension, Hill Muscle Desired Total Tension )
 
     % Compute hill muscle desired total tension from the hill muscle activation. ( Hill Muscle Activation -> Hill Muscle Desired Active Tension )
-    simulation_manager.quadruped_robot.neural_subsystem.hill_muscle_manager = simulation_manager.quadruped_robot.neural_subsystem.hill_muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_active_tension' );
+    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_active_tension' );
 
     % Compute the hill muscle desired total and passive tensions from the hill muscle desired active tension. ( Hill Muscle Desired Active Tension -> Hill Muscle Desired Passive & Total Tensions )
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
+    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
 
     
     %% Compute the Derived BPA Muscle Properties. ( BPA Muscle Desired Tension, BPA Muscle Desired Pressure )
     
     % Transfer the hill muscle desired total tension to the BPA muscle desired total tension. ( Hill Muscle Desired Total Tension -> BPA Muscle Desired Tension ) 
+    simulation_manager.robot_states(end) = simulation_manager.robot_states(end).hill_muscle_desired_tensions2BPA_muscle_desired_tensions(  );
     
     % Compute the BPA muscle desired pressure from the BPA muscle desired tension. ( BPA Muscle Desired Tension -> BPA Muscle Desired Pressure )
-    muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_pressure' );
-
+    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.call_BPA_muscle_method( 'all', 'desired_tension2desired_pressure' );
+    
     
     %% Store the Desired BPA Muscle Pressure in the Slave Manager.
     
@@ -538,92 +485,15 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     simulation_manager.robot_states(end) = simulation_manager.robot_states(end).BPA_desired_pressures2slave_desired_pressures(  );
     
     
-    %% Record the Muscle & Slave Data for Plotting.
-    
-    % Store the sensor data into the sensor data manager.
-    
-    asdf = 1;
-    
-    
 end
-
-
-% %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
-%
-% % Send each simulation data value to the master mircocontoller and collect the associated sensory feedback.
-% for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterate through each simulation time step...
-%
-%     % Store the simulation data into the muscle manager.
-%     muscle_manager = muscle_manager.set_muscle_activations( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(k, :) );
-%
-%     % Compute the desired total muscle tensions associated with the current muscle activations.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'activation2desired_active_tension' );
-%
-%     % Compute the desired active and desired passive muscle tensions associated with the current total muscle activations.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_active_tension2desired_total_passive_tension' );
-%
-%     % Compute the desired pressure for each muscle.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'desired_total_tension2desired_pressure' );
-%
-%     % Delegate the desired BPA pressures to the appropriate slave in the slave manager.
-%     slave_manager = slave_manager.set_desired_pressure( slave_IDs, muscle_manager );
-%
-%
-%     % Stage the desired BPA pressures for USART transmission to the master microcontroller.
-%     usart_manager = usart_manager.stage_desired_pressures( slave_manager );
-%
-%     % Write the desired BPA pressures to the master microcontroller.
-%     usart_manager.write_bytes_to_master( master_port_type );
-%
-%     % Determine whether we need to emulate the master microcontroller behavior.
-%     if strcmp(master_port_type, 'virtual') || strcmp(master_port_type, 'Virtual')                   % If we are using a virtual port for the master microcontroller...
-%
-%         % Emulate the master microcontroller reporting sensory information to Matlab.
-%         usart_manager.emulate_master_read_write( slave_manager );
-%
-%     end
-%
-%     % Retrieve the sensor data from the master microcontroller via USART transmission.
-%     usart_manager = usart_manager.read_bytes_from_master( slave_manager.SLAVE_PACKET_SIZE, master_port_type );
-%
-%
-%     % Store the sensor data into the associated slave in the slave manager.
-%     slave_manager = slave_manager.store_sensor_data( usart_manager );
-%
-%
-%     % Store the muscle sensory data into the appropriate muscle in the muscle manager.
-%     muscle_manager = muscle_manager.set_measured_pressures( slave_manager );
-%
-%     % Compute the measured total tension associated with the measured muscle pressure.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_pressure2measured_total_tension' );
-%
-%     % Compute the measured active and passive tension associated with the measured total tension.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2measured_active_passive_tension' );
-%
-%
-%     % Compute the Type Ia (muscle velocity) feedback.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'velocity2typeIa_feedback' );
-%
-%     % Compute the Type Ib (muscle tension) feedback.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'measured_total_tension2typeIb_feedback' );
-%
-%     % Compute the Type II (muscle velocity) feedback.
-%     muscle_manager = muscle_manager.call_muscle_method( muscle_IDs, 'length2typeII_feedback' );
-%
-%
-%     % Store the sensor data into the sensor data manager.
-%
-%     asdf = 1;
-%
-% end
 
 
 %% Plot Simulation Results.
 
+% Plot the motor neuron activations.
 fig_motor_activations = precomputed_simulation_manager.plot_motor_neuron_activations();
 
-
-%% Plot the Sensor Data.
+% Plot 
 
 
 %% Terminate USART Communication.

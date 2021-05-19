@@ -15,9 +15,12 @@ classdef joint_manager_class
         Ts_joints
         Js_joints
         
+        joint_order
+        
         physics_manager
         
     end
+    
     
     %% JOINT MANAGER METHODS SETUP
     
@@ -48,6 +51,9 @@ classdef joint_manager_class
             % Set the joint assignments in the standard way (each joint is assigned to itself).
             self.Js_joints = self.physics_manager.get_standard_joint_assignments( 1, self.num_joints );
                         
+            % Determine the joint order from each joint's to and from link IDs.
+            self.joint_order = self.get_joint_order(  );
+            
         end
         
         
@@ -115,6 +121,54 @@ classdef joint_manager_class
             for k = 1:self.num_joints
                 
                 Ms_joints( :, :, 1, k ) = self.joints(k).M;
+                
+            end
+            
+        end
+        
+                
+        % Implement a function to compute the order to the joints in this joint manager (assuming that they are arranged into a valid open kinematic chain).
+        function joint_order = get_joint_order( self )
+            
+            % Retrieve the from and to link IDs.
+            from_link_IDs = cell2mat( self.get_joint_property( 'all', 'parent_link_ID' ) );
+            to_link_IDs = cell2mat( self.get_joint_property( 'all', 'child_link_ID' ) );
+            
+            % Ensure that all of the to and from link IDs are unique.
+            if ( length(from_link_IDs) ~= length(unique(from_link_IDs)) ) || ( length(to_link_IDs) ~= length(unique(to_link_IDs)) )                 % If any of the to and from link ideas are not unique...
+            
+                % Throw an error.
+               error('Invalid open kinematic chain detected.  All parent and child link IDs in an open kinematic chain must be unique.') 
+                
+            end
+                
+            % Preallocate a variable to store the joint order.
+            joint_order = zeros( 1, self.num_joints );
+
+            % Define the target link ID.
+            target_link_ID = 0;
+            
+            % Determine the joint order.
+            for k = 1:self.num_joints               % Iterate through each of the joints...
+                
+                % Find the joint index that matches this target link ID.
+                joint_index = find( from_link_IDs == target_link_ID, 1 );
+                
+                % Determine how to set the joint order.
+                if ~isempty( joint_index )                              % If a valid joint index was found...
+                
+                    % Store this joint ID.
+                    joint_order(k) = self.joints(joint_index).ID;
+                
+                    % Set the next target link ID.
+                    target_link_ID = to_link_IDs(joint_index);
+                    
+                elseif ( target_link_ID ~= -1 )                         % If the target link ID is not negative one...
+                    
+                    % Throw an error.
+                    error('Link ID %0.0f does not have an associated joint', target_link_ID)
+                    
+                end
                 
             end
             
@@ -259,8 +313,9 @@ classdef joint_manager_class
             num_properties_to_get = length(joint_IDs);
             
             % Preallocate a variable to store the joint properties.
-            xs = zeros(1, num_properties_to_get);
-            
+%             xs = zeros( 1, num_properties_to_get );
+            xs = cell( 1, num_properties_to_get );
+
             % Retrieve the given joint property for each joint.
             for k = 1:num_properties_to_get
                 
@@ -268,8 +323,9 @@ classdef joint_manager_class
                 joint_index = self.get_joint_index( joint_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs(k) = self.joints(%0.0f).%s;', joint_index, joint_property );
-                
+%                 eval_str = sprintf( 'xs(k) = self.joints(%0.0f).%s;', joint_index, joint_property );
+                eval_str = sprintf( 'xs{k} = self.joints(%0.0f).%s;', joint_index, joint_property );
+
                 % Evaluate the given joint property.
                 eval(eval_str);
                 
@@ -283,6 +339,14 @@ classdef joint_manager_class
             
             % Validate the joint IDs.
             joint_IDs = self.validate_joint_IDs( joint_IDs );
+            
+            % Validate the joint property values.
+            if ~isa( joint_property_values, 'cell' )                    % If the joint property values are not a cell array...
+               
+                % Convert the joint property values to a cell array.
+                joint_property_values = num2cell( joint_property_values );
+                
+            end
             
             % Set the properties of each joint.
             for k = 1:self.num_joints                   % Iterate through each joint...
@@ -300,6 +364,26 @@ classdef joint_manager_class
                     eval(eval_string);
                     
                 end
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the joint limits associated with a specific limit type.
+        function joint_limits = get_joint_limits( self, limit_type )
+            
+            % Set the default limit type.
+            if nargin < 2, limit_type = 'Ext'; end
+            
+            % Preallocate a variable to store the joint limits.
+            joint_limits = zeros( 1, self.num_joints );
+            
+            % Retrieve the joint limits associated with each joint.
+            for k = 1:self.num_joints               % Iterate through each joint...
+            
+                % Retrieve this joint limit.
+                joint_limits(k) = self.joints(k).get_joint_limit( limit_type );
+            
             end
             
         end
@@ -379,7 +463,7 @@ classdef joint_manager_class
         end
         
         
-        %% Plot Functions.
+        %% Plot Functions
         
         % Implement a function to plot the joint locations.
         function fig = plot_joint_points( self, fig, plotting_options )

@@ -315,7 +315,7 @@ classdef link_manager_class
                 link_index = self.get_link_index( link_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs(k) = self.links(%0.0f).%s;', link_index, link_property );
+                eval_str = sprintf( 'xs{k} = self.links(%0.0f).%s;', link_index, link_property );
                 
                 % Evaluate the given link property.
                 eval(eval_str);
@@ -330,6 +330,14 @@ classdef link_manager_class
             
             % Validate the link IDs.
             link_IDs = self.validate_link_IDs( link_IDs );
+            
+            % Validate the link property values.
+            if ~isa( link_property_values, 'cell' )                    % If the link property values are not a cell array...
+               
+                % Convert the link property values to a cell array.
+                link_property_values = num2cell( link_property_values );
+                
+            end
             
             % Set the properties of each link.
             for k = 1:self.num_links                   % Iterate through each link...

@@ -46,10 +46,16 @@ classdef limb_class
             if nargin < 1, self.ID = []; else, self.ID = ID; end
             
             % Set the end effector position, orientation, configuration, and home configuration.
-            self = self.set_end_effector_state( );
+            self = self.set_end_effector_state(  );
+            
+            % Set the tendon length of the muscles on this limb.
+            self = self.set_tendon_lengths(  );
             
         end
         
+        
+        
+        %% Get & Set Functions
         
         % Implement a function to set the end effector position, orientation, and configuration.
         function self = set_end_effector_state( self )
@@ -82,6 +88,91 @@ classdef limb_class
                 self.J_end_effector = [];
                 
             end
+            
+        end
+        
+        
+        % Implement a function to set the joint angles of this limb.
+        function self = set_joint_angles( self, thetas )
+            
+            % Set the joint angles.
+            self.joint_manager = self.joint_manager.set_joint_property( 'all', thetas, 'theta' );
+            
+        end
+          
+        
+        % Implement a function to set the tendon lengths of the BPA muscles on this limb.
+        function self = set_tendon_lengths( self )
+           
+            % NOTE: This function assumes that the BPA muscla manager for this limb contains only MONOARITICULAR muscles.  This function will have to be modified to accomodate biarticular muscles.
+            
+            % Ensure that a joint manager and BPA muscle manager exist before attempting to compute tendon lengths.
+            if ~isempty( self.joint_manager ) && ~isempty( self.BPA_muscle_manager )            % If both a joint manager and BPA muscle manager have been defined for this limb...
+                
+                % Retrieve the current joint angles to which we will reset the joints after computing tendon lengths.
+                thetas0 = cell2mat( self.joint_manager.get_joint_property( 'all', 'theta' ) );
+                
+                % Retrieve the BPA muscle resting lengths.
+                resting_muscle_lengths = cell2mat( self.BPA_muscle_manager.get_muscle_property( 'all', 'resting_muscle_length' ) );
+                
+                % Retrieve the muscle types of the BPA muscles on this limb.
+                muscle_types = self.BPA_muscle_manager.get_muscle_property( 'all', 'muscle_type' );
+                
+                % Retrieve the muscle IDs.
+                muscle_IDs = cell2mat( self.BPA_muscle_manager.get_muscle_property( 'all', 'ID' ) );
+                
+                % Set the plausible joint orientations.
+                joint_orientations = { 'Ext', 'Flx' };
+                
+                % Retrieve the number of different joint orientations.
+                num_joint_orientations = length( joint_orientations );
+                
+                % Set the tendon length of each BPA muscle.
+                for k = 1:num_joint_orientations                    % Iterate through each of the limb orientations...
+                    
+                    % Retrieve the joint angles associated with this joint orientation.
+                    thetas = self.joint_manager.get_joint_limits( joint_orientations{k} );
+                    
+                    % Set the current joint angles of this limb to be those that would put the limb into the desired configuration.
+                    self.joint_manager = self.joint_manager.set_joint_property( 'all', thetas, 'theta' );
+                    
+                    % Put the BPA muscles into this configuration.
+                    self = self.joint_angles2BPA_muscle_configurations(  );
+                    
+                    % Compute the BPA muscle total muscle-tendon lengths in this configuration.
+                    self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
+                    
+                    % Retrieve the BPA muscle lengths associated with this limb in this configuration.
+                    total_muscle_tendon_lengths = cell2mat( self.BPA_muscle_manager.get_muscle_property( 'all', 'total_muscle_tendon_length' ) );
+                    
+                    % Compute the tendon length of each BPA muscle.
+                    tendon_lengths = total_muscle_tendon_lengths - resting_muscle_lengths;
+                    
+                    % Retrieve the muscle indexes.
+                    muscle_indexes = strcmp( muscle_types, joint_orientations{k} );
+                    
+                    % Retrieve the muscle IDs to set.
+                    muscle_IDs_to_set = muscle_IDs(muscle_indexes);
+                    
+                    % Retrieve the tendon lengths to set.
+                    tendon_lengths_to_set = tendon_lengths(muscle_indexes);
+                    
+                    % Store these tendon lengths for each muscle that matches the current joint orientation.
+                    self.BPA_muscle_manager = self.BPA_muscle_manager.set_BPA_muscle_property( muscle_IDs_to_set, tendon_lengths_to_set, 'tendon_length' );
+                                        
+                end
+                
+                % Return the joint angles to their original configuration.
+                self.joint_manager = self.joint_manager.set_joint_property( 'all', thetas0, 'theta' );
+                
+                % Return this BPA muscles to their original configuration.
+                self = self.joint_angles2BPA_muscle_configurations(  );
+
+                % Compute the BPA muscle lengths in this configuration.
+                self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
+                
+            end
+            
             
         end
         
@@ -169,16 +260,16 @@ classdef limb_class
         function self = joint_angles2BPA_muscle_configurations( self )
             
             % Retrieve the angles of the joints on this limb.
-            thetas = self.joint_manager.get_joint_property( 'all', 'theta' )';
+            thetas = cell2mat( self.joint_manager.get_joint_property( 'all', 'theta' ) )';
             
             % Compute the configuration of the BPA muscles.
-            self.BPA_muscle_manager.Ts = self.physics_manager.forward_kinematics( self.link_manager.Ms_cms, self.link_manager.Js_cms, self.joint_manager.Ss, thetas );
+            self.BPA_muscle_manager.Ts = self.physics_manager.forward_kinematics( self.BPA_muscle_manager.Ms, self.BPA_muscle_manager.Js, self.joint_manager.Ss, thetas );
 
             % Compute the position and configuration of the BPA muscles.
-            [ ps, Rs ] = self.physics_manager.T2PR( self.link_manager.Ts_cms );
+            [ ps, Rs ] = self.physics_manager.T2PR( self.BPA_muscle_manager.Ts );
 
             % Create cells to store the update BPA muscle positions, orientations, and configurations.
-            [ ps_cell, Rs_cell, Ts_cell ] = deal( cell( 1, self.link_manager.num_links ) );
+            [ ps_cell, Rs_cell, Ts_cell ] = deal( cell( 1, self.BPA_muscle_manager.num_BPA_muscles ) );
             
             % Store the updated BPA muscle positions, orientations, and configurations into cell arrays.
             for k = 1:self.BPA_muscle_manager.num_BPA_muscles               % Iterate through each BPA muscle...
@@ -195,14 +286,13 @@ classdef limb_class
             end
             
             % Update the BPA muscle position properties.
-            self.BPA_muscle_manager = self.BPA_muscle_manager.set_link_property( 'all', ps_cell, 'ps' );
+            self.BPA_muscle_manager = self.BPA_muscle_manager.set_BPA_muscle_property( 'all', ps_cell, 'ps' );
 
             % Update the BPA muscle orientation properties.
-            self.BPA_muscle_manager = self.BPA_muscle_manager.set_link_property( 'all', Rs_cell, 'Rs' );
+            self.BPA_muscle_manager = self.BPA_muscle_manager.set_BPA_muscle_property( 'all', Rs_cell, 'Rs' );
 
             % Update the BPA muscle configuration properties.
-            self.BPA_muscle_manager = self.BPA_muscle_manager.set_link_property( 'all', Ts_cell, 'Ts' );
-
+            self.BPA_muscle_manager = self.BPA_muscle_manager.set_BPA_muscle_property( 'all', Ts_cell, 'Ts' );
             
         end
         
@@ -210,7 +300,17 @@ classdef limb_class
         % Implement a function to compute the position, orientation, and configuration of all of the points on this limb given the current joint angles of this limb.
         function self = joint_angles2limb_configurations( self )
             
+            % Compute the position, orientation, and configuration of the end effector based on the current limb joint angles.
+            self = self.joint_angles2end_effector_configuration(  );
             
+            % Compute the position, orientation, and configuration of the joint points based on the current limb joint angles.
+            self = self.joint_angles2joint_configurations(  );
+            
+            % Compute the position, orientation, and configuration of the link points based on the current limb joint angles.
+            self = self.joint_angles2link_configurations(  );
+            
+            % Compute the position, orientation, and configuration fo the BPA muscle points based on the current limb joint angles.
+            self = self.joint_angles2BPA_muscle_configurations(  );
             
         end
         

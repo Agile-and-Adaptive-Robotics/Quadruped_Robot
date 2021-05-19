@@ -216,6 +216,21 @@ classdef hill_muscle_manager_class
         end
         
         
+        %% Feedback Functions
+        
+        % Implement a function to compute the type Ia, type Ib, and type II feedback associated with the current hill muscle velocity, measured total tension, and length, respectively.
+        function self = muscle_properties2muscle_feedback( self )
+            
+            % Compute the hill muscle Type Ia (muscle velocity) feedback from the hill muscle velocity. ( Hill Muscle Velocity -> Hill Muscle Type Ia (Velocity) Feedback )
+            self = self.call_muscle_method( 'all', 'velocity2typeIa_feedback' );
+
+            % Compute the hill muscle Type Ib (muscle tension) feedback from the hill muscle total tension. ( Hill Muscle Total Tension -> Hill Muscle Type Ib (Tension) Feedback )
+            self = self.call_muscle_method( 'all', 'measured_total_tension2typeIb_feedback' );
+
+            % Compute the hill muscle Type II (muscle velocity) feedback from the hill muscle length. ( Hill Muscle Length -> Hill Muscle Type II (Length) Feedback )
+            self = self.hill_muscle_manager.call_muscle_method( 'all', 'length2typeII_feedback' );
+            
+        end
         
         
     end
