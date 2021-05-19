@@ -606,41 +606,41 @@ fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e.,
 
 %% DEBUGGING: PLOTTING
 
-P31s = squeeze( Pmuscles_desired( :, 1, 3, : ) );
-P32s = squeeze( Pmuscles_desired( :, 2, 3, : ) );
-P33s = squeeze( Pmuscles_desired( :, 3, 3, : ) );
-
-P41s = squeeze( Pmuscles_desired( :, 1, 4, : ) );
-P42s = squeeze( Pmuscles_desired( :, 2, 4, : ) );
-P43s = squeeze( Pmuscles_desired( :, 3, 4, : ) );
-
-Pend_desired = squeeze( Pend_desired );
-
-plot3( P31s(1, :), P31s(2, :), P31s(3, :), '-m', 'Linewidth', 3 )
-plot3( P32s(1, :), P32s(2, :), P32s(3, :), '-m', 'Linewidth', 3 )
-plot3( P33s(1, :), P33s(2, :), P33s(3, :), '-m', 'Linewidth', 3 )
-
-plot3( P41s(1, :), P41s(2, :), P41s(3, :), '-m', 'Linewidth', 3 )
-plot3( P42s(1, :), P42s(2, :), P42s(3, :), '-m', 'Linewidth', 3 )
-plot3( P43s(1, :), P43s(2, :), P43s(3, :), '-m', 'Linewidth', 3 )
-
-plot3( Pend_desired(1, :), Pend_desired(2, :), Pend_desired(3, :), '-r', 'Linewidth', 4 )
-
-n = 192;
-
-% figure('color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('BPA Muscle Attachment Points'), axis equal, axis([-0.3, 0.6, -0.7, 0.1, -0.4, 0.5])
-figure('color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('BPA Muscle Attachment Points')
-plot3( P31s(1, 1:n), P31s(2, 1:n), P31s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
-plot3( P32s(1, 1:n), P32s(2, 1:n), P32s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
-plot3( P33s(1, 1:n), P33s(2, 1:n), P33s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
-
-plot3( P41s(1, 1:n), P41s(2, 1:n), P41s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
-plot3( P42s(1, 1:n), P42s(2, 1:n), P42s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
-plot3( P43s(1, 1:n), P43s(2, 1:n), P43s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
-
-plot3( Pend_desired(1, 1:n), Pend_desired(2, 1:n), Pend_desired(3, 1:n), '.-r', 'Linewidth', 1, 'Markersize', 20 )
-
-axis equal
+% P31s = squeeze( Pmuscles_desired( :, 1, 3, : ) );
+% P32s = squeeze( Pmuscles_desired( :, 2, 3, : ) );
+% P33s = squeeze( Pmuscles_desired( :, 3, 3, : ) );
+% 
+% P41s = squeeze( Pmuscles_desired( :, 1, 4, : ) );
+% P42s = squeeze( Pmuscles_desired( :, 2, 4, : ) );
+% P43s = squeeze( Pmuscles_desired( :, 3, 4, : ) );
+% 
+% Pend_desired = squeeze( Pend_desired );
+% 
+% plot3( P31s(1, :), P31s(2, :), P31s(3, :), '-m', 'Linewidth', 3 )
+% plot3( P32s(1, :), P32s(2, :), P32s(3, :), '-m', 'Linewidth', 3 )
+% plot3( P33s(1, :), P33s(2, :), P33s(3, :), '-m', 'Linewidth', 3 )
+% 
+% plot3( P41s(1, :), P41s(2, :), P41s(3, :), '-m', 'Linewidth', 3 )
+% plot3( P42s(1, :), P42s(2, :), P42s(3, :), '-m', 'Linewidth', 3 )
+% plot3( P43s(1, :), P43s(2, :), P43s(3, :), '-m', 'Linewidth', 3 )
+% 
+% plot3( Pend_desired(1, :), Pend_desired(2, :), Pend_desired(3, :), '-r', 'Linewidth', 4 )
+% 
+% n = 192;
+% 
+% % figure('color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('BPA Muscle Attachment Points'), axis equal, axis([-0.3, 0.6, -0.7, 0.1, -0.4, 0.5])
+% figure('color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('BPA Muscle Attachment Points')
+% plot3( P31s(1, 1:n), P31s(2, 1:n), P31s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
+% plot3( P32s(1, 1:n), P32s(2, 1:n), P32s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
+% plot3( P33s(1, 1:n), P33s(2, 1:n), P33s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
+% 
+% plot3( P41s(1, 1:n), P41s(2, 1:n), P41s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
+% plot3( P42s(1, 1:n), P42s(2, 1:n), P42s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
+% plot3( P43s(1, 1:n), P43s(2, 1:n), P43s(3, 1:n), '.-m', 'Linewidth', 1, 'Markersize', 20 )
+% 
+% plot3( Pend_desired(1, 1:n), Pend_desired(2, 1:n), Pend_desired(3, 1:n), '.-r', 'Linewidth', 1, 'Markersize', 20 )
+% 
+% axis equal
 
 %% Compute the Muscle Lengths Throughout the Desired Trajectory.
 
