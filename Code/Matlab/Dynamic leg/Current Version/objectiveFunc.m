@@ -29,17 +29,15 @@ t_span=linspace(init_t,final_t,N);
 
 x0=[0 0 0 0 0 0]';
 [t,x] = ode45(@(t,y) Dynamic_code(t,y,P,U),t_span,x0);
-[t2,x2] = ode45(@(t,y) Dynamic_code(t,y,P,[-10,-10,-10.25,0,0,0,0,0,0]),t_span,x0);
-[theta1Data] = x2(1);
-[theta2Data] = x2(3);
-[theta3Data] = x2(5);
-%x1 = x(1);
-%x2 = x(3);
-%x3 = x(5);
+[t2,a] = ode45(@(t,y) Dynamic_code(t,y,P,[0,0,0,-1,-9,-1,0,0,0]),t_span,x0);
+[theta1Data] = a(:,1);
+[theta2Data] = a(:,3);
+[theta3Data] = a(:,5);
 
-e1 = (theta1Data - x(1));
-e2 = (theta2Data - x(3));
-e3 = (theta3Data - x(5));
+
+e1 = (x(:,1) - theta1Data);
+e2 = (x(:,3) - theta2Data);
+e3 = (x(:,5) - theta3Data);
 
 f = e1'*e1 + e2'*e2 + e3'*e3;
 
