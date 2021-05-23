@@ -89,9 +89,9 @@ classdef robot_class
             num_slaves = self.electrical_subsystem.slave_manager.num_slaves;
            
             % Retrieve the BPA muscle IDs and BPA muscle desired pressures
-            BPA_muscle_IDs = cell2mat( self.mechanical_subsystem.limb_manager.get_property_from_all_BPA_muscles( 'ID' ) );
-            BPA_muscle_desired_pressures = cell2mat( self.mechanical_subsystem.limb_manager.get_property_from_all_BPA_muscles( 'desired_pressure' ) );
-            BPA_muscle_max_pressures = cell2mat( self.mechanical_subsystem.limb_manager.get_property_from_all_BPA_muscles( 'max_pressure' ) );
+            BPA_muscle_IDs = self.mechanical_subsystem.limb_manager.get_property_from_all_BPA_muscles( 'ID' );
+            BPA_muscle_desired_pressures = self.mechanical_subsystem.limb_manager.get_property_from_all_BPA_muscles( 'desired_pressure' );
+            BPA_muscle_max_pressures = self.mechanical_subsystem.limb_manager.get_property_from_all_BPA_muscles( 'max_pressure' );
 
             % Set the desired pressure of each slave.
             for k = 1:num_slaves                % Iterate through each slave...
@@ -364,8 +364,8 @@ classdef robot_class
             else                                                    % Otherwise...
                 
                 % Retrieve the BPA muscle IDs and yanks.
-                BPA_muscle_IDs = cell2mat( self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' ) );
-                BPA_muscle_values = cell2mat( self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', muscle_property ) );
+                BPA_muscle_IDs = cell2mat( self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', 'ID' );
+                BPA_muscle_values = self.mechanical_subsystem.limb_manager.get_BPA_muscle_property( 'all', muscle_property );
                 
                 % Set each hill muscle yank to match the yank of its associated BPA muscle.
                 for k = 1:self.neural_subsystem.hill_muscle_manager.num_hill_muscles                    % Iterate through each hill muscle...

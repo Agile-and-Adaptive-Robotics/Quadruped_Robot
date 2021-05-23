@@ -102,8 +102,9 @@ classdef hill_muscle_manager_class
             num_properties_to_get = length(muscle_IDs);
             
             % Preallocate a variable to store the muscle properties.
-            xs = zeros(1, num_properties_to_get);
-            
+%             xs = zeros(1, num_properties_to_get);
+            xs = cell( 1, num_properties_to_get );
+
             % Retrieve the given muscle property for each muscle.
             for k = 1:num_properties_to_get
                 
@@ -229,7 +230,7 @@ classdef hill_muscle_manager_class
             self = self.call_muscle_method( 'all', 'measured_total_tension2typeIb_feedback' );
 
             % Compute the hill muscle Type II (muscle velocity) feedback from the hill muscle length. ( Hill Muscle Length -> Hill Muscle Type II (Length) Feedback )
-            self = self.hill_muscle_manager.call_muscle_method( 'all', 'length2typeII_feedback' );
+            self = self.call_muscle_method( 'all', 'length2typeII_feedback' );
             
         end
         

@@ -115,10 +115,10 @@ classdef synapse_manager_class
             for k = 1:num_properties_to_get
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                neuron_index = self.get_synapse_index( synapse_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs{k} = self.synapses(%0.0f).%s;', synapse_index, synapse_property );
+                eval_str = sprintf( 'xs{k} = self.synapses(%0.0f).%s;', neuron_index, synapse_property );
 
                 % Evaluate the given synapse property.
                 eval(eval_str);
@@ -129,16 +129,16 @@ classdef synapse_manager_class
         
         
         % Implement a function to set the properties of specific synapses.
-        function self = set_synapse_property( self, synapse_IDs, synapse_property_values, synapse_property )
+        function self = set_neuron_property( self, neuron_IDs, neuron_property_values, neuron_property )
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
             % Validate the synapse property values.
-            if ~isa( synapse_property_values, 'cell' )                    % If the synapse property values are not a cell array...
+            if ~isa( neuron_property_values, 'cell' )                    % If the synapse property values are not a cell array...
                
                 % Convert the synapse property values to a cell array.
-                synapse_property_values = num2cell( synapse_property_values );
+                neuron_property_values = num2cell( neuron_property_values );
                 
             end
             
@@ -146,13 +146,13 @@ classdef synapse_manager_class
             for k = 1:self.num_synapses                   % Iterate through each synapse...
                 
                 % Determine the index of the synapse property value that we want to apply to this synapse (if we want to set a property of this synapse).
-                index = find(self.synapses(k).ID == synapse_IDs, 1);
+                index = find(self.synapses(k).ID == neuron_IDs, 1);
                 
                 % Determine whether to set a property of this synapse.
                 if ~isempty(index)                         % If a matching synapse ID was detected...
                     
                     % Create an evaluation string that sets the desired synapse property.
-                    eval_string = sprintf('self.synapses(%0.0f).%s = synapse_property_values{%0.0f};', k, synapse_property, index);
+                    eval_string = sprintf('self.synapses(%0.0f).%s = neuron_property_values{%0.0f};', k, neuron_property, index);
                     
                     % Evaluate the evaluation string.
                     eval(eval_string);
@@ -166,22 +166,22 @@ classdef synapse_manager_class
         %% Call Methods Functions
         
         % Implement a function to that calls a specified synapse method for each of the specified synapses.
-        function self = call_synapse_method( self, synapse_IDs, synapse_method )
+        function self = call_neuron_method( self, neuron_IDs, neuron_method )
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
             % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length(synapse_IDs);
+            num_neurons_to_evaluate = length(neuron_IDs);
             
             % Evaluate the given synapse method for each synapse.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'self.synapses(%0.0f) = self.synapses(%0.0f).%s();', synapse_index, synapse_index, synapse_method );
+                eval_str = sprintf( 'self.synapses(%0.0f) = self.synapses(%0.0f).%s();', neuron_index, neuron_index, neuron_method );
                 
                 % Evaluate the given synapse method.
                 eval(eval_str);

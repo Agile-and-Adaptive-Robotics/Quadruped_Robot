@@ -28,7 +28,7 @@ classdef neuron_manager_class
         end
         
         
-        %% Neuron Index & ID Functions
+        %% Get & Set Functions
         
         % Implement a function to retrieve the index associated with a given neuron ID.
         function neuron_index = get_neuron_index( self, neuron_ID )
@@ -75,7 +75,7 @@ classdef neuron_manager_class
                 if  strcmp( neuron_IDs, 'all' ) || strcmp( neuron_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the neuron IDs.
-                    neuron_IDs = zeros( 1, self.num_neurons );
+                    neuron_IDs = zeros( 1, self.num_joints );
                     
                     % Retrieve the neuron ID associated with each neuron.
                     for k = 1:self.num_neurons                   % Iterate through each neuron...
@@ -97,10 +97,8 @@ classdef neuron_manager_class
         end
         
         
-        %% Get & Set Neuron Property Functions
-        
         % Implement a function to retrieve the properties of specific neurons.
-        function xs = get_neuron_property( self, neuron_IDs, neuron_property )
+        function xs = get_joint_property( self, neuron_IDs, neuron_property )
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
@@ -143,7 +141,7 @@ classdef neuron_manager_class
             end
             
             % Set the properties of each neuron.
-            for k = 1:self.num_neurons                   % Iterate through each neuron...
+            for k = 1:self.num_joints                   % Iterate through each neuron...
                 
                 % Determine the index of the neuron property value that we want to apply to this neuron (if we want to set a property of this neuron).
                 index = find(self.neurons(k).ID == neuron_IDs, 1);
@@ -163,27 +161,27 @@ classdef neuron_manager_class
         end
         
         
-        %% Call Neuron Methods Functions
+        %% Call Methods Functions
         
-        % Implement a function to that calls a specified neuron method for each of the specified neurons.
-        function self = call_neuron_method( self, neuron_IDs, neuron_method )
+        % Implement a function to that calls a specified joint method for each of the specified joints.
+        function self = call_joint_method( self, joint_IDs, joint_method )
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            % Validate the joint IDs.
+            joint_IDs = self.validate_joint_IDs( joint_IDs );
             
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length(neuron_IDs);
+            % Determine how many joints to which we are going to apply the given method.
+            num_joints_to_evaluate = length(joint_IDs);
             
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            % Evaluate the given joint method for each joint.
+            for k = 1:num_joints_to_evaluate               % Iterate through each of the joints of interest...
                 
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                % Retrieve the index associated with this joint ID.
+                joint_index = self.get_joint_index( joint_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'self.neurons(%0.0f) = self.neurons(%0.0f).%s();', neuron_index, neuron_index, neuron_method );
+                eval_str = sprintf( 'self.joints(%0.0f) = self.joints(%0.0f).%s();', joint_index, joint_index, joint_method );
                 
-                % Evaluate the given neuron method.
+                % Evaluate the given muscle method.
                 eval(eval_str);
                 
             end

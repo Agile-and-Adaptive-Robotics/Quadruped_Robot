@@ -8,6 +8,12 @@ clear, close('all'), clc
 
 %% Load Precomputed Simulation Data.
 
+% State that we are starting a new operation.
+fprintf( 'LOADING PRECOMPUTED SIMULATION DATA. Please Wait...\n' )
+
+% Start a timer.
+tic
+
 % Define the path to the file we want to load.
 load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Solutions\Main\Precomputed_Network_Simulation';
 file_name = 'Precomputed_Network_Simulation_Data.xlsx';
@@ -18,6 +24,7 @@ data_loader = data_loader_class( load_path );
 
 % Define the maximum number of data points to load.
 max_num_data_points = 1000;
+max_num_data_points = 1000;
 
 % Create an instance of the simulation data class.
 precomputed_simulation_manager = precomputed_simulation_manager_class();
@@ -25,11 +32,26 @@ precomputed_simulation_manager = precomputed_simulation_manager_class();
 % Load the precomputed simulation data.
 precomputed_simulation_manager = precomputed_simulation_manager.load_simulation_data( file_path, max_num_data_points );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'LOADING PRECOMPUTED SIMULATION DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Neural Network.
 
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING NEURAL NETWORK. Please Wait...\n' )
+
+% Start a timer.
+tic
+
 % Define the number of neurons.
 num_neurons = 4;
+
+% Define the neuron IDs.
+neuron_IDs = 1:num_neurons;
 
 % Define the neuron properties.
 Cm = 5e-9;                                                                                          % [F] Membrane Capacitance.
@@ -53,7 +75,7 @@ neurons = repmat( neuron_class(  ), 1, num_neurons );
 for k = 1:num_neurons               % Iterate through each neuron...
     
     % Create this neuron.
-    neurons(k) = neuron_class( Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna );
+    neurons(k) = neuron_class( neuron_IDs(k), Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna );
     
 end
 
@@ -89,8 +111,20 @@ network_dt = 1e-3;
 % Create an instance of the network class.
 network = network_class( neuron_manager, synapse_manager, network_dt );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING NEURAL NETWORK. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the BPA Muscles.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING BPA MUSCLES. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Load the BPA muscle data.
 [ muscle_IDs, muscle_names, desired_tensions, measured_tensions, desired_pressures, measured_pressures, max_pressures, muscle_lengths, resting_muscle_lengths, max_strains, velocities, yanks, c0s, c1s, c2s, c3s, c4s, c5s, c6s, ps, Js, muscle_types ] = data_loader.load_BPA_muscle_data( 'BPA_Muscle_Data.xlsx' );
@@ -115,8 +149,20 @@ for k = 1:num_BPA_muscles               % Iterate through each of the BPA muscle
     
 end
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING BPA MUSCLES. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Hill Muscles.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING HILL MUSCLES. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Load the hill muscle data.
 [ muscle_IDs, muscle_names, activations, activation_domains, desired_active_tensions, measured_total_tensions, tension_domains, max_strains, muscle_lengths, resting_muscle_lengths, velocities, yanks, kses, kpes, bs ] = data_loader.load_hill_muscle_data( 'Hill_Muscle_Data.xlsx' );
@@ -141,8 +187,20 @@ end
 % Create an instance of the hill muscle manager class.
 hill_muscle_manager = hill_muscle_manager_class( hill_muscles );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING HILL MUSCLES. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Robot Body.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING ROBOT BODY. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Define the body ID.
 body_ID = 1;
@@ -170,8 +228,20 @@ body_mesh_type = 'Cuboid';
 % Create an instance of the body class.
 body = body_class( body_ID, body_name, body_mass, body_length, body_width, body_height, body_p_cm, body_R_cm, body_v_cm, body_w_cm, body_mesh_type );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING ROBOT BODY. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Robot Links.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING ROBOT LINKS. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Load the link data.
 [ link_IDs, link_names, link_parent_joint_IDs, link_child_joint_IDs, link_ps_starts, link_ps_ends, link_ps_cms, link_lengths, link_widths, link_masses, link_vs_cms, link_ws_cms, link_mesh_types ] = data_loader.load_link_data( 'Link_Data.xlsx' );
@@ -193,8 +263,20 @@ for k = 1:num_links               % Iterate through each of the links...
     
 end
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING ROBOT LINKS. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Robot Joints.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING ROBOT JOINTS. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Load the joint data.
 [ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
@@ -216,8 +298,20 @@ for k = 1:num_joints               % Iterate through each of the joints...
     
 end
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING ROBOT JOINTS. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Robot Limbs.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING ROBOT LIMBS. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Define the number of limbs.
 num_limbs = 4;
@@ -252,8 +346,20 @@ end
 % Create an instance of the limb manager class.
 limb_manager = limb_manager_class( limbs );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING ROBOT LIMBS. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize USART Communication.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING USART MANAGER. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 %Define the baud rates.
 baud_rate_virtual_ports = 115200; baud_rate_physical_ports = 57600;             % The Master Port is the only physical port.  All other ports are virtual.
@@ -273,8 +379,20 @@ usart_manager = usart_manager_class( num_start_bytes, master_port_type );
 % Initialize the USART serial ports.
 usart_manager = usart_manager.initialize_serial_ports( COM_port_names, baud_rate_physical_ports, baud_rate_virtual_ports );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING USART MANAGER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize Slave Data Managers.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING SLAVE MANAGER. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Define the number of slaves.
 num_slaves = 24;
@@ -326,8 +444,20 @@ end
 % Create an instance of the slave manager class.
 slave_manager = slave_manager_class( slaves );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING SLAVE MANAGER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% Initialize the Quadruped Robot.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING QUADRUPED ROBOT. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Create an instance of the neural subsystem class.
 neural_subsystem = neural_subsystem_class( network, hill_muscle_manager );
@@ -341,6 +471,12 @@ electrical_subsystem = electrical_subsystem_class( usart_manager, slave_manager 
 % Create an instance of the robot class.
 robot_state0 = robot_class( neural_subsystem, mechanical_subsystem, electrical_subsystem );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING QUADRUPED ROBOT. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 % %% Initialize the Simulation Data Recorder.
 % 
@@ -352,6 +488,12 @@ robot_state0 = robot_class( neural_subsystem, mechanical_subsystem, electrical_s
 
 
 %% Initialzize the Simulation Manager.
+
+% State that we are starting a new operation.
+fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Set the maximum number of robot states to record.
 max_states = 1000;
@@ -368,6 +510,12 @@ robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsyste
 % Create an instance of the simulation manager class.
 simulation_manager = simulation_manager_class( robot_state0, max_states, precomputed_simulation_manager.dt );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
 
 %% ( Testing: Plotting Stuff )
 
@@ -376,14 +524,22 @@ simulation_manager = simulation_manager_class( robot_state0, max_states, precomp
 fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
 
 
-% BEFORE WE SIMULATE WE NEED TO COMPUTE THE REQUIRED TENDON LENGTH FOR EACH MUSCLE WHEN THE MUSCLE IS IN ITS RESTING POSITION.
-
-
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
 
+% State that we are starting a new operation.
+fprintf( 'RUNNING SIMULATION. Please Wait...\n\n' )
+
+% Start a timer.
+simulation_timer = tic;
+
 % Send each simulation data value to the master mircocontoller and collect the associated sensory feedback.
 for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterate through each simulation time step...
+    
+    %% Start a Timer.
+    
+    % Start a timer for this iteration.
+    iteration_timer = tic;
     
     %% Initialize the Next Robot State.
     
@@ -481,24 +637,62 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Transfer the BPA muscle desired pressure to the slave manager desired pressure. ( BPA Muscle Desired Pressure -> Slave Manager Desired Pressure )
     simulation_manager.robot_states(end) = simulation_manager.robot_states(end).BPA_desired_pressures2slave_desired_pressures(  );
     
+    %% End the Timer.
+    
+    % End the timer for this iteration.
+    iteration_duration = toc(iteration_timer);
+    
+    % Print out information for this iteration.
+    fprintf( 'Iteration #%0.0f: %0.3f [s]\n', k, iteration_duration )
     
 end
 
+% Retrieve the total simulation duration.
+simulation_duration = toc(simulation_timer);
+
+% State that we have finished this operation.
+fprintf( '\nRUNNING SIMULATION. Please Wait... Done. %0.3f [s] \n\n', simulation_duration )
+
+
 
 %% Plot Simulation Results.
+
+% State that we are starting a new operation.
+fprintf( 'PLOTTING SIMULATION RESULTS. Please Wait...\n' )
+
+% Start a timer.
+tic
 
 % Plot the motor neuron activations.
 fig_motor_activations = precomputed_simulation_manager.plot_motor_neuron_activations();
 
 % Plot the hill muscle activation history.
 
+% Plot the joint angle history.
+fig = simulation_manager.plot_joint_angle_history( 'all' );
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'PLOTTING SIMULATION RESULTS. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
 
 
 %% Terminate USART Communication.
 
+% State that we are starting a new operation.
+fprintf( 'TERMINATING USART MANAGER. Please Wait...\n' )
+
+% Start a timer.
+tic
+
 % Terminate the USART serial ports.
 usart_manager = usart_manager.terminate_serial_ports();
 
+% Retrieve the elapsed time.
+elapsed_time = toc;
+
+% State that we have finished this operation.
+fprintf( 'TERMINATING USART MANAGER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
 
 

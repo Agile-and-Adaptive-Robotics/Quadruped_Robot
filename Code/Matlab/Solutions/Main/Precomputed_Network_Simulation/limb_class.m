@@ -182,7 +182,7 @@ classdef limb_class
         function self = joint_angles2end_effector_configuration( self )
             
             % Retrieve the angles of the joints on this limb.
-            thetas = self.joint_manager.get_joint_property( 'all', 'theta' )';
+            thetas = cell2mat( self.joint_manager.get_joint_property( 'all', 'theta' ) )';
             
             % Compute the current configuration of the end effector.
             self.T_end_effector = self.physics_manager.forward_kinematics( self.M_end_effector, self.J_end_effector, self.joint_manager.Ss, thetas );
@@ -206,7 +206,7 @@ classdef limb_class
         function self = joint_angles2link_configurations( self )
             
             % Retrieve the angles of the joints on this limb.
-            thetas = self.joint_manager.get_joint_property( 'all', 'theta' )';
+            thetas = cell2mat( self.joint_manager.get_joint_property( 'all', 'theta' ) )';
             
             % Compute the configuration of the links.
             self.link_manager.Ts_cms = self.physics_manager.forward_kinematics( self.link_manager.Ms_cms, self.link_manager.Js_cms, self.joint_manager.Ss, thetas );

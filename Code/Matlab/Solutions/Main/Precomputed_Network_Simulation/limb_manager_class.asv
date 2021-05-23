@@ -226,7 +226,7 @@ classdef limb_manager_class
                 num_joints_on_limb = self.limbs(k).joint_manager.num_joints;
                 
                 % Retrieve the joint properties from this limb.
-                IDs( index:(index + num_joints_on_limb - 1) ) = self.limbs(k).joint_manager.get_all_joint_IDs(  );
+                IDs( index:(index + num_joints_on_limb - 1) ) = self.limbs(k).joint_manager.get_joint_angles( 'all' );
 
                 % Advance the index variable.
                 index = index + num_joints_on_limb;
@@ -269,8 +269,8 @@ classdef limb_manager_class
         function thetas = get_joint_angles( self, joint_IDs )
             
             % Retrieve all of the existing joint IDs and joint angles from all of the limbs.
-            existing_joint_IDs = self.get_IDs_from_all_joints(  );
-            existing_joint_angles = self.get_angles_from_all_joints(  );
+            existing_joint_IDs = self.get_property_from_all_joints( 'ID' );
+            existing_joint_angles = self.get_angles_from_all_joints( joint_property );
 
             % Determine how to set the joint angles.
             if isa( joint_IDs, 'char' )                         % If the provided joint IDs are characters...
@@ -279,7 +279,7 @@ classdef limb_manager_class
                 if strcmp( joint_IDs, 'All' ) || strcmp( joint_IDs, 'all' )         % If the joint_IDs is 'All' or 'all'...
                     
                     % Set the joint angles to be the existing joint angles.
-                    thetas = existing_joint_angles;
+                    joint_property_value = existing_joint_angles;
                     
                 else
                     
@@ -291,16 +291,16 @@ classdef limb_manager_class
             else                                                                    % Otherwise...
                 
                 % Retrieve the number of joint IDs.
-                num_joint_IDs = length( joint_IDs );
+                num_joint_IDs = length(joint_IDs);
                 
                 % Preallocate an array to store the joint angles.
-                thetas = zeros( 1 , num_joint_IDs );
+                joint_property_value = zeros( 1 , num_joint_IDs );
                 
                 % Retrieve the joint angles associated with each joint ID.
                 for k1 = 1:num_joint_IDs                                        % Iterate through each joint ID...
                     
                     % Set the joint angle to match this existing joint angle.
-                    thetas(k1) = existing_joint_angles( joint_IDs(k1) == existing_joint_IDs );
+                    joint_property_value(k1) = existing_joint_angles( joint_IDs(k1) == existing_joint_IDs );
                     
                 end
                 

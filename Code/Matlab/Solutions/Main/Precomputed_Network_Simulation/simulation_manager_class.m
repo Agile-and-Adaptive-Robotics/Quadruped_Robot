@@ -66,7 +66,7 @@ classdef simulation_manager_class
         end
         
         
-        %% Get History Functions
+        %% General Get History Functions
         
         % Implement a function to retrieve the history of a joint property.
         function joint_property_history = get_joint_property_history( self, joint_IDs, joint_property )
@@ -156,19 +156,78 @@ classdef simulation_manager_class
         end  
         
         
-%         % Implement a funciton to retrieve the history of a slave property.
-%         function slave_property_history = get_slave_property_history( self, slave_IDs, slave_property )
-%         
-%             xs = get_slave_property( self, slave_IDs, slave_property )
-%             
-%             
-%         end
+        % Implement a funciton to retrieve the history of a slave property.
+        function slave_property_history = get_slave_property_history( self, slave_IDs, slave_property )
+                    
+            % Preallocate a variable to store the slave property history.
+            slave_property_history = cell( 1, self.max_states );
+            
+            % Retrieve the slave property values associated with each robot state.
+            for k = 1:self.max_states               % Iterate through each robot state...
+                
+                % Retrieve the slave property values for this robot state.
+               slave_property_history{k} = self.robot_state(k).electrical_subsystem.slave_manager.get_slave_property( slave_IDs, slave_property );
+                
+            end
+            
+        end
         
         
         % Implement a function to retrieve the history of a neuron property.
+        function neuron_property_history = get_neuron_property_history( self, neuron_IDs, neuron_property )
+                    
+            % Preallocate a variable to store the neuron property history.
+            neuron_property_history = cell( 1, self.max_states );
+            
+            % Retrieve the neuron property values associated with each robot state.
+            for k = 1:self.max_states               % Iterate through each robot state...
+                
+                % Retrieve the neuron property values for this robot state.
+               neuron_property_history{k} = self.robot_state(k).neural_subsystem.network.neuron_manager.get_neuron_property( neuron_IDs, neuron_property );
+                
+            end
+            
+        end
         
         
         % Implement a function to retrieve the history of a synapse property.
+        function synapse_property_history = get_synapse_property_history( self, synapse_IDs, synapse_property )
+                    
+            % Preallocate a variable to store the synapse property history.
+            synapse_property_history = cell( 1, self.max_states );
+            
+            % Retrieve the neuron property values associated with each robot state.
+            for k = 1:self.max_states               % Iterate through each robot state...
+                
+                % Retrieve the neuron property values for this robot state.
+               synapse_property_history{k} = self.robot_state(k).neural_subsystem.network.synapse_manager.get_synapse_property( synapse_IDs, synapse_property );
+                
+            end
+            
+        end
+        
+        
+        %% Specific Get History Functions
+        
+        % Implement a function to retrieve the history of the angles of specified joints.
+        function joint_angle_history = get_joint_angle_history( self, joint_IDs )
+        
+            % Retrieve the number of joints.
+            num_joints = self.robot_states(end).mechanical_subsystem.limb_manager.get_number_of_joints( self );
+            
+            % Preallocate a variable to store the joint property history.
+            joint_angle_history = zeros( num_joints, self.max_states );
+            
+            % Retrieve the joint property values associated with each robot state.
+            for k = 1:self.max_states                   % Iterate through each robot state...
+                
+                % Retrieve the joint property values for this robot state.
+                joint_angle_history( num_joints, k) = self.robot_states(k).mechanical_subsystem.limb_manager.get_joint_angles( joint_IDs );
+                
+            end
+            
+        end
+        
         
         
         %% BPA History Functions
@@ -180,7 +239,7 @@ classdef simulation_manager_class
             BPA_muscle_measured_tension_history = self.get_BPA_muscle_property_history( 'all', 'measured_tension' );
             
             % Compute the yank associated with each BPA muscle.
-            yanks = ( BPA_muscle_measured_tension_history{end} - BPA_muscle_measured_tension_history{end - 1} ) / self.dt;
+            yanks = ( cell2mat( BPA_muscle_measured_tension_history{end} ) - cell2mat( BPA_muscle_measured_tension_history{end - 1} ) ) / self.dt;
             
             % Store the BPA muscle yanks.
             self.robot_states(end).mechanical_subsystem.limb_manager = self.robot_states(end).mechanical_subsystem.limb_manager.set_BPA_muscle_property( 'all', num2cell( yanks ), 'yank' );
@@ -195,7 +254,7 @@ classdef simulation_manager_class
             BPA_muscle_length_history = self.get_BPA_muscle_property_history( 'all', 'muscle_length' );
             
             % Compute the velocity associated with each BPA muscle.
-            velocities = ( BPA_muscle_length_history{end} - BPA_muscle_length_history{end - 1} ) / self.dt;
+            velocities = ( cell2mat( BPA_muscle_length_history{end} ) - cell2mat( BPA_muscle_length_history{end - 1} ) ) / self.dt;
             
             % Store the BPA muscle velocities.
             self.robot_states(end).mechanical_subsystem.limb_manager = self.robot_states(end).mechanical_subsystem.limb_manager.set_BPA_muscle_property( 'all', num2cell( velocities ), 'velocity' );
@@ -217,7 +276,113 @@ classdef simulation_manager_class
         
         %% Plotting Functions
         
-        % Implement a function to plot the joint angle, velocity, and acceleration history.
+        % Implement a function to plot the joint angle history.
+        function fig = plot_joint_angle_history( self, joint_IDs, fig, plotting_options )
+            
+            % Determine whether to specify default plotting options.
+            if ( ( nargin < 4 ) || isempty( plotting_options ) ), plotting_options = {  }; end
+            
+            % Determine whether we want to add the mechanical subsystem points to an existing plot or create a new plot.
+            if ( nargin < 3 ) || ( isempty(fig) )
+                
+                % Create a figure to store the body mesh points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angle [rad]'), title('Joint Angle vs Time')
+                
+            end
+            
+            % Retrieve the joint property history.
+            thetas = self.get_joint_angle_history( joint_IDs );
+            
+            % Plot the joint property history.
+            plot( self.ts, thetas, '-', 'Linewidth', 3 );
+                        
+        end
+        
+        
+%         % Implement a function to plot the joint angle history.
+%         function fig = plot_joint_angle_history( self, joint_IDs, fig, plotting_options )
+%             
+%             % Determine whether to specify default plotting options.
+%             if ( ( nargin < 4 ) || isempty( plotting_options ) ), plotting_options = {  }; end
+%             
+%             % Determine whether we want to add the mechanical subsystem points to an existing plot or create a new plot.
+%             if ( nargin < 3 ) || ( isempty(fig) )
+%                 
+%                 % Create a figure to store the body mesh points.
+%                 fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angle [rad]'), title('Joint Angle vs Time')
+%                 
+%             end
+%             
+%             % Retrieve the joint property history.
+%             theta_history = self.get_joint_property_history( joint_IDs, 'theta' );
+%             
+%             % Define the number of time steps.
+%             num_timesteps = length(self.ts);
+%             
+%             % Define the number of joints.
+%             num_joints = self.robot_states(end).mechanical_subsystem.limb_manager.get_number_of_objects( 'joints' );
+%             
+%             % Initialize the a matrix to store the joint angle history.
+%             thetas = zeros( num_joints, num_timesteps );
+%             
+%             % Retrieve the joint angle history.
+%             for k1 = 1:num_timesteps                                % Iterate through each of the time steps...
+%                 for k2 = 1:num_joints                               % Iterate through each of the joints...
+%                     
+%                     % Retrieve the joint angle history.
+%                     thetas( k2, k1 ) = theta_history{k1}{k2};
+%                     
+%                 end 
+%             end
+%             
+%             % Plot the joint property history.
+%             plot( self.ts, thetas, '-', 'Linewidth', 3 );
+%                         
+%         end
+        
+        
+%         % Implement a function to plot the joint angle, velocity, and acceleration history.
+%         function fig = plot_joint_angle_history( self, joint_IDs, fig, plotting_options )
+%             
+%             % Determine whether to specify default plotting options.
+%             if ( ( nargin < 4 ) || isempty( plotting_options ) ), plotting_options = {  }; end
+%             
+%             % Determine whether we want to add the mechanical subsystem points to an existing plot or create a new plot.
+%             if ( nargin < 3 ) || ( isempty(fig) )
+%                 
+%                 % Create a figure to store the body mesh points.
+%                 fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angle [rad]'), title('Joint Angle vs Time')
+%                 
+%             end
+%             
+%             % Retrieve the joint property history.
+%             theta_history = self.get_joint_property_history( joint_IDs, 'theta' );
+%             
+%             % Define the number of time steps.
+%             num_timesteps = length(self.ts);
+%             
+%             % Define the number of joints.
+%             num_joints = self.robot_states(end).mechanical_subsystem.limb_manager.get_number_of_objects( 'joints' );
+%             
+%             % Initialize the a matrix to store the joint angle history.
+%             thetas = zeros( num_joints, num_timesteps );
+%             
+%             % Retrieve the joint angle history.
+%             for k1 = 1:num_timesteps                                % Iterate through each of the time steps...
+%                 for k2 = 1:num_joints                               % Iterate through each of the joints...
+%                     
+%                     % Retrieve the joint angle history.
+%                     thetas( k2, k1 ) = theta_history{k1}{k2};
+%                     
+%                 end 
+%             end
+%             
+%             % Plot the joint property history.
+%             plot( self.ts, thetas, '-', 'Linewidth', 3 );
+%             
+%             asdf = 1;
+%             
+%         end
         
         
         % Implement a function to plot the end effector path, velocity, and acceleration history in the state space.

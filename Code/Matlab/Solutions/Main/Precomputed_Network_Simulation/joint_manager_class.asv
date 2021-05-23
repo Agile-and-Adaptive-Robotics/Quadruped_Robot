@@ -393,46 +393,37 @@ classdef joint_manager_class
         end
         
         
-        % Implement a function to get all of the joint IDs.
-        function IDs = get_all_joint_IDs( self )
-            
-            % Preallocate an array to store the joint IDs.
-            IDs = zeros( 1, self.num_joints );
-
-            % Retrieve the joint ID associated with each joint.
-            for k = 1:self.num_joints                   % Iterate through each joint...
-
-                % Store the joint ID associated with the current joint.
-                IDs(k) = self.joints(k).ID;
-
-            end
-            
-        end
-        
-        
         % Implement a function to retrieve the joint angles associated with a specific joint.
         function thetas = get_joint_angles( self, joint_IDs )
+            
             
             % Validate the joint IDs.
             joint_IDs = self.validate_joint_IDs( joint_IDs );
             
             % Determine how many joints to which we are going to apply the given method.
-            num_properties_to_get = length( joint_IDs );
+            num_properties_to_get = length(joint_IDs);
             
             % Preallocate a variable to store the joint properties.
-            thetas = zeros( 1, num_properties_to_get );
+%             xs = zeros( 1, num_properties_to_get );
+            xs = cell( 1, num_properties_to_get );
 
             % Retrieve the given joint property for each joint.
-            for k = 1:num_properties_to_get                 % Iterate through each of the joints from which we want to extract joint angles...
+            for k = 1:num_properties_to_get
                 
                 % Retrieve the index associated with this joint ID.
                 joint_index = self.get_joint_index( joint_IDs(k) );
                 
-                % Retrieve the joint angle associated with this joint.
-                thetas(k) = self.joints(joint_index).theta;
+                % Define the eval string.
+%                 eval_str = sprintf( 'xs(k) = self.joints(%0.0f).%s;', joint_index, joint_property );
+                eval_str = sprintf( 'xs{k} = self.joints(%0.0f).%s;', joint_index, joint_property );
+
+                % Evaluate the given joint property.
+                eval(eval_str);
                 
             end
-
+            
+            
+            
         end
         
                 

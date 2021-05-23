@@ -27,10 +27,10 @@ classdef synapse_class
             if nargin < 2, self.gsyn_max = 1e-6; else, self.gsyn_max = gsyn_max; end
             if nargin < 1, self.dEsyn = -40e-3; else, self.dEsyn = dEsyn; end
 
-            
         end
         
         
+        %% CPG Functions
         
         % Implement a function to compute the steady state sodium channel activation and deactivation parameters.
         function mhinfs = get_mhinfs( ~, Us, Amhs, Smhs, dEmhs )

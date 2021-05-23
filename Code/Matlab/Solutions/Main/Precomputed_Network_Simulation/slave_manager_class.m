@@ -179,8 +179,9 @@ classdef slave_manager_class
             num_properties_to_get = length(slave_IDs);
             
             % Preallocate a variable to store the slave properties.
-            xs = zeros(1, num_properties_to_get);
-            
+%             xs = zeros(1, num_properties_to_get);
+            xs = cell( 1, num_properties_to_get );
+
             % Retrieve the given slave property for each slave.
             for k = 1:num_properties_to_get
                 
@@ -188,8 +189,9 @@ classdef slave_manager_class
                 slave_index = self.get_slave_index( slave_IDs(k) );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs(k) = self.slaves(%0.0f).%s;', slave_index, slave_property );
-                
+%                 eval_str = sprintf( 'xs(k) = self.slaves(%0.0f).%s;', slave_index, slave_property );
+                eval_str = sprintf( 'xs{k} = self.slaves(%0.0f).%s;', slave_index, slave_property );
+
                 % Evaluate the given muscle property.
                 eval(eval_str);
                 
