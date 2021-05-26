@@ -127,13 +127,13 @@ fig = figure('Color', 'w'); hold on, grid on, xlabel('Attachment Radius [mm]'), 
 for n = 1:length(L_KE)                  % Iterate through each resting muscle length
    
     % Compute muscle strain at max flexion
-    k_KE = (r_KE * pi()/2) ./ L_KE(n);	% [-] Knee flexor strain
+    k_KE = (r_KE * pi()/2) ./ L_KE(n);	% [-] Knee extensor strain
     
     % Remove strains that exceed max strain
-    k_KE(k_KE > k_max) = [];            % [-] Knee flexor strain updated
+    k_KE(k_KE > k_max) = [];            % [-] Knee extensor strain updated
     
     % Compute necessary force for each actuator to resist gravity
-    F_KE = SF * (Tg_KE(n) ./ r_KE);     % [N] Knee flexor actuator force
+    F_KE = SF * (Tg_KE(n) ./ r_KE);     % [N] Knee extensor actuator force
    
     % Compute necessary pressure to hold flexed position for each actuator
     P_KE = a0 + (a1 * tan( a2 * (( k_KE ./ (a4 * F_KE(1:length(k_KE)) + k_max)) + a3))) + (a5 * F_KE(1:length(k_KE))) + (a6 * S); % [Pa]
@@ -141,7 +141,7 @@ for n = 1:length(L_KE)                  % Iterate through each resting muscle le
     % Plot attachment radius vs required pressure to achieve static
     % requirements in appropriate units for each actuator and add legend
     % entry for varying actuator curves
-    figure(2)                           % Knee flexor plot
+    figure(2)                           % Knee extensor plot
     plot((r_KE(1:length(k_KE))*1000), (P_KE/1000), '-', 'LineWidth', 3)
     key_KE(n) = sprintf('Actuator length: %.1f inch', (L_KE(n)/0.0254));
     
@@ -153,7 +153,7 @@ yline(620, '--r', 'LineWidth', 3);
 
 % Add the legend
 figure(2)                              % Knee flexor plot
-legend(key_KF)
+legend(key_KE)
 
 %% Plot relationship between necessary ankle flexor actuator pressure and attachment radii, varying actuator lengths
 % Preallocating an array for plot legend
