@@ -225,6 +225,9 @@ for k1 = 1:num_muscles                      % Iterate through each of the muscle
     
 end
 
+% Fix the adduction & abduction joint assignments.
+Jmuscles( 2, 3:4 ) = [ 2, 2 ];
+
 % Define the home matrix for the end effector.
 
 Mend = [Rhome_end, Phome_end; zeros(1, 3), 1];
@@ -291,55 +294,80 @@ if tf == 0
     step_height = 0.05;         % [m] Step Heigth.
     step_length = 0.1;          % [m] Step Length.
 end
+
 %% Define the Trajectory Properties of abduction/adduction simulation.
-    if tf == 1
+    
+if tf == 1
     % Define the step shift.
     radius_y = Phome_end(1);
     horizontal_shift_y = Phome_end(3);
     %vertical_shift_y = Phome_end(1) - Phome_joint4(1);
+    
 end
 
 %% Generate Desired End Effector Trajectory for y rotation.
+
 if tf == 1
 % State that we are generating a desired trajectory.
     fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Please Wait...\n')
 
     % Define the desired end effector path. (For y rotation.)
 
-    xs_desired = zeros(1, num_timesteps);
-    ys_desired = -(radius_y * sin(pi*ts));
-    zs_desired = -(-horizontal_shift_y + radius_y * cos(pi*ts));
-
-    % Eliminate desired path points to reduce from half circle to +/- degrees/
-    % side
-    cut_half = round((158/180) * length(xs_desired)/2);
-    xs_desired = xs_desired(cut_half:(end - cut_half));
-    ys_desired = ys_desired(cut_half:(end - cut_half));
-    zs_desired = zs_desired(cut_half:(end - cut_half));
-    ts = ts(1:length(xs_desired));
-    num_timesteps = length(ts);
-
-    % Store the desired end effector path into an array.
-    Ps_desired = [xs_desired; ys_desired; zs_desired];
-    dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
-    ddPs_desired = diff(dPs_desired, 1, 2)./diff(ts(1:end-1));
-
-    % Compute the desired end effector orientation.
-    Rs_desired = [0 1 0; -1 0 0; 0 0 1];
-
-    % Initialize a high order matrix to store the desired end effect trajectory.
-    Ts_desired = zeros(4, 4, 1, 1, num_timesteps);
-
-    % Compute the desired end effector trajectory at each time step.
-    for k = 1:num_timesteps                 % Iterate through each time step...
-
-        % Generate the desired end effector trajectory.
-        Ts_desired(:, :, 1, 1, k) = RpToTrans(Rs_desired, Ps_desired(:, k));
-
-    end
+%     xs_desired = zeros(1, num_timesteps);
+%     ys_desired = -(radius_y * sin(pi*ts));
+%     zs_desired = -(-horizontal_shift_y + radius_y * cos(pi*ts));
+% 
+%     % Eliminate desired path points to reduce from half circle to +/- degrees/
+%     % side
+%     cut_half = round((158/180) * length(xs_desired)/2);
+%     xs_desired = xs_desired(cut_half:(end - cut_half));
+%     ys_desired = ys_desired(cut_half:(end - cut_half));
+%     zs_desired = zs_desired(cut_half:(end - cut_half));
+%     ts = ts(1:length(xs_desired));
+%     num_timesteps = length(ts);
+% 
+%     % Store the desired end effector path into an array.
+%     Ps_desired = [xs_desired; ys_desired; zs_desired];
+%     dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
+%     ddPs_desired = diff(dPs_desired, 1, 2)./diff(ts(1:end-1));
+% 
+%     % Compute the desired end effector orientation.
+%     Rs_desired = [0 1 0; -1 0 0; 0 0 1];
+% 
+%     % Initialize a high order matrix to store the desired end effect trajectory.
+%     Ts_desired = zeros(4, 4, 1, 1, num_timesteps);
+% 
+%     % Compute the desired end effector trajectory at each time step.
+%     for k = 1:num_timesteps                 % Iterate through each time step...
+% 
+%         % Generate the desired end effector trajectory.
+%         Ts_desired(:, :, 1, 1, k) = RpToTrans(Rs_desired, Ps_desired(:, k));
+% 
+%     end
 
     % State that we are done generating a desired trajectory.
+    fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Please wait.\n\n')
+    
+    % Define the number of joint angles.
+    num_timesteps = length(ts);
+    
+    % Define the desired joint angles.
+    thetas_desired = (pi/180)*[ -90*ones( 1, num_timesteps ); linspace( -11, 11, num_timesteps ); 30*ones( 1, num_timesteps ); -10.21*ones( 1, num_timesteps ) ];
+    
+    % Compute the desired end effector configuration trajectory.
+    Ts_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
+    
+    % Compute the desired end effector position trajectory.
+    [ ~, Ps_desired ] = TransToRpAllBodies(Ts_desired);
+    
+    % Remove extra desired end effector positions.
+    Ps_desired = squeeze(Ps_desired);
+    dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
+    ddPs_desired = diff(dPs_desired, 1, 2)./diff(ts(1:end-1));
+    
+    % State that we are done generating a desired trajectory.
     fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Y ROTATION... Done.\n\n')
+    
 end
 %% Generate Desired End Effector Trajectory.
 if tf == 0
@@ -385,53 +413,93 @@ if tf == 0
     fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY FOR Z ROTATION... Done.\n\n')
 end
 
+%% DEBUGGING: PLOTTING ROBOT CONFIGURATION
 
-% figure
-% hold on
-% plot3(Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1))
-% plot3(Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2))
-% plot3(Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3))
-% plot3(Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4))
-% plot3(Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5))
-% plot3(Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6))
-% plot3(Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7))
-% plot3(Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8))
-% 
-% plot3(Phome_joints(1, 1), Phome_joints(2, 1), Phome_joints(3, 1), '.', 'MarkerSize', 20)
-% plot3(Phome_joints(1, 2), Phome_joints(2, 2), Phome_joints(3, 2),'.', 'MarkerSize', 20)
-% plot3(Phome_joints(1, 3), Phome_joints(2, 3), Phome_joints(3, 3),'.', 'MarkerSize', 20)
-% plot3(Phome_joints(1, 4), Phome_joints(2, 4), Phome_joints(3, 4),'.', 'MarkerSize', 20)
-% 
-% plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.', 'MarkerSize', 20)
-% 
-% plot3(Ps_desired_y(1, :), Ps_desired_y(2, :), Ps_desired_y(3, :))
-% axis equal
-% 
-% thetas_desired = (pi/180)*[-90; 6; 0; 0];
-% %thetas_desired = (pi/180)*[-90; 0; 90; 90];
-% 
-% % Retrieve the transformation matrices associated with the given angles.
-% Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
-% Tcms_desired = ForwardKinematics( Mcms, Jcms, Ss, thetas_desired );
-% Tjoints_desired = ForwardKinematics( Mjoints, Jjoints, Ss, thetas_desired );
-% Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
-% Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
-% 
-% eomg = 1e-1; ev = 1e-1;
-% 
-% [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired_y, thetas_desired, eomg, ev);
-% 
-% % Retrieve the rotational and translational components associated with the given transformation matrices.
-% [Rbodies_desired, Pbodies_desired] = TransToRpAllBodies(Tbodies_desired);
-% [Rcms_desired, Pcms_desired] = TransToRpAllBodies(Tcms_desired);
-% [Rjoints_desired, Pjoints_desired] = TransToRpAllBodies(Tjoints_desired);
-% [Rmuscles_desired, Pmuscles_desired] = TransToRpAllBodies(Tmuscles_desired);
-% [Rend_desired, Pend_desired] = TransToRpAllBodies(Tend_desired);
-% 
-% Pjoints_desired = squeeze(Pjoints_desired);
-% 
-% plot3(Pend_desired(1), Pend_desired(2), Pend_desired(3), '.', 'MarkerSize', 20)
-% plot3(Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.', 'MarkerSize', 20)
+% Create a figure to store the debugging plot.
+figure('Color', 'w', 'WindowStyle', 'normal'), hold on, grid on, axis equal, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Left Hind Limb Pose')
+
+% Plot the home position of the centers of mass of each link.
+plot3( Phome_cms(1, :), Phome_cms(2, :), Phome_cms(3, :), '.c', 'Markersize', 20 )
+
+% Plot the home position of the links bodies.
+plot3( Phome_bodies(1, :, 1), Phome_bodies(2, :, 1), Phome_bodies(3, :, 1), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_bodies(1, :, 2), Phome_bodies(2, :, 2), Phome_bodies(3, :, 2), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_bodies(1, :, 3), Phome_bodies(2, :, 3), Phome_bodies(3, :, 3), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_bodies(1, :, 4), Phome_bodies(2, :, 4), Phome_bodies(3, :, 4), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+
+% Plot the home position of the muscles attachment points.
+plot3( Phome_muscles(1, :, 1), Phome_muscles(2, :, 1), Phome_muscles(3, :, 1), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 2), Phome_muscles(2, :, 2), Phome_muscles(3, :, 2), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 3), Phome_muscles(2, :, 3), Phome_muscles(3, :, 3), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 4), Phome_muscles(2, :, 4), Phome_muscles(3, :, 4), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+
+% Plot the home position of the joints.
+plot3( Phome_joints(1, :), Phome_joints(2, :), Phome_joints(3, :), '.r', 'MarkerSize', 20 )
+
+
+
+
+% Plot the home position of the end effector.
+plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.m', 'MarkerSize', 20)
+
+% Define a new desired pose for the left hind limb.
+% thetas_desired = (pi/180)*[-90; 0; 0; 0];
+% thetas_desired = (pi/180)*[-90; 0; 30; -10.21];
+thetas_desired = (pi/180)*[-90; -15; 30; -10.21];
+
+% Retrieve the transformation matrices associated with the given angles.
+Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
+Tcms_desired = ForwardKinematics( Mcms, Jcms, Ss, thetas_desired );
+Tjoints_desired = ForwardKinematics( Mjoints, Jjoints, Ss, thetas_desired );
+Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
+Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
+
+% Retrieve the rotational and translational components associated with the given transformation matrices.
+[~, Pbodies_desired] = TransToRpAllBodies(Tbodies_desired);
+[~, Pcms_desired] = TransToRpAllBodies(Tcms_desired);
+[~, Pjoints_desired] = TransToRpAllBodies(Tjoints_desired);
+[~, Pmuscles_desired] = TransToRpAllBodies(Tmuscles_desired);
+[~, Pend_desired] = TransToRpAllBodies(Tend_desired);
+
+% Process the center of mass and joint positions for plotting.
+Pcms_desired = squeeze(Pcms_desired);
+Pjoints_desired = squeeze(Pjoints_desired);
+
+% Compute the inverse kinematics solution for this end effector location.
+eomg = 1e-3; ev = 1e-3;
+[ thetas_achieved, successes ] = InverseKinematics( Ss, Mend, Tend_desired, thetas_desired, eomg, ev );
+
+% Plot the new position of the centers of mass of each link.
+plot3( Pcms_desired(1, :), Pcms_desired(2, :), Pcms_desired(3, :), '.c', 'Markersize', 20 )
+
+% Plot the new position of the links bodies.
+plot3( Pbodies_desired(1, :, 1), Pbodies_desired(2, :, 1), Pbodies_desired(3, :, 1), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pbodies_desired(1, :, 2), Pbodies_desired(2, :, 2), Pbodies_desired(3, :, 2), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pbodies_desired(1, :, 3), Pbodies_desired(2, :, 3), Pbodies_desired(3, :, 3), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pbodies_desired(1, :, 4), Pbodies_desired(2, :, 4), Pbodies_desired(3, :, 4), '.-k', 'Linewidth', 2, 'Markersize', 20 )
+
+% Plot the new position of the muscles attachment points.
+plot3( Pmuscles_desired(1, :, 1), Pmuscles_desired(2, :, 1), Pmuscles_desired(3, :, 1), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 2), Pmuscles_desired(2, :, 2), Pmuscles_desired(3, :, 2), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 3), Pmuscles_desired(2, :, 3), Pmuscles_desired(3, :, 3), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 4), Pmuscles_desired(2, :, 4), Pmuscles_desired(3, :, 4), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 5), Pmuscles_desired(2, :, 5), Pmuscles_desired(3, :, 5), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 6), Pmuscles_desired(2, :, 6), Pmuscles_desired(3, :, 6), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 7), Pmuscles_desired(2, :, 7), Pmuscles_desired(3, :, 7), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 8), Pmuscles_desired(2, :, 8), Pmuscles_desired(3, :, 8), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+
+% Plot the new position of the joints.
+plot3( Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.r', 'MarkerSize', 20 )
+
+% Plot the new position of the end effector.
+plot3( Pend_desired(1), Pend_desired(2), Pend_desired(3), '.m', 'MarkerSize', 20 )
+
+% Plot the desired end effector trajectory.
+plot3( Ps_desired(1, :), Ps_desired(2, :), Ps_desired(3, :), '-', 'Linewidth', 3 )
 
 
 %% Compute the Joint Angles That Achieve the Desired Trajectory for z rotation.
@@ -468,10 +536,10 @@ if tf == 1
     fprintf('COMPUTING INVERSE KINEMATICS SOLUTION FOR Y ROTATION (i.e., Desired Joint Angles)... Please Wait...\n')
 
     % Define the inverse kinematics error parameters.
-    eomg = 1e-1; ev = 1e-1;
+    eomg = 1e-6; ev = 1e-6;
 
     % Define the starting joint angle values for the inverse kinematics algorithm.
-    theta_guess = (pi/180)*[-90; 0; 0; 0];
+    theta_guess = (pi/180)*[-90; -15; 30; -10.21];
 
     % Compute the joint angles associated with the desired trajectory.
   [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
@@ -522,6 +590,11 @@ Lmuscles_desired = GetMuscleLengths( Pmuscles_desired );
 % Compute the associated desired muscle velocities and accelerations.
 [dLmuscles_desired, ddLmuscles_desired] = GetMuscleVelAccel(Lmuscles_desired, ts);
 
+%% DEBUGGING: PLOTTING
+
+figure('Color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Muscle Lengths')
+
+plot( ts, Lmuscles_desired, '-', 'Linewidth', 3 )
 
 %% Compute the Moments of Inertia Associated with Each Body Throughout the Desired Trajectory.
 
@@ -565,6 +638,13 @@ taus_desired = InverseDynamicsTrajectory(thetas_desired', dthetas_desired', ddth
 fprintf('COMPUTING INVERSE DYNAMICS SOLUTION (i.e., Requied Joint Torques)... Done.\n\n')
 
 
+%% DEBUGGING: PLOTTING JOINT TORQUES
+
+figure('Color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Joint Torques')
+
+plot( ts, taus_desired, '-', 'Linewidth', 3 )
+
+
 %% Compute the Total Muscle Forces Required to Achieve the Desired Trajectory.
 
 % Define the minimum allowable total muscle force.
@@ -576,6 +656,22 @@ Fmuscles_total_desired = JointTorques2TotalMuscleForces( taus_desired, Pmuscles_
 
 % Compute the rate of change of total muscle force with respect to time.
 dFmuscles_total_desired = Force2Yank( Fmuscles_total_desired, ts );
+
+
+%% DEBUGGING: PLOTTING TOTAL MUSCLE FORCES
+
+figure('Color', 'w'), hold on, grid on, rotate3d on, xlabel('x'), ylabel('y'), zlabel('z'), title('Muscle Forces')
+
+% plot( ts, Fmuscles_total_desired, '-', 'Linewidth', 3 )
+
+plot( ts, Fmuscles_total_desired(1, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(2, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(3, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(4, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(5, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(6, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(7, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(8, :), '-', 'Linewidth', 3 )
 
 
 %% Compute the Active Muscle Force Required to Achieved the Desired Trajectory.
@@ -662,10 +758,11 @@ Lmuscles_achieved = GetMuscleLengths( Pmuscles_achieved );
 %% Compute Muscle Summary Statistics.
 
 % Define the muscle variable names.
-muscle_var_names_desired_metric = {'Min Length [m]', 'Max Length [m]', 'Length Range [m]', 'Muscle Width [m]', 'Resting Length [m]', 'Min Velocity [m/s]', 'Max Velocity [m/s]', 'Min Acceleration [m/s^2]', 'Max Acceleration [m/s^2]', 'Min Force [N]', 'Max Force [N]'};
-muscle_var_names_desired_imperial = {'Min Length [in]', 'Max Length [in]', 'Length Range [in]', 'Muscle Width [in]', 'Resting Length [in]', 'Min Velocity [in/s]', 'Max Velocity [in/s]', 'Min Acceleration [in/s^2]', 'Max Acceleration [in/s^2]', 'Min Force [lb]', 'Max Force [lb]'};
-muscle_var_names_achieved_metric = {'Min Length [m]', 'Max Length [m]', 'Length Range [m]', 'Muscle Width [m]', 'Resting Length [m]', 'Min Velocity [m/s]', 'Max Velocity [m/s]', 'Min Acceleration [m/s^2]', 'Max Acceleration [m/s^2]'};
-muscle_var_names_achieved_imperial = {'Min Length [in]', 'Max Length [in]', 'Length Range [in]', 'Muscle Width [in]', 'Resting Length [in]', 'Min Velocity [in/s]', 'Max Velocity [in/s]', 'Min Acceleration [in/s^2]', 'Max Acceleration [in/s^2]'};
+muscle_var_names_desired_metric = {'Min_Length_m', 'Max_Length_m', 'Length_Range_m', 'Muscle_Width_m', 'Resting_Length_m_', 'Min_Velocity_mps', 'Max_Velocity_mps', 'Min_Acceleration_mps2', 'Max_Acceleration_mps2', 'Min_Force_N', 'Max_Force_N'};
+muscle_var_names_desired_imperial = {'Min_Length_in', 'Max_Length_in', 'Length_Range_in', 'Muscle_Width_in', 'Resting_Length_in', 'Min_Velocity_inps', 'Max_Velocity_inps', 'Min_Acceleration_inps2', 'Max_Acceleration_inps2', 'Min_Force_lb', 'Max_Force_lb'};
+muscle_var_names_achieved_metric = {'Min_Length_m', 'Max_Length_m', 'Length_Range_m', 'Muscle_Width_m', 'Resting_Length_m', 'Min_Velocity_mps', 'Max_Velocity_mps', 'Min_Acceleration_mps2', 'Max_Acceleration_mps2'};
+muscle_var_names_achieved_imperial = {'Min_Length_in', 'Max_Length_in', 'Length_Range_in', 'Muscle_Width_in', 'Resting_Length_in', 'Min_Velocity_inps', 'Max_Velocity_inps', 'Min_Acceleration_inps2', 'Max_Acceleration_inps2'};
+
 
 % Retrieve summary information about the desired muscle results.
 Lmuscles_min_desired = min(Lmuscles_desired, [], 2); Lmuscles_max_desired = max(Lmuscles_desired, [], 2); Lmuscles_range_desired = Lmuscles_max_desired - Lmuscles_min_desired; Lmuscles_width_desired = Lmuscles_range_desired/2; Lmuscles_rest_desired = Lmuscles_max_desired - Lmuscles_width_desired;
@@ -1029,10 +1126,12 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 %% Animate the Open Kinematic Chain.
 
 % Create a figure to store the animation.
-fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
-axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])
+fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(90, 0), xlabel('x'), ylabel('y'), zlabel('z')
+axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])                                      
 axis equal
 xlim([-0.6 0.6])
+% Enlarge figure to full screen.
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0 0 1 1]);
 
 % Preallocate an array to store the legend entries.
 legstr = cell(num_bodies + 6, 1);
@@ -1149,15 +1248,16 @@ legstr{legindex + 1} = 'End Path Achieved';
 legindex = legindex + 1;
 
 % Create a legend for the plot.
-legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical')
+%legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical');
 
 % Set the number of animation playbacks.
 num_playbacks = 5;
 
 % % Initialize a video object.
-% myVideo = VideoWriter('RobotAnimation'); %open video file
-% myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
-% open(myVideo)
+myVideo = VideoWriter('RobotAnimation'); %open video file
+myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
+open(myVideo)
+
 
 % Animate the figure.
 for j = 1:num_playbacks                     % Iterate through each play back...    
@@ -1169,13 +1269,13 @@ for j = 1:num_playbacks                     % Iterate through each play back...
         % Update the plot.
         drawnow
         
-%         % Write the current frame to the file.
-%         writeVideo(myVideo, getframe(gcf));
+        % Write the current frame to the file.
+         writeVideo(myVideo, getframe(gcf));
 
     end
 end
 
 % % Close the video object.
-% close(myVideo)
+close(myVideo)
 
 
