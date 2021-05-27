@@ -28,6 +28,125 @@ classdef limb_manager_class
         end
         
         
+        %% Specific Get & Set Limb Property Functions
+        
+        % Implement a function to get the limb index associated with a limb ID.
+        function limb_index = get_limb_index( self, limb_ID )
+            
+            % Set a flag variable to indicate whether a matching limb index has been found.
+            bMatchFound = false;
+            
+            % Initialize the limb index.
+            limb_index = 0;
+            
+            while (limb_index < self.num_limbs) && (~bMatchFound)
+                
+                % Advance the limb index.
+                limb_index = limb_index + 1;
+                
+                % Check whether this limb index is a match.
+                if self.limbs(limb_index).ID == limb_ID                       % If this limb has the correct limb ID...
+                    
+                    % Set the match found flag to true.
+                    bMatchFound = true;
+                    
+                end
+                
+            end
+            
+            % Determine whether a match was found.
+            if ~bMatchFound                     % If a match was not found...
+                
+                % Throw an error.
+                error('No limb with ID %0.0f.', limb_ID)
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to validate the limb indexes.
+        function limb_IDs = validate_limb_IDs( self, limb_IDs )
+            
+            % Determine whether we want get the desired limb property from all of the limbs.
+            if isa( limb_IDs, 'char' )                                                      % If the limb IDs variable is a character array instead of an integer srray...
+                
+                % Determine whether this is a valid character array.
+                if  strcmp( limb_IDs, 'all' ) || strcmp( limb_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
+                    
+                    % Preallocate an array to store the limb IDs.
+                    limb_IDs = zeros( 1, self.num_limbs );
+                    
+                    % Retrieve the limb ID associated with each joint.
+                    for k = 1:self.num_limbs                   % Iterate through each limb...
+                        
+                        % Store the joint ID associated with the current limb.
+                        limb_IDs(k) = self.limbs(k).ID;
+                        
+                    end
+                    
+                else                                                                        % Otherwise...
+                    
+                    % Throw an error.
+                    error('Limb_IDs must be either an array of valid limb IDs or one of the strings: ''all'' or ''All''.')
+                    
+                end
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the end effector positions.
+        function end_effector_positions = get_end_effector_positions( self, limb_IDs )
+            
+            % Validate the limb IDs.
+            limb_IDs = self.validate_limb_IDs( limb_IDs );
+            
+            % Retrieve the number of limbs from which we want to retrieve end effector positions.
+            num_limbs_to_get = length( limb_IDs );
+            
+            % Preallocate an array to store the end effector positions.
+            end_effector_positions = zeros( 3, num_limbs_to_get );
+            
+            % Retrieve the position of each end effector limb.
+            for k = 1:num_limbs_to_get                              % Iterate through each limb whose position we want to retrieve...
+                
+                % Retrieve the index associated with this limb ID.
+                limb_index = self.get_limb_index( limb_IDs(k) );
+                
+                % Retrieve the position associated with this limb.
+                end_effector_positions( :, k ) = self.limbs(limb_index).p_end_effector;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to validate BPA muscle IDs at the limb manager level.
+        function BPA_muscle_IDs = validate_BPA_muscle_IDs( self, BPA_muscle_IDs )
+            
+            % Determine whether we want get the desired muscle property from all of the muscles.
+            if isa( BPA_muscle_IDs, 'char' )                                                      % If the muscle IDs variable is a character array instead of an integer srray...
+                
+                % Determine whether this is a valid character array.
+                if  strcmp( BPA_muscle_IDs, 'all' ) || strcmp( BPA_muscle_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
+                    
+                    % Retrieve all of the BPA muscle IDs.
+                    BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+                    
+                else                                                                        % Otherwise...
+                    
+                    % Throw an error.
+                    error('Muscle_IDs must be either an array of valid muscle IDs or one of the strings: ''all'' or ''All''.')
+                    
+                end
+                
+            end
+            
+        end
+        
+        
         %% Get Number of Joints, Links, and BPA Muscles Functions
         
         % Implement a function to get the total number of joints among all limbs.
@@ -515,6 +634,722 @@ classdef limb_manager_class
         
         %% Specific BPA Muscle Get & Set Property Functions
         
+        % Implement a function to retrieve the IDs from all of the BPA muscles.
+        function BPA_muscle_IDs = get_ID_from_all_BPA_muscles( self )
+            
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_IDs = zeros( 1, num_BPA_muscles );
+
+            % Initialize an indexing variable.
+            index = 1;
+
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_IDs( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_all_BPA_muscle_IDs(  );
+
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the names from all of the BPA muscles.
+        function BPA_muscle_names = get_names_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_names = cell( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_names( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_names( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the names from the specified BPA muscles.
+        function BPA_muscle_names = get_BPA_muscle_names( self, BPA_muscle_IDs )
+            
+           % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_names = self.get_names_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_names = existing_BPA_muscle_names;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_names = cell( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_names{k} = existing_BPA_muscle_names{ index };
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_names{k} = nan;
+                        
+                    end
+                    
+                end
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to retrieve the desired pressures from all of the BPA muscles.
+        function BPA_muscle_desired_pressures = get_desired_pressure_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_desired_pressures = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_desired_pressures( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_desired_pressures( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the measured pressures from all of the BPA muscles.
+        function BPA_muscle_measured_pressures = get_measured_pressure_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_measured_pressures = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_measured_pressures( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_measured_pressures( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get the desired pressures from the specified BPA muscles.
+        function BPA_muscle_desired_pressures = get_BPA_muscle_desired_pressures( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_desired_pressures = self.get_desired_pressure_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_desired_pressures = existing_BPA_muscle_desired_pressures;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_desired_pressures = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_desired_pressures(k) = existing_BPA_muscle_desired_pressures( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_desired_pressures(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+        
+        end
+            
+        
+        % Implement a function to get the desired pressures from the specified BPA muscles.
+        function BPA_muscle_measured_pressures = get_BPA_muscle_measured_pressures( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_measured_pressures = self.get_measured_pressure_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_measured_pressures = existing_BPA_muscle_measured_pressures;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_measured_pressures = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_measured_pressures(k) = existing_BPA_muscle_measured_pressures( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_measured_pressures(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+        
+        end
+        
+        
+        % Implement a function to retrieve the desired pressures from all of the BPA muscles.
+        function BPA_muscle_desired_tensions = get_desired_tension_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_desired_tensions = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_desired_tensions( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_desired_tensions( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the measured pressures from all of the BPA muscles.
+        function BPA_muscle_measured_tensions = get_measured_tension_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_measured_tensions = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_measured_tensions( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_measured_tensions( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get the desired pressures from the specified BPA muscles.
+        function BPA_muscle_desired_tensions = get_BPA_muscle_desired_tensions( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_desired_tensions = self.get_desired_tension_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_desired_tensions = existing_BPA_muscle_desired_tensions;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_desired_tensions = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_desired_tensions(k) = existing_BPA_muscle_desired_tensions( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_desired_tensions(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+        
+        end
+            
+        
+        % Implement a function to get the measured pressures from the specified BPA muscles.
+        function BPA_muscle_measured_tensions = get_BPA_muscle_measured_tensions( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_measured_tensions = self.get_measured_tension_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_measured_tensions = existing_BPA_muscle_measured_tensions;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_measured_tensions = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_measured_tensions(k) = existing_BPA_muscle_measured_tensions( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_measured_tensions(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+        
+        end
+        
+        
+        % Implement a function to retrieve the muscle length from all of the BPA muscles.
+        function BPA_muscle_lengths = get_length_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_lengths = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_lengths( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_lengths( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get the muscle lengths from the specified BPA muscles.
+        function BPA_muscle_lengths = get_BPA_muscle_lengths( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_lengths = self.get_length_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_lengths = existing_BPA_muscle_lengths;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_lengths = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_lengths(k) = existing_BPA_muscle_lengths( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_lengths(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+            
+        end
+        
+            
+        % Implement a function to retrieve the muscle velocity from all of the BPA muscles.
+        function BPA_muscle_velocities = get_velocity_from_all_BPA_muscles( self )
+            
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_velocities = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_velocities( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_velocities( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get the muscle velocities from the specified BPA muscles.
+        function BPA_muscle_velocities = get_BPA_muscle_velocities( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_velocities = self.get_velocity_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_velocities = existing_BPA_muscle_velocities;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_velocities = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_velocities(k) = existing_BPA_muscle_velocities( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_velocities(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get the muscle stains from all of the BPA muscles.
+        function BPA_muscle_strains = get_strain_from_all_BPA_muscles( self )
+            
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_strains = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_strains( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_strains( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get the muscle strains from the specified BPA muscles.
+        function BPA_muscle_strains = get_BPA_muscle_strains( self, BPA_muscle_IDs )
+            
+            % Retrieve all of the existing BPA muscle IDs and BPA muscle property values from all of the limbs.
+            existing_BPA_muscle_IDs = self.get_ID_from_all_BPA_muscles(  );
+            existing_BPA_muscle_strains = self.get_strain_from_all_BPA_muscles(  );
+            
+            % Determine how to set the BPA muscle property values.
+            if isa( BPA_muscle_IDs, 'char' )                         % If the provided BPA muscle IDs are characters...
+                
+                % Determine how to set the BPA muscle property values.
+                if strcmp( BPA_muscle_IDs, 'All' ) || strcmp( BPA_muscle_IDs, 'all' )         % If the BPA_muscle_IDs is 'All' or 'all'...
+                    
+                    % Set the BPA muscle property values to be the existing BPA muscle property values.
+                    BPA_muscle_strains = existing_BPA_muscle_strains;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('BPA_muscle_IDs must either be a valid array of BPA muscle IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of BPA muscle IDs.
+                num_BPA_muscle_IDs = length( BPA_muscle_IDs );
+                
+                % Preallocate an array to store the BPA muscle values.
+                BPA_muscle_strains = zeros( 1, num_BPA_muscle_IDs );
+                
+                % Retrieve the BPA muscle property value associated with each link ID.
+                for k = 1:num_BPA_muscle_IDs                                        % Iterate through each BPA muscle ID...
+                    
+                    % Retrieve the index of this muscle.
+                    index = find( BPA_muscle_IDs(k) == existing_BPA_muscle_IDs, 1 );
+                    
+                    % Determine whether a matching muscle was found.
+                    if ~isempty(index)                      % If a matching muscle was found...
+                        
+                        % Set the BPA muscle property value to match this existing BPA muscle property value property.
+                        BPA_muscle_strains(k) = existing_BPA_muscle_strains( index );
+                        
+                    else
+                        
+                        % Set the muscle property to be nan.
+                        BPA_muscle_strains(k) = nan;
+                        
+                    end
+                    
+                end
+                
+            end
+            
+        end
+        
         
         %% Call Method Functions
         
@@ -546,6 +1381,25 @@ classdef limb_manager_class
             % Compute the BPA muscle strain associated with the BPA muscle length. ( BPA Muscle Length -> BPA Muscle Strain )
             self = self.call_BPA_muscle_method( 'all', 'muscle_length2muscle_strain' );
 
+            
+        end
+        
+        
+        %% High Level Limb Functions
+        
+        % Implement a function to compute the joint torque generated by the associated BPA muscles at each joint on each limb.
+        function self = BPA_muscle_tensions2joint_torques( self, bVerbose )
+            
+            % Set the default input arguments.
+            if nargin < 2, bVerbose = false; end
+            
+            % Compute the joint torques generated by the associated BPA muscles at each joint on each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Comute the joint torques generated by the associated BPA muscles at each joint on this limb.
+                self.limbs(k) = self.limbs(k).BPA_muscle_tensions2joint_torques( bVerbose );
+            
+            end
             
         end
         

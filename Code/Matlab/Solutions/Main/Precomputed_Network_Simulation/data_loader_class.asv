@@ -220,7 +220,7 @@ classdef data_loader_class
         
         
         % Implement a function to load joint data from a spreadsheet.
-        function [ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations, joint_torques ] = load_joint_data( self, file_name, directory )
+        function [ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations ] = load_joint_data( self, file_name, directory )
             
             % Determine whether to set the load directory to be the stored load directory.
             if nargin < 3, directory = self.load_path; end
@@ -235,7 +235,7 @@ classdef data_loader_class
             num_joints = size( data, 1 );
            
             % Preallocate variables to store the joint data.
-            [ joint_IDs, joint_parent_link_IDs, joint_child_link_IDs, joint_thetas, joint_torques ] = deal( zeros( 1, num_joints ) );
+            [ joint_IDs, joint_parent_link_IDs, joint_child_link_IDs, joint_thetas ] = deal( zeros( 1, num_joints ) );
             [ joint_ps, joint_vs, joint_ws, joint_w_screws ] = deal( zeros( 3, num_joints ) );
             joint_domains = zeros( 2, num_joints );
             [ joint_names, joint_orientations ] = deal( cell( 1, num_joints ) );
@@ -273,7 +273,7 @@ classdef data_loader_class
                 joint_orientations{k} = data{ k, 25 };
                 
                 % Set the joint torques.
-                joint_torques(k) = data{ k, 26 };
+                joint_torques(
                 
             end
             

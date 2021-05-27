@@ -383,16 +383,34 @@ classdef physics_manager_class
         
         
         % Implement a function to perform forward dynamics. ( Joint Torques -> Joint Angles )
-        function [ thetas, dthetas ] = forward_dynamics( self, theta0, dtheta0, taus, g, Ftipmat, Mcms, Mend, Gs, Ss, dt, intRes )
+        function [ thetas, dthetas ] = forward_dynamics( self, theta0, dtheta0, taus_desired, g, Ftipmat, Mcms, Mend, Gs, Ss, dt, intRes )
             
             % Define the default input arguments.
             if nargin < 12, intRes = 10; end
             
-            % Compute the relative home configuration matrices necessary for the forward dynamics calculation.
+%             % Determine the number of joints.
+%             num_joints = size( theta0, 1 );
+%             
+%             % Concatenate the home matrices.
+%             Ms_space = cat( 4, Mcms, Mend );
+%             
+%             % Reshape the home matrices to have the shape expected by our spatial to relative configuration function.
+%             Ms_space = reshape(Ms_space, [ 4, 4, num_joints + 1, 1 ] );
+%             
+%             % Convert the space frame home configuration matrices to relative home configuration matrices.
+%             Ms_relative = self.Tspace2Trelative( Ms_space );
+%             
+%             % Reshape the relative home configuration matrices to have the shape expected by the forward dynamics trajectory function.
+%             Ms_relative = reshape( Ms_relative, [4, 4, 1, num_joints] );
+%             
+%             % Add the initial home configuration matrix to our list of relative home configuration matrices.  ( This is necessary because it is dropped by the space to relative frames functions. )
+%             Ms_relative = cat( 4, Mcms( :, :, 1, 1 ), Ms_relative );
+            
+            % Compute the relative home configuration matrices necessary for the forward dynamics func
             Ms_relative = self.get_dynamics_home_matrices( Mcms, Mend );
 
             % Perform the forward dynamics calculation.
-            [ thetas, dthetas ] = ForwardDynamicsTrajectory( theta0, dtheta0, taus', g, Ftipmat, Ms_relative, Gs, Ss, dt, intRes );
+            [ thetas, dthetas ] = ForwardDynamicsTrajectory( theta0, dtheta0, taus_desired', g, Ftipmat, Ms_relative, Gs, Ss, dt, intRes );
 
             % Transpose the forward dynamics simulation results.
             thetas = thetas'; dthetas = dthetas';        
@@ -403,17 +421,15 @@ classdef physics_manager_class
         % Implement a function to perform inverse dynamics. ( Joint Angles -> Joint Torques )
         function taus = inverse_dynamics( thetas, dthetas, ddthetas, g, Ftipmat, Mcms, Mend, Gs, Ss )
         
-            % Compute the relative home configuration matrices necessary for the forward dynamics calculation.
-            Ms_relative = self.get_dynamics_home_matrices( Mcms, Mend );
+        
             
             % Perform the inverse dynamics calculation.
-            taus = InverseDynamicsTrajectory( thetas', dthetas', ddthetas', g, Ftipmat, Ms_relative, Gs, Ss );
+            taus = InverseDynamicsTrajectory( thetas', dthetas', ddthetas', g, Ftipmat, Mlist, Gs, Ss );
 
             % Transpose the torques.
             taus = taus';
             
         end
-        
         
     end
 end

@@ -16,7 +16,9 @@ classdef numerical_method_utilities_class
             self.method_names = {'Forward Euler'};
             
         end
+ 
         
+        %% Numerical Integration Methods
         
         % Implement a function to perform a single forward Euler step.
         function U = forward_euler_step( ~, U, dU, dt)
@@ -25,6 +27,11 @@ classdef numerical_method_utilities_class
             U = U + dt*dU;
 
         end
+        
+        
+        %% Numerical Differentiation Methods
+        
+        
         
     end
 end

@@ -387,6 +387,7 @@ classdef link_manager_class
             
         end
         
+        
         %% Plotting Functions
         
         % Implement a function to plot the end points of all of the links.

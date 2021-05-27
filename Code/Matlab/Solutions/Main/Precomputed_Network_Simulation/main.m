@@ -279,7 +279,7 @@ fprintf( 'INITIALIZING ROBOT JOINTS. Please Wait...\n' )
 tic
 
 % Load the joint data.
-[ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
+[ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations, joint_torques ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
 
 % Define the number of joints.
 num_joints = length(joint_IDs);
@@ -294,7 +294,7 @@ joints = repmat( joint_class(), 1, num_joints );
 for k = 1:num_joints               % Iterate through each of the joints...
     
     % Create this joint.
-    joints(k) = joint_class( joint_IDs(k), joint_names{k}, joint_parent_link_IDs(k), joint_child_link_IDs(k), joint_ps(:, k), joint_Rs(:, :, k), joint_vs(:, k), joint_ws(:, k), joint_w_screws(:, k), joint_thetas(k), joint_domains(:, k), joint_orientations{k} );
+    joints(k) = joint_class( joint_IDs(k), joint_names{k}, joint_parent_link_IDs(k), joint_child_link_IDs(k), joint_ps(:, k), joint_Rs(:, :, k), joint_vs(:, k), joint_ws(:, k), joint_w_screws(:, k), joint_thetas(k), joint_domains(:, k), joint_orientations{k}, joint_torques(k) );
     
 end
 
@@ -478,15 +478,6 @@ elapsed_time = toc;
 fprintf( 'INITIALIZING QUADRUPED ROBOT. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
 
 
-% %% Initialize the Simulation Data Recorder.
-% 
-% % Create an instance of the simulation data recorder class.
-% simulation_data_recorder = simulation_data_recorder_class( muscle_IDs, joint_IDs, muscle_names, joint_names );
-% 
-% % Initialize the simulation data recorder values.
-% simulation_data_recorder = simulation_data_recorder.initialize_recorded_data( limb_manager, hill_muscle_manager, precomputed_simulation_manager.num_timesteps );
-
-
 %% Initialzize the Simulation Manager.
 
 % State that we are starting a new operation.
@@ -524,6 +515,11 @@ fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait... Done. %0.3f [s] \n\n',
 
 fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
 
+% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_tensions2joint_torques(  );
+
+simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.BPA_muscle_tensions2joint_torques(  );
+
+simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager.joint_configurations2joint_angles(  );
 
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
@@ -668,9 +664,34 @@ tic
 fig_motor_activations = precomputed_simulation_manager.plot_activation();
 
 % Plot the hill muscle activation history.
+fig_hill_muscle_activation = simulation_manager.plot_hill_muscle_activation_history( 'all' );
 
-% Plot the joint angle history.
-fig = simulation_manager.plot_joint_angle_history( 'all' );
+% Plot the end effect joint kinematic history.
+fig_joint_kinematics = simulation_manager.plot_joint_kinematic_history( 'all' );
+
+% Plot the end effector path in the state space.
+fig_end_effector_path = simulation_manager.plot_end_effector_path( 'all' );
+
+% Plot the end effector position, velocity, and acceleration history.
+fig_end_effector_position = simulation_manager.plot_end_effector_position_history( 'all' );
+fig_end_effector_velocity = simulation_manager.plot_end_effector_velocity_history( 'all' );
+fig_end_effector_acceleration = simulation_manager.plot_end_effector_acceleration_history( 'all' );
+
+% Plot the BPA muscle pressure history.
+fig_BPA_muscle_pressure = simulation_manager.plot_BPA_muscle_pressure_history( 'all' );
+
+% Plot the BPA muscle tension history.
+fig_BPA_muscle_tension = simulation_manager.plot_BPA_muscle_tension_history( 'all' );
+
+% Plot the BPA muscle length history.
+fig_BPA_muscle_length = simulation_manager.plot_BPA_muscle_length_history( 'all' );
+
+% Plot the BPA muscle velocity history.
+fig_BPA_muscle_velocity = simulation_manager.plot_BPA_muscle_velocity_history( 'all' );
+
+% Plot the BPA muscle strain history.
+fig_BPA_muscle_strain = simulation_manager.plot_BPA_muscle_strain_history( 'all' );
+
 
 % Retrieve the elapsed time.
 elapsed_time = toc;

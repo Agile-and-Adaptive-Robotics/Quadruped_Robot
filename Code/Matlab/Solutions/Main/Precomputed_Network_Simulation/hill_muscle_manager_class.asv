@@ -201,61 +201,7 @@ classdef hill_muscle_manager_class
         end
         
         
-        % Implement a function to retrieve the name of the specified hill muscles.
-        function hill_muscle_names = get_hill_muscle_names( self, hill_muscle_IDs )
-            
-           % Validate the hill muscle IDs.
-            hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
-            
-            % Determine how many muscles to which we are going to apply the given method.
-            num_names_to_get = length( hill_muscle_IDs );
-            
-            % Preallocate a variable to store the muscle properties.
-            hill_muscle_names = cell( 1, num_names_to_get );
-
-            % Retrieve the given muscle property for each muscle.
-            for k = 1:num_names_to_get                  % Iterate through each of the specified BPAs...
-                
-                % Retrieve the index associated with this muscle ID.
-                muscle_index = self.get_muscle_index( hill_muscle_IDs(k) );
-                
-                % Determine whether we have found a matching muscle.
-                if muscle_index ~= -1           % If we have found a matching muscle...
-                    
-                    % Retrieve the name associated with this muscle.
-                    hill_muscle_names{k} = self.hill_muscles(muscle_index).name;
-                    
-                end
-                
-            end 
-            
-        end
-        
-        
-        % Implement a function to get retrieve the activations associated with the specified hill muscles.
-        function hill_muscle_activations = get_hill_muscle_activations( self, hill_muscle_IDs )
-            
-           % Validate the hill muscle IDs.
-            hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
-            
-            % Determine how many muscles to which we are going to apply the given method.
-            num_activations_to_get = length( hill_muscle_IDs );
-            
-            % Preallocate a variable to store the muscle properties.
-            hill_muscle_activations = zeros( 1, num_activations_to_get );
-            
-            % Retrieve the given muscle property for each muscle.
-            for k = 1:num_activations_to_get                  % Iterate through each of the specified BPAs...
-                
-                % Retrieve the index associated with this muscle ID.
-                muscle_index = self.get_muscle_index( hill_muscle_IDs(k) );
-                
-                % Retrieve the name associated with this muscle.
-                hill_muscle_activations(k) = self.hill_muscles(muscle_index).activation;
-                
-            end 
-            
-        end
+        % Implement a function to 
         
         
         %% Hill Muscle Manager Call Muscle Method Function

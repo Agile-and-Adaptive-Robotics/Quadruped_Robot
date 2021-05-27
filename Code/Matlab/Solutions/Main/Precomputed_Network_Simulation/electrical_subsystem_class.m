@@ -157,6 +157,9 @@ classdef electrical_subsystem_class
                 end
                 
             end
+                        
+            % Ensure that there are items in the buffer before attempting to read.
+            while self.usart_manager.master_output_virtual_serial_port.NumBytesAvailable == 0, end
             
             % Emulate the master microcontroller reading the bytes sent from Matlab.
             temp = read( self.usart_manager.master_output_virtual_serial_port, self.usart_manager.master_output_virtual_serial_port.NumBytesAvailable, 'uint8' );

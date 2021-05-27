@@ -393,37 +393,46 @@ classdef joint_manager_class
         end
         
         
+        % Implement a function to get all of the joint IDs.
+        function IDs = get_all_joint_IDs( self )
+            
+            % Preallocate an array to store the joint IDs.
+            IDs = zeros( 1, self.num_joints );
+
+            % Retrieve the joint ID associated with each joint.
+            for k = 1:self.num_joints                   % Iterate through each joint...
+
+                % Store the joint ID associated with the current joint.
+                IDs(k) = self.joints(k).ID;
+
+            end
+            
+        end
+        
+        
         % Implement a function to retrieve the joint angles associated with a specific joint.
         function thetas = get_joint_angles( self, joint_IDs )
-            
             
             % Validate the joint IDs.
             joint_IDs = self.validate_joint_IDs( joint_IDs );
             
             % Determine how many joints to which we are going to apply the given method.
-            num_properties_to_get = length(joint_IDs);
+            num_properties_to_get = length( joint_IDs );
             
             % Preallocate a variable to store the joint properties.
-%             xs = zeros( 1, num_properties_to_get );
-            xs = cell( 1, num_properties_to_get );
+            thetas = zeros( 1, num_properties_to_get );
 
             % Retrieve the given joint property for each joint.
-            for k = 1:num_properties_to_get
+            for k = 1:num_properties_to_get                 % Iterate through each of the joints from which we want to extract joint angles...
                 
                 % Retrieve the index associated with this joint ID.
                 joint_index = self.get_joint_index( joint_IDs(k) );
                 
-                % Define the eval string.
-%                 eval_str = sprintf( 'xs(k) = self.joints(%0.0f).%s;', joint_index, joint_property );
-                eval_str = sprintf( 'xs{k} = self.joints(%0.0f).%s;', joint_index, joint_property );
-
-                % Evaluate the given joint property.
-                eval(eval_str);
+                % Retrieve the joint angle associated with this joint.
+                thetas(k) = self.joints(joint_index).theta;
                 
             end
-            
-            
-            
+
         end
         
                 
@@ -455,9 +464,9 @@ classdef joint_manager_class
         end
         
         
-        %% Joint Forward Kinematics Functions
+        %% Joint Forward & Inverse Kinematics Functions
         
-        % Implement a function to compute the configuration of joints based on the current joint angles.
+        % Implement a function to compute the configuration of joints based on the current joint angles. ( Forward Kinematics: Angle -> Configuration )
         function self = joint_angles2joint_configurations( self )
            
             % Retrieve the joint angles.
@@ -469,15 +478,8 @@ classdef joint_manager_class
             % Retrieve the position and orientation associated with the configuration of each joint.
             [ Ps, Rs ] = self.physics_manager.T2PR( self.Ts_joints );
             
-%             % Retrieve the spatial velocity (i.e., twist) associated with the current configuration.
-%             Vs = self.physics_manager.T2V( self.Ts_joints );
-            
-%             % Compute the linear and rotational velocity associated with each twist.
-%             [ vs, ws ] = self.physics_manager.V2VW( Vs );
-            
             % Preallocate a cell array to store the joint property values.
             [ Ps_cell, Rs_cell, Ts_cell ] = deal( cell( 1, self.num_joints ) );
-%             [ Ps_cell, Rs_cell, Ts_cell, vs_cell, ws_cell ] = deal( cell( 1, self.num_joints ) );
             
             % Store the joint property values.
             for k = 1:self.num_joints                   % Iterate through each joint...
@@ -486,8 +488,6 @@ classdef joint_manager_class
                 Ps_cell{k} = Ps( :, 1, k );
                 Rs_cell{k} = Rs( :, :, 1, k );
                 Ts_cell{k} = self.Ts_joints( :, :, 1, k );
-%                 vs_cell{k} = vs( :, 1, k );
-%                 ws_cell{k} = ws( :, 1, k );
 
             end
             
@@ -495,10 +495,69 @@ classdef joint_manager_class
             self = self.set_joint_property( 'all', Ps_cell, 'p' );
             self = self.set_joint_property( 'all', Rs_cell, 'R' );
             self = self.set_joint_property( 'all', Ts_cell, 'T' );
-%             self = self.set_joint_property( 'all', vs_cell, 'v' );
-%             self = self.set_joint_property( 'all', ws_cell, 'w' );
+            
+        end
+        
+        
+        % Implement a function to compute the joint angles given the current joint configurations. ( Inverse Kinematics: Configuration -> Angle )
+        function self = joint_configurations2joint_angles( self, theta_guess, eomg, ev, theta_noise, max_attempts )
+
+            % Define the default input arguments.
+            if nargin < 9, max_attempts = 10; end
+            if nargin < 8, theta_noise = 2*pi/100; end
+            if nargin < 7, ev = 1e-6; end
+            if nargin < 6, eomg = 1e-6; end
+            if nargin < 5, theta_guess = self.get_joint_angles( 'all' )'; end
+
+            % Retrieve the properties associated with the final joint.
+            M = self.Ms_joints( :, :, 1, end );
+            J = self.Js_joints( end );
+            T = self.Ts_joints( :, :, 1, end );
+            
+            % Compute the joint angles necessary to achieve the current final joint configuration.
+            [ thetas, success ] = self.physics_manager.inverse_kinematics( M, J, self.Ss, T, theta_guess, eomg, ev, theta_noise, max_attempts );
+            
+            % Determine whether to set the current joint angles to those that achieve the  desired final joint configuration.
+            if success
+                
+            else
+                
+                
+            
+%             % Retrieve the joint angles.
+%             thetas = cell2mat( self.get_joint_property( 'all', 'theta' ) )';
+%             
+%             % Compute the current joint configurations associated with the current joint angles.
+%             self.Ts_joints = self.physics_manager.forward_kinematics( self.Ms_joints, self.Js_joints, self.Ss, thetas );
+%                         
+%             % Retrieve the position and orientation associated with the configuration of each joint.
+%             [ Ps, Rs ] = self.physics_manager.T2PR( self.Ts_joints );
+%             
+%             % Preallocate a cell array to store the joint property values.
+%             [ Ps_cell, Rs_cell, Ts_cell ] = deal( cell( 1, self.num_joints ) );
+%             
+%             % Store the joint property values.
+%             for k = 1:self.num_joints                   % Iterate through each joint...
+%                 
+%                 % Store this joint position, orientation, configuration, and twist.
+%                 Ps_cell{k} = Ps( :, 1, k );
+%                 Rs_cell{k} = Rs( :, :, 1, k );
+%                 Ts_cell{k} = self.Ts_joints( :, :, 1, k );
+% 
+%             end
+%             
+%             % Set the position, orientation, and configuration of each joint.
+%             self = self.set_joint_property( 'all', Ps_cell, 'p' );
+%             self = self.set_joint_property( 'all', Rs_cell, 'R' );
+%             self = self.set_joint_property( 'all', Ts_cell, 'T' );
+            
+            asdf = 1;
 
         end
+        
+        
+
+        
         
         
         %% Plot Functions

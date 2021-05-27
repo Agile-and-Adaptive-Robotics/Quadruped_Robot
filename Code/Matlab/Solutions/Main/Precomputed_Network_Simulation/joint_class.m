@@ -23,6 +23,7 @@ classdef joint_class
         theta
         theta_domain
         orientation
+        torque
     end
     
     %% JOINT METHODS SETUP
@@ -31,9 +32,10 @@ classdef joint_class
     methods
         
         % Implement the class constructor.
-        function self = joint_class( ID, name, parent_link_ID, child_link_ID, p, R, v, w, w_screw, theta, theta_domain, orientation )
+        function self = joint_class( ID, name, parent_link_ID, child_link_ID, p, R, v, w, w_screw, theta, theta_domain, orientation, torque )
 
             % Set the default class properties.
+            if nargin < 13, self.torque = 0; else, self.torque = torque; end
             if nargin < 12, self.orientation = 'Ext'; else, self.orientation = orientation; end
             if nargin < 11, self.theta_domain = [ 0; 2*pi ]; else, self.theta_domain = theta_domain; end
             if nargin < 10, self.theta = 0; else, self.theta = theta; end
