@@ -26,7 +26,7 @@ Phome_cm1 = [0.065365; -0.000337 ;0.049341];                                    
 Rhome_cm1 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm1 = [0.000115	-0.000022	0.000015
 		-0.000022	0.003254	0.000000
-		0.000015	0.000000	0.003180];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+		0.000015	0.000000	0.003180];                                                                      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G1 = [Ihome_cm1, zeros(3, 3); zeros(3, 3), m1*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body1 = GetCuboidPoints(Ls1(1), Ls1(2), Ls1(3), Phome_cm1(1), Phome_cm1(2), Phome_cm1(3), 0, 0, 0);       % [m] Link Points
 Rhome_body1 = Rhome_cm1;                                                                                        % [-] Orientation of the Link in the Global Frame.
@@ -44,7 +44,7 @@ Phome_cm2 = [0.366555; -.000297; 0.053825];                                     
 Rhome_cm2 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm2 = [0.000033		0.000005		0.000010
 		0.000005		0.001383		0.000000
-		0.000010		0.000000		0.001372];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+		0.000010		0.000000		0.001372];                                                              % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G2 = [Ihome_cm2, zeros(3, 3); zeros(3, 3), m2*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body2 = GetCuboidPoints(Ls2(1), Ls2(2), Ls2(3), Phome_cm2(1), Phome_cm2(2), Phome_cm2(3), 0, 0, 0);       % [m] Link Points
 Rhome_body2 = Rhome_cm2;                                                                                        % [-] Orientation of the Link in the Global Frame.
@@ -57,11 +57,11 @@ kt3 = 1;                                                                        
 Lx3 = 0.14845; Ly3 = 0.078967; Lz3 = 0.032385; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
 % Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                              % [m] Link Length in each direction of the local link frame.
 % Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                        % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm3 = [.539952; .014351 ; 0.049821];                                                                     % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm3 = [.539952; .014351 ; 0.049821];                                                                      % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm3 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm3 = [0.000038		-0.000042		0.000001
 		-0.000042		0.000277		0.000000
-		0.000001		0.000000		0.000306];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+		0.000001		0.000000		0.000306];                                                              % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G3 = [Ihome_cm3, zeros(3, 3); zeros(3, 3), m3*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body3 = GetCuboidPoints(Ls3(1), Ls3(2), Ls3(3), Phome_cm3(1), Phome_cm3(2), Phome_cm3(3), 0, 0, 0);       % [m] Link Points
 Rhome_body3 = Rhome_cm3;                                                                                        % [-] Orientation of the Link in the Global Frame.
@@ -95,6 +95,9 @@ Phome_joint2 = [Phome_cm1(1) + Lx1/2; Phome_cm1(2) + Ly1/2; Phome_cm1(3)];      
 Phome_joint3 = [Phome_cm2(1) + Lx2/2; Phome_cm2(2) + Ly2/2; Phome_cm2(3)];                                                                    % [m] Joint Location in the Global Frame.
 Phome_joints = [Phome_joint1 Phome_joint2 Phome_joint3];                                                        % [m] Joint Locations in the Global Frame.
 
+
+  
+
 % Define the home joint orientations.
 Rhome_joint1 = Rhome_body1;                                                                                     % [-] Joint Orientation in the Global Frame.
 Rhome_joint2 = Rhome_body2;                                                                                     % [-] Joint Orientation in the Global Frame.
@@ -113,9 +116,9 @@ w3_local = [0; 0; 1];                                                           
 ws_local = [w1_local w2_local w3_local];                                                                        % [rad/s] Axes of Rotation of Each Link in its Local Frame.
 
 % Define the end effector location & orientation.
-% Phome_end = [Lx1 + Lx2 + Lx3; 0; 0];                                                                    % [m] End Effector Location in the Global Frame.
-Phome_end = [Ltotal; 0; 0];                                                                    % [m] End Effector Location in the Global Frame.
-Rhome_end = eye(3);                                                                                     % [-] End Effector Orientation in the Global Frame.
+% Phome_end = [Lx1 + Lx2 + Lx3; 0; 0];                                                                          % [m] End Effector Location in the Global Frame.
+Phome_end = [Ltotal; 0; 0];                                                                                     % [m] End Effector Location in the Global Frame.
+Rhome_end = eye(3);                                                                                             % [-] End Effector Orientation in the Global Frame.
 
 % Retrieve size information from the specified geometry.
 num_joints = size(Phome_joints, 2);                                                                             % [#] Number of Joints in the Open Kinematic Chain.
@@ -377,7 +380,6 @@ Add Screw Axis for the Hip Adduction and Abduction S2 = {1,0,0,0,0,0}';
 r1 = [Phome_joint1(1); Phome_joint1(2);Phome_joint1(3)];
 r2 = [Phome_joint2(1); Phome_joint2(2);Phome_joint2(3)];
 r3 = [Phome_joint3(1); Phome_joint3(2);Phome_joint3(3)];
-
 
 v1 = cross(r1,w1_local);
 v2 = cross(r2,w2_local);
@@ -643,7 +645,7 @@ Fmuscles_total_lowbnd = zeros(num_muscles, 1);
 % Fmuscles_total_lowbnd = 25*ones(num_muscles, 1);
 
 % Compute the total muscle force required to achieved the desired trajectory.
-Fmuscles_total_desired = JointTorques2TotalMuscleForcesNew( taus_desired, Pmuscles_desired, Pjoints_desired, muscle_joint_orientations, Fmuscles_total_lowbnd );
+Fmuscles_total_desired = JointTorques2TotalMuscleForces( taus_desired, Pmuscles_desired, Pjoints_desired, muscle_joint_orientations, Fmuscles_total_lowbnd );
 
 % Compute the rate of change of total muscle force with respect to time.
 dFmuscles_total_desired = Force2Yank( Fmuscles_total_desired, ts );

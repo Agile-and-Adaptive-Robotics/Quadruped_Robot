@@ -26,7 +26,7 @@ Phome_cm1 = [0.065365; -0.000337 ;0.049341];                                    
 Rhome_cm1 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm1 = [0.000115	-0.000022	0.000015
 		-0.000022	0.003254	0.000000
-		0.000015	0.000000	0.003180];                                                                      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+		0.000015	0.000000	0.003180];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G1 = [Ihome_cm1, zeros(3, 3); zeros(3, 3), m1*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body1 = GetCuboidPoints(Ls1(1), Ls1(2), Ls1(3), Phome_cm1(1), Phome_cm1(2), Phome_cm1(3), 0, 0, 0);       % [m] Link Points
 Rhome_body1 = Rhome_cm1;                                                                                        % [-] Orientation of the Link in the Global Frame.
@@ -44,7 +44,7 @@ Phome_cm2 = [0.366555; -.000297; 0.053825];                                     
 Rhome_cm2 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm2 = [0.000033		0.000005		0.000010
 		0.000005		0.001383		0.000000
-		0.000010		0.000000		0.001372];                                                              % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+		0.000010		0.000000		0.001372];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G2 = [Ihome_cm2, zeros(3, 3); zeros(3, 3), m2*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body2 = GetCuboidPoints(Ls2(1), Ls2(2), Ls2(3), Phome_cm2(1), Phome_cm2(2), Phome_cm2(3), 0, 0, 0);       % [m] Link Points
 Rhome_body2 = Rhome_cm2;                                                                                        % [-] Orientation of the Link in the Global Frame.
@@ -54,14 +54,14 @@ m3 = 0.087102;                                                                  
 ct3 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt3 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx3 = 1; Ly3 = 0.1; Lz3 = 0.1; Ls3 = [Lx3; Ly3; Lz3];                                                         % [m] Link Length in each direction of the local link frame.
-Lx3 = 0.14845; Ly3 = 0.078967; Lz3 = 0.032385; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
+Lx3 = 0.14845; Ly3 = 0.02856; Lz3 = 0.032385; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
 % Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                              % [m] Link Length in each direction of the local link frame.
 % Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                        % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm3 = [.539952; .014351 ; 0.049821];                                                                      % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm3 = [.539952; .014351 ; 0.049821];                                                                     % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm3 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
 Ihome_cm3 = [0.000038		-0.000042		0.000001
 		-0.000042		0.000277		0.000000
-		0.000001		0.000000		0.000306];                                                              % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+		0.000001		0.000000		0.000306];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G3 = [Ihome_cm3, zeros(3, 3); zeros(3, 3), m3*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body3 = GetCuboidPoints(Ls3(1), Ls3(2), Ls3(3), Phome_cm3(1), Phome_cm3(2), Phome_cm3(3), 0, 0, 0);       % [m] Link Points
 Rhome_body3 = Rhome_cm3;                                                                                        % [-] Orientation of the Link in the Global Frame.
@@ -69,6 +69,7 @@ Rhome_body3 = Rhome_cm3;                                                        
 %{
 Add information to incorporate Ad/Abduction Joint at hip
 Needs new joint location, orientation, axis of rotation
+
 %}
 
 % Compile information about each link into arrays.
@@ -95,9 +96,6 @@ Phome_joint2 = [Phome_cm1(1) + Lx1/2; Phome_cm1(2) + Ly1/2; Phome_cm1(3)];      
 Phome_joint3 = [Phome_cm2(1) + Lx2/2; Phome_cm2(2) + Ly2/2; Phome_cm2(3)];                                                                    % [m] Joint Location in the Global Frame.
 Phome_joints = [Phome_joint1 Phome_joint2 Phome_joint3];                                                        % [m] Joint Locations in the Global Frame.
 
-
-  
-
 % Define the home joint orientations.
 Rhome_joint1 = Rhome_body1;                                                                                     % [-] Joint Orientation in the Global Frame.
 Rhome_joint2 = Rhome_body2;                                                                                     % [-] Joint Orientation in the Global Frame.
@@ -116,12 +114,13 @@ w3_local = [0; 0; 1];                                                           
 ws_local = [w1_local w2_local w3_local];                                                                        % [rad/s] Axes of Rotation of Each Link in its Local Frame.
 
 % Define the end effector location & orientation.
-% Phome_end = [Lx1 + Lx2 + Lx3; 0; 0];                                                                          % [m] End Effector Location in the Global Frame.
-Phome_end = [Ltotal; 0; 0];                                                                                     % [m] End Effector Location in the Global Frame.
-Rhome_end = eye(3);                                                                                             % [-] End Effector Orientation in the Global Frame.
+% Phome_end = [Lx1 + Lx2 + Lx3; 0; 0];                                                                    % [m] End Effector Location in the Global Frame.
+Phome_end = [Ltotal; 0; 0];                                                                    % [m] End Effector Location in the Global Frame.
+Rhome_end = eye(3);                                                                                     % [-] End Effector Orientation in the Global Frame.
 
 % Retrieve size information from the specified geometry.
-num_joints = size(Phome_joints, 2);                                                                             % [#] Number of Joints in the Open Kinematic Chain.
+%num_joints = size(Phome_joints, 2);                                                                             % [#] Number of Joints in the Open Kinematic Chain.
+num_joints = 3;                                                                             % [#] Number of Joints in the Open Kinematic Chain.
 num_body_points = size(Phome_bodies, 2);                                                                        % [#] Number of Points in Each Body of the Open Kinematic Chain.
 num_bodies = size(Phome_bodies, 3);                                                                             % [#] Number of Bodies in the Open Kinematic Chain.
 
@@ -133,40 +132,39 @@ kse = 30;                % [N/m] Hill Muscle Model Series Stiffness.
 kpe = 30;                % [N/m] Hill Muscle Model Parallel Stiffness.
 b = 1;                  % [Ns/m] Hill Muscle Model Damping Coefficient.
 
-% Read in Muscle Data
-muscle_data = readtable('Muscle_Data.xlsx');
+% Define the joint names.
+joint_names = {'Hip', 'Knee', 'Ankle'};
 
-% % Define the joint names.
- joint_names = {'Hip', 'Knee', 'Ankle'};
-% 
-% % Define the possible muscle types.
- muscle_type_names = {'Ext', 'Flx'};
-% 
-% % Comute the number of muscle types.
- num_muscle_types = length(muscle_type_names);
+% Define the possible muscle types.
+muscle_type_names = {'Ext', 'Flx', 'Ba'};
+
+% Comute the number of muscle types.
+num_muscle_types = length(muscle_type_names);
 
 % Define a cell to store the muscle names.
-% muscle_names = cell(num_muscle_types*num_joints, 1);
-muscle_names = table2cell(muscle_data(:,1));
-
-
-
+%muscle_names = cell(num_muscle_types*num_joints, 1);
+%muscle_names = muscle_name + cell(
+muscle_names = cell(9,1);
+muscle_names = {'Ba Ankle Flx';'Ba Hip Ext';'Ba Hip Flx';'Hip Ext';'Hip Flx';'Knee Ext';'Knee Flx';'Ankle Ext';'Ankle Flx'};
 % Initialize a loop counter.
-% k3 = 0;
+k3 = 0;
+%{
+% Define the muscle names.
+for k1 = 1:num_joints                       % Iterate through each joint...
+    for k2 = 1:num_muscle_types             % Iterate through each muscle type...
+       
+        % Advance the counter.
+        k3 = k3 + 1;
+        
+        % Create the current muscle name.
+        muscle_names{k3} = [joint_names{k1}, ' ', muscle_type_names{k2}];
 
-% % Define the muscle names.
-% for k1 = 1:num_joints                       % Iterate through each joint...
-%     for k2 = 1:num_muscle_types             % Iterate through each muscle type...
-%        
-%         % Advance the counter.
-%         k3 = k3 + 1;
-%         
-%         % Create the current muscle name.
-%         muscle_names{k3} = [joint_names{k1}, ' ', muscle_type_names{k2}];
-%         
-%     end
-% end
 
+    end
+end
+muscle_names(6) = {'Hip Ba Ext'};
+muscle_names(3) = {'Hip Ba Flx'};
+%}
 % Define the joint orientations.  i.e., the first joint is moved in the positive direction by the extensor, the second by the flexor, and the third by the extensor.
 muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 
@@ -176,95 +174,23 @@ muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 Adjust text files to reflect BiArticular Design
 %}
 
-
-% Ps_hipext = dlmread('Ma_hipext.txt');
-% Ps_hipflx = dlmread('Ma_hipflx.txt');
-% Ps_kneeext = dlmread('Ma_kneeext.txt');
-% Ps_kneeflx = dlmread('Ma_kneeflx.txt');
-% Ps_ankleext = dlmread('Ma_ankleext.txt');
-% Ps_ankleflx = dlmread('Ma_ankleflx.txt');
-% % the following files are for the biarticular muscles, uncomment when ready
-% Ps_Ba_hipext = dlmread('Ba_hipext.txt');
-% Ps_Ba_hipflx = dlmread('Ba_hipflx.txt');
-% Ps_Ba_ankleflx = dlmread('Ba_ankleflx.txt');
-
+Ps_hipext = dlmread('Ma_hipext.txt');
+Ps_hipflx = dlmread('Ma_hipflx.txt');
+Ps_kneeext = dlmread('Ma_kneeext.txt');
+Ps_kneeflx = dlmread('Ma_kneeflx.txt');
+Ps_ankleext = dlmread('Ma_ankleext.txt');
+Ps_ankleflx = dlmread('Ma_ankleflx.txt');
+Ps_hipextbi = dlmread('Ba_hipext.txt');
+Ps_hipflxbi = dlmread('Ba_hipflx.txt');
+Ps_ankleflxbi = dlmread('Ba_ankleflx.txt');
+%
 
 
-
-
-% Read in muscle location data 
-muscle_loc = table2array(muscle_data(:,4:12));
-% Hips
-
-
-    K1=1;
-    Ps_Ba_hipext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-    Ps_Ba_hipflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-Ps_hipext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-Ps_hipflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-% Knees
-Ps_kneeext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-
-    K1 = K1+1; 
-Ps_kneeflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-% Ankles
-Ps_Ba_ankleflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-Ps_ankleext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-    K1 = K1+1; 
-Ps_ankleflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
-                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
-                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
-
-
-% the following files are for the biarticular muscles, uncomment when ready
+% Store the muscle attachment locations in a high order tensor.
+Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx,Ps_hipextbi,Ps_hipflxbi,Ps_ankleflxbi);
 
 
 
-
-
-% add names of new muscles to existing list
-% new_muscle_names = cell(3, 1);
-% new_muscle_names{1} = 'Ba_hip ext';
-% new_muscle_names{2} = 'Ba_hip flx';
-% new_muscle_names{3} = 'Ba_ankle flx';
-% muscle_names = cat(1, muscle_names, new_muscle_names);
-
-% Store the muscle attachment locations, including the biarticular muscles,
-% in a high order tensor by concatenating along dimension 3
-% dimension 1: X, Y, and Z coordinates
-% dimension 2: points per muscle
-% dimension 3: individual muscles
-% dimension 4: timesteps
-
-%Concatenate the position
-% Phome_muscles = cat(3, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx, Ps_ankleext, Ps_ankleflx, Ps_Ba_hipext, Ps_Ba_hipflx, Ps_Ba_ankleflx);
-Phome_muscles = cat(3, Ps_Ba_hipext,Ps_Ba_hipflx, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx,Ps_Ba_ankleflx, Ps_ankleext, Ps_ankleflx  );
-
-
-
-%Plot the muscles in their home positions
 figure 
 xlabel('X')
 ylabel('Y')
@@ -280,7 +206,6 @@ plot3(Phome_muscles(1,:,6),Phome_muscles(2,:,6),Phome_muscles(3,:,6));
 plot3(Phome_muscles(1,:,7),Phome_muscles(2,:,7),Phome_muscles(3,:,7),'-b','linewidth',4);
 plot3(Phome_muscles(1,:,8),Phome_muscles(2,:,8),Phome_muscles(3,:,8),'-b','linewidth',4);
 plot3(Phome_muscles(1,:,9),Phome_muscles(2,:,9),Phome_muscles(3,:,9),'-b','linewidth',4);
-
 
 % Define the home orientation of the muscles.
 Rhome_muscles = eye(3);
@@ -322,17 +247,6 @@ end
 Mmuscles = zeros(4, 4, num_pts_per_muscle, num_muscles);
 Jmuscles = zeros(num_pts_per_muscle, num_muscles);
 k3 = 0;
-
-%**************************************************
-%**************************************************
-%** This probably needs to be changed!           **
-%** We have nine muscles now and they don't all  **
-%** belong to just one joint!                    **
-%**************************************************
-%**************************************************
-
-j_loc = table2array(muscle_data(:,13:15));
-% j_loc = j_loc.';
 for k1 = 1:num_muscles                      % Iterate through each of the muscles...
     for k2 = 1:num_pts_per_muscle           % Iterate through each of the muscle attachment points...
         
@@ -340,27 +254,25 @@ for k1 = 1:num_muscles                      % Iterate through each of the muscle
         Mmuscles(:, :, k2, k1) = [Rhome_muscles, Phome_muscles(:, k2, k1); zeros(1, 3), 1];
         
         % Determine which joint to assign this point to.
-            Jmuscles(k2, k1) = j_loc(k1,k2);
-
+        if k2 == num_pts_per_muscle
+            Jmuscles(k2, k1) = k3 + 1;
+        else
+            Jmuscles(k2, k1) = k3;
+        end
     end
     
     % Advance the counter on even iterations.
-%     if mod(k1, 2) == 0          % If this is an even iteration...
-%         
-%         % Advance the counter.
-%         k3 = k3 + 1;
-%         
-end
+    if mod(k1, 2) == 0          % If this is an even iteration...
+        
+        % Advance the counter.
+        k3 = k3 + 1;
+        
+    end
     
-% end
-
-% Manually create the joint matrix for the muscles
-% This defines which joint each attachment point moves with
-
-% Jmuscles = [0,0,1,1,2,2,0,0,1;
-%             0,0,1,1,2,2,1,1,3;
-%             1,1,2,2,3,3,2,2,3];
-
+end
+Jmuscles = [0,0,1,1,2,2,1,0,0;
+            0,0,1,1,2,2,1,0,0;
+            1,1,2,2,3,3,3,2,2];
 % Define the home matrix for the end effector.
 
 Mend = [Rhome_end, Phome_end; zeros(1, 3), 1];
@@ -375,24 +287,9 @@ Add Screw Axis for the Hip Adduction and Abduction S2 = {1,0,0,0,0,0}';
 % S1 = [0; 0; 1; 0; 0; 0];
 % S2 = [0; 0; 1; 0; -Lx1; 0];
 % S3 = [0; 0; 1; 0; -(Lx1 + Lx2); 0];
-
-%Create position vector
-r1 = [Phome_joint1(1); Phome_joint1(2);Phome_joint1(3)];
-r2 = [Phome_joint2(1); Phome_joint2(2);Phome_joint2(3)];
-r3 = [Phome_joint3(1); Phome_joint3(2);Phome_joint3(3)];
-
-v1 = cross(r1,w1_local);
-v2 = cross(r2,w2_local);
-v3 = cross(r3,w3_local);
-
-S1 = [w1_local;v1];
-S2 = [w2_local;v2];
-S3 = [w3_local;v3];
-
-
-% S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
-% S2 = [0; 0; 1; 0; -Phome_joint2(1); 0];
-% S3 = [0; 0; 1; 0; -Phome_joint3(1); 0];
+S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
+S2 = [0; 0; 1; 0; -Phome_joint2(1); 0];
+S3 = [0; 0; 1; 0; -Phome_joint3(1); 0];
 Ss = [S1 S2 S3];
 
 % With lateral hip axis
@@ -568,7 +465,6 @@ fprintf('COMPUTING INVERSE KINEMATICS SOLUTION (i.e., Desired Joint Angles)... D
 
 % State that we are propogating end effector trajectory to the rest of the rigid body.
 fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e., Desired Non-End Effector Trajectories)... Please Wait...\n')
-% Tmuscles_desired = ForwardKinematics( Mmuscles, Jmuscles, Ss, thetas_desired );
 
 % Retrieve the transformation matrices associated with the given angles.
 Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
@@ -589,6 +485,7 @@ fprintf('COMPUTING FORWARD KINEMATICS SOLUTION AT NON-END EFFECTOR POINTS (i.e.,
 
 
 %% Compute the Muscle Lengths Throughout the Desired Trajectory.
+
 % Compute the muscle lengths, velocities, and accelerations associated with the desired trajectory.
 Lmuscles_desired = GetMuscleLengths( Pmuscles_desired );
 
@@ -975,16 +872,13 @@ SaveFigureAtSize(fig_jointtorques, filename, figure_size)
 %% Plot the Muscle States (Length, Velocity, Acceleration) Over Time.
 
 % Define the extensor colors.
-ext_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125;];
+ext_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
 
 % Define the flexor colors.
 flx_colors = min(1.50*ext_colors, 1);
 
-% Define the Bi-articular Colors
-bi_colors = min(1.25*ext_colors,1);
-
 % Define an array of colors to use on the plot.
-line_colors = cat(3, ext_colors, flx_colors, bi_colors);
+line_colors = cat(3, ext_colors, flx_colors);
 
 % Create a figure to store the muscle length vs time.
 fig_musclelengths = figure('Color', 'w', 'Name', 'Muscle Lengths vs Time');
@@ -996,8 +890,7 @@ subplot(3, 2, 5), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Accelerat
 subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Acceleration [in/s^2]'), title('Muscle Acceleration vs Time (Imperial)')
 
 % Initialize a cell array to store the legend entries.
-%legstr = cell(2*num_muscles, 1);
-legstr = cell(6, 1);
+legstr = cell(2*num_muscles, 1);
 
 % Define a legend entry counter variable.
 legend_counter = 0;
@@ -1007,7 +900,7 @@ muscle_counter = 0;
 
 % Plot each of the muscle lengths over time.
 for k1 = 1:num_joints                   % Iterate through each joint...
-    for k2 = 1:3         % Iterate through each muscle type...
+    for k2 = 1:num_muscle_types         % Iterate through each muscle type...
         
         % Advance the legend counter variable.
         legend_counter = legend_counter + 1;
@@ -1067,8 +960,7 @@ subplot(3, 2, 5), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle For
 subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle Force [lbf]'), title('Total Muscle Force vs Time (Imperial)')
 
 % Initialize an array to store the legend entries.
-% legstr = cell(num_muscles, 1);
-legstr = cell(6, 1);
+legstr = cell(num_muscles, 1);
 
 % Initialize a counter variable.
 k3 = 0;
