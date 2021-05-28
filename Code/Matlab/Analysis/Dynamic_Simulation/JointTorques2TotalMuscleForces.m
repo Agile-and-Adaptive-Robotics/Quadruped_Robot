@@ -38,9 +38,11 @@ ankle_torque = 0;
 % BA hip extensor index   7
 % BA hip flexor index     8
 % BA ankle flexor index   9
+% MA hip abductor index   10
+% MA hip adductor index   11
 
 % Ensure that there are the correct number of muscles.
-if num_muscles ~= 9          % there should be six monoarticular muscles and three biarticular muscles
+if num_muscles ~= 9         % there should be six monoarticular muscles and three biarticular muscles
    
     % Throw an error stating that we have a wrong number of muscles
     error('The current muscle tension calculation algorithm is designed for exactly nine muscles.\n')

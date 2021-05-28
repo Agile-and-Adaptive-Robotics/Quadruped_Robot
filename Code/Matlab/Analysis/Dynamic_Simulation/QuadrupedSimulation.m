@@ -147,25 +147,25 @@ muscle_data = readtable('Muscle_Data.xlsx');
 
 % Define a cell to store the muscle names.
 % muscle_names = cell(num_muscle_types*num_joints, 1);
-muscle_names = table2cell(muscle_data(:,1));
+muscle_names = table2cell(muscle_data(1:9,1));
 
 
 
 % Initialize a loop counter.
-% k3 = 0;
+k3 = 0;
 
-% % Define the muscle names.
-% for k1 = 1:num_joints                       % Iterate through each joint...
-%     for k2 = 1:num_muscle_types             % Iterate through each muscle type...
-%        
-%         % Advance the counter.
-%         k3 = k3 + 1;
-%         
-%         % Create the current muscle name.
-%         muscle_names{k3} = [joint_names{k1}, ' ', muscle_type_names{k2}];
-%         
-%     end
-% end
+% Define the muscle names.
+for k1 = 1:num_joints                       % Iterate through each joint...
+    for k2 = 1:num_muscle_types             % Iterate through each muscle type...
+       
+        % Advance the counter.
+        k3 = k3 + 1;
+        
+        % Create the current muscle name.
+        muscle_names{k3} = [joint_names{k1}, ' ', muscle_type_names{k2}];
+        
+    end
+end
 
 % Define the joint orientations.  i.e., the first joint is moved in the positive direction by the extensor, the second by the flexor, and the third by the extensor.
 muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
@@ -1107,7 +1107,7 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 %% Animate the Open Kinematic Chain.
 
 % Create a figure to store the animation.
-fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
+fig_animation = figure('Color', 'w', 'Name', 'Robot Animation','units','normalized','outerposition',[0 0 1 1]); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
 axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])
 axis equal
 
@@ -1232,9 +1232,10 @@ legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical')
 num_playbacks = 5;
 
 % % Initialize a video object.
-% myVideo = VideoWriter('RobotAnimation'); %open video file
-% myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
-% open(myVideo)
+myVideo = VideoWriter('RobotAnimation'); %open video file
+myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
+
+open(myVideo)
 
 % Animate the figure.
 for j = 1:num_playbacks                     % Iterate through each play back...    
@@ -1247,12 +1248,12 @@ for j = 1:num_playbacks                     % Iterate through each play back...
         drawnow
         
 %         % Write the current frame to the file.
-%         writeVideo(myVideo, getframe(gcf));
+        writeVideo(myVideo, getframe(gcf));
 
     end
 end
 
 % % Close the video object.
-% close(myVideo)
+close(myVideo)
 
 
