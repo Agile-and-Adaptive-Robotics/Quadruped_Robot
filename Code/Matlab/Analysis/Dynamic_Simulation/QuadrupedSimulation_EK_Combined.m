@@ -156,22 +156,78 @@ muscle_names = table2cell(muscle_data(:,1));
 muscle_joint_orientations = {'Ext', 'Flx', 'Flx', 'Ext'};
 
 % Read in the muscle location data.
-Ps_hipadd = dlmread('Ps_hipadd.txt');
-Ps_hipabd = dlmread('Ps_hipabd.txt');
-Ma_hipext = dlmread('Ma_hipext.txt');
-Ma_hipflx = dlmread('Ma_hipflx.txt');
-Ma_kneeext = dlmread('Ma_kneeext.txt');
-Ma_kneeflx = dlmread('Ma_kneeflx.txt');
-Ma_ankleext = dlmread('Ma_ankleext.txt');
-Ma_ankleflx = dlmread('Ma_ankleflx.txt');
-% % the following files are for the biarticular muscles, uncomment when ready
-Ps_Ba_hipext = dlmread('Ba_hipext.txt');
-Ps_Ba_hipflx = dlmread('Ba_hipflx.txt');
-Ps_Ba_ankleflx = dlmread('Ba_ankleflx.txt');
+% Ps_hipadd = dlmread('Ps_hipadd.txt');
+% Ps_hipabd = dlmread('Ps_hipabd.txt');
+% Ma_hipext = dlmread('Ma_hipext.txt');
+% Ma_hipflx = dlmread('Ma_hipflx.txt');
+% Ma_kneeext = dlmread('Ma_kneeext.txt');
+% Ma_kneeflx = dlmread('Ma_kneeflx.txt');
+% Ma_ankleext = dlmread('Ma_ankleext.txt');
+% Ma_ankleflx = dlmread('Ma_ankleflx.txt');
+% % % the following files are for the biarticular muscles, uncomment when ready
+% Ps_Ba_hipext = dlmread('Ba_hipext.txt');
+% Ps_Ba_hipflx = dlmread('Ba_hipflx.txt');
+% Ps_Ba_ankleflx = dlmread('Ba_ankleflx.txt');
 
+% Read in muscle location data 
+muscle_loc = table2array(muscle_data(:,4:12));
+% Hips
+
+
+    K1=1;
+    Ps_Ba_hipext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+    Ps_Ba_hipflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+Ps_hipext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+Ps_hipflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+% Knees
+Ps_kneeext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+
+    K1 = K1+1; 
+Ps_kneeflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+% Ankles
+Ps_Ba_ankleflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+Ps_ankleext = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+    K1 = K1+1; 
+Ps_ankleflx = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+                    K1 = K1+1; 
+
+Ps_hipadd  = [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
+                    K1 = K1+1; 
+
+
+Ps_hipabd= [muscle_loc(K1,1), muscle_loc(K1,4), muscle_loc(K1,7)
+                    muscle_loc(K1,2), muscle_loc(K1,5), muscle_loc(K1,8)
+                    muscle_loc(K1,3), muscle_loc(K1,6), muscle_loc(K1,9)];
 
 % Store the muscle attachment locations in a high order tensor.
-Phome_muscles = cat(3, Ma_hipext, Ma_hipflx, Ps_hipadd, Ps_hipabd, Ma_kneeext, Ma_kneeflx, Ma_ankleext, Ma_ankleflx, Ps_Ba_hipext, Ps_Ba_hipflx, Ps_Ba_ankleflx);
+% Phome_muscles = cat(3, Ma_hipext, Ma_hipflx, Ps_hipadd, Ps_hipabd, Ma_kneeext, Ma_kneeflx, Ma_ankleext, Ma_ankleflx, Ps_Ba_hipext, Ps_Ba_hipflx, Ps_Ba_ankleflx);
+Phome_muscles = cat(3, Ps_Ba_hipext,Ps_Ba_hipflx, Ps_hipext, Ps_hipflx, Ps_kneeext, Ps_kneeflx,Ps_Ba_ankleflx, Ps_ankleext, Ps_ankleflx , Ps_hipadd, Ps_hipabd );
 
 % Define the home orientation of the muscles.
 Rhome_muscles = eye(3);
@@ -213,6 +269,10 @@ end
 Mmuscles = zeros(4, 4, num_pts_per_muscle, num_muscles);
 Jmuscles = zeros(num_pts_per_muscle, num_muscles);
 k3 = 0;
+
+
+
+j_loc = table2array(muscle_data(:,13:15));
 for k1 = 1:num_muscles                      % Iterate through each of the muscles...
     for k2 = 1:num_pts_per_muscle           % Iterate through each of the muscle attachment points...
         
@@ -220,28 +280,48 @@ for k1 = 1:num_muscles                      % Iterate through each of the muscle
         Mmuscles(:, :, k2, k1) = [Rhome_muscles, Phome_muscles(:, k2, k1); zeros(1, 3), 1];
         
         % Determine which joint to assign this point to.
-        if k2 == num_pts_per_muscle
-            Jmuscles(k2, k1) = k3 + 1;
-        else
-            Jmuscles(k2, k1) = k3;
-        end
+            Jmuscles(k2, k1) = j_loc(k1,k2);
+
     end
     
     % Advance the counter on even iterations.
-    if mod(k1, 2) == 0          % If this is an even iteration...
-        
-        % Advance the counter.
-        k3 = k3 + 1;
-        
-    end
-    
+%     if mod(k1, 2) == 0          % If this is an even iteration...
+%         
+%         % Advance the counter.
+%         k3 = k3 + 1;
+%         
 end
 
+% %Delete?
+% for k1 = 1:num_muscles                      % Iterate through each of the muscles...
+%     for k2 = 1:num_pts_per_muscle           % Iterate through each of the muscle attachment points...
+%         
+%         % Compute the home matrix asscoated with this point on this muscle.
+%         Mmuscles(:, :, k2, k1) = [Rhome_muscles, Phome_muscles(:, k2, k1); zeros(1, 3), 1];
+%         
+%         % Determine which joint to assign this point to.
+%         if k2 == num_pts_per_muscle
+%             Jmuscles(k2, k1) = k3 + 1;
+%         else
+%             Jmuscles(k2, k1) = k3;
+%         end
+%     end
+%     
+%     % Advance the counter on even iterations.
+%     if mod(k1, 2) == 0          % If this is an even iteration...
+%         
+%         % Advance the counter.
+%         k3 = k3 + 1;
+%         
+%     end
+%     
+% end
+
 % Fix the adduction & abduction joint assignments.
-Jmuscles( 2, 3:4 ) = [ 2, 2 ];
-Jmuscles = [0,0,1,1,1,1,2,2,0,0,1;
-            0,0,2,2,1,1,2,2,1,1,3;
-            1,1,2,2,2,2,3,3,2,2,3];
+% Jmuscles( 2, 3:4 ) = [ 2, 2 ];
+% Jmuscles = [0,0,1,1,1,1,2,2,0,0,1;
+%             0,0,2,2,1,1,2,2,1,1,3;
+%             1,1,2,2,2,2,3,3,2,2,3];
 % Define the home matrix for the end effector.
 
 Mend = [Rhome_end, Phome_end; zeros(1, 3), 1];
@@ -252,12 +332,12 @@ Jend = num_joints;
 r1 = [Phome_joint1(1); Phome_joint1(2);Phome_joint1(3)];
 r2 = [Phome_joint2(1); Phome_joint2(2);Phome_joint2(3)];
 r3 = [Phome_joint3(1); Phome_joint3(2);Phome_joint3(3)];
-r3 = [Phome_joint4(1); Phome_joint4(2);Phome_joint4(3)];
+r4 = [Phome_joint4(1); Phome_joint4(2);Phome_joint4(3)];
 
 v1 = cross(r1,w1_local);
 v2 = cross(r2,w2_local);
 v3 = cross(r3,w3_local);
-v4 = cross(r3,w4_local);
+v4 = cross(r4,w4_local);
 
 S1 = [w1_local;v1];
 S2 = [w2_local;v2];
@@ -510,9 +590,9 @@ plot3( Phome_joints(1, :), Phome_joints(2, :), Phome_joints(3, :), '.r', 'Marker
 plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.m', 'MarkerSize', 20)
 
 % Define a new desired pose for the left hind limb.
-% thetas_desired = (pi/180)*[-90; 0; 0; 0];
+thetas_desired = (pi/180)*[-90; 0; 0; 0];
 % thetas_desired = (pi/180)*[-90; 0; 30; -10.21];
-thetas_desired = (pi/180)*[-90; -15; 30; -10.21];
+% thetas_desired = (pi/180)*[-90; -15; 30; -10.21];
 
 % Retrieve the transformation matrices associated with the given angles.
 Tbodies_desired = ForwardKinematics( Mbodies, Jbodies, Ss, thetas_desired );
@@ -577,7 +657,9 @@ if tf == 0
     eomg = 1e-6; ev = 1e-6;
 
     % Define the starting joint angle values for the inverse kinematics algorithm.
-    theta_guess = (pi/180)*[-90; 0; 45; -45];
+    theta_guess = (pi/180)*[-90; 0; 0; 0];
+
+%     theta_guess = (pi/180)*[-90; 0; 45; -45];
 
     % Compute the joint angles associated with the desired trajectory.
     [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
@@ -1094,9 +1176,11 @@ subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Accelerat
 if tf == 1
    num_muscles = 11;
    num_joints = 4;
+   musc_types = 3;
 else
     num_joints = 3;
     num_muscles = 9;
+    musc_types = 3;
 end
 legstr = cell(2*num_muscles, 1);
 
@@ -1106,9 +1190,11 @@ legend_counter = 0;
 % Initialize a muscle counter variable.
 muscle_counter = 0;
 
+
+
 % Plot each of the muscle lengths over time.
 for k1 = 1:num_joints                   % Iterate through each joint...
-    for k2 = 1:3         % Iterate through each muscle type...
+    for k2 = 1:musc_types         % Iterate through each muscle type...
         
         % Advance the legend counter variable.
         legend_counter = legend_counter + 1;
@@ -1136,7 +1222,8 @@ for k1 = 1:num_joints                   % Iterate through each joint...
         legstr{legend_counter} = [muscle_names{muscle_counter}, ' Desired'];
         legend_counter = legend_counter + 1;
         legstr{legend_counter} = [muscle_names{muscle_counter}, ' Achieved'];
-    muscle_counter
+    muscle_counter;
+    
     end
 end
 
