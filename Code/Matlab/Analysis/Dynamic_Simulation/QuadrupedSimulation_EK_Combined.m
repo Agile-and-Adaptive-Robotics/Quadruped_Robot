@@ -496,6 +496,9 @@ plot3( Phome_muscles(1, :, 5), Phome_muscles(2, :, 5), Phome_muscles(3, :, 5), '
 plot3( Phome_muscles(1, :, 6), Phome_muscles(2, :, 6), Phome_muscles(3, :, 6), '.-b', 'Linewidth', 2, 'Markersize', 20 )
 plot3( Phome_muscles(1, :, 7), Phome_muscles(2, :, 7), Phome_muscles(3, :, 7), '.-b', 'Linewidth', 2, 'Markersize', 20 )
 plot3( Phome_muscles(1, :, 8), Phome_muscles(2, :, 8), Phome_muscles(3, :, 8), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 9), Phome_muscles(2, :, 9), Phome_muscles(3, :, 9), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 10), Phome_muscles(2, :, 10), Phome_muscles(3, :, 10), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Phome_muscles(1, :, 11), Phome_muscles(2, :, 11), Phome_muscles(3, :, 11), '.-b', 'Linewidth', 2, 'Markersize', 20 )
 
 % Plot the home position of the joints.
 plot3( Phome_joints(1, :), Phome_joints(2, :), Phome_joints(3, :), '.r', 'MarkerSize', 20 )
@@ -551,6 +554,9 @@ plot3( Pmuscles_desired(1, :, 5), Pmuscles_desired(2, :, 5), Pmuscles_desired(3,
 plot3( Pmuscles_desired(1, :, 6), Pmuscles_desired(2, :, 6), Pmuscles_desired(3, :, 6), '.-b', 'Linewidth', 2, 'Markersize', 20 )
 plot3( Pmuscles_desired(1, :, 7), Pmuscles_desired(2, :, 7), Pmuscles_desired(3, :, 7), '.-b', 'Linewidth', 2, 'Markersize', 20 )
 plot3( Pmuscles_desired(1, :, 8), Pmuscles_desired(2, :, 8), Pmuscles_desired(3, :, 8), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 9), Pmuscles_desired(2, :, 9), Pmuscles_desired(3, :, 9), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 10), Pmuscles_desired(2, :, 10), Pmuscles_desired(3, :, 10), '.-b', 'Linewidth', 2, 'Markersize', 20 )
+plot3( Pmuscles_desired(1, :, 11), Pmuscles_desired(2, :, 11), Pmuscles_desired(3, :, 11), '.-b', 'Linewidth', 2, 'Markersize', 20 )
 
 % Plot the new position of the joints.
 plot3( Pjoints_desired(1, :), Pjoints_desired(2, :), Pjoints_desired(3, :), '.r', 'MarkerSize', 20 )
@@ -712,7 +718,7 @@ Fmuscles_total_lowbnd = zeros(num_muscles, 1);
 % Fmuscles_total_lowbnd = 25*ones(num_muscles, 1);
 
 % Compute the total muscle force required to achieved the desired trajectory.
-Fmuscles_total_desired = JointTorques2TotalMuscleForces( taus_desired, Pmuscles_desired, Pjoints_desired, muscle_joint_orientations, Fmuscles_total_lowbnd );
+Fmuscles_total_desired = JointTorques2TotalMuscleForcesCombined( taus_desired, Pmuscles_desired, Pjoints_desired, muscle_joint_orientations, Fmuscles_total_lowbnd );
 
 % Compute the rate of change of total muscle force with respect to time.
 dFmuscles_total_desired = Force2Yank( Fmuscles_total_desired, ts );
@@ -732,6 +738,9 @@ plot( ts, Fmuscles_total_desired(5, :), '-', 'Linewidth', 3 )
 plot( ts, Fmuscles_total_desired(6, :), '-', 'Linewidth', 3 )
 plot( ts, Fmuscles_total_desired(7, :), '-', 'Linewidth', 3 )
 plot( ts, Fmuscles_total_desired(8, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(9, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(10, :), '-', 'Linewidth', 3 )
+plot( ts, Fmuscles_total_desired(11, :), '-', 'Linewidth', 3 )
 
 
 %% Compute the Active Muscle Force Required to Achieved the Desired Trajectory.
