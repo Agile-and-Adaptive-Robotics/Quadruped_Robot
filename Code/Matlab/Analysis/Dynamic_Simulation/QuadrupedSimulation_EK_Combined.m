@@ -15,6 +15,7 @@ tf = strcmp(answer, 'y');
 
 % Setting global origin to coordinate system 1 as defined by Miles
 
+
 % Define the mechanical properties of link 1 - defined by hip
 % flexion/extension (Hip swivel)
 m1 = 0.133594;                                                                                                  % [kg] Link Mass.
@@ -590,7 +591,7 @@ plot3( Phome_joints(1, :), Phome_joints(2, :), Phome_joints(3, :), '.r', 'Marker
 plot3(Phome_end(1), Phome_end(2), Phome_end(3), '.m', 'MarkerSize', 20)
 
 % Define a new desired pose for the left hind limb.
-thetas_desired = (pi/180)*[-90; 0; 0; 0];
+thetas_desired = (pi/180)*[-90; 0; 45; -45];
 % thetas_desired = (pi/180)*[-90; 0; 30; -10.21];
 % thetas_desired = (pi/180)*[-90; -15; 30; -10.21];
 
@@ -657,9 +658,9 @@ if tf == 0
     eomg = 1e-6; ev = 1e-6;
 
     % Define the starting joint angle values for the inverse kinematics algorithm.
-    theta_guess = (pi/180)*[-90; 0; 0; 0];
+%     theta_guess = (pi/180)*[-90; 0; 0; 0];
 
-%     theta_guess = (pi/180)*[-90; 0; 45; -45];
+    theta_guess = (pi/180)*[-90; 0; 45; -45];
 
     % Compute the joint angles associated with the desired trajectory.
     [thetas_desired, successes] = InverseKinematics(Ss, Mend, Ts_desired, theta_guess, eomg, ev);
@@ -1294,7 +1295,7 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 %% Animate the Open Kinematic Chain.
 
 % Create a figure to store the animation.
-fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(90, 0), xlabel('x'), ylabel('y'), zlabel('z')
+fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
 axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])                                      
 axis equal
 xlim([-0.6 0.6])
