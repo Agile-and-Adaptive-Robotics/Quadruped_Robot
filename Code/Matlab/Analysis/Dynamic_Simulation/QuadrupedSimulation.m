@@ -1110,6 +1110,7 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 fig_animation = figure('Color', 'w', 'Name', 'Robot Animation','units','normalized','outerposition',[0 0 1 1]); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
 axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])
 axis equal
+xlim([-0.6 0.6])
 
 % Preallocate an array to store the legend entries.
 legstr = cell(num_bodies + 6, 1);
@@ -1232,7 +1233,7 @@ legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical')
 num_playbacks = 5;
 
 % % Initialize a video object.
-myVideo = VideoWriter('RobotAnimation'); %open video file
+myVideo = VideoWriter('RobotAnimationBiarticular'); %open video file
 myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
 
 open(myVideo)

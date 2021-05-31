@@ -1295,7 +1295,7 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 %% Animate the Open Kinematic Chain.
 
 % Create a figure to store the animation.
-fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
+fig_animation = figure('Color', 'w', 'Name', 'Robot Animation','units','normalized','outerposition',[0 0 1 1]); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
 axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])                                      
 axis equal
 xlim([-0.6 0.6])
@@ -1423,10 +1423,10 @@ legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical');
 num_playbacks = 3;
 
 % % Initialize a video object.
-% myVideo = VideoWriter('RobotAnimation'); %open video file
-% myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
+myVideo = VideoWriter('RobotAnimationCombined'); %open video file
+myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
 
-% open(myVideo)
+open(myVideo)
 
 
 % Animate the figure.
@@ -1440,12 +1440,12 @@ for j = 1:num_playbacks                     % Iterate through each play back...
         drawnow
         
         % Write the current frame to the file.
-%          writeVideo(myVideo, getframe(gcf));
+         writeVideo(myVideo, getframe(gcf));
 
     end
 end
 
 % % Close the video object.
-% close(myVideo)
+close(myVideo)
 
 
