@@ -1284,7 +1284,7 @@ end
 
 % Add display the legend.
 legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
-
+R
 % Create a file name for the saved figure.
 filename = split(fig_muscleforces.Name, ' '); filename = strcat(filename{:}, '.jpg');
 
