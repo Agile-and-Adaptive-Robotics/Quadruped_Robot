@@ -609,6 +609,9 @@ Tend_desired = ForwardKinematics( Mend, Jend, Ss, thetas_desired );
 [~, Pmuscles_desired] = TransToRpAllBodies(Tmuscles_desired);
 [~, Pend_desired] = TransToRpAllBodies(Tend_desired);
 
+
+
+
 % Process the center of mass and joint positions for plotting.
 Pcms_desired = squeeze(Pcms_desired);
 Pjoints_desired = squeeze(Pjoints_desired);
@@ -1284,13 +1287,45 @@ end
 
 % Add display the legend.
 legend(legstr, 'Location', 'South', 'Orientation', 'Horizontal')
-R
+
 % Create a file name for the saved figure.
 filename = split(fig_muscleforces.Name, ' '); filename = strcat(filename{:}, '.jpg');
 
 % Save the figure.
 SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 
+%% Calculate the highest force and find the change in length at that point
+thetas_desired = (pi/180)*[-90; 0; 45; -45];
+for k1 = 1:length(muscle_names)
+    
+    [a,i] = max(Fmuscles_total_achieved(k1,:));
+%     where(k1,:,:) = [a,i];
+%     dlength = Lmuscles_rest_achieved(k1) - Lmuscles_achieved(k1,i);
+%     dlength = dLmuscles_achieved(k1,i);    
+
+        % Compute the distance between the muscle attachment points for this muscle at this time step.
+%         dPmuscles_achieved = diff(Pmuscles_achieved(:, :, k1, i), 1, 2);
+        
+        % Compute the length of this muscle at this time step.
+%         Lmuscles = sum(vecnorm(dPmuscles_achieved, 2, 1))
+        
+        dPmuscles_initial =  diff(Pmuscles_desired(:, :, k1, 1), 1, 2);
+        Lmuscle_initial(k1,:) = sum(vecnorm(dPmuscles_initial, 2, 1));
+        
+        % Compute the distance between the muscle attachment points for this muscle at this time step.
+        dPmuscles_achieved = diff(Pmuscles_achieved(:, :, k1, i), 1, 2);
+        
+        % Compute the length of this muscle at this time step.
+        Lmuscles(k1, :) = sum(vecnorm(dPmuscles_achieved, 2, 1));
+        
+        
+        
+        dMuscleLength = Lmuscles(k1,:) - Lmuscle_initial(k1,:);
+
+        
+    
+end
+    columns = [Lmuscles-Lmuscle_initial]; 
 
 %% Animate the Open Kinematic Chain.
 

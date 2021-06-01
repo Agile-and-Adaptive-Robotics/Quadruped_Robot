@@ -357,9 +357,9 @@ end
 % Manually create the joint matrix for the muscles
 % This defines which joint each attachment point moves with
 
-% Jmuscles = [0,0,1,1,2,2,0,0,1;
-%             0,0,1,1,2,2,1,1,3;
-%             1,1,2,2,3,3,2,2,3];
+Jmuscles = [0,0,1,1,2,2,0,0,1;
+            0,0,1,1,2,2,1,1,3;
+            1,1,2,2,3,3,2,2,3];
 
 % Define the home matrix for the end effector.
 
@@ -997,7 +997,7 @@ subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Accelerat
 
 % Initialize a cell array to store the legend entries.
 %legstr = cell(2*num_muscles, 1);
-legstr = cell(6, 1);
+legstr = cell(9, 1);
 
 % Define a legend entry counter variable.
 legend_counter = 0;
@@ -1053,9 +1053,20 @@ SaveFigureAtSize(fig_musclelengths, filename, figure_size)
 
 % Define an array of colors to use on the plot.
 line_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125];
+% Define the extensor colors.
+ext_colors = [0 0.447 0.741; 0.850 0.325 0.098; 0.929 0.694 0.125; 0.4940 0.1840 0.5560];
 
+% Define the flexor colors.
+flx_colors = min(1.50*ext_colors, 1);
+
+% Define the Bi-articular Colors
+bi_colors = min(1.25*ext_colors,1);
+
+% Define an array of colors to use on the plot.
+% line_colors = cat(3, ext_colors, flx_colors);
+line_colors = cat(3, ext_colors, flx_colors, bi_colors);
 % Define an array of line styles to use.
-line_styles = {'-', '--'};
+line_styles = {'-', '--','.-'};
 
 % Create a figure to store the muscle forces over time.
 fig_muscleforces = figure('Color', 'w', 'Name', 'Muscle Forces vs Time');
@@ -1068,14 +1079,14 @@ subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Total Muscle For
 
 % Initialize an array to store the legend entries.
 % legstr = cell(num_muscles, 1);
-legstr = cell(6, 1);
+legstr = cell(9, 1);
 
 % Initialize a counter variable.
 k3 = 0;
 
 % Plot the force of each muscle over time.
 for k1 = 1:num_joints                   % Iterate through each joint...
-    for k2 = 1:num_muscle_types         % Iterate through each muscle type...
+    for k2 = 1:3         % Iterate through each muscle type...
         
         % Advance the counter variable.
         k3 = k3 + 1;
@@ -1103,6 +1114,30 @@ filename = split(fig_muscleforces.Name, ' '); filename = strcat(filename{:}, '.j
 % Save the figure.
 SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 
+%% Calculate the highest force and find the change in length at that point
+for k1 = 1:length(muscle_names)
+    
+ [a,i] = max(Fmuscles_total_achieved(k1,:));
+    where(k1,:,:) = [a,i];
+
+        
+        dPmuscles_initial =  diff(Pmuscles_desired(:, :, k1, 1), 1, 2);
+        Lmuscle_initial(k1,:) = sum(vecnorm(dPmuscles_initial(:,2), 2, 1));
+        
+        % Compute the distance between the muscle attachment points for this muscle at this time step.
+        dPmuscles_achieved = diff(Pmuscles_achieved(:, :, k1, i), 1, 2);
+        
+        % Compute the length of this muscle at this time step.
+        Lmuscles(k1, :) = sum(vecnorm(dPmuscles_achieved(:,2), 2, 1));
+        
+        
+        
+        dMuscleLength = Lmuscles(k1,:) - Lmuscle_initial(k1,:);
+
+        
+    columns(k1,:,:) = [Lmuscle_initial(k1,:),dMuscleLength]; 
+end
+    strain = dMuscleLength/Lmuscle_inital;
 
 %% Animate the Open Kinematic Chain.
 
