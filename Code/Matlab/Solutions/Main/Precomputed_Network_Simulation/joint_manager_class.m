@@ -461,7 +461,7 @@ classdef joint_manager_class
         
         
         % Implement a function to retrieve the velocities of the specified joints.
-        function dthetas = get_joint_velocities( self, joint_IDs )
+        function dthetas = get_joint_angular_velocities( self, joint_IDs )
             
             % Validate the joint IDs.
             joint_IDs = self.validate_joint_IDs( joint_IDs );
@@ -479,8 +479,32 @@ classdef joint_manager_class
                 joint_index = self.get_joint_index( joint_IDs(k) );
                 
                 % Retrieve the joint angle associated with this joint.
-                dthetas(k) = self.joints(joint_index).w;
+                dthetas(k) = norm( self.joints(joint_index).w, 2 );
                 
+            end
+            
+        end
+        
+        
+        % Implement a function to set the velocity of specific joints.
+        function self = set_joint_angular_velocities( self, joint_IDs, joint_angular_velocities )
+            
+            % Validate the joint IDs.
+            joint_IDs = self.validate_joint_IDs( joint_IDs );
+            
+            % Set the properties of each joint.
+            for k = 1:self.num_joints                   % Iterate through each joint...
+                
+                % Determine the index of the joint property value that we want to apply to this joint (if we want to set a property of this joint).
+                index = find( self.joints(k).ID == joint_IDs, 1 );
+                
+                % Determine whether to set a property of this joint.
+                if ~isempty(index)                         % If a matching joint ID was detected...
+                    
+                    % Set the joint angle of this joint.
+                    self.joints(k).w = joint_angular_velocities(index)*self.joints(k).w_screw;
+                    
+                end
             end
             
         end
@@ -507,6 +531,30 @@ classdef joint_manager_class
                 % Retrieve the joint angle associated with this joint.
                 taus(k) = self.joints(joint_index).torque;
                 
+            end
+            
+        end
+        
+        
+        % Implement a function to set the torques of the specified joints.
+        function self = set_joint_torques( self, joint_IDs, joint_torques )
+            
+            % Validate the joint IDs.
+            joint_IDs = self.validate_joint_IDs( joint_IDs );
+            
+            % Set the properties of each joint.
+            for k = 1:self.num_joints                   % Iterate through each joint...
+                
+                % Determine the index of the joint property value that we want to apply to this joint (if we want to set a property of this joint).
+                index = find( self.joints(k).ID == joint_IDs, 1 );
+                
+                % Determine whether to set a property of this joint.
+                if ~isempty(index)                         % If a matching joint ID was detected...
+                    
+                    % Set the joint angle of this joint.
+                    self.joints(k).torque = joint_torques(index);
+                    
+                end
             end
             
         end

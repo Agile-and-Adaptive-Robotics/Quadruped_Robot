@@ -10,6 +10,7 @@ classdef link_manager_class
         links
         num_links
         
+        Gs_cms
         Ms_cms
         Ts_cms
         Js_cms
@@ -41,7 +42,10 @@ classdef link_manager_class
             if nargin < 1, self.links = link_class(  ); else, self.links = links; end
         
             % Retrieve the number of links.
-            self.num_links = length(self.links);
+            self.num_links = length( self.links );
+            
+            % Retrieve the spatial inertia matrices from the constituent links.
+            self.Gs_cms = self.get_spatial_inertias(  );
             
             % Set the home configurations.
             self.Ms_cms = self.get_home_cm_configurations( );
@@ -160,6 +164,23 @@ classdef link_manager_class
         end
             
             
+        % Implement a function to get the spatial inertia matrices of the constituent links.
+        function Gs = get_spatial_inertias( self )
+            
+            % Initialize a matrix to store the spatial inertias.
+            Gs = zeros( 6, 6, self.num_links );
+            
+            % Concatenate the spatial intertia matrices.
+            for k = 1:self.num_links                % Iterate through each of the links...
+                
+                % Store the spatial inertia associated with this link.
+                Gs( :, :, k ) = self.links(k).G_cm;
+            
+            end
+            
+        end
+        
+        
         % Implement a function to initialize an instance of the link manager class using constituent link data.
         function self = initialize_from_link_data( IDs, names, parent_joint_IDs, child_joint_IDs, ps_starts, ps_ends, lens, widths, masses, ps_cms, vs_cms, ws_cms, Rs, mesh_types )
              

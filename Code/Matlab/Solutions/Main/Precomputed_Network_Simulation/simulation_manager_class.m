@@ -6,11 +6,17 @@ classdef simulation_manager_class
     
     % Define the class properties.
     properties
+        
         robot_states
         max_states
         dt
         ts
+    
+        bVerbose
+        bSimulateDynamics
+        
         plotting_utilities
+    
     end
     
     
@@ -20,12 +26,14 @@ classdef simulation_manager_class
     methods
         
         % Implement the class constructor.
-        function self = simulation_manager_class( robot_state0, max_states, dt )
+        function self = simulation_manager_class( robot_state0, max_states, dt, bSimulateDynamics, bVerbose )
             
             % Create an instance of the plotting utilities class.
             self.plotting_utilities = plotting_utilities_class(  );
             
             % Set the default simulation manager properties.
+            if nargin < 5, self.bVerbose = false; else, self.bVerbose = bVerbose; end
+            if nargin < 4, self.bSimulateDynamics = true; else, self.bSimulateDynamics = bSimulateDynamics; end
             if nargin < 3, self.dt = 1e-3; else, self.dt = dt; end
             if nargin < 2, self.max_states = 1e3; else, self.max_states = max_states; end
             if nargin < 1, robot_state0 = quadruped_robot_class(); end
@@ -575,6 +583,35 @@ classdef simulation_manager_class
         end
         
         
+        %% Dynamics Simulation Functions ( Simulation or Hardware )
+        
+        % Implement a function to perform a forward dynamics step ( in simulation or hardware ). ( BPA Muscle Desired Pressure -> BPA Muscle Measured Pressure & Joint Angles )
+        function self = forward_dynamics_step( self )
+            
+            % ( BPA Muscle Desired Pressures -> BPA Muscle Measured Pressure & Joint Angles )
+            
+            % Determine how to perform the forward dynamics step. Either simulation or hardware.
+            if self.bSimulateDynamics                    % If we want to simulate the dynamics... ( BPA Muscle Desired Pressure -> BPA Muscle Desired Tension -> Joint Torques -> Joint Angles )
+                
+                % Perform a single forward dynamics step. ( BPA Muscle Desired Pressure -> BPA Muscle Desired Tension -> Joint Torques -> Joint Angles )
+                self.robot_states(end).mechanical_subsystem.limb_manager = self.robot_states(end).mechanical_subsystem.limb_manager.forward_dynamics_step( self.dt, self.robot_states(end).mechanical_subsystem.g, self.robot_states(end).mechanical_subsystem.dyn_int_steps, self.bVerbose );
+                
+            else
+            
+                % Write commands to the master microcontroller while reading sensor data from the master microcontroller. ( Slave Manager Desired Pressures -> Master Microcontroller -> Slave Manager Measured Pressures, Measured Joint Angles )
+                self = self.write_commands_to_read_sensors_from_master(  );
+
+                % Transfer the slave measured pressure data to the BPA muscle measured pressure. ( Slave Measured Pressure -> BPA Muscle Measured Pressure )
+                self.robot_states(end) = self.robot_states(end).slave_measured_pressures2BPA_measured_pressures(  );
+
+                % Transfer the slave measured joint angle to the joint object angle. ( Slave Measured Angle -> Joint Angle )
+                self.robot_states(end) = self.robot_states(end).slave_angle2joint_angle(  );
+            
+            end
+            
+        end
+    
+    
         %% Plotting Functions
         
         % Implement a function to plot the joint angle history.

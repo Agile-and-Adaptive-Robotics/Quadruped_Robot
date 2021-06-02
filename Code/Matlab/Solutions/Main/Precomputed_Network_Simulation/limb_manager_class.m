@@ -6,8 +6,10 @@ classdef limb_manager_class
     
     % Define the class properties.
     properties
+        
         limbs
         num_limbs
+        
     end
     
     
@@ -383,8 +385,37 @@ classdef limb_manager_class
             
         end
         
+      
+        % Implement a function to get the torques from all joints.
+        function torques = get_torques_from_all_joints( self )
+            
+            % Retrieve the total number of joints.
+            num_joints = self.get_number_of_joints(  );
+            
+            % Preallocate an array to store the joint property values.
+            torques = zeros( 1, num_joints );
+
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the joints properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of joints on this limb.
+                num_joints_on_limb = self.limbs(k).joint_manager.num_joints;
+                
+                % Retrieve the joint properties from this limb.
+                torques( index:(index + num_joints_on_limb - 1) ) = self.limbs(k).joint_manager.get_joint_torques( 'all' );
+
+                % Advance the index variable.
+                index = index + num_joints_on_limb;
+                
+            end
+            
+        end
         
-        % Implement a function to retrieve the joint angles from the limbs.
+        
+        % Implement a function to retrieve the joint angles from the specified joints.
         function thetas = get_joint_angles( self, joint_IDs )
             
             % Retrieve all of the existing joint IDs and joint angles from all of the limbs.
@@ -420,6 +451,50 @@ classdef limb_manager_class
                     
                     % Set the joint angle to match this existing joint angle.
                     thetas(k1) = existing_joint_angles( joint_IDs(k1) == existing_joint_IDs );
+                    
+                end
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the joint torques from the specified joints.
+        function torques = get_joint_torques( self, joint_IDs )
+            
+            % Retrieve all of the existing joint IDs and joint angles from all of the limbs.
+            existing_joint_IDs = self.get_IDs_from_all_joints(  );
+            existing_joint_torques = self.get_torques_from_all_joints(  );
+
+            % Determine how to set the joint torques.
+            if isa( joint_IDs, 'char' )                         % If the provided joint IDs are characters...
+                
+                % Determine how to set the joint torques.
+                if strcmp( joint_IDs, 'All' ) || strcmp( joint_IDs, 'all' )         % If the joint_IDs is 'All' or 'all'...
+                    
+                    % Set the joint angles to be the existing joint torques.
+                    torques = existing_joint_torques;
+                    
+                else
+                    
+                    % Throw an error.
+                    error('joint_IDs must either be a valid array of joint IDs or one of the following strings: ''All'' or ''all''')
+                    
+                end
+                
+            else                                                                    % Otherwise...
+                
+                % Retrieve the number of joint IDs.
+                num_joint_IDs = length( joint_IDs );
+                
+                % Preallocate an array to store the joint torques.
+                torques = zeros( 1 , num_joint_IDs );
+                
+                % Retrieve the joint torques associated with each joint ID.
+                for k1 = 1:num_joint_IDs                                        % Iterate through each joint ID...
+                    
+                    % Set the joint torque to match this existing joint angle.
+                    torques(k1) = existing_joint_torques( joint_IDs(k1) == existing_joint_IDs );
                     
                 end
                 
@@ -628,11 +703,9 @@ classdef limb_manager_class
             end
             
         end
+                
         
-        
-        
-        
-        %% Specific BPA Muscle Get & Set Property Functions
+        %% Specific BPA Muscle Get Property Functions
         
         % Implement a function to retrieve the IDs from all of the BPA muscles.
         function BPA_muscle_IDs = get_ID_from_all_BPA_muscles( self )
@@ -1351,6 +1424,65 @@ classdef limb_manager_class
         end
         
         
+        %% BPA Muscle Set Property Functions
+        
+        % Implement a function to set the measured pressures of the specified BPA muscles.
+        function self = set_BPA_muscle_measured_pressures( self, BPA_muscle_IDs, BPA_muscle_measured_pressures )
+            
+            % Set the BPA muscle property values for each limb.
+            for k = 1:self.num_limbs                                                           % Iterate through each limb...
+                
+                % Set the BPA muscle properties of this limb.                
+                self.limbs(k).BPA_muscle_manager = self.limbs(k).BPA_muscle_manager.set_BPA_muscle_measured_pressures( BPA_muscle_IDs, BPA_muscle_measured_pressures );
+                
+            end
+            
+        end
+            
+        
+        % Implement a function to set the measured tensions of the specified BPA muscles.
+        function self = set_BPA_muscle_measured_tensions( self, BPA_muscle_IDs, BPA_muscle_measured_tensions )
+            
+            % Set the BPA muscle property values for each limb.
+            for k = 1:self.num_limbs                                                           % Iterate through each limb...
+                
+                % Set the BPA muscle properties of this limb.                
+                self.limbs(k).BPA_muscle_manager = self.limbs(k).BPA_muscle_manager.set_BPA_muscle_measured_tensions( BPA_muscle_IDs, BPA_muscle_measured_tensions );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to set the measured pessures of the BPA muscles on this limb to be the same as the desired pressures.
+        function self = desired_pressures2measured_pressures( self )
+        
+            % Set the measured pressures of the BPA muscles on each limb to be the same as the desired pressures.
+            for k = 1:self.num_limbs                        % Iterate through each limb...
+                
+                % Set the measured pressures of the BPA muscles on this limb to be the same as the desired pressures.
+                self.limbs(k).BPA_muscle_manager = self.limbs(k).BPA_muscle_manager.desired_pressures2measured_pressures(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to set the measured tensions of the BPA muscles on this limb to be the same was the desired tensions.
+        function self = desired_tensions2measured_tensions( self )
+        
+            % Set the measured tensions of the BPA muscles on each limb to be the same as the desired tensions.
+            for k = 1:self.num_limbs                        % Iterate through each limb...
+                
+                % Set the measured tensions of the BPA muscles on this limb to be the same as the desired tensions.
+                self.limbs(k).BPA_muscle_manager = self.limbs(k).BPA_muscle_manager.desired_tensions2measured_tensions(  );
+                
+            end
+            
+        end
+        
+        
+        
         %% Call Method Functions
         
         % Implement a function to call a BPA muscle method for each limb.
@@ -1396,11 +1528,46 @@ classdef limb_manager_class
             % Compute the joint torques generated by the associated BPA muscles at each joint on each limb.
             for k = 1:self.num_limbs                % Iterate through each limb...
                 
-                % Comute the joint torques generated by the associated BPA muscles at each joint on this limb.
+                % Compute the joint torques generated by the associated BPA muscles at each joint on this limb.
                 self.limbs(k) = self.limbs(k).BPA_muscle_tensions2joint_torques( bVerbose );
             
             end
             
+        end
+        
+        
+        % Implement a function to compute the joint angles produced by the current joint torques on each limb. ( Forward Dynamics: Joint Torques -> Joint Angles )
+        function self = joint_torques2joint_angles( self, dt, g, dyn_int_steps )
+            
+            % Set the default input arguments.
+            if nargin < 4, dyn_int_steps = 10; end
+            if nargin < 3, g = [ 0; -9.81; 0 ]; end
+            
+            % Compute the joint angles associated with the joint torques on each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+            
+                % Compute the joint angles associated with the joint torques on this limb.
+                self.limbs(k) = self.limbs(k).joint_torques2joint_angles( dt, g, dyn_int_steps );
+        
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the joint torques required to maintain the current joint angles on each limb ( (Partial) Inverse Dynamics: Joint Angles -> Joint Torques )
+        function self = joint_angles2joint_torques( self, g )
+            
+            % Set the default input arguments.
+            if nargin < 2, g = [ 0; -9.81; 0 ]; end
+            
+            % Compute the joint torques associated with the joint angles on each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+            
+                % Compute the joint torques associated with the joint angles on this limb.
+                self.limbs(k) = self.limbs(k).joint_angles2joint_torques( g );
+        
+            end
+                        
         end
         
         
@@ -1486,6 +1653,35 @@ classdef limb_manager_class
             self = self.joint_angles2limb_configurations(  );
             
         end
+        
+        
+        %% High Level Dynamics Functions
+        
+        % Implement a function to compute a single forward dynamics step.
+        function self = forward_dynamics_step( self, dt, g, dyn_int_steps, bVerbose )
+            
+            % Set the default input arguments.
+            if nargin < 5, bVerbose = false; end
+            if nargin < 4, dyn_int_steps = 10; end
+            if nargin < 3, g = [ 0; -9.81; 0 ]; end
+            
+            % Compute BPA muscle desired tension associated with the current BPA muscle desired pressure. ( BPA Muscle Desired Pressure -> BPA Muscle Desired Tension )
+            self = self.desired_pressures2measured_pressures(  );
+
+            % Compute the joint torques associated with the BPA muscle desired tensions. ( BPA Muscle Desired Tensions -> Joint Torques )
+            self = self.BPA_muscle_tensions2joint_torques( bVerbose );
+
+            % Compute the joint angles associated with the current joint torques. ( Joint Torques -> Joint Angles )
+            self = self.joint_torques2joint_angles( dt, g, dyn_int_steps );
+
+            % Set the BPA muscle measured pressure to be the same as the BPA muscle desired pressure.
+            self = self.desired_pressures2measured_pressures(  );
+
+            % Set the BPA muscle measured tension to be the same as the BPA muscle desired tension.
+            self = self.desired_tensions2measured_tensions(  );
+            
+        end
+        
         
         
         %% Plotting Functions

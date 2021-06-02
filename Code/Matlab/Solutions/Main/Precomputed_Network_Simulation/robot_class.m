@@ -112,7 +112,6 @@ classdef robot_class
                 
             end
             
-            
         end
         
         
@@ -448,7 +447,6 @@ classdef robot_class
             self = self.BPA_muscle_property2hill_muscle_property( 'velocity' );
             
         end
-        
         
         
     end

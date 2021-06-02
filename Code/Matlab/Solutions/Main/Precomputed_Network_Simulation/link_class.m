@@ -28,6 +28,7 @@ classdef link_class
         T_cm
         
         I_cm
+        G_cm
         v_cm
         w_cm
         
@@ -73,6 +74,9 @@ classdef link_class
             
             % Compute the moment of inertia of the link.
             self = self.compute_Icm(  );
+            
+            % Compute the spatial inertia of the link.
+            self = self.Im2G(  );
             
             % Define the link points.
             self.ps_link = [ self.p_start, self.p_end ];
@@ -193,6 +197,8 @@ classdef link_class
         end
         
         
+        %% Inertia Functions
+        
         % Implement a function to compute the moment of inertia of a cuboid link.
         function I_cm = compute_cuboid_Icm( ~, m, sx, sy, sz )
             
@@ -226,6 +232,28 @@ classdef link_class
             end
             
         end
+        
+        
+        % Implement a function to compute the spatial inertia of the link from the rotational and linear inertias.
+        function self = Im2G( self )
+            
+            % Compute the spatial inertial.
+            self.G_cm = [ self.I_cm, zeros(3, 3); zeros(3, 3), self.mass*eye(3, 3) ];                                                       % [-] Spatial Inertia Matrix for This Link.
+
+        end
+        
+        
+        % Implement a function to compute the linear and rotational inertias from the spatial inertia.
+        function self = G2Im( self )
+            
+            % Retrieve the rotational moment of inertia.
+            self.I_cm = self.G_cm( 1:3, 1:3 );
+            
+            % Retrieve the mass of the link.
+            self.mass = self.G_cm( 4, 4 );
+            
+        end
+        
         
         
         %% Plotting Functions

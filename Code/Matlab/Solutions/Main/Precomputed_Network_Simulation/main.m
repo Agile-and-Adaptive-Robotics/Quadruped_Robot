@@ -486,9 +486,18 @@ fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait...\n' )
 % Start a timer.
 tic
 
+% Set whether to simulate or use hardware.
+bSimulateDynamics = true;
+
+% Set whether to print debugging information.
+bVerbose = false;
+
 % Set the maximum number of robot states to record.
 % max_states = 1000;
 max_states = max_num_data_points;
+
+% Define the gravity vector.
+g = [0; -9.81; 0];                  % [m/s^2] Gravity Vector 
 
 % Set the initial hill muscle activations to match the precomputed network simulation. ( Precomputed Simulation -> Hill Muscle Activation ) 
 robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsystem.hill_muscle_manager.set_muscle_property( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(k, :), 'activation', true );
@@ -500,7 +509,7 @@ robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsyste
 robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsystem.hill_muscle_manager.call_muscle_method( 'all', 'desired_active_tension2desired_total_passive_tension' );
 
 % Create an instance of the simulation manager class.
-simulation_manager = simulation_manager_class( robot_state0, max_states, precomputed_simulation_manager.dt );
+simulation_manager = simulation_manager_class( robot_state0, max_states, precomputed_simulation_manager.dt, bSimulateDynamics, bVerbose );
 
 % Retrieve the elapsed time.
 elapsed_time = toc;
@@ -517,9 +526,40 @@ fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_
 
 % simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_tensions2joint_torques(  );
 
+
+% Print out BPA Muscle Tensions, Joint Torques, and Joint Angles.
+fprintf('BPA Muscle Tensions: [N]\n')
+disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_BPA_muscle_measured_tensions( 'all' ) )
+
+fprintf('Joint Torques: [Nm]\n')
+disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_torques( 'all' ) )
+
+fprintf('Joint Angles: [rad]\n')
+disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_angles( 'all' ) )
+
+
+% BPA Muscle Tensions -> Joint Torques
 simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.BPA_muscle_tensions2joint_torques(  );
 
-simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager.joint_configurations2joint_angles(  );
+% Joint Torques -> Joint Angles
+simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_torques2joint_angles( simulation_manager.dt, simulation_manager.robot_states(end).mechanical_subsystem.g );
+
+% Joint Angles -> Joint Torques
+simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2joint_torques( simulation_manager.robot_states(end).mechanical_subsystem.g );
+
+% Print out BPA Muscle TEnsions, Joint Torques, and Joint Angles.
+fprintf('BPA Muscle Tensions: [N]\n')
+disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_BPA_muscle_measured_tensions( 'all' ) )
+
+fprintf('Joint Torques: [Nm]\n')
+disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_torques( 'all' ) )
+
+fprintf('Joint Angles: [rad]\n')
+disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_angles( 'all' ) )
+
+
+
+% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager.joint_configurations2joint_angles(  );
 
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
@@ -538,25 +578,17 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Start a timer for this iteration.
     iteration_timer = tic;
     
+    
     %% Initialize the Next Robot State.
     
     % Cycle the robot states.
     simulation_manager = simulation_manager.cycle_robot_states(  );
     
     
-    %% Write the Desired Muscle Pressures to and Read Measured Muscle Pressures and Joint Angles from the Master Microcontroller.
-    
-    % Write commands to the master microcontroller while reading sensor data from the master microcontroller. ( Slave Manager Desired Pressures -> Master Microcontroller -> Slave Manager Measured Pressures, Measured Joint Angles )
-    simulation_manager = simulation_manager.write_commands_to_read_sensors_from_master(  );
-
-    
-    %% Transfer Slave Manager Sensor Data to Simulation Objects. ( Slave Manager Desired Pressure -> BPA Muscle Measured Pressure ), ( Slave Manager Joint Angle -> Joint Angle )
-    
-    % Transfer the slave measured pressure data to the BPA muscle measured pressure. ( Slave Measured Pressure -> BPA Muscle Measured Pressure )
-    simulation_manager.robot_states(end) = simulation_manager.robot_states(end).slave_measured_pressures2BPA_measured_pressures(  );
-
-    % Transfer the slave measured joint angle to the joint object angle. ( Slave Measured Angle -> Joint Angle )
-    simulation_manager.robot_states(end) = simulation_manager.robot_states(end).slave_angle2joint_angle(  );
+    %% Perform a Single Step of the Forward Dynamics Simulation ( Either Via Hardware or Simulation ) ( BPA Muscle Desired Pressures -> BPA Muscle Measured Pressure & Joint Angles )
+        
+    % Perform a single step of the forward dynamics simulation. ( BPA Muscle Desired Pressures -> BPA Muscle Measured Pressure & Joint Angles )
+    simulation_manager = simulation_manager.forward_dynamics_step(  );
     
     
     %% Compute the Robot Configuration Given the Current Joint Angles (i.e., Forward Kinematics). ( Joint Angles -> Robot Configuration )
@@ -634,6 +666,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Transfer the BPA muscle desired pressure to the slave manager desired pressure. ( BPA Muscle Desired Pressure -> Slave Manager Desired Pressure )
     simulation_manager.robot_states(end) = simulation_manager.robot_states(end).BPA_desired_pressures2slave_desired_pressures(  );
     
+    
     %% End the Timer.
     
     % End the timer for this iteration.
@@ -641,6 +674,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     % Print out information for this iteration.
     fprintf( 'Iteration #%0.0f: %0.3f [s]\n', k, iteration_duration )
+    
     
 end
 

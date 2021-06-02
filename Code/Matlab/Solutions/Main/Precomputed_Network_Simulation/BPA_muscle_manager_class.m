@@ -224,7 +224,7 @@ classdef BPA_muscle_manager_class
         end
         
         
-        %% BPA Muscle Manager Specific Get & Set Functions
+        %% BPA Muscle Manager Specific Get Functions
         
         % Implement a function to get the names of BPAs specified by IDs.
         function BPA_names = get_BPA_muscle_names( self, BPA_muscle_IDs )
@@ -454,7 +454,104 @@ classdef BPA_muscle_manager_class
             
         end
         
+        
+        %% BPA Muscle Manager Specific Set Functions
+        
+        % Implement a function to set the measured pressure of specific BPA muscles.
+        function self = set_BPA_muscle_measured_pressures( self, BPA_muscle_IDs, BPA_muscle_measured_pressures )
             
+            % Validate the BPA muscle IDs.
+            BPA_muscle_IDs = self.validate_BPA_muscle_IDs( BPA_muscle_IDs );
+            
+            % Set the properties of each BPA muscle.
+            for k = 1:self.num_BPA_muscles                   % Iterate through each BPA muscle...
+                
+                % Determine the index of the BPA muscle property value that we want to apply to this BPA muscle (if we want to set a property of this BPA muscle).
+                index = find( self.BPA_muscles(k).ID == BPA_muscle_IDs, 1 );
+                
+                % Determine whether to set a property of this BPA muscle.
+                if ~isempty(index)                         % If a matching BPA muscle ID was detected...
+                    
+                    % Set the measured pressure of the matching BPA muscle.
+                    self.BPA_muscles(k).measured_pressure = BPA_muscle_measured_pressures(index);
+                    
+                end
+            end
+            
+        end
+        
+        
+        % Implement a function to set the measured tension of specific BPA muscles.
+        function self = set_BPA_muscle_measured_tensions( self, BPA_muscle_IDs, BPA_muscle_measured_tensions )
+            
+            % Validate the BPA muscle IDs.
+            BPA_muscle_IDs = self.validate_BPA_muscle_IDs( BPA_muscle_IDs );
+            
+            % Set the properties of each BPA muscle.
+            for k = 1:self.num_BPA_muscles                   % Iterate through each BPA muscle...
+                
+                % Determine the index of the BPA muscle property value that we want to apply to this BPA muscle (if we want to set a property of this BPA muscle).
+                index = find( self.BPA_muscles(k).ID == BPA_muscle_IDs, 1 );
+                
+                % Determine whether to set a property of this BPA muscle.
+                if ~isempty(index)                         % If a matching BPA muscle ID was detected...
+                    
+                    % Set the measured tension of the matching BPA muscle.
+                    self.BPA_muscles(k).measured_tension = BPA_muscle_measured_tensions(index);
+                    
+                end
+            end
+            
+        end
+        
+        
+        %% BPA Muscle Manager Pressure-Force Functions
+        
+        % Implement a function to set the measure pressure of each BPA muscle to be the same as the desired pressure of each BPA muscle.
+        function self = desired_pressures2measured_pressures( self )
+            
+           % Set the measured pressure of each BPA muscle to be the same as the desired pressure. ( BPA Muscle Desired Pressure -> BPA Muscle Measured Pressure ) 
+           for k = 1:self.num_BPA_muscles                   % Iterate through each BPA muscle in this BPA muscle manager...
+               
+               % Set the measured pressure of this BPA muscle to be the same as the desired pressure of this BPA muscle.
+               self.BPA_muscles(k).measured_pressure = self.BPA_muscles(k).desired_pressure;
+               
+           end
+           
+        end
+       
+        
+        % Implement a function to set the measure tension of each BPA muscle to be the same as the desired tension of each BPA muscle.
+        function self = desired_tensions2measured_tensions( self )
+            
+           % Set the measured tension of each BPA muscle to be the same as the desired tension. ( BPA Muscle Desired Tension -> BPA Muscle Measured Tension ) 
+           for k = 1:self.num_BPA_muscles                   % Iterate through each BPA muscle in this BPA muscle manager...
+               
+               % Set the measured tension of this BPA muscle to be the same as the desired tension of this BPA muscle.
+               self.BPA_muscles(k).measured_tension = self.BPA_muscles(k).desired_tension;
+               
+           end
+           
+        end
+        
+        
+        % Implement a function to compute the desired tension associated with the desired pressure of each BPA muscle in this BPA muscle mananger.
+        function self = desired_pressures2desired_tensions( self )
+            
+            % Compute the desired tension associated with the desired pressure of each BPA muscle in this BPA muscle manager.
+            for k = 1:self.num_BPA_muscles                              % Iterate through each BPA muscle...
+            
+                % Set the desired tension associated with the desired pressure of this BPA muscle.
+                self.BPA_muscles(k) = self.BPA_muscles(k).desired_pressure2desired_tension(  );
+        
+            end
+            
+        end
+        
+        
+        
+        
+        
         %% BPA Muscle Manager Call Muscle Methods Function
         
         % Implement a function to that calls a specified muscle method for each of the specified muscles.
