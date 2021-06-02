@@ -1295,7 +1295,7 @@ filename = split(fig_muscleforces.Name, ' '); filename = strcat(filename{:}, '.j
 SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 
 %% Calculate the highest force and find the change in length at that point
-thetas_desired = (pi/180)*[-90; 0; 45; -45];
+% thetas_desired = (pi/180)*[-90; 0; 45; -45];
 for k1 = 1:length(muscle_names)
     
     [a,i] = max(Fmuscles_total_achieved(k1,:));
