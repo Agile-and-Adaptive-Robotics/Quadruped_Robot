@@ -6,9 +6,11 @@ classdef hill_muscle_manager_class
     
     % Define the class properties.
     properties
+        
         hill_muscles
         num_hill_muscles
         conversion_manager
+        
     end
     
     

@@ -47,6 +47,7 @@ classdef hill_muscle_class
         num_int_steps
         
         numerical_method_utilities
+        conversion_manager
         
     end
     
@@ -61,6 +62,9 @@ classdef hill_muscle_class
             
             % Create an instance of the numerical methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class();
+            
+            % Create an instance of the conversion manager class.
+            self.conversion_manager = conversion_manager_class(  );
             
             % Set the default hill muscle properties.
             if nargin < 17, self.num_int_steps = 10; else, self.num_int_steps = num_int_steps; end
@@ -109,9 +113,7 @@ classdef hill_muscle_class
             
         end
         
-        
-        
-        
+                
         %% LENGTH-STRAIN FUNCTIONS
         
         % Implement a function to compute the muscle strain associated with a given muscle length and resting length.
@@ -132,7 +134,7 @@ classdef hill_muscle_class
         end
         
         
-        %% MUSCLE FEEDBACK FUNCTIONS
+        %% MUSCLE SATURATION FUNCTIONS
         
         % Implement a function to saturate a muscle property.
         function value = saturate_value( ~, value, domain )
@@ -152,6 +154,121 @@ classdef hill_muscle_class
             
         end
         
+        
+        % Implement a function to saturate the desired active tension.
+        function self = saturate_hill_muscle_desired_active_tension( self, bVerbose )
+           
+            % Set the default input arguments.
+            if nargin < 2, bVerbose = false; end
+            
+            % Determine how to saturate the desired active tension.
+            if self.desired_active_tension < self.tension_domain(1)                            % If the desired active tension is less than zero...
+                
+               % Determine whether to throw a warning.
+               if bVerbose, warning('Desired active tension %0.0f [lbf] is below the minimum tension of %0.0f [lbf].  Setting desired active tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.desired_active_tension ), self.conversion_manager.n2lb( self.tension_domain(1) ), self.conversion_manager.n2lb( self.tension_domain(1) ) ); end
+                
+                % Set the desired active tension to be zero.
+               self.desired_active_tension = self.tension_domain(1);
+                
+            elseif self.desired_active_tension > self.tension_domain(2)        % If the desired active tension is greater than the maximum tension...
+               
+                % Determine whether to throw a warning.
+               if bVerbose, warning('Desired active tension %0.0f [lbf] is above the maximum tension of %0.0f [lbf].  Setting desired active tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.desired_active_tension ), self.conversion_manager.n2lb( self.tension_domain(2) ), self.conversion_manager.n2lb( self.tension_domain(2) ) ); end
+                
+                % Set the desired active tension to be the maximum tension.
+                self.desired_active_tension = self.tension_domain(2);
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to saturate the measured active tension.
+        function self = saturate_hill_muscle_measured_active_tension( self, bVerbose )
+           
+            % Set the default input arguments.
+            if nargin < 2, bVerbose = false; end
+            
+            % Determine how to saturate the measured active tension.
+            if self.measured_active_tension < self.tension_domain(1)                            % If the measured active tension is less than zero...
+                
+               % Determine whether to throw a warning.
+               if bVerbose, warning('Measured active tension %0.0f [lbf] is below the minimum tension of %0.0f [lbf].  Setting measured active tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.measured_active_tension ), self.conversion_manager.n2lb( self.tension_domain(1) ), self.conversion_manager.n2lb( self.tension_domain(1) ) ); end
+                
+                % Set the measured active tension to be zero.
+               self.measured_active_tension = self.tension_domain(1);
+                
+            elseif self.measured_active_tension > self.tension_domain(2)        % If the measured active tension is greater than the maximum tension...
+               
+                % Determine whether to throw a warning.
+               if bVerbose, warning('Measured active tension %0.0f [lbf] is above the maximum tension of %0.0f [lbf].  Setting measured active tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.measured_active_tension ), self.conversion_manager.n2lb( self.tension_domain(2) ), self.conversion_manager.n2lb( self.tension_domain(2) ) ); end
+                
+                % Set the measured active tension to be the maximum tension.
+                self.measured_active_tension = self.tension_domain(2);
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to saturate the desired total tension.
+        function self = saturate_hill_muscle_desired_total_tension( self, bVerbose )
+           
+            % Set the default input arguments.
+            if nargin < 2, bVerbose = false; end
+            
+            % Determine how to saturate the desired total tension.
+            if self.desired_total_tension < self.tension_domain(1)                            % If the desired total tension is less than zero...
+                
+               % Determine whether to throw a warning.
+               if bVerbose, warning('Desired total tension %0.0f [lbf] is below the minimum tension of %0.0f [lbf].  Setting desired total tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.desired_total_tension ), self.conversion_manager.n2lb( self.tension_domain(1) ), self.conversion_manager.n2lb( self.tension_domain(1) ) ); end
+                
+                % Set the desired total tension to be zero.
+               self.desired_total_tension = self.tension_domain(1);
+                
+            elseif self.desired_total_tension > self.tension_domain(2)        % If the desired total tension is greater than the maximum tension...
+               
+                % Determine whether to throw a warning.
+               if bVerbose, warning('Desired total tension %0.0f [lbf] is above the maximum tension of %0.0f [lbf].  Setting desired total tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.desired_total_tension ), self.conversion_manager.n2lb( self.tension_domain(2) ), self.conversion_manager.n2lb( self.tension_domain(2) ) ); end
+                
+                % Set the desired total tension to be the maximum tension.
+                self.desired_active_tension = self.tension_domain(2);
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to saturate the measured total tension.
+        function self = saturate_hill_muscle_measured_total_tension( self, bVerbose )
+           
+            % Set the default input arguments.
+            if nargin < 2, bVerbose = false; end
+            
+            % Determine how to saturate the measured total tension.
+            if self.measured_total_tension < self.tension_domain(1)                            % If the measured total tension is less than zero...
+                
+               % Determine whether to throw a warning.
+               if bVerbose, warning('Measured total tension %0.0f [lbf] is below the minimum tension of %0.0f [lbf].  Setting measured total tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.measured_total_tension ), self.conversion_manager.n2lb( self.tension_domain(1) ), self.conversion_manager.n2lb( self.tension_domain(1) ) ); end
+                
+                % Set the measured total tension to be zero.
+               self.measured_total_tension = self.tension_domain(1);
+                
+            elseif self.measured_total_tension > self.tension_domain(2)        % If the measured total tension is greater than the maximum tension...
+               
+                % Determine whether to throw a warning.
+               if bVerbose, warning('Measured total tension %0.0f [lbf] is above the maximum tension of %0.0f [lbf].  Setting measured total tension to %0.0f [lbf].', self.conversion_manager.n2lb( self.measured_total_tension ), self.conversion_manager.n2lb( self.tension_domain(2) ), self.conversion_manager.n2lb( self.tension_domain(2) ) ); end
+                
+                % Set the measured total tension to be the maximum tension.
+                self.measured_active_tension = self.tension_domain(2);
+                
+            end
+            
+        end
+        
+        
+        
+        %% MUSCLE FEEDBACK FUNCTIONS
         
         % Implement a function to compute a source of muscle feedback.
         function feedback = muscle_value2muscle_feedback( self, value, value_domain, feedback_domain )
@@ -218,6 +335,9 @@ classdef hill_muscle_class
             % Convert the muscle activation to a desired total muscle tension.
             self.desired_total_tension = self.activation2tension( self.activation_domain, self.tension_domain, self.activation );
             
+            % Saturate the desired total tension.
+            self = self.saturate_hill_muscle_desired_total_tension(  );
+            
         end
         
         
@@ -227,6 +347,9 @@ classdef hill_muscle_class
             % Convert the muscle activation to a desired total muscle tension.
             self.desired_active_tension = self.activation2tension( self.activation_domain, self.tension_domain, self.activation );
             
+            % Saturate the desired active tension.
+            self = self.saturate_hill_muscle_desired_active_tension(  );
+
         end
         
         
@@ -348,8 +471,14 @@ classdef hill_muscle_class
         % Implement a function to compute the desired active and desired passive muscle tension associated with the current desired total muscle tension.
         function self = desired_total_tension2desired_active_passive_tension( self )
             
+            % Saturate the desired total tension.
+            self = self.saturate_hill_muscle_desired_total_tension(  );
+            
             % Compute the desired active and desired passive tension associated with the current desired total tension.
             [ self.desired_active_tension, self.desired_passive_tension ] = self.total_tension2active_passive_tension( self.desired_total_tension, self.yank, self.muscle_length - self.resting_muscle_length, self.velocity, self.kse, self.kpe, self.b );
+            
+            % Saturate the desired active tension.
+            self = self.saturate_hill_muscle_desired_active_tension(  );
             
         end
         
@@ -357,8 +486,19 @@ classdef hill_muscle_class
         % Implement a function to compute the desired total and desired passive muscle tension associated with the current desired active muscle tension.
         function self = desired_active_tension2desired_total_passive_tension( self )
             
+            % Note: This function uses the measured total tension as the initial tension when computing the desired total tension, because this is the real total tension that the muscle would begin at when exposed to the desired active tension.
+            
+            % Saturate the measured total tension.
+            self = self.saturate_hill_muscle_measured_total_tension(  );
+            
+            % Saturate the desired active tension.
+            self = self.saturate_hill_muscle_desired_active_tension(  );
+            
+            % Compute the hill muscle desired total tension that would be developed due to the application of the desired active tension.
             [ self.desired_total_tension, self.desired_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.muscle_length - self.resting_muscle_length, self.velocity, self.desired_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
-%             [ self.desired_total_tension, self.desired_passive_tension ] = self.active_tension2total_passive_tension( self.desired_total_tension, self.muscle_length - self.resting_muscle_length, self.velocity, self.desired_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
+
+            % Saturate the desired total tension.
+            self = self.saturate_hill_muscle_desired_total_tension(  );
 
         end
         
@@ -366,16 +506,32 @@ classdef hill_muscle_class
         % Implement a function to compute the measured active and measured passive muscle tension associated with the current measured total muscle tension.
         function self = measured_total_tension2measured_active_passive_tension( self )
             
-            % Compute the desired active and desired passive tension associated with the current desired total tension.
+            % Saturate the measured total tension.
+            self = self.saturate_hill_muscle_measured_total_tension(  );
+            
+            % Compute the measured active and measured passive tension associated with the current measured total tension.
             [ self.measured_active_tension, self.measured_passive_tension ] = self.total_tension2active_passive_tension( self.measured_total_tension, self.yank, self.muscle_length - self.resting_muscle_length, self.velocity, self.kse, self.kpe, self.b );
             
+            % Saturate the measured active tension.
+            self = self.saturate_hill_muscle_measured_active_tension(  );
+
         end
         
         
         % Implement a function to compute the measured total and measured passive muscle tension associated with the current measured active muscle tension.
         function self = measured_active_tension2measured_total_passive_tension( self )
             
+            % Saturate the measured total tension.
+            self = self.saturate_hill_muscle_measured_total_tension(  );
+
+            % Saturate the measured active tension.
+            self = self.saturate_hill_muscle_measured_active_tension(  );
+
+            % Compute the hill muscle measured total tension that would be developed due to the application of the measured active tension.
             [ self.measured_total_tension, self.measured_passive_tension ] = self.active_tension2total_passive_tension( self.measured_total_tension, self.muscle_length - self.resting_muscle_length, self.velocity, self.measured_active_tension, self.kse, self.kpe, self.b, self.network_dt, self.num_int_steps );
+            
+            % Saturate the measured total tension.
+            self = self.saturate_hill_muscle_measured_total_tension(  );
             
         end
         

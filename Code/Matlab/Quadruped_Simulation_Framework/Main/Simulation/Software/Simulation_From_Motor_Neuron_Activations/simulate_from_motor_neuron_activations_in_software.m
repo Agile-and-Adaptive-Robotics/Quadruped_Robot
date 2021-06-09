@@ -176,7 +176,7 @@ num_hill_muscles = length(muscle_IDs);
 num_int_steps = 10;
 
 % Preallocate an array of hill muscles.
-hill_muscles = repmat( hill_muscle_class(), 1, num_hill_muscles );
+hill_muscles = repmat( hill_muscle_class(  ), 1, num_hill_muscles );
 
 % Create each hill muscle object.
 for k = 1:num_hill_muscles               % Iterate through each of the hill muscles...
@@ -255,7 +255,7 @@ num_links = length( link_IDs );
 link_Rs = repmat( eye(3), [ 1, 1, num_links ] );
 
 % Preallocate an array of links.
-links = repmat( link_class(), 1, num_links );
+links = repmat( link_class(  ), 1, num_links );
 
 % Create each link object.
 for k = 1:num_links               % Iterate through each of the links...
@@ -290,7 +290,7 @@ num_joints = length(joint_IDs);
 joint_Rs = repmat( eye(3), [ 1, 1, num_joints ] );
 
 % Preallocate an array of links.
-joints = repmat( joint_class(), 1, num_joints );
+joints = repmat( joint_class(  ), 1, num_joints );
 
 % Create each joint object.
 for k = 1:num_joints               % Iterate through each of the joints...
@@ -507,7 +507,7 @@ bVerbose = false;
 max_states = max_num_data_points;
 
 % Define the gravity vector.
-g = [0; -9.81; 0];                  % [m/s^2] Gravity Vector
+g = [ 0; -9.81; 0 ];                  % [m/s^2] Gravity Vector
 
 % Set the initial hill muscle activations to match the precomputed network simulation. ( Precomputed Simulation -> Hill Muscle Activation )
 robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsystem.hill_muscle_manager.set_muscle_property( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(k, :), 'activation', true );
@@ -595,52 +595,58 @@ c6 = 1.56e4;
 
 Fs = zeros( 1, num_epsilons );
 
+simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure = P;
+
 for k = 1:num_epsilons
+        
+    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).muscle_strain = epsilons(k);
     
-    Fs( k ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).forward_BPA_model( P, F_guess, epsilons( k ), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
+    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure2desired_tension(  );
+    
+    Fs( k ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_tension;
 
 end
 
 figure( 'Color', 'w', 'Name', 'BPA Muscle: Force vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), title('BPA Muscle: Force vs Strain (Type I)'), plot( epsilons, 0.22480894244319*Fs, '-', 'Linewidth', 3 )
 
-
-
-F = 0;
-epsilon_max = 0.16;
-epsilons = linspace( 0, epsilon_max, num_epsilons );
-
-Ps = zeros( 1, num_epsilons );
-
-for k = 1:num_epsilons
-
-    Ps(k) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).inverse_BPA_model( F, epsilons(k), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
-
-end
-
-figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain (Type I)'), plot( epsilons, 0.000145038*Ps, '-', 'Linewidth', 3 )
-
-
-
-num_epsilons = 100;
-num_forces = 100;
-
-fs = linspace( 0, 50, num_forces );
-epsilons = linspace( 0, epsilon_max, num_epsilons );
-
-[ Epsilons, Fs ] = meshgrid( epsilons, fs );
-
-Ps = zeros( num_forces, num_epsilons );
-
-for k1 = 1:num_forces
-    for k2 = 1:num_epsilons
-        
-        Ps( k1, k2 ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).inverse_BPA_model( Fs( k1, k2 ), Epsilons( k1, k2 ), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
-        
-    end
-end
-
-figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain (Type I) & Force'), rotate3d on, xlim( [ 0, epsilon_max ] ), ylim( [ 0, max( max( 0.22480894244319*Fs ) ) ] )%, zlim( [ 0, 90 ] )
-surf( Epsilons, 0.22480894244319*Fs, 0.000145038*Ps, 'Edgecolor', 'None' )
+% 
+% 
+% F = 0;
+% epsilon_max = 0.16;
+% epsilons = linspace( 0, epsilon_max, num_epsilons );
+% 
+% Ps = zeros( 1, num_epsilons );
+% 
+% for k = 1:num_epsilons
+% 
+%     Ps(k) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).inverse_BPA_model( F, epsilons(k), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
+% 
+% end
+% 
+% figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain (Type I)'), plot( epsilons, 0.000145038*Ps, '-', 'Linewidth', 3 )
+% 
+% 
+% 
+% num_epsilons = 100;
+% num_forces = 100;
+% 
+% fs = linspace( 0, 50, num_forces );
+% epsilons = linspace( 0, epsilon_max, num_epsilons );
+% 
+% [ Epsilons, Fs ] = meshgrid( epsilons, fs );
+% 
+% Ps = zeros( num_forces, num_epsilons );
+% 
+% for k1 = 1:num_forces
+%     for k2 = 1:num_epsilons
+%         
+%         Ps( k1, k2 ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).inverse_BPA_model( Fs( k1, k2 ), Epsilons( k1, k2 ), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
+%         
+%     end
+% end
+% 
+% figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain (Type I) & Force'), rotate3d on, xlim( [ 0, epsilon_max ] ), ylim( [ 0, max( max( 0.22480894244319*Fs ) ) ] )%, zlim( [ 0, 90 ] )
+% surf( Epsilons, 0.22480894244319*Fs, 0.000145038*Ps, 'Edgecolor', 'None' )
 
 
 
@@ -648,45 +654,43 @@ surf( Epsilons, 0.22480894244319*Fs, 0.000145038*Ps, 'Edgecolor', 'None' )
 
 %% DEBUGGING: TESTING HILL MUSCLE MODEL
 
-% NEED TO MAKE A TABLE OF THE BPA FORCE-PRESSURE-STRAIN RELATIONSHIP.  INTERPOLATE FROM THIS TABLE TO FIND GUESSES FOR FZERO.
 
-
-num_timesteps = 100;
-ts = linspace( 0, 1, num_timesteps );
-active_tensions = 450*ones( 1, num_timesteps );
-total_tensions = zeros( 1, num_timesteps );
-passive_tensions = zeros( 1, num_timesteps );
-
-total_tension0 = 0;
-% total_tension0s = active_tensions;
-delta_L0 = 0;
-velocity = 0;
-kse = 10;
-kpe = 1;
-% b = simulation_manager.dt*(kse + kpe)/2.2;
-b = 1;
-dt = simulation_manager.dt;
-num_steps = 10;
-
-
-total_tensions(1) = total_tension0;
-passive_tensions(1) = total_tensions(1) - active_tensions(1);
-
-for k = 1:num_timesteps - 1
-    
-    [ total_tensions(k + 1), passive_tensions(k + 1) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tensions(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
-    %     [ total_tensions(k), passive_tensions(k) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tension0s(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
-    
-end
-
-figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Active Tension [N]'), title('Active Tension vs Time')
-plot( ts, active_tensions, '-', 'Linewidth', 3 )
-
-figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Total Tension [N]'), title('Total Tension vs Time')
-plot( ts, total_tensions, '-', 'Linewidth', 3 )
-
-figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Tension [N]'), title('Passive Tension vs Time')
-plot( ts, passive_tensions, '-', 'Linewidth', 3 )
+% num_timesteps = 100;
+% ts = linspace( 0, 1, num_timesteps );
+% active_tensions = 450*ones( 1, num_timesteps );
+% total_tensions = zeros( 1, num_timesteps );
+% passive_tensions = zeros( 1, num_timesteps );
+% 
+% total_tension0 = 0;
+% % total_tension0s = active_tensions;
+% delta_L0 = 0;
+% velocity = 0;
+% kse = 10;
+% kpe = 1;
+% % b = simulation_manager.dt*(kse + kpe)/2.2;
+% b = 1;
+% dt = simulation_manager.dt;
+% num_steps = 10;
+% 
+% 
+% total_tensions(1) = total_tension0;
+% passive_tensions(1) = total_tensions(1) - active_tensions(1);
+% 
+% for k = 1:num_timesteps - 1
+%     
+%     [ total_tensions(k + 1), passive_tensions(k + 1) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tensions(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
+%     %     [ total_tensions(k), passive_tensions(k) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tension0s(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
+%     
+% end
+% 
+% figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Active Tension [N]'), title('Active Tension vs Time')
+% plot( ts, active_tensions, '-', 'Linewidth', 3 )
+% 
+% figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Total Tension [N]'), title('Total Tension vs Time')
+% plot( ts, total_tensions, '-', 'Linewidth', 3 )
+% 
+% figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Tension [N]'), title('Passive Tension vs Time')
+% plot( ts, passive_tensions, '-', 'Linewidth', 3 )
 
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
