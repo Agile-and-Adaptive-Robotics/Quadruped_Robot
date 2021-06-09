@@ -7,6 +7,7 @@ classdef joint_class
     
     % Define the class properties.
     properties
+        
         ID
         name
         parent_link_ID
@@ -24,6 +25,9 @@ classdef joint_class
         theta_domain
         orientation
         torque
+        
+        conversion_manager
+        
     end
     
     %% JOINT METHODS SETUP
@@ -34,6 +38,9 @@ classdef joint_class
         % Implement the class constructor.
         function self = joint_class( ID, name, parent_link_ID, child_link_ID, p, R, v, w, w_screw, theta, theta_domain, orientation, torque )
 
+            % Create an instance of the conversion manager class.
+            self.conversion_manager = conversion_manager_class(  );
+            
             % Set the default class properties.
             if nargin < 13, self.torque = 0; else, self.torque = torque; end
             if nargin < 12, self.orientation = 'Ext'; else, self.orientation = orientation; end
@@ -130,12 +137,12 @@ classdef joint_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the joint points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Joint Position')
+                fig = figure( 'Color', 'w', 'Name', 'Joint Position' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Joint Position')
                 
             end
             
             % Plot the joint position.
-            plot3( self.p(1), self.p(2), self.p(3), plotting_options{:} )
+            plot3( self.conversion_manager.m2in( self.p(1) ), self.conversion_manager.m2in( self.p(2) ), self.conversion_manager.m2in( self.p(3) ), plotting_options{:} )
             
         end
         

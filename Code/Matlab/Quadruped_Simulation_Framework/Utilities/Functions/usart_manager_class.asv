@@ -29,11 +29,8 @@ classdef usart_manager_class
         
     end
     
-    % Define the constant class properties.
     properties ( Constant = true )
-        
         SLAVE_PACKET_SIZE = 7;
-    
     end
     
     %% USART Manager Methods Setup
@@ -176,8 +173,9 @@ classdef usart_manager_class
             
         end
         
-       
-        %% Staging Functions
+        
+
+        
         
         % Implement a function to stage desired pressures for USART transmission to the master microcontroller.
         function self = stage_desired_pressures( self, slave_manager )
@@ -240,39 +238,6 @@ classdef usart_manager_class
             
             % Stage the bytes to write.
             self.write_to_master_bytes = write_bytes;
-            
-        end
-        
-        
-        %% Serial Port Utility Functions
-        
-        % Implement a function to validate the check sum.
-        function bsuccess = validate_check_sum( ~, bytes_to_validate, bverbose )
-           
-            % Set the default level of verbosity.
-            if nargin < 3, bverbose = false; end
-            
-            % Retrieve the check sum that we were sent in this byte array.
-            check_sum_desired = bytes_to_validate(end);
-            
-            % Compute the check sum of this byte array.
-            check_sum_actual = mod( sum( bytes_to_validate( 1:(end - 1) ) ), 256 );
-            
-            % Determine whether to throw a warning.
-            if check_sum_desired ~= check_sum_actual            % If the check sums do not agree...
-               
-                % Set the check sum success flag to false.
-                bsuccess = false;
-                
-                % Throw a check sum warning.
-                if bverbose, warning('Check sum error detected!'), end
-                
-            else                                                % Otherwise...
-                
-                % Set the check sum success flag to true.
-                bsuccess = true;
-                
-            end
             
         end
         

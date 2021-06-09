@@ -28,6 +28,7 @@ classdef body_class
         
         mesh_utilities
         physics_manager
+        conversion_manager
         
     end
     
@@ -42,6 +43,9 @@ classdef body_class
             
             % Create an instance of the physics manager class.
             self.physics_manager = physics_manager_class(  );
+            
+            % Create an instance of the conversion manager class.
+            self.conversion_manager = conversion_manager_class(  );
             
             % Set the default class properties.
             if nargin < 11, self.mesh_type = ''; else, self.mesh_type = mesh_type; end
@@ -92,13 +96,13 @@ classdef body_class
             % Determine whether we need to create a figure to store the body center of mass.
             if nargin < 2
                
-                % Create a figure to store teh body center of mass plot.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Body COM Point')
+                % Create a figure to store the body center of mass plot.
+                fig = figure( 'Color', 'w', 'Name', 'Body COM Point' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Body COM Point')
                 
             end
         
             % Plot the body center of mass point.
-            plot3( self.p_cm(1), self.p_cm(2), self.p_cm(3), plotting_options{:} )
+            plot3( self.conversion_manager.m2in( self.p_cm(1) ), self.conversion_manager.m2in( self.p_cm(2) ), self.conversion_manager.m2in( self.p_cm(3) ), plotting_options{:} )
             
         end
         
@@ -113,12 +117,12 @@ classdef body_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the body mesh points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Body Mesh Points')
+                fig = figure( 'Color', 'w', 'Name', 'Body Mesh Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Body Mesh Points')
                 
             end
             
             % Plot the body mesh points.
-            plot3( self.ps_mesh(1, :), self.ps_mesh(2, :), self.ps_mesh(3, :), plotting_options{:} )
+            plot3( self.conversion_manager.m2in( self.ps_mesh( 1, : ) ), self.conversion_manager.m2in( self.ps_mesh( 2, : ) ), self.conversion_manager.m2in( self.ps_mesh( 3, : ) ), plotting_options{:} )
             
         end
         
@@ -133,7 +137,7 @@ classdef body_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the body mesh points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Body Points')
+                fig = figure( 'Color', 'w', 'Name', 'Body Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Body Points')
                 
             end
             

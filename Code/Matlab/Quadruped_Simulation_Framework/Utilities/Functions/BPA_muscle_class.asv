@@ -63,7 +63,6 @@ classdef BPA_muscle_class
         pressure_field
         
         physics_manager
-        conversion_manager
         
     end
     
@@ -79,30 +78,27 @@ classdef BPA_muscle_class
             % Create an instance of the physics manager class.
             self.physics_manager = physics_manager_class(  );
             
-            % Create an instance of the conversion manager class.
-            self.conversion_manager = conversion_manager_class(  );
-            
             % Set the default class properties.
-            if nargin < 27, self.num_reference_forces = 100; else, self.num_reference_forces = num_reference_forces; end
-            if nargin < 26, self.num_reference_strains = 100; else, self.num_reference_strains = num_reference_strains; end
-            if nargin < 25, self.num_convergence_attempts = 10; else, self.num_convergence_attempts = num_convergence_attempts; end
-            if nargin < 24, self.muscle_type = ''; else, self.muscle_type = muscle_type; end
-            if nargin < 23, self.c6 = 15.6e3; else, self.c6 = c6; end
-            if nargin < 22, self.c5 = 1.23e3; else, self.c5 = c5; end
-            if nargin < 21, self.c4 = -0.331e-3; else, self.c4 = c4; end
-            if nargin < 20, self.c3 = -0.461; else, self.c3 = c3; end
-            if nargin < 19, self.c2 = 2.0265; else, self.c2 = c2; end
-            if nargin < 18, self.c1 = 192e3; else, self.c1 = c1; end
-            if nargin < 17, self.c0 = 254.3e3; else, self.c0 = c0; end
-            if nargin < 16, self.Js = zeros( 3, 1 ); else, self.Js = Js; end
-            if nargin < 15, self.Rs = repmat( eye( 3, 3 ), [ 1, 1, 3 ] ); else, self.Rs = Rs; end
-            if nargin < 14, self.ps = zeros( 3, 3 ); else, self.ps = ps; end
-            if nargin < 13, self.yank = 0; else, self.yank = yank; end
-            if nargin < 12, self.velocity = 0; else, self.velocity = velocity; end
-            if nargin < 11, self.max_muscle_strain = 0; else, self.max_muscle_strain = max_muscle_strain; end
-            if nargin < 10, self.tendon_length = 0; else, self.tendon_length = tendon_length; end
-            if nargin < 9, self.resting_muscle_length = 0; else, self.resting_muscle_length = resting_muscle_length; end
-            if nargin < 8, self.muscle_length = 0; else, self.muscle_length = muscle_length; end
+            if nargin < 26, self.num_reference_forces = 100; else, self.num_reference_forces = num_reference_forces; end
+            if nargin < 25, self.num_reference_strains = 100; else, self.num_reference_strains = num_reference_strains; end
+            if nargin < 24, self.num_convergence_attempts = 10; else, self.num_convergence_attempts = num_convergence_attempts; end
+            if nargin < 23, self.muscle_type = ''; else, self.muscle_type = muscle_type; end
+            if nargin < 22, self.c6 = 15.6e3; else, self.c6 = c6; end
+            if nargin < 21, self.c5 = 1.23e3; else, self.c5 = c5; end
+            if nargin < 20, self.c4 = -0.331e-3; else, self.c4 = c4; end
+            if nargin < 19, self.c3 = -0.461; else, self.c3 = c3; end
+            if nargin < 18, self.c2 = 2.0265; else, self.c2 = c2; end
+            if nargin < 17, self.c1 = 192e3; else, self.c1 = c1; end
+            if nargin < 16, self.c0 = 254.3e3; else, self.c0 = c0; end
+            if nargin < 15, self.Js = zeros( 3, 1 ); else, self.Js = Js; end
+            if nargin < 14, self.Rs = repmat( eye( 3, 3 ), [ 1, 1, 3 ] ); else, self.Rs = Rs; end
+            if nargin < 13, self.ps = zeros( 3, 3 ); else, self.ps = ps; end
+            if nargin < 12, self.yank = 0; else, self.yank = yank; end
+            if nargin < 11, self.velocity = 0; else, self.velocity = velocity; end
+            if nargin < 10, self.max_muscle_strain = 0; else, self.max_muscle_strain = max_muscle_strain; end
+            if nargin < 9, self.tendon_length = 0; else, self.tendon_length = tendon_length; end
+            if nargin < 8, self.resting_muscle_length = 0; else, self.resting_muscle_length = resting_muscle_length; end
+            if nargin < 7, self.muscle_length = 0; else, self.muscle_length = muscle_length; end
             if nargin < 7, self.max_pressure = 620528; else, self.max_pressure = max_pressure; end
             if nargin < 6, self.measured_pressure = 0; else, self.measured_pressure = measured_pressure; end
             if nargin < 5, self.desired_pressure = 0; else, self.desired_pressure = desired_pressure; end
@@ -753,12 +749,12 @@ classdef BPA_muscle_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the BPA attachment points.
-                fig = figure( 'Color', 'w', 'Name', 'BPA Muscle Attachment Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('BPA Muscle Attachment Points')
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('BPA Muscle Attachment Points')
                 
             end
             
             % Plot the BPA muscle attachment points.
-            plot3( self.conversion_manager.m2in( self.ps( 1, : ) ), self.conversion_manager.m2in( self.ps( 2, : ) ), self.conversion_manager.m2in( self.ps( 3, : ) ), plotting_options{:} )
+            plot3( self.ps(1, :), self.ps(2, :), self.ps(3, :), plotting_options{:} )
             
         end
         
@@ -773,23 +769,15 @@ classdef BPA_muscle_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the BPA attachment points.
-                fig = figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain & Force (Reference Fields)' );
-                
-                % Create the first subplot.
-                subplot( 1, 2, 1 ), hold on, grid on,  rotate3d on
-                xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain & Force (Ref. Fields) (S = 0)')
-                xlim( [ self.min_muscle_strain, self.max_muscle_strain ] ), ylim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), zlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) )
-                
-                subplot( 1, 2, 2 ), hold on, grid on,  rotate3d on
-                xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain & Force (Ref. Fields) (S = 1)')
-                xlim( [ self.min_muscle_strain, self.max_muscle_strain ] ), ylim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), zlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) )
+                fig = figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain & Force (Reference Fields)' ); hold on, grid on,  rotate3d on
+                xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain & Force (Reference Fields)')
+                xlim( [ self.min_strain, self.max_strain ] ), ylim( [ self.min_tension, self.max_tension ] ), zlim( [ self.min_pressure, self.max_pressure ] )
                 
             end
             
             % Plot the strain, force, and pressure fields.
-            subplot( 1, 2, 1 ), surf( self.strain_field( :, :, 1 ), self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), plotting_options{:} )
-            subplot( 1, 2, 2 ), surf( self.strain_field( :, :, 2 ), self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), plotting_options{:} )
-
+            surf( self.strain_field, plotting_options{:} )
+            
         end
         
         

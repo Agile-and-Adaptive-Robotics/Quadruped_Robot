@@ -42,8 +42,6 @@ classdef link_class
         
         mesh_type
         
-        conversion_manager
-        
     end
     
     
@@ -54,9 +52,6 @@ classdef link_class
         
         % Implement the class constructor.
         function self = link_class( ID, name, parent_joint_ID, child_joint_ID, p_start, p_end, len, width, mass, p_cm, v_cm, w_cm, R, mesh_type )
-            
-            % Create an instance of the conversion manager class.
-            self.conversion_manager = conversion_manager_class(  );
             
             % Set the class properties.
             if nargin < 14, self.mesh_type = ''; else, self.mesh_type = mesh_type; end
@@ -269,16 +264,16 @@ classdef link_class
             % Determine whether to specify default plotting options.
             if ( ( nargin < 3 ) || isempty( plotting_options ) ), plotting_options = { '.-m', 'Markersize', 15, 'Linewidth', 1 }; end
             
-            % Determine whether we want to add these link end points to an existing plot or create a new plot.
+            % Determine whether we want to add these joint end points to an existing plot or create a new plot.
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the link end points.
-                fig = figure( 'Color', 'w', 'Name', 'Link End Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Link End Points')
+                fig = figure( 'Color', 'w', 'Name', '' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [m]'), title('Link End Points')
                 
             end
             
-            % Plot the link end points.
-            plot3( self.conversion_manager.m2in( self.ps_link( 1, : ) ), self.conversion_manager.m2in( self.ps_link( 2, : ) ), self.conversion_manager.m2in( self.ps_link( 3, : ) ), plotting_options{:} )
+            % Plot the joint end points.
+            plot3( self.ps_link(1, :), self.ps_link(2, :), self.ps_link(3, :), plotting_options{:} )
             
         end
            
@@ -289,16 +284,16 @@ classdef link_class
             % Determine whether to specify default plotting options.
             if ( ( nargin < 3 ) || isempty( plotting_options ) ), plotting_options = { '.c', 'Markersize', 15 }; end
             
-            % Determine whether we want to add these link end points to an existing plot or create a new plot.
+            % Determine whether we want to add these joint end points to an existing plot or create a new plot.
             if ( nargin < 2 ) || ( isempty(fig) )
                 
-                % Create a figure to store the link com.
-                fig = figure( 'Color', 'w', 'Name', 'Link COM Point' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Link COM Point')
+                % Create a figure to store the joint com.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Joint COM Point')
                 
             end
             
-            % Plot the link com.
-            plot3( self.conversion_manager.m2in( self.p_cm(1) ), self.conversion_manager.m2in( self.p_cm(2) ), self.conversion_manager.m2in( self.p_cm(3) ), plotting_options{:} )
+            % Plot the joint com.
+            plot3( self.p_cm(1), self.p_cm(2), self.p_cm(3), plotting_options{:} )
             
         end
            
@@ -309,16 +304,16 @@ classdef link_class
             % Determine whether to specify default plotting options.
             if ( ( nargin < 3 ) || isempty( plotting_options ) ), plotting_options = { '.-k', 'Markersize', 15, 'Linewidth', 1 }; end
             
-            % Determine whether we want to add these link mesh points to an existing plot or create a new plot.
+            % Determine whether we want to add these joint mesh points to an existing plot or create a new plot.
             if ( nargin < 2 ) || ( isempty(fig) )
                 
-                % Create a figure to store the link mesh points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Link Mesh Points')
+                % Create a figure to store the joint mesh points.
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Joint Mesh Points')
                 
             end
             
-            % Plot the link mesh points.
-            plot3( self.conversion_manager.m2in( self.ps_mesh( 1, : ) ), self.conversion_manager.m2in( self.ps_mesh( 2, : ) ), self.conversion_manager.m2in( self.ps_mesh( 3, : ) ), plotting_options{:} )
+            % Plot the joint mesh points.
+            plot3( self.ps_mesh(1, :), self.ps_mesh(2, :), self.ps_mesh(3, :), plotting_options{:} )
             
         end
         
@@ -336,7 +331,7 @@ classdef link_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the joint mesh points.
-                fig = figure( 'Color', 'w', 'Name', 'Link Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Link Points')
+                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Link Points')
                 
             end
             

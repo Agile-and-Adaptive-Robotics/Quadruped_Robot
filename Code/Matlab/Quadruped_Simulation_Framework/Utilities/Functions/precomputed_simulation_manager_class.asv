@@ -42,9 +42,6 @@ classdef precomputed_simulation_manager_class
         
         % Implement a function to simulation data.
         function self = load_simulation_data( self, load_path, max_num_data_points )
-                      
-            % Define the default input arguments.
-            if nargin < 3, max_num_data_points = 1000; end
             
             % Determine how to read in the muscle IDs.
             if verLessThan( 'matlab', '2019a' )                         % If this Matlab version is older than 2019a...
@@ -70,6 +67,7 @@ classdef precomputed_simulation_manager_class
                 self.muscle_IDs = str2double( muscle_IDs_temp( 1:2:end ) );
 
             end
+            
         
             % Update the number of muscles.
             self.num_muscles = length( self.muscle_IDs );

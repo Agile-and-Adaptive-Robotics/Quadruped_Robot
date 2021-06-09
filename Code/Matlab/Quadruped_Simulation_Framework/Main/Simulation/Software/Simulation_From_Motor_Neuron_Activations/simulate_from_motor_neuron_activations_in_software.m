@@ -15,7 +15,8 @@ fprintf( 'LOADING MOTOR NEURON ACTIVATION DATA. Please Wait...\n' )
 tic
 
 % Define the path to the directory that contains the robot data.
-robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -362,6 +363,9 @@ fprintf( 'INITIALIZING USART MANAGER. Please Wait...\n' )
 % Start a timer.
 tic
 
+% Define whether to initialize the ports.
+bInitializePorts = false;
+
 %Define the baud rates.
 baud_rate_virtual_ports = 115200; baud_rate_physical_ports = 57600;             % The Master Port is the only physical port.  All other ports are virtual.
 
@@ -377,8 +381,13 @@ num_start_bytes = 2;
 % Create an instance of the USART manager class.
 usart_manager = usart_manager_class( num_start_bytes, master_port_type );
 
-% Initialize the USART serial ports.
-usart_manager = usart_manager.initialize_serial_ports( COM_port_names, baud_rate_physical_ports, baud_rate_virtual_ports );
+% Determine whether to initialize the ports.
+if bInitializePorts                             % If we want to initialize the ports...
+
+    % Initialize the USART serial ports.
+    usart_manager = usart_manager.initialize_serial_ports( COM_port_names, baud_rate_physical_ports, baud_rate_virtual_ports );
+
+end
 
 % Retrieve the elapsed time.
 elapsed_time = toc;
@@ -564,6 +573,10 @@ fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_
 
 
 %% DEBUGGING: TESTING BPA MUSCLE MODEL
+
+
+fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
+
 
 num_epsilons = 100;
 

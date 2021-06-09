@@ -261,15 +261,19 @@ classdef data_loader_class
             % Determine how to read in the joint data.
             if verLessThan( 'matlab', '2019a' )                         % If this Matlab version is older than 2019a...
                
-                % Read in the joint data.
+                % Read in the link data.
                 [ ~, ~, data ] = xlsread( full_path, 'A4:AP17' );
                 
             else                                                        % Otherwise...
                 
-                % Read in the joint data.
+                % Read in the link data.
                 data = readcell( full_path, 'NumHeaderLines', 3 );
 
             end
+            
+            
+            % Read in the joint data.
+            data = readcell( full_path, 'NumHeaderLines', 3 );
             
             % Retrieve the number of joints.
             num_joints = size( data, 1 );

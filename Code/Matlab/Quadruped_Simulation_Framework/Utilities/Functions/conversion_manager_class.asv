@@ -49,7 +49,7 @@ classdef conversion_manager_class
         %% FORCE CONVERSION FUNCTIONS
         
         % Implement a function to convert a force in newtons to a force in pounds.
-        function force_pounds = n2lb( self, force_newtons )
+        function force_pounds = n2lb( force_newtons )
             
             % Convert the given force from newtons to pounds.
             force_pounds = self.LB_PER_N*force_newtons;
@@ -58,7 +58,7 @@ classdef conversion_manager_class
         
         
         % Implement a function to convert a force in pounds to a force in newtons.
-        function force_newtons = lb2n( self, force_pounds )
+        function force_newtons = lb2n( force_pounds )
             
            % Convert the given force from pounds to newtons.
             force_newtons = self.N_PER_LB*force_pounds;

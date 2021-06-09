@@ -24,8 +24,8 @@ classdef mechanical_subsystem_class
             % Set the default mechanical subsystem properties.
             if nargin < 4, self.dyn_int_steps; else, self.dyn_int_steps = dyn_int_steps; end
             if nargin < 3, self.g = [ 0; -9.81; 0 ]; else, self.g = g; end
-            if nargin < 2, self.limb_manager = limb_manager_class(); else, self.limb_manager = limb_manager; end
-            if nargin < 1, self.body = body_class(); else, self.body = body; end
+            if nargin < 2, self.limb_manager = limb_manager_class(  ); else, self.limb_manager = limb_manager; end
+            if nargin < 1, self.body = body_class(  ); else, self.body = body; end
             
         end
         
@@ -42,7 +42,7 @@ classdef mechanical_subsystem_class
             if ( nargin < 2 ) || ( isempty(fig) )
                 
                 % Create a figure to store the body mesh points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Mechanical Subsystem Points')
+                fig = figure( 'Color', 'w', 'Name', 'Mechanical Subsystem Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Mechanical Subsystem Points')
                 
             end
             

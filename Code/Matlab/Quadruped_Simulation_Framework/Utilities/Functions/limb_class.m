@@ -500,7 +500,7 @@ classdef limb_class
             if nargin < 2
                
                 % Create a figure to store the limb points.
-                fig = figure('Color', 'w'); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Limb Points')
+                fig = figure('Color', 'w', 'Name', 'Limb Points'); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Limb Points')
                 
             end
             

@@ -421,7 +421,7 @@ classdef link_manager_class
             if nargin < 2
                 
                 % Create a figure to store the link end points.
-                fig = figure( 'Color', 'w' ); hold on, grid on, xlabel('x [m]'), ylabel('y [m]'), zlabel('z [m]'), title('Link End Points')
+                fig = figure( 'Color', 'w', 'Name', 'Link End Points' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('Link End Points')
                 
             end
             
