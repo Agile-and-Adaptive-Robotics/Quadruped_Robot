@@ -863,7 +863,7 @@ classdef BPA_muscle_class
             % Compute the BPA muscle desired tension via numerical method until a convergent result is achieved.
             while ~bConvergenceDetected && ( k <= self.num_convergence_attempts )                                   % While we have not found a convergent result and we have not yet attempted to find one the specified number of times...
                 
-                fprintf('F_guess = %0.16f [N]', F_guess)
+%                 fprintf('F_guess = %0.16f [N]', F_guess)
                 
                 % Compute the BPA muscle desired tension associated with this guess.
                 F = self.forward_BPA_model( self.desired_pressure, F_guess, self.muscle_strain, self.max_muscle_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
@@ -951,6 +951,9 @@ classdef BPA_muscle_class
             % Initialize the BPA muscle measured tension guess for the forward BPA model numerical method.
             F_guess = F_guess0;
             
+            % Initialize a loop counter variable.
+            k = 1;
+            
             % Compute the BPA muscle measured tension via numerical method until a convergent result is achieved.
             while ~bConvergenceDetected && ( k <= self.num_convergence_attempts )                                   % While we have not found a convergent result and we have not yet attempted to find one the specified number of times...
                 
@@ -975,7 +978,10 @@ classdef BPA_muscle_class
                     F_guess = F_guess + normrnd( 0, self.noise_percentage*self.max_tension );
                     
                 end
-                    
+                   
+                % Advance the counter variable.
+                k = k + 1;
+                
             end
             
             % Determine whether we still need to set the BPA muscle measured tension.

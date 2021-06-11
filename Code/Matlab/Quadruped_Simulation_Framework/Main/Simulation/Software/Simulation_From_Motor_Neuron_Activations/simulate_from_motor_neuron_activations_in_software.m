@@ -15,8 +15,8 @@ fprintf( 'LOADING MOTOR NEURON ACTIVATION DATA. Please Wait...\n' )
 tic
 
 % Define the path to the directory that contains the robot data.
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -364,7 +364,7 @@ fprintf( 'INITIALIZING USART MANAGER. Please Wait...\n' )
 tic
 
 % Define whether to initialize the ports.
-bInitializePorts = false;
+bInitializePorts = true;
 
 %Define the baud rates.
 baud_rate_virtual_ports = 115200; baud_rate_physical_ports = 57600;             % The Master Port is the only physical port.  All other ports are virtual.
@@ -578,36 +578,36 @@ fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_
 fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
 
 
-num_epsilons = 100;
-
-P = 6894.76*90;
-F_guess = 4.448221628250858*20;
-epsilon_max = 0.16;
-epsilons = linspace( 0, epsilon_max, num_epsilons );
-S = 0;
-c0 = 2.54e5;
-c1 = 1.92e5;
-c2 = 2.0265;
-c3 = -0.461;
-c4 = -3.31e-4;
-c5 = 1.23e3;
-c6 = 1.56e4;
-
-Fs = zeros( 1, num_epsilons );
-
-simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure = P;
-
-for k = 1:num_epsilons
-        
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).muscle_strain = epsilons(k);
-    
-    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure2desired_tension(  );
-    
-    Fs( k ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_tension;
-
-end
-
-figure( 'Color', 'w', 'Name', 'BPA Muscle: Force vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), title('BPA Muscle: Force vs Strain (Type I)'), plot( epsilons, 0.22480894244319*Fs, '-', 'Linewidth', 3 )
+% num_epsilons = 100;
+% 
+% P = 6894.76*90;
+% F_guess = 4.448221628250858*20;
+% epsilon_max = 0.16;
+% epsilons = linspace( 0, epsilon_max, num_epsilons );
+% S = 0;
+% c0 = 2.54e5;
+% c1 = 1.92e5;
+% c2 = 2.0265;
+% c3 = -0.461;
+% c4 = -3.31e-4;
+% c5 = 1.23e3;
+% c6 = 1.56e4;
+% 
+% Fs = zeros( 1, num_epsilons );
+% 
+% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure = P;
+% 
+% for k = 1:num_epsilons
+%         
+%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).muscle_strain = epsilons(k);
+%     
+%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure2desired_tension(  );
+%     
+%     Fs( k ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_tension;
+% 
+% end
+% 
+% figure( 'Color', 'w', 'Name', 'BPA Muscle: Force vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), title('BPA Muscle: Force vs Strain (Type I)'), plot( epsilons, 0.22480894244319*Fs, '-', 'Linewidth', 3 )
 
 % 
 % 
@@ -907,7 +907,7 @@ fprintf( 'PLOTTING SIMULATION RESULTS. Please Wait...\n' )
 tic
 
 % Plot the motor neuron activations.
-fig_motor_activations = precomputed_simulation_manager.plot_activation();
+fig_motor_activations = precomputed_simulation_manager.plot_activation(  );
 
 % Plot the hill muscle activation history.
 fig_hill_muscle_activation = simulation_manager.plot_hill_muscle_activation_history( 'all' );
@@ -983,7 +983,7 @@ fprintf( 'TERMINATING USART MANAGER. Please Wait...\n' )
 tic
 
 % Terminate the USART serial ports.
-usart_manager = usart_manager.terminate_serial_ports();
+usart_manager = usart_manager.terminate_serial_ports(  );
 
 % Retrieve the elapsed time.
 elapsed_time = toc;

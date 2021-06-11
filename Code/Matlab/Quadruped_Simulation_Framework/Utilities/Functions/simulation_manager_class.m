@@ -754,12 +754,12 @@ classdef simulation_manager_class
             if self.bSimulateDynamics                    % If we want to simulate the dynamics... ( BPA Muscle Desired Pressure -> BPA Muscle Desired Tension -> Joint Torques -> Joint Angles )
                 
                 % Perform a forward dynamics step in software.
-                self = forward_dynamics_step_in_software(  );
+                self = self.forward_dynamics_step_in_software(  );
                 
             else
             
                 % Perform a forward dynamics step in hardware.
-                self = forward_dynamics_step_in_hardware(  );
+                self = self.forward_dynamics_step_in_hardware(  );
             
             end
             
