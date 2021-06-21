@@ -9,6 +9,9 @@ classdef hill_muscle_manager_class
         
         hill_muscles
         num_hill_muscles
+        
+        activation_type
+        
         conversion_manager
         
     end
@@ -20,9 +23,10 @@ classdef hill_muscle_manager_class
     methods
         
         % Implement the class constructor.
-        function self = hill_muscle_manager_class( hill_muscles )
+        function self = hill_muscle_manager_class( hill_muscles, activation_type )
             
             % Set the default hill muscle manager properties.
+            if nargin < 2, self.activation_type = 'total'; else, self.activation_type = activation_type; end
             if nargin < 1, self.hill_muscles = hill_muscle_class(); else, self.hill_muscles = hill_muscles; end
             
             % Set the number of hill muscles.
@@ -169,7 +173,7 @@ classdef hill_muscle_manager_class
         end
         
         
-        %% Hill Muscle Manager Specific Get Functions
+        %% Hill Muscle Manager Validation Functions
         
         % Implement a function to validate hill muscle IDs.
         function hill_muscle_IDs = validate_hill_muscle_IDs( self, hill_muscle_IDs )
@@ -203,6 +207,22 @@ classdef hill_muscle_manager_class
         end
         
         
+        % Implement a function to validate the activation type.
+        function self = validate_activation_type( self )
+           
+            % Ensure that the activation type is valid.
+            if ~( strcmp( self.activation_type, 'total' ) || strcmp( self.activation_type, 'Total' ) || strcmp( self.activation_type, 'active' ) || strcmp( self.activation_type, 'Active' ) )                  % If the activation type is invalid...
+               
+                % Set the activation type to total.
+                self.activation_type = 'total';
+                
+            end
+            
+        end
+        
+        
+        %% Hill Muscle Manager Specific Get Functions
+                
         % Implement a function to retrieve the name of the specified hill muscles.
         function hill_muscle_names = get_hill_muscle_names( self, hill_muscle_IDs )
             
@@ -597,6 +617,52 @@ classdef hill_muscle_manager_class
         end
             
        
+        % Implement a function to compute the measured total & passive tension associated with the measured active tension of the specified muscle IDs.
+        function self = measured_active_tensions2measured_total_passive_tensions( self, hill_muscle_IDs )
+            
+            % Validate the provided hill muscle IDs.
+            hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
+            
+            % Determine how many muscles to which we are going to apply the given method.
+            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            
+            % Evaluate the given muscle method for each muscle.
+            for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
+                
+                % Retrieve the index associated with this muscle ID.
+                muscle_index = self.get_muscle_index( hill_muscle_IDs(k) );
+                
+                % Compute the measured total & passive tension associated with the measured active tension tension of this muscle.
+                self.hill_muscles(muscle_index) = self.hill_muscles(muscle_index).measured_active_tension2measured_total_passive_tension(  );
+                
+            end
+
+        end
+        
+        
+        % Implement a function to compute the desired active & desired passive tension associated with the desired total tension of the specified muscle IDs.
+        function self = desired_total_tensions2desired_active_passive_tensions( self, hill_muscle_IDs )
+            
+            % Validate the provided hill muscle IDs.
+            hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
+            
+            % Determine how many muscles to which we are going to apply the given method.
+            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            
+            % Evaluate the given muscle method for each muscle.
+            for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
+                
+                % Retrieve the index associated with this muscle ID.
+                muscle_index = self.get_muscle_index( hill_muscle_IDs(k) );
+                
+                % Compute the desired active and passive muscle tension associated with the desired total muscle tension of this hill muscle.
+                self.hill_muscles(muscle_index) = self.hill_muscles(muscle_index).desired_total_tension2desired_active_passive_tension(  );
+                
+            end
+            
+        end
+        
+        
         % Implement a function to compute the desired total & passive tension associated with the desired active tension of the specified muscle IDs.
         function self = desired_active_tensions2desired_total_passive_tensions( self, hill_muscle_IDs )
             
@@ -666,7 +732,40 @@ classdef hill_muscle_manager_class
         end
         
         
-        
+        % Implement a function to compute the tension associated with the activation levels of the specified hill muscles.
+        function self = activation2desired_tension( self, hill_muscle_IDs )
+           
+            % Validate the provided hill muscle IDs.
+            hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
+            
+            % Validate the activation type.
+            self = validate_activation_type( self );
+            
+            % Determine how to compute the desired tension.
+            if strcmp( self.activation_type, 'total' ) || strcmp( self.activation_type, 'Total' )                   % If the activation type is set to total...
+                
+                % Compute the desired total tension associated with the activation of the specified hill muscles.
+                self = self.activations2desired_total_tensions( hill_muscle_IDs );
+                
+                % Compute the desired active and passive tension associated with the desired total tension of the specified hill muscles.
+                self = self.desired_total_tensions2desired_active_passive_tensions( hill_muscle_IDs );
+            
+            elseif strcmp( self.activation_type, 'active' ) || strcmp( self.activation_type, 'Active' )             % If the activation type is set to active...
+                
+                % Compute the desired active tension associated with the activation of the specified hill muscles.
+                self = self.activations2desired_active_tensions( hill_muscle_IDs );
+                
+                % Compute the desired passive and total tension associated with the desired active tension of the specified hill muscles.
+                self = self.desired_active_tensions2desired_total_passive_tensions( hill_muscle_IDs );
+                
+            else                                                                                                    % Otherwise...
+               
+                % Throw an error.
+                error('Activation type %s not recognized.  Valid activation types are: ''total'', ''Total'', ''active'', and ''Active''.')
+                
+            end
+                
+        end
         
             
         %% Feedback Functions

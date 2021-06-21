@@ -577,7 +577,7 @@ fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_
 
 fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
 
-
+% 
 % num_epsilons = 100;
 % 
 % P = 6894.76*90;
@@ -790,11 +790,15 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     %% Compute the Derived Hill Muscle Properties. ( Hill Muscle Desired Active Tension, Hill Muscle Desired Passive Tension, Hill Muscle Desired Total Tension )
     
-    % Compute hill muscle desired total tension from the hill muscle activation. ( Hill Muscle Activation -> Hill Muscle Desired Active Tension )
-    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.activations2desired_active_tensions( muscle_IDs );
+%     % Compute hill muscle desired total tension from the hill muscle activation. ( Hill Muscle Activation -> Hill Muscle Desired Active Tension )
+%     simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.activations2desired_active_tensions( muscle_IDs );
+%     
+%     % Compute the hill muscle desired total and passive tensions from the hill muscle desired active tension. ( Hill Muscle Desired Active Tension -> Hill Muscle Desired Passive & Total Tensions )
+%     simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.desired_active_tensions2desired_total_passive_tensions( muscle_IDs );
+
+    % Compute desired tension associated with the hill muscle activation. ( Hill Muscle Activation -> Hill Muscle Desired Tension ( Active, Passive, & Total ) )
+    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.activation2desired_tension( 'all' );
     
-    % Compute the hill muscle desired total and passive tensions from the hill muscle desired active tension. ( Hill Muscle Desired Active Tension -> Hill Muscle Desired Passive & Total Tensions )
-    simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.desired_active_tensions2desired_total_passive_tensions( muscle_IDs );
     
     
     %% DEBUGGING: PRINTING BPA PRESSURES & TENSIONS
