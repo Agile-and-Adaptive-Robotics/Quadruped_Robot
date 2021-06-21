@@ -40,9 +40,9 @@ x0=[0 0 0 0 0 0]';
 
 [t,x] = ode45(@(t,y) Dynamic_code2(t,y,b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias,P),t_span,x0);
 [t2,x2] = ode45(@(t,y) Dynamic_code2(t,y,0,0,0,0,0,0,0,0,0,P),t_span,x0);
-[theta1Data] = x2(1);
-[theta2Data] = x2(3);
-[theta3Data] = x2(5);
+[theta1Data] = x2(:,1);
+[theta2Data] = x2(:,3);
+[theta3Data] = x2(:,5);
 %x1 = x(1);
 %x2 = x(3);
 %x3 = x(5);
