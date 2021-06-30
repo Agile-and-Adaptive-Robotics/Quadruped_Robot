@@ -1,22 +1,18 @@
 clear;
 close all;
-
-%prompt = 'Enter Joint Data:' ;
-%2
-%fileName1 = [fileName, '.mat'];
-%load(fileName,'-mat') 
-load('golden4.mat');
-
+ 
+load('Golden6.mat');
 
 figure
 plot(Trial4);
+legend('knee', 'hip')
 N = 4000;
 
-[DogLegDataKnee] = Trial1(:,1);
-[DogLegDataHip] = Trial4(:,2);
+[DogLegDataKnee] = Trial4(:,1);
+[DogLegDataHip] = Trial4(:,2)*-1;
 [DogLegDataAnkle]= zeros(N,1);
 
-DogLegData = [DogLegDataKnee,DogLegDataHip,DogLegDataAnkle];
+DogLegData = [DogLegDataHip,DogLegDataKnee,DogLegDataAnkle];
 
 %
 %baudRate = 115200;
@@ -42,6 +38,8 @@ RPT = (2*pi)/(PPR);
 
 DogLegData = DogLegData*RPT;
 
+Lengths = [9.25,9.25,9.81,N];
+plotSingleLeg(DogLegData, Lengths)
 
 
 
