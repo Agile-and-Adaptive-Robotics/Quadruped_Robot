@@ -111,12 +111,15 @@ toe_pos1 = [(ankle_pos1(1) - l3 * cosd(theta1_pos1)) (ankle_pos1(2) + l3 * sind(
 
 %Define upper actuator position 1
 upper_AEb_pos1 = knee_pos1 + 0.0254*1.25*[sind(30) cosd(30)]; 
+
 %Define string length
 string = norm(upper_AEb_pos1 - r1_KFb_pos1);
 
-% Define the outer cam circle in quarter sections
+% Define the outer cam circle in quarter sections for knee and ankle
 thetaKF = 1.5 *pi() : 0.001 : 2*pi;
 thetaKE = 0.5 *pi() : 0.001 : pi;
+thetaAE = 1.5 *pi() : 0.001 : 2 * pi;
+
 camKF(1,:) = r1_KFb_length * cos(thetaKF) + knee_pos1(1);
 camKF(2,:) = r2_KFb_length * sin(thetaKF) + knee_pos1(2);
 camKF = rotz(-theta1_pos1) * [(camKF(1,:) - knee_pos1(1)); (camKF(2,:) - knee_pos1(2))];
@@ -128,6 +131,13 @@ camKE(2,:) = r2_KEb_length * sin(thetaKE) + knee_pos1(2);
 camKE = rotz(-theta1_pos1) * [(camKE(1,:) - knee_pos1(1)); (camKE(2,:) - knee_pos1(2))];
 camKE(1,:) = camKE(1,:) + knee_pos1(1);
 camKE(2,:) = camKE(2,:) + knee_pos1(2);
+
+camAE(1,:) = r1_AEb_length * cos(thetaAE) + ankle_pos1(1);
+camAE(2,:) = r2_AEb_length * sin(thetaAE) + ankle_pos1(2);
+camAE = rotz(-theta1_pos1) * [(camAE(1,:) - ankle_pos1(1)); (camAE(2,:) - ankle_pos1(2))];
+camAE(1,:) = camAE(1,:) + ankle_pos1(1);
+camAE(2,:) = camAE(2,:) + ankle_pos1(2);
+
 
 %% Plot fully extended position of the knee in 2D space (position 1)
 figure(1)
@@ -141,6 +151,7 @@ plot(knee_pos1(1), knee_pos1(2), 'o', 'LineWidth', 3)
 % Plot the cam radii
 plot(camKF(1,:), camKF(2,:))
 plot(camKE(1,:), camKE(2,:))
+plot(camAE(1,:), camAE(2,:))
 
 % Plot the tibia from knee to ankle points
 plot([knee_pos1(1), ankle_pos1(1)], [knee_pos1(2), ankle_pos1(2)], '-m', 'LineWidth', 4)
@@ -211,28 +222,36 @@ r2_KEb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r2_KEb_pos1') - knee_pos2) + kn
 toe_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * toe_pos1') - knee_pos2)+ knee_pos2;
 r1_AEb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r1_AEb_pos1') - knee_pos2)+ knee_pos2;
 r2_AEb_pos2 = rotz(rot_knee) * ((rotz(rot_hip) * r2_AEb_pos1') - knee_pos2)+ knee_pos2;
+camAE = rotz(rot_knee) * ((rotz(rot_hip) * camAE) - knee_pos2)+ knee_pos2;
 camKF = rotz(rot_knee) * ((rotz(rot_hip) * camKF) - knee_pos2)+ knee_pos2;
 camKE = rotz(rot_knee) * ((rotz(rot_hip) * camKE) - knee_pos2)+ knee_pos2;
 
-%Rotate the foot and ankle cam about the ankle 90 degrees
-toe_pos2 = rotz(90) * (toe_pos2 - ankle_pos2)+ ankle_pos2;
-r1_AEb_pos2 = rotz(90) * (r1_AEb_pos2 - ankle_pos2)+ ankle_pos2;
-r2_AEb_pos2 = rotz(90) * (r2_AEb_pos2 - ankle_pos2)+ ankle_pos2;
+% Define knee rotation in degrees
+rot_ankle = input(sprintf('\nEnter the desired ankle rotation from fully flexed: ') );
+
+%Rotate the foot and ankle cam about the ankle
+toe_pos2 = rotz(rot_ankle) * (toe_pos2 - ankle_pos2)+ ankle_pos2;
+r1_AEb_pos2 = rotz(rot_ankle) * (r1_AEb_pos2 - ankle_pos2)+ ankle_pos2;
+r2_AEb_pos2 = rotz(rot_ankle) * (r2_AEb_pos2 - ankle_pos2)+ ankle_pos2;
+camAE = rotz(rot_ankle) * (camAE - ankle_pos2) + ankle_pos2;
 
 % Define upper ankle actuator position
 %upper_AEb_pos2 = r1_KFb_pos2 + string * ((r2_AEb_pos2 - r1_KFb_pos2)/ norm(r2_AEb_pos2 - r1_KFb_pos2));
 upper_AEb_pos2 = rotz(rot_hip) * upper_AEb_pos1';
 
-% Define the EFFECTIVE radius based on knee rotation
+% Define the EFFECTIVE radius based on knee rotation and ankle rotation
 rKFb_eff_length = (r1_KFb_length * r2_KFb_length)/((r2_KFb_length * cosd(rot_knee))^2 + (r1_KFb_length * sind(rot_knee))^2)^.5;
 rKEb_eff_length = (r1_KEb_length * r2_KEb_length)/((r2_KEb_length * cosd(rot_knee))^2 + (r1_KEb_length * sind(rot_knee))^2)^.5;
+rAEb_eff_length = (r1_AEb_length * r2_AEb_length)/((r2_AEb_length * cosd(rot_ankle))^2 + (r1_AEb_length * sind(rot_ankle))^2)^.5;
 
-% Define the string attachment point from effective radius and knee roation
+% Define the string attachment point from effective radius and knee/ankle rotation
 rKFb_eff = knee_pos1 + rKFb_eff_length * [cosd(theta1_pos1) -sind(theta1_pos1)];
 rKFb_eff = rotz(rot_hip) * rKFb_eff';
 rKEb_eff = knee_pos1 + rKEb_eff_length * [-cosd(theta1_pos1) sind(theta1_pos1)];
 rKEb_eff = rotz(rot_hip) * rKEb_eff';
 
+rAEb_eff = ankle_pos1 + rAEb_eff_length * [cosd(theta1_pos1) -sind(theta1_pos1)];
+rAEb_eff = rotz(rot_knee) * ((rotz(rot_hip) * rAEb_eff') - knee_pos2) + knee_pos2;
 
 % Also need to define the fully extended knee extensor position, even if the
 % user input doesn't rotate it to that point.
@@ -242,7 +261,7 @@ r2_KEb_extended = rotz(90) * ((rotz(60) * r2_KEb_pos1') - knee_pos2_extended) + 
 
 string_length = (pi()/2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5;
 
-lower_AEb_pos2 = r2_AEb_pos2' + string_length * (upper_AEb_pos2' - r2_AEb_pos2')/norm(upper_AEb_pos2' - r2_AEb_pos2');
+lower_AEb_pos2 = rAEb_eff' + string_length * (upper_AEb_pos2' - rAEb_eff')/norm(upper_AEb_pos2' - rAEb_eff');
 
 %% Plot fully flexed position of the knee in 2D space (position 2)
 subplot(1, 2, 2)
@@ -264,6 +283,11 @@ plot(r2_KEb_pos2(1), r2_KEb_pos2(2), '*b')
 plot(camKF(1,:), camKF(2,:))
 plot(camKE(1,:), camKE(2,:))
 
+% Plot the CAM radii for the ankle
+plot(r1_AEb_pos2(1), r1_AEb_pos2(2), '*b')
+plot(r2_AEb_pos2(1), r2_AEb_pos2(2), '*b')
+plot(camAE(1,:), camAE(2,:))
+
 % Plot the ankle/foot as a circle
 plot(ankle_pos2(1), ankle_pos2(2), 'o', 'LineWidth', 3)
 
@@ -271,29 +295,27 @@ plot(ankle_pos2(1), ankle_pos2(2), 'o', 'LineWidth', 3)
 plot([-.1, .1], [0, 0], '-k', 'LineWidth', 12)
 
 % Mark the hip joint as the origin
-plot(0,0, 'xg', 'LineWidth', 3)
+plot(0, 0, 'xg', 'LineWidth', 3)
 
 % Plot the foot as a straight line
 plot([ankle_pos2(1) toe_pos2(1)], [ankle_pos2(2) toe_pos2(2)], '-m', 'LineWidth', 4)
-
-% Plot the CAM radii for the ankle
-plot(r1_AEb_pos2(1), r1_AEb_pos2(2), '*b')
-plot(r2_AEb_pos2(1), r2_AEb_pos2(2), '*b')
 
 % Plot the ankle extensor actuator
 plot([upper_AEb_pos2(1) lower_AEb_pos2(1)], [upper_AEb_pos2(2) lower_AEb_pos2(2)], '-b', 'LineWidth', 3)
 
 % Plot the string from ankle to actuator
-plot([r2_AEb_pos2(1) lower_AEb_pos2(1)], [r2_AEb_pos2(2) lower_AEb_pos2(2)])
+plot([rAEb_eff(1) lower_AEb_pos2(1)], [rAEb_eff(2) lower_AEb_pos2(2)])
+
+% Plot the lines representing strings for the flexor and extensor
+plot([b_KFb_top(1) rKFb_eff(1)], [b_KFb_top(2) rKFb_eff(2)], 'b')
+plot([b_KEb_top(1) rKEb_eff(1)], [b_KEb_top(2) rKEb_eff(2)], 'b')
 
 % Plot the final pulley point before string goes to the tibia for the
 % lfexor and extensor
 plot(b_KFb_top(1), b_KFb_top(2), 'xr', 'LineWidth', 5)
 plot(b_KEb_top(1), b_KEb_top(2), 'xr', 'LineWidth', 5)
 
-% Plot the lines representing strings for the flexor and extensor
-plot([b_KFb_top(1) rKFb_eff(1)], [b_KFb_top(2) rKFb_eff(2)], 'b')
-plot([b_KEb_top(1) rKEb_eff(1)], [b_KEb_top(2) rKEb_eff(2)], 'b')
+
 
 % Finish labeling the plot
 xlim([-0.1 0.5])
@@ -306,26 +328,56 @@ daspect([1 1 1])
 
 %% Define the strain necessary to achieve position 2
 
-% Define length of fully contracted actuator based on previously defined
-% vectors
-delta_L_KFb = (norm(r1_KFb_pos1 - b_KFb_top) + (pi()/2)*(((r1_KFb_length^2) + (r2_KFb_length^2))/2)^0.5)- norm(r2_KFb_pos2' - b_KFb_top);
-delta_L_KEb = (norm(r2_KEb_pos2' - b_KEb_top) + (pi()/2)*(((r1_KEb_length^2) + (r2_KEb_length^2))/2)^0.5)- norm(r1_KEb_pos1 - b_KEb_top);
-delta_L_AEb = (norm(r1_AEb_pos1 - upper_AEb_pos1) + (pi()/2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5)- norm(r2_AEb_pos2 - upper_AEb_pos2);
+% DefineThe effective length of the string or actuator/string with the
+% actuator fully deflated, in an extended position.
+L_KFb_rest = norm(r1_KFb_pos1 - b_KFb_top); 
+L_KEb_rest = norm(r2_KEb_extended' - b_KEb_top);
+L_AEb_rest = norm(r1_AEb_pos1 - upper_AEb_pos1);
+
+% Define the length of string wrapped around the cam at the fully
+%extended/resting position. Using an approximation of a quarter of an
+%ellipse.
+L_KFb_camstring = (pi()/2)*(((r1_KFb_length^2) + (r2_KFb_length^2))/2)^0.5;
+L_KEb_camstring = (pi()/2)*(((r1_KEb_length^2) + (r2_KEb_length^2))/2)^0.5;
+L_AEb_camstring = (pi()/2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5;
+
+% Define the length of the string/actuator after desired rotation (this is
+% from origin to effective attachment point on the outside of the cam).
+L_KFb_rot = norm(rKFb_eff' - b_KFb_top); 
+L_KEb_rot = norm(rKEb_eff' - b_KEb_top);
+L_AEb_rot = norm(rAEb_eff' - upper_AEb_pos2');
+
+% Define the length of string wrapped around the cam at the new position. 
+% Using an approximation of the degree of rotation as a fraction of the
+% ellipse of the cam.
+L_KFb_camstring_new = ((90 - rot_knee)/360) * (pi()*2)*(((r1_KFb_length^2) + (r2_KFb_length^2))/2)^0.5;
+L_KEb_camstring_new = ((rot_knee)/360) * (pi()*2)*(((r1_KEb_length^2) + (r2_KEb_length^2))/2)^0.5;
+L_AEb_camstring_new = ((90 - rot_ankle)/360) * (pi()*2)*(((r1_AEb_length^2) + (r2_AEb_length^2))/2)^0.5;
+
+% Define the change in actuator length by subtracting the new length from
+% the old length, including the parts of string wrapped around the cam at
+% both positions.
+delta_L_KFb = (L_KFb_rest + L_KFb_camstring) - (L_KFb_rot + L_KFb_camstring_new);
+delta_L_KEb = (L_KEb_rest + L_KEb_camstring) - (L_KEb_rot + L_KEb_camstring_new);
+delta_L_AEb = (L_AEb_rest + L_AEb_camstring) - (L_AEb_rot + L_AEb_camstring_new);
 
 % Calculate strain from contracted and resting lengths
 k_KFb = delta_L_KFb / L_KFb;
 k_KEb = delta_L_KEb / L_KEb;
 k_AEb = delta_L_AEb / L_AEb;
 
-%Print out actuator lengths and strains
+%Print out actuator lengths and desired rotations.
 fprintf('\nHip rotation: %.0f degrees', rot_hip)
 fprintf('\nKnee rotation: %.0f degrees\n', rot_knee)
-
+fprintf('\nAnkle rotation: %.0f degrees\n', rot_ankle)
 fprintf('\n\nBA knee flexor actuator length: %.0f inches', L_KFb/0.0254)
-fprintf('\nBA knee extensor actuator length: %.0f inches\n', L_KEb/0.0254)
+fprintf('\nBA knee extensor actuator length: %.0f inches', L_KEb/0.0254)
+fprintf('\nBA ankle extensor actuator length: %.0f inches', L_AEb/0.0254)
 
-%fprintf('\n\nBA ankle extensor actuator length: %.0f inches', L_AEb/0.0254)
-
+% Print out actuator strains at position 2.
+fprintf('\n\nBA knee flexor strain to achieve position 2: %.2f', k_KFb)
+fprintf('\nBA knee extensor strain to achieve position 1: %.2f', k_KEb)
+fprintf('\nBA ankle extensor strain to achieve this position: %.2f', k_AEb)
 
 %% Torque calculations for the biarticular knee flexor and knee extensor
 
@@ -368,12 +420,8 @@ F_AEb = (T2_AEb + T3_KEb + T_ankle_AEb) / r2_AEb_length;                % [N]
 
 % Print out force required to hold position 1 and 2 for the knee extensor
 % and flexor, respectively
-fprintf('\nBA knee flexor strain to achieve position 2: %.2f', k_KFb)
-fprintf('\nBA knee extensor strain to achieve position 1: %.2f\n', k_KEb)
-fprintf('\nBA ankle extensor strain to achieve this position: %.2f\n', k_AEb)
-fprintf('\nThe required force for the BA knee flexor to hold a fully contracted position is %.1f pounds', F_KFb/4.448)
-
-fprintf('\nThe required force for the BA knee extensor to hold a fully contracted position is %.1f pounds', F_KEb/4.448)
+fprintf('\nThe required force for the BA knee flexor to hold a fully contracted position is %.1f pounds\n', F_KFb/4.448)
+fprintf('\nThe required force for the BA knee extensor to hold a fully contracted position is %.1f pounds\n', F_KEb/4.448)
 fprintf('\nThe required force for the BA ankle extensor to hold position 1 is %.1f pounds', F_AEb/4.448)
 
 %% Plotting strain vs necessary pressure for a given force
