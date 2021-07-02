@@ -13,7 +13,7 @@ ey = [0 0 0 0];
 figure; hold on;
 h = plot(px,py,'ro-');      
 z = plot(ex,ey,'bo-');
-legend('Model', 'Optimized Model');
+legend('Optimized Model', 'Muscle Mutt Data');
 
 axis([-(L1+L2+L3+4) (L1+L2+L3+4) -(L1+L2+L3+4) (L1+L2+L3+4)]);
 
@@ -35,8 +35,8 @@ axis([-(L1+L2+L3+4) (L1+L2+L3+4) -(L1+L2+L3+4) (L1+L2+L3+4)]);
 
             %Optimized Joint positions
             e1=e(i,1);
-            e2=e(i,3);
-            e3=e(i,5);
+            e2=e(i,2);
+            e3=e(i,3);
             e0x=0;
             e0y=0;
             e1x = L1*cos(e1);

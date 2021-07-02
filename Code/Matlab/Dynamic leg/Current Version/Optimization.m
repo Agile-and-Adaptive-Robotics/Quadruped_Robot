@@ -1,11 +1,15 @@
 clear;close all;clc;
 %% Optimization 
 %get parameters [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias]
-initialGuess = [-10,-10,-40,-2,-2,-10,0,0,0];
+
+initialGuess = [-4.330506086268185e+02,2.147219387356593e+02,-2.954513848446761e+04,-3.507180463647218e+03,-4.351754432148147e+02,0.158216152670930,1.591501043256868,-0.357059593608212,0];
+%initialGuess =[-4.330506086268185e+02,2.147219387356593e+02,-2.954513848446761e+04,-3.507180463647218e+03,-4.351754432148147e+02,0.158216152670930,1.591501043256868,0,0]
+%initialGuess = [-98,-65,-32895,-886,-4584,-3374,1.5,0,0];
+
 %get cost(this part is not nescessary)
 f = objectiveFunc(initialGuess)
 %optimization
-jointValues = fmincon(@objectiveFunc,initialGuess)
+jointValues = fminsearch(@objectiveFunc,initialGuess)
 %% Define Mechanical Properties 
 % Define the mechanical properties of link 1.
 M1 = .716;  %[lb] Mass of femur with encoder                   
@@ -43,7 +47,7 @@ Lengths = [L1,L2,L3,N];
 prompt = 'Would you like to plot?(Y/N): ';
 fileName = input(prompt,'s');
 if fileName == 'Y' || fileName == 'y'
-    [t,x] = ode45(@(t,x) Dynamic_code(t,x,P,JointValues),t_span,x0);
+    [t,x] = ode45(@(t,x) Dynamic_code(t,x,P,jointValues),t_span,x0);
     [a] = ProcessMuscleMutt();
     plotLegs(x,a,Lengths);
 else

@@ -13,7 +13,7 @@ I2 = 496.26; %[in^4]
 L2 = 9.25; %[in
 % Define the mechanical properties of link 3.
 
-M3 = 0.010992; %[lb]
+M3 = 0.10992; %[lb]
 R3 = 3.5; %[in]
 I3 = 122.09; %[in^4]
 L3 = 7.875;
@@ -30,7 +30,7 @@ final_t= N*dt;
 t_span=linspace(init_t,final_t,N);
 
 x0=[0 0 0 0 0 0]';
-[t,x] = ode45(@(t,y) Dynamic_code(t,y,P,U),t_span,x0);%simulated leg motion wiht input
+[t,x] = ode45(@(t,x) Dynamic_code(t,x,P,U),t_span,x0);%simulated leg motion wiht input
 [a] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
 [theta1Data] = a(:,1);
 [theta2Data] = a(:,2);
@@ -40,7 +40,7 @@ x0=[0 0 0 0 0 0]';
 e1 = (x(:,1) - theta1Data);
 e2 = (x(:,3) - theta2Data);
 e3 = (x(:,5) - theta3Data);
-
-f = e1'*e1 + e2'*e2 + e3'*e3;
+U
+f = e1'*e1 + e2'*e2 + e3'*e3
 
 end

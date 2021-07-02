@@ -4,9 +4,9 @@ syms M1 M2 M3;
 syms x1 x1d x1dd x2 x2d x2dd x3 x3d x3dd;
 syms L1 L2 L3;
 syms R1 R2 R3;
-syms b1 b2 b3;
-syms K1 K2 K3;
-syms theta1bias theta2bias theta3bias;
+syms b1 b2 b3 b4 b5 b6;
+syms K1 K2 K3 K4 K5 K6;
+syms theta1bias theta2bias theta3bias theta4bias theta5bias theta6bias;
 syms I1 I2 I3;
 syms g;
 
@@ -30,9 +30,9 @@ KE = simplify(KE);
 PE = M1*g*p1y + M2*g*p2y + M3*g*p3y;
 PE = simplify(PE);
 
-Px1 = (b1*x1d+K1*(x1+theta1bias));
-Px2 = (b2*x2d+K2*(x2+theta2bias));
-Px3 = (b3*x3d+K3*(x3+theta3bias));
+Px1 = (b1*x1d+K1*(x1+theta1bias)) + (b4*x1d+K4*(x1+theta4bias));
+Px2 = (b2*x2d+K2*(x2+theta2bias)) + (b5*x1d+K5*(x1+theta5bias));
+Px3 = (b3*x3d+K3*(x3+theta3bias)) + (b6*x1d+K6*(x1+theta6bias));
 
 pKEpx1d = diff(KE,x1d);
 ddtpKEpx1d = diff(pKEpx1d,x1)*x1d+ ...
