@@ -25,9 +25,9 @@ v2y = +L1*cos(x1)*x1d+R2*cos(x1+x2)*(x1d+x2d);
 v3x = -L1*sin(x1)*x1d-L2*sin(x1+x2)*(x1d+x2d) - R3*sin(x1+x2+x3)*(x1d+x2d+x3d);
 v3y = +L1*cos(x1)*x1d+L2*cos(x1+x2)*(x1d+x2d) + R3*cos(x1+x2+x3)*(x1d+x2d+x3d);
 
-D1 = u1*m1*g*R1*x1d;
-D2 = u2*m2*g*R2*x2d;
-D3 = u3*m3*g*R3*x3d;
+D1 = u1*M1*g*R1*x1d;
+D2 = u2*M2*g*R2*x2d;
+D3 = u3*M3*g*R3*x3d;
 
 KE = 0.5*M1*( v1x^2 + v1y^2) + 0.5*M2*( v2x^2 + v2y^2) + 0.5*M3*( v3x^2 + v3y^2) + 0.5*I1*(x1d)^2 + 0.5*I2*(x2d)^2 + 0.5*I3*(x3d)^2;
 KE = simplify(KE);
@@ -40,6 +40,7 @@ Px2 = (b2*x2d+K2*(x2+theta2bias)) + (b5*x1d+K5*(x1+theta5bias));
 Px3 = (b3*x3d+K3*(x3+theta3bias)) + (b6*x1d+K6*(x1+theta6bias));
 
 pKEpx1d = diff(KE,x1d);
+pDpx1d = diff(D1,x1d);
 ddtpKEpx1d = diff(pKEpx1d,x1)*x1d+ ...
              diff(pKEpx1d,x1d)*x1dd+ ...
              diff(pKEpx1d,x2)*x2d + ...
@@ -49,7 +50,9 @@ ddtpKEpx1d = diff(pKEpx1d,x1)*x1d+ ...
 pKEpx1 = diff(KE,x1);
 pPEpx1 = diff(PE,x1);
 
+
 pKEpx2d = diff(KE,x2d);
+pDpx2d = diff(D2,x2d);
 ddtpKEpx2d = diff(pKEpx2d,x1)*x1d+ ...
              diff(pKEpx2d,x1d)*x1dd+ ...
              diff(pKEpx2d,x2)*x2d + ...
@@ -60,6 +63,7 @@ pKEpx2 = diff(KE,x2);
 pPEpx2 = diff(PE,x2);
 
 pKEpx3d = diff(KE,x3d);
+pDpx3d = diff(D3,x3d);
 ddtpKEpx3d = diff(pKEpx3d,x1)*x1d+ ...
              diff(pKEpx3d,x1d)*x1dd+ ...
              diff(pKEpx3d,x2)*x2d + ...
@@ -69,9 +73,14 @@ ddtpKEpx3d = diff(pKEpx3d,x1)*x1d+ ...
 pKEpx3 = diff(KE,x3);
 pPEpx3 = diff(PE,x3);
 
-eqx1 = simplify( ddtpKEpx1d - pKEpx1 + pPEpx1 - Px1);
-eqx2 = simplify( ddtpKEpx2d - pKEpx2 + pPEpx2 - Px2);
-eqx3 = simplify( ddtpKEpx3d - pKEpx3 + pPEpx3 - Px3);
+eqx1 = simplify( ddtpKEpx1d - pKEpx1 + pPEpx1 + pDpx1d - Px1);
+eqx2 = simplify( ddtpKEpx2d - pKEpx2 + pPEpx2 + pDpx2d - Px2);
+eqx3 = simplify( ddtpKEpx3d - pKEpx3 + pPEpx3 + pDpx3d - Px3);
+
+%eqx1 = simplify( ddtpKEpx1d - pKEpx1 + pPEpx1 - Px1);
+%eqx2 = simplify( ddtpKEpx2d - pKEpx2 + pPEpx2 - Px2);
+%eqx3 = simplify( ddtpKEpx3d - pKEpx3 + pPEpx3 - Px3);
+
 
 Sol = solve(eqx1,eqx2,eqx3,x1dd,x2dd,x3dd);
 Sol.x1dd = simplify(Sol.x1dd);

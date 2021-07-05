@@ -1,13 +1,4 @@
-clear;close all;clc;
-%% Optimization 
-%get parameters [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias]
-
-initialGuess = [-3.940248550935243e+02,1.839638992250057e+02,-3.375138445648081e+03,-6.633823687296433e+02,1.591553553490016,-0.316143403063758]
-
-%get cost(this part is not nescessary)
-f = objectiveFunc2(initialGuess)
-%optimization
-jointValues = fmincon(@objectiveFunc2,initialGuess)
+clear;close all;
 %% Define Mechanical Properties 
 % Define the mechanical properties of link 1.
 M1 = .716;  %[lb] Mass of femur with encoder                   
@@ -36,8 +27,10 @@ I4 = I2 + I3;
 
 P = [M1,R1,I1,L1,M4,R4,I4,L4,g];
 
-%% Plot
-%variables for simulation
+%Stores Joint Parameters in a vector
+%U = [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias];
+U = [-4.330506086268185e+02,2.147219387356593e+02,-3.507180463647218e+03,-4.351754432148147e+02,1.591501043256868,-0.357059593608212];
+%% Model
 dwrite = 0.00046;
 dt = dwrite*4;
 init_t=0;
@@ -46,13 +39,16 @@ final_t= N*dt;
 t_span=linspace(init_t,final_t,N);
 
 x0=[0 0 0 0]';
+
+[t,x] = ode45(@(t,x) Dynamic_code2(t,x,P,U),t_span,x0);
+%[t2,e] = ode45(@(t,e) Dynamic_code2(t,e,P,U),t_span,x0);
+[e] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
+
+%% Plot
 Lengths = [L1,L4,N];
-%prompt to ask if the user would like to plot
 prompt = 'Would you like to plot?(Y/N): ';
 fileName = input(prompt,'s');
 if fileName == 'Y' || fileName == 'y'
-    [t,x] = ode45(@(t,x) Dynamic_code2(t,x,P,jointValues),t_span,x0);
-    [a] = ProcessMuscleMutt();
-    plotLegs2DOF(x,a,Lengths);
+    plotLegs2DOF(x,e,Lengths);
 else
 end
