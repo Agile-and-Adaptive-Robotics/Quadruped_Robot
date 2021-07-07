@@ -9,6 +9,7 @@ syms K1 K2 K3 K4 K5 K6;
 syms theta1bias theta2bias theta3bias theta4bias theta5bias theta6bias;
 syms I1 I2 I3;
 syms u1 u2 u3;
+syms N1 N2 N3;
 syms g;
 
 p1x = R1*cos(x1);
@@ -27,8 +28,8 @@ KE = simplify(KE);
 PE = M1*g*p1y + M2*g*p2y;
 PE = simplify(PE);
 
-Px1 = (b1*x1d+K1*(x1+theta1bias)) + (b4*x1d+K4*(x1+theta4bias));
-Px2 = (b2*x2d+K2*(x2+theta2bias)) + (b5*x1d+K5*(x1+theta5bias));
+Px1 = (b1*x1d+K1*(x1+theta1bias)) + (b4*x1d+K4*(x1+theta4bias)) + (u1*N1*sin(x1d));
+Px2 = (b2*x2d+K2*(x2+theta2bias)) + (b5*x1d+K5*(x1+theta5bias)) + (u2*N2*sin(x2d));
 
 pKEpx1d = diff(KE,x1d);
 ddtpKEpx1d = diff(pKEpx1d,x1)*x1d+ ...
@@ -49,7 +50,6 @@ pPEpx2 = diff(PE,x2);
 
 eqx1 = simplify( ddtpKEpx1d - pKEpx1 + pPEpx1 - Px1);
 eqx2 = simplify( ddtpKEpx2d - pKEpx2 + pPEpx2 - Px2);
-eqx3 = simplify( ddtpKEpx3d - pKEpx3 + pPEpx3 - Px3);
 
 
 Sol = solve(eqx1,eqx2,x1dd,x2dd);

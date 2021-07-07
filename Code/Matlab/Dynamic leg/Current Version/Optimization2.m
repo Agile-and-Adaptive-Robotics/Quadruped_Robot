@@ -2,12 +2,11 @@ clear;close all;clc;
 %% Optimization 
 %get parameters [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias]
 
-initialGuess = [-3.940248550935243e+02,1.839638992250057e+02,-3.375138445648081e+03,-6.633823687296433e+02,1.591553553490016,-0.316143403063758]
-
+initialGuess = [-4.257799513068825e+02,-6.489238518027000e+02,-3.284637849413381e+03,-1.678068830492144e+03,1.592904873829014,-0.700767599897212]
 %get cost(this part is not nescessary)
 f = objectiveFunc2(initialGuess)
 %optimization
-jointValues = fmincon(@objectiveFunc2,initialGuess)
+jointValues = fminsearch(@objectiveFunc2,initialGuess)
 %% Define Mechanical Properties 
 % Define the mechanical properties of link 1.
 M1 = .716;  %[lb] Mass of femur with encoder                   
@@ -22,7 +21,7 @@ I2 = 496.26; %[in^4]
 L2 = 9.25; %[in
 % Define the mechanical properties of link 3.
 
-M3 = 0.10992; %[lb]
+M3 = 0.010992; %[lb]
 R3 = 3.5; %[in]
 I3 = 122.09; %[in^4]
 L3 = 7.875;

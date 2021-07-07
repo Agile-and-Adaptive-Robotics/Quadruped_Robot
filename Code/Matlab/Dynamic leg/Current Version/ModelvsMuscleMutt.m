@@ -60,8 +60,10 @@ x0=[0 0 0 0 0 0]';
 %[t2,e] = ode45(@(t,e) Dynamic_code2(t,e,P,U),t_span,x0);
 [e] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
 
+
 %% Plot
 Lengths = [L1,L2,L3,N];
+plotSingleLeg(e,Lengths);
 prompt = 'Would you like to plot?(Y/N): ';
 fileName = input(prompt,'s');
 if fileName == 'Y' || fileName == 'y'
