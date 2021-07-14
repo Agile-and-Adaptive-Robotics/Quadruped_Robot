@@ -232,7 +232,7 @@ ylabel('y position (m)')
 daspect([1 1 1])
 set(gcf,'color','w');
 
-%% Define flexed position (position 2) using rotational matrices
+%% Define fully flexed position (position 2) using rotational matrices
 
 % Define hip rotation in degrees
 rot_hip = input(sprintf('Enter the desired hip rotation from fully flexed: ') );                                              % [degrees]
