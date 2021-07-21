@@ -2,11 +2,13 @@ clear;close all;clc;
 %% Optimization 
 %get parameters [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias]
 
-initialGuess = [-4.257799513068825e+02,-6.489238518027000e+02,-3.284637849413381e+03,-1.678068830492144e+03,1.592904873829014,-0.700767599897212]
+%initialGuess = [-4.286935783524542e+02,-2.406295528493199e+02,-3.332955650505215e+03,-1.262806632086322e+03,1.595266905831073,-0.166884675216155];
+%initialGuess =[-4.277196376451152e+02,2.927567999697626e+02,-3.340120808690405e+03,-3.644839905916694,1.596381503496003,2.133055049954218];
+initialGuess = [-4.286804704438719e+02,-2.405790069465634e+02,-3.332984336659848e+03,-1.264307253384557e+03,1.595256309727422,-0.166726536707248];
 %get cost(this part is not nescessary)
-f = objectiveFunc2(initialGuess)
+%f = objectiveFunc2(initialGuess)
 %optimization
-jointValues = fminsearch(@objectiveFunc2,initialGuess)
+jointValues = fmincon(@objectiveFunc2,initialGuess)
 %% Define Mechanical Properties 
 % Define the mechanical properties of link 1.
 M1 = .716;  %[lb] Mass of femur with encoder                   
@@ -53,5 +55,18 @@ if fileName == 'Y' || fileName == 'y'
     [t,x] = ode45(@(t,x) Dynamic_code2(t,x,P,jointValues),t_span,x0);
     [a] = ProcessMuscleMutt();
     plotLegs2DOF(x,a,Lengths);
+    figure
+plot(t,x(:,1),'r-',t,a(:,1),'b-');
+title('Hip rotation');
+xlabel('time (s)');
+ylabel('radians');
+legend('Optimized Model', 'Muscle Mutt Data');
+
+figure
+plot(t,x(:,3),'r-',t,a(:,2),'b-');
+title('Knee rotation');
+xlabel('time (s)');
+ylabel('radians');
+legend('Optimized Model', 'Muscle Mutt Data');
 else
 end

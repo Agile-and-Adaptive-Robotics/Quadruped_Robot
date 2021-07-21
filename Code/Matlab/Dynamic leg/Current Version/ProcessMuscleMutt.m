@@ -1,9 +1,9 @@
 function data = ProcessMuscleMutt()
 
 N = 4000;
-load('Golden6.mat');
+load('golden4.mat');
 
-[DogLegDataKnee] = Trial1(:,1);
+[DogLegDataKnee] = Trial4(:,1)/4;
 [DogLegDataHip] = Trial4(:,2)*-1;
 [DogLegDataAnkle]= zeros(N,1);
 

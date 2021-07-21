@@ -1,19 +1,18 @@
 clear;
 close all;
  
-load('Golden6.mat');
+load('golden4.mat');
 
-figure
-plot(Trial4);
-legend('knee', 'hip')
+
 N = 4000;
 
-[DogLegDataKnee] = Trial4(:,1);
+[DogLegDataKnee] = Trial4(:,1)/4;
 [DogLegDataHip] = Trial4(:,2)*-1;
 [DogLegDataAnkle]= zeros(N,1);
 
 DogLegData = [DogLegDataHip,DogLegDataKnee,DogLegDataAnkle];
-
+figure
+plot(DogLegData);
 %
 %baudRate = 115200;
 %RPM = 7500;
