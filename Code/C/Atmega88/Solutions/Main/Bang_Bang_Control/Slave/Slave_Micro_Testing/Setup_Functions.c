@@ -15,13 +15,13 @@ void SetupMicro( void )
 	SetupADC();
 	
 	//Setup SPI communication.
-	SetupSPI();
+	SetupSPI();							// Communication between micros.
 	
 	//Setup timer interrupts.
 	SetupTimerInterrupts();
 	
 	//Setup USART communication.
-	SetupUSART();	
+	SetupUSART();						// Communication with desktop.	
 	
 	//Enable global interrupts.
 	sei();													// Enable global interrupts
