@@ -24,6 +24,10 @@ L1 = Lengths(1);
 L2 = Lengths(2);
 L3 = Lengths(3);
 N = Lengths(4);
+
+[]
+
+
 px=[0 0 0 0];
 py=[0 0 0 0];
 figure; hold on;

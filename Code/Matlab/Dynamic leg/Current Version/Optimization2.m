@@ -8,7 +8,7 @@ initialGuess = [-4.286804704438719e+02,-2.405790069465634e+02,-3.332984336659848
 %get cost(this part is not nescessary)
 %f = objectiveFunc2(initialGuess)
 %optimization
-jointValues = fmincon(@objectiveFunc2,initialGuess)
+jointValues = fminsearch(@objectiveFunc2,initialGuess)
 %% Define Mechanical Properties 
 % Define the mechanical properties of link 1.
 M1 = .716;  %[lb] Mass of femur with encoder                   

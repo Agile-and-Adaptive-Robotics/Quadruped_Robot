@@ -45,7 +45,7 @@ theta6bias = 0;
 
 %Stores Joint Parameters in a vector
 %U = [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias];
-U = [-4.330506086268185e+02,2.147219387356593e+02,-2.954513848446761e+04,-3.507180463647218e+03,-4.351754432148147e+02,0.158216152670930,1.591501043256868,-0.357059593608212,0];
+U = [-4.612173474021026e+02,23.158328148991920,-1.063925869261585e+04,-3.578556810735615e+03,-14.885236935699204,0.221662962060255,1.593841072083488,-0.852596101714725,0.005302019237326];
 %% Model
 dwrite = 0.00046;
 dt = dwrite*4;
@@ -63,11 +63,30 @@ x0=[0 0 0 0 0 0]';
 
 %% Plot
 Lengths = [L1,L2,L3,N];
-plotSingleLeg(e,Lengths);
+%plotSingleLeg(e,Lengths);
 prompt = 'Would you like to plot?(Y/N): ';
 fileName = input(prompt,'s');
 if fileName == 'Y' || fileName == 'y'
     plotLegs(x,e,Lengths);
+        figure
+plot(t,x(:,1),'r-',t,e(:,1),'b-');
+title('Hip rotation');
+xlabel('time (s)');
+ylabel('radians');
+legend('Optimized Model', 'Muscle Mutt Data');
+
+figure
+plot(t,x(:,3),'r-',t,e(:,2),'b-');
+title('Knee rotation');
+xlabel('time (s)');
+ylabel('radians');
+legend('Optimized Model', 'Muscle Mutt Data');
+figure
+plot(t,x(:,5),'r-',t,e(:,3),'b-');
+title('Ankle rotation');
+xlabel('time (s)');
+ylabel('radians');
+legend('Optimized Model', 'Muscle Mutt Data');
 else
 end
 

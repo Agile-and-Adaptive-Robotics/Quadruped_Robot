@@ -20,20 +20,16 @@ g = 9.81;
 P = [M1,R1,I1,L1,M2,R2,I2,L2,M3,R3,I3,L3,g];
 
 %sim
-dwrite = 0.00046;
-dt = dwrite*4;
+[a] = ProccessRat();%Loads processed MuscleMutt Data
 
-init_t=0;
-N = 4000;
-final_t= N*dt;
-t_span=linspace(init_t,final_t,N);
-
-x0=[0 0 0 0 0 0]';
-[t,x] = ode45(@(t,x) Dynamic_code(t,x,P,U),t_span,x0);%simulated leg motion wiht input
-[a] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
 [theta1Data] = a(:,1);
 [theta2Data] = a(:,2);
 [theta3Data] = a(:,3);
+timeVec = a(:,4)*10;
+
+x0=[theta1Data(1,1) 0 theta2Data(1,1) 0 theta3Data(1,1) 0]';
+[t,x] = ode45(@(t,x) Dynamic_code_Rat(t,x,P,U),timeVec,x0);%simulated leg motion wiht input
+
 
 
 e1 = (x(:,1) - theta1Data);
