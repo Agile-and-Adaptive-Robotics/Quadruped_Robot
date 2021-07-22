@@ -15,7 +15,7 @@ h = plot(px,py,'ro-');
 z = plot(ex,ey,'bo-');
 legend('Optimized Model', 'Muscle Mutt Data');
 
-axis([-(L1+L2+L3+4) (L1+L2+L3+4) -4 (L1+L2+L3+4)]);
+axis([-(L1+L2+L3+4) (L1+L2+L3+4) -(L1+L2+L3+4) (L1+L2+L3+4)]);
 
     for i=1:N-1
         if(mod(i,50)==1)

@@ -1,22 +1,25 @@
 function f = objectiveFuncRat(U)
 % Define the mechanical properties of link 1.
-M1 = .716;  %[lb] Mass of femur with encoder                   
-R1 = 4.75; % [in]
-I1 = 496.26; %[in^4]
-L1 = 9.25; %[in]
+M1 = 13.26;  %[kg] Mass of femur with encoder                   
+R1 = 1.305; % [cm]
+I1 = 0; %[g cm^2]
+L1 = 2.9; %[cm]
 
 % Define the mechanical properties of link 2.
-M2 = .4299; %[lb]
-R2 = 4.75; %[in]
-I2 = 496.26; %[in^4]
-L2 = 9.25; %[in
+M2 = 9.06; %[g]
+R2 = 1.558; %[cm]
+I2 = 0; %[in^4]
+L2 = 4.1; %[cm
 % Define the mechanical properties of link 3.
 
-M3 = 0.10992; %[lb]
-R3 = 3.5; %[in]
-I3 = 122.09; %[in^4]
-L3 = 7.875;
+M3 = 1.7; %[lb]
+R3 = 1.6; %[in]
+I3 = 0; %[in^4]
+L3 = 3.3;
 g = 9.81;
+
+g = 9.81;
+
 P = [M1,R1,I1,L1,M2,R2,I2,L2,M3,R3,I3,L3,g];
 
 %sim
@@ -25,16 +28,15 @@ P = [M1,R1,I1,L1,M2,R2,I2,L2,M3,R3,I3,L3,g];
 [theta1Data] = a(:,1);
 [theta2Data] = a(:,2);
 [theta3Data] = a(:,3);
-timeVec = a(:,4)*10;
+timeVec = a(:,4);
 
 x0=[theta1Data(1,1) 0 theta2Data(1,1) 0 theta3Data(1,1) 0]';
-[t,x] = ode45(@(t,x) Dynamic_code_Rat(t,x,P,U),timeVec,x0);%simulated leg motion wiht input
-
-
+[t,x] = ode45(@(t,x) Dynamic_code_Rat(t,x,P,U),timeVec,x0); %simulated leg motion wiht input
 
 e1 = (x(:,1) - theta1Data);
 e2 = (x(:,3) - theta2Data);
 e3 = (x(:,5) - theta3Data);
+
 U
 f = e1'*e1 + e2'*e2 + e3'*e3
 

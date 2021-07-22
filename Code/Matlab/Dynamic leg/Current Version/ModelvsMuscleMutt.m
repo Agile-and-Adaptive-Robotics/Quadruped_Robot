@@ -21,7 +21,6 @@ G = 9.81;
 %Stores system paramters in a double; 
 P = [M1,R1,I1,L1,M2,R2,I2,L2,M3,R3,I3,L3,G];
 
-
 %Joint parameters
 b1 = -40;
 b2 = -150;
