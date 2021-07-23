@@ -1,4 +1,4 @@
-function dy = Dynamic_code(t,y,P,U)
+function dy = Dynamic_code_complex(t,y,P,U)
 
 y1 = y(1);
 y2 = y(2);
@@ -36,11 +36,11 @@ theta2bias = 0.15;
 theta3bias = 0;
 
 u1 = 0.1;
-N1 = 1000;
+N1 = U(7);
 u2 = 0.1;
-N2 = 1000;
+N2 = U(8);
 u3 = 0.1;
-N3 = 1000;
+N3 = U(9);
 
 b4 = 0;
 b5 = 0;

@@ -1,4 +1,4 @@
-function f = objectiveFunc(U)
+function f = objectiveFuncMMComplex(U)
 
 % Define the mechanical properties of link 1.
 M1 = .716;  %[lb] Mass of femur with encoder                   
@@ -31,8 +31,8 @@ N = 3751;
 final_t= N*dt;
 t_span=linspace(init_t,final_t,N);
 
-x0=[0.104311 0 -0.0230097 0 0 0]';
-[t,x] = ode45(@(t,x) Dynamic_code(t,x,P,U),t_span,x0);%simulated leg motion wiht input
+x0=[0.104311 U(10) -0.0230097 U(11) 0 U(12)]';
+[t,x] = ode45(@(t,x) Dynamic_code_complex(t,x,P,U),t_span,x0);%simulated leg motion wiht input
 [a] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
 [theta1Data] = a(:,1);
 [theta2Data] = a(:,2);
