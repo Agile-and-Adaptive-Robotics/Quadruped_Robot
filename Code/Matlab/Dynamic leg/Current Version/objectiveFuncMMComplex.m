@@ -8,7 +8,7 @@ I1 =  496.26;%(1/3)*M1*L1^2;%[in^4]
 
 % Define the mechanical properties of link 2.
 M2 = .4299; %[lb]
-R2 = 4.75; %[in]
+R2 = 6.25; %[in]
 L2 = 9.25; %[in
 I2 = 496.26; %(1/3)*M2*L2^2;[in^4]
 
@@ -31,7 +31,7 @@ N = 3751;
 final_t= N*dt;
 t_span=linspace(init_t,final_t,N);
 
-x0=[0.104311 U(10) -0.0230097 U(11) 0 U(12)]';
+x0=[0.104311 U(7) -0.0230097 U(8) 0 0]';
 [t,x] = ode45(@(t,x) Dynamic_code_complex(t,x,P,U),t_span,x0);%simulated leg motion wiht input
 [a] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
 [theta1Data] = a(:,1);

@@ -8,7 +8,7 @@ I1 = 496.26;%(1/3)*M1*L1^2;%[in^4]
 
 % Define the mechanical properties of link 2.
 M2 = .4299; %[lb]
-R2 = 4.75; %[in]
+R2 = 6.25; %[in]
 L2 = 9.25; %[in
 I2 = 496.26; %(1/3)*M2*L2^2;[in^4]
 
@@ -36,7 +36,7 @@ theta6bias = 0;
 
 %Stores Joint Parameters in a vector
 %U = [b1,b2,b3,K1,K2,K3,theta1bias,theta2bias,theta3bias];
-U = [-4.575698136738724e+02,48.556754803082330,-1.564675449509693e+04,-5.188223638070525e+03,15.968758573183504,0.248315899160000];
+U = [-3.282242789687175e+02,1.318385288182033e+04,-4.626331168439117e+03,-4.352505630343931,-6.885425815325230e+03,-1.365398506752757e+05,-1.774022002544357,0.289109621023439];
 %% Model
 dwrite = 0.00046;
 dt = dwrite*4;
@@ -45,9 +45,9 @@ N = 3751;
 final_t= N*dt;
 t_span=linspace(init_t,final_t,N);
 
-x0=[0.104311 0 -0.0230097 0 0 0]';
+x0=[0.104311 U(7) -0.0230097 U(8) 0 0]';
 
-[t,x] = ode45(@(t,x) Dynamic_code(t,x,P,U),t_span,x0);
+[t,x] = ode45(@(t,x) Dynamic_code_complex(t,x,P,U),t_span,x0);
 %[t2,e] = ode45(@(t,e) Dynamic_code2(t,e,P,U),t_span,x0);
 [e] = ProcessMuscleMutt();%Loads processed MuscleMutt Data
 
@@ -92,6 +92,7 @@ legend('Optimized Model', 'Muscle Mutt Data');
 figure
 plot(t,x(:,5),'r-',t,e(:,3),'b-');
 title('Ankle rotation');
+axis([0 3.5 -0.05 0.05])
 xlabel('time (s)');
 ylabel('radians');
 legend('Optimized Model', 'Muscle Mutt Data');
