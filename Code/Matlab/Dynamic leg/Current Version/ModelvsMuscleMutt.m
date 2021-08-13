@@ -56,7 +56,7 @@ zeta = 1/(sqrt(1 + (2*pi)/logdec))
 dampedFrequency = (2*pi)/(3.30368-1.04724);
 naturalFrequency = dampedFrequency/sqrt(1+zeta^2)
 
-HipZetaEqu = U(4)/(2*(sqrt(M1/U(1))))% b/2*squar(M/C)
+HipZetaEqu = U(4)/(2*(sqrt(M1*U(1))))% b/2*squar(M/C)
 HipNfEqu = sqrt(1/(U(1)*M1)) %squr(1/M*C)
 KneeZetaEqu = U(5)/(2*(sqrt(M1/U(2))))% b/2*squar(M/C)
 KneeNfEqu = sqrt(1/(U(2)*M2)) %squr(1/M*C)
