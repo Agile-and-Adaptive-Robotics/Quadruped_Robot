@@ -528,132 +528,16 @@ elapsed_time = toc;
 fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
 
 
-%% ( Testing: Plotting Stuff )
+%% Debugging: Plotting Mechanical Points & BPA Muscle Pressure-Force-Strain Fields
 
-
-
+% Plot the mechanical points of the defined robot.
 fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
 
-% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_tensions2joint_torques(  );
-
-
-% % Print out BPA Muscle Tensions, Joint Torques, and Joint Angles.
-% fprintf('BPA Muscle Tensions: [N]\n')
-% disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_BPA_muscle_measured_tensions( 'all' ) )
-%
-% fprintf('Joint Torques: [Nm]\n')
-% disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_torques( 'all' ) )
-%
-% fprintf('Joint Angles: [rad]\n')
-% disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_angles( 'all' ) )
-%
-%
-% % BPA Muscle Tensions -> Joint Torques
-% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.BPA_muscle_tensions2joint_torques(  );
-%
-% % Joint Torques -> Joint Angles
-% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_torques2joint_angles( simulation_manager.dt, simulation_manager.robot_states(end).mechanical_subsystem.g );
-%
-% % Joint Angles -> Joint Torques
-% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2joint_torques( simulation_manager.robot_states(end).mechanical_subsystem.g );
-%
-% % Print out BPA Muscle TEnsions, Joint Torques, and Joint Angles.
-% fprintf('BPA Muscle Tensions: [N]\n')
-% disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_BPA_muscle_measured_tensions( 'all' ) )
-%
-% fprintf('Joint Torques: [Nm]\n')
-% disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_torques( 'all' ) )
-%
-% fprintf('Joint Angles: [rad]\n')
-% disp( simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_joint_angles( 'all' ) )
-
-
-
-% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).joint_manager.joint_configurations2joint_angles(  );
-
-
-%% DEBUGGING: TESTING BPA MUSCLE MODEL
-
-
+% Plot the BPA muscle pressure-force-strain field.
 fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
-
-% 
-% num_epsilons = 100;
-% 
-% P = 6894.76*90;
-% F_guess = 4.448221628250858*20;
-% epsilon_max = 0.16;
-% epsilons = linspace( 0, epsilon_max, num_epsilons );
-% S = 0;
-% c0 = 2.54e5;
-% c1 = 1.92e5;
-% c2 = 2.0265;
-% c3 = -0.461;
-% c4 = -3.31e-4;
-% c5 = 1.23e3;
-% c6 = 1.56e4;
-% 
-% Fs = zeros( 1, num_epsilons );
-% 
-% simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure = P;
-% 
-% for k = 1:num_epsilons
-%         
-%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).muscle_strain = epsilons(k);
-%     
-%     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_pressure2desired_tension(  );
-%     
-%     Fs( k ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).desired_tension;
-% 
-% end
-% 
-% figure( 'Color', 'w', 'Name', 'BPA Muscle: Force vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), title('BPA Muscle: Force vs Strain (Type I)'), plot( epsilons, 0.22480894244319*Fs, '-', 'Linewidth', 3 )
-
-% 
-% 
-% F = 0;
-% epsilon_max = 0.16;
-% epsilons = linspace( 0, epsilon_max, num_epsilons );
-% 
-% Ps = zeros( 1, num_epsilons );
-% 
-% for k = 1:num_epsilons
-% 
-%     Ps(k) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).inverse_BPA_model( F, epsilons(k), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
-% 
-% end
-% 
-% figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain (Type I)'), plot( epsilons, 0.000145038*Ps, '-', 'Linewidth', 3 )
-% 
-% 
-% 
-% num_epsilons = 100;
-% num_forces = 100;
-% 
-% fs = linspace( 0, 50, num_forces );
-% epsilons = linspace( 0, epsilon_max, num_epsilons );
-% 
-% [ Epsilons, Fs ] = meshgrid( epsilons, fs );
-% 
-% Ps = zeros( num_forces, num_epsilons );
-% 
-% for k1 = 1:num_forces
-%     for k2 = 1:num_epsilons
-%         
-%         Ps( k1, k2 ) = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).inverse_BPA_model( Fs( k1, k2 ), Epsilons( k1, k2 ), epsilon_max, S, c0, c1, c2, c3, c4, c5, c6 );
-%         
-%     end
-% end
-% 
-% figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Strain' ), hold on, grid on, xlabel('Strain (Type I) [-]'), ylabel('Force [lb]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Strain (Type I) & Force'), rotate3d on, xlim( [ 0, epsilon_max ] ), ylim( [ 0, max( max( 0.22480894244319*Fs ) ) ] )%, zlim( [ 0, 90 ] )
-% surf( Epsilons, 0.22480894244319*Fs, 0.000145038*Ps, 'Edgecolor', 'None' )
-
-
-
 
 
 %% DEBUGGING: TESTING HILL MUSCLE MODEL
-
 
 % num_timesteps = 100;
 % ts = linspace( 0, 1, num_timesteps );

@@ -272,7 +272,8 @@ classdef BPA_muscle_class
                         if epsilon < 0                      % If the estimated strain is negative...
                             
                             % Set the rest of the strains in this column to zero.
-                            Epsilons( k1:end, k2, k3 ) = zeros( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
+%                             Epsilons( k1:end, k2, k3 ) = zeros( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
+                            Epsilons( k1:end, k2, k3 ) = nan( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
 
                             % Set the invalid force flag to true.
                             bInvalidForce = true;
@@ -782,9 +783,21 @@ classdef BPA_muscle_class
                 
             else                                            % Otherwise...
                 
+                % Retrieve the two dimensional pressure, strain, and force fields.
+                pressure_field_2d = self.pressure_field( :, :, S + 1 );
+                strain_field_2d = self.strain_field( :, :, S + 1 );
+                force_field_2d = self.force_field( :, :, S + 1 );
+
+                % Turn off the duplicate data warning.
+                warning( 'off', 'MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId' )
+                
                 % Interpolate a force value from the reference strain, force, and pressure fields.
-                force = griddata( self.pressure_field( :, :, S + 1 ), self.strain_field( :, :, S + 1 ), self.force_field( :, :, S + 1 ), pressure, strain );
-            
+%                 force = griddata( self.pressure_field( :, :, S + 1 ), self.strain_field( :, :, S + 1 ), self.force_field( :, :, S + 1 ), pressure, strain );
+                force = griddata( pressure_field_2d( ~isnan( self.strain_field ) ), strain_field_2d( ~isnan( self.strain_field ) ), force_field_2d( ~isnan( self.strain_field ) ), pressure, strain );
+
+                % Turn on the duplicate data warning.
+                warning( 'on', 'MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId' )
+                
             end
             
         end
