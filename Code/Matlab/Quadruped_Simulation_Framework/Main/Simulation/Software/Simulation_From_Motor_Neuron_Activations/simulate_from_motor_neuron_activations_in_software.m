@@ -15,8 +15,8 @@ fprintf( 'LOADING MOTOR NEURON ACTIVATION DATA. Please Wait...\n' )
 tic
 
 % Define the path to the directory that contains the robot data.
-robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
