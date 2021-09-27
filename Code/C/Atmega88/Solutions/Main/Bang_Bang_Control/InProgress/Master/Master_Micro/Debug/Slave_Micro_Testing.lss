@@ -1,0 +1,299 @@
+
+Slave_Micro_Testing.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         0000000e  00800100  00000134  000001c8  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00000134  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          00000006  0080010e  0080010e  000001d6  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  000001d6  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000208  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000108  00000000  00000000  00000244  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   000018bc  00000000  00000000  0000034c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000ad9  00000000  00000000  00001c08  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   0000096f  00000000  00000000  000026e1  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000478  00000000  00000000  00003050  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000984  00000000  00000000  000034c8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00001087  00000000  00000000  00003e4c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000150  00000000  00000000  00004ed3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	19 c0       	rjmp	.+50     	; 0x34 <__ctors_end>
+   2:	33 c0       	rjmp	.+102    	; 0x6a <__bad_interrupt>
+   4:	32 c0       	rjmp	.+100    	; 0x6a <__bad_interrupt>
+   6:	31 c0       	rjmp	.+98     	; 0x6a <__bad_interrupt>
+   8:	30 c0       	rjmp	.+96     	; 0x6a <__bad_interrupt>
+   a:	2f c0       	rjmp	.+94     	; 0x6a <__bad_interrupt>
+   c:	2e c0       	rjmp	.+92     	; 0x6a <__bad_interrupt>
+   e:	2d c0       	rjmp	.+90     	; 0x6a <__bad_interrupt>
+  10:	2c c0       	rjmp	.+88     	; 0x6a <__bad_interrupt>
+  12:	2b c0       	rjmp	.+86     	; 0x6a <__bad_interrupt>
+  14:	2a c0       	rjmp	.+84     	; 0x6a <__bad_interrupt>
+  16:	7a c0       	rjmp	.+244    	; 0x10c <__vector_11>
+  18:	28 c0       	rjmp	.+80     	; 0x6a <__bad_interrupt>
+  1a:	27 c0       	rjmp	.+78     	; 0x6a <__bad_interrupt>
+  1c:	26 c0       	rjmp	.+76     	; 0x6a <__bad_interrupt>
+  1e:	25 c0       	rjmp	.+74     	; 0x6a <__bad_interrupt>
+  20:	24 c0       	rjmp	.+72     	; 0x6a <__bad_interrupt>
+  22:	23 c0       	rjmp	.+70     	; 0x6a <__bad_interrupt>
+  24:	22 c0       	rjmp	.+68     	; 0x6a <__bad_interrupt>
+  26:	21 c0       	rjmp	.+66     	; 0x6a <__bad_interrupt>
+  28:	20 c0       	rjmp	.+64     	; 0x6a <__bad_interrupt>
+  2a:	1f c0       	rjmp	.+62     	; 0x6a <__bad_interrupt>
+  2c:	1e c0       	rjmp	.+60     	; 0x6a <__bad_interrupt>
+  2e:	1d c0       	rjmp	.+58     	; 0x6a <__bad_interrupt>
+  30:	1c c0       	rjmp	.+56     	; 0x6a <__bad_interrupt>
+  32:	1b c0       	rjmp	.+54     	; 0x6a <__bad_interrupt>
+
+00000034 <__ctors_end>:
+  34:	11 24       	eor	r1, r1
+  36:	1f be       	out	0x3f, r1	; 63
+  38:	cf ef       	ldi	r28, 0xFF	; 255
+  3a:	d4 e0       	ldi	r29, 0x04	; 4
+  3c:	de bf       	out	0x3e, r29	; 62
+  3e:	cd bf       	out	0x3d, r28	; 61
+
+00000040 <__do_copy_data>:
+  40:	11 e0       	ldi	r17, 0x01	; 1
+  42:	a0 e0       	ldi	r26, 0x00	; 0
+  44:	b1 e0       	ldi	r27, 0x01	; 1
+  46:	e4 e3       	ldi	r30, 0x34	; 52
+  48:	f1 e0       	ldi	r31, 0x01	; 1
+  4a:	02 c0       	rjmp	.+4      	; 0x50 <__do_copy_data+0x10>
+  4c:	05 90       	lpm	r0, Z+
+  4e:	0d 92       	st	X+, r0
+  50:	ae 30       	cpi	r26, 0x0E	; 14
+  52:	b1 07       	cpc	r27, r17
+  54:	d9 f7       	brne	.-10     	; 0x4c <__do_copy_data+0xc>
+
+00000056 <__do_clear_bss>:
+  56:	21 e0       	ldi	r18, 0x01	; 1
+  58:	ae e0       	ldi	r26, 0x0E	; 14
+  5a:	b1 e0       	ldi	r27, 0x01	; 1
+  5c:	01 c0       	rjmp	.+2      	; 0x60 <.do_clear_bss_start>
+
+0000005e <.do_clear_bss_loop>:
+  5e:	1d 92       	st	X+, r1
+
+00000060 <.do_clear_bss_start>:
+  60:	a4 31       	cpi	r26, 0x14	; 20
+  62:	b2 07       	cpc	r27, r18
+  64:	e1 f7       	brne	.-8      	; 0x5e <.do_clear_bss_loop>
+  66:	50 d0       	rcall	.+160    	; 0x108 <main>
+  68:	63 c0       	rjmp	.+198    	; 0x130 <_exit>
+
+0000006a <__bad_interrupt>:
+  6a:	ca cf       	rjmp	.-108    	; 0x0 <__vectors>
+
+0000006c <uart_putchar>:
+//Include the associated header file.
+#include "Slave_Micro_Testing_Header.h"
+
+//Implement the USART putchar function.
+void uart_putchar(char c, FILE *stream)
+{
+  6c:	cf 93       	push	r28
+  6e:	c8 2f       	mov	r28, r24
+	if (c == '\n') uart_putchar('\r', stream);
+  70:	8a 30       	cpi	r24, 0x0A	; 10
+  72:	11 f4       	brne	.+4      	; 0x78 <uart_putchar+0xc>
+  74:	8d e0       	ldi	r24, 0x0D	; 13
+  76:	fa df       	rcall	.-12     	; 0x6c <uart_putchar>
+	
+	loop_until_bit_is_set(UCSR0A, UDRE0);
+  78:	e0 ec       	ldi	r30, 0xC0	; 192
+  7a:	f0 e0       	ldi	r31, 0x00	; 0
+  7c:	80 81       	ld	r24, Z
+  7e:	85 ff       	sbrs	r24, 5
+  80:	fd cf       	rjmp	.-6      	; 0x7c <uart_putchar+0x10>
+	UDR0 = c;
+  82:	c0 93 c6 00 	sts	0x00C6, r28	; 0x8000c6 <__EEPROM_REGION_LENGTH__+0x7f00c6>
+}
+  86:	cf 91       	pop	r28
+  88:	08 95       	ret
+
+0000008a <SetupPins>:
+
+//Implement a function to setup ADC.
+void SetupADC( void )
+{
+	//Setup the ADC.
+	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
+  8a:	83 e1       	ldi	r24, 0x13	; 19
+  8c:	84 b9       	out	0x04, r24	; 4
+  8e:	17 b8       	out	0x07, r1	; 7
+  90:	8e ef       	ldi	r24, 0xFE	; 254
+  92:	8a b9       	out	0x0a, r24	; 10
+  94:	28 98       	cbi	0x05, 0	; 5
+  96:	29 98       	cbi	0x05, 1	; 5
+  98:	2c 98       	cbi	0x05, 4	; 5
+  9a:	5a 98       	cbi	0x0b, 2	; 11
+  9c:	5b 98       	cbi	0x0b, 3	; 11
+  9e:	5c 98       	cbi	0x0b, 4	; 11
+  a0:	5d 98       	cbi	0x0b, 5	; 11
+  a2:	5e 98       	cbi	0x0b, 6	; 11
+  a4:	5f 98       	cbi	0x0b, 7	; 11
+  a6:	08 95       	ret
+
+000000a8 <SetupSPI>:
+
+//Implement a function to setup SPI communication.
+void SetupSPI( void )
+{
+	// Setup for SPI.
+	SPCR=0b01010010;
+  a8:	82 e5       	ldi	r24, 0x52	; 82
+  aa:	8c bd       	out	0x2c, r24	; 44
+	SPSR=0b00000000;
+  ac:	1d bc       	out	0x2d, r1	; 45
+  ae:	08 95       	ret
+
+000000b0 <SetupTimerInterrupts>:
+
+//Implement a function to setup timer interrupts.
+void SetupTimerInterrupts( void )
+{
+	//Setup timer interrupt properties.
+	TCCR1B |= (1 << WGM12);										// Configure timer 1 for CTC mode
+  b0:	e1 e8       	ldi	r30, 0x81	; 129
+  b2:	f0 e0       	ldi	r31, 0x00	; 0
+  b4:	80 81       	ld	r24, Z
+  b6:	88 60       	ori	r24, 0x08	; 8
+  b8:	80 83       	st	Z, r24
+	TIMSK1 |= (1 << OCIE1A);									// Enable CTC interrupt
+  ba:	af e6       	ldi	r26, 0x6F	; 111
+  bc:	b0 e0       	ldi	r27, 0x00	; 0
+  be:	8c 91       	ld	r24, X
+  c0:	82 60       	ori	r24, 0x02	; 2
+  c2:	8c 93       	st	X, r24
+	sei();													// Enable global interrupts
+  c4:	78 94       	sei
+	//cli();														// Disable global interrupts
+	OCR1A = 15999;												//Set target timer count for 1 kHz interrupt given 16MHz clock & prescaler of 1. Use 3999 for 4 kHz under same conditions. OCR1A = Target_Timer_Count = (Clock_Frequency / (Prescale * Target_Frequency)) – 1
+  c6:	8f e7       	ldi	r24, 0x7F	; 127
+  c8:	9e e3       	ldi	r25, 0x3E	; 62
+  ca:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__EEPROM_REGION_LENGTH__+0x7f0089>
+  ce:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__EEPROM_REGION_LENGTH__+0x7f0088>
+	TCCR1B |= ((1 << CS10) | (0 << CS11) | (0 << CS12));		//Sets the prescaler to 1.
+  d2:	80 81       	ld	r24, Z
+  d4:	81 60       	ori	r24, 0x01	; 1
+  d6:	80 83       	st	Z, r24
+  d8:	08 95       	ret
+
+000000da <SetupUSART>:
+
+//Implement a function to setup USART communication.
+void SetupUSART( void )
+{
+	//USART Setup
+	UBRR0H = MYUBRR >> 8;
+  da:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__EEPROM_REGION_LENGTH__+0x7f00c5>
+	UBRR0L = MYUBRR;
+  de:	80 e1       	ldi	r24, 0x10	; 16
+  e0:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__EEPROM_REGION_LENGTH__+0x7f00c4>
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  e4:	88 e1       	ldi	r24, 0x18	; 24
+  e6:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__EEPROM_REGION_LENGTH__+0x7f00c1>
+	stdout = &mystdout;
+  ea:	80 e0       	ldi	r24, 0x00	; 0
+  ec:	91 e0       	ldi	r25, 0x01	; 1
+  ee:	90 93 11 01 	sts	0x0111, r25	; 0x800111 <__data_end+0x3>
+  f2:	80 93 10 01 	sts	0x0110, r24	; 0x800110 <__data_end+0x2>
+  f6:	08 95       	ret
+
+000000f8 <SetupMicro>:
+//Implement a function to setup mircocontroller functionality.
+void SetupMicro( void )
+{
+	
+	//Setup the microcontroller pins.
+	SetupPins();
+  f8:	c8 df       	rcall	.-112    	; 0x8a <SetupPins>
+
+//Implement a function to setup ADC.
+void SetupADC( void )
+{
+	//Setup the ADC.
+	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
+  fa:	87 e8       	ldi	r24, 0x87	; 135
+  fc:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__EEPROM_REGION_LENGTH__+0x7f007a>
+	
+	//Setup for ADC.
+	SetupADC();
+	
+	//Setup SPI communication.
+	SetupSPI();
+ 100:	d3 df       	rcall	.-90     	; 0xa8 <SetupSPI>
+	
+	//Setup timer interrupts.
+	SetupTimerInterrupts();
+ 102:	d6 df       	rcall	.-84     	; 0xb0 <SetupTimerInterrupts>
+	
+	//Setup USART communication.
+	SetupUSART();	
+ 104:	ea df       	rcall	.-44     	; 0xda <SetupUSART>
+ 106:	08 95       	ret
+
+00000108 <main>:
+//Implement the main function.
+int main (void)
+{
+	
+	//Setup the microcontroller.
+	SetupMicro();
+ 108:	f7 df       	rcall	.-18     	; 0xf8 <SetupMicro>
+ 10a:	ff cf       	rjmp	.-2      	; 0x10a <main+0x2>
+
+0000010c <__vector_11>:
+
+}
+
+//Implement the first timer interrupt function.
+ISR(TIMER1_COMPA_vect)
+{
+ 10c:	1f 92       	push	r1
+ 10e:	0f 92       	push	r0
+ 110:	0f b6       	in	r0, 0x3f	; 63
+ 112:	0f 92       	push	r0
+ 114:	11 24       	eor	r1, r1
+ 116:	8f 93       	push	r24
+ 118:	9f 93       	push	r25
+
+	//unsigned char pin_to_toggle = 4;
+	
+	PORTD ^= (1 << 4);
+ 11a:	9b b1       	in	r25, 0x0b	; 11
+ 11c:	80 e1       	ldi	r24, 0x10	; 16
+ 11e:	89 27       	eor	r24, r25
+ 120:	8b b9       	out	0x0b, r24	; 11
+	//sbi(PORTD, 2);
+	
+}
+ 122:	9f 91       	pop	r25
+ 124:	8f 91       	pop	r24
+ 126:	0f 90       	pop	r0
+ 128:	0f be       	out	0x3f, r0	; 63
+ 12a:	0f 90       	pop	r0
+ 12c:	1f 90       	pop	r1
+ 12e:	18 95       	reti
+
+00000130 <_exit>:
+ 130:	f8 94       	cli
+
+00000132 <__stop_program>:
+ 132:	ff cf       	rjmp	.-2      	; 0x132 <__stop_program>
