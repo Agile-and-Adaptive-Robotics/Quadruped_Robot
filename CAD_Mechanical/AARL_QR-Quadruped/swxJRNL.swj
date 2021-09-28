@@ -1,5 +1,5 @@
 ' ******************************************************************************
-' swxJRNL.swj - journal recorded on 10/16/20 by USER
+' swxJRNL.swj - journal recorded on 05/27/21 by USER
 ' *****************************************************************************
 Dim swApp As Object
 
@@ -23,174 +23,284 @@ myModelView.FrameState = swWindowState_e.swWindowMaximized
 Set myModelView = Part.ActiveView
 myModelView.FrameState = swWindowState_e.swWindowMaximized
 
-' Named View
-Part.ShowNamedView2 "*Isometric", 7
-Part.ViewZoomtofit2
+' Redraw
+Part.GraphicsRedraw2
+Part.SetPickMode
 
-' Pan
-Dim swModelView As Object
-Set swModelView = Part.ActiveView
-swModelView.TranslateBy -0.06792359550561795356, -0.001698089887640452092
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_EL_EN2-amt102-0048-i6350-s.sldasm", False, longstatus
-Set Part = swApp.ActiveDoc
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_EL_PT_000-P160KN26L.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-
-'  MACRO PLAYBACK START
-
-Part.ClearSelection2 True
-
-'  MACRO PLAYBACK OVER
-
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 0
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
-boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped/AARL_QR_EL_PT_000-P160KN26L-1@AARL_QR_FR-Frame", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
-boolstatus = Part.Extension.SelectByID2("AARL_QR_FR-Frame-1@AARL_QR-Quadruped", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
-Part.OpenCompFile
+' Close Document
+swAssembly = Nothing
+Set Part = Nothing
+swApp.CloseDoc "AARL_QR-Quadruped.SLDASM"
 
 ' Open
-Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_FR-Frame\AARL_QR_FR-Frame.SLDASM", 2, 0, "", longstatus, longwarnings)
+Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\InProgress\Cody\AARL_QR-Quadruped.SLDASM", 2, 192, "", longstatus, longwarnings)
 Dim swAssembly As Object
 Set swAssembly = Part
+swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
 Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR-Frame.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-Part.ClearSelection2 True
-boolstatus = Part.Extension.SelectByRay(-0.2022337728931802303, -0.1244442287586480234, 0.0518330741663248773, -0.5773815451999809722, -0.5772877120855482991, -0.5773815451999789738, 0.004591065526315262282, 1, False, 0, 0)
-boolstatus = Part.Extension.SelectByID2("AARL_QR_FR_LE_PA_FL-Front_Left-1@AARL_QR_FR-Frame", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
-Part.OpenCompFile
-
-' Open
-Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_FR-Frame\AARL_QR_FR_LE-Legs\AARL_QR_FR_LE_PA-Pantograph\AARL_QR_FR_LE_PA_FL-Front_Left\AARL_QR_FR_LE_PA_FL-Front_Left.SLDASM", 2, 0, "", longstatus, longwarnings)
-Set swAssembly = Part
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR_LE_PA_FL-Front_Left.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-
-' Take Snapshot
-Dim swSnapShot As SnapShot
-Set swSnapShot = Part.ModelViewManager.AddSnapShot("Home")
-Part.ClearSelection2 True
 Set Part = swApp.ActiveDoc
 Set myModelView = Part.ActiveView
 myModelView.FrameLeft = 0
 myModelView.FrameTop = 0
 Set myModelView = Part.ActiveView
 myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-boolstatus = Part.Extension.SelectByRay(0.2622684159941615079, -0.02150160733519460715, 0.09819599999999996387, -0.5773815451999809722, -0.5772877120855482991, -0.5773815451999789738, 0.003280311551148257405, 3, False, 0, 0)
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
 Set myModelView = Part.ActiveView
 myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR-Frame.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-boolstatus = Part.Extension.SelectByRay(0.2637102718290407211, -0.02392679621499382847, 0.06633566138879132268, -0.5773815451999809722, -0.5772877120855482991, -0.5773815451999789738, 0.001808439370283199512, 2, False, 0, 0)
-boolstatus = Part.Extension.SelectByID2("AARL_QR_FR_LE_PL_BL-Back_Left-2@AARL_QR_FR-Frame", "COMPONENT", 0, 0, 0, False, 0, Nothing, 0)
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.04466952054322997218, 0.03079274012853479639
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.05841398840268535037, 0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.06528622233241303252, -0.03849092516066849462
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.006872233929727688227, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.006872233929727688227, -0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.03849092516066849462
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, -0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, -0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+
+' Roll View
+Dim swModelView As Object
+Set swModelView = Part.ActiveView
+swModelView.RollBy 0
+boolstatus = Part.Extension.SelectByRay(0.05493566746491751474, 0.006090671352382059922, 0.1123066658928451034, -0.6512753203953351999, -0.2909754716004553932, -0.7008378785217350693, 0.0005968944703641735489, 2, False, 0, 0)
 Part.OpenCompFile
 
 ' Open
-Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_FR-Frame\AARL_QR_FR_LE-Legs\AARL_QR_FR_LE_PL-Plain\AARL_QR_FR_LE_PL_BL-Back_Left\AARL_QR_FR_LE_PL_BL-Back_Left.SLDASM", 2, 0, "", longstatus, longwarnings)
-Set swAssembly = Part
+Set Part = swApp.OpenDoc6("C:\Users\USER\Documents\GitHub\Quadruped_Robot\CAD_Mechanical\AARL_QR-Quadruped\AARL_QR_PN-Pneumatics\AARL_QR_PN_EP-End_Pieces\Completed\AARL_QR_PN_EP_001.SLDPRT", 1, 0, "", longstatus, longwarnings)
 Set Part = swApp.ActiveDoc
 Set myModelView = Part.ActiveView
 myModelView.FrameLeft = 0
 myModelView.FrameTop = 22
 Set myModelView = Part.ActiveView
 myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR_LE_PL_BL-Back_Left.SLDASM", False, longstatus
+swApp.ActivateDoc2 "AARL_QR_PN_EP_001.SLDPRT", False, longstatus
 Set Part = swApp.ActiveDoc
-
-' Take Snapshot
-Set swSnapShot = Part.ModelViewManager.AddSnapShot("Home")
 Part.ClearSelection2 True
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 0
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR-Quadruped.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-
-' Save All
-Dim swErrors As Long
-Dim swWarnings As Long
-boolstatus = Part.Save3(5, swErrors, swWarnings)
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
+boolstatus = Part.Extension.SelectByID2("#10-32 Tapped Hole1", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
 Part.ClearSelection2 True
-Set Part = swApp.ActiveDoc
+boolstatus = Part.Extension.SelectByRay(0.004566908800143210101, -0.007095160341158646133, 0.001835221073690718185, -0.9546213116693530454, 0.1157454818196354679, 0.2744105222928314713, 0.0001948435007523613069, 2, True, 0, 0)
+Part.SetPickMode
+Part.ClearSelection2 True
 Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.02405281875404690836, -0.3849092516066849878
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.07698185032133698924
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.06928366528920329448
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.04618911019280220326
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, -0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.03849092516066849462
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.03079274012853479639
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.006872233929727688227, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.006872233929727688227, 0.03079274012853479639
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.006872233929727688227, 0.06158548025706959278
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.03079274012853479639
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.04618911019280220326
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.08468003535347069788
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter -0.003436116964863844114, 0.03079274012853479639
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.03849092516066849462
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.007698185032133699097
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0.03079274012853479639
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0.02309455509640110163
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0, 0.01539637006426739819
+Set myModelView = Part.ActiveView
+myModelView.RotateAboutCenter 0.003436116964863844114, 0
+
+' Roll View
+Set swModelView = Part.ActiveView
+swModelView.RollBy 0
 Set myModelView = Part.ActiveView
 myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR_LE_PL_BL-Back_Left.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR_LE_PA_FL-Front_Left.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_FR_LE_PL_BL-Back_Left.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_EL_PT_000-P160KN26L.SLDASM", False, longstatus
-Set Part = swApp.ActiveDoc
-Set Part = swApp.ActiveDoc
-Set myModelView = Part.ActiveView
-myModelView.FrameLeft = 0
-myModelView.FrameTop = 22
-Set myModelView = Part.ActiveView
-myModelView.FrameState = swWindowState_e.swWindowMaximized
-swApp.ActivateDoc2 "AARL_QR_EL_EN2-amt102-0048-i6350-s.sldasm", False, longstatus
-Set Part = swApp.ActiveDoc
 swApp.ExitApp
 End Sub
