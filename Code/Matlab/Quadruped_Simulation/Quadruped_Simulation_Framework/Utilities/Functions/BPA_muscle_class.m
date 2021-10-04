@@ -62,6 +62,17 @@ classdef BPA_muscle_class
         force_field
         pressure_field
         
+        strain_interpolant_S0
+        strain_interpolant_S1
+
+        force_interpolant_S0
+        force_interpolant_S1
+        
+        pressure_interpolant_S0
+        pressure_interpolant_S1
+        
+        negative_strain_policy
+        
         physics_manager
         conversion_manager
         
@@ -74,7 +85,7 @@ classdef BPA_muscle_class
     methods
         
         % Implement the class constructor.
-        function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_muscle_length, tendon_length, max_muscle_strain, velocity, yank, ps, Rs, Js, c0, c1, c2, c3, c4, c5, c6, muscle_type, num_convergence_attempts, convergence_threshold, noise_percentage, num_reference_strains, num_reference_forces )
+        function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_muscle_length, tendon_length, max_muscle_strain, velocity, yank, ps, Rs, Js, c0, c1, c2, c3, c4, c5, c6, muscle_type, num_convergence_attempts, convergence_threshold, noise_percentage, num_reference_strains, num_reference_forces, negative_strain_policy )
             
             % Create an instance of the physics manager class.
             self.physics_manager = physics_manager_class(  );
@@ -83,6 +94,7 @@ classdef BPA_muscle_class
             self.conversion_manager = conversion_manager_class(  );
             
             % Set the default class properties.
+            if nargin < 30, self.negative_strain_policy = 'Nan'; else, self.negative_strain_policy = negative_strain_policy; end
             if nargin < 29, self.num_reference_forces = 100; else, self.num_reference_forces = num_reference_forces; end
             if nargin < 28, self.num_reference_strains = 100; else, self.num_reference_strains = num_reference_strains; end
             if nargin < 27, self.noise_percentage = 0.03; else, self.noise_percentage = noise_percentage; end
@@ -116,7 +128,6 @@ classdef BPA_muscle_class
             % Set the minimum BPA muscle pressure and minimum BPA muscle tension to zero.
             self.min_pressure = 0;
             self.min_tension = 0;
-            self.min_muscle_strain = 0;
             
             % Compute the maximum BPA muscle force.
             self = self.get_BPA_muscle_maximum_force(  );
@@ -124,6 +135,9 @@ classdef BPA_muscle_class
             % Compute the strain, force, and pressure fields.
             self = self.get_reference_strain_force_pressure_fields(  );
             
+            % Set the minimum BPA muscle strain 
+            self.min_muscle_strain = min(self.strain_field, [], 'all');
+
             % Compute the muscle strain associated with the current muscle length.
             self = self.muscle_length2muscle_strain(  );
 
@@ -241,7 +255,7 @@ classdef BPA_muscle_class
         
         % Implement a function to generate the strain field associated with a pressure and force field.
         function Epsilons = compute_strain_field( self, Ps, Fs )
-        
+            
             % Set the hystersis factors.
             Ss = [ 0, 1 ];
             
@@ -263,7 +277,8 @@ classdef BPA_muscle_class
                     % Initialize a counter variable for the upcoming loop.
                     k1 = 1;
                     
-                    while ~bInvalidForce && ( k1 <= num_forces )
+                    % Determine whether to compute strains at these force values.
+                    while ~bInvalidForce && ( k1 <= num_forces )                    % If we have a valid force and we haven't exhausted this set of forces...
                                                 
                         % Compute the strain associated with this pressure and force.
                         epsilon = self.strain_BPA_model( Ps( k1, k2, k3 ), Fs( k1, k2, k3 ), self.max_muscle_strain, Ss( k3 ), self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
@@ -271,12 +286,37 @@ classdef BPA_muscle_class
                         % Determine how to set the strain.
                         if epsilon < 0                      % If the estimated strain is negative...
                             
-                            % Set the rest of the strains in this column to zero.
-%                             Epsilons( k1:end, k2, k3 ) = zeros( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
-                            Epsilons( k1:end, k2, k3 ) = nan( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
+                            % Determine how to handle this negative strain value based on the negative strain policy.
+                            if strcmp( self.negative_strain_policy, 'Keep' ) || strcmp( self.negative_strain_policy, 'keep' )               % If we want to keep the negative strain values...
+                                
+                                % Store this strain value.
+                                Epsilons( k1, k2, k3 ) = epsilon;
 
-                            % Set the invalid force flag to true.
-                            bInvalidForce = true;
+                                % Advance the counter.
+                                k1 = k1 + 1;
+                                
+                            elseif strcmp( self.negative_strain_policy, 'Zero' ) || strcmp( self.negative_strain_policy, 'zero' )           % If we want to zero out the negative strain values...
+                                
+                                % Set the rest of the strains in this column to zero.
+                                Epsilons( k1:end, k2, k3 ) = zeros( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
+
+                                % Set the invalid force flag to true.
+                                bInvalidForce = true;
+                                
+                            elseif strcmp( self.negative_strain_policy, 'Nan' ) || strcmp( self.negative_strain_policy, 'nan' )             % If we want to set the negative strain values to nan.
+                               
+                                % Set the rest of the strains in this column to nan.
+                                Epsilons( k1:end, k2, k3 ) = nan( [ length( k1:size( Epsilons, 1 ) ), 1, 1 ] );
+
+                                % Set the invalid force flag to true.
+                                bInvalidForce = true;
+                                
+                            else                                                                                                                % Otherwise...
+                                
+                                % Throw an error.
+                                error( 'Unrecognized negative_strain_policy %s.  negative_strain_policy must be either: ''Keep'', ''Zero'', or ''Nan''', self.negative_strain_policy )
+                                
+                            end
                             
                         else                                % Otherwise...
                             
@@ -313,6 +353,29 @@ classdef BPA_muscle_class
             
             % Compute the strain field.
             self.strain_field = self.compute_strain_field( self.pressure_field, self.force_field );
+            
+            
+            strain_field_S0 = self.strain_field( :, :, 1 );
+            strain_field_S1 = self.strain_field( :, :, 2 );
+
+%             pressure_field_2d( ~isnan( strain_field_2d ) )
+
+
+%             force = griddata( pressure_field_2d( ~isnan( strain_field_2d ) ), strain_field_2d( ~isnan( strain_field_2d ) ), force_field_2d( ~isnan( strain_field_2d ) ), pressure, strain );
+
+            % Create the strain interpolant.
+            self.strain_interpolant_S0 = scatteredInterpolant( Pressures( ~isnan( strain_field_S0 ) ), Forces( ~isnan( strain_field_S0 ) ), strain_field_S0( ~isnan( strain_field_S0 ) ), 'linear' );     
+            self.strain_interpolant_S1 = scatteredInterpolant( Pressures( ~isnan( strain_field_S1 ) ), Forces( ~isnan( strain_field_S1 ) ), strain_field_S1( ~isnan( strain_field_S1 ) ), 'linear' );     
+
+            % Create the force interpolant.
+            self.force_interpolant_S0 = scatteredInterpolant( Pressures( ~isnan( strain_field_S0 ) ), strain_field_S0( ~isnan( strain_field_S0 ) ), Forces( ~isnan( strain_field_S0 ) ), 'linear' );     
+            self.force_interpolant_S1 = scatteredInterpolant( Pressures( ~isnan( strain_field_S1 ) ), strain_field_S1( ~isnan( strain_field_S1 ) ), Forces( ~isnan( strain_field_S1 ) ), 'linear' );     
+
+            % Create the force interpolant.
+            self.pressure_interpolant_S0 = scatteredInterpolant( strain_field_S0( ~isnan( strain_field_S0 ) ), Forces( ~isnan( strain_field_S0 ) ), Pressures( ~isnan( strain_field_S0 ) ), 'linear' );     
+            self.pressure_interpolant_S1 = scatteredInterpolant( strain_field_S1( ~isnan( strain_field_S1 ) ), Forces( ~isnan( strain_field_S1 ) ), Pressures( ~isnan( strain_field_S1 ) ), 'linear' );     
+
+            
             
         end
         
@@ -593,6 +656,19 @@ classdef BPA_muscle_class
         end
         
         
+        % Implement a function to validate the zaxis_type selection.
+        function bValidateZaxisType( ~, zaxis_type )
+           
+            % Ensure that the zaxis type is valid.
+            if ~( strcmp( zaxis_type, 'Strain') || strcmp( zaxis_type, 'strain') || strcmp( zaxis_type, 'Force') || strcmp( zaxis_type, 'force') || strcmp( zaxis_type, 'Pressure') || strcmp( zaxis_type, 'pressure') || strcmp( zaxis_type, 'All') || strcmp( zaxis_type, 'all') )
+            
+                % Throw an error.
+                error( 'zaxis_type %s unrecognized.  zaxis_type must be either: ''Strain'', ''strain'', ''Force'', ''force'', ''Pressure'', ''pressure'', ''All'', or ''all''', zaxis_type )
+                
+            end
+            
+        end
+        
         %% BPA Muscle Length & Strain Functions
         
         % Implement a function to compute the BPA muscle equilibrium strain (Type I) associated with the current BPA muscle pressure.
@@ -793,7 +869,8 @@ classdef BPA_muscle_class
                 
                 % Interpolate a force value from the reference strain, force, and pressure fields.
 %                 force = griddata( self.pressure_field( :, :, S + 1 ), self.strain_field( :, :, S + 1 ), self.force_field( :, :, S + 1 ), pressure, strain );
-                force = griddata( pressure_field_2d( ~isnan( self.strain_field ) ), strain_field_2d( ~isnan( self.strain_field ) ), force_field_2d( ~isnan( self.strain_field ) ), pressure, strain );
+%                 force = griddata( pressure_field_2d( ~isnan( self.strain_field ) ), strain_field_2d( ~isnan( self.strain_field ) ), force_field_2d( ~isnan( self.strain_field ) ), pressure, strain );
+                force = griddata( pressure_field_2d( ~isnan( strain_field_2d ) ), strain_field_2d( ~isnan( strain_field_2d ) ), force_field_2d( ~isnan( strain_field_2d ) ), pressure, strain );
 
                 % Turn on the duplicate data warning.
                 warning( 'on', 'MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId' )
@@ -802,6 +879,10 @@ classdef BPA_muscle_class
             
         end
         
+%         self.conversion_manager.psi2pa(45)
+%         
+%         self.conversion_manager.psi2pa(45)
+
         
         %% BPA Force-Pressure Functions
         
@@ -1066,34 +1147,139 @@ classdef BPA_muscle_class
         
 
         % Implement a function to plot the BPA muscle strain, force, and pressure fields.
-        function fig = plot_BPA_muscle_strain_force_pressure_field( self, fig, plotting_options )
+        function figs = plot_BPA_muscle_strain_force_pressure_field( self, figs, plotting_options, zaxis_type )
             
+            % Determine whether to specify the zaxis type.
+            if ( ( nargin < 4 ) || ( isempty(zaxis_type) ) ), zaxis_type = 'all'; end
+            
+            % Ensure that the zaxis type is valid.
+            self.bValidateZaxisType( zaxis_type );
+                
             % Determine whether to specify default plotting options.
             if ( ( nargin < 3 ) || ( isempty( plotting_options ) ) ), plotting_options = { 'Edgecolor', 'None' }; end
             
             % Determine whether we want to add these attachment points to an existing plot or create a new plot.
-            if ( nargin < 2 ) || ( isempty(fig) )
+            if ( nargin < 2 ) || ( isempty(figs) )
                 
-                % Create a figure to store the BPA attachment points.
-                fig = figure( 'Color', 'w', 'Name', 'BPA Muscle: Strain vs Pressure & Force (Reference Fields)' );
+                % Preallocate an array to store the figures.
+                if strcmp( zaxis_type, 'all' )
+                    figs = gobjects( 3 );
+                else
+                    figs = gobjects( 1 );
+                end
+                    
+                % Create a counter to keep track of the number of figures.
+                fig_counter = 0;
                 
-                % Create the first subplot.
-                subplot( 1, 2, 1 ), hold on, grid on,  rotate3d on
-                xlabel('Pressure [psi]'), ylabel('Force [lb]'), zlabel('Strain (Type I) [-]'), title('BPA Muscle: Strain vs Pressure & Force (Ref. Fields) (S = 0)')
-                xlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) ), ylim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), zlim( [ self.min_muscle_strain, self.max_muscle_strain ] )
+                % Determine whether to setup a figure for the strain reference field.
+                if strcmp( zaxis_type, 'strain' ) || strcmp( zaxis_type, 'all' )                    % If we want to setup a figure for the strain reference field...
                 
-                subplot( 1, 2, 2 ), hold on, grid on,  rotate3d on
-                xlabel('Pressure [psi]'), ylabel('Force [lb]'), zlabel('Strain (Type I) [-]'), title('BPA Muscle: Strain vs Pressure & Force (Ref. Fields) (S = 1)')
-                xlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) ), ylim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), zlim( [ self.min_muscle_strain, self.max_muscle_strain ] )
+                    % Advance the figure counter.
+                    fig_counter = fig_counter + 1;
+                    
+                    % Create a figure to store the BPA reference fields.
+                    figs(fig_counter) = figure( 'Color', 'w', 'Name', 'BPA Muscle: Strain vs Pressure & Force (Reference Fields)' );
+
+                    % Create the first subplot.
+                    subplot( 1, 2, 1 ), hold on, grid on,  rotate3d on
+                    xlabel('Pressure [psi]'), ylabel('Force [lb]'), zlabel('Strain (Type I) [-]'), title('BPA Muscle: Strain vs Pressure & Force (Ref. Fields) (S = 0)')
+                    xlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) ), ylim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), zlim( [ self.min_muscle_strain, self.max_muscle_strain ] )
+
+                    subplot( 1, 2, 2 ), hold on, grid on,  rotate3d on
+                    xlabel('Pressure [psi]'), ylabel('Force [lb]'), zlabel('Strain (Type I) [-]'), title('BPA Muscle: Strain vs Pressure & Force (Ref. Fields) (S = 1)')
+                    xlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) ), ylim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), zlim( [ self.min_muscle_strain, self.max_muscle_strain ] )
+               
+                end
+                  
+                % Determine whether we want ot setup a figure for the force reference field.
+                if strcmp( zaxis_type, 'force' ) || strcmp( zaxis_type, 'all' )                             % If we want to setup a figure for the force reference field...
+
+                    % Advance the figure counter.
+                    fig_counter = fig_counter + 1;
+                    
+                    % Create a figure to store the BPA reference fields.
+                    figs(fig_counter) = figure( 'Color', 'w', 'Name', 'BPA Muscle: Force vs Pressure & Strain (Reference Fields)' );
+
+                    % Create the first subplot.
+                    subplot( 1, 2, 1 ), hold on, grid on,  rotate3d on
+                    xlabel('Pressure [psi]'), ylabel('Strain (Type I) [-]'), zlabel('Force [lb]'), title('BPA Muscle: Force vs Pressure & Strain (Ref. Fields) (S = 0)')
+                    xlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) ), ylim( [ self.min_muscle_strain, self.max_muscle_strain ] ), zlim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) )
+
+                    subplot( 1, 2, 2 ), hold on, grid on,  rotate3d on
+                    xlabel('Pressure [psi]'), ylabel('Strain (Type I) [-]'), zlabel('Force [lb]'), title('BPA Muscle: Force vs Pressure & Strain (Ref. Fields) (S = 1)')
+                    xlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) ), ylim( [ self.min_muscle_strain, self.max_muscle_strain ] ), zlim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) )
+                    
+                end
                 
+                % Determine whether we want to create a figure for the pressure reference field.
+                if strcmp( zaxis_type, 'pressure' ) || strcmp( zaxis_type, 'all' )                      % If we want to create a figure for the pressure reference field...
+                    
+                    % Advance the figure counter.
+                    fig_counter = fig_counter + 1;
+                    
+                    % Create a figure to store the BPA reference fields.
+                    figs(fig_counter) = figure( 'Color', 'w', 'Name', 'BPA Muscle: Pressure vs Force & Strain (Reference Fields)' );
+
+                    % Create the first subplot.
+                    subplot( 1, 2, 1 ), hold on, grid on,  rotate3d on
+                    xlabel('Force [lb]'), ylabel('Strain (Type I) [-]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Force & Strain (Ref. Fields) (S = 0)')
+                    xlim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), ylim( [ self.min_muscle_strain, self.max_muscle_strain ] ), zlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) )
+
+                    subplot( 1, 2, 2 ), hold on, grid on,  rotate3d on
+                    xlabel('Force [lb]'), ylabel('Strain (Type I) [-]'), zlabel('Pressure [psi]'), title('BPA Muscle: Pressure vs Force & Strain (Ref. Fields) (S = 1)')
+                    xlim( self.conversion_manager.n2lb( [ self.min_tension, self.max_tension ] ) ), ylim( [ self.min_muscle_strain, self.max_muscle_strain ] ), zlim( self.conversion_manager.pa2psi( [ self.min_pressure, self.max_pressure ] ) )
+                    
+                end
+                    
             end
             
-            % Plot the strain, force, and pressure fields.
-            subplot( 1, 2, 1 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), plotting_options{:} )
-            subplot( 1, 2, 2 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), plotting_options{:} )
-
+            % Determine which reference fields to plot.
+            if strcmp( zaxis_type, 'strain' )                               % If we want to plot the strain reference field...
+            
+                % Plot the strain vs pressure & force field.
+                figure( figs(1) )
+                subplot( 1, 2, 1 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), plotting_options{:} )
+                subplot( 1, 2, 2 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), plotting_options{:} )
+            
+            elseif strcmp( zaxis_type, 'force' )                            % If we want to plot the force reference field...
+                
+                % Plot the force vs pressure & strain field.
+                figure( figs(1) )
+                subplot( 1, 2, 1 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), plotting_options{:} )
+                subplot( 1, 2, 2 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), plotting_options{:} )
+                
+            elseif strcmp( zaxis_type, 'pressure' )                         % If we want to plot the pressure reference field...
+                   
+                % Plot the pressure vs force & strain field.
+                figure( figs(1) )
+                subplot( 1, 2, 1 ), surf( self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), plotting_options{:} )
+                subplot( 1, 2, 2 ), surf( self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), plotting_options{:} )
+                
+            elseif strcmp( zaxis_type, 'all' )                      % If we want to plot all of the reference fields...
+                
+                % Plot the strain vs pressure & force field.
+                figure( figs(1) )
+                subplot( 1, 2, 1 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), plotting_options{:} )
+                subplot( 1, 2, 2 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), plotting_options{:} )
+            
+                % Plot the force vs pressure & strain field.
+                figure( figs(2) )
+                subplot( 1, 2, 1 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), plotting_options{:} )
+                subplot( 1, 2, 2 ), surf( self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), plotting_options{:} )
+                
+                % Plot the pressure vs force & strain field.
+                figure( figs(3) )
+                subplot( 1, 2, 1 ), surf( self.conversion_manager.n2lb( self.force_field( :, :, 1 ) ), self.strain_field( :, :, 1 ), self.conversion_manager.pa2psi( self.pressure_field( :, :, 1 ) ), plotting_options{:} )
+                subplot( 1, 2, 2 ), surf( self.conversion_manager.n2lb( self.force_field( :, :, 2 ) ), self.strain_field( :, :, 2 ), self.conversion_manager.pa2psi( self.pressure_field( :, :, 2 ) ), plotting_options{:} )
+                
+            else                                                % Otherwise...
+                
+                % Ensure that the zaxis_type is valid.
+                self.bValidateZaxisType( zaxis_type );
+                
+            end
+                
         end
-
 
         
     end

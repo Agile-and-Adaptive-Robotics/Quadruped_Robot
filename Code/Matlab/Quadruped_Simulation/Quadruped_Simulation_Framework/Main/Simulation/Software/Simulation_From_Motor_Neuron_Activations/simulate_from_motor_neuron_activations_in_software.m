@@ -1,4 +1,4 @@
-%% Simulation From Motor Neuron Activations in Software
+%% Simulation From Motor Neuron Activations in Software.
 
 % This script performs a neuromechanical simulation in software from motor neuron activations.
 
@@ -16,7 +16,7 @@ tic
 
 % Define the path to the directory that contains the robot data.
 % robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -370,7 +370,8 @@ bInitializePorts = true;
 baud_rate_virtual_ports = 115200; baud_rate_physical_ports = 57600;             % The Master Port is the only physical port.  All other ports are virtual.
 
 % Define the COM port names.
-COM_port_names = { 'COM11', 'COM1', 'COM2', 'COM7', 'COM8', 'COM9', 'COM10' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
+% COM_port_names = { 'COM11', 'COM1', 'COM2', 'COM7', 'COM8', 'COM9', 'COM10' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
+COM_port_names = { 'COM1', 'COM11', 'COM12', 'COM13', 'COM14', 'COM15', 'COM16' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
 
 % Define the master microcontroller port type we would like to use.
 master_port_type = 'virtual';                           % [-] Master Port Type.  Either 'virtual' or 'physical'.
@@ -531,50 +532,50 @@ fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait... Done. %0.3f [s] \n\n',
 %% Debugging: Plotting Mechanical Points & BPA Muscle Pressure-Force-Strain Fields
 
 % Plot the mechanical points of the defined robot.
-fig = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
+fig_mechanical_points0 = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
 
 % Plot the BPA muscle pressure-force-strain field.
-fig = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
+fig_BPA_strain_force_pressure_fields = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
 
 
 %% DEBUGGING: TESTING HILL MUSCLE MODEL
 
-% num_timesteps = 100;
-% ts = linspace( 0, 1, num_timesteps );
-% active_tensions = 450*ones( 1, num_timesteps );
-% total_tensions = zeros( 1, num_timesteps );
-% passive_tensions = zeros( 1, num_timesteps );
-% 
-% total_tension0 = 0;
-% % total_tension0s = active_tensions;
-% delta_L0 = 0;
-% velocity = 0;
-% kse = 10;
-% kpe = 1;
-% % b = simulation_manager.dt*(kse + kpe)/2.2;
-% b = 1;
-% dt = simulation_manager.dt;
-% num_steps = 10;
-% 
-% 
-% total_tensions(1) = total_tension0;
-% passive_tensions(1) = total_tensions(1) - active_tensions(1);
-% 
-% for k = 1:num_timesteps - 1
-%     
-%     [ total_tensions(k + 1), passive_tensions(k + 1) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tensions(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
-%     %     [ total_tensions(k), passive_tensions(k) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tension0s(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
-%     
-% end
-% 
-% figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Active Tension [N]'), title('Active Tension vs Time')
-% plot( ts, active_tensions, '-', 'Linewidth', 3 )
-% 
-% figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Total Tension [N]'), title('Total Tension vs Time')
-% plot( ts, total_tensions, '-', 'Linewidth', 3 )
-% 
-% figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Tension [N]'), title('Passive Tension vs Time')
-% plot( ts, passive_tensions, '-', 'Linewidth', 3 )
+num_timesteps = 100;
+ts = linspace( 0, 1, num_timesteps );
+active_tensions = 450*ones( 1, num_timesteps );
+total_tensions = zeros( 1, num_timesteps );
+passive_tensions = zeros( 1, num_timesteps );
+
+total_tension0 = 0;
+% total_tension0s = active_tensions;
+delta_L0 = 0;
+velocity = 0;
+kse = 10;
+kpe = 1;
+% b = simulation_manager.dt*(kse + kpe)/2.2;
+b = 1;
+dt = simulation_manager.dt;
+num_steps = 10;
+
+
+total_tensions(1) = total_tension0;
+passive_tensions(1) = total_tensions(1) - active_tensions(1);
+
+for k = 1:num_timesteps - 1
+    
+    [ total_tensions(k + 1), passive_tensions(k + 1) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tensions(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
+    %     [ total_tensions(k), passive_tensions(k) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tension0s(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
+    
+end
+
+figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Active Tension [N]'), title('Active Tension vs Time')
+plot( ts, active_tensions, '-', 'Linewidth', 3 )
+
+figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Total Tension [N]'), title('Total Tension vs Time')
+plot( ts, total_tensions, '-', 'Linewidth', 3 )
+
+figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Tension [N]'), title('Passive Tension vs Time')
+plot( ts, passive_tensions, '-', 'Linewidth', 3 )
 
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
