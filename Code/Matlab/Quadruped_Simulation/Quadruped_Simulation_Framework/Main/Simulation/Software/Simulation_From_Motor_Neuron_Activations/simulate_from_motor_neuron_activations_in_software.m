@@ -537,6 +537,9 @@ fig_mechanical_points0 = simulation_manager.robot_states(end).mechanical_subsyst
 % Plot the BPA muscle pressure-force-strain field.
 fig_BPA_strain_force_pressure_fields = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
 
+% Plot the BPA muscle pressure-force-strain interpolants.
+fig_BPA_strain_force_pressure_interpolants = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_interpolant(  );
+
 
 %% DEBUGGING: TESTING HILL MUSCLE MODEL
 
