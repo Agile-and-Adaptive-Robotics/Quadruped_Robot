@@ -13,6 +13,8 @@ classdef conversion_manager_class
         PA_PER_PSI = 6894.76;
         IN_PER_M = 39.3701;
         M_PER_IN = 0.0254;
+        RAD_PER_DEG = pi/180;
+        DEG_PER_RAD = 180/pi;
     end
     
     %% CONVERSION MANAGER SETUP FUNCTIONS
@@ -21,7 +23,7 @@ classdef conversion_manager_class
     methods
         
         % Implement the class constructor.
-        function self = conversion_manager_class()
+        function self = conversion_manager_class(  )
 
             
         end
@@ -101,6 +103,25 @@ classdef conversion_manager_class
            
             % Convert the given length from in to m.
             length_m = self.M_PER_IN*length_in;
+            
+        end
+        
+        %% ANGLE CONVERSION FUNCTIONS
+        
+        % Implement a function to convert an angle in radians to an angle in degrees.
+        function angle_deg = rad2deg( self, angle_rad )
+        
+            % Convert the given angle from rad to deg.
+            angle_deg = self.DEG_PER_RAD*angle_rad;
+            
+        end
+        
+        
+        % Implement a function to convert an angle in radians to an angle in degrees.
+        function angle_rad = deg2rad( self, angle_deg )
+        
+            % Convert the given angle from deg to rad.
+            angle_rad = self.RAD_PER_DEG*angle_deg;
             
         end
         

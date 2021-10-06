@@ -1679,6 +1679,12 @@ classdef limb_manager_class
             % Compute the BPA muscle measured tension associated with the BPA muscle measured pressure. ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension )
             self = self.call_BPA_muscle_method( 'all', 'measured_pressure2measured_tension' );
 
+            % Compute the BPA muscle strain equilibrium associated with the BPA muscle measured pressured. ( BPA Muscle Measured Pressure -> BPA Muscle Strain Equilibrium )
+            self = self.call_BPA_muscle_method( 'all', 'measured_pressure2equilibrium_strain' );
+            
+            % Compute the BPA muscle equilibrium length associated with the BPA muscle measured pressure. ( BPA Muscle Strain Equilibrium -> BPA Muscle Equilibrium Length )
+            self = self.call_BPA_muscle_method( 'all', 'equilibrium_strain2equilibrium_length' );
+
             % Compute the BPA muscle length associated with the joint angles. ( BPA Muscle Attachment Positions -> BPA Muscle Length )
             self = self.call_BPA_muscle_method( 'all', 'ps2muscle_length' );
 

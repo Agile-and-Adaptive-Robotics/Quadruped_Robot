@@ -16,6 +16,8 @@ classdef simulation_manager_class
         bSimulateDynamics
         
         plotting_utilities
+        
+        conversion_manager
     
     end
     
@@ -30,6 +32,9 @@ classdef simulation_manager_class
             
             % Create an instance of the plotting utilities class.
             self.plotting_utilities = plotting_utilities_class(  );
+            
+            % Create an instance of the conversion manager class.
+            self.conversion_manager = conversion_manager_class(  );
             
             % Set the default simulation manager properties.
             if nargin < 5, self.bVerbose = false; else, self.bVerbose = bVerbose; end
@@ -339,6 +344,8 @@ classdef simulation_manager_class
         
         %% Specific Get History Functions
                 
+        % --------------- GET SIMULATION PROPERTY HISTORIES ---------------
+        
         % Implement a function to retrieve the history of the angles of specified joints.
         function joint_angle_history = get_joint_angle_history( self, joint_IDs )
 
@@ -539,10 +546,8 @@ classdef simulation_manager_class
         end
         
        
-        
-        
-        
-        
+        % --------------- HILL MUSCLE GET DESIRED TENSION FUNCTIONS ---------------
+
         % Implement a function to get the hill muscle desired total tension.
         function hill_muscle_desired_total_tension = get_hill_muscle_desired_total_tension_history( self, hill_muscle_IDs )
            
@@ -603,8 +608,7 @@ classdef simulation_manager_class
         end
         
         
-        
-        
+        % --------------- HILL MUSCLE GET MEASURED TENSION FUNCTIONS ---------------
                 
         % Implement a function to get the hill muscle measured total tension.
         function hill_muscle_measured_total_tension = get_hill_muscle_measured_total_tension_history( self, hill_muscle_IDs )
@@ -664,10 +668,7 @@ classdef simulation_manager_class
             end
             
         end
-        
-        
-        
-        
+                
         
         %% BPA History Functions
         
@@ -767,6 +768,8 @@ classdef simulation_manager_class
     
     
         %% Plotting Functions
+        
+        % --------------- SIMULATION PROPERTY HISTORY PLOTTING FUNCTIONS ---------------
         
         % Implement a function to plot the joint angle history.
         function fig = plot_joint_angle_history( self, joint_IDs, fig, plotting_options )
@@ -1350,10 +1353,7 @@ classdef simulation_manager_class
         end
 
         
-        
-        
-        
-        
+        % --------------- HILL MUSCLE DESIRED TENSION PLOTTING FUNCTIONS ---------------
         
         % Implement a function to plot the hill muscle desired total tension history.
         function fig = plot_hill_muscle_desired_total_tension_history( self, hill_muscle_IDs, fig, plotting_options )
@@ -1478,12 +1478,7 @@ classdef simulation_manager_class
         end
         
         
-        
-        
-        
-        
-        
-        
+        % --------------- HILL MUSCLE MEASURED TENSION PLOTTING FUNCTIONS ---------------
         
         % Implement a function to plot the hill muscle measured total tension history.
         function fig = plot_hill_muscle_measured_total_tension_history( self, hill_muscle_IDs, fig, plotting_options )
@@ -1608,13 +1603,54 @@ classdef simulation_manager_class
         end
         
         
+        %% Printing Function
         
-        
-        
-        
-        
-        
-        
+        % Implement a function to print debugging information.
+        function print_debugging_information( self )
+            
+            % Retrieve the hill muscel desired tensions.
+            hill_muscle_desired_passive_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_passive_tension( 'all' );
+            hill_muscle_desired_active_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_active_tension( 'all' );
+            hill_muscle_desired_total_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
+
+            % Retrieve the hill muscle measured tensions.
+            hill_muscle_measured_passive_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_passive_tension( 'all' );
+            hill_muscle_measured_active_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_active_tension( 'all' );
+            hill_muscle_measured_total_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
+
+            % Retrieve the BPA muscle desired & measured pressures.
+            BPA_muscle_desired_pressures = self.robot_states(end).mechanical_subsystem.limb_manager.get_desired_pressure_from_all_BPA_muscles(  );
+            BPA_muscle_measured_pressures = self.robot_states(end).mechanical_subsystem.limb_manager.get_measured_pressure_from_all_BPA_muscles(  );
+
+            % Retrieve the BPA muscle desired & measured tensions.
+            BPA_muscle_desired_tensions = self.robot_states(end).mechanical_subsystem.limb_manager.get_desired_tension_from_all_BPA_muscles(  );
+            BPA_muscle_measured_tensions = self.robot_states(end).mechanical_subsystem.limb_manager.get_measured_tension_from_all_BPA_muscles(  );
+
+            % Retrieve the joint angles.
+            thetas = self.robot_states(end).mechanical_subsystem.limb_manager.get_angles_from_all_joints(  );
+
+            % Print out the hill muscle desired tensions.
+            fprintf( 'Hill Muscle Desired Passive Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_desired_passive_tensions ) )
+            fprintf( 'Hill Muscle Desired Active Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_desired_active_tensions ) )
+            fprintf( 'Hill Muscle Desired Total Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_desired_total_tensions ) )
+
+            % Print out the hill muscle measure tensions.
+            fprintf( 'Hill Muscle Measured Passive Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_measured_passive_tensions ) )
+            fprintf( 'Hill Muscle Measured Active Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_measured_active_tensions ) )
+            fprintf( 'Hill Muscle Measured Total Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_measured_total_tensions ) )
+
+            % Print out the BPA muscle desired & measured pressures.
+            fprintf( 'BPA Muscle Desired Pressure:' ), disp( self.conversion_manager.pa2psi( BPA_muscle_desired_pressures ) )
+            fprintf( 'BPA Muscle Measured Pressure:' ), disp( self.conversion_manager.pa2psi( BPA_muscle_measured_pressures ) )
+
+            % Print out the BPA muscle desired & measured tensions.
+            fprintf( 'BPA Muscle Desired Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_desired_tensions ) )
+            fprintf( 'BPA Muscle Measured Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_measured_tensions ) )    
+
+            % Print out the joint angles.
+            fprintf( 'Joint Angles:' ), disp( self.conversion_manager.rad2deg( thetas ) )
+            
+        end
         
         
     end

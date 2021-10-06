@@ -501,7 +501,7 @@ tic
 bSimulateDynamics = true;
 
 % Set whether to print debugging information.
-bVerbose = false;
+bVerbose = true;
 
 % Set the maximum number of robot states to record.
 % max_states = 1000;
@@ -511,7 +511,7 @@ max_states = max_num_data_points;
 g = [ 0; -9.81; 0 ];                  % [m/s^2] Gravity Vector
 
 % Set the initial hill muscle activations to match the precomputed network simulation. ( Precomputed Simulation -> Hill Muscle Activation )
-robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsystem.hill_muscle_manager.set_muscle_property( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(k, :), 'activation', true );
+robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsystem.hill_muscle_manager.set_muscle_property( precomputed_simulation_manager.muscle_IDs, precomputed_simulation_manager.activations(1, :), 'activation', true );
 
 % Compute the initial hill muscle desired active tension to match the precomputed hill muscle activations. ( Hill Muscle Activation -> Hill Muscle Desired Active Tension )
 robot_state0.neural_subsystem.hill_muscle_manager = robot_state0.neural_subsystem.hill_muscle_manager.call_muscle_method( 'all', 'activation2desired_active_tension' );
@@ -535,7 +535,7 @@ fprintf( 'INITIALIZING SIMULATION MANAGER. Please Wait... Done. %0.3f [s] \n\n',
 fig_mechanical_points0 = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(   );
 
 % Plot the BPA muscle pressure-force-strain field.
-fig_BPA_strain_force_pressure_fields = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_strain_force_pressure_field(  );
+fig_BPA_strain_force_pressure_fields = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_reference_field(  );
 
 % Plot the BPA muscle pressure-force-strain interpolants.
 fig_BPA_strain_force_pressure_interpolants = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.limbs(1).BPA_muscle_manager.BPA_muscles(1).plot_BPA_muscle_interpolant(  );
@@ -543,42 +543,47 @@ fig_BPA_strain_force_pressure_interpolants = simulation_manager.robot_states(end
 
 %% DEBUGGING: TESTING HILL MUSCLE MODEL
 
-num_timesteps = 100;
-ts = linspace( 0, 1, num_timesteps );
-active_tensions = 450*ones( 1, num_timesteps );
-total_tensions = zeros( 1, num_timesteps );
-passive_tensions = zeros( 1, num_timesteps );
-
-total_tension0 = 0;
-% total_tension0s = active_tensions;
-delta_L0 = 0;
-velocity = 0;
-kse = 10;
-kpe = 1;
-% b = simulation_manager.dt*(kse + kpe)/2.2;
-b = 1;
-dt = simulation_manager.dt;
-num_steps = 10;
-
-
-total_tensions(1) = total_tension0;
-passive_tensions(1) = total_tensions(1) - active_tensions(1);
-
-for k = 1:num_timesteps - 1
-    
-    [ total_tensions(k + 1), passive_tensions(k + 1) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tensions(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
-    %     [ total_tensions(k), passive_tensions(k) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tension0s(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
-    
-end
-
-figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Active Tension [N]'), title('Active Tension vs Time')
-plot( ts, active_tensions, '-', 'Linewidth', 3 )
-
-figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Total Tension [N]'), title('Total Tension vs Time')
-plot( ts, total_tensions, '-', 'Linewidth', 3 )
-
-figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Tension [N]'), title('Passive Tension vs Time')
-plot( ts, passive_tensions, '-', 'Linewidth', 3 )
+% % Determine whether to plot the hill muscle model information.
+% if simulation_manager.bVerbose                                  % If we want to perform debugging operations...
+%     
+%     num_timesteps = 100;
+%     ts = linspace( 0, 1, num_timesteps );
+%     active_tensions = 450*ones( 1, num_timesteps );
+%     total_tensions = zeros( 1, num_timesteps );
+%     passive_tensions = zeros( 1, num_timesteps );
+%     
+%     total_tension0 = 0;
+%     % total_tension0s = active_tensions;
+%     delta_L0 = 0;
+%     velocity = 0;
+%     kse = 10;
+%     kpe = 1;
+%     % b = simulation_manager.dt*(kse + kpe)/2.2;
+%     b = 1;
+%     dt = simulation_manager.dt;
+%     num_steps = 10;
+%     
+%     
+%     total_tensions(1) = total_tension0;
+%     passive_tensions(1) = total_tensions(1) - active_tensions(1);
+%     
+%     for k = 1:num_timesteps - 1
+%         
+%         [ total_tensions(k + 1), passive_tensions(k + 1) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tensions(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
+%         %     [ total_tensions(k), passive_tensions(k) ] = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.hill_muscles(1).active_tension2total_passive_tension( total_tension0s(k), delta_L0, velocity, active_tensions(k), kse, kpe, b, dt, num_steps );
+%         
+%     end
+%     
+%     figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Active Tension [N]'), title('Active Tension vs Time')
+%     plot( ts, active_tensions, '-', 'Linewidth', 3 )
+%     
+%     figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Total Tension [N]'), title('Total Tension vs Time')
+%     plot( ts, total_tensions, '-', 'Linewidth', 3 )
+%     
+%     figure( 'Color', 'w' ), hold on, grid on, xlabel('Time [s]'), ylabel('Passive Tension [N]'), title('Passive Tension vs Time')
+%     plot( ts, passive_tensions, '-', 'Linewidth', 3 )
+% 
+% end
 
 
 %% Write Precomputed Simulation Data to the Master Microcontroller While Collecting Sensor Data
@@ -592,6 +597,16 @@ simulation_timer = tic;
 % Send each simulation data value to the master mircocontoller and collect the associated sensory feedback.
 for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterate through each simulation time step...
     
+    %% DEBUGGING INFORMATION: PRINT ITERATION HEADING
+    
+    % Determine whether to print the iteration heading.
+    if simulation_manager.bVerbose                  % If we want to print debugging information...
+        
+        % Print iteration heading.
+        fprintf('\n\n------------------------------------------------------------ ITERATION %0.0f ------------------------------------------------------------\n', k)
+
+    end
+    
     %% Start a Timer.
     
     % Start a timer for this iteration.
@@ -604,42 +619,39 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     simulation_manager = simulation_manager.cycle_robot_states(  );
     
     
-    %% DEBUGGING: PRINTING BPA MUSCLE PRESSURES
+    %% DEBUGGING: PRINT STARTING INFORMATION
     
-    %     BPA_muscle_desired_pressures = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_pressure_from_all_BPA_muscles(  );
-    %
-    %     fprintf('BPA Muscle Desired Pressure:'), disp(BPA_muscle_desired_pressures)
+    % Determine whether to print starting information.
+    if simulation_manager.bVerbose                      % If we want to print debugging information...
+    
+        % State that we are printing starting debugging information.
+        fprintf( '\n------------------------------------------------------------ Starting Information ------------------------------------------------------------\n' )
+
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+        
+    end
+        
     
     %% Perform a Single Step of the Forward Dynamics Simulation ( Either Via Hardware or Simulation ) ( BPA Muscle Desired Pressures -> BPA Muscle Measured Pressure & Joint Angles )
     
-    % Perform a single step of the forward dynamics simulation. ( BPA Muscle Desired Pressures -> BPA Muscle Measured Pressure & Joint Angles )
+    % Perform a single step of the forward dynamics simulation. ( BPA Muscle Desired Pressures -> BPA Muscle Measured Pressures & Joint Angles )
     simulation_manager = simulation_manager.forward_dynamics_step(  );
     
     
-    %% DEBUGGING: PRINTING BPA PRESSURES & TENSIONS
-    %
-    %     BPA_muscle_desired_pressures = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_pressure_from_all_BPA_muscles(  );
-    %     BPA_muscle_measured_pressures = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_measured_pressure_from_all_BPA_muscles(  );
-    %
-    %     fprintf( 'Pressure Match: %0.0f, ', all( BPA_muscle_desired_pressures == BPA_muscle_measured_pressures ) )
-    %
-    %     BPA_muscle_desired_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_tension_from_all_BPA_muscles(  );
-    %     BPA_muscle_measured_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_measured_tension_from_all_BPA_muscles(  );
-    %
-    %     fprintf( 'Tension Match: %0.0f\n', all( BPA_muscle_desired_tensions == BPA_muscle_measured_tensions ) )
-    %
-    %     fprintf('BPA Muscle Desired Pressure: \n'), disp(BPA_muscle_desired_pressures)
-    %     fprintf('BPA Muscle Measured Pressure: \n'), disp(BPA_muscle_measured_pressures)
-    %     fprintf('BPA Muscle Desired Tension: \n'), disp(BPA_muscle_desired_tensions)
-    %     fprintf('BPA Muscle Measured Tension: \n'), disp(BPA_muscle_measured_tensions)
+    %% DEBUGGING: PRINTING INFORMATION AFTER FORWARD DYNAMICS
     
-    
-    %% DEBUGGING: PRINTING JOINT ANGLES
-    
-    %     thetas = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_angles_from_all_joints(  );
-    %
-    %     fprintf('Joint Angles:'), disp(thetas)
-    
+    % Determine whether to print simulation information after forward dynamics.
+    if simulation_manager.bVerbose                      % If we want to print debugging information...
+
+        % State that this debugging information is from after the forward dynamics step.
+        fprintf( '\n------------------------------------------------------------ After Forward Dynamics ------------------------------------------------------------\n' )
+        
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+        
+    end
+        
     
     %% Compute the Robot Configuration Given the Current Joint Angles (i.e., Forward Kinematics). ( Joint Angles -> Robot Configuration )
     
@@ -651,7 +663,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     %% Compute Derived BPA Muscle Properties. ( BPA Muscle Tension, BPA Muscle Yank, BPA Muscle Length, BPA Muscle Strain, BPA Muscle Velocity )
     
-    % Update the BPA muscle properties (muscle tension, muscle length, muscle strain) to reflect the sensor data info ( muscle pressure, muscle attachment point position ). ( BPA Muscle Pressure -> BPA Muscle Tension; BPA Muscle Attachment Locations -> BPA Muscle Length, BPA Muscle Strain )
+    % Update the BPA muscle properties (muscle tension, muscle length, muscle strain) to reflect the sensor data info ( muscle pressure, muscle attachment point position ). ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension; BPA Muscle Attachment Locations -> BPA Muscle Length, BPA Muscle Strain )
     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.update_BPA_muscle_properties(  );
     
     % Compute the BPA muscle property derivatives from the BPA muscle property histories. ( BPA Muscle Tension History -> BPA Muscle Yank; BPA Muscle Length History -> BPA Muscle Velocity )
@@ -677,31 +689,23 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     
     %% Compute the Derived Hill Muscle Properties. ( Hill Muscle Desired Active Tension, Hill Muscle Desired Passive Tension, Hill Muscle Desired Total Tension )
-    
-%     % Compute hill muscle desired total tension from the hill muscle activation. ( Hill Muscle Activation -> Hill Muscle Desired Active Tension )
-%     simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.activations2desired_active_tensions( muscle_IDs );
-%     
-%     % Compute the hill muscle desired total and passive tensions from the hill muscle desired active tension. ( Hill Muscle Desired Active Tension -> Hill Muscle Desired Passive & Total Tensions )
-%     simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.desired_active_tensions2desired_total_passive_tensions( muscle_IDs );
 
     % Compute desired tension associated with the hill muscle activation. ( Hill Muscle Activation -> Hill Muscle Desired Tension ( Active, Passive, & Total ) )
     simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.activation2desired_tension( 'all' );
     
     
+    %% DEBUGGING: PRINTING SIMULATION INFORMATION BEFORE HILL MUSCLE -> BPA MUSCLE DESIRED TENSION TRANSFER
     
-    %% DEBUGGING: PRINTING BPA PRESSURES & TENSIONS
-    
-    %     hill_muscle_desired_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
-    %     hill_muscle_measured_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_measured_total_tension( 'all' );
-    %
-    %     BPA_muscle_desired_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_tension_from_all_BPA_muscles(  );
-    %     BPA_muscle_measured_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_measured_tension_from_all_BPA_muscles(  );
-    %
-    %     fprintf('Before Hill Muscle -> BPA Muscle Desired Tension Transfer')
-    %     fprintf('Hill Muscle Desired Tension: \n'), disp(hill_muscle_desired_tensions)
-    %     fprintf('Hill Muscle Measured Tension: \n'), disp(hill_muscle_measured_tensions)
-    %     fprintf('BPA Muscle Desired Tension: \n'), disp(BPA_muscle_desired_tensions)
-    %     fprintf('BPA Muscle Measured Tension: \n'), disp(BPA_muscle_measured_tensions)
+    % Determine whether to print simulation information before hill muscle -> BPA muscle desired tension transfer.
+    if simulation_manager.bVerbose                      % If we want to print debugging information...
+
+        % State that this debugging information is from before the hill muscle -> BPA muscle desired tension transfer.
+        fprintf( '\n------------------------------------------------------------ Before Hill Muscle -> BPA Muscle Desired Tension Transfer ------------------------------------------------------------\n' )
+
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+        
+    end
     
     
     %% Compute the Derived BPA Muscle Properties. ( BPA Muscle Desired Tension, BPA Muscle Desired Pressure )
@@ -709,22 +713,22 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Transfer the hill muscle desired total tension to the BPA muscle desired total tension. ( Hill Muscle Desired Total Tension -> BPA Muscle Desired Tension )
     simulation_manager.robot_states(end) = simulation_manager.robot_states(end).hill_muscle_desired_tensions2BPA_muscle_desired_tensions(  );
     
-    
-    %     hill_muscle_desired_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
-    %     hill_muscle_measured_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_measured_total_tension( 'all' );
-    %
-    %     BPA_muscle_desired_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_tension_from_all_BPA_muscles(  );
-    %     BPA_muscle_measured_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_measured_tension_from_all_BPA_muscles(  );
-    %
-    %     fprintf('After Hill Muscle -> BPA Muscle Desired Tension Transfer')
-    %     fprintf('Hill Muscle Desired Tension: \n'), disp(hill_muscle_desired_tensions)
-    %     fprintf('Hill Muscle Measured Tension: \n'), disp(hill_muscle_measured_tensions)
-    %     fprintf('BPA Muscle Desired Tension: \n'), disp(BPA_muscle_desired_tensions)
-    %     fprintf('BPA Muscle Measured Tension: \n'), disp(BPA_muscle_measured_tensions)
-    
-    
     % Compute the BPA muscle desired pressure from the BPA muscle desired tension. ( BPA Muscle Desired Tension -> BPA Muscle Desired Pressure )
     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.desired_tensions2desired_pressures( 'all' );
+    
+    
+    %% DEBUGGING: PRINTING SIMULATION INFORMATION AFTER HILL MUSCLE -> BPA MUSCLE DESIRED TENSION TRANSFER
+    
+    % Determine whether to print simulation information after hill muscle -> BPA muscle desired tension transfer.
+    if simulation_manager.bVerbose                      % If we want to print debugging information...
+
+        % State that this debugging information occurs after the hill muscle -> BPA muscle desired tension transfer.
+        fprintf( '\n------------------------------------------------------------ After Hill Muscle -> BPA Muscle Desired Tension Transfer ------------------------------------------------------------\n' )
+
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+
+    end
     
     
     %% Store the Desired BPA Muscle Pressure in the Slave Manager.
@@ -737,40 +741,29 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     % End the timer for this iteration.
     iteration_duration = toc(iteration_timer);
+   
     
-    % Print out information for this iteration.
-    fprintf( 'Iteration #%0.0f: %0.3f [s]\n', k, iteration_duration )
+    %% DEBUGGING: PRINT END OF ITERATION INFORMATION
     
+    % Determine whether to print end of interation information.
+    if simulation_manager.bVerbose                                  % If we want to print debugging information...
     
-    %% DEBUGGING: PRINTING BPA MUSCLE PRESSURES
-    
-    hill_muscle_desired_passive_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_passive_tension( 'all' );
-    hill_muscle_desired_active_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_active_tension( 'all' );
-    hill_muscle_desired_total_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
-    
-    fprintf('Hill Muscle Desired Passive Tension:'), disp(hill_muscle_desired_passive_tensions)
-    fprintf('Hill Muscle Desired Active Tension:'), disp(hill_muscle_desired_active_tensions)
-    fprintf('Hill Muscle Desired Total Tension:'), disp(hill_muscle_desired_total_tensions)
-    
-    hill_muscle_measured_passive_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_passive_tension( 'all' );
-    hill_muscle_measured_active_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_active_tension( 'all' );
-    hill_muscle_measured_total_tensions = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
-    
-    fprintf('Hill Muscle Measured Passive Tension:'), disp(hill_muscle_measured_passive_tensions)
-    fprintf('Hill Muscle Measured Active Tension:'), disp(hill_muscle_measured_active_tensions)
-    fprintf('Hill Muscle Measured Total Tension:'), disp(hill_muscle_measured_total_tensions)
-    
-    BPA_muscle_desired_pressures = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_pressure_from_all_BPA_muscles(  );
-    BPA_muscle_measured_pressures = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_measured_pressure_from_all_BPA_muscles(  );
-    BPA_muscle_desired_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_desired_tension_from_all_BPA_muscles(  );
-    BPA_muscle_measured_tensions = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.get_measured_tension_from_all_BPA_muscles(  );
+        % State that this debugging information is from the end of the iteration.
+        fprintf( '\n------------------------------------------------------------ Ending information ------------------------------------------------------------\n' )
 
-    fprintf('BPA Muscle Desired Pressure:'), disp(BPA_muscle_desired_pressures)
-    fprintf('BPA Muscle Measured Pressure:'), disp(BPA_muscle_measured_pressures)
-    fprintf('BPA Muscle Desired Tension:'), disp(BPA_muscle_desired_tensions)
-    fprintf('BPA Muscle Measured Tension:'), disp(BPA_muscle_measured_tensions)    
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+
+        % Print out the iteration information.
+        fprintf('\nIteration %0.0f Complete in %0.3f [s].\n\n', k, iteration_duration)
     
-    fprintf('\n\n')
+    else                                                                                                % Otherwise...
+        
+        % Print out information for this iteration.
+        fprintf( 'Iteration #%0.0f: %0.3f [s]\n', k, iteration_duration )
+        
+    end
+    
     
 end
 
@@ -783,11 +776,11 @@ fprintf( '\nRUNNING SIMULATION. Please Wait... Done. %0.3f [s] \n\n', simulation
 
 %% DEBUGGING: CHECKING BPA PRESSURE & TENSION HISTORY
 
-% Get the BPA muscle desired pressures.
-BPA_muscle_desired_pressures = simulation_manager.get_BPA_desired_pressure_history( 'all' );
-
-% Get the BPA muscle desired tensions.
-BPA_muscle_desired_tensions = simulation_manager.get_BPA_desired_tension_history( 'all' );
+% % Get the BPA muscle desired pressures.
+% BPA_muscle_desired_pressures = simulation_manager.get_BPA_desired_pressure_history( 'all' );
+% 
+% % Get the BPA muscle desired tensions.
+% BPA_muscle_desired_tensions = simulation_manager.get_BPA_desired_tension_history( 'all' );
 
 
 %% Plot Simulation Results.
@@ -802,32 +795,62 @@ tic
 fig_motor_activations = precomputed_simulation_manager.plot_activation(  );
 
 % Plot the hill muscle activation history.
-fig_hill_muscle_activation = simulation_manager.plot_hill_muscle_activation_history( 'all' );
+% fig_hill_muscle_activation = simulation_manager.plot_hill_muscle_activation_history( 'all' );
+fig_hill_muscle_activation = simulation_manager.plot_hill_muscle_activation_history( muscle_IDs(1:6) );
 
 
 
 
 
 % Plot the hill muscle desired passive tension history.
-fig_hill_muscle_desired_passive_tension = simulation_manager.plot_hill_muscle_desired_passive_tension_history( 'all' );
+% fig_hill_muscle_desired_passive_tension = simulation_manager.plot_hill_muscle_desired_passive_tension_history( 'all' );
+fig_hill_muscle_desired_passive_tension = simulation_manager.plot_hill_muscle_desired_passive_tension_history( muscle_IDs(1:6) );
 
 % Plot the hill muscle desired active tension history.
-fig_hill_muscle_desired_active_tension = simulation_manager.plot_hill_muscle_desired_active_tension_history( 'all' );
+% fig_hill_muscle_desired_active_tension = simulation_manager.plot_hill_muscle_desired_active_tension_history( 'all' );
+fig_hill_muscle_desired_active_tension = simulation_manager.plot_hill_muscle_desired_active_tension_history( muscle_IDs(1:6) );
 
 % Plot the hill muscle desired total tension history.
-fig_hill_muscle_desired_total_tension = simulation_manager.plot_hill_muscle_desired_total_tension_history( 'all' );
+% fig_hill_muscle_desired_total_tension = simulation_manager.plot_hill_muscle_desired_total_tension_history( 'all' );
+fig_hill_muscle_desired_total_tension = simulation_manager.plot_hill_muscle_desired_total_tension_history( muscle_IDs(1:6) );
+
 
 
 
 
 % Plot the hill muscle measured passive tension history.
-fig_hill_muscle_measured_passive_tension = simulation_manager.plot_hill_muscle_measured_passive_tension_history( 'all' );
+% fig_hill_muscle_measured_passive_tension = simulation_manager.plot_hill_muscle_measured_passive_tension_history( 'all' );
+fig_hill_muscle_measured_passive_tension = simulation_manager.plot_hill_muscle_measured_passive_tension_history( muscle_IDs(1:6) );
 
 % Plot the hill muscle measured active tension history.
-fig_hill_muscle_measured_active_tension = simulation_manager.plot_hill_muscle_measured_active_tension_history( 'all' );
+% fig_hill_muscle_measured_active_tension = simulation_manager.plot_hill_muscle_measured_active_tension_history( 'all' );
+fig_hill_muscle_measured_active_tension = simulation_manager.plot_hill_muscle_measured_active_tension_history( muscle_IDs(1:6) );
 
 % Plot the hill muscle measured total tension history.
-fig_hill_muscle_measured_total_tension = simulation_manager.plot_hill_muscle_measured_total_tension_history( 'all' );
+% fig_hill_muscle_measured_total_tension = simulation_manager.plot_hill_muscle_measured_total_tension_history( 'all' );
+fig_hill_muscle_measured_total_tension = simulation_manager.plot_hill_muscle_measured_total_tension_history( muscle_IDs(1:6) );
+
+
+
+% Plot the BPA muscle pressure history.
+% fig_BPA_muscle_pressure = simulation_manager.plot_BPA_muscle_pressure_history( 'all' );
+fig_BPA_muscle_pressure = simulation_manager.plot_BPA_muscle_pressure_history( muscle_IDs(1:6) );
+
+% Plot the BPA muscle tension history.
+% fig_BPA_muscle_tension = simulation_manager.plot_BPA_muscle_tension_history( 'all' );
+fig_BPA_muscle_tension = simulation_manager.plot_BPA_muscle_tension_history( muscle_IDs(1:6) );
+
+% Plot the BPA muscle length history.
+% fig_BPA_muscle_length = simulation_manager.plot_BPA_muscle_length_history( 'all' );
+fig_BPA_muscle_length = simulation_manager.plot_BPA_muscle_length_history( muscle_IDs(1:6) );
+
+% Plot the BPA muscle velocity history.
+% fig_BPA_muscle_velocity = simulation_manager.plot_BPA_muscle_velocity_history( 'all' );
+fig_BPA_muscle_velocity = simulation_manager.plot_BPA_muscle_velocity_history( muscle_IDs(1:6) );
+
+% Plot the BPA muscle strain history.
+% fig_BPA_muscle_strain = simulation_manager.plot_BPA_muscle_strain_history( 'all' );
+fig_BPA_muscle_strain = simulation_manager.plot_BPA_muscle_strain_history( muscle_IDs(1:6) );
 
 
 
@@ -843,20 +866,7 @@ fig_end_effector_position = simulation_manager.plot_end_effector_position_histor
 fig_end_effector_velocity = simulation_manager.plot_end_effector_velocity_history( 'all' );
 fig_end_effector_acceleration = simulation_manager.plot_end_effector_acceleration_history( 'all' );
 
-% Plot the BPA muscle pressure history.
-fig_BPA_muscle_pressure = simulation_manager.plot_BPA_muscle_pressure_history( 'all' );
 
-% Plot the BPA muscle tension history.
-fig_BPA_muscle_tension = simulation_manager.plot_BPA_muscle_tension_history( 'all' );
-
-% Plot the BPA muscle length history.
-fig_BPA_muscle_length = simulation_manager.plot_BPA_muscle_length_history( 'all' );
-
-% Plot the BPA muscle velocity history.
-fig_BPA_muscle_velocity = simulation_manager.plot_BPA_muscle_velocity_history( 'all' );
-
-% Plot the BPA muscle strain history.
-fig_BPA_muscle_strain = simulation_manager.plot_BPA_muscle_strain_history( 'all' );
 
 
 % Retrieve the elapsed time.
