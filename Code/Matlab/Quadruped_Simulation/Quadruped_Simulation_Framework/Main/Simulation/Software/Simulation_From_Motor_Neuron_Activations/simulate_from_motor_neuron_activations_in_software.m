@@ -15,8 +15,8 @@ fprintf( 'LOADING MOTOR NEURON ACTIVATION DATA. Please Wait...\n' )
 tic
 
 % Define the path to the directory that contains the robot data.
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -370,8 +370,8 @@ bInitializePorts = true;
 baud_rate_virtual_ports = 115200; baud_rate_physical_ports = 57600;             % The Master Port is the only physical port.  All other ports are virtual.
 
 % Define the COM port names.
-% COM_port_names = { 'COM11', 'COM1', 'COM2', 'COM7', 'COM8', 'COM9', 'COM10' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
-COM_port_names = { 'COM1', 'COM11', 'COM12', 'COM13', 'COM14', 'COM15', 'COM16' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
+COM_port_names = { 'COM11', 'COM1', 'COM2', 'COM7', 'COM8', 'COM9', 'COM10' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
+% COM_port_names = { 'COM1', 'COM11', 'COM12', 'COM13', 'COM14', 'COM15', 'COM16' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
 
 % Define the master microcontroller port type we would like to use.
 master_port_type = 'virtual';                           % [-] Master Port Type.  Either 'virtual' or 'physical'.

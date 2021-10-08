@@ -141,8 +141,9 @@ classdef limb_class
                     self = self.joint_angles2BPA_muscle_configurations(  );
                     
                     % Compute the BPA muscle total muscle-tendon lengths in this configuration.
-                    self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
-                    
+%                     self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
+                    self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2total_muscle_tendon_length' );
+
                     % Retrieve the BPA muscle lengths associated with this limb in this configuration.
                     total_muscle_tendon_lengths = cell2mat( self.BPA_muscle_manager.get_muscle_property( 'all', 'total_muscle_tendon_length' ) );
                     
@@ -169,9 +170,10 @@ classdef limb_class
                 % Return this BPA muscles to their original configuration.
                 self = self.joint_angles2BPA_muscle_configurations(  );
 
-                % Compute the BPA muscle lengths in this configuration.
-                self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
-                
+                % Compute the BPA total muscle tendon lengths in this configuration.
+%                 self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
+                self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2total_muscle_tendon_length' );
+
             end
             
         end

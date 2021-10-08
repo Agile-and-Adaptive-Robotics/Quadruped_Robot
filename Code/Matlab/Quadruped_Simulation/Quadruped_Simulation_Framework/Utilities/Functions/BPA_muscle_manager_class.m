@@ -738,7 +738,7 @@ classdef BPA_muscle_manager_class
                 if muscle_index ~= -1                   % If a valid BPA muscle index was found...
                     
                     % Compute the BPA muscle equilibrium strain associated with the current BPA muscle measured pressure.
-                    self.BPA_muscles(muscle_index) = self.BPA_muscles(muscle_index).get_BPA_muscle_strain_equilibrium(  );
+                    self.BPA_muscles(muscle_index) = self.BPA_muscles(muscle_index).measured_pressure2equilibrium_strain(  );
                     
                 end
                 
