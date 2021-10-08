@@ -22,7 +22,7 @@ classdef BPA_muscle_class
         max_pressure
         
         muscle_length
-        muscle_length_equilibrium
+        equilibrium_muscle_length
         resting_muscle_length
         
         tendon_length
@@ -440,6 +440,27 @@ classdef BPA_muscle_class
         end
         
         
+        %% BPA Muscle Tautness Functions
+        
+        % Implement a function to determine the tautness of the tendon.
+        function self = compute_tendon_tautness( self, inferred_muscle_length )
+        
+            % Determine how to set the tendon tautness flag.
+            if inferred_muscle_length < self.equilibrium_muscle_length                  % If the inferred muscle length is less than the equilibrium muscle length...
+                
+                % Set the tendon tautness flag to false.
+                self.tendon_taut = false;
+                
+            else                                                                        % Otherwise...
+                
+                % Set the tendon tautness flag to true.
+                self.tendon_taut = true;
+                
+            end
+            
+        end
+        
+        
         %% BPA Muscle Saturation Functions
         
         % Implement a function to saturate a given pressure.
@@ -593,13 +614,13 @@ classdef BPA_muscle_class
             if nargin < 2, bVerbose = false; end
             
             % Determine how to set the muscle length.
-            if self.muscle_length < self.muscle_length_equilibrium           % If the muscle length is less than the muscle length equilibrium...
+            if self.muscle_length < self.equilibrium_muscle_length           % If the muscle length is less than the muscle length equilibrium...
                            
                 % Determine whether to throw a warning.
-                if bVerbose, warning( 'BPA muscle length %0.2f [in] is less than the BPA muscle equilibrium length %0.2f [in] at the current BPA muscle measured pressure %0.2f [psi].  Setting BPA muscle length to %0.2f [in].', self.conversion_manager.m2in( self.muscle_length ), self.conversion_manager.m2in( self.muscle_length_equilibrium ), self.conversion_manager.pa2psi( self.measured_pressure ), self.conversion_manager.m2in( self.muscle_length_equilibrium ) ), end
+                if bVerbose, warning( 'BPA muscle length %0.2f [in] is less than the BPA muscle equilibrium length %0.2f [in] at the current BPA muscle measured pressure %0.2f [psi].  Setting BPA muscle length to %0.2f [in].', self.conversion_manager.m2in( self.muscle_length ), self.conversion_manager.m2in( self.equilibrium_muscle_length ), self.conversion_manager.pa2psi( self.measured_pressure ), self.conversion_manager.m2in( self.equilibrium_muscle_length ) ), end
             
                 % Set the muscle length to be the muscle length equilibrium.
-                self.muscle_length = self.muscle_length_equilibrium;
+                self.muscle_length = self.equilibrium_muscle_length;
                 
             elseif self.muscle_length > self.resting_muscle_length          % If the muscle length is greater than the muscle equilibrium length...
                 
@@ -662,10 +683,10 @@ classdef BPA_muscle_class
         function error_check_muscle_length( self, muscle_length )
             
            % Determine whether the current muscle length is within the acceptable bounds.
-           if ( muscle_length < self.muscle_length_equilibrium ) || ( muscle_length > self.resting_muscle_length )                % If the muscle length is less than the muscle equilibrium length or greater than the muscle resting length...
+           if ( muscle_length < self.equilibrium_muscle_length ) || ( muscle_length > self.resting_muscle_length )                % If the muscle length is less than the muscle equilibrium length or greater than the muscle resting length...
             
                % Throw an error.
-               error( 'Muscle length %0.2f [in] out of bounds.  Muscle length must be greater than or equal to the current muscle equilibrium length %0.2f [in] (i.e., the no load, pressurized length) and less than or equal to the resting muscle length %0.2f [in].', self.conversion_manager.m2in( muscle_length ), self.conversion_manager.m2in( self.muscle_length_equilibrium ), self.conversion_manager.m2in( self.resting_muscle_length ) )
+               error( 'Muscle length %0.2f [in] out of bounds.  Muscle length must be greater than or equal to the current muscle equilibrium length %0.2f [in] (i.e., the no load, pressurized length) and less than or equal to the resting muscle length %0.2f [in].', self.conversion_manager.m2in( muscle_length ), self.conversion_manager.m2in( self.equilibrium_muscle_length ), self.conversion_manager.m2in( self.resting_muscle_length ) )
                 
            end
                
@@ -878,6 +899,7 @@ classdef BPA_muscle_class
         end
         
         
+        
         %% BPA Muscle Length & Strain Functions
         
         % Implement a function to compute the BPA muscle equilibrium strain (Type I) associated with the current measured BPA muscle pressure.
@@ -946,9 +968,30 @@ classdef BPA_muscle_class
             % Infer the BPA muscle length from the total BPA muscle-tendon length and the BPA tendon length.
             inferred_muscle_length = self.total_muscle_tendon_length - self.tendon_length;
 
-            % Validate the inferred muscle length.
-            self.muscle_length = self.validate_muscle_length( inferred_muscle_length );
+            % Determine whether the tendon is taut.
+            self = self.compute_tendon_tautness( inferred_muscle_length );
+            
+            fprintf( 'Muscle: %s\n', self.name )
+            fprintf( 'Equilibrium Length: %0.2f [in]\n', self.conversion_manager.m2in( self.equilibrium_muscle_length ) )
+            fprintf( 'Inferred Length: %0.2f [in]\n', self.conversion_manager.m2in( inferred_muscle_length ) )
+            fprintf( 'Resting Length: %0.2f [in]\n', self.conversion_manager.m2in( self.resting_muscle_length ) )
+            fprintf( 'Tendon Taut: %0.0f\n', self.tendon_taut )
+            fprintf( 'Muscle Locations:\n' ), disp( self.conversion_manager.m2in( self.ps ) )
+            
+            
+            % Determine how to set the muscle length.
+            if self.tendon_taut                                     % If the tendon is taut...
+            
+                % Validate the inferred muscle length.
+                self.muscle_length = self.validate_muscle_length( inferred_muscle_length );
 
+            else                                                    % Otherwise... (The tendon is not taut..)
+                
+                % Set the muscle length to the equilibrium muscle length.
+                self.muscle_length = self.equilibrium_muscle_length;
+                
+            end
+            
         end        
 
 
@@ -980,7 +1023,7 @@ classdef BPA_muscle_class
         function self = equilibrium_strain2equilibrium_length( self )
             
             % Compute the BPA muscle equilibrium length associated with the BPA muscle equilibrium strain.
-            self.muscle_length_equilibrium = self.strain2length( self.muscle_strain_equilibrium, self.resting_muscle_length );
+            self.equilibrium_muscle_length = self.strain2length( self.muscle_strain_equilibrium, self.resting_muscle_length );
             
         end
         
@@ -989,7 +1032,7 @@ classdef BPA_muscle_class
         function self = equilibrium_length2equilibrium_strain( self )
             
             % Compute the BPA muscle equilibrium strain associated with the BPA muscle equilibrium length.
-            self.muscle_strain_equilibrium = self.length2strain( self.muscle_length_equilibrium, self.resting_muscle_length );
+            self.muscle_strain_equilibrium = self.length2strain( self.equilibrium_muscle_length, self.resting_muscle_length );
             
         end
         

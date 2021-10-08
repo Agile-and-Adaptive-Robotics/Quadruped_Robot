@@ -661,6 +661,13 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.joint_angles2limb_configurations(  );
     
     
+    %% DEBUGGING: Plotting Mechanical Subsystem Points.
+    
+    % Plot the mechanical points.
+%     fig_mechanical_points = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points(  );
+    fig_mechanical_points = simulation_manager.robot_states(end).mechanical_subsystem.plot_mechanical_points( fig_mechanical_points0 );
+
+    
     %% Compute Derived BPA Muscle Properties. ( BPA Muscle Tension, BPA Muscle Yank, BPA Muscle Length, BPA Muscle Strain, BPA Muscle Velocity )
     
     % Update the BPA muscle properties ( muscle tension, muscle length, muscle strain ) to reflect the sensor data info ( muscle pressure, muscle attachment point position ). ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension; BPA Muscle Attachment Locations -> BPA Muscle Length, BPA Muscle Strain )
