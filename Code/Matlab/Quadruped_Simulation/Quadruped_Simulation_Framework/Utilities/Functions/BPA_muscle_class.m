@@ -26,6 +26,7 @@ classdef BPA_muscle_class
         resting_muscle_length
         
         tendon_length
+        tendon_taut
         
         total_muscle_tendon_length
         
@@ -89,7 +90,7 @@ classdef BPA_muscle_class
     methods
         
         % Implement the class constructor.
-        function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_muscle_length, tendon_length, max_muscle_strain, velocity, yank, ps, Rs, Js, c0, c1, c2, c3, c4, c5, c6, muscle_type, num_convergence_attempts, convergence_threshold, noise_percentage, num_reference_pressures, num_reference_forces, num_reference_strains, negative_strain_policy, data_validation_policy )
+        function self = BPA_muscle_class( ID, name, desired_tension, measured_tension, desired_pressure, measured_pressure, max_pressure, muscle_length, resting_muscle_length, tendon_length, max_muscle_strain, velocity, yank, ps, Rs, Js, c0, c1, c2, c3, c4, c5, c6, muscle_type, num_convergence_attempts, convergence_threshold, noise_percentage, num_reference_pressures, num_reference_forces, num_reference_strains, negative_strain_policy, data_validation_policy, tendon_taut )
             
             % Create an instance of the physics manager class.
             self.physics_manager = physics_manager_class(  );
@@ -98,7 +99,8 @@ classdef BPA_muscle_class
             self.conversion_manager = conversion_manager_class(  );
             
             % Set the default class properties.
-            if nargin < 31, self.data_validation_policy = 'error'; else, self.data_validation_policy = data_validation_policy; end
+            if nargin < 33, self.tendon_taut = false; else, self.tendon_taut = tendon_taut; end
+            if nargin < 32, self.data_validation_policy = 'error'; else, self.data_validation_policy = data_validation_policy; end
             if nargin < 31, self.negative_strain_policy = 'Nan'; else, self.negative_strain_policy = negative_strain_policy; end
             if nargin < 30, self.num_reference_strains = 100; else, self.num_reference_strains = num_reference_strains; end
             if nargin < 29, self.num_reference_forces = 100; else, self.num_reference_forces = num_reference_forces; end
