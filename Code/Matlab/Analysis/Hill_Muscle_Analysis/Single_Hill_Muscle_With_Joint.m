@@ -266,7 +266,7 @@ plot3( Pbs_value( 1, : ), Pbs_value( 2, : ), Pbs_value( 3, : ), 'b.-', 'Linewidt
 %% Plot the Flow Field.
 
 % Plot the flow field.
-figure( 'Color', 'w', 'Name', 'Hill Muscle Flow Field: Angular Velocity, Angular Position' ), hold on, grid on, xlabel('Angular Velocity [rad/s]'), ylabel('Angular Position [rad]'), title('Flow Field: Angular Velocity, Angular Position'), quiver( Xs1_12, Xs2_12, Fs1_12, Fs2_12 )
+figure( 'Color', 'w', 'Name', 'Hill Muscle Flow Field: Angular Velocity, Angular Position' ), hold on, grid on, xlabel('Angular Position [rad]'), ylabel('Angular Velocity [rad/s]'), title('Flow Field: Angular Position, Angular Velocity'), quiver( Xs1_12', Xs2_12', Fs1_12', Fs2_12' )
 figure( 'Color', 'w', 'Name', 'Hill Muscle Flow Field: Angular Velocity, Angular Position' ), hold on, grid on, xlabel('Angular Velocity [rad/s]'), ylabel('Muscle Tension [N]'), title('Flow Field: Angular Velocity, Muscle Tension'), quiver( Xs1_13, Xs3_13, Fs1_13, Fs3_13 )
 figure( 'Color', 'w', 'Name', 'Hill Muscle Flow Field: Angular Velocity, Angular Position' ), hold on, grid on, xlabel('Angular Position [rad]'), ylabel('Muscle Tension [N]'), title('Flow Field: Angular Position, Muscle Tension'), quiver( Xs2_23, Xs3_23, Fs2_23, Fs3_23 )
 
@@ -289,36 +289,143 @@ subplot(3, 1, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Angular Velocity
 subplot(3, 1, 3), hold on, grid on, xlabel('Time [s]'), ylabel('Muscle Tension [N]'), title('Muscle Tension vs Time'), plot( ts_initial, xs_initial(:, 3), '-', 'Linewidth', 3 )
 
 
-%% Simulate the System.
+% %% Simulate the System.
+% 
+% num_thetas = 20;
+% 
+% thetas = linspace( -15*(pi/180), 15*(pi/180), num_thetas );
+% 
+% % [ La, Lb, deltaLa, deltaLb, Famag, Fbmag, Ma, Mb ] = forward_step( theta );
+% 
+% [ Las, Lbs, deltaLas, deltaLbs, Famags, Fbmags, Mas, Mbs ] = forward_simulation( thetas );
+% 
+% figure( 'Color', 'w', 'Name', 'Tendon Length vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Tendon Length [m]'), title('Tendon Length vs Angle')
+% plot( thetas, Las, '-', 'Linewidth', 3 )
+% plot( thetas, Lbs, '-', 'Linewidth', 3 )
+% legend('Actuator A', 'Actuator B')
+% 
+% figure( 'Color', 'w', 'Name', 'Change in Muscle Length vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Change in Muscle Length [m]'), title('Change in Muscle Length vs Angle')
+% plot( thetas, deltaLas, '-', 'Linewidth', 3 )
+% plot( thetas, deltaLbs, '-', 'Linewidth', 3 )
+% legend('Actuator A', 'Actuator B')
+% 
+% figure( 'Color', 'w', 'Name', 'Muscle Tension vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Muscle Tension [m]'), title('Muscle Tension vs Angle')
+% plot( thetas, Famags, '-', 'Linewidth', 3 )
+% plot( thetas, Fbmags, '-', 'Linewidth', 3 )
+% legend('Actuator A', 'Actuator B')
+% 
+% figure( 'Color', 'w', 'Name', 'Moment vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Moment [Nm]'), title('Moment vs Angle')
+% plot( thetas, Mas, '-', 'Linewidth', 3 )
+% plot( thetas, Mbs, '-', 'Linewidth', 3 )
+% legend('Actuator A', 'Actuator B')
 
-num_thetas = 20;
 
-thetas = linspace( -15*(pi/180), 15*(pi/180), num_thetas );
+%% Animate the Step Response.
 
-% [ La, Lb, deltaLa, deltaLb, Famag, Fbmag, Ma, Mb ] = forward_step( theta );
+% Define the rotation matrix anonymous function.
+fRz = @(theta) [ cos(theta) -sin(theta) 0; sin(theta) cos(theta) 0; 0 0 1 ];
 
-[ Las, Lbs, deltaLas, deltaLbs, Famags, Fbmags, Mas, Mbs ] = forward_simulation( thetas );
+% Retrieve the number of thetas.
+num_timesteps = length( ts_step );
 
-figure( 'Color', 'w', 'Name', 'Tendon Length vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Tendon Length [m]'), title('Tendon Length vs Angle')
-plot( thetas, Las, '-', 'Linewidth', 3 )
-plot( thetas, Lbs, '-', 'Linewidth', 3 )
-legend('Actuator A', 'Actuator B')
+% Retrieve the data source information.
+Pa_xs = Pas_value( 1, : ); Pa_ys = Pas_value( 2, : ); Pa_zs = Pas_value( 3, : );
+Pb_xs = Pbs_value( 1, : ); Pb_ys = Pbs_value( 2, : ); Pb_zs = Pbs_value( 3, : );
+Pl_xs = Pls_value( 1, : ); Pl_ys = Pls_value( 2, : ); Pl_zs = Pls_value( 3, : );
 
-figure( 'Color', 'w', 'Name', 'Change in Muscle Length vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Change in Muscle Length [m]'), title('Change in Muscle Length vs Angle')
-plot( thetas, deltaLas, '-', 'Linewidth', 3 )
-plot( thetas, deltaLbs, '-', 'Linewidth', 3 )
-legend('Actuator A', 'Actuator B')
+% Create a figure to store the step response animation.
+fig = figure( 'Color', 'w', 'Name', 'Step Response Animation' ); hold on, grid on, xlabel( 'x Position [m]' ), ylabel( 'y Position [m]' ), title( 'Step Response Animation' ), axis equal
+line_wall = plot3( Pws_value( 1, : ), Pws_value( 2, : ), Pws_value( 3, : ), 'k.-', 'Linewidth', 3, 'Markersize', 20 );
+line_musclea = plot3( Pas_value( 1, : ), Pas_value( 2, : ), Pas_value( 3, : ), 'r.-', 'Linewidth', 3, 'Markersize', 20, 'XDataSource', 'Pa_xs', 'YDataSource', 'Pa_ys', 'ZDataSource', 'Pa_zs' );
+line_muscleb = plot3( Pbs_value( 1, : ), Pbs_value( 2, : ), Pbs_value( 3, : ), 'b.-', 'Linewidth', 3, 'Markersize', 20, 'XDataSource', 'Pb_xs', 'YDataSource', 'Pb_ys', 'ZDataSource', 'Pb_zs' );
+line_limb = plot3( Pls_value( 1, : ), Pls_value( 2, : ), Pls_value( 3, : ), 'g.-', 'Linewidth', 3, 'Markersize', 20, 'XDataSource', 'Pl_xs', 'YDataSource', 'Pl_ys', 'ZDataSource', 'Pl_zs' );
 
-figure( 'Color', 'w', 'Name', 'Muscle Tension vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Muscle Tension [m]'), title('Muscle Tension vs Angle')
-plot( thetas, Famags, '-', 'Linewidth', 3 )
-plot( thetas, Fbmags, '-', 'Linewidth', 3 )
-legend('Actuator A', 'Actuator B')
+% Animate the step response.
+for k = 1:num_timesteps                 % Iterate through each timestep...
+   
+    % Concatenate all of the points that need to be updated.
+    Ps = [ Pa30_value Pb30_value Pl2_value ];
+    
+    % Update the points.
+    Ps = fRz( xs_step( k, 1 ) )*Ps;
+    
+    % Reorganize the point .
+    Pa3 = Ps( :, 1 ); Pb3 = Ps( :, 2 ); Pl2 = Ps( :, 3 );
 
-figure( 'Color', 'w', 'Name', 'Moment vs Angle' ), hold on, grid on, xlabel('Angle [rad]'), ylabel('Moment [Nm]'), title('Moment vs Angle')
-plot( thetas, Mas, '-', 'Linewidth', 3 )
-plot( thetas, Mbs, '-', 'Linewidth', 3 )
-legend('Actuator A', 'Actuator B')
+    % Update the data source variables.
+    Pa_xs = [ Pa1x_value Pa2x_value Pa3(1) ];
+    Pa_ys = [ Pa1y_value Pa2y_value Pa3(2) ];
+    Pa_zs = [ Pa1z_value Pa2z_value Pa3(3) ];
+    
+    Pb_xs = [ Pb1x_value Pb2x_value Pb3(1) ];
+    Pb_ys = [ Pb1y_value Pb2y_value Pb3(2) ];
+    Pb_zs = [ Pb1z_value Pb2z_value Pb3(3) ];
+    
+    Pl_xs = [ Pls_value(1, 1) Pl2(1) ];
+    Pl_ys = [ Pls_value(2, 1) Pl2(2) ];
+    Pl_zs = [ Pls_value(3, 1) Pl2(3) ];
+    
+    % Refresh the figure.
+    refreshdata( fig )
+    
+    % Redraw the figure.
+    drawnow()
+    
+end
 
+
+%% Animate the Initial Response.
+
+% Define the rotation matrix anonymous function.
+fRz = @(theta) [ cos(theta) -sin(theta) 0; sin(theta) cos(theta) 0; 0 0 1 ];
+
+% Retrieve the number of thetas.
+num_timesteps = length( ts_step );
+
+% Retrieve the data source information.
+Pa_xs = Pas_value( 1, : ); Pa_ys = Pas_value( 2, : ); Pa_zs = Pas_value( 3, : );
+Pb_xs = Pbs_value( 1, : ); Pb_ys = Pbs_value( 2, : ); Pb_zs = Pbs_value( 3, : );
+Pl_xs = Pls_value( 1, : ); Pl_ys = Pls_value( 2, : ); Pl_zs = Pls_value( 3, : );
+
+% Create a figure to store the initial response animation.
+fig = figure( 'Color', 'w', 'Name', 'Initial Response Animation' ); hold on, grid on, xlabel( 'x Position [m]' ), ylabel( 'y Position [m]' ), title( 'Initial Response Animation' ), axis equal
+line_wall = plot3( Pws_value( 1, : ), Pws_value( 2, : ), Pws_value( 3, : ), 'k.-', 'Linewidth', 3, 'Markersize', 20 );
+line_musclea = plot3( Pas_value( 1, : ), Pas_value( 2, : ), Pas_value( 3, : ), 'r.-', 'Linewidth', 3, 'Markersize', 20, 'XDataSource', 'Pa_xs', 'YDataSource', 'Pa_ys', 'ZDataSource', 'Pa_zs' );
+line_muscleb = plot3( Pbs_value( 1, : ), Pbs_value( 2, : ), Pbs_value( 3, : ), 'b.-', 'Linewidth', 3, 'Markersize', 20, 'XDataSource', 'Pb_xs', 'YDataSource', 'Pb_ys', 'ZDataSource', 'Pb_zs' );
+line_limb = plot3( Pls_value( 1, : ), Pls_value( 2, : ), Pls_value( 3, : ), 'g.-', 'Linewidth', 3, 'Markersize', 20, 'XDataSource', 'Pl_xs', 'YDataSource', 'Pl_ys', 'ZDataSource', 'Pl_zs' );
+
+% Animate the initial response.
+for k = 1:num_timesteps                 % Iterate through each timestep...
+   
+    % Concatenate all of the points that need to be updated.
+    Ps = [ Pa30_value Pb30_value Pl2_value ];
+    
+    % Update the points.
+    Ps = fRz( xs_initial( k, 1 ) )*Ps;
+    
+    % Reorganize the point .
+    Pa3 = Ps( :, 1 ); Pb3 = Ps( :, 2 ); Pl2 = Ps( :, 3 );
+
+    % Update the data source variables.
+    Pa_xs = [ Pa1x_value Pa2x_value Pa3(1) ];
+    Pa_ys = [ Pa1y_value Pa2y_value Pa3(2) ];
+    Pa_zs = [ Pa1z_value Pa2z_value Pa3(3) ];
+    
+    Pb_xs = [ Pb1x_value Pb2x_value Pb3(1) ];
+    Pb_ys = [ Pb1y_value Pb2y_value Pb3(2) ];
+    Pb_zs = [ Pb1z_value Pb2z_value Pb3(3) ];
+    
+    Pl_xs = [ Pls_value(1, 1) Pl2(1) ];
+    Pl_ys = [ Pls_value(2, 1) Pl2(2) ];
+    Pl_zs = [ Pls_value(3, 1) Pl2(3) ];
+    
+    % Refresh the figure.
+    refreshdata( fig )
+    
+    % Redraw the figure.
+    drawnow()
+    
+end
 
 
 
