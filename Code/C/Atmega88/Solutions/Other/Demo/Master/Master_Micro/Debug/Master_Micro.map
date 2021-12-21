@@ -39,7 +39,7 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr4\libgcc.a(_clear_bss.o)
                               Master_Micro_Main.o (__do_clear_bss)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libc.a(iob.o)
-                              Master_Micro_Main.o (__iob)
+                              Setup_Functions.o (__iob)
 
 Allocating common symbols
 Common symbol       size              file
@@ -59,6 +59,8 @@ Discarded input sections
                 0x00000000       0x10 ADC_DAC_Functions.o
  .text.write2DAC
                 0x00000000       0x24 ADC_DAC_Functions.o
+ .text.get_slave_index_from_muscle_ID
+                0x00000000       0x3e ADC_DAC_Functions.o
  .avr.prop      0x00000000       0x28 ADC_DAC_Functions.o
  .text          0x00000000        0x0 Conversion_Functions.o
  .data          0x00000000        0x0 Conversion_Functions.o
@@ -94,18 +96,30 @@ Discarded input sections
  .text          0x00000000        0x0 USART_Functions.o
  .data          0x00000000        0x0 USART_Functions.o
  .bss           0x00000000        0x0 USART_Functions.o
+ .text.usart_read_uint8
+                0x00000000       0x10 USART_Functions.o
  .text.usart_read_uint8_array
                 0x00000000       0x30 USART_Functions.o
+ .text.usart_write_uint8_array
+                0x00000000       0x3c USART_Functions.o
  .text.usart_read_uint16
                 0x00000000       0x22 USART_Functions.o
  .text.usart_write_uint16
                 0x00000000       0x30 USART_Functions.o
+ .text.usart_write_start_bytes
+                0x00000000       0x24 USART_Functions.o
  .text.usart_write_end_bytes
                 0x00000000       0x1e USART_Functions.o
+ .text.wait_for_start_sequence
+                0x00000000       0x30 USART_Functions.o
+ .text.usart_read_matlab_desired_pressures
+                0x00000000       0x70 USART_Functions.o
+ .text.usart_write_matlab_sensor_data
+                0x00000000      0x12c USART_Functions.o
  .text          0x00000000        0x0 Setup_Functions.o
  .data          0x00000000        0x0 Setup_Functions.o
  .bss           0x00000000        0x0 Setup_Functions.o
- .text.SetupADC
+ .text.setup_adc
                 0x00000000        0x8 Setup_Functions.o
  .text          0x00000000        0x0 SPI_Functions.o
  .data          0x00000000        0x0 SPI_Functions.o
@@ -304,6 +318,8 @@ LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/b
 LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libc.a
 LOAD C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4\libatmega88a.a
 END GROUP
+                0x00000000                __TEXT_REGION_ORIGIN__ = DEFINED (__TEXT_REGION_ORIGIN__)?__TEXT_REGION_ORIGIN__:0x0
+                0x00800060                __DATA_REGION_ORIGIN__ = DEFINED (__DATA_REGION_ORIGIN__)?__DATA_REGION_ORIGIN__:0x800060
                 0x00002000                __TEXT_REGION_LENGTH__ = DEFINED (__TEXT_REGION_LENGTH__)?__TEXT_REGION_LENGTH__:0x2000
                 0x0000ffa0                __DATA_REGION_LENGTH__ = DEFINED (__DATA_REGION_LENGTH__)?__DATA_REGION_LENGTH__:0xffa0
                 0x00010000                __EEPROM_REGION_LENGTH__ = DEFINED (__EEPROM_REGION_LENGTH__)?__EEPROM_REGION_LENGTH__:0x10000
@@ -402,7 +418,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0xac8
+.text           0x00000000      0x864
  *(.vectors)
  .vectors       0x00000000       0x34 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
                 0x00000000                __vector_default
@@ -496,128 +512,107 @@ END GROUP
  .text.set_multiplexer_channel
                 0x00000164       0x46 ADC_DAC_Functions.o
                 0x00000164                set_multiplexer_channel
- .text.get_slave_index_from_muscle_ID
-                0x000001aa       0x3e ADC_DAC_Functions.o
-                0x000001aa                get_slave_index_from_muscle_ID
  .text.get_slave_index_from_slave_ID
-                0x000001e8       0x3e ADC_DAC_Functions.o
-                0x000001e8                get_slave_index_from_slave_ID
+                0x000001aa       0x3e ADC_DAC_Functions.o
+                0x000001aa                get_slave_index_from_slave_ID
  .text.byte_array2uint16
-                0x00000226       0x22 Conversion_Functions.o
-                0x00000226                byte_array2uint16
+                0x000001e8       0x22 Conversion_Functions.o
+                0x000001e8                byte_array2uint16
  .text.uint162byte_array
-                0x00000248       0x20 Conversion_Functions.o
-                0x00000248                uint162byte_array
- .text.main     0x00000268        0xa Master_Micro_Main.o
-                0x00000268                main
+                0x0000020a       0x20 Conversion_Functions.o
+                0x0000020a                uint162byte_array
+ .text.main     0x0000022a        0xa Master_Micro_Main.o
+                0x0000022a                main
  .text.__vector_11
-                0x00000272       0x64 Master_Micro_Main.o
-                0x00000272                __vector_11
+                0x00000234       0x7a Master_Micro_Main.o
+                0x00000234                __vector_11
  .text.set_pin_state
-                0x000002d6       0x36 Pin_Functions.o
-                0x000002d6                set_pin_state
- .text.usart_read_uint8
-                0x0000030c       0x10 USART_Functions.o
-                0x0000030c                usart_read_uint8
+                0x000002ae       0x36 Pin_Functions.o
+                0x000002ae                set_pin_state
  .text.usart_write_uint8
-                0x0000031c       0x1e USART_Functions.o
-                0x0000031c                usart_write_uint8
- .text.usart_write_uint8_array
-                0x0000033a       0x3c USART_Functions.o
-                0x0000033a                usart_write_uint8_array
- .text.usart_write_start_bytes
-                0x00000376       0x24 USART_Functions.o
-                0x00000376                usart_write_start_bytes
- .text.wait_for_start_sequence
-                0x0000039a       0x30 USART_Functions.o
-                0x0000039a                wait_for_start_sequence
- .text.usart_read_matlab_desired_pressures
-                0x000003ca       0x70 USART_Functions.o
-                0x000003ca                usart_read_matlab_desired_pressures
- .text.usart_write_matlab_sensor_data
-                0x0000043a      0x12c USART_Functions.o
-                0x0000043a                usart_write_matlab_sensor_data
- .text.SetupPins
-                0x00000566       0x20 Setup_Functions.o
-                0x00000566                SetupPins
- .text.SetupSPI
-                0x00000586        0xa Setup_Functions.o
-                0x00000586                SetupSPI
- .text.SetupTimerInterrupts
-                0x00000590       0x2a Setup_Functions.o
-                0x00000590                SetupTimerInterrupts
- .text.SetupUSART
-                0x000005ba       0x1e Setup_Functions.o
-                0x000005ba                SetupUSART
- .text.SetupMicro
-                0x000005d8       0x10 Setup_Functions.o
-                0x000005d8                SetupMicro
+                0x000002e4       0x1e USART_Functions.o
+                0x000002e4                usart_write_uint8
+ .text.setup_pins
+                0x00000302       0x20 Setup_Functions.o
+                0x00000302                setup_pins
+ .text.setup_spi
+                0x00000322        0xa Setup_Functions.o
+                0x00000322                setup_spi
+ .text.setup_timer_interrupts
+                0x0000032c       0x2a Setup_Functions.o
+                0x0000032c                setup_timer_interrupts
+ .text.setup_usart
+                0x00000356       0x1e Setup_Functions.o
+                0x00000356                setup_usart
+ .text.setup_micro
+                0x00000374       0x10 Setup_Functions.o
+                0x00000374                setup_micro
  .text.initialize_slave_manager
-                0x000005e8       0x62 Setup_Functions.o
-                0x000005e8                initialize_slave_manager
+                0x00000384       0x62 Setup_Functions.o
+                0x00000384                initialize_slave_manager
  .text.spi_read_write_uint8
-                0x0000064a        0xc SPI_Functions.o
-                0x0000064a                spi_read_write_uint8
+                0x000003e6        0xc SPI_Functions.o
+                0x000003e6                spi_read_write_uint8
  .text.spi_read_write_uint8_array
-                0x00000656       0x50 SPI_Functions.o
-                0x00000656                spi_read_write_uint8_array
+                0x000003f2       0x50 SPI_Functions.o
+                0x000003f2                spi_read_write_uint8_array
  .text.initiate_SPI
-                0x000006a6        0xa SPI_Functions.o
-                0x000006a6                initiate_SPI
+                0x00000442        0xa SPI_Functions.o
+                0x00000442                initiate_SPI
  .text.terminate_SPI
-                0x000006b0        0x6 SPI_Functions.o
-                0x000006b0                terminate_SPI
+                0x0000044c        0x6 SPI_Functions.o
+                0x0000044c                terminate_SPI
  .text.spi_read_write_slave_uint8_array
-                0x000006b6       0x2a SPI_Functions.o
-                0x000006b6                spi_read_write_slave_uint8_array
+                0x00000452       0x2a SPI_Functions.o
+                0x00000452                spi_read_write_slave_uint8_array
  .text.spi_read_write_specific_slave_specific_sensor_specific_command
-                0x000006e0       0xd8 SPI_Functions.o
-                0x000006e0                spi_read_write_specific_slave_specific_sensor_specific_command
+                0x0000047c       0xd8 SPI_Functions.o
+                0x0000047c                spi_read_write_specific_slave_specific_sensor_specific_command
  .text.spi_read_write_specific_slave_all_sensors_specific_command
-                0x000007b8       0xde SPI_Functions.o
-                0x000007b8                spi_read_write_specific_slave_all_sensors_specific_command
+                0x00000554       0xde SPI_Functions.o
+                0x00000554                spi_read_write_specific_slave_all_sensors_specific_command
  .text.spi_read_write_specific_slave_sensor_specific_command
-                0x00000896        0xc SPI_Functions.o
-                0x00000896                spi_read_write_specific_slave_sensor_specific_command
+                0x00000632        0xc SPI_Functions.o
+                0x00000632                spi_read_write_specific_slave_sensor_specific_command
  .text.spi_read_write_all_slaves_sensor_specific_command
-                0x000008a2       0x46 SPI_Functions.o
-                0x000008a2                spi_read_write_all_slaves_sensor_specific_command
+                0x0000063e       0x46 SPI_Functions.o
+                0x0000063e                spi_read_write_all_slaves_sensor_specific_command
  .text.spi_read_write_slave_sensor_specific_command
-                0x000008e8       0x12 SPI_Functions.o
-                0x000008e8                spi_read_write_slave_sensor_specific_command
+                0x00000684       0x12 SPI_Functions.o
+                0x00000684                spi_read_write_slave_sensor_specific_command
  .text.avr-libc.fplib
-                0x000008fa       0x58 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fixunssfsi.o)
-                0x000008fa                __fixunssfsi
+                0x00000696       0x58 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fixunssfsi.o)
+                0x00000696                __fixunssfsi
  .text.avr-libc.fplib
-                0x00000952       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(floatsisf.o)
-                0x00000952                __floatunsisf
-                0x00000956                __floatsisf
+                0x000006ee       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(floatsisf.o)
+                0x000006ee                __floatunsisf
+                0x000006f2                __floatsisf
  .text.avr-libc.fplib
-                0x000009cc       0x26 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(floor.o)
-                0x000009cc                floor
+                0x00000768       0x26 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(floor.o)
+                0x00000768                floor
  .text.avr-libc.fplib
-                0x000009f2       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_mintl.o)
-                0x000009f2                __fp_mintl
+                0x0000078e       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_mintl.o)
+                0x0000078e                __fp_mintl
  .text.avr-libc.fplib
-                0x00000a28       0x1c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_mpack.o)
-                0x00000a28                __fp_mpack
-                0x00000a2c                __fp_mpack_finite
+                0x000007c4       0x1c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_mpack.o)
+                0x000007c4                __fp_mpack
+                0x000007c8                __fp_mpack_finite
  .text.avr-libc.fplib
-                0x00000a44       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_split3.o)
-                0x00000a44                __fp_split3
-                0x00000a54                __fp_splitA
+                0x000007e0       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_split3.o)
+                0x000007e0                __fp_split3
+                0x000007f0                __fp_splitA
  .text.avr-libc.fplib
-                0x00000a88       0x2e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_trunc.o)
-                0x00000a88                __fp_trunc
+                0x00000824       0x2e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_trunc.o)
+                0x00000824                __fp_trunc
  .text.avr-libc.fplib
-                0x00000ab6        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_zero.o)
-                0x00000ab6                __fp_zero
-                0x00000ab8                __fp_szero
-                0x00000ac4                . = ALIGN (0x2)
+                0x00000852        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libm.a(fp_zero.o)
+                0x00000852                __fp_zero
+                0x00000854                __fp_szero
+                0x00000860                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000ac4        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr4\libgcc.a(_exit.o)
-                0x00000ac4                _exit
-                0x00000ac4                exit
+ .fini9         0x00000860        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr4\libgcc.a(_exit.o)
+                0x00000860                _exit
+                0x00000860                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -636,11 +631,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000ac4        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr4\libgcc.a(_exit.o)
+ .fini0         0x00000860        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr4\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000ac8                _etext = .
+                0x00000864                _etext = .
 
-.data           0x00800100       0x16 load address 0x00000ac8
+.data           0x00800100       0x16 load address 0x00000864
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -673,8 +668,8 @@ END GROUP
  COMMON         0x0080024f        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr4\libc.a(iob.o)
                 0x0080024f                __iob
                 0x00800255                PROVIDE (__bss_end, .)
-                0x00000ac8                __data_load_start = LOADADDR (.data)
-                0x00000ade                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00000864                __data_load_start = LOADADDR (.data)
+                0x0000087a                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800255        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
@@ -772,38 +767,38 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x3a84
+.debug_info     0x00000000     0x3a3f
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
  .debug_info    0x000005f4      0x810 ADC_DAC_Functions.o
  .debug_info    0x00000e04      0x4ec Conversion_Functions.o
- .debug_info    0x000012f0      0x3ac Master_Micro_Main.o
- .debug_info    0x0000169c      0x1da Pin_Functions.o
- .debug_info    0x00001876      0x8f6 USART_Functions.o
- .debug_info    0x0000216c      0x367 Setup_Functions.o
- .debug_info    0x000024d3     0x15b1 SPI_Functions.o
+ .debug_info    0x000012f0      0x367 Master_Micro_Main.o
+ .debug_info    0x00001657      0x1da Pin_Functions.o
+ .debug_info    0x00001831      0x8f6 USART_Functions.o
+ .debug_info    0x00002127      0x367 Setup_Functions.o
+ .debug_info    0x0000248e     0x15b1 SPI_Functions.o
 
-.debug_abbrev   0x00000000     0x126e
+.debug_abbrev   0x00000000     0x1274
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
  .debug_abbrev  0x000005a2      0x221 ADC_DAC_Functions.o
  .debug_abbrev  0x000007c3      0x183 Conversion_Functions.o
- .debug_abbrev  0x00000946      0x19f Master_Micro_Main.o
- .debug_abbrev  0x00000ae5       0xe9 Pin_Functions.o
- .debug_abbrev  0x00000bce      0x221 USART_Functions.o
- .debug_abbrev  0x00000def      0x1a7 Setup_Functions.o
- .debug_abbrev  0x00000f96      0x2d8 SPI_Functions.o
+ .debug_abbrev  0x00000946      0x1a5 Master_Micro_Main.o
+ .debug_abbrev  0x00000aeb       0xe9 Pin_Functions.o
+ .debug_abbrev  0x00000bd4      0x221 USART_Functions.o
+ .debug_abbrev  0x00000df5      0x1a7 Setup_Functions.o
+ .debug_abbrev  0x00000f9c      0x2d8 SPI_Functions.o
 
-.debug_line     0x00000000     0x16a5
+.debug_line     0x00000000     0x16bf
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x133 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
  .debug_line    0x00000133      0x3bf ADC_DAC_Functions.o
  .debug_line    0x000004f2      0x267 Conversion_Functions.o
- .debug_line    0x00000759      0x100 Master_Micro_Main.o
- .debug_line    0x00000859       0xf0 Pin_Functions.o
- .debug_line    0x00000949      0x34e USART_Functions.o
- .debug_line    0x00000c97      0x26b Setup_Functions.o
- .debug_line    0x00000f02      0x7a3 SPI_Functions.o
+ .debug_line    0x00000759      0x11a Master_Micro_Main.o
+ .debug_line    0x00000873       0xf0 Pin_Functions.o
+ .debug_line    0x00000963      0x34e USART_Functions.o
+ .debug_line    0x00000cb1      0x26b Setup_Functions.o
+ .debug_line    0x00000f1c      0x7a3 SPI_Functions.o
 
 .debug_frame    0x00000000      0x930
  *(.debug_frame)
@@ -815,32 +810,32 @@ END GROUP
  .debug_frame   0x0000045c       0x84 Setup_Functions.o
  .debug_frame   0x000004e0      0x450 SPI_Functions.o
 
-.debug_str      0x00000000      0xf15
+.debug_str      0x00000000      0xf1d
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega88a/avr4/crtatmega88a.o
- .debug_str     0x00000208      0x437 ADC_DAC_Functions.o
-                                0x489 (size before relaxing)
- .debug_str     0x0000063f      0x113 Conversion_Functions.o
-                                0x32b (size before relaxing)
- .debug_str     0x00000752       0xc4 Master_Micro_Main.o
-                                0x3a9 (size before relaxing)
- .debug_str     0x00000816       0x28 Pin_Functions.o
-                                0x222 (size before relaxing)
- .debug_str     0x0000083e      0x19d USART_Functions.o
-                                0x4de (size before relaxing)
- .debug_str     0x000009db       0x66 Setup_Functions.o
-                                0x33c (size before relaxing)
- .debug_str     0x00000a41      0x4d4 SPI_Functions.o
-                                0x8d6 (size before relaxing)
+ .debug_str     0x00000208      0x420 ADC_DAC_Functions.o
+                                0x472 (size before relaxing)
+ .debug_str     0x00000628      0x113 Conversion_Functions.o
+                                0x314 (size before relaxing)
+ .debug_str     0x0000073b       0x94 Master_Micro_Main.o
+                                0x362 (size before relaxing)
+ .debug_str     0x000007cf       0x28 Pin_Functions.o
+                                0x20b (size before relaxing)
+ .debug_str     0x000007f7      0x1e0 USART_Functions.o
+                                0x4c7 (size before relaxing)
+ .debug_str     0x000009d7       0x72 Setup_Functions.o
+                                0x32c (size before relaxing)
+ .debug_str     0x00000a49      0x4d4 SPI_Functions.o
+                                0x8bf (size before relaxing)
 
-.debug_loc      0x00000000     0x3063
+.debug_loc      0x00000000     0x3082
  *(.debug_loc)
  .debug_loc     0x00000000      0x679 ADC_DAC_Functions.o
  .debug_loc     0x00000679      0x528 Conversion_Functions.o
- .debug_loc     0x00000ba1       0xcb Master_Micro_Main.o
- .debug_loc     0x00000c6c      0x961 USART_Functions.o
- .debug_loc     0x000015cd       0xa2 Setup_Functions.o
- .debug_loc     0x0000166f     0x19f4 SPI_Functions.o
+ .debug_loc     0x00000ba1       0xea Master_Micro_Main.o
+ .debug_loc     0x00000c8b      0x961 USART_Functions.o
+ .debug_loc     0x000015ec       0xa2 Setup_Functions.o
+ .debug_loc     0x0000168e     0x19f4 SPI_Functions.o
 
 .debug_macinfo
  *(.debug_macinfo)
