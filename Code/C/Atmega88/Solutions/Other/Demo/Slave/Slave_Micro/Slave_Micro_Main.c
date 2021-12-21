@@ -29,7 +29,7 @@ int main( void )
 
 	// Toggle a pin to indicate that the microcontroller setup was completed.
 	//toggle_pin( &PORTD, 4 );
-	tbi( PORTD, 4 );
+	tbi( PORTD, 2 );
 
 	// Create an empty loop.
 	while( 1 ){  }
@@ -143,6 +143,9 @@ ISR( PCINT2_vect )					// Pin Change Interrupt Service Routine (Pin Group 2: PCI
 		apply_encoder_increment( &sensor_data, encoder_increment );
 		
 	}
+	
+	// Toggle a pin to indicate complete encoder reading.
+	tbi( PORTD, 5 );
 	
 	// Enable global interrupts.
 	sei(  );
