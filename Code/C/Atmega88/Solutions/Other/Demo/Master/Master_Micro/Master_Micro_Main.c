@@ -15,23 +15,23 @@ static volatile struct slave_struct_array slave_manager;
 
 
 // Implement the main function.
-int main (void)
+int main ( void )
 {
 	
 	// Setup the microcontroller.
-	setup_micro();
+	setup_micro(  );
 
 	// Initialize the slave manager.
 	initialize_slave_manager( &slave_manager );
 
 	// Create an empty loop.
-	while(1){}
+	while( 1 ){  }
 
 }
 
 
 // Implement a function to retrieve data from Matlab, exchange command and sensory data with the slave microcontrollers, and send sensory data to Matlab at consistent time intervals.
-ISR(TIMER1_COMPA_vect)						// Timer Interrupt Function 1.
+ISR( TIMER1_COMPA_vect )						// Timer Interrupt Function 1.
 {
 	
 	// Read the desired pressures from Matlab.

@@ -53,7 +53,7 @@
 
 // Define Encoder Parameters.
 #define ENCODER_PORT PORTD				// PD6 = Encoder Pin A, PD7 = Encoder Pin B
-#define MAX_ENCODER_VALUE 8191			// [#] PPR = Pulses Per Revolution (Max PPR = 2048). [#] CPR = Counts Per REvolution (Max CPR = 8192) (CPR = 4*PPR).  MAX_ENCODER_VALUE = CPR - 1;
+#define MAX_ENCODER_VALUE 8191			// [#] PPR = Pulses Per Revolution (Max PPR = 2048). [#] CPR = Counts Per Revolution (Max CPR = 8192) (CPR = 4*PPR).  MAX_ENCODER_VALUE = CPR - 1;
 #define ENCODER_INDEX 5					// Encoder Index Bit (Bit 5 of the ENCODER_PORT).
 #define ENCODER_REFERENCE_VALUE 0
 
@@ -155,7 +155,7 @@ void setup_micro( void );
 // -------------------------------------------------------------------------------- DEFINE GLOBAL VARIABLES --------------------------------------------------------------------------------
 
 // Define the the standard output.
-static FILE mystdout = FDEV_SETUP_STREAM(usart_write_uint8, NULL, _FDEV_SETUP_WRITE);
+static FILE mystdout = FDEV_SETUP_STREAM( usart_write_uint8, NULL, _FDEV_SETUP_WRITE );
 
 // Declare global constants.
 extern const uint16_t activation_threshold;

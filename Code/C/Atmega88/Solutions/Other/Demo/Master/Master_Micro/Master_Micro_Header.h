@@ -18,8 +18,8 @@
 // -------------------------------------------------------------------------------- DEFINE MACROS AND GLOBAL CONSTANTS --------------------------------------------------------------------------------
 
 // Define pin setting and clearing macros.
-#define sbi(var, mask)   ((var) |= (uint8_t)(1 << mask))
-#define cbi(var, mask)   ((var) &= (uint8_t)~(1 << mask))
+#define sbi( var, mask )   ((var) |= (uint8_t)(1 << mask))
+#define cbi( var, mask )   ((var) &= (uint8_t)~(1 << mask))
 
 // Define SPIF value (used for SPI communication).
 #define SPIF 7

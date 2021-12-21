@@ -98,7 +98,7 @@ void initialize_slave_manager( struct slave_struct_array * slave_ptr )
 {
 	
 	// Disable global interrupts.
-	cli();
+	cli(  );
 
 	// Set the slave manager number of slaves.
 	slave_ptr->num_slaves = NUM_SLAVES;
@@ -150,7 +150,7 @@ void initialize_slave_manager( struct slave_struct_array * slave_ptr )
 	}
 
 	// Enable global interrupts.
-	sei();
+	sei(  );
 	
 }
 
