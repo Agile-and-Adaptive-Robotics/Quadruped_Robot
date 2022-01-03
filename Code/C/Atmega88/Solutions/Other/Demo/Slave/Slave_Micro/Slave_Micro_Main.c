@@ -69,11 +69,15 @@ ISR( TIMER1_COMPA_vect )								// First timer interrupt function.
 	//// BANG-BANG CONTROL.
 	//
 	//// Read the sensor values.
-	//read_analog_sensors( &sensor_data );
+	 //read_analog_sensors( &sensor_data );
+	//
+	//command_data.desired_pressure = 65535;
+	//
+	////sensor_data.pressure_sensor_value1 = 0;
 	//
 	//// Retrieve the desired pressure value from the SPI bytes.	
 	//float desired_pressure_float = desired_pressure_uint162desired_pressure_float( command_data.desired_pressure );
-		//
+	//
 	//// Retrieve the measured pressure value from the pressure sensors.
 	//float measured_pressure_float = volt_float2measured_pressure_float( volt_uint162volt_float( sensor_data.pressure_sensor_value1 ) );
 //
@@ -83,9 +87,11 @@ ISR( TIMER1_COMPA_vect )								// First timer interrupt function.
 	
 	//// Close the valve to exhaust air.
 	//PORTB &=~(1 << 1);
+	//
+	 //Open the valve to add air.
+	PORTB |= (1 << 1);
 	
-	//// Open the valve to add air.
-	//PORTB |= (1 << 1);
+	//sbi( PORTB, 1 );
 	
 	// Toggle a pin each time this interrupt executes.
 	//toggle_pin( &PORTD, 3 );
@@ -110,7 +116,7 @@ ISR( TIMER1_COMPA_vect )								// First timer interrupt function.
 		//
 		//// Update the command ID.
 		//SPI_manager.command_ID = spi_byte;
-		//
+		//-
 	//}
 	//else if ( SPI_manager.spi_index == 1 )			// If this is the second byte of this sentence...
 	//{
@@ -147,6 +153,7 @@ ISR( TIMER1_COMPA_vect )								// First timer interrupt function.
 	//sbi( TIMSK1, OCIE1A );
 	//
 //}
+
 
 
 //// Implement a function to interpret encoder pin change interrupts.
