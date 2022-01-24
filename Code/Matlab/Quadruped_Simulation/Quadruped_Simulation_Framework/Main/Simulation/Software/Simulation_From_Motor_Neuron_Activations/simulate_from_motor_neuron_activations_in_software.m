@@ -15,8 +15,8 @@ fprintf( 'LOADING MOTOR NEURON ACTIVATION DATA. Please Wait...\n' )
 tic
 
 % Define the path to the directory that contains the robot data.
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -29,7 +29,7 @@ file_name = 'motor_neuron_activations.xlsx';
 max_num_data_points = 100;
 
 % Create an instance of the simulation data class.
-precomputed_simulation_manager = precomputed_simulation_manager_class();
+precomputed_simulation_manager = precomputed_simulation_manager_class(  );
 
 % Load the precomputed simulation data.
 precomputed_simulation_manager = precomputed_simulation_manager.load_simulation_data( file_name, max_num_data_points );
@@ -284,7 +284,7 @@ tic
 [ joint_IDs, joint_names, joint_parent_link_IDs, joint_child_link_IDs, joint_ps, joint_vs, joint_ws, joint_w_screws, joint_thetas, joint_domains, joint_orientations, joint_torques ] = data_loader.load_joint_data( 'Joint_Data.xlsx' );
 
 % Define the number of joints.
-num_joints = length(joint_IDs);
+num_joints = length( joint_IDs );
 
 % Define the joint orientations.
 joint_Rs = repmat( eye(3), [ 1, 1, num_joints ] );
@@ -335,7 +335,7 @@ limb_origins = [ -9.5625, 9.5625, -9.5625, 9.5625;
     4.0625, 4.0625, -4.0625, -4.0625 ];
 
 % Preallocate an array of limbs.
-limbs = repmat( limb_class(), 1, num_limbs );
+limbs = repmat( limb_class(  ), 1, num_limbs );
 
 % Create each limb object.
 for k = 1:num_limbs               % Iterate through each of the limbs...
@@ -370,8 +370,8 @@ bInitializePorts = true;
 baud_rate_virtual_ports = 115200; baud_rate_physical_ports = 57600;             % The Master Port is the only physical port.  All other ports are virtual.
 
 % Define the COM port names.
-% COM_port_names = { 'COM11', 'COM1', 'COM2', 'COM7', 'COM8', 'COM9', 'COM10' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
-COM_port_names = { 'COM1', 'COM11', 'COM12', 'COM13', 'COM14', 'COM15', 'COM16' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
+COM_port_names = { 'COM11', 'COM1', 'COM2', 'COM7', 'COM8', 'COM9', 'COM10' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
+% COM_port_names = { 'COM1', 'COM11', 'COM12', 'COM13', 'COM14', 'COM15', 'COM16' };                 % { Master Port, Matlab Input Port, Matlab Output Port, Animatlab Input Port, Animatlab Output Port }.
 
 % Define the master microcontroller port type we would like to use.
 master_port_type = 'virtual';                           % [-] Master Port Type.  Either 'virtual' or 'physical'.
@@ -442,7 +442,7 @@ measured_encoder_values = zeros( 1, num_slaves );
 desired_pressures = zeros( 1, num_slaves );
 
 % Preallocate an array of limbs.
-slaves = repmat( slave_class(), 1, num_slaves );
+slaves = repmat( slave_class(  ), 1, num_slaves );
 
 % Create each slave object.
 for k = 1:num_slaves               % Iterate through each of the slaves...
@@ -677,9 +677,23 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     simulation_manager = simulation_manager.BPA_muscle_property_histories2BPA_muscle_property_derivatives(  );
     
     
+    %% DEBUGGING: PRINTING INFORMATION AFTER BPA DERIVED PROPERTY UPDATES
+    
+    % Determine whether to print simulation information after BPA derived property update.
+    if simulation_manager.bVerbose                      % If we want to print debugging information...
+
+        % State that this debugging information is from after BPA derived property update.
+        fprintf( '\n------------------------------------------------------------ After BPA Derived Property Update ------------------------------------------------------------\n' )
+        
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+        
+    end
+    
+    
     %% Compute Derived Hill Muscle Properties. ( Hill Muscle Tension, Hill Muscle Yank, Hill Muscle Length, Hill Muscle Strain, Hill Muscle Velocity, Hill Muscle Type Ia Feedback, Hill Muscle Type Ib Feedback, and Hill Muscle Type II Feedback )
     
-    % Transfer the appropriate BPA muscle properties to the hill muscles. ( BPA Muscle Measured Tension, BPA Muscle Yank, BPA Muscle Muscle Length, BPA Muscle Muscle Strain, BPA Muscle Muscle Velocity -> Hill Muscle Measured Tension, Hill Muscle Yank, Hill Muscle Muscle Length, Hill Muscle Muscle Strain, Hill Muscle Muscle Velocity  )
+    % Transfer the appropriate BPA muscle properties to the hill muscles. ( BPA Muscle Measured Tension, BPA Muscle Yank, BPA Muscle Length, BPA Muscle Strain, BPA Muscle Velocity -> Hill Muscle Measured Tension, Hill Muscle Yank, Hill Muscle Muscle Length, Hill Muscle Muscle Strain, Hill Muscle Muscle Velocity  )
     simulation_manager.robot_states(end) = simulation_manager.robot_states(end).BPA_muscle_properties2hill_muscle_properties(  );
     
     % Compute the hill muscle measured active and passive tension associated with the hill muscle measured total tension. ( Hill Muscle Measured Tension -> Hill Muscle Measured Active Tension, Hill Muscle Measured Passive Tension )
@@ -687,6 +701,20 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     % Compute the type Ia, type Ib, and type II feedback associated with the current hill muscle velocity, measured total tension, and length, respectively. ( Hill Muscle Velocity -> Hill Muscle Type Ia Feedback; Hill Muscle Measured Total Tension -> Hill Muscle Type Ib Feedback; Hill Muscle Length -> Hill Muscle Type II Feedback )
     simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager = simulation_manager.robot_states(end).neural_subsystem.hill_muscle_manager.muscle_properties2muscle_feedback(  );
+    
+    
+    %% DEBUGGING: PRINTING INFORMATION AFTER HILL MUSCLE PROPERTY UPDATES
+    
+    % Determine whether to print simulation information after BPA derived property update.
+    if simulation_manager.bVerbose                      % If we want to print debugging information...
+
+        % State that this debugging information is from after BPA derived property update.
+        fprintf( '\n------------------------------------------------------------ After Hill Muscle Derived Property Update ------------------------------------------------------------\n' )
+        
+        % Print debugging information.
+        simulation_manager.print_debugging_information(  )
+        
+    end
     
     
     %% Compute the Network Properties & Hill Muscle Activation.
@@ -775,7 +803,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
 end
 
 % Retrieve the total simulation duration.
-simulation_duration = toc(simulation_timer);
+simulation_duration = toc( simulation_timer );
 
 % State that we have finished this operation.
 fprintf( '\nRUNNING SIMULATION. Please Wait... Done. %0.3f [s] \n\n', simulation_duration )

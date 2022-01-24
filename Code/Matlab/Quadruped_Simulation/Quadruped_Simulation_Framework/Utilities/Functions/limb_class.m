@@ -82,11 +82,11 @@ classdef limb_class
             else                                            % Otherwise...
                 
                 % Set the end effector variables to be empty.
-                self.p_end_effector = [];
-                self.R_end_effector = [];
-                self.M_end_effector = [];
-                self.T_end_effector = [];
-                self.J_end_effector = [];
+                self.p_end_effector = [  ];
+                self.R_end_effector = [  ];
+                self.M_end_effector = [  ];
+                self.T_end_effector = [  ];
+                self.J_end_effector = [  ];
                 
             end
             
@@ -151,13 +151,14 @@ classdef limb_class
                     tendon_lengths = total_muscle_tendon_lengths - resting_muscle_lengths;
                     
                     % Retrieve the muscle indexes.
-                    muscle_indexes = strcmp( muscle_types, joint_orientations{k} );
-                    
+%                     muscle_indexes = strcmp( muscle_types, joint_orientations{k} );
+                    muscle_indexes = ~strcmp( muscle_types, joint_orientations{k} );
+
                     % Retrieve the muscle IDs to set.
-                    muscle_IDs_to_set = muscle_IDs(muscle_indexes);
+                    muscle_IDs_to_set = muscle_IDs( muscle_indexes );
                     
                     % Retrieve the tendon lengths to set.
-                    tendon_lengths_to_set = tendon_lengths(muscle_indexes);
+                    tendon_lengths_to_set = tendon_lengths( muscle_indexes );
                     
                     % Store these tendon lengths for each muscle that matches the current joint orientation.
                     self.BPA_muscle_manager = self.BPA_muscle_manager.set_BPA_muscle_property( muscle_IDs_to_set, tendon_lengths_to_set, 'tendon_length' );

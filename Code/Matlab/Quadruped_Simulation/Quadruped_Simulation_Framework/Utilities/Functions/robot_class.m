@@ -181,10 +181,10 @@ classdef robot_class
                 BPA_muscle_index = find( self.neural_subsystem.hill_muscle_manager.hill_muscles(k).ID == BPA_muscle_IDs, 1 );
                 
                 % Determine whether to set the measured total tension of this hill muscle.
-                if ~isempty(BPA_muscle_index)                   % If we found a BPA muscle with the same ID as this hill muscle...
+                if ~isempty( BPA_muscle_index )                   % If we found a BPA muscle with the same ID as this hill muscle...
                     
                     % Set the hill muscle to have the same measured total tension as the BPA muscle.
-                   self.neural_subsystem.hill_muscle_manager.hill_muscles(k).measured_total_tension = BPA_muscle_measured_tensions(BPA_muscle_index);
+                   self.neural_subsystem.hill_muscle_manager.hill_muscles(k).measured_total_tension = BPA_muscle_measured_tensions( BPA_muscle_index );
                     
                 end
                 

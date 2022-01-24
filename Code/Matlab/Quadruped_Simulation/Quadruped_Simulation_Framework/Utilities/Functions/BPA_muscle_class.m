@@ -519,6 +519,34 @@ classdef BPA_muscle_class
         end
         
         
+        % Implement a function to saturate a given muscle length.
+        function muscle_length = saturate_muscle_length( self, muscle_length, bVerbose )
+            
+            % Set the default input arguments.
+            if nargin < 3, bVerbose = false; end
+            
+            % Determine how to saturate the strain.
+            if muscle_length < self.equilibrium_muscle_length                            % If the muscle length is less than the minimum muscle length...
+                
+                % Determine whether to throw a warning.
+                if bVerbose, warning('Muscle length %0.2f [m] is below the minimum muscle length of %0.2f [m].  Setting muscle length to %0.2f [m].', muscle_length, self.equilibrium_muscle_length, self.equilibrium_muscle_length ); end
+                
+                % Set the muscle length to be the equilibrium muscle length.
+                muscle_length = self.equilibrium_muscle_length;
+                
+            elseif muscle_length > self.resting_muscle_length        % If the muscle length is greater than the maximum muscle length...
+                
+                % Determine whether to throw a warning.
+                if bVerbose, warning('Muscle length %0.2f [m] is above the maximum muscle length of %0.2f [m].  Setting muscle length to %0.2f [m].', muscle_length, self.resting_muscle_length, self.resting_muscle_length ); end
+                
+                % Set the force to be the maximum force.
+                muscle_length = self.resting_muscle_length;
+                
+            end
+            
+        end
+        
+        
         % Implement a function to saturate a given strain.
         function strain = saturate_muscle_strain( self, strain, bVerbose )
             
@@ -531,7 +559,7 @@ classdef BPA_muscle_class
                 % Determine whether to throw a warning.
                 if bVerbose, warning('Strain %0.0f [-] is below the minimum strain of %0.0f [-].  Setting strain to %0.0f [-].', strain, self.min_muscle_strain, self.min_muscle_strain ); end
                 
-                % Set the force to be the minimum force.
+                % Set the muscle strain to be the minimum muscle strain.
                 strain = self.min_muscle_strain;
                 
             elseif strain > self.max_muscle_strain        % If the force is greater than the maximum strain...
@@ -539,7 +567,7 @@ classdef BPA_muscle_class
                 % Determine whether to throw a warning.
                 if bVerbose, warning('Strain %0.0f [-] is above the maximum strain of %0.0f [-].  Setting strain to %0.0f [-].', strain, self.max_muscle_strain, self.max_muscle_strain ); end
                 
-                % Set the force to be the maximum force.
+                % Set the muscle strain to be the maximum muscle strain.
                 strain = self.max_muscle_strain;
                 
             end
@@ -927,7 +955,7 @@ classdef BPA_muscle_class
         function muscle_length = strain2length( ~, muscle_strain, resting_muscle_length )
             
             % Compute the current muscle length.
-            muscle_length = resting_muscle_length*(1 - muscle_strain);
+            muscle_length = resting_muscle_length*( 1 - muscle_strain );
             
         end
         
@@ -971,13 +999,14 @@ classdef BPA_muscle_class
             % Determine whether the tendon is taut.
             self = self.compute_tendon_tautness( inferred_muscle_length );
             
-            fprintf( 'Muscle: %s\n', self.name )
-            fprintf( 'Equilibrium Length: %0.2f [in]\n', self.conversion_manager.m2in( self.equilibrium_muscle_length ) )
-            fprintf( 'Inferred Length: %0.2f [in]\n', self.conversion_manager.m2in( inferred_muscle_length ) )
-            fprintf( 'Resting Length: %0.2f [in]\n', self.conversion_manager.m2in( self.resting_muscle_length ) )
-            fprintf( 'Tendon Taut: %0.0f\n', self.tendon_taut )
-            fprintf( 'Muscle Locations:\n' ), disp( self.conversion_manager.m2in( self.ps ) )
-            
+%             fprintf( 'Muscle: %s\n', self.name )
+%             fprintf( 'Total Length: %0.16f [in]\n', self.conversion_manager.m2in( self.total_muscle_tendon_length ) )
+%             fprintf( 'Tendon Length: %0.16f [in]\n', self.conversion_manager.m2in( self.tendon_length ) )
+%             fprintf( 'Equilibrium Length: %0.16f [in]\n', self.conversion_manager.m2in( self.equilibrium_muscle_length ) )
+%             fprintf( 'Inferred Length: %0.16f [in]\n', self.conversion_manager.m2in( inferred_muscle_length ) )
+%             fprintf( 'Resting Length: %0.16f [in]\n', self.conversion_manager.m2in( self.resting_muscle_length ) )
+%             fprintf( 'Tendon Taut: %0.0f\n', self.tendon_taut )
+%             fprintf( 'Muscle Locations:\n' ), disp( self.conversion_manager.m2in( self.ps ) )
             
             % Determine how to set the muscle length.
             if self.tendon_taut                                     % If the tendon is taut...
@@ -1201,21 +1230,31 @@ classdef BPA_muscle_class
         % Implement a function to compute the desired BPA muscle pressure from the current desired BPA muscle tension.
         function self = desired_pressure2desired_tension( self )
             
-            % Saturate the BPA muscle desired pressure.
-            self = self.saturate_BPA_muscle_desired_pressure(  );
+            % Determine how to compute the desired tension.
+            if self.tendon_taut                                                 % If the tendon is taut...
+
+                % Saturate the BPA muscle desired pressure.
+                self = self.saturate_BPA_muscle_desired_pressure(  );
+
+                % Saturate the BPA muscle strain (Type I).
+                self = self.saturate_BPA_muscle_strain(  );
+
+                % Compute the hysteresis factor.
+                S = self.get_hysteresis_factor(  );
+
+                % Compute the BPA muscle desired tension.
+                self.desired_tension = self.forward_BPA_model( self.desired_pressure, self.muscle_strain, self.max_muscle_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
+
+                % Saturate the BPA muscle desired tension.
+                self = self.saturate_BPA_muscle_desired_tension(  );
             
-            % Saturate the BPA muscle strain (Type I).
-            self = self.saturate_BPA_muscle_strain(  );
-            
-            % Compute the hysteresis factor.
-            S = self.get_hysteresis_factor(  );
-            
-            % Compute the BPA muscle desired tension.
-            self.desired_tension = self.forward_BPA_model( self.desired_pressure, self.muscle_strain, self.max_muscle_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
-            
-            % Saturate the BPA muscle desired tension.
-            self = self.saturate_BPA_muscle_desired_tension(  );
-            
+            else                                                                % Otherwise... (The tendon is not taut...)
+                
+                % Set the BPA muscle desired tension to zero.
+                self.desired_tension = 0;
+                
+            end
+                
         end
         
         
@@ -1243,20 +1282,30 @@ classdef BPA_muscle_class
         % Implement a function to compute the measured BPA muscle pressure from the current measured BPA muscle tension.
         function self = measured_pressure2measured_tension( self )
             
-            % Saturate the BPA muscle measured pressure.
-            self = self.saturate_BPA_muscle_measured_pressure(  );
+            % Determine how to compute the BPA muscle measured tension.
+            if self.tendon_taut                                                 % If the tendon is taut...
+                
+                % Saturate the BPA muscle measured pressure.
+                self = self.saturate_BPA_muscle_measured_pressure(  );
+                
+                % Saturate the BPA muscle strain (Type I).
+                self = self.saturate_BPA_muscle_strain(  );
+                
+                % Compute the hysteresis factor.
+                S = self.get_hysteresis_factor(  );
+                
+                % Compute the BPA muscle measured tension.
+                self.measured_tension = self.forward_BPA_model( self.measured_pressure, self.muscle_strain, self.max_muscle_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
+                
+                % Saturate the BPA muscle desired tension.
+                self = self.saturate_BPA_muscle_measured_tension(  );
             
-            % Saturate the BPA muscle strain (Type I).
-            self = self.saturate_BPA_muscle_strain(  );
-            
-            % Compute the hysteresis factor.
-            S = self.get_hysteresis_factor(  );
-            
-            % Compute the BPA muscle measured tension.
-            self.measured_tension = self.forward_BPA_model( self.measured_pressure, self.muscle_strain, self.max_muscle_strain, S, self.c0, self.c1, self.c2, self.c3, self.c4, self.c5, self.c6 );
-            
-            % Saturate the BPA muscle desired tension.
-            self = self.saturate_BPA_muscle_measured_tension(  );
+            else                                                                % Otherwise... (The tendon is taut...)
+                
+                % Set the BPA muscle measured tension to zero.
+                self.measured_tension = 0;
+                
+            end
             
         end
         

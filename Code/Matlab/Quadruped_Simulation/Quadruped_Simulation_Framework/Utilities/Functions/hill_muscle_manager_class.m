@@ -27,10 +27,10 @@ classdef hill_muscle_manager_class
             
             % Set the default hill muscle manager properties.
             if nargin < 2, self.activation_type = 'total'; else, self.activation_type = activation_type; end
-            if nargin < 1, self.hill_muscles = hill_muscle_class(); else, self.hill_muscles = hill_muscles; end
+            if nargin < 1, self.hill_muscles = hill_muscle_class(  ); else, self.hill_muscles = hill_muscles; end
             
             % Set the number of hill muscles.
-            self.num_hill_muscles = length(self.hill_muscles);
+            self.num_hill_muscles = length( self.hill_muscles );
             
             % Create an instance of the conversion manager class.
             self.conversion_manager = conversion_manager_class(  );
@@ -573,7 +573,7 @@ classdef hill_muscle_manager_class
             end
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(muscle_IDs);
+            num_muscles_to_evaluate = length( muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
@@ -585,7 +585,7 @@ classdef hill_muscle_manager_class
                 eval_str = sprintf( 'self.hill_muscles(%0.0f) = self.hill_muscles(%0.0f).%s();', muscle_index, muscle_index, muscle_method );
                 
                 % Evaluate the given muscle method.
-                eval(eval_str);
+                eval( eval_str );
                 
             end
             
@@ -601,7 +601,7 @@ classdef hill_muscle_manager_class
             hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            num_muscles_to_evaluate = length( hill_muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
@@ -624,7 +624,7 @@ classdef hill_muscle_manager_class
             hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            num_muscles_to_evaluate = length( hill_muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
@@ -647,7 +647,7 @@ classdef hill_muscle_manager_class
             hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            num_muscles_to_evaluate = length( hill_muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
@@ -670,7 +670,7 @@ classdef hill_muscle_manager_class
             hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            num_muscles_to_evaluate = length( hill_muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
@@ -693,7 +693,7 @@ classdef hill_muscle_manager_class
             hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            num_muscles_to_evaluate = length( hill_muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
@@ -716,7 +716,7 @@ classdef hill_muscle_manager_class
             hill_muscle_IDs = self.validate_hill_muscle_IDs( hill_muscle_IDs );
             
             % Determine how many muscles to which we are going to apply the given method.
-            num_muscles_to_evaluate = length(hill_muscle_IDs);
+            num_muscles_to_evaluate = length( hill_muscle_IDs );
             
             % Evaluate the given muscle method for each muscle.
             for k = 1:num_muscles_to_evaluate               % Iterate through each of the muscles of interest...
