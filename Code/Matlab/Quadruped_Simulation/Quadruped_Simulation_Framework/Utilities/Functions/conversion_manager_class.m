@@ -15,6 +15,8 @@ classdef conversion_manager_class
         M_PER_IN = 0.0254;
         RAD_PER_DEG = pi/180;
         DEG_PER_RAD = 180/pi;
+        FTLB_PER_NM = 0.7375621493;
+        NM_PER_FTLB = 1.3558179483;
     end
     
     %% CONVERSION MANAGER SETUP FUNCTIONS
@@ -126,6 +128,26 @@ classdef conversion_manager_class
         end
         
         
+        %% TORQUE CONVERSION FUNCTIONS
+        
+        % Implement a function to convert a torque in newton-meters to a torque in foot-pounds.
+        function torque_ftlb = nm2ftlb( self, torque_nm )
+        
+            % Convert the given angle from newton-meters to foot-pounds.
+            torque_ftlb = self.FTLB_PER_NM*torque_nm;
+            
+        end
+        
+        
+        % Implement a function to convert a torque in foot-pounds to a torque in newton-meters.
+        function torque_nm = ftlb2nm( self, torque_ftlb )
+        
+            % Convert the given angle from foot-pounds to newton-meters.
+            torque_nm = self.NM_PER_FTLB*torque_ftlb;
+            
+        end
+        
+            
     end
 end
 

@@ -211,7 +211,7 @@ classdef hill_muscle_manager_class
         function self = validate_activation_type( self )
            
             % Ensure that the activation type is valid.
-            if ~( strcmp( self.activation_type, 'total' ) || strcmp( self.activation_type, 'Total' ) || strcmp( self.activation_type, 'active' ) || strcmp( self.activation_type, 'Active' ) )                  % If the activation type is invalid...
+            if ~( strcmpi( self.activation_type, 'total' ) || strcmp( self.activation_type, 'active' ) )                  % If the activation type is invalid...
                
                 % Set the activation type to total.
                 self.activation_type = 'total';

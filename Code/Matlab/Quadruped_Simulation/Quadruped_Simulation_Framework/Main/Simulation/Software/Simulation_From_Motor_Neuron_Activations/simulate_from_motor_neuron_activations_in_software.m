@@ -22,7 +22,9 @@ robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matl
 data_loader = data_loader_class( robot_data_load_path );
 
 % Define the name of the motor  neuron activations file.
-file_name = 'motor_neuron_activations.xlsx';
+% file_name = 'motor_neuron_activations.xlsx';
+% file_name = 'motor_neuron_activations_square.xlsx';
+file_name = 'motor_neuron_activations_extension.xlsx';
 
 % Define the maximum number of data points to load.
 % max_num_data_points = 1000;
@@ -751,6 +753,8 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     % Compute the BPA muscle desired pressure from the BPA muscle desired tension. ( BPA Muscle Desired Tension -> BPA Muscle Desired Pressure )
     simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.desired_tensions2desired_pressures( 'all' );
     
+
+    
     
     %% DEBUGGING: PRINTING SIMULATION INFORMATION AFTER HILL MUSCLE -> BPA MUSCLE DESIRED TENSION TRANSFER
     
@@ -764,6 +768,10 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
         simulation_manager.print_debugging_information(  )
 
     end
+    
+    
+    simulation_manager.robot_states(end).mechanical_subsystem.limb_manager = simulation_manager.robot_states(end).mechanical_subsystem.limb_manager.desired_pressures2desired_tensions( 'all' );
+
     
     
     %% Store the Desired BPA Muscle Pressure in the Slave Manager.
@@ -780,6 +788,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
     
     %% DEBUGGING: PRINT END OF ITERATION INFORMATION
     
+
     % Determine whether to print end of interation information.
     if simulation_manager.bVerbose                                  % If we want to print debugging information...
     
@@ -890,8 +899,13 @@ fig_BPA_muscle_strain = simulation_manager.plot_BPA_muscle_strain_history( muscl
 
 
 
-% Plot the end effect joint kinematic history.
-fig_joint_kinematics = simulation_manager.plot_joint_kinematic_history( 'all' );
+% Plot the joint kinematic history.
+fig_joint_kinematics = simulation_manager.plot_joint_kinematic_history( joint_IDs(1:4) );
+
+% Plot the joint torque history.
+fig_joint_torques = simulation_manager.plot_joint_torque_history( joint_IDs(1:4) );
+
+
 
 % Plot the end effector path in the state space.
 fig_end_effector_path = simulation_manager.plot_end_effector_path( 'all' );

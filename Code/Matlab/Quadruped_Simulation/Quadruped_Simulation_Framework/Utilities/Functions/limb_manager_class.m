@@ -1052,6 +1052,36 @@ classdef limb_manager_class
         end
         
         
+        % Implement a function to retrieve the muscle strains from all of the BPA muscles.
+        function BPA_muscle_strains = get_muscle_strain_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_strains = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_strains( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_strains( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        
         % Implement a function to get the desired pressures from the specified BPA muscles.
         function BPA_muscle_desired_tensions = get_BPA_muscle_desired_tensions( self, BPA_muscle_IDs )
             
