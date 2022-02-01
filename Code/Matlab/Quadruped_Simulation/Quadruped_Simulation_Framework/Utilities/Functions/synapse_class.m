@@ -6,10 +6,16 @@ classdef synapse_class
     
     % Define the class properties.
     properties
+     
+        ID
+        name
+        
         dEsyn
         gsyn_max
-        to_neuron_ID
+        
         from_neuron_ID
+        to_neuron_ID
+    
     end
     
     
@@ -19,13 +25,15 @@ classdef synapse_class
     methods
         
         % Implement the class constructor.
-        function self = synapse_class( dEsyn, gsyn_max, from_neuron_ID, to_neuron_ID )
+        function self = synapse_class( ID, name, dEsyn, gsyn_max, from_neuron_ID, to_neuron_ID )
 
             % Set the default synapse properties.
-            if nargin < 4, self.to_neuron_ID = 0; else, self.to_neuron_ID = to_neuron_ID; end
-            if nargin < 3, self.from_neuron_ID = 0; else, self.from_neuron_ID = from_neuron_ID; end
-            if nargin < 2, self.gsyn_max = 1e-6; else, self.gsyn_max = gsyn_max; end
-            if nargin < 1, self.dEsyn = -40e-3; else, self.dEsyn = dEsyn; end
+            if nargin < 6, self.to_neuron_ID = 0; else, self.to_neuron_ID = to_neuron_ID; end
+            if nargin < 5, self.from_neuron_ID = 0; else, self.from_neuron_ID = from_neuron_ID; end
+            if nargin < 4, self.gsyn_max = 1e-6; else, self.gsyn_max = gsyn_max; end
+            if nargin < 3, self.dEsyn = -40e-3; else, self.dEsyn = dEsyn; end
+            if nargin < 2, self.name = ''; else, self.name = name; end
+            if nargin < 1, self.ID = 0; else, self.ID = ID; end
 
         end
         

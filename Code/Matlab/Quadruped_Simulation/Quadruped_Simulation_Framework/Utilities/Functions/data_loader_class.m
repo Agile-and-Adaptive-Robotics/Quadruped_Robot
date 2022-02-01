@@ -320,6 +320,126 @@ classdef data_loader_class
         end
             
           
+        % Implement a function to load neuron data from a spreadsheet.
+        function [ neuron_IDs, neuron_names, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = load_neuron_data( self, file_name, directory )
+            
+            % Determine whether to set the load directory to be the stored load directory.
+            if nargin < 3, directory = self.load_path; end
+            
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Determine how to read in the neuron data.
+            if verLessThan( 'matlab', '2019a' )                         % If this Matlab version is older than 2019a...
+               
+                % Read in the neuron data.
+                [ ~, ~, data ] = xlsread( full_path, 'A4:O7' );
+                
+            else                                                        % Otherwise...
+                
+                % Read in the neuron data.
+                data = readcell( full_path, 'NumHeaderLines', 3 );
+
+            end
+            
+            % Retrieve the number of neurons.
+            num_neurons = size( data, 1 );
+           
+            % Preallocate variables to store the neuron data.
+            [ neuron_IDs, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = deal( zeros( 1, num_neurons ) );
+            neuron_names = cell( 1, num_neurons );
+            
+            % Store the data associated with each neuron.
+            for k = 1:num_neurons                           % Iterate through each neuron...
+                
+                % Set the neuron IDs.
+                neuron_IDs(k) = data{ k, 1 };
+                
+                % Set the neuron names.
+                neuron_names{k} = data{ k, 2 };
+
+                % Set the neuron membrane properties.
+                neuron_Cms(k) = data{ k, 3 };
+                neuron_Gms(k) = data{ k, 4 };
+                neuron_Ers(k) = data{ k, 5 };
+                neuron_Rs(k) = data{ k, 6 };
+
+                % Set the neuron sodium channel activation parameters.
+                neuron_Ams(k) = data{ k, 7 };
+                neuron_Sms(k) = data{ k, 8 };
+                neuron_dEms(k) = data{ k, 9 };
+
+                % Set the neuron sodium channel deactivation parameters.
+                neuron_Ahs(k) = data{ k, 10 };
+                neuron_Shs(k) = data{ k, 11 };
+                neuron_dEhs(k) = data{ k, 12 };
+
+                % Set the neuron sodium channel properties.
+                neuron_dEnas(k) = data{ k, 13 };
+                neuron_tauh_maxs(k) = data{ k, 14 };
+                neuron_Gnas(k) = data{ k, 15 };
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to load synapse data from a spreadsheet.
+        function [ synapse_IDs, synapse_names, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = load_synapse_data( self, file_name, directory )
+            
+            % Determine whether to set the load directory to be the stored load directory.
+            if nargin < 3, directory = self.load_path; end
+            
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Determine how to read in the synapse data.
+            if verLessThan( 'matlab', '2019a' )                         % If this Matlab version is older than 2019a...
+               
+                % Read in the synapse data.
+                [ ~, ~, data ] = xlsread( full_path, 'A4:F19' );
+                
+            else                                                        % Otherwise...
+                
+                % Read in the synapse data.
+                data = readcell( full_path, 'NumHeaderLines', 3 );
+
+            end
+            
+            % Retrieve the number of synapses.
+            num_synapses = size( data, 1 );
+           
+            % Preallocate variables to store the synapse data.
+            [ synapse_IDs, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = deal( zeros( 1, num_synapses ) );
+            synapse_names = cell( 1, num_synapses );
+            
+            % Store the data associated with each neuron.
+            for k = 1:num_synapses                           % Iterate through each neuron...
+                
+                % Set the synapse IDs.
+                synapse_IDs(k) = data{ k, 1 };
+                
+                % Set the synapse names.
+                synapse_names{k} = data{ k, 2 };
+                
+                % Set the synapse reversal potentials.
+                synapse_dEsyns(k) = data{ k, 3 };
+                
+                % Set the maximum synapse conductances.
+                synapse_gsyn_maxs(k) = data{ k, 4 };
+                
+                % Set the synapse from neuron ID.
+                synapse_from_neuron_IDs(k) = data{ k, 5 };
+                
+                % Set the synapse to neuron ID.
+                synapse_to_neuron_IDs(k) = data{ k, 6 };
+                
+            end
+            
+        end
+        
+        
+        
             
     end
 end

@@ -22,10 +22,10 @@ classdef synapse_manager_class
         function self = synapse_manager_class( synapses )
 
             % Set the default synapse properties.
-            if nargin < 1, self.synapses = synapse_class(); else, self.synapses = synapses; end
+            if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
             
             % Compute the number of synapses.
-            self.num_synapses = length(self.synapses);
+            self.num_synapses = length( self.synapses );
             
         end
 

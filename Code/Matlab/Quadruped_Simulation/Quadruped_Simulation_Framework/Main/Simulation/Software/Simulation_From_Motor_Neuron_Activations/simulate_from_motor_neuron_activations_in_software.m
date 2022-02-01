@@ -143,7 +143,7 @@ Rs = repmat( eye( 3, 3 ), [ 1, 1, size( ps, 2 ) ] );
 tendon_length = 0;
 
 % Preallocate an array of BPA muscles.
-BPA_muscles = repmat( BPA_muscle_class(), 1, num_BPA_muscles );
+BPA_muscles = repmat( BPA_muscle_class(  ), 1, num_BPA_muscles );
 
 % Create each BPA muscle object.
 for k = 1:num_BPA_muscles               % Iterate through each of the BPA muscles...
