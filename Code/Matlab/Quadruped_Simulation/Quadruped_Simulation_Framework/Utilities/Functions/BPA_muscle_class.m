@@ -694,13 +694,16 @@ classdef BPA_muscle_class
         
         
         % Implement a function to error check the BPA muscle strain.
-        function error_check_muscle_strain( self, muscle_strain )
+        function error_check_muscle_strain( self, muscle_strain, digits )
         
+            % Set the default tolerance.
+            if nargin < 3, digits = 8; end
+
             % Validate the given muscle strain.
-            if ( muscle_strain < self.min_muscle_strain ) || ( muscle_strain > self.max_muscle_strain )                 % Ensure that the given muscle strain is in bounds...
+            if ( round( muscle_strain, digits ) < round( self.min_muscle_strain, digits ) ) || ( round( muscle_strain, digits ) > round( self.max_muscle_strain, digits ) )                 % Ensure that the given muscle strain is in bounds...
             
                 % Throw an error.
-                error( 'Muscle strain %0.2f [-] is out of bounds.  Muscle strain must be in the domain [%0.2f, %0.2f] [-].', muscle_strain, self.min_muscle_strain, self.max_muscle_strain )
+                error( '%s BPA muscle strain %0.2f [-] is out of bounds.  Muscle strain must be in the domain [%0.2f, %0.2f] [-].', self.name, muscle_strain, self.min_muscle_strain, self.max_muscle_strain )
                 
             end
                 
@@ -708,13 +711,16 @@ classdef BPA_muscle_class
         
         
         % Implement a function to error check a BPA muscle length.
-        function error_check_muscle_length( self, muscle_length )
+        function error_check_muscle_length( self, muscle_length, digits )
+            
+            % Set the default tolerance.
+            if nargin < 3, digits = 8; end
             
            % Determine whether the current muscle length is within the acceptable bounds.
-           if ( muscle_length < self.equilibrium_muscle_length ) || ( muscle_length > self.resting_muscle_length )                % If the muscle length is less than the muscle equilibrium length or greater than the muscle resting length...
+           if ( round( muscle_length, digits ) < round( self.equilibrium_muscle_length, digits) ) || ( round( muscle_length, digits ) > round( self.resting_muscle_length, digits) )                % If the muscle length is less than the muscle equilibrium length or greater than the muscle resting length...
             
                % Throw an error.
-               error( 'Muscle length %0.2f [in] out of bounds.  Muscle length must be greater than or equal to the current muscle equilibrium length %0.2f [in] (i.e., the no load, pressurized length) and less than or equal to the resting muscle length %0.2f [in].', self.conversion_manager.m2in( muscle_length ), self.conversion_manager.m2in( self.equilibrium_muscle_length ), self.conversion_manager.m2in( self.resting_muscle_length ) )
+               error( '%s BPA Muscle length %0.2f [in] out of bounds.  BPA Muscle length must be greater than or equal to the current muscle equilibrium length %0.2f [in] (i.e., the no load, pressurized length) and less than or equal to the resting muscle length %0.2f [in].', self.name, self.conversion_manager.m2in( muscle_length ), self.conversion_manager.m2in( self.equilibrium_muscle_length ), self.conversion_manager.m2in( self.resting_muscle_length ) )
                 
            end
                
@@ -798,7 +804,6 @@ classdef BPA_muscle_class
                 error('plot_type %s and figs %0.0f are not compatible.  plot_type must be non-empty.  If figs is of length one, then plot_type must be either: ''strain'', ''force'', or ''pressure''.  If figs is of length 3, then plot type must be ''all''. ', plot_type, figs)
                 
             end
-            
             
         end
         

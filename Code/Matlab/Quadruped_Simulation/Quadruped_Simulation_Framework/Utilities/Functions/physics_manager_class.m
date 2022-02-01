@@ -397,11 +397,30 @@ classdef physics_manager_class
                 % Augment the single set of joint torques with a row of zeros to make it have at least two rows.
                 taus = [ taus; zeros( 1, size( taus, 2 ) ) ];
                 
+                % Set the augmented flag to true.
+                b_tau_augmented = true;
+                
+            else
+                
+                % Set the augmented flag to false.
+                b_tau_augmented = false;
+                
             end
             
             % Perform the forward dynamics calculation.
             [ thetas, dthetas ] = ForwardDynamicsTrajectory( theta0', dtheta0', taus, g, Ftipmat', Ms_relative, Gs, Ss, dt, intRes );      
-                                 
+                        
+            % Determine whether it is necessary to remove the augmented rows.
+            if b_tau_augmented                              % If the joint torques were augmented...
+               
+                % Extract the final theta result (there should only be two rows, the first of which is the initial condition).
+                thetas = thetas( end, : );
+                
+                % Extract the final dtheta result (there should only be two rows, the first of which is the initial condition).
+                dthetas = dthetas( end, : );
+                
+            end
+            
         end
         
         

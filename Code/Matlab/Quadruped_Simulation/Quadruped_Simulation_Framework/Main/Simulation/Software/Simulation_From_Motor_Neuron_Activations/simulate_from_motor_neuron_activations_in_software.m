@@ -423,7 +423,7 @@ pressure_sensor_ID2s = zeros( 1, num_slaves ); pressure_sensor_ID2s(1:2:end) = 2
 slave_joint_IDs = [ 1, 1, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 11, 11, 12, 12, 13, 13, 14, 14 ];
 
 % Define the ID of the joint associated with each slave.
-encoder_IDs = reshape( repmat( (1:(num_slaves/2)), 2, 1 ), 1, num_slaves );
+encoder_IDs = reshape( repmat( ( 1:(num_slaves/2) ), 2, 1 ), 1, num_slaves );
 
 % Define the name of the joint associated with each slave.
 encoder_names = { 'Front Left Scapula', 'Front Left Shoulder', 'Front Left Wrist', ...
@@ -799,7 +799,7 @@ for k = 1:precomputed_simulation_manager.num_timesteps                  % Iterat
         simulation_manager.print_debugging_information(  )
 
         % Print out the iteration information.
-        fprintf('\nIteration %0.0f Complete in %0.3f [s].\n\n', k, iteration_duration)
+        fprintf( '\nIteration %0.0f Complete in %0.3f [s].\n\n', k, iteration_duration )
     
     else                                                                                                % Otherwise...
         
@@ -923,6 +923,12 @@ elapsed_time = toc;
 
 % State that we have finished this operation.
 fprintf( 'PLOTTING SIMULATION RESULTS. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
+
+
+%% Animate Simulation Results
+
+
+
 
 
 %% Terminate USART Communication.

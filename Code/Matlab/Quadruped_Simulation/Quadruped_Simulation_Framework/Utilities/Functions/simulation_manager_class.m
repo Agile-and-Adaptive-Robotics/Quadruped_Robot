@@ -1654,7 +1654,20 @@ classdef simulation_manager_class
         end
         
         
-        %% Printing Function
+        %% Animation Functions
+        
+        % Implement a function to animate the robot's mechanical history.
+        function animate_robot_history( self )
+            
+            
+           get_angles_from_all_joints 
+            
+            
+        end
+        
+        
+        
+        %% Printing Functions
         
         % Implement a function to print debugging information.
         function print_debugging_information( self )
@@ -1699,7 +1712,7 @@ classdef simulation_manager_class
 %             fprintf( 'BPA Muscle Measured Pressure:' ), disp( self.conversion_manager.pa2psi( BPA_muscle_measured_pressures ) )
 
             % Print out the BPA muscle desired & measured tensions.
-%             fprintf( 'BPA Muscle Desired Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_desired_tensions ) )
+            fprintf( 'BPA Muscle Desired Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_desired_tensions ) )
 %             fprintf( 'BPA Muscle Measured Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_measured_tensions ) )    
 
 %             % Print out the BPA muscle strains.
