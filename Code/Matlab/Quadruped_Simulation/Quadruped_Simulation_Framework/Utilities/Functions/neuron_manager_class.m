@@ -20,10 +20,10 @@ classdef neuron_manager_class
         function self = neuron_manager_class( neurons )
             
             % Set the default class properties.
-            if nargin < 1, self.neurons = neuron_class(); else, self.neurons = neurons; end
+            if nargin < 1, self.neurons = neuron_class(  ); else, self.neurons = neurons; end
             
             % Compute the number of neurons.
-            self.num_neurons = length(self.neurons);
+            self.num_neurons = length( self.neurons );
             
         end
         
@@ -185,6 +185,22 @@ classdef neuron_manager_class
                 
                 % Evaluate the given neuron method.
                 eval(eval_str);
+                
+            end
+            
+        end
+        
+        
+        %% Sodium Channel Conductance Functions
+                
+        % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
+        function self = set_two_neuron_CPG_Gna_for_all_neurons( self )
+            
+            % Compute the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
+            for k = 1:self.num_neurons                      % Iterate through each neuron...
+               
+                % Compute the sodium channel conductance for a two neuron CPG subnetwork for this neuron.
+                self.neurons(k) = self.neurons(k).set_two_neuron_CPG_Gna(  );
                 
             end
             

@@ -439,6 +439,61 @@ classdef data_loader_class
         end
         
         
+        % Implement a function to load applied current data from a spreadsheet.
+        function [ applied_current_IDs, applied_current_names, applied_current_neuron_IDs, applied_current_ts, applied_current_I_apps ] = load_applied_current_data( self, file_name, directory )
+                        
+            % Determine whether to set the load directory to be the stored load directory.
+            if nargin < 3, directory = self.load_path; end
+            
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Determine how to read in the applied current data.
+            if verLessThan( 'matlab', '2019a' )                         % If this Matlab version is older than 2019a...
+               
+                % Read in the applied current data.
+                [ ~, ~, data1 ] = xlsread( full_path, 'B1:E3' );
+                [ ~, ~, data2 ] = xlsread( full_path, 'A7:E5007' ); data2 = cell2mat( data2 );
+
+            else                                                        % Otherwise...
+                
+                % Read in the applied current data.
+                data1 = readcell( full_path, 'Range', 'B1:E3' );
+                data2 = readcell( full_path, 'Range', 'A7:E5007' ); data2 = cell2mat( data2 );
+
+            end
+            
+            % Retrieve the number of applied currents.
+            num_applied_currents = size( data1, 2 );
+            num_time_steps = size( data2, 1 );
+            
+            % Preallocate variables to store the applied current data.
+            [ applied_current_IDs, applied_current_neuron_IDs ] = deal( zeros( 1, num_applied_currents ) );
+            [ applied_current_ts, applied_current_I_apps ] = deal( zeros( num_time_steps, num_applied_currents ) );
+            applied_current_names = cell( 1, num_applied_currents );
+            
+            % Store the data associated with each neuron.
+            for k = 1:num_applied_currents                           % Iterate through each neuron...
+                
+                % Set the applied current IDs.
+                applied_current_IDs(k) = data1{ 1, k };
+                
+                % Set the applied current names.
+                applied_current_names{k} = data1{ 2, k };
+                
+                % Set the applied current neuron ID.
+                applied_current_neuron_IDs(k) = data1{ 3, k };
+                
+                % Set the applied current times.
+                applied_current_ts( :, k ) = data2( :, 1 );
+                
+                % Set the applied current magnitudes.
+                applied_current_I_apps( :, k ) = data2( :, k + 1 );
+                
+            end
+            
+            
+        end
         
             
     end

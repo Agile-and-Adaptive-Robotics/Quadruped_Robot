@@ -28,8 +28,8 @@ tic
 % robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 % robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -99,11 +99,31 @@ end
 % Create an instance of the synapse manager class.
 synapse_manager = synapse_manager_class( synapses );
 
+% Load the applied current data.
+[ applied_current_IDs, applied_current_names, applied_current_neuron_IDs, applied_current_ts, applied_current_I_apps ] = data_loader.load_applied_current_data( 'Applied_Current_Data.xlsx' );
+
+% Define the number of applied currents.
+num_applied_currents = length( applied_current_IDs );
+
+% Preallocate an array of applied currents.
+applied_currents = repmat( applied_current_class(  ), 1, num_applied_currents );
+
+% Create each applied current.
+for k = 1:num_applied_currents              % Iterate through each applied current...
+    
+    % Create this applied current.
+    applied_currents(k) = applied_current_class( applied_current_IDs(k), applied_current_names{k}, applied_current_neuron_IDs(k), applied_current_ts( :, k ), applied_current_I_apps( :, k ) );
+    
+end
+
+% Create an instance of the applied current manager class.
+applied_current_manager = applied_current_manager_class( applied_currents );
+
 % Define the network integration step size.
 network_dt = 1e-3;
 
 % Create an instance of the network class.
-network = network_class( neuron_manager, synapse_manager, network_dt );
+network = network_class( neuron_manager, synapse_manager, applied_current_manager, network_dt );
 
 % Retrieve the elapsed time.
 elapsed_time = toc;
@@ -115,4 +135,28 @@ if b_verbose                                                        % If we want
     fprintf( 'INITIALIZING NEURAL NETWORK. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
 
 end
+
+
+%% Modify Neural Network Parameters.
+
+% Set the sodium channel conductance of every neuron in the network using the two neuron CPG approach.
+network = network.set_two_neuron_CPG_Gna_for_all_neurons(  );
+
+% Define the oscillatory and bistable delta CPG synapse design parameters.
+delta_oscillatory = 0.01e-3;
+delta_bistable = -10e-3;
+
+% Define the neuron ID order.
+neuron_ID_order = [ 1 2 3 4 ];
+
+% Set the oscillatory and bistable delta CPG synapse design parameters.
+network.synapse_manager.delta_oscillatory = delta_oscillatory;
+network.synapse_manager.delta_bistable = delta_bistable;
+
+% Set the neuron ID order.
+network.synapse_manager.neuron_ID_order = neuron_ID_order;
+
+% Set the synapse delta values.
+network.synapse_manager = network.synapse_manager.neuron_ID_order2synapse_delta(  );
+
 
