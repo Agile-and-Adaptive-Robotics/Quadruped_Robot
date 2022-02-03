@@ -39,7 +39,7 @@ classdef neuron_manager_class
             % Initialize the neuron index.
             neuron_index = 0;
             
-            while (neuron_index < self.num_neurons) && (~bMatchFound)
+            while ( neuron_index < self.num_neurons ) && ( ~bMatchFound )
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
@@ -72,7 +72,7 @@ classdef neuron_manager_class
             if isa( neuron_IDs, 'char' )                                                      % If the neuron IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmp( neuron_IDs, 'all' ) || strcmp( neuron_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
+                if  strcmpi( neuron_IDs, 'all' )                  % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the neuron IDs.
                     neuron_IDs = zeros( 1, self.num_neurons );
@@ -88,7 +88,7 @@ classdef neuron_manager_class
                 else                                                                        % Otherwise...
                     
                     % Throw an error.
-                    error('Neuron_IDs must be either an array of valid neuron IDs or one of the strings: ''all'' or ''All''.')
+                    error( 'Neuron_IDs must be either an array of valid neuron IDs or one of the strings: ''all'' or ''All''.' )
                     
                 end
                 
@@ -106,7 +106,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
             % Determine how many neurons to which we are going to apply the given method.
-            num_properties_to_get = length(neuron_IDs);
+            num_properties_to_get = length( neuron_IDs );
             
             % Preallocate a variable to store the neuron properties.
             xs = cell( 1, num_properties_to_get );
@@ -121,7 +121,7 @@ classdef neuron_manager_class
                 eval_str = sprintf( 'xs{k} = self.neurons(%0.0f).%s;', neuron_index, neuron_property );
 
                 % Evaluate the given neuron property.
-                eval(eval_str);
+                eval( eval_str );
                 
             end
             
@@ -146,16 +146,16 @@ classdef neuron_manager_class
             for k = 1:self.num_neurons                   % Iterate through each neuron...
                 
                 % Determine the index of the neuron property value that we want to apply to this neuron (if we want to set a property of this neuron).
-                index = find(self.neurons(k).ID == neuron_IDs, 1);
+                index = find( self.neurons(k).ID == neuron_IDs, 1 );
                 
                 % Determine whether to set a property of this neuron.
-                if ~isempty(index)                         % If a matching neuron ID was detected...
+                if ~isempty( index )                         % If a matching neuron ID was detected...
                     
                     % Create an evaluation string that sets the desired neuron property.
-                    eval_string = sprintf('self.neurons(%0.0f).%s = neuron_property_values{%0.0f};', k, neuron_property, index);
+                    eval_string = sprintf( 'self.neurons(%0.0f).%s = neuron_property_values{%0.0f};', k, neuron_property, index );
                     
                     % Evaluate the evaluation string.
-                    eval(eval_string);
+                    eval( eval_string );
                     
                 end
             end
@@ -172,7 +172,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
             % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length(neuron_IDs);
+            num_neurons_to_evaluate = length( neuron_IDs );
             
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
@@ -184,7 +184,7 @@ classdef neuron_manager_class
                 eval_str = sprintf( 'self.neurons(%0.0f) = self.neurons(%0.0f).%s();', neuron_index, neuron_index, neuron_method );
                 
                 % Evaluate the given neuron method.
-                eval(eval_str);
+                eval( eval_str );
                 
             end
             
@@ -194,13 +194,22 @@ classdef neuron_manager_class
         %% Sodium Channel Conductance Functions
                 
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-        function self = set_two_neuron_CPG_Gna_for_all_neurons( self )
+        function self = compute_set_CPG_Gna( self, neuron_IDs )
             
-            % Compute the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-            for k = 1:self.num_neurons                      % Iterate through each neuron...
-               
-                % Compute the sodium channel conductance for a two neuron CPG subnetwork for this neuron.
-                self.neurons(k) = self.neurons(k).set_two_neuron_CPG_Gna(  );
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_CPG_Gna(  );
                 
             end
             

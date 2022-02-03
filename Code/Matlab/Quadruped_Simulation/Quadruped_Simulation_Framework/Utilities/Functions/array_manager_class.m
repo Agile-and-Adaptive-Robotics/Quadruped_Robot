@@ -25,7 +25,23 @@ classdef array_manager_class
         end
         
         
-        %% DATA TYPE CONVERSION FUNCTIONS
+        %% ARRAY FUNCTIONS
+        
+        % Implement a function to remove all specified values from an array.
+        function array = remove_entries( ~, array, entries_to_remove )
+            
+            % Retrieve the number of entries to remove.
+           num_entries_to_remove = length( entries_to_remove );
+           
+           % Remove each of the specified entries.
+           for k = 1:num_entries_to_remove                          % Iterate through each of the entries ot remove...
+              
+               % Remove this entry.
+               array( array == entries_to_remove(k) ) = [  ];
+               
+           end
+            
+        end
         
       
         

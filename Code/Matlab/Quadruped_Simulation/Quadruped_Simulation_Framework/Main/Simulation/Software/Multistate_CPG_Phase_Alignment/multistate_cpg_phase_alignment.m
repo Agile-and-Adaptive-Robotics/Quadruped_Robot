@@ -140,7 +140,7 @@ end
 %% Modify Neural Network Parameters.
 
 % Set the sodium channel conductance of every neuron in the network using the two neuron CPG approach.
-network = network.set_two_neuron_CPG_Gna_for_all_neurons(  );
+network.neuron_manager = network.neuron_manager.compute_set_CPG_Gna( 'all' );
 
 % Define the oscillatory and bistable delta CPG synapse design parameters.
 delta_oscillatory = 0.01e-3;
@@ -158,5 +158,9 @@ network.synapse_manager.neuron_ID_order = neuron_ID_order;
 
 % Set the synapse delta values.
 network.synapse_manager = network.synapse_manager.neuron_ID_order2synapse_delta(  );
+
+% Set the network delta matrix.
+network = network.set_delta_matrix(  );
+
 
 

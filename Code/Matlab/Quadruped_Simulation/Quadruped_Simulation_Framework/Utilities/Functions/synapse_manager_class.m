@@ -14,6 +14,8 @@ classdef synapse_manager_class
         delta_bistable
         neuron_ID_order
         
+        array_manager
+        
     end
     
     
@@ -24,6 +26,9 @@ classdef synapse_manager_class
         
         % Implement the class constructor.
         function self = synapse_manager_class( synapses, delta_oscillatory, delta_bistable, neuron_ID_order )
+            
+            % Create an instance of the array manager class.
+            self.array_manager = array_manager_class(  );
             
             % Set the default synapse properties.
             if nargin < 4, self.neuron_ID_order = []; else, self.neuron_ID_order = neuron_ID_order; end
@@ -189,6 +194,8 @@ classdef synapse_manager_class
         end
         
         
+        
+        
         %% Call Methods Functions
         
         % Implement a function to that calls a specified synapse method for each of the specified synapses.
@@ -311,6 +318,38 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to retrieve all self connecting synapses.
+        function synapse_IDs = get_self_connecting_sypnapse_IDs( self )
+            
+            % Initialize a loop counter.
+            index = 0;
+            
+            % Preallocate an array to store the synapses IDs.
+            synapse_IDs = zeros( 1, self.num_synapses );
+            
+            % Retrieve all self-connecting synapse IDs.
+            for k = 1:self.num_synapses                         % Iterate through each synapse...
+            
+                % Determine whether this synapse is a self-connection.
+                if ( self.synapses(k).from_neuron_ID == self.synapses(k).to_neuron_ID )             % If this synapse is a self-connection...
+
+                    % Advance the synapse ID index.
+                    index = index + 1;
+                    
+                    % Retrieve this synapse index.
+                    synapse_IDs(index) = self.synapses(k).ID;
+                    
+                end
+                    
+            end
+            
+            % Keep only the relevant synapse IDs.
+            synapse_IDs = synapse_IDs( 1:index );
+                
+        end
+        
+        
+        
         % Implement a function to convert a specific neuron ID order to from-to neuron ID pairs.
         function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2from_to_neuron_IDs( ~, neuron_ID_order )
             
@@ -353,64 +392,99 @@ classdef synapse_manager_class
             [ from_neuron_IDs, to_neuron_IDs ] = self.neuron_ID_order2from_to_neuron_IDs( self.neuron_ID_order );
             
             % Retrieve all of the synapse IDs.
-%             synapse_IDs = self.get_synapse_property( 'all', 'ID' );
             synapse_IDs = self.get_all_synapse_IDs(  );
-            
             
             % Retrieve the synapse IDs for each synapse the connects the specified neurons.
             synapse_IDs_oscillatory = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs );
             
+            % Retrieve the synapse IDs for all self-connections.
+            synapse_IDs_self_connections = self.get_self_connecting_sypnapse_IDs(  );
+            
             % Retrieve the synapse IDs for all of the other neurons.
-            synapse_IDs_bistable = 1;
+            synapse_IDs_bistable = self.array_manager.remove_entries( synapse_IDs, synapse_IDs_oscillatory );
+            synapse_IDs_bistable = self.array_manager.remove_entries( synapse_IDs_bistable, synapse_IDs_self_connections );
             
-            % Set the delta value of each of the specified synapses.
-            self = self.set_synapse_property( synapse_IDs_oscillatory, self.delta_oscillatory, 'delta' );
+            % Set the delta value of each of the oscillatory synapses.
+            self = self.set_synapse_property( synapse_IDs_oscillatory, self.delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta' );
             
-            % Set the delta value of each of the remaining synapses.
-            self = self.set_synapse_property( synapse_IDs_bistable, self.delta_bistable, 'delta' );
+            % Set the delta value of each of the bistable synapses.
+            self = self.set_synapse_property( synapse_IDs_bistable, self.delta_bistable*ones( 1, length( synapse_IDs_bistable ) ), 'delta' );
             
+            % Set the delta value of each of the self-connecting synapses.
+            self = self.set_synapse_property( synapse_IDs_self_connections, zeros( 1, length( synapse_IDs_self_connections ) ), 'delta' );
             
         end
         
         
-        % Implement a function to compute the delta matrix.
-        function deltas = compute_delta_matrix( self, neuron_ID_order, delta_bistable, delta_oscillatory )
-            
-            % This function computes the delta matrix required to make a multistate CPG oscillate in a specified order.
-            
-            % Inputs:
-            % neuron_order = 1 x num_neurons array that specifies the order in which the multistate CPG should oscillate.
-            % delta_bistable = Scalar delta value that describes the steady state voltage to which low neurons should be sent in bistable configurations.
-            % delta_oscillatory = Scalar delta value that describes the steady state voltage to which low neurons should be sent in oscillatory configurations.
-            
-            % Outputs:
-            % deltas = num_neurons x num_neurons matrix whose ij entry is the delta value that describes the synapse from neuron j to neuron i.
-            
-            % Compute the number of neurons.
-            num_oscillatory_synapses = length( neuron_ID_order );
-            
-            % Initialize the delta matrix to be completely bistable.
-            deltas = delta_bistable*ones( num_oscillatory_synapses, num_oscillatory_synapses );
-            
-            % Switch the desired synapses to be oscillatory.
-            for k = 1:num_oscillatory_synapses                              % Iterate through each oscillatory synapse.
-                
-                % Compute the index of the next neuron in the chain.
-                j = mod(k, num_oscillatory_synapses) + 1;
-                
-                % Compute the from and to indexes.
-                from_index = neuron_ID_order(k);
-                to_index = neuron_ID_order(j);
-                
-                % Set the appropriate synapse to be oscillatory.
-                deltas(to_index, from_index) = delta_oscillatory;
-                
-            end
-            
-            % Zero out the diagonal entries.
-            deltas(1:(1 + size(deltas, 1)):end) = 0;
-            
-        end
+%         % Implement a function to compute the delta matrix.
+%         function deltas = compute_delta_matrix( self )
+%             
+%             % Retrieve the from neuron IDs.
+%             from_neuron_IDs_unique = unique( self.get_synapse_property( 'all', 'from_neuron_ID' ) );
+%             
+%             % Retrieve the to neuron IDs.
+%             to_neuron_IDs_unique = unique( self.get_synapse_property( 'all', 'to_neuron_ID' ) );
+% 
+%             % Ensure that the unique from and to neuron IDs match exactly.
+%             assert( all( from_neuron_IDs_unique == to_neuron_IDs_unique ), 'Unique from neuron IDs must equal unique to neuron IDs.' )
+%             
+%             % Retrieve the number of neurons connected by these synapses.
+%             num_neurons = length( from_neuron_IDs_unique );
+%             
+%             % Preallocate the deltas matrix.
+%             deltas = zeros( num_neurons );
+%             
+%             % Retrieve the entries of the delta matrix.
+%             for k1 = 1:num_neurons
+%                 for k2 = 1:num_neurons
+%                     
+%                     deltas( 
+%                     
+%                 end
+%             end
+%                 
+%         end
+        
+        
+        
+%         % Implement a function to compute the delta matrix.
+%         function deltas = compute_delta_matrix( self, neuron_ID_order, delta_bistable, delta_oscillatory )
+%             
+%             % This function computes the delta matrix required to make a multistate CPG oscillate in a specified order.
+%             
+%             % Inputs:
+%             % neuron_order = 1 x num_neurons array that specifies the order in which the multistate CPG should oscillate.
+%             % delta_bistable = Scalar delta value that describes the steady state voltage to which low neurons should be sent in bistable configurations.
+%             % delta_oscillatory = Scalar delta value that describes the steady state voltage to which low neurons should be sent in oscillatory configurations.
+%             
+%             % Outputs:
+%             % deltas = num_neurons x num_neurons matrix whose ij entry is the delta value that describes the synapse from neuron j to neuron i.
+%             
+%             % Compute the number of neurons.
+%             num_oscillatory_synapses = length( neuron_ID_order );
+%             
+%             % Initialize the delta matrix to be completely bistable.
+%             deltas = delta_bistable*ones( num_oscillatory_synapses, num_oscillatory_synapses );
+%             
+%             % Switch the desired synapses to be oscillatory.
+%             for k = 1:num_oscillatory_synapses                              % Iterate through each oscillatory synapse.
+%                 
+%                 % Compute the index of the next neuron in the chain.
+%                 j = mod(k, num_oscillatory_synapses) + 1;
+%                 
+%                 % Compute the from and to indexes.
+%                 from_index = neuron_ID_order(k);
+%                 to_index = neuron_ID_order(j);
+%                 
+%                 % Set the appropriate synapse to be oscillatory.
+%                 deltas(to_index, from_index) = delta_oscillatory;
+%                 
+%             end
+%             
+%             % Zero out the diagonal entries.
+%             deltas(1:(1 + size(deltas, 1)):end) = 0;
+%             
+%         end
         
         
         

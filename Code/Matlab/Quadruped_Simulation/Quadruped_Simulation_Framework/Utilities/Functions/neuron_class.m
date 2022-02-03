@@ -32,6 +32,13 @@ classdef neuron_class
         minf
         hinf
         
+        I_leak
+        I_syn
+        I_na
+        I_app
+        
+        neuron_utilities
+        
     end
     
     
@@ -41,9 +48,16 @@ classdef neuron_class
     methods
         
         % Implement the class constructor.
-        function self = neuron_class( ID, name, U, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna )
+        function self = neuron_class( ID, name, U, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_app )
 
+            % Create an instance of the neuron utilities class.
+            self.neuron_utilities = neuron_utilities_class(  );
+            
             % Set the default neuron properties.
+            if nargin < 20, self.I_app = 0; else, self.I_app = I_app; end
+            if nargin < 19, self.I_na = 0; else, self.I_na = I_na; end
+            if nargin < 18, self.I_syn = 0; else, self.I_syn = I_syn; end
+            if nargin < 17, self.I_leak = 0; else, self.I_leak = I_leak; end
             if nargin < 16, self.Gna = 1e-6; else, self.Gna = Gna; end
             if nargin < 15, self.tauh_max = 0.25; else, self.tauh_max = tauh_max; end
             if nargin < 14, self.dEna = 110e-3; else, self.dEna = dEna; end
@@ -61,6 +75,8 @@ classdef neuron_class
             if nargin < 2, self.name = ''; else, self.name = name; end
             if nargin < 1, self.ID = 0; else, self.ID = ID; end
             
+            
+            
             % Set the steady state sodium channel activation and deactivation parameters.
             self = self.set_minf(  );
             self = self.set_hinf(  );
@@ -70,31 +86,11 @@ classdef neuron_class
 
         %% Sodium Channel Activation & Deactivation Functions
         
-        % Implement a function to compute the steady state sodium channel activation and deactivation parameters.
-        function mhinf = compute_mhinf( ~, U, Amh, Smh, dEmh )
-        
-            % This function computes the steady state sodium channel activation / deactivation parameter for every neuron in a network.
-
-            % Inputs:
-                % Us = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials for each neuron in the network.
-                % Amhs = num_neurons x 1 vector of neuron sodium channel activation / deactivation A parameters.
-                % Smhs = num_neurons x 1 vector of neuron sodium channel activation / deactivation S parameters.
-                % dEmhs = num_neurons x 1 vector of neuron sodium channel activation / deactivation reversal potential w.r.t thier resting potentials.
-
-            % Outputs:
-                % mhinfs = num_neurons x 1 vector of neuron steady state sodium channel activation /deactivation values.
-
-            % Compute the steady state sodium channel activation / deactivation parameter.
-            mhinf = 1./( 1 + Amh.*exp( -Smh.*( dEmh - U ) ) );
-            
-        end
-        
-        
         % Implement a function to compute the steady state sodium channel activation parameter.
         function minf = compute_minf( self )
             
             % Compute the steady state sodium channel activation parameter.
-            minf = self.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
+            minf = self.neuron_utilities.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
             
         end
         
@@ -103,13 +99,13 @@ classdef neuron_class
         function hinf = compute_hinf( self )
            
             % Compute the steady state sodium channel deactivaiton parameter.
-            hinf = self.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
+            hinf = self.neuron_utilities.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
             
         end
-        
+
         
         % Implement a function to set the steady state sodium channel activation parameter.
-        function self = set_minf( self )
+        function self = compute_set_minf( self )
 
             % Compute the steady state sodium channel activation parameter.
             self.minf = self.compute_minf(  );
@@ -118,7 +114,7 @@ classdef neuron_class
         
         
         % Implement a function to set the steady state sodium channel deactivation parameter.
-        function self = set_hinf( self )
+        function self = compute_set_hinf( self )
            
             % Compute the steady state sodium channel deactivaiton parameter.
             self.hinf = self.compute_hinf(  );
@@ -126,26 +122,61 @@ classdef neuron_class
         end
         
         
-        %% Sodium Channel Conductance Functions
+        %% Conductance Functions
         
-        % Implement a function to compute the sodium channel conductances for a two neuron CPG subnetwork.
-        function Gna = compute_two_neuron_CPG_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
+        % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
+        function Gna = compute_CPG_Gna( self )
             
-            % Compute the steady state sodium channel activation & devactivation parameters at the upper equilibrium.
-            minf_upper = self.compute_mhinf( R, Am, Sm, dEm );
-            hinf_upper = self.compute_mhinf( R, Ah, Sh, dEh );
-
-            % Compute the sodium channel conductance for each half-center neuron.
-            Gna = ( Gm.*R )./( minf_upper.*hinf_upper.*( dEna - R ) );       % [S] Sodium Channel Conductance.  Equation straight from Szczecinski's CPG example.
-
+            % Compute the required sodium channel conductance to create oscillation in a two neuron CPG subnetwork.
+            Gna = self.neuron_utilities.compute_CPG_Gna( self.R, self.Gm, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            
         end
         
+
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork.
-        function self = set_two_neuron_CPG_Gna( self )
+        function self = compute_set_CPG_Gna( self )
             
             % Compute the sodium channel conductance for a two neuron CPG subnetwork.
-            self.Gna = self.compute_two_neuron_CPG_Gna( self.R, self.Gm, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            self.Gna = self.compute_CPG_Gna(  );
             
+        end
+        
+        
+        %% Current Functions.
+        
+        % Implement a function to compute the leak current associated with this neuron.
+        function I_leak = compute_leak_current( self )
+           
+            % Compute the leak current associated with this neuron.
+            I_leak = self.neuron_utilities.compute_leak_current( self.U, self.Gm );
+            
+        end
+        
+            
+        % Implement a function to compute and set the leak current associated with this neuron.
+        function self = compute_set_leak_current( self )
+            
+           % Compute the leak current associated with this neuron.
+           self.I_leak = self.compute_leak_current(  );
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel current associated with this neuron.
+        function I_na = compute_sodium_current( self )
+        
+            % Compute the sodium channel current associated with this neuron.
+            I_na = self.neuron_utilities.compute_sodium_current( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+                       
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel current associated with this neuron.
+        function self = compute_set_sodium_current( self )
+        
+            % Compute the sodium channel current associated with this neuron.
+            self.I_na = self.neuron_utilities.compute_sodium_current( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+                       
         end
         
         
