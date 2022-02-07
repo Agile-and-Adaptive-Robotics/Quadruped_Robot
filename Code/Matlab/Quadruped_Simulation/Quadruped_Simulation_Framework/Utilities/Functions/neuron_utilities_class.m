@@ -90,10 +90,19 @@ classdef neuron_utilities_class
             m_inf = self.compute_mhinf( U, Am, Sm, dEm );
                        
             % Compute the steady state sodium channel deactivaiton parameter.
-            h_inf = self.compute_mhinf( UU, Ah, Sh, dEh );
+            h_inf = self.compute_mhinf( U, Ah, Sh, dEh );
 
             % Compute the sodium channel current.
             I_na = Gna.*m_inf.*h_inf.*( dEna - U );
+            
+        end
+        
+        
+        % Implement a function to compute the total current.
+        function I_total = compute_total_current( ~, I_leak, I_syn, I_na, I_tonic, I_app )
+            
+           % Compute the the total current.
+           I_total = I_leak + I_syn + I_na + I_tonic + I_app;
             
         end
         

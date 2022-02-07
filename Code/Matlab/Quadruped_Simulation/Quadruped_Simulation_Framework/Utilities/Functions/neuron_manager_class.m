@@ -6,8 +6,32 @@ classdef neuron_manager_class
     
     % Define the class properties.
     properties
+        
         neurons
         num_neurons
+        
+%         Us
+%         hs
+%         
+%         Cms
+%         Gms
+%         Ers
+%         Rs
+%         
+%         Ams
+%         Sms
+%         dEms
+%         
+%         Ahs
+%         Shs
+%         dEhs
+%         
+%         dEnas
+%         tauh_maxs
+%         Gnas
+%         
+%         I_tonics
+        
     end
     
     
@@ -24,7 +48,7 @@ classdef neuron_manager_class
             
             % Compute the number of neurons.
             self.num_neurons = length( self.neurons );
-            
+
         end
         
         

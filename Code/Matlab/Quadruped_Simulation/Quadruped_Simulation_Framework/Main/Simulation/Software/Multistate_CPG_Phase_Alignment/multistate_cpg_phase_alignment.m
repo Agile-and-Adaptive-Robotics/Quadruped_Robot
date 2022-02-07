@@ -160,7 +160,12 @@ network.synapse_manager.neuron_ID_order = neuron_ID_order;
 network.synapse_manager = network.synapse_manager.neuron_ID_order2synapse_delta(  );
 
 % Set the network delta matrix.
-network = network.set_delta_matrix(  );
+network = network.construct_set_delta_matrix(  );
+
+% Compute and set the maximum synaptic conductances required to achieve these delta values.
+network = network.compute_set_max_synaptic_conductance_matrix(  );
 
 
+
+x = 1;
 

@@ -14,6 +14,11 @@ classdef synapse_manager_class
         delta_bistable
         neuron_ID_order
         
+%         dE_syns
+%         g_syn_maxs
+%     
+%         deltas
+        
         array_manager
         
     end
@@ -31,13 +36,22 @@ classdef synapse_manager_class
             self.array_manager = array_manager_class(  );
             
             % Set the default synapse properties.
-            if nargin < 4, self.neuron_ID_order = []; else, self.neuron_ID_order = neuron_ID_order; end
-            if nargin < 3, self.delta_bistable = []; else, self.delta_bistable = delta_bistable; end
-            if nargin < 2, self.delta_oscillatory = []; else, self.delta_oscillatory = delta_oscillatory; end
+            if nargin < 4, self.neuron_ID_order = [  ]; else, self.neuron_ID_order = neuron_ID_order; end
+            if nargin < 3, self.delta_bistable = [  ]; else, self.delta_bistable = delta_bistable; end
+            if nargin < 2, self.delta_oscillatory = [  ]; else, self.delta_oscillatory = delta_oscillatory; end
             if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
             
             % Compute the number of synapses.
             self.num_synapses = length( self.synapses );
+            
+%             % Retrieve the synaptic reversal potentials.
+%             self.dE_syns = cell2mat( self.get_synapse_property( 'all', 'dE_syn' ) );
+%             
+%             % Retrieve the maximum synaptic conductances.
+%             self.g_syn_maxs = cell2mat( self.get_synapse_property( 'all', 'g_syn_max' ) );
+% 
+%             % Retrieve the deltas.
+%             self.deltas = cell2mat( self.get_synapse_property( 'all', 'delta' ) );
             
         end
         
