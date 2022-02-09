@@ -10,28 +10,6 @@ classdef neuron_manager_class
         neurons
         num_neurons
         
-%         Us
-%         hs
-%         
-%         Cms
-%         Gms
-%         Ers
-%         Rs
-%         
-%         Ams
-%         Sms
-%         dEms
-%         
-%         Ahs
-%         Shs
-%         dEhs
-%         
-%         dEnas
-%         tauh_maxs
-%         Gnas
-%         
-%         I_tonics
-        
     end
     
     

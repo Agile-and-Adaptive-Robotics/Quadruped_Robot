@@ -1,4 +1,4 @@
-classdef array_manager_class
+classdef array_utilities_class
 
     % This class constains properties and methods related to converting data types.
     
@@ -19,7 +19,7 @@ classdef array_manager_class
     methods
         
         % Implement the class constructor.
-        function self = array_manager_class(  )
+        function self = array_utilities_class(  )
 
             
         end

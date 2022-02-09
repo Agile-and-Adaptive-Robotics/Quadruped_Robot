@@ -10,7 +10,6 @@ clear, close('all'), clc
 b_verbose = true;
 
 
-
 %% Initialize the Data Loader Class.
 
 % Determine whether to print status messages.
@@ -28,8 +27,8 @@ tic
 % robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 % robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
-robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
-% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
 
 % Create an instance of the data loader class.
 data_loader = data_loader_class( robot_data_load_path );
@@ -60,7 +59,7 @@ end
 tic
 
 % Load the neuron data.
-[ neuron_IDs, neuron_names, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = data_loader.load_neuron_data( 'Neuron_Data.xlsx' );
+[ neuron_IDs, neuron_names, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = data_loader.load_neuron_data( 'Neuron_Data.xlsx' );
 
 % Define the number of neurons.
 num_neurons = length( neuron_IDs );
@@ -71,8 +70,11 @@ neurons = repmat( neuron_class(  ), 1, num_neurons );
 % Create each neuron object.
 for k = 1:num_neurons               % Iterate through each of the neurons...
     
+    % Compute the initial sodium channel deactivation parameter.
+    neuron_h0 = neurons(k).neuron_utilities.compute_mhinf( neuron_U0s(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k) );
+    
     % Create this neuron.
-    neurons(k) = neuron_class( neuron_IDs(k), neuron_names{k}, neuron_Cms(k), neuron_Gms(k), neuron_Ers(k), neuron_Rs(k), neuron_Ams(k), neuron_Sms(k), neuron_dEms(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k), neuron_dEnas(k), neuron_tauh_maxs(k), neuron_Gnas(k) );
+    neurons(k) = neuron_class( neuron_IDs(k), neuron_names{k}, neuron_U0s(k), neuron_h0, neuron_Cms(k), neuron_Gms(k), neuron_Ers(k), neuron_Rs(k), neuron_Ams(k), neuron_Sms(k), neuron_dEms(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k), neuron_dEnas(k), neuron_tauh_maxs(k), neuron_Gnas(k) );
     
 end
 
@@ -156,15 +158,38 @@ network.synapse_manager.delta_bistable = delta_bistable;
 % Set the neuron ID order.
 network.synapse_manager.neuron_ID_order = neuron_ID_order;
 
+
+
+% THE FOLLOWING TWO NETWORK DESIGN FUNCTIONS ASSUME THAT THE MULTISTATE OSCILLATOR IS THE ENTIRE NETWORK.  THEY NEED TO BE UPDATED TO ONLY APPLY DESIGN PRINCIPALS TO THE DESIGNATED SUBNETWORK.
+
+% SHOULD CREATE NETWORK DESIGN FUNCTIONS THAT ALLOW YOU TO AUTOMATICALLY CREATE AND ASSEMBLE SUBNETWORKS: MULTISTATE CPG OSCILLATORS, FUNCTIONAL SUBNETWORKS.
+
+
+
 % Set the synapse delta values.
 network.synapse_manager = network.synapse_manager.neuron_ID_order2synapse_delta(  );
 
-% Set the network delta matrix.
-network = network.construct_set_delta_matrix(  );
-
 % Compute and set the maximum synaptic conductances required to achieve these delta values.
-network = network.compute_set_max_synaptic_conductance_matrix(  );
+network = network.compute_set_max_synaptic_conductances(  );
 
+
+
+%% Simulate the Network.
+
+% Define the total simulation duration.
+tf = 5;
+
+% Simulate the network.
+[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network.compute_set_simulation( tf );
+
+
+%% Plot the Network Results.
+
+% Plot the network states over time.
+fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs );
+
+% Animate the network states over time.
+fig_network_animation = network.network_utilities.animate_network_states( Us, hs );
 
 
 x = 1;

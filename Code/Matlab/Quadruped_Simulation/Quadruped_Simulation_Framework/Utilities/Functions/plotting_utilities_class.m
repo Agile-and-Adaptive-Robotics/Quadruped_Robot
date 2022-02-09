@@ -2,10 +2,13 @@ classdef plotting_utilities_class
     
     % This class contains properties and methods related to plotting utilities.
     
+    
     %% PLOTTING UTILITIES PROPERTIES
     
     % Define the class properties.
     properties
+        
+        
         
     end
     

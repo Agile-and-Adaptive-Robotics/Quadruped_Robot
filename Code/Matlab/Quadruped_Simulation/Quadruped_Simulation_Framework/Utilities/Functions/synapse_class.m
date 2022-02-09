@@ -12,6 +12,7 @@ classdef synapse_class
         
         dE_syn
         g_syn_max
+        G_syn
         
         from_neuron_ID
         to_neuron_ID

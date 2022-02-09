@@ -1,10 +1,19 @@
 classdef numerical_method_utilities_class
 
+    % This class contains properties and methods related to numerical methods utilities.
+    
+    
+    %% NUMERICAL METHODS UTILITIES PROPERTIES
+    
     % Define class properties.
     properties
+        
         method_names
+        
     end
     
+    
+    %% NUMERICAL METHODS UTILITIES METHODS SETUP
     
     % Define class methods.
     methods

@@ -321,7 +321,7 @@ classdef data_loader_class
             
           
         % Implement a function to load neuron data from a spreadsheet.
-        function [ neuron_IDs, neuron_names, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = load_neuron_data( self, file_name, directory )
+        function [ neuron_IDs, neuron_names, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = load_neuron_data( self, file_name, directory )
             
             % Determine whether to set the load directory to be the stored load directory.
             if nargin < 3, directory = self.load_path; end
@@ -333,7 +333,7 @@ classdef data_loader_class
             if verLessThan( 'matlab', '2019a' )                         % If this Matlab version is older than 2019a...
                
                 % Read in the neuron data.
-                [ ~, ~, data ] = xlsread( full_path, 'A4:O7' );
+                [ ~, ~, data ] = xlsread( full_path, 'A4:P7' );
                 
             else                                                        % Otherwise...
                 
@@ -346,7 +346,7 @@ classdef data_loader_class
             num_neurons = size( data, 1 );
            
             % Preallocate variables to store the neuron data.
-            [ neuron_IDs, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = deal( zeros( 1, num_neurons ) );
+            [ neuron_IDs, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = deal( zeros( 1, num_neurons ) );
             neuron_names = cell( 1, num_neurons );
             
             % Store the data associated with each neuron.
@@ -359,25 +359,26 @@ classdef data_loader_class
                 neuron_names{k} = data{ k, 2 };
 
                 % Set the neuron membrane properties.
-                neuron_Cms(k) = data{ k, 3 };
-                neuron_Gms(k) = data{ k, 4 };
-                neuron_Ers(k) = data{ k, 5 };
-                neuron_Rs(k) = data{ k, 6 };
+                neuron_U0s(k) = data{ k, 3 };
+                neuron_Cms(k) = data{ k, 4 };
+                neuron_Gms(k) = data{ k, 5 };
+                neuron_Ers(k) = data{ k, 6 };
+                neuron_Rs(k) = data{ k, 7 };
 
                 % Set the neuron sodium channel activation parameters.
-                neuron_Ams(k) = data{ k, 7 };
-                neuron_Sms(k) = data{ k, 8 };
-                neuron_dEms(k) = data{ k, 9 };
+                neuron_Ams(k) = data{ k, 8 };
+                neuron_Sms(k) = data{ k, 9 };
+                neuron_dEms(k) = data{ k, 10 };
 
                 % Set the neuron sodium channel deactivation parameters.
-                neuron_Ahs(k) = data{ k, 10 };
-                neuron_Shs(k) = data{ k, 11 };
-                neuron_dEhs(k) = data{ k, 12 };
+                neuron_Ahs(k) = data{ k, 11 };
+                neuron_Shs(k) = data{ k, 12 };
+                neuron_dEhs(k) = data{ k, 13 };
 
                 % Set the neuron sodium channel properties.
-                neuron_dEnas(k) = data{ k, 13 };
-                neuron_tauh_maxs(k) = data{ k, 14 };
-                neuron_Gnas(k) = data{ k, 15 };
+                neuron_dEnas(k) = data{ k, 14 };
+                neuron_tauh_maxs(k) = data{ k, 15 };
+                neuron_Gnas(k) = data{ k, 16 };
                 
             end
             

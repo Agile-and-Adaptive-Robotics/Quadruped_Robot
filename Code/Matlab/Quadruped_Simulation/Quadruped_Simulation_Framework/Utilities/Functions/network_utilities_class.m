@@ -9,6 +9,7 @@ classdef network_utilities_class
     properties
         
         neuron_utilities
+        numerical_method_utilities
         
     end
     
@@ -24,13 +25,45 @@ classdef network_utilities_class
             % Create an instance of the neuron utilities class.
             self.neuron_utilities = neuron_utilities_class(  );
             
+            % Create an instance of the numerical methods utilities class.
+            self.numerical_method_utilities = numerical_method_utilities_class(  );
+            
         end
-        
         
         
         %% Synapse Functions
         
-        % Implement a function to comptue the maximum synaptic conductance.
+        % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
+        function G_syn = compute_synaptic_conductance( ~, U, R, g_syn_max )
+
+            % Compute the synaptic conductance associated with this neuron.
+            G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );
+            
+        end
+        
+        
+        % Implement a function to compute synaptic current.
+        function I_syn = compute_synapse_current( ~, U, G_syn, dE_syn )
+            
+            % Compute the synaptic current.
+            I_syn = sum( G_syn.*( dE_syn - U ), 2 );
+                        
+        end
+        
+        
+        % Implement a function to perform a synaptic current step.
+        function [ I_syn, G_syn ] = synapse_current_step( self, U, R, g_syn_max, dE_syn )
+                  
+            % Compute the synaptic conductance of this synapse leaving this neuron.
+            G_syn = self.compute_synaptic_conductance( U, R, g_syn_max );
+
+            % Compute the synaptic current for this neuron.
+            I_syn = self.compute_synapse_current( U, G_syn, dE_syn );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance.
         function g_syn_max_vector = compute_max_synaptic_conductance_vector( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic )
             
             % This function computes the maximum synaptic conductances for a chain of CPGs necessary to achieve the specified deltas with the given network properties.
@@ -63,9 +96,13 @@ classdef network_utilities_class
                         % Compute the leak current.
                         I_leak = self.neuron_utilities.compute_leak_current( deltas(i, k), Gms(i) );
                         
-                        % Compute the sodium channel current.
-                        I_na = self.neuron_utilities.compute_sodium_current( deltas(i, k), Gnas(i), Ams(i), Sms(i), dEms(i), Ahs(i), Shs(i), dEhs(i), dEnas(i) );
+                        % Compute the sodium channel steady state activation and deactivation parameters.
+                        m_inf = self.neuron_utilities.compute_mhinf( deltas(i, k), Ams(i), Sms(i), dEms(i) );
+                        h_inf = self.neuron_utilities.compute_mhinf( deltas(i, k), Ahs(i), Shs(i), dEhs(i) );
                         
+                        % Compute the sodium channel current.
+                        I_na = self.neuron_utilities.compute_sodium_current( deltas(i, k), h_inf, m_inf, Gnas(i), dEnas(i) );
+
                         % Compute the system and right-hand side coefficients.
                         aik1 = deltas( i, k ) - dEsyns( i, k );
                         aik2 = neq( p, k ).*( deltas( p, k )./Rs( p, k ) ).*( deltas( i, k ) - dEsyns( p, k ) );
@@ -123,10 +160,16 @@ classdef network_utilities_class
         
         
         % Implement a function to convert a maximum synaptic conductance vector to a maximum synaptic conductance matrix.
-        function g_syn_max_matrix = max_synaptic_conductance_vector2max_synaptic_conductance_matrix( ~, g_syn_max_vector, n )
+        function g_syn_max_matrix = g_syn_max_vector2g_syn_max_matrix( ~, g_syn_max_vector, num_neurons )
             
+%             % Compute the number of neurons.
+%             num_neurons = sqrt( length( g_syn_max_vector ) );
+            
+%             % Ensure that the number of neurons is an integer.
+%             assert( num_neurons == round( num_neurons ), 'Number of maximum synaptic conductances length( g_syn_max ) must be a perfect square.' )
+%             
             % Preallocate the synaptic conductance matrix.
-            g_syn_max_matrix = zeros( n );
+            g_syn_max_matrix = zeros( num_neurons );
             
             % Initialize the previous row variable.
             row_prev = 0;
@@ -135,8 +178,8 @@ classdef network_utilities_class
             for k = 1:length( g_syn_max_vector )            % Iterate through each synaptic conductance...
                 
                 % Compute the relevant remainder and quotient.
-                r = mod( k - 1, n - 1 );
-                q = ( k - r - 1 )/( n - 1 );
+                r = mod( k - 1, num_neurons - 1 );
+                q = ( k - r - 1 )/( num_neurons - 1 );
                 
                 % Compute the row associated with this entry.
                 row = q + 1;
@@ -172,18 +215,276 @@ classdef network_utilities_class
 
 
         % Implement a function to compute the maximum synaptic conductance matrix.
-        function g_syn_max_matrix = compute_max_synaptic_conductance_matrix( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics )
+        function g_syn_max_matrix = compute_max_synaptic_conductance( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics )
 
             % Compute the maximum synaptic conductance vector.
             g_syn_max_vector = self.compute_max_synaptic_conductance_vector( deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
-            
+                        
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
             
             % Compute the maximum synaptic conductance matrix.
-            g_syn_max_matrix = self.max_synaptic_conductance_vector2max_synaptic_conductance_matrix( g_syn_max_vector, num_neurons );
+            g_syn_max_matrix = self.g_syn_max_vector2g_syn_max_matrix( g_syn_max_vector, num_neurons );
             
         end
+        
+        
+        %% Simulation Functions
+        
+        % Implement a function to perform a single simulation step.
+        function [ dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = simulation_step( self, Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps )
+            
+            % This function computes a single step of a neural network without sodium channels.
+            
+            % Inputs:
+            % Us = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
+            % hs = num_neurons x 1 vector of neuron sodium channel deactivation parameters.
+            % Gms = num_neurons x 1 vector of neuron membrane conductances.
+            % Cms = num_neurons x 1 vector of neuron membrane capacitances.
+            % Rs = num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
+            % g_syn_maxs = num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
+            % dE_syns = num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
+            % Ams = num_neurons x 1 vector of sodium channel activation A parameter values.
+            % Sms = num_neurons x 1 vector of sodium channel activation S parameter values.
+            % dEms = num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
+            % Ahs = num_neurons x 1 vector of sodium channel deactivation A parameter values.
+            % Shs = num_neurons x 1 vector of sodium channel deactivation S parameter values.
+            % dEhs = num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
+            % tauh_maxs = num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
+            % Gnas = num_neurons x 1 vector of sodium channel conductances for each neuron.
+            % dEnas = num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
+            % I_tonics = num_neurons x 1 vector of applied currents for each neuron.
+            % I_apps = num_neurons x 1 vector of applied currents for each neuron.
+            
+            % Outputs:
+            % dUs = num_neurons x 1 vector of neuron membrane voltage derivatives w.r.t their resting potentials.
+            % dhs = num_neurons x 1 vector of neuron sodium channel deactivation parameter derivatives.
+            % Gsyns = num_neurons x num_neurons matrix of synaptic conductances.  Entry ij represents the synaptic conductance from neuron j to neuron i.
+            % Ileaks = num_neurons x 1 vector of leak currents for each neuron.
+            % Isyns = num_neurons x 1 vector of synaptic currents for each neuron.
+            % Inas = num_neurons x 1 vector of sodium channel currents for each neuron.
+            % Itotals = num_neurons x 1 vector of total currents for each neuron.
+            % minfs = num_neurons x 1 vector of neuron steady state sodium channel activation values.
+            % hinfs = num_neurons x 1 vector of neuron steady state sodium channel deactivation values.
+            % tauhs = num_neurons x 1 vector of sodium channel deactivation parameter time constants.
+            
+            % Compute the leak currents.
+            I_leaks = self.neuron_utilities.compute_leak_current( Us, Gms );
+            
+            % Compute synaptic currents.
+            [ I_syns, G_syns ] = self.synapse_current_step( Us, Rs, g_syn_maxs, dE_syns );
+            
+            % Compute the sodium channel currents.            
+            [ I_nas, m_infs ] = self.neuron_utilities.sodium_current_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );
+            
+            % Compute the sodium channel deactivation time constant.
+            [ tauhs, h_infs ] = self.neuron_utilities.sodium_time_constant_step( Us, tauh_maxs, Ahs, Shs, dEhs );
+                        
+            % Compute the total currents.            
+            I_totals = self.neuron_utilities.compute_total_current( I_leaks, I_syns, I_nas, I_tonics, I_apps );
+            
+            % Compute the membrane voltage derivatives.            
+            dUs = self.neuron_utilities.compute_membrane_voltage_derivative( I_totals, Cms );
+            
+            % Compute the sodium channel deactivation parameter derivatives.
+            dhs = self.neuron_utilities.compute_sodium_deactivation_derivative( hs, h_infs, tauhs );
+            
+        end
+        
+        
+        % Implement a function to simulate the network.
+        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt )
+            
+            % This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, dEsyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
+            
+            % Inputs:
+            % Us0 = num_neurons x 1 vector of initial membrane voltages of each neuron w.r.t their resting potentials.
+            % hs0 = num_neurons x 1 vector of initial sodium channel deactivation parameters for each neuron.
+            % Gms = num_neurons x 1 vector of neuron membrane conductances.
+            % Cms = num_neurons x 1 vector of neuron membrane capacitances.
+            % Rs = num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
+            % gsyn_maxs = num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
+            % dEsyns = num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
+            % Ams = num_neurons x 1 vector of sodium channel activation A parameter values.
+            % Sms = num_neurons x 1 vector of sodium channel activation S parameter values.
+            % dEms = num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
+            % Ahs = num_neurons x 1 vector of sodium channel deactivation A parameter values.
+            % Shs = num_neurons x 1 vector of sodium channel deactivation S parameter values.
+            % dEhs = num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
+            % tauh_maxs = num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
+            % Gnas = num_neurons x 1 vector of sodium channel conductances for each neuron.
+            % dEnas = num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
+            % Iapp = num_neurons x num_timesteps vector of applied currents for each neuron.
+            % tf = Scalar that represents the simulation duration.
+            % dt = Scalar that represents the simulation time step.
+            
+            % Outputs:
+            % ts = 1 x num_timesteps vector of the time associated with each simulation step.
+            % Us = num_neurons x num_timesteps matrix of the neuron membrane voltages over time w.r.t. their resting potentials.
+            % hs = num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameters.
+            % dUs = num_neurons x num_timesteps matrix of neuron membrane voltage derivatives over time w.r.t their resting potentials.
+            % dhs = num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameter derivatives.
+            % Gsyns = num_neurons x num_neurons x num_timesteps tensor of synapse conductances over time.  The ijk entry represens the synaptic condutance from neuron j to neuron i at time step k.
+            % Ileaks = num_neurons x num_timsteps matrix of neuron leak currents over time.
+            % Isyns = num_neurons x num_timesteps matrix of synaptic currents over time.
+            % Inas = num_neurons x num_timesteps matrix of sodium channel currents for each neuron.
+            % Itotals = num_neurons x num_timesteps matrix of total currents for each neuron.
+            % minfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel activation values.
+            % hinfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel deactivation values.
+            % tauhs = num_neurons x num_timesteps matrix of sodium channel deactivation parameter time constants.
+            
+            % Compute the simulation time vector.
+            ts = 0:dt:tf;
+            
+            % Compute the number of time steps.
+            num_timesteps = length( ts );
+            
+            % Ensure that there are the correct number of applied currents.
+            if size( I_apps, 2 ) ~= num_timesteps                  % If the number of Iapps columns is not equal to the number of timesteps...
+                
+                % Throw an error.
+                error( 'size(Iapps, 2) must equal the number of simulation time steps.\n' )
+                
+            end
+            
+            % Retrieve the number of neurons from the input dimensions.
+            num_neurons = size( Us0, 1 );
+            
+            % Preallocate arrays to store the simulation data.
+            [ Us, hs, dUs, dhs, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = deal( zeros( num_neurons, num_timesteps ) );
+            
+            % Preallocate a multidimensional array to store the synaptic conductances.
+            G_syns = zeros( num_neurons, num_neurons, num_timesteps );
+            
+            % Set the initial network condition.
+            Us(:, 1) = Us0; hs(:, 1) = hs0;
+            
+            % Simulate the network.
+            for k = 1:( num_timesteps - 1 )               % Iterate through each timestep...
+                
+                % Compute the network state derivatives (as well as other intermediate network values).
+                [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
+                
+                % Compute the membrane voltages at the next time step.
+                Us( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( Us(:, k), dUs(:, k), dt );
+                
+                % Compute the sodium channel deactivation parameters at the next time step.
+                hs( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( hs(:, k), dhs(:, k), dt );
+                
+            end
+            
+            % Advance the loop counter variable to perform one more network step.
+            k = k + 1;
+            
+            % Compute the network state derivatives (as well as other intermediate network values).
+            [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
+            
+        end
+
+        
+        %% Plotting Functions
+        
+        % Implement a function to plot the network states over time.
+        function fig = plot_network_states( ~, ts, Us, hs )
+                        
+            % Create a figure to store the network states.
+            fig = figure( 'Color', 'w', 'Name', 'Network States vs Time' );
+            subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), title( 'CPG Membrane Voltage vs Time' )
+            subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'CPG Sodium Channel Deactivation Parameter vs Time' )
+            
+            % Retrieve the number of neurons.
+            num_neurons = size( Us, 1 );
+            
+            % Prellocate an array to store the legend entries.
+            legstr = cell( 1, num_neurons );
+            
+            % Plot the states of each neuron over time.
+            for k = 1:num_neurons           % Iterate through each of the neurons.
+                
+                % Plot the states associated with this neuron.
+                subplot( 2, 1, 1 ), plot( ts, Us(k, :), '-', 'Linewidth', 3 )
+                subplot( 2, 1, 2 ), plot( ts, hs(k, :), '-', 'Linewidth', 3 )
+                
+                % Add an entry to our legend string.
+                legstr{k} = sprintf( 'Neuron %0.0f', k );
+                
+            end
+            
+            % Add a legend to the plots.
+            subplot( 2, 1, 1 ), legend( legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+            subplot( 2, 1, 2 ), legend( legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+            
+        end
+        
+        
+        % Implement a function to animate the network states over time.
+        function fig = animate_network_states( ~, Us, hs, num_playbacks, playback_speed )
+            
+            % Set the default input arguments.
+            if nargin < 5, playback_speed = 1; end
+            if nargin < 4, num_playbacks = 1; end
+
+            % Compute the state space domain of interest.
+            U_min = min( Us, [  ], 'all' ); U_max = max( Us, [  ], 'all' );
+            h_min = min( hs, [  ], 'all' ); h_max = max( hs, [  ], 'all' );
+            
+            % Retrieve the number of neurons.
+            num_neurons = size( Us, 1 );
+            
+            % Retrieve the number of time steps.
+            num_timesteps = size( Us, 2 );
+            
+            % Create a plot to store the CPG's State Space Trajectory animation.
+            fig = figure( 'Color', 'w', 'Name', 'Network State Trajectory Animation' ); hold on, grid on, xlabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'Network State Space Trajectory' ), axis( [ U_min U_max h_min h_max ] )
+                        
+            % Preallocate arrays to store the figure elements.
+            line_paths = gobjects( num_neurons, 1 );
+            line_ends = gobjects( num_neurons, 1 );
+            
+            % Prellocate an array to store the legend entries.
+            legstr = cell( 1, num_neurons );
+            
+            % Create the figure elements associated with each of the neurons.
+            for k = 1:num_neurons               % Iterate through each of the neurons...
+                
+                % Create data source strings for the path figure element.
+                xdatastr_path = sprintf( 'Us(%0.0f, 1:k)', k );
+                ydatastr_path = sprintf( 'hs(%0.0f, 1:k)', k );
+                
+                % Add this path figure element to the array of path figure elements.
+                line_paths(k) = plot( 0, 0, '-', 'Linewidth', 2, 'XDataSource', xdatastr_path, 'YDataSource', ydatastr_path );
+                
+                % Create data source strings for each end point figure element.
+                xdatastr_end = sprintf( 'Us(%0.0f, k)', k );
+                ydatastr_end = sprintf( 'hs(%0.0f, k)', k );
+                
+                % Add this path figure element to the array of end figure elements.
+                line_ends(k) = plot( 0, 0, 'o', 'Linewidth', 2, 'Markersize', 15, 'Color', line_paths(k).Color, 'XDataSource', xdatastr_end, 'YDataSource', ydatastr_end );
+                
+                % Add an entry to our legend string.
+                legstr{k} = sprintf('Neuron %0.0f', k);
+                
+            end
+            
+            % Add a legend to the plot.
+            legend( line_ends, legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+            
+            % Animate the figure.
+            for j = 1:num_playbacks                     % Iterate through each play back...
+                for k = 1:playback_speed:num_timesteps              % Iterate through each of the angles...
+                    
+                    % Refresh the plot data.
+                    refreshdata( [ line_paths, line_ends ], 'caller' )
+                    
+                    % Update the plot.
+                    drawnow
+                    
+                end
+            end
+            
+        end
+        
+        
         
         
     end
