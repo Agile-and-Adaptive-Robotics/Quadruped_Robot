@@ -10,6 +10,8 @@ classdef neuron_manager_class
         neurons
         num_neurons
         
+        data_loader_utilities
+        
     end
     
     
@@ -20,6 +22,9 @@ classdef neuron_manager_class
         
         % Implement the class constructor.
         function self = neuron_manager_class( neurons )
+            
+            % Create an instance of the data loader class.
+            self.data_loader_utilities = data_loader_utilities_class(  );
             
             % Set the default class properties.
             if nargin < 1, self.neurons = neuron_class(  ); else, self.neurons = neurons; end
@@ -198,6 +203,9 @@ classdef neuron_manager_class
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
         function self = compute_set_CPG_Gna( self, neuron_IDs )
             
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
@@ -217,6 +225,71 @@ classdef neuron_manager_class
             
         end
         
+        
+        %% Save & Load Neuron Functions
+        
+        % Implement a function to load neuron data.
+        function self = load_neuron_data( self, file_name, directory, b_append, b_verbose )
+        
+            % Set the default input arguments.
+            if nargin < 5, b_verbose = true; end
+            if nargin < 4, b_append = false; end
+            if nargin < 3, directory = '.'; end
+            if nargin < 2, file_name = 'Neuron_Data.xlsx'; end
+        
+            % Determine whether to print status messages.
+            if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait...\n' ), end
+            
+            % Start a timer.
+            tic
+            
+            % Load the neuron data.
+            [ neuron_IDs, neuron_names, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = self.data_loader_utilities.load_neuron_data( file_name, directory );
+        
+            % Define the number of neurons.
+            num_neurons_to_load = length( neuron_IDs );
+
+            % Preallocate an array of neurons.
+            neurons_to_load = repmat( neuron_class(  ), 1, num_neurons_to_load );
+
+            % Create each neuron object.
+            for k = 1:num_neurons_to_load               % Iterate through each of the neurons...
+
+                % Compute the initial sodium channel deactivation parameter.
+                neuron_h0 = neurons_to_load(k).neuron_utilities.compute_mhinf( neuron_U0s(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k) );
+
+                % Create this neuron.
+                neurons_to_load(k) = neuron_class( neuron_IDs(k), neuron_names{k}, neuron_U0s(k), neuron_h0, neuron_Cms(k), neuron_Gms(k), neuron_Ers(k), neuron_Rs(k), neuron_Ams(k), neuron_Sms(k), neuron_dEms(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k), neuron_dEnas(k), neuron_tauh_maxs(k), neuron_Gnas(k) );
+
+            end
+            
+            % Determine whether to append the neurons we just loaded.
+            if b_append                         % If we want to append the neurons we just loaded...
+                
+                % Append the neurons we just loaded to the array of existing neurons.
+                self.neurons = [ self.neurons neurons_to_load ];
+                
+                % Update the number of neurons.
+                self.num_neurons = length( self.neurons );
+                
+            else                                % Otherwise...
+                
+                % Replace the existing neurons with the neurons we just loaded.
+                self.neurons = neurons_to_load;
+                
+                % Update the number of neurons.
+                self.num_neurons = length( self.neurons );
+                
+            end
+            
+            % Retrieve the elapsed time.
+            elapsed_time = toc;
+            
+            % Determine whether to print status messages.
+            if b_verbose, fprintf( 'INITIALIZING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
+            
+        end
+            
         
     end
 end

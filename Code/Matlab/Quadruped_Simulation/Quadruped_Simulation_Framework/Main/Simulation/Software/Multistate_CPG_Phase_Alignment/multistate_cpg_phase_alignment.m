@@ -9,6 +9,13 @@ clear, close('all'), clc
 % Set the level of verbosity.
 b_verbose = true;
 
+% Define the path to the directory that contains the robot data.
+% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+
+% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+
 
 %% Initialize the Data Loader Class.
 
@@ -23,15 +30,8 @@ end
 % Start a timer.
 tic
 
-% Define the path to the directory that contains the robot data.
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
-
 % Create an instance of the data loader class.
-data_loader = data_loader_class( robot_data_load_path );
+data_loader = data_loader_utilities_class( robot_data_load_path );
 
 % Retrieve the elapsed time.
 elapsed_time = toc;
@@ -47,39 +47,44 @@ end
 
 %% Initialize the Neural Network.
 
-% Determine whether to print status messages.
-if b_verbose                                                        % If we want to print status messages...
-    
-    % State that we are starting a new operation.
-    fprintf( 'INITIALIZING NEURAL NETWORK. Please Wait...\n' )
+% % Determine whether to print status messages.
+% if b_verbose                                                        % If we want to print status messages...
+%     
+%     % State that we are starting a new operation.
+%     fprintf( 'INITIALIZING NEURAL NETWORK. Please Wait...\n' )
+% 
+% end
+%     
+% % Start a timer.
+% tic
+% 
+% % Load the neuron data.
+% [ neuron_IDs, neuron_names, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = data_loader.load_neuron_data( 'Neuron_Data.xlsx' );
+% 
+% % Define the number of neurons.
+% num_neurons = length( neuron_IDs );
+% 
+% % Preallocate an array of neurons.
+% neurons = repmat( neuron_class(  ), 1, num_neurons );
+% 
+% % Create each neuron object.
+% for k = 1:num_neurons               % Iterate through each of the neurons...
+%     
+%     % Compute the initial sodium channel deactivation parameter.
+%     neuron_h0 = neurons(k).neuron_utilities.compute_mhinf( neuron_U0s(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k) );
+%     
+%     % Create this neuron.
+%     neurons(k) = neuron_class( neuron_IDs(k), neuron_names{k}, neuron_U0s(k), neuron_h0, neuron_Cms(k), neuron_Gms(k), neuron_Ers(k), neuron_Rs(k), neuron_Ams(k), neuron_Sms(k), neuron_dEms(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k), neuron_dEnas(k), neuron_tauh_maxs(k), neuron_Gnas(k) );
+%     
+% end
+% 
+% % Create an instance of the neuron manager class.
+% neuron_manager = neuron_manager_class( neurons );
 
-end
-    
-% Start a timer.
-tic
+neuron_manager = neuron_manager_class(  );
 
-% Load the neuron data.
-[ neuron_IDs, neuron_names, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = data_loader.load_neuron_data( 'Neuron_Data.xlsx' );
+neuron_manager = neuron_manager.load_neuron_data( 'Neuron_Data.xlsx', robot_data_load_path );
 
-% Define the number of neurons.
-num_neurons = length( neuron_IDs );
-
-% Preallocate an array of neurons.
-neurons = repmat( neuron_class(  ), 1, num_neurons );
-
-% Create each neuron object.
-for k = 1:num_neurons               % Iterate through each of the neurons...
-    
-    % Compute the initial sodium channel deactivation parameter.
-    neuron_h0 = neurons(k).neuron_utilities.compute_mhinf( neuron_U0s(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k) );
-    
-    % Create this neuron.
-    neurons(k) = neuron_class( neuron_IDs(k), neuron_names{k}, neuron_U0s(k), neuron_h0, neuron_Cms(k), neuron_Gms(k), neuron_Ers(k), neuron_Rs(k), neuron_Ams(k), neuron_Sms(k), neuron_dEms(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k), neuron_dEnas(k), neuron_tauh_maxs(k), neuron_Gnas(k) );
-    
-end
-
-% Create an instance of the neuron manager class.
-neuron_manager = neuron_manager_class( neurons );
 
 % Load the synapse data.
 [ synapse_IDs, synapse_names, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = data_loader.load_synapse_data( 'Synapse_Data.xlsx' );
@@ -141,9 +146,6 @@ end
 
 %% Modify Neural Network Parameters.
 
-% Set the sodium channel conductance of every neuron in the network using the two neuron CPG approach.
-network.neuron_manager = network.neuron_manager.compute_set_CPG_Gna( 'all' );
-
 % Define the oscillatory and bistable delta CPG synapse design parameters.
 delta_oscillatory = 0.01e-3;
 delta_bistable = -10e-3;
@@ -151,26 +153,14 @@ delta_bistable = -10e-3;
 % Define the neuron ID order.
 neuron_ID_order = [ 1 2 3 4 ];
 
-% Set the oscillatory and bistable delta CPG synapse design parameters.
-network.synapse_manager.delta_oscillatory = delta_oscillatory;
-network.synapse_manager.delta_bistable = delta_bistable;
-
-% Set the neuron ID order.
-network.synapse_manager.neuron_ID_order = neuron_ID_order;
-
-
-
-% THE FOLLOWING TWO NETWORK DESIGN FUNCTIONS ASSUME THAT THE MULTISTATE OSCILLATOR IS THE ENTIRE NETWORK.  THEY NEED TO BE UPDATED TO ONLY APPLY DESIGN PRINCIPALS TO THE DESIGNATED SUBNETWORK.
-
-% SHOULD CREATE NETWORK DESIGN FUNCTIONS THAT ALLOW YOU TO AUTOMATICALLY CREATE AND ASSEMBLE SUBNETWORKS: MULTISTATE CPG OSCILLATORS, FUNCTIONAL SUBNETWORKS.
-
-
+% Set the sodium channel conductance of every neuron in the network using the CPG approach.
+network.neuron_manager = network.neuron_manager.compute_set_CPG_Gna( neuron_ID_order );
 
 % Set the synapse delta values.
-network.synapse_manager = network.synapse_manager.neuron_ID_order2synapse_delta(  );
+network.synapse_manager = network.synapse_manager.compute_set_deltas( delta_oscillatory, delta_bistable, neuron_ID_order );
 
 % Compute and set the maximum synaptic conductances required to achieve these delta values.
-network = network.compute_set_max_synaptic_conductances(  );
+network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
 
 
 

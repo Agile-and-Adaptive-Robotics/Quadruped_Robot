@@ -45,154 +45,261 @@ classdef network_class
         end
         
         
-        
-        %% Synapse Functions
+        %% Specific Get Functions
                
-        % Implement a function to compute the delta matrix.
-        function deltas = get_deltas( self )
+        % Implement a function to construct the delta matrix from the stored delta scalars.
+        function deltas = get_deltas( self, neuron_IDs )
+           
+            % Set the default input arugments.
+            if nargin < 2, neuron_IDs = 'all'; end
             
-            % Retrieve the from neuron IDs.
-            from_neuron_IDs_unique = unique( cell2mat( self.synapse_manager.get_synapse_property( 'all', 'from_neuron_ID' ) ) );
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
-            % Retrieve the to neuron IDs.
-            to_neuron_IDs_unique = unique( cell2mat( self.synapse_manager.get_synapse_property( 'all', 'to_neuron_ID' ) ) );
+            % Ensure that the neuron IDs are unique.
+            assert( all( unique( neuron_IDs ) == neuron_IDs ), 'Neuron IDs must be unique.' )
             
-            % Ensure that the unique from and to neuron IDs match exactly.
-            assert( all( from_neuron_IDs_unique == to_neuron_IDs_unique ), 'Unique from neuron IDs must equal unique to neuron IDs.' )
+            % Retrieve the synapse IDs relevant to the given neuron IDs.
+            synapse_IDs = self.synapse_manager.neuron_IDs2synapse_IDs( neuron_IDs );
+            
+            % Retrieve the synapse indexes associated with the given synapse IDs.
+            synapse_indexes = self.synapse_manager.get_synapse_indexes( synapse_IDs );
+            
+            % Retrieve the number of relevant neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Retrieve the number of relevant synapses.
+            num_syanpses = length( synapse_IDs );
             
             % Preallocate the deltas matrix.
-            deltas = zeros( self.neuron_manager.num_neurons );
+            deltas = zeros( num_neurons );
             
             % Retrieve the entries of the delta matrix.
-            for k = 1:self.synapse_manager.num_synapses
+            for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Retrieve the from neuron index.
-                from_neuron_index = self.neuron_manager.get_neuron_index( self.synapse_manager.synapses(k).from_neuron_ID );
-                
+                from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+
                 % Retrieve the to neuron index.
-                to_neuron_index = self.neuron_manager.get_neuron_index( self.synapse_manager.synapses(k).to_neuron_ID );
-                
+                to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+
                 % Set the component of the delta matrix associated with this neuron.
-                deltas( to_neuron_index, from_neuron_index ) = self.synapse_manager.synapses(k).delta;
-                
+                deltas( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).delta;
+
             end
             
         end
         
         
-        % Implement a function to compute the synaptic reversal potentials.
-        function dE_syns = get_synaptic_reversal_potentials( self )
+        % Implement a function to construct the synaptic reversal potential matrix from the stored synaptic reversal potential scalars.
+        function dE_syns = get_synaptic_reversal_potentials( self, neuron_IDs )
+           
+            % Set the default input arugments.
+            if nargin < 2, neuron_IDs = 'all'; end
             
-            % Retrieve the from neuron IDs.
-            from_neuron_IDs_unique = unique( cell2mat( self.synapse_manager.get_synapse_property( 'all', 'from_neuron_ID' ) ) );
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
-            % Retrieve the to neuron IDs.
-            to_neuron_IDs_unique = unique( cell2mat( self.synapse_manager.get_synapse_property( 'all', 'to_neuron_ID' ) ) );
+            % Ensure that the neuron IDs are unique.
+            assert( all( unique( neuron_IDs ) == neuron_IDs ), 'Neuron IDs must be unique.' )
             
-            % Ensure that the unique from and to neuron IDs match exactly.
-            assert( all( from_neuron_IDs_unique == to_neuron_IDs_unique ), 'Unique from neuron IDs must equal unique to neuron IDs.' )
+            % Retrieve the synapse IDs relevant to the given neuron IDs.
+            synapse_IDs = self.synapse_manager.neuron_IDs2synapse_IDs( neuron_IDs );
             
-            % Preallocate the synaptic reversal potential matrix.
-            dE_syns = zeros( self.neuron_manager.num_neurons );
+            % Retrieve the synapse indexes associated with the given synapse IDs.
+            synapse_indexes = self.synapse_manager.get_synapse_indexes( synapse_IDs );
             
-            % Retrieve the entries of the synaptic reversal potential matrix.
-            for k = 1:self.synapse_manager.num_synapses
+            % Retrieve the number of relevant neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Retrieve the number of relevant synapses.
+            num_syanpses = length( synapse_IDs );
+            
+            % Preallocate the deltas matrix.
+            dE_syns = zeros( num_neurons );
+            
+            % Retrieve the entries of the delta matrix.
+            for k = 1:num_syanpses                         % Iterate through each synapse...
+                
+                % Retrieve the from neuron logical index.
+                from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+
+                % Retrieve the to neuron logical index.
+                to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+
+                % Set the component of the synaptic reversal potential matrix associated with this neuron.
+                dE_syns( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).dE_syn;
+
+            end
+            
+        end
+        
+        
+        % Implement a function to construct the maximum synaptic conductance matrix from the stored maximum synaptic conductance scalars.
+        function g_syn_maxs = get_max_synaptic_conductances( self, neuron_IDs )
+           
+            % Set the default input arugments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Ensure that the neuron IDs are unique.
+            assert( all( unique( neuron_IDs ) == neuron_IDs ), 'Neuron IDs must be unique.' )
+            
+            % Retrieve the synapse IDs relevant to the given neuron IDs.
+            synapse_IDs = self.synapse_manager.neuron_IDs2synapse_IDs( neuron_IDs );
+            
+            % Retrieve the synapse indexes associated with the given synapse IDs.
+            synapse_indexes = self.synapse_manager.get_synapse_indexes( synapse_IDs );
+            
+            % Retrieve the number of relevant neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Retrieve the number of relevant synapses.
+            num_syanpses = length( synapse_IDs );
+            
+            % Preallocate the maximum synaptic conductance matrix.
+            g_syn_maxs = zeros( num_neurons );
+            
+            % Retrieve the entries of the maximum synaptic conductance matrix.
+            for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Retrieve the from neuron index.
-                from_neuron_index = self.neuron_manager.get_neuron_index( self.synapse_manager.synapses(k).from_neuron_ID );
-                
+                from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+
                 % Retrieve the to neuron index.
-                to_neuron_index = self.neuron_manager.get_neuron_index( self.synapse_manager.synapses(k).to_neuron_ID );
-                
-                % Set the component of the synaptic reversal potential matrix associated with this neuron.
-                dE_syns( to_neuron_index, from_neuron_index ) = self.synapse_manager.synapses(k).dE_syn;
-                
+                to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+
+                % Set the component of the maximum synaptic conductance matrix associated with this neuron.
+                g_syn_maxs( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).g_syn_max;
+
             end
             
         end
-
         
-        % Implement a function to compute the synaptic reversal potentials.
-        function g_syn_maxs = get_max_synaptic_conductances( self )
+        
+        % Implement a function to construct the synaptic condcutance matrix from the stored synaptic conductance scalars.
+        function G_syns = get_synaptic_conductances( self, neuron_IDs )
+           
+            % Set the default input arugments.
+            if nargin < 2, neuron_IDs = 'all'; end
             
-            % Retrieve the from neuron IDs.
-            from_neuron_IDs_unique = unique( cell2mat( self.synapse_manager.get_synapse_property( 'all', 'from_neuron_ID' ) ) );
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
-            % Retrieve the to neuron IDs.
-            to_neuron_IDs_unique = unique( cell2mat( self.synapse_manager.get_synapse_property( 'all', 'to_neuron_ID' ) ) );
+            % Ensure that the neuron IDs are unique.
+            assert( all( unique( neuron_IDs ) == neuron_IDs ), 'Neuron IDs must be unique.' )
             
-            % Ensure that the unique from and to neuron IDs match exactly.
-            assert( all( from_neuron_IDs_unique == to_neuron_IDs_unique ), 'Unique from neuron IDs must equal unique to neuron IDs.' )
+            % Retrieve the synapse IDs relevant to the given neuron IDs.
+            synapse_IDs = self.synapse_manager.neuron_IDs2synapse_IDs( neuron_IDs );
             
-            % Preallocate the synaptic reversal potential matrix.
-            g_syn_maxs = zeros( self.neuron_manager.num_neurons );
+            % Retrieve the synapse indexes associated with the given synapse IDs.
+            synapse_indexes = self.synapse_manager.get_synapse_indexes( synapse_IDs );
             
-            % Retrieve the entries of the synaptic reversal potential matrix.
-            for k = 1:self.synapse_manager.num_synapses
+            % Retrieve the number of relevant neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Retrieve the number of relevant synapses.
+            num_syanpses = length( synapse_IDs );
+            
+            % Preallocate the synaptic conductance matrix.
+            G_syns = zeros( num_neurons );
+            
+            % Retrieve the entries of the synaptic conductance matrix.
+            for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Retrieve the from neuron index.
-                from_neuron_index = self.neuron_manager.get_neuron_index( self.synapse_manager.synapses(k).from_neuron_ID );
-                
+                from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+
                 % Retrieve the to neuron index.
-                to_neuron_index = self.neuron_manager.get_neuron_index( self.synapse_manager.synapses(k).to_neuron_ID );
-                
-                % Set the component of the synaptic reversal potential matrix associated with this neuron.
-                g_syn_maxs( to_neuron_index, from_neuron_index ) = self.synapse_manager.synapses(k).g_syn_max;
-                
+                to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+
+                % Set the component of the synaptic conductance matrix associated with this neuron.
+                G_syns( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).G_syn;
+
+            end
+            
+        end
+        
+
+        %% Specific Set Functions
+        
+        % Implement a function to set the deltas of each synapse based on the delta matrix.
+        function self = set_deltas( self, deltas, neuron_IDs )
+            
+            % Set the default neuron IDs.
+            if nargin < 3, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the number of neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Set the delta of each of the synapses in this network to agree with the delta matrix.
+            for k1 = 1:num_neurons                           % Iterate through each of the to neurons...
+                for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
+                    
+                    % Retrieve the synapse ID.
+                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'error' );
+                    
+                    % Set the delta of this synapse.
+                    self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, deltas( k1, k2 ), 'delta' );
+                    
+                end
             end
             
         end
         
         
-        % Implement a function to compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-        function g_syn_maxs = compute_max_synaptic_conductance( self )
-
-            % Retrieve the neuron membrane conductances.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) )';
-
-            % Retrieve the neuron membrane voltage ranges.
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
-
-            % Retrieve the sodium channel conductances.
-            Gnas = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gna' ) )';
-
-            % Retrieve the neuron sodium channel activation parameters.
-            Ams = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Am' ) )';
-            Sms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Sm' ) )';
-            dEms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'dEm' ) )';
-
-            % Retrieve the neuron sodium channel deactivation parameters.
-            Ahs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Ah' ) )';
-            Shs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Sh' ) )';
-            dEhs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'dEh' ) )';
-
-            % Retrieve the sodium channel reversal potentials.
-            dEnas = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'dEna' ) )';
+        % Implement a function to set the synaptic reversal potentials of each synapse based on the synaptic reversal matrix.
+        function self = set_synaptic_reversal_potentials( self, dE_syns, neuron_IDs )
             
-            % Retrieve the tonic currents.
-            I_tonics = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) )';
+            % Set the default neuron IDs.
+            if nargin < 3, neuron_IDs = 'all'; end
             
-            % Retrieve the synapse properties.
-            deltas = self.get_deltas(  );
-            dE_syns = self.get_synaptic_reversal_potentials(  );
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
-            % Compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-            g_syn_maxs = self.network_utilities.compute_max_synaptic_conductance( deltas, Gms, Rs, dE_syns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
-        
+            % Retrieve the number of neurons.
+            num_neurons = length( neuron_IDs );
             
-        end
-      
-        
-        % Implement a function to set the maximum synaptic conductances of each synapse based on the maximum synaptic conductance matrix.
-        function self = set_max_synaptic_conductances( self, g_syn_maxs )
-            
-            % Set the maximum synaptic conductnace of each of the synapses in this network to agree with the maximum synaptic conductance matrix.
-           for k1 = 1:self.neuron_manager.num_neurons                           % Iterate through each of the to neurons...
-               for k2 = 1:self.neuron_manager.num_neurons                       % Iterate through each of the from neurons...
+            % Set the synaptic reversal potential of each of the synapses in this network to agree with the synaptic reversal potential matrix.
+           for k1 = 1:num_neurons                           % Iterate through each of the to neurons...
+               for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
                   
                    % Retrieve the synapse ID.
-                   synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( self.neuron_manager.neurons(k2).ID, self.neuron_manager.neurons(k1).ID, 'error' );
-
+                   synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'error' );
+                   
+                   % Set the maximum synaptic conductance of this synapse.
+                   self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, dE_syns( k1, k2 ), 'dE_syn' );
+                   
+               end 
+           end
+            
+        end
+        
+        
+        % Implement a function to set the maximum synaptic conductances of each synapse based on the maximum synaptic conductance matrix.
+        function self = set_max_synaptic_conductances( self, g_syn_maxs, neuron_IDs )
+            
+            % Set the default neuron IDs.
+            if nargin < 3, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the number of neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Set the maximum synaptic conductnace of each of the synapses in this network to agree with the maximum synaptic conductance matrix.
+           for k1 = 1:num_neurons                           % Iterate through each of the to neurons...
+               for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
+                  
+                   % Retrieve the synapse ID.
+                   synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'error' );
+                   
                    % Set the maximum synaptic conductance of this synapse.
                    self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, g_syn_maxs( k1, k2 ), 'g_syn_max' );
                    
@@ -202,15 +309,77 @@ classdef network_class
         end
         
         
-        % Implement a funciton to compute and set the maximum synaptic conductance matrix.
-        function self = compute_set_max_synaptic_conductances( self )
+        % Implement a function to set the synaptic conductance of each synapse based on the synaptic conductance matrix.
+        function self = set_synaptic_conductances( self, G_syns, neuron_IDs )
             
-            % Compute the maximum synaptic conductance matrix.
-            g_syn_maxs = self.compute_max_synaptic_conductance(  );
+            % Set the default neuron IDs.
+            if nargin < 3, neuron_IDs = 'all'; end
             
-            % Set the synaptic conductance of all of constinuent synapses.
-            self = self.set_max_synaptic_conductances( g_syn_maxs );
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
+            % Retrieve the number of neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Set the maximum synaptic conductnace of each of the synapses in this network to agree with the synaptic conductance matrix.
+           for k1 = 1:num_neurons                           % Iterate through each of the to neurons...
+               for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
+                  
+                   % Retrieve the synapse ID.
+                   synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'error' );
+                   
+                   % Set the maximum synaptic conductance of this synapse.
+                   self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, G_syns( k1, k2 ), 'G_syn' );
+                   
+               end 
+           end
+            
+        end
+        
+        
+        %% Compute Functions
+        
+        % Implement a function to compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
+        function g_syn_maxs = compute_max_synaptic_conductance( self, neuron_IDs )
+
+            % Set the default neuron IDs.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the neuron membrane conductances.
+            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) )';
+
+            % Retrieve the neuron membrane voltage ranges.
+            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
+
+            % Retrieve the sodium channel conductances.
+            Gnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna' ) )';
+
+            % Retrieve the neuron sodium channel activation parameters.
+            Ams = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Am' ) )';
+            Sms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm' ) )';
+            dEms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm' ) )';
+
+            % Retrieve the neuron sodium channel deactivation parameters.
+            Ahs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah' ) )';
+            Shs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh' ) )';
+            dEhs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh' ) )';
+
+            % Retrieve the sodium channel reversal potentials.
+            dEnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna' ) )';
+            
+            % Retrieve the tonic currents.
+            I_tonics = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) )';
+            
+            % Retrieve the synapse properties. BOTH OF THESE NEED TO WORK FOR SPECIFIED NEURON IDS.
+            deltas = self.get_deltas( neuron_IDs );
+            dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
+            
+            % Compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
+            g_syn_maxs = self.network_utilities.compute_max_synaptic_conductance( deltas, Gms, Rs, dE_syns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
+        
         end
         
         
@@ -222,7 +391,7 @@ classdef network_class
             Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
             
             % Retrieve the maximum synaptic conductances.
-            g_syn_maxs = self.get_max_synaptic_conductances(  );
+            g_syn_maxs = self.get_max_synaptic_conductances( 'all' );
             
             % Compute the synaptic conductance.
             G_syns = self.network_utilities.compute_synaptic_conductance( Us, Rs, g_syn_maxs );
@@ -230,21 +399,22 @@ classdef network_class
         end
         
         
-        % Implement a function to set the synaptic conductance of each synapse based on the synaptic conductance matrix.
-        function self = set_synaptic_conductances( self, G_syns )
+        %% Compute-Set Functions
+        
+        % Implement a funciton to compute and set the maximum synaptic conductance matrix.
+        function self = compute_set_max_synaptic_conductances( self, neuron_IDs )
             
-            % Set the maximum synaptic conductnace of each of the synapses in this network to agree with the maximum synaptic conductance matrix.
-           for k1 = 1:self.neuron_manager.num_neurons                           % Iterate through each of the to neurons...
-               for k2 = 1:self.neuron_manager.num_neurons                       % Iterate through each of the from neurons...
-                  
-                   % Retrieve the synapse ID.
-                   synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( self.neuron_manager.neurons(k2).ID, self.neuron_manager.neurons(k1).ID, 'error' );
-
-                   % Set the synaptic conductance of this synapse.
-                   self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, G_syns( k1, k2 ), 'G_syn' );
-                   
-               end 
-           end
+            % Set the default neuron IDs.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Compute the maximum synaptic conductance matrix.
+            g_syn_maxs = self.compute_max_synaptic_conductance( neuron_IDs );
+            
+            % Set the synaptic conductance of all of constinuent synapses.
+            self = self.set_max_synaptic_conductances( g_syn_maxs, neuron_IDs );
             
         end
         
@@ -259,7 +429,6 @@ classdef network_class
             self = self.set_synaptic_conductances( G_syns );
             
         end
-        
         
         
         %% Simulation Functions
@@ -287,10 +456,8 @@ classdef network_class
             dEnas = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'dEna' ) );
             
             % Retrieve synaptic properties.
-%             g_syn_maxs = cell2mat( self.synapse_manager.get_synapse_property( 'all', 'g_syn_max' ) );
-%             dE_syns = cell2mat( self.synapse_manager.get_synapse_property( 'all', 'dE_syn' ) );
-            g_syn_maxs = self.get_max_synaptic_conductances(  );
-            dE_syns = self.get_synaptic_reversal_potentials(  );
+            g_syn_maxs = self.get_max_synaptic_conductances( 'all' );
+            dE_syns = self.get_synaptic_reversal_potentials( 'all' );
             
             % Retrieve applied currents.
             I_apps = self.applied_current_manager.get_applied_currents( 'all' )';
@@ -351,8 +518,8 @@ classdef network_class
             I_tonics = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) )';
             
             % Retrieve the synapse properties.
-            g_syn_maxs = self.get_max_synaptic_conductances(  );
-            dE_syns = self.get_synaptic_reversal_potentials(  );
+            g_syn_maxs = self.get_max_synaptic_conductances( 'all' );
+            dE_syns = self.get_synaptic_reversal_potentials( 'all' );
             
             % Retrieve the applied currents.
             I_apps = self.applied_current_manager.get_applied_currents( 'all' )';
@@ -384,6 +551,8 @@ classdef network_class
             self = self.set_synaptic_conductances( G_syns( :, :, end ) );
             
         end
+        
+        
         
     end
 end

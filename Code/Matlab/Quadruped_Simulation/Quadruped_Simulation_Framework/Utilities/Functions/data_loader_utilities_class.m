@@ -1,4 +1,4 @@
-classdef data_loader_class
+classdef data_loader_utilities_class
     
     % This class contains properties and methods related to loading simulation data.
     
@@ -18,7 +18,7 @@ classdef data_loader_class
     methods
         
         % Implement the class constructor.
-        function self = data_loader_class( load_path )
+        function self = data_loader_utilities_class( load_path )
             
             % Set the default class arguments.
             if nargin < 1, self.load_path = '.'; else, self.load_path = load_path; end

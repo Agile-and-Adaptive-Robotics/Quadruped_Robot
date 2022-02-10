@@ -10,10 +10,6 @@ classdef synapse_manager_class
         synapses
         num_synapses
         
-        delta_oscillatory
-        delta_bistable
-        neuron_ID_order
-       
         array_utilities
         
     end
@@ -25,15 +21,12 @@ classdef synapse_manager_class
     methods
         
         % Implement the class constructor.
-        function self = synapse_manager_class( synapses, delta_oscillatory, delta_bistable, neuron_ID_order )
+        function self = synapse_manager_class( synapses )
             
             % Create an instance of the array manager class.
             self.array_utilities = array_utilities_class(  );
             
             % Set the default synapse properties.
-            if nargin < 4, self.neuron_ID_order = [  ]; else, self.neuron_ID_order = neuron_ID_order; end
-            if nargin < 3, self.delta_bistable = [  ]; else, self.delta_bistable = delta_bistable; end
-            if nargin < 2, self.delta_oscillatory = [  ]; else, self.delta_oscillatory = delta_oscillatory; end
             if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
             
             % Compute the number of synapses.
@@ -140,6 +133,32 @@ classdef synapse_manager_class
                 % Throw an error.
                 error( 'No synapse with ID %0.0f.', synapse_ID )
                 
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the index associated with a given array of synapse IDs.
+        function synapse_indexes = get_synapse_indexes( self, synapse_IDs )
+            
+            % Set the default synapse IDs.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the number of synapse IDs.
+            num_synapse_IDs = length( synapse_IDs );
+            
+            % Preallocate an array of synapse indexes.
+            synapse_indexes = zeros( 1, num_synapse_IDs );
+            
+            % Retrieve the synapse index of each synapse ID.
+            for k = 1:num_synapse_IDs                   % Iterate through each synapse ID...
+            
+                % Retrieve the synapse index associated with this synapse ID.
+                synapse_indexes(k) = self.get_synapse_index( synapse_IDs(k) );
+            
             end
             
         end
@@ -350,10 +369,11 @@ classdef synapse_manager_class
         
         
         
-        % Implement a function to convert a specific neuron ID order to from-to neuron ID pairs.
-        function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2from_to_neuron_IDs( ~, neuron_ID_order )
+        % Implement a function to convert a specific neuron ID order to oscillatory from-to neuron ID pairs.
+        function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2oscillatory_from_to_neuron_IDs( ~, neuron_ID_order )
             
-            if ~isempty( neuron_ID_order )
+            % Determine whether there are neuron IDs to return.
+            if ~isempty( neuron_ID_order )                                  % If the neuron ID order was specified...
                 
                 % Retrieve the number of pairs of neurons.
                 num_pairs = length( neuron_ID_order );
@@ -385,30 +405,109 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to convert a specific neuron ID order to self connecting from-to neuron ID pairs.
+        function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2self_from_to_neuron_IDs( ~, neuron_ID_order )
+            
+            % Determine whether there are neuron IDs to return.
+            if ~isempty( neuron_ID_order )                                  % If the neuron ID order was specified...
+                
+                % Set the from-to neuron IDs.
+                [ from_neuron_IDs, to_neuron_IDs ] = deal( neuron_ID_order );
+                
+            else                                                % Otherwise...
+                
+                % Set the from and to neuron IDs to be empty.
+                [ from_neuron_IDs, to_neuron_IDs ] = deal( [  ] );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert a specific neuron ID order to all from-to neuron ID pairs.
+        function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2all_from_to_neuron_IDs( ~, neuron_ID_order )
+            
+            % Determine whether there are neuron IDs to return.
+            if ~isempty( neuron_ID_order )                                  % If the neuron ID order was specified...
+                
+                % Retrieve the number of pairs of neurons.
+                num_neurons = length( neuron_ID_order );
+                num_pairs = num_neurons^2;
+                
+                % Preallocate arrays to store the from and to neuron IDs.
+                [ from_neuron_IDs, to_neuron_IDs ] = deal( zeros( 1, num_pairs ) );
+                
+                % Preallocate a counter variable.
+                k3 = 0;
+                
+                % Retrieve the from and to neuron IDs for each neuron pair.
+                for k1 = 1:num_neurons                         % Iterate through each pair of neurons...
+                    for k2 = 1:num_neurons                         % Iterate through each pair of neurons...
+
+                        % Advance the counter variable.
+                        k3 = k3 + 1;
+                        
+                        % Retrieve the from neuron ID.
+                        from_neuron_IDs(k3) = neuron_ID_order(k1);
+
+                        % Retrieve the to neuron ID.
+                        to_neuron_IDs(k3) = neuron_ID_order(k2);
+                    
+                    end
+                end
+                
+            else                                                % Otherwise...
+                
+                % Set the from and to neuron IDs to be empty.
+                [ from_neuron_IDs, to_neuron_IDs ] = deal( [  ] );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the synapse IDs relevant to a set of neuron IDs.
+        function synapse_IDs = neuron_IDs2synapse_IDs( self, neuron_IDs )
+            
+            % Retrieve the IDs of all relevant from and to neurons.
+            [ from_neuron_IDs, to_neuron_IDs ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the synapse IDs associated with the given neuron IDs.
+            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs );
+        
+        end
+        
+        
         % Implement a function to assign the desired delta value to each synapse based on the neuron order that we want to follow.
-        function self = neuron_ID_order2synapse_delta( self )
+        function self = compute_set_deltas( self, delta_oscillatory, delta_bistable, neuron_ID_order )
             
-            % Retrieve the IDs of the from and to neurons.
-            [ from_neuron_IDs, to_neuron_IDs ] = self.neuron_ID_order2from_to_neuron_IDs( self.neuron_ID_order );
+            % Retrieve the IDs of all relevant from and to neurons.
+            [ from_neuron_IDs_all, to_neuron_IDs_all ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_ID_order );
             
-            % Retrieve all of the synapse IDs.
-            synapse_IDs = self.get_all_synapse_IDs(  );
+            % Retrieve the IDs of the oscillatory from and to neurons.
+            [ from_neuron_IDs_oscillatory, to_neuron_IDs_oscillatory ] = self.neuron_ID_order2oscillatory_from_to_neuron_IDs( neuron_ID_order );
+            
+            % Retrieve the IDs of relevant self connecting from and to neurons.
+            [ from_neuron_IDs_self, to_neuron_IDs_self ] = self.neuron_ID_order2self_from_to_neuron_IDs( neuron_ID_order );
+            
+            % Retrieve all of the relevant synapse IDs.
+            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs_all, to_neuron_IDs_all );
             
             % Retrieve the synapse IDs for each synapse the connects the specified neurons.
-            synapse_IDs_oscillatory = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs );
+            synapse_IDs_oscillatory = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs_oscillatory, to_neuron_IDs_oscillatory );
             
-            % Retrieve the synapse IDs for all self-connections.
-            synapse_IDs_self_connections = self.get_self_connecting_sypnapse_IDs(  );
+            % Retrieve the synapse IDs for all relevant self-connections.
+            synapse_IDs_self_connections = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs_self, to_neuron_IDs_self );
             
             % Retrieve the synapse IDs for all of the other neurons.
             synapse_IDs_bistable = self.array_utilities.remove_entries( synapse_IDs, synapse_IDs_oscillatory );
             synapse_IDs_bistable = self.array_utilities.remove_entries( synapse_IDs_bistable, synapse_IDs_self_connections );
             
             % Set the delta value of each of the oscillatory synapses.
-            self = self.set_synapse_property( synapse_IDs_oscillatory, self.delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta' );
+            self = self.set_synapse_property( synapse_IDs_oscillatory, delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta' );
             
             % Set the delta value of each of the bistable synapses.
-            self = self.set_synapse_property( synapse_IDs_bistable, self.delta_bistable*ones( 1, length( synapse_IDs_bistable ) ), 'delta' );
+            self = self.set_synapse_property( synapse_IDs_bistable, delta_bistable*ones( 1, length( synapse_IDs_bistable ) ), 'delta' );
             
             % Set the delta value of each of the self-connecting synapses.
             self = self.set_synapse_property( synapse_IDs_self_connections, zeros( 1, length( synapse_IDs_self_connections ) ), 'delta' );
