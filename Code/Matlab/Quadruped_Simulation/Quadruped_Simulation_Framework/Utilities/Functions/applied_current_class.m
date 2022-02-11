@@ -14,6 +14,8 @@ classdef applied_current_class
         ts
         I_apps
         
+        data_loader_utilities
+        
     end
     
     

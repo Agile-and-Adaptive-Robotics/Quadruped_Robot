@@ -286,7 +286,7 @@ classdef neuron_manager_class
             elapsed_time = toc;
             
             % Determine whether to print status messages.
-            if b_verbose, fprintf( 'INITIALIZING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
+            if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
             

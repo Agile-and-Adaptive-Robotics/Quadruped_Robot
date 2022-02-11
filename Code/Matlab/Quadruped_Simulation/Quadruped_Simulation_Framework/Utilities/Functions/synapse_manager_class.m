@@ -10,6 +10,7 @@ classdef synapse_manager_class
         synapses
         num_synapses
         
+        data_loader_utilities
         array_utilities
         
     end
@@ -25,6 +26,9 @@ classdef synapse_manager_class
             
             % Create an instance of the array manager class.
             self.array_utilities = array_utilities_class(  );
+            
+            % Create an instance of the data loader utilities class.
+            self.data_loader_utilities = data_loader_utilities_class(  );
             
             % Set the default synapse properties.
             if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
@@ -515,7 +519,66 @@ classdef synapse_manager_class
         end
         
         
+        %% Save & Load Synapse Functions
         
+        % Implement a function to load synapse data.
+        function self = load_synapse_data( self, file_name, directory, b_append, b_verbose )
+        
+            % Set the default input arguments.
+            if nargin < 5, b_verbose = true; end
+            if nargin < 4, b_append = false; end
+            if nargin < 3, directory = '.'; end
+            if nargin < 2, file_name = 'Syanpse_Data.xlsx'; end
+        
+            % Determine whether to print status messages.
+            if b_verbose, fprintf( 'LOADING SYNAPSE DATA. Please Wait...\n' ), end
+            
+            % Start a timer.
+            tic
+
+            % Load the synapse data.
+            [ synapse_IDs, synapse_names, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = self.data_loader_utilities.load_synapse_data( file_name, directory );
+            
+            % Define the number of synapses.
+            num_synapses_to_load = length( synapse_IDs );
+
+            % Preallocate an array of synapses.
+            synapses_to_load = repmat( synapse_class(  ), 1, num_synapses_to_load );
+
+            % Create each synapse object.
+            for k = 1:num_synapses_to_load               % Iterate through each of the synapses...
+
+                % Create this synapse.
+                synapses_to_load(k) = synapse_class( synapse_IDs(k), synapse_names{k}, synapse_dEsyns(k), synapse_gsyn_maxs(k), synapse_from_neuron_IDs(k), synapse_to_neuron_IDs(k) );
+
+            end
+            
+            % Determine whether to append the synapses we just loaded.
+            if b_append                         % If we want to append the synapses we just loaded...
+                
+                % Append the synapses we just loaded to the array of existing synapses.
+                self.synapses = [ self.synapses synapses_to_load ];
+                
+                % Update the number of synapses.
+                self.num_synapses = length( self.synapses );
+                
+            else                                % Otherwise...
+                
+                % Replace the existing synapses with the synapses we just loaded.
+                self.synapses = synapses_to_load;
+                
+                % Update the number of synapses.
+                self.num_synapses = length( self.synapses );
+                
+            end
+            
+            % Retrieve the elapsed time.
+            elapsed_time = toc;
+            
+            % Determine whether to print status messages.
+            if b_verbose, fprintf( 'LOADING SYNAPSE DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
+            
+        end
         
         
     end

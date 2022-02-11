@@ -8,8 +8,11 @@ classdef applied_current_manager_class
     properties
         
         applied_currents
+        
         num_applied_currents
         num_timesteps
+        
+        data_loader_utilities
         
     end
     
@@ -21,6 +24,9 @@ classdef applied_current_manager_class
         
         % Implement the class constructor.
         function self = applied_current_manager_class( applied_currents )
+            
+            % Create an instance of the data loader utilities class.
+            self.data_loader_utilities = data_loader_utilities_class(  );
             
             % Set the default properties.
             if nargin < 1, self.applied_currents = applied_current_class(  ); else, self.applied_currents = applied_currents; end
@@ -130,6 +136,76 @@ classdef applied_current_manager_class
             end
             
         end
+        
+        
+                %% Save & Load Functions
+        
+        % Implement a function to load applied current data from a file.
+        function self = load_applied_current_data( self, file_name, directory, b_append, b_verbose )
+        
+            % Set the default input arguments.
+            if nargin < 5, b_verbose = true; end
+            if nargin < 4, b_append = false; end
+            if nargin < 3, directory = '.'; end
+            if nargin < 2, file_name = 'Applied_Current_Data.xlsx'; end
+        
+            % Determine whether to print status messages.
+            if b_verbose, fprintf( 'LOADING APPLIED CURRENT DATA. Please Wait...\n' ), end
+            
+            % Start a timer.
+            tic
+
+            % Load the applied current data.
+            [ applied_current_IDs, applied_current_names, applied_current_neuron_IDs, applied_current_ts, applied_current_I_apps ] = self.data_loader_utilities.load_applied_current_data( file_name, directory );
+            
+            
+            % Define the number of synapses.
+            num_applied_currents_to_load = length( applied_current_IDs );
+
+            % Preallocate an array of applied currents.
+            applied_currents_to_load = repmat( applied_current_class(  ), 1, num_applied_currents_to_load );
+
+            % Create each applied current object.
+            for k = 1:num_applied_currents_to_load               % Iterate through each of the applied currents...
+
+                % Create this applied current.
+                applied_currents_to_load(k) = applied_current_class( applied_current_IDs(k), applied_current_names{k}, applied_current_neuron_IDs(k), applied_current_ts( :, k ), applied_current_I_apps( :, k ) );
+
+            end
+            
+            % Determine whether to append the applied currents we just loaded.
+            if b_append                         % If we want to append the applied currents we just loaded...
+                
+                % Append the applied currents we just loaded to the array of existing applied currents.
+                self.applied_currents = [ self.applied_currents applied_currents_to_load ];
+                
+                % Update the number of applied currents.
+                self.num_applied_currents = length( self.applied_currents );
+                
+                % Update the number of time steps.
+                self.num_timesteps = length( self.applied_currents(1).ts );
+                
+            else                                % Otherwise...
+                
+                % Replace the existing applied currents with the applied currents we just loaded.
+                self.applied_currents = applied_currents_to_load;
+                
+                % Update the number of applied currents.
+                self.num_applied_currents = length( self.applied_currents );
+                
+                % Update the number of time steps.
+                self.num_timesteps = length( self.applied_currents(1).ts );
+                
+            end
+            
+            % Retrieve the elapsed time.
+            elapsed_time = toc;
+            
+            % Determine whether to print status messages.
+            if b_verbose, fprintf( 'LOADING APPLIED CURRENT DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
+            
+        end
+        
         
 
     end
