@@ -13,8 +13,10 @@ b_verbose = true;
 % robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 % robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
-robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
-% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+% robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+
+robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
 % Define the network integration step size.
 network_dt = 1e-3;
@@ -23,12 +25,7 @@ network_dt = 1e-3;
 %% Initialize the Data Loader Class.
 
 % Determine whether to print status messages.
-if b_verbose                                                        % If we want to print status messages...
-    
-    % State that we are starting a new operation.
-    fprintf( 'INITIALIZING DATA LOADER. Please Wait...\n' )
-
-end
+if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait...\n' ), end
 
 % Start a timer.
 tic
@@ -40,49 +37,17 @@ data_loader = data_loader_utilities_class( robot_data_load_path );
 elapsed_time = toc;
 
 % Determine whether to print status messages.
-if b_verbose                                                        % If we want to print status messages...
-    
-    % State that we have finished this operation.
-    fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
-
-end
+if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
 
 
 %% Initialize the Neural Network.
 
-% Create an instance of the neuron manager class.
-neuron_manager = neuron_manager_class(  );
-
-% Load the neuron data.
-neuron_manager = neuron_manager.load_neuron_data( 'Neuron_Data.xlsx', robot_data_load_path );
-
-
-% Create an instance of the synapse manager class.
-synapse_manager = synapse_manager_class(  );
-
-% Load the synpase data.
-synapse_manager = synapse_manager.load_synapse_data( 'Synapse_Data.xlsx', robot_data_load_path );
-
-
-% Create an instance of the applied current manager class.
-applied_current_manager = applied_current_manager_class(  );
-
-% Load the applied current data.
-applied_current_manager = applied_current_manager.load_applied_current_data( 'Applied_Current_Data.xlsx', robot_data_load_path );
-
-
 % Create an instance of the network class.
-network = network_class( neuron_manager, synapse_manager, applied_current_manager, network_dt );
+network = network_class( network_dt );
 
+% Load the network data.
+network = network.load_xlsx( robot_data_load_path );
 
-
-% Determine whether to print status messages.
-if b_verbose                                                        % If we want to print status messages...
-    
-    % State that we have finished this operation.
-    fprintf( 'INITIALIZING NEURAL NETWORK. Please Wait... Done. %0.3f [s] \n\n', elapsed_time )
-
-end
 
 
 %% Modify Neural Network Parameters.

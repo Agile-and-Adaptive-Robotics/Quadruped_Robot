@@ -226,10 +226,187 @@ classdef neuron_manager_class
         end
         
         
-        %% Save & Load Neuron Functions
+        %% Neuron Creation Functions
         
-        % Implement a function to load neuron data.
-        function self = load_neuron_data( self, file_name, directory, b_append, b_verbose )
+        % Implement a function to create a new neuron.
+        function self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total )
+            
+            % Set the default neuron properties.
+            if nargin < 24, I_total = 0; end
+            if nargin < 23, I_app = 0; end
+            if nargin < 22, I_tonic = 0; end
+            if nargin < 21, I_na = 0; end
+            if nargin < 20, I_syn = 0; end
+            if nargin < 19, I_leak = 0; end
+            if nargin < 18, Gna = 1e-6; end
+            if nargin < 17, tauh_max = 0.25; end
+            if nargin < 16, dEna = 110e-3; end
+            if nargin < 15, dEh = 0; end
+            if nargin < 14, Sh = 50; end
+            if nargin < 13, Ah = 0.5; end
+            if nargin < 12, dEm = 40e-3; end
+            if nargin < 11, Sm = -50; end
+            if nargin < 10, Am = 1; end
+            if nargin < 9, R = 20e-3; end
+            if nargin < 8, Er = -60e-3; end
+            if nargin < 7, Gm = 1e-6; end
+            if nargin < 6, Cm = 5e-9; end
+            if nargin < 5, h = 0; end
+            if nargin < 4, U = 0; end
+            if nargin < 3, name = ''; end
+            if nargin < 2, ID = 0; end
+            
+            % Determine whether this ID is valid.
+            
+            
+            % Create an instance of the neuron class.
+            neuron = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total );
+            
+            % Append this neuron to the array of existing neurons.
+            self.neurons = [ self.neurons neuron ];
+            
+            % Increase the number of neurons counter.
+            self.num_neurons = self.num_neurons + 1;
+            
+        end
+        
+        
+        % Implement a function to create multiple neurons.
+        function self = create_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals )
+            
+            % Determine whether number of neurons to create.
+            if nargin > 2
+            
+                num_neurons_to_create = length( IDs );
+                
+            elseif nargin == 2
+                
+                % Retrieve the number of IDs.
+                num_IDs = length( IDs );
+                
+                if num_IDs == 1
+                    
+                    num_neurons_to_create = IDs;
+                    
+                    IDs = zeros( 1, num_neurons_to_create );
+                    
+                else
+                   
+                    num_neurons_to_create = num_IDs;
+                    
+                end
+                
+            elseif nargin == 1
+                
+                num_neurons_to_create = 1;
+                
+            end
+            
+            % Set the default neuron properties.
+            if nargin < 24, I_total = zeros( 1, num_neurons_to_create ); end
+            if nargin < 23, I_app = zeros( 1, num_neurons_to_create ); end
+            if nargin < 22, I_tonic = zeros( 1, num_neurons_to_create ); end
+            if nargin < 21, I_na = zeros( 1, num_neurons_to_create ); end
+            if nargin < 20, I_syn = zeros( 1, num_neurons_to_create ); end
+            if nargin < 19, I_leak = zeros( 1, num_neurons_to_create ); end
+            if nargin < 18, Gna = 1e-6; end
+            if nargin < 17, tauh_max = 0.25; end
+            if nargin < 16, dEna = 110e-3; end
+            if nargin < 15, dEh = zeros( 1, num_neurons_to_create ); end
+            if nargin < 14, Sh = 50; end
+            if nargin < 13, Ah = 0.5; end
+            if nargin < 12, dEm = 40e-3; end
+            if nargin < 11, Sm = -50; end
+            if nargin < 10, Am = 1; end
+            if nargin < 9, R = 20e-3; end
+            if nargin < 8, Er = -60e-3; end
+            if nargin < 7, Gm = 1e-6; end
+            if nargin < 6, Cm = 5e-9; end
+            if nargin < 5, h = zeros( 1, num_neurons_to_create ); end
+            if nargin < 4, U = zeros( 1, num_neurons_to_create ); end
+            if nargin < 3, name = ''; end
+            if nargin < 2, ID = zeros( 1, num_neurons_to_create ); end
+            
+            
+            
+            self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total )
+            
+            
+        end
+        
+        
+        % Implement a function to delete a neuron.
+        function self = delete_neuron( self, neuron_ID )
+            
+            % Retrieve the index associated with this neuron.
+            neuron_index = self.get_neuron_index( neuron_ID );
+            
+            % Remove this neuron from the array of neurons.
+            self.neurons( neuron_index ) = [  ];
+            
+            % Decrease the number of neurons counter.
+            self.num_neurons = self.num_neurons - 1;
+            
+        end
+        
+        
+        % Implement a function to delete multiple neurons.
+        function self = delete_neurons( self, neuron_IDs )
+            
+            % Retrieve the number of neurons to delete.
+           num_neurons_to_delete = length( neuron_IDs );
+           
+           % Delete each of the specified neurons.
+           for k = 1:num_neurons_to_delete                      % Iterate through each of the neurons we want to delete...
+            
+               % Delete this neuron.
+               self = self.delete_neurons( neuron_IDs(k) );
+               
+           end
+               
+        end
+        
+        
+        
+        %% Save & Load Functions
+
+        % Implement a function to save neuron manager data as a matlab object.
+        function save( self, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Neuron_Manager.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Save the neuron data.
+            save( full_path, self )
+            
+        end
+        
+        
+        % Implement a function to load neuron manager data as a matlab object.
+        function self = load( ~, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Neuron_Manager.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Load the data.
+            data = load( full_path );
+            
+            % Retrieve the desired variable from the loaded data structure.
+            self = data.self;
+            
+        end
+        
+        
+        % Implement a function to load neuron data from a xlsx file.
+        function self = load_xlsx( self, file_name, directory, b_append, b_verbose )
         
             % Set the default input arguments.
             if nargin < 5, b_verbose = true; end
@@ -290,6 +467,8 @@ classdef neuron_manager_class
             
         end
             
+        
+        
         
     end
 end

@@ -138,10 +138,45 @@ classdef applied_current_manager_class
         end
         
         
-                %% Save & Load Functions
+        %% Save & Load Functions
         
-        % Implement a function to load applied current data from a file.
-        function self = load_applied_current_data( self, file_name, directory, b_append, b_verbose )
+        % Implement a function to save applied current manager data as a matlab object.
+        function save( self, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Applied_Current_Manager.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Save the neuron data.
+            save( full_path, self )
+            
+        end
+        
+        
+        % Implement a function to load applied current manager data as a matlab object.
+        function self = load( ~, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Applied_Current_Manager.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Load the data.
+            data = load( full_path );
+            
+            % Retrieve the desired variable from the loaded data structure.
+            self = data.self;
+            
+        end
+        
+        
+        % Implement a function to load applied current data from an xlsx file.
+        function self = load_xlsx( self, file_name, directory, b_append, b_verbose )
         
             % Set the default input arguments.
             if nargin < 5, b_verbose = true; end

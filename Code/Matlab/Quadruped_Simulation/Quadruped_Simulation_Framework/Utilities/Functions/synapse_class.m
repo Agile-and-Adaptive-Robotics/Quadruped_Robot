@@ -42,8 +42,41 @@ classdef synapse_class
         end
         
         
-        %% CPG Functions
-       
+        %% Save & Load Functions
+        
+        % Implement a function to save synapse data as a matlab object.
+        function save( self, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Synapse.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Save the neuron data.
+            save( full_path, self )
+            
+        end
+        
+        
+        % Implement a function to load synapse data as a matlab object.
+        function self = load( ~, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Synapse.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Load the data.
+            data = load( full_path );
+            
+            % Retrieve the desired variable from the loaded data structure.
+            self = data.self;
+            
+        end
 
 
         

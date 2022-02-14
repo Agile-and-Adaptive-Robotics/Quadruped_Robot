@@ -25,7 +25,7 @@ classdef network_class
     methods
         
         % Implement the class constructor.
-        function self = network_class( neuron_manager, synapse_manager, applied_current_manager, dt )
+        function self = network_class( dt, neuron_manager, synapse_manager, applied_current_manager )
             
             % Create an instance of the numeriacl methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class(  );
@@ -34,11 +34,11 @@ classdef network_class
             self.network_utilities = network_utilities_class(  );
             
             % Set the default network properties.
-            if nargin < 4, self.dt = 1e-3; else, self.dt = dt; end
-            if nargin < 3, self.applied_current_manager = applied_current_manager_class(  ); else, self.applied_current_manager = applied_current_manager; end
-            if nargin < 2, self.synapse_manager = synapse_manager_class(  ); else, self.synapse_manager = synapse_manager; end
-            if nargin < 1, self.neuron_manager = neuron_manager_class(  ); else, self.neuron_manager = neuron_manager; end
-            
+            if nargin < 4, self.applied_current_manager = applied_current_manager_class(  ); else, self.applied_current_manager = applied_current_manager; end
+            if nargin < 3, self.synapse_manager = synapse_manager_class(  ); else, self.synapse_manager = synapse_manager; end
+            if nargin < 2, self.neuron_manager = neuron_manager_class(  ); else, self.neuron_manager = neuron_manager; end
+            if nargin < 1, self.dt = 1e-3; else, self.dt = dt; end
+
             % Compute and set the synaptic conductances.
             self = self.compute_set_synaptic_conductances(  );
             
@@ -550,6 +550,75 @@ classdef network_class
             % Set the synapse properties.
             self = self.set_synaptic_conductances( G_syns( :, :, end ) );
             
+        end
+        
+        
+        %% Save & Load Functions
+        
+        % Implement a function to save network data as a matlab object.
+        function save( self, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Network.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Save the neuron data.
+            save( full_path, 'self' )
+            
+        end
+        
+        
+        % Implement a function to load network data as a matlab object.
+        function self = load( ~, directory, file_name )
+        
+            % Set the default input arguments.
+            if nargin < 3, file_name = 'Network.mat'; end
+            if nargin < 2, directory = '.'; end
+
+            % Create the full path to the file of interest.
+            full_path = [ directory, '\', file_name ];
+            
+            % Load the data.
+            data = load( full_path );
+            
+            % Retrieve the desired variable from the loaded data structure.
+            self = data.self;
+            
+        end
+        
+        
+        % Implement a function to load network data from a xlsx file.
+        function self = load_xlsx( self, directory, file_name_neuron, file_name_synapse, file_name_applied_current, b_append, b_verbose )
+        
+            % Set the default input arguments.
+            if nargin < 7, b_verbose = true; end
+            if nargin < 6, b_append = false; end
+            if nargin < 5, file_name_applied_current = 'Applied_Current_Data.xlsx'; end
+            if nargin < 4, file_name_synapse = 'Synapse_Data.xlsx'; end
+            if nargin < 3, file_name_neuron = 'Neuron_Data.xlsx'; end
+            if nargin < 2, directory = '.'; end
+            
+            % Create an instance of the neuron manager class.
+            self.neuron_manager = neuron_manager_class(  );
+
+            % Load the neuron data.
+            self.neuron_manager = self.neuron_manager.load_xlsx( file_name_neuron, directory, b_append, b_verbose );
+
+            % Create an instance of the synapse manager class.
+            self.synapse_manager = synapse_manager_class(  );
+
+            % Load the synpase data.
+            self.synapse_manager = self.synapse_manager.load_xlsx( file_name_synapse, directory, b_append, b_verbose );
+
+            % Create an instance of the applied current manager class.
+            self.applied_current_manager = applied_current_manager_class(  );
+
+            % Load the applied current data.
+            self.applied_current_manager = self.applied_current_manager.load_xlsx( file_name_applied_current, directory, b_append, b_verbose );
+
         end
         
         
