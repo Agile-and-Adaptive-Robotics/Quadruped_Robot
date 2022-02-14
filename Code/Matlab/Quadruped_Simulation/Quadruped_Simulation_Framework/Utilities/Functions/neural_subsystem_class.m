@@ -6,8 +6,10 @@ classdef neural_subsystem_class
     
     % Define the class properties.
     properties
+        
         network
         hill_muscle_manager
+        
     end
     
     
