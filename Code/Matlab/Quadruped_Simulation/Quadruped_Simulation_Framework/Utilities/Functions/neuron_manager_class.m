@@ -10,6 +10,7 @@ classdef neuron_manager_class
         neurons
         num_neurons
         
+        array_utilities
         data_loader_utilities
         
     end
@@ -22,6 +23,9 @@ classdef neuron_manager_class
         
         % Implement the class constructor.
         function self = neuron_manager_class( neurons )
+            
+            % Create an instance of the array utilities class.
+            self.array_utilities = array_utilities_class(  );
             
             % Create an instance of the data loader class.
             self.data_loader_utilities = data_loader_utilities_class(  );
@@ -105,43 +109,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to check if a proposed neuron ID is unique.
-        function [ b_unique, match_index ] = unique_neuron_ID( self, neuron_ID )
+        function [ b_unique, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID )
            
-            % Set the unique flag to true.
-            b_unique = true;
+            % Retrieve all of the existing neuron IDs.
+            existing_neuron_IDs = self.get_all_neuron_IDs(  );   
+           
+           % Determine whether the given neuron ID is one of the existing neuron IDs (if so, provide the matching logicals and indexes).
+            [ b_unique, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
             
-            % Initialize the loop variable.
-            k = 0;
-            
-            % Determine whether there is another neuron with the same ID.
-            while ( k < self.num_neurons ) && b_match_found                    % While we haven't checked all of the neurons and we haven't found a match.
-            
-                % Advance the loop variable.
-                k = k + 1;
-                
-                % Determine whether this neuron is a match.
-                if self.neurons(k).ID == neuron_ID                              % If this neuron ID is a match...                   
-                    
-                    % Set the unique flag to false.
-                   b_unique = false;
-                    
-                end
-                
-            end            
-            
-            % Determine how to set the match index.
-            if b_unique                         % If the neuon ID is unique...
-            
-                % Set the match index to be zero.
-                match_index = 0;
-                
-            else                                % Otherwise...
-                
-                % Set the match index.
-                match_index = k;
-            
-            end
-                
         end
         
         
@@ -185,19 +160,41 @@ classdef neuron_manager_class
                
                % Set the logicals array to true.
                logicals = true( 1, self.num_neurons );
-               
-               % Set the match indexes to zero.
-               
-               
+                          
            else                                                                     % Otherwise...
                
                % Set the unique flag to false.
                b_unique = false;
                
-               for k = 1:self.num_neurons
+               % Set the logicals array to true.
+               logicals = true( 1, self.num_neurons );
+               
+               % Determine which neurons have duplicate IDs.
+               for k1 = 1:self.num_neurons                          % Iterate through each neuron...
+                                      
+                   % Set the match found flag to false.
+                   b_match_found = false;
                    
-                   [ b_unique, match_index ] = unique_neuron_ID( self, neuron_ID )
+                   % Initialize the loop variable.
+                   k2 = 0;
                    
+                   % Determine whether there is another neuron with the same ID.
+                   while ( k2 < self.num_neurons ) && ( ~b_match_found ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the neurons and we haven't found a match.
+                       
+                       % Advance the loop variable.
+                       k2 = k2 + 1;
+                       
+                       % Determine whether this neuron is a match.
+                       if self.neurons(k2).ID == neuron_IDs(k1)                              % If this neuron ID is a match...
+                           
+                           % Set the match found flag to true.
+                           b_match_found = true;
+                           
+                           logicals(k1) = false;
+                           
+                       end
+                       
+                   end
                    
                end
                
@@ -207,6 +204,24 @@ classdef neuron_manager_class
             
         end
         
+        
+        % Implement a function to enforce the uniqueness of the existing neuron IDs.
+        function self = make_neuron_IDs_unique( self )
+        
+            % Determine which neuron IDs, if any, are not unique.
+            [ b_unique, logicals ] = self.unique_existing_neuron_IDs(  );
+            
+            % Determine whether there update any of the neuron IDs.
+            if ~b_unique
+               
+                
+                
+                
+            end
+            
+            
+        end
+            
         
         %% Get & Set Neuron Property Functions
         

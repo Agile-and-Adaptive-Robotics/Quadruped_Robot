@@ -44,7 +44,39 @@ classdef array_utilities_class
         end
         
       
+        % Implement a function to determine whether a value exists in an array.
+        function [ b_unique, match_logicals, match_indexes ] = is_value_in_array( ~, value, array )
         
+            % Retrieve the number of array values.
+            num_array_values = length( array );
+            
+            % Determine which array entries match the value.
+            match_logicals = value == array;
+            
+            % Define an array of indexes.
+            indexes = 1:num_array_values;
+            
+            % Retrieve the indexes of the array entries that match the value.
+            match_indexes = indexes( match_logicals );
+            
+            % Determine whether the value is contained in the array.
+            b_unique = all( ~match_logicals );
+            
+        end
+            
+        
+        % Implement a function to determine whether any of an array of values is contained in a given array.
+        function [ b_unique, match_logicals, match_indexes ] = are_values_in_array( values, array )
+        
+            % Retrieve the number of values to check.
+            num_values = length( values )
+            
+            % Preallocate arrays to store the 
+            
+            [ b_unique, match_logicals, match_indexes ] = self.is_value_in_array( value, array );
+            
+        end
+            
             
     end
 end
