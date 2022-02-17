@@ -35,7 +35,7 @@ classdef neuron_manager_class
             
             % Compute the number of neurons.
             self.num_neurons = length( self.neurons );
-
+            
         end
         
         
@@ -110,118 +110,139 @@ classdef neuron_manager_class
         
         % Implement a function to check if a proposed neuron ID is unique.
         function [ b_unique, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID )
-           
+            
             % Retrieve all of the existing neuron IDs.
-            existing_neuron_IDs = self.get_all_neuron_IDs(  );   
-           
-           % Determine whether the given neuron ID is one of the existing neuron IDs (if so, provide the matching logicals and indexes).
-            [ b_unique, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
+            existing_neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Determine whether the given neuron ID is one of the existing neuron IDs (if so, provide the matching logicals and indexes).
+            [ b_match_found, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
+            
+            % Define the uniqueness flag.
+            b_unique = ~b_match_found;
             
         end
         
         
         % Implement a function to check if an array of proposed neuron IDs are unique.
-        function [ b_unique, logicals, match_indexes ] = unique_neuron_IDs( self, neuron_IDs )
-            
-            % Determine the number of neuron IDs to check.
-            num_neuron_IDs = length( neuron_IDs );
-            
-            % Preallocate a logical array.
-            logicals = false( 1, num_neuron_IDs );
-            
-            % Initialize the match indexes.
-            match_indexes = zeros( 1, num_neuron_IDs );
-            
-            % Determine whether each neuron ID is unique.
-            for k = 1:num_neuron_IDs                                % Iterate through each neuron ID...
-               
-                % Determine whether this neuron ID is unique.
-                [ logicals(k), match_indexes(k) ] = self.unique_neuron_ID( neuron_IDs(k) );
-                
-            end
-            
-            % Determine whether all of the proposed neuron IDs are unique.
-            b_unique = all( logicals );
-            
-        end
-       
-                
-        % Implement a function to check if the existing neuron IDs are unique.
-        function [ b_unique, logicals ] = unique_existing_neuron_IDs( self )
+        function [ b_uniques, match_logicals, match_indexes ] = unique_neuron_IDs( self, neuron_IDs )
             
             % Retrieve all of the existing neuron IDs.
-           neuron_IDs = self.get_all_neuron_IDs(  );
+            existing_neuron_IDs = self.get_all_neuron_IDs(  );
             
-          % Determine whether all entries are unique.
-           if length( unique( neuron_IDs ) ) == self.num_neurons                    % If all of the neuron IDs are unique...
-               
-               % Set the unique flag to true.
-               b_unique = true;
-               
-               % Set the logicals array to true.
-               logicals = true( 1, self.num_neurons );
-                          
-           else                                                                     % Otherwise...
-               
-               % Set the unique flag to false.
-               b_unique = false;
-               
-               % Set the logicals array to true.
-               logicals = true( 1, self.num_neurons );
-               
-               % Determine which neurons have duplicate IDs.
-               for k1 = 1:self.num_neurons                          % Iterate through each neuron...
-                                      
-                   % Set the match found flag to false.
-                   b_match_found = false;
-                   
-                   % Initialize the loop variable.
-                   k2 = 0;
-                   
-                   % Determine whether there is another neuron with the same ID.
-                   while ( k2 < self.num_neurons ) && ( ~b_match_found ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the neurons and we haven't found a match.
-                       
-                       % Advance the loop variable.
-                       k2 = k2 + 1;
-                       
-                       % Determine whether this neuron is a match.
-                       if self.neurons(k2).ID == neuron_IDs(k1)                              % If this neuron ID is a match...
-                           
-                           % Set the match found flag to true.
-                           b_match_found = true;
-                           
-                           logicals(k1) = false;
-                           
-                       end
-                       
-                   end
-                   
-               end
-               
-           end
-           
+            % Determine whether the given neuron IDs are in the existing neuron IDs array (if so, provide the matching logicals and indexes).
+            [ b_match_founds, match_logicals, match_indexes ] = self.array_utilities.are_values_in_array( neuron_IDs, existing_neuron_IDs );
             
+            % Determine the uniqueness flags.
+            b_uniques = ~b_match_founds;
+            
+        end
+        
+        
+        % Implement a function to check if the existing neuron IDs are unique.
+        function [ b_unique, match_logicals ] = unique_existing_neuron_IDs( self )
+            
+            % Retrieve all of the existing neuron IDs.
+            neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Determine whether all entries are unique.
+            if length( unique( neuron_IDs ) ) == self.num_neurons                    % If all of the neuron IDs are unique...
+                
+                % Set the unique flag to true.
+                b_unique = true;
+                
+                % Set the logicals array to true.
+                match_logicals = false( 1, self.num_neurons );
+                
+            else                                                                     % Otherwise...
+                
+                % Set the unique flag to false.
+                b_unique = false;
+                
+                % Set the logicals array to true.
+                match_logicals = false( 1, self.num_neurons );
+                
+                % Determine which neurons have duplicate IDs.
+                for k1 = 1:self.num_neurons                          % Iterate through each neuron...
+                    
+                    % Initialize the loop variable.
+                    k2 = 0;
+                    
+                    % Determine whether there is another neuron with the same ID.
+                    while ( k2 < self.num_neurons ) && ( ~match_logicals(k1) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the neurons and we haven't found a match.
+                        
+                        % Advance the loop variable.
+                        k2 = k2 + 1;
+                        
+                        % Determine whether this neuron is a match.
+                        if self.neurons(k2).ID == neuron_IDs(k1)                              % If this neuron ID is a match...
+
+                            % Set this match logical to true.
+                            match_logicals(k1) = true;
+                            
+                        end
+                        
+                    end
+                    
+                end
+                
+            end
+                        
+        end
+        
+        
+        % Implement a function to generate a unique neuron ID.
+        function neuron_ID = generate_unique_neuron_ID( self )
+            
+            % Retrieve the existing neuron IDs.
+            existing_neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Generate a unique neuron ID.
+            neuron_ID = self.array_utilities.get_lowest_natural_number( existing_neuron_IDs );
             
         end
         
         
         % Implement a function to enforce the uniqueness of the existing neuron IDs.
         function self = make_neuron_IDs_unique( self )
-        
-            % Determine which neuron IDs, if any, are not unique.
-            [ b_unique, logicals ] = self.unique_existing_neuron_IDs(  );
             
-            % Determine whether there update any of the neuron IDs.
-            if ~b_unique
-               
+            % Retrieve all of the existing neuron IDs.
+            neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Determine whether all entries are unique.
+            if length( unique( neuron_IDs ) ) ~= self.num_neurons                    % If the neuron IDs are not unique...
                 
+                % Preallocate an array to store the unique neuron IDs.
+                unique_neuron_IDs = zeros( 1, self.num_neurons );
                 
-                
+                % Create an array of unique neuron IDs.
+                for k = 1:self.num_neurons                  % Iterate through each neuron...
+                    
+                    % Determine whether this neuron ID is non-unique.
+                    b_match_found = self.array_utilities.is_value_in_array( self.neurons(k).ID, unique_neuron_IDs );
+                    
+                    % Determine whether to keep this neuron ID or generate a new one.
+                    if b_match_found                                                        % If this neuron ID already exists...
+                       
+                        % Generate a new neuron ID.
+                        unique_neuron_IDs(k) = self.generate_unique_neuron_ID(  );
+                        
+                        % Set the ID of this neuron.
+                        self.neurons(k).ID = unique_neuron_IDs(k);
+                        
+                    else                                                                    % Otherwise...
+                        
+                        % Keep the existing neuron ID.
+                        unique_neuron_IDs(k) = self.neurons(k).ID;
+                        
+                    end
+                    
+                end
+                                
             end
             
             
         end
-            
+        
         
         %% Get & Set Neuron Property Functions
         
@@ -236,7 +257,7 @@ classdef neuron_manager_class
             
             % Preallocate a variable to store the neuron properties.
             xs = cell( 1, num_properties_to_get );
-
+            
             % Retrieve the given neuron property for each neuron.
             for k = 1:num_properties_to_get
                 
@@ -245,7 +266,7 @@ classdef neuron_manager_class
                 
                 % Define the eval string.
                 eval_str = sprintf( 'xs{k} = self.neurons(%0.0f).%s;', neuron_index, neuron_property );
-
+                
                 % Evaluate the given neuron property.
                 eval( eval_str );
                 
@@ -262,7 +283,7 @@ classdef neuron_manager_class
             
             % Validate the neuron property values.
             if ~isa( neuron_property_values, 'cell' )                    % If the neuron property values are not a cell array...
-               
+                
                 % Convert the neuron property values to a cell array.
                 neuron_property_values = num2cell( neuron_property_values );
                 
@@ -292,15 +313,15 @@ classdef neuron_manager_class
         % Implement a function to retrieve all of the neuron IDs.
         function neuron_IDs = get_all_neuron_IDs( self )
             
-           % Preallocate a variable to store the neuron IDs.
-           neuron_IDs = zeros( 1, self.num_neurons );
-           
-           % Retrieve the ID associated with each neuron.
-           for k = 1:self.num_neurons
-               
-              neuron_IDs(k) = self.neurons(k).ID; 
-               
-           end
+            % Preallocate a variable to store the neuron IDs.
+            neuron_IDs = zeros( 1, self.num_neurons );
+            
+            % Retrieve the ID associated with each neuron.
+            for k = 1:self.num_neurons
+                
+                neuron_IDs(k) = self.neurons(k).ID;
+                
+            end
             
         end
         
@@ -334,7 +355,7 @@ classdef neuron_manager_class
         
         
         %% Sodium Channel Conductance Functions
-                
+        
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
         function self = compute_set_CPG_Gna( self, neuron_IDs )
             
@@ -362,18 +383,6 @@ classdef neuron_manager_class
         
         
         %% Neuron Creation Functions
-        
-%         % Implement a function to validate the existing neuron IDs.
-%         function self = validate_existing_neuron_IDs( self )
-%            
-%             % Retrieve the neuron IDs from the neurons.
-%             neuron_IDs = get_neuron_property( neuron_IDs, neuron_property )
-%             
-%             
-%         end
-        
-        
-
         
         % Implement a function to create a new neuron.
         function self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total )
@@ -423,7 +432,7 @@ classdef neuron_manager_class
             
             % Determine whether number of neurons to create.
             if nargin > 2
-            
+                
                 num_neurons_to_create = length( IDs );
                 
             elseif nargin == 2
@@ -438,7 +447,7 @@ classdef neuron_manager_class
                     IDs = zeros( 1, num_neurons_to_create );
                     
                 else
-                   
+                    
                     num_neurons_to_create = num_IDs;
                     
                 end
@@ -501,29 +510,29 @@ classdef neuron_manager_class
         function self = delete_neurons( self, neuron_IDs )
             
             % Retrieve the number of neurons to delete.
-           num_neurons_to_delete = length( neuron_IDs );
-           
-           % Delete each of the specified neurons.
-           for k = 1:num_neurons_to_delete                      % Iterate through each of the neurons we want to delete...
+            num_neurons_to_delete = length( neuron_IDs );
             
-               % Delete this neuron.
-               self = self.delete_neurons( neuron_IDs(k) );
-               
-           end
-               
+            % Delete each of the specified neurons.
+            for k = 1:num_neurons_to_delete                      % Iterate through each of the neurons we want to delete...
+                
+                % Delete this neuron.
+                self = self.delete_neurons( neuron_IDs(k) );
+                
+            end
+            
         end
         
         
         
         %% Save & Load Functions
-
+        
         % Implement a function to save neuron manager data as a matlab object.
         function save( self, directory, file_name )
-        
+            
             % Set the default input arguments.
             if nargin < 3, file_name = 'Neuron_Manager.mat'; end
             if nargin < 2, directory = '.'; end
-
+            
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
             
@@ -535,11 +544,11 @@ classdef neuron_manager_class
         
         % Implement a function to load neuron manager data as a matlab object.
         function self = load( ~, directory, file_name )
-        
+            
             % Set the default input arguments.
             if nargin < 3, file_name = 'Neuron_Manager.mat'; end
             if nargin < 2, directory = '.'; end
-
+            
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
             
@@ -554,13 +563,13 @@ classdef neuron_manager_class
         
         % Implement a function to load neuron data from a xlsx file.
         function self = load_xlsx( self, file_name, directory, b_append, b_verbose )
-        
+            
             % Set the default input arguments.
             if nargin < 5, b_verbose = true; end
             if nargin < 4, b_append = false; end
             if nargin < 3, directory = '.'; end
             if nargin < 2, file_name = 'Neuron_Data.xlsx'; end
-        
+            
             % Determine whether to print status messages.
             if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait...\n' ), end
             
@@ -569,22 +578,22 @@ classdef neuron_manager_class
             
             % Load the neuron data.
             [ neuron_IDs, neuron_names, neuron_U0s, neuron_Cms, neuron_Gms, neuron_Ers, neuron_Rs, neuron_Ams, neuron_Sms, neuron_dEms, neuron_Ahs, neuron_Shs, neuron_dEhs, neuron_dEnas, neuron_tauh_maxs, neuron_Gnas ] = self.data_loader_utilities.load_neuron_data( file_name, directory );
-        
+            
             % Define the number of neurons.
             num_neurons_to_load = length( neuron_IDs );
-
+            
             % Preallocate an array of neurons.
             neurons_to_load = repmat( neuron_class(  ), 1, num_neurons_to_load );
-
+            
             % Create each neuron object.
             for k = 1:num_neurons_to_load               % Iterate through each of the neurons...
-
+                
                 % Compute the initial sodium channel deactivation parameter.
                 neuron_h0 = neurons_to_load(k).neuron_utilities.compute_mhinf( neuron_U0s(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k) );
-
+                
                 % Create this neuron.
                 neurons_to_load(k) = neuron_class( neuron_IDs(k), neuron_names{k}, neuron_U0s(k), neuron_h0, neuron_Cms(k), neuron_Gms(k), neuron_Ers(k), neuron_Rs(k), neuron_Ams(k), neuron_Sms(k), neuron_dEms(k), neuron_Ahs(k), neuron_Shs(k), neuron_dEhs(k), neuron_dEnas(k), neuron_tauh_maxs(k), neuron_Gnas(k) );
-
+                
             end
             
             % Determine whether to append the neurons we just loaded.
@@ -613,7 +622,7 @@ classdef neuron_manager_class
             if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
-            
+        
         
         
         
