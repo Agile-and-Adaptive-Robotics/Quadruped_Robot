@@ -123,6 +123,26 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to check whether a proposed neuron ID is a unique natural.
+        function b_unique_natural = unique_natural_neuron_ID( self, neuron_ID )
+
+            % Initialize the unique natural to false.
+            b_unique_natural = false;
+            
+            % Determine whether this neuron ID is unique.
+            b_unique = self.unique_neuron_ID( neuron_ID );
+            
+            % Determine whether this neuron ID is a unique natural.
+            if b_unique && ( neuron_ID > 0 ) && ( round( neuron_ID ) == neuron_ID )                     % If this neuron ID is a unique natural...
+                
+                % Set the unique natural flag to true.
+                b_unique_natural = true;
+                
+            end
+            
+        end
+
+        
         % Implement a function to check if an array of proposed neuron IDs are unique.
         function [ b_uniques, match_logicals, match_indexes ] = unique_neuron_IDs( self, neuron_IDs )
             
@@ -202,6 +222,26 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to generate multiple unique neuron IDs.
+        function neuron_IDs = generate_unique_neuron_IDs( self, num_IDs )
+
+            % Retrieve the existing neuron IDs.
+            existing_neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Preallocate an array to store the newly generated neuron IDs.
+            neuron_IDs = zeros( 1, num_IDs );
+            
+            % Generate each of the new IDs.
+            for k = 1:num_IDs                           % Iterate through each of the new IDs...
+            
+                % Generate a unique neuron ID.
+                neuron_IDs(k) = self.array_utilities.get_lowest_natural_number( [ existing_neuron_IDs, neuron_IDs( 1:(k - 1) ) ] );
+            
+            end
+                
+        end
+        
+        
         % Implement a function to enforce the uniqueness of the existing neuron IDs.
         function self = make_neuron_IDs_unique( self )
             
@@ -225,7 +265,7 @@ classdef neuron_manager_class
                        
                         % Generate a new neuron ID.
                         unique_neuron_IDs(k) = self.generate_unique_neuron_ID(  );
-                        
+
                         % Set the ID of this neuron.
                         self.neurons(k).ID = unique_neuron_IDs(k);
                         
@@ -240,11 +280,106 @@ classdef neuron_manager_class
                                 
             end
             
+        end
+        
+        
+        % Implement a function to enforce the positivity of the existing neuron IDs.
+        function self = make_neuron_IDs_positive( self )
+            
+            % Retrieve all of the existing neuron IDs.
+            neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Ensure that all of the neuron IDs are positive.
+            for k = 1:self.num_neurons                          % Iterate through each of the neurons...
+                
+               % Determine whether this neuron ID is non-positive.
+               if self.neurons(k).ID <= 0                               % If this neuron ID is non-positive...
+                  
+                   % Generate a new unique ID for this neuron.
+                   self.neurons(k).ID = self.array_utilities.get_lowest_natural_number( neuron_IDs );
+                   
+               end
+                
+            end
+                        
+        end
+        
+        
+        % Implement a function to ensure that the neuron IDs are integers.
+        function self = make_neuron_IDs_integers( self )
+            
+            % Retrieve all of the existing neuron IDs.
+            neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Ensure that all of the neuron IDs are integers.
+            for k = 1:self.num_neurons                          % Iterate through each of the neurons...
+                
+               % Determine whether this neuron ID is an integer.
+               if round( self.neurons(k).ID ) ~= self.neurons(k).ID                               % If this neuron ID is not an integer...
+                  
+                   % Generate a new unique ID for this neuron.
+                   self.neurons(k).ID = self.array_utilities.get_lowest_natural_number( neuron_IDs );
+                   
+               end
+                
+            end
+                        
+        end
+        
+        
+        % Implement a function to ensure that the neuron IDs are natural numbers.
+        function self = make_neuron_IDs_naturals( self )
+            
+            % Retrieve all of the existing neuron IDs.
+            neuron_IDs = self.get_all_neuron_IDs(  );
+            
+            % Ensure that all of the neuron IDs are naturals.
+            for k = 1:self.num_neurons                          % Iterate through each of the neurons...
+                
+               % Determine whether this neuron ID is natural.
+               if ( round( self.neurons(k).ID ) ~= self.neurons(k).ID ) || ( self.neurons(k).ID <= 0 )                              % If this neuron ID is not a natural...
+                  
+                   % Generate a new unique ID for this neuron.
+                   self.neurons(k).ID = self.array_utilities.get_lowest_natural_number( neuron_IDs );
+                   
+               end
+                
+            end
             
         end
         
         
-        %% Get & Set Neuron Property Functions
+        % Implement a function to ensure that the neuron IDs are natural numbers.
+        function self = make_neuron_IDs_unique_naturals( self )
+            
+            % Ensure that all of the neuron IDs are naturals.
+            for k = 1:self.num_neurons                          % Iterate through each of the neurons...
+                
+                % Retrieve all of the existing neuron IDs.
+                neuron_IDs = self.get_all_neuron_IDs(  );
+                          
+                % Remove the kth entry.
+                neuron_IDs(k) = [  ];
+                
+                % Determine whether this neuron ID is non-unique.
+                b_match_found = self.array_utilities.is_value_in_array( self.neurons(k).ID, neuron_IDs );
+                
+               % Determine whether this neuron ID is natural.
+               if ( round( self.neurons(k).ID ) ~= self.neurons(k).ID ) || ( self.neurons(k).ID <= 0 ) || b_match_found                             % If this neuron ID is not a unique natural...
+                  
+                   % Generate a new unique ID for this neuron.
+                   self.neurons(k).ID = self.array_utilities.get_lowest_natural_number( neuron_IDs );
+                   
+               end
+                
+            end
+            
+        end
+        
+        
+        
+        
+        %% General Get & Set Neuron Property Functions
         
         % Implement a function to retrieve the properties of specific neurons.
         function xs = get_neuron_property( self, neuron_IDs, neuron_property )
@@ -326,6 +461,109 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to get all enabled neuron IDs.
+        function neuron_IDs = get_enabled_neuron_IDs( self )
+            
+            % Preallocate an array to store the neuron IDs.
+            neuron_IDs = zeros( 1, self.num_neurons );
+            
+            % Initialize a counter variable.
+            k2 = 0;
+            
+            % Retrieve the IDs of the enabled neurons.
+            for k1 = 1:self.num_neurons                       % Iterate through each of the neurons...
+                
+                % Determine whether to store this neuron ID.
+                if self.neurons(k1).b_enabled                        % If this neuron is enabled...
+                    
+                    % Advance the counter variable.
+                    k2 = k2 + 1;
+                    
+                    % Store this neuron ID.
+                    neuron_IDs(k2) = self.neurons(k1).ID;
+                    
+                end
+                
+            end
+            
+            % Remove extra neuron IDs.
+            neuron_IDs = neurons_IDs(1:k2);
+            
+        end
+        
+        
+        
+        %% Enable & Disable Functions
+        
+        % Implement a function to enable neurons.
+        function self = enable_neurons( self, neuron_IDs )
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+                        
+            % Determine the number of neurons to enable.
+            num_neurons_to_enable = length( neuron_IDs );
+            
+            % Enable all of the specified neurons.
+            for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
+                
+                % Retrieve this neuron index.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Enable this neuron.
+                self.neurons( neuron_index ).b_enabled = true;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to disable neurons.
+        function self = disable_neurons( self, neuron_IDs )
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+                        
+            % Determine the number of neurons to disable.
+            num_neurons_to_enable = length( neuron_IDs );
+            
+            % Disable all of the specified neurons.
+            for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
+                
+                % Retrieve this neuron index.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Disable this neuron.
+                self.neurons( neuron_index ).b_enabled = false;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to toggle neuron enable state.
+        function self = toggle_enabled_neurons( self, neuron_IDs )
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+                        
+            % Determine the number of neurons to disable.
+            num_neurons_to_enable = length( neuron_IDs );
+            
+            % Disable all of the specified neurons.
+            for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
+                
+                % Retrieve this neuron index.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Disable this neuron.
+                self.neurons( neuron_index ).b_enabled = ~self.neurons( neuron_index ).b_enabled;
+                
+            end
+            
+        end
+        
+        
         %% Call Neuron Methods Functions
         
         % Implement a function to that calls a specified neuron method for each of the specified neurons.
@@ -385,9 +623,10 @@ classdef neuron_manager_class
         %% Neuron Creation Functions
         
         % Implement a function to create a new neuron.
-        function self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total )
+        function self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled )
             
             % Set the default neuron properties.
+            if nargin < 25, b_enabled = true; end
             if nargin < 24, I_total = 0; end
             if nargin < 23, I_app = 0; end
             if nargin < 22, I_tonic = 0; end
@@ -410,13 +649,13 @@ classdef neuron_manager_class
             if nargin < 5, h = 0; end
             if nargin < 4, U = 0; end
             if nargin < 3, name = ''; end
-            if nargin < 2, ID = 0; end
+            if nargin < 2, ID = self.generate_unique_neuron_ID(  ); end
             
-            % Determine whether this ID is valid.
-            
+            % Ensure that this neuron ID is a unique natural.
+            assert( self.unique_natural_neuron_ID( ID ), 'Proposed neuron ID %0.2f is not a unique natural number.', ID )
             
             % Create an instance of the neuron class.
-            neuron = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total );
+            neuron = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled );
             
             % Append this neuron to the array of existing neurons.
             self.neurons = [ self.neurons neuron ];
@@ -428,65 +667,75 @@ classdef neuron_manager_class
         
         
         % Implement a function to create multiple neurons.
-        function self = create_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals )
+        function self = create_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds )
             
             % Determine whether number of neurons to create.
-            if nargin > 2
+            if nargin > 2                                               % If more than just neuron IDs were provided...
                 
+                % Set the number of neurons to create to be the number of provided IDs.
                 num_neurons_to_create = length( IDs );
                 
-            elseif nargin == 2
+            elseif nargin == 2                                          % If just the neuron IDs were provided...
                 
                 % Retrieve the number of IDs.
                 num_IDs = length( IDs );
                 
-                if num_IDs == 1
+                % Determine who to interpret this number of IDs.
+                if num_IDs == 1                                     % If the number of IDs is one...
                     
+                    % Then create a number of neurons equal to the specific ID.  (i.e., in this case we are treating the single provided ID value as the number of neurons that we want to create.)
                     num_neurons_to_create = IDs;
                     
-                    IDs = zeros( 1, num_neurons_to_create );
+                    % Preallocate an array of IDs.
+                    IDs = self.generate_unique_neuron_IDs( num_neurons_to_create );
                     
-                else
+                else                                                % Otherwise... ( More than one ID was provided... )
                     
+                    % Set the number of neurons to create to be the number of provided neuron IDs.
                     num_neurons_to_create = num_IDs;
                     
                 end
                 
-            elseif nargin == 1
+            elseif nargin == 1                                      % If no input arguments were provided... ( Beyond the default self argument.)
                 
+                % Set the number of neurons to create to one.
                 num_neurons_to_create = 1;
                 
             end
             
             % Set the default neuron properties.
-            if nargin < 24, I_total = zeros( 1, num_neurons_to_create ); end
-            if nargin < 23, I_app = zeros( 1, num_neurons_to_create ); end
-            if nargin < 22, I_tonic = zeros( 1, num_neurons_to_create ); end
-            if nargin < 21, I_na = zeros( 1, num_neurons_to_create ); end
-            if nargin < 20, I_syn = zeros( 1, num_neurons_to_create ); end
-            if nargin < 19, I_leak = zeros( 1, num_neurons_to_create ); end
-            if nargin < 18, Gna = 1e-6; end
-            if nargin < 17, tauh_max = 0.25; end
-            if nargin < 16, dEna = 110e-3; end
-            if nargin < 15, dEh = zeros( 1, num_neurons_to_create ); end
-            if nargin < 14, Sh = 50; end
-            if nargin < 13, Ah = 0.5; end
-            if nargin < 12, dEm = 40e-3; end
-            if nargin < 11, Sm = -50; end
-            if nargin < 10, Am = 1; end
-            if nargin < 9, R = 20e-3; end
-            if nargin < 8, Er = -60e-3; end
-            if nargin < 7, Gm = 1e-6; end
-            if nargin < 6, Cm = 5e-9; end
-            if nargin < 5, h = zeros( 1, num_neurons_to_create ); end
-            if nargin < 4, U = zeros( 1, num_neurons_to_create ); end
-            if nargin < 3, name = ''; end
-            if nargin < 2, ID = zeros( 1, num_neurons_to_create ); end
+            if nargin < 25, b_enableds = true( 1, num_neurons_to_create ); end
+            if nargin < 24, I_totals = zeros( 1, num_neurons_to_create ); end
+            if nargin < 23, I_apps = zeros( 1, num_neurons_to_create ); end
+            if nargin < 22, I_tonics = zeros( 1, num_neurons_to_create ); end
+            if nargin < 21, I_nas = zeros( 1, num_neurons_to_create ); end
+            if nargin < 20, I_syns = zeros( 1, num_neurons_to_create ); end
+            if nargin < 19, I_leaks = zeros( 1, num_neurons_to_create ); end
+            if nargin < 18, Gnas = 1e-6*ones( 1, num_neurons_to_create ); end
+            if nargin < 17, tauh_maxs = 0.25*ones( 1, num_neurons_to_create ); end
+            if nargin < 16, dEnas = 110e-3*ones( 1, num_neurons_to_create ); end
+            if nargin < 15, dEhs = zeros( 1, num_neurons_to_create ); end
+            if nargin < 14, Shs = 50*ones( 1, num_neurons_to_create ); end
+            if nargin < 13, Ahs = 0.5*ones( 1, num_neurons_to_create ); end
+            if nargin < 12, dEms = 40e-3*ones( 1, num_neurons_to_create ); end
+            if nargin < 11, Sms = -50*ones( 1, num_neurons_to_create ); end
+            if nargin < 10, Ams = 1*ones( 1, num_neurons_to_create ); end
+            if nargin < 9, Rs = 20e-3*ones( 1, num_neurons_to_create ); end
+            if nargin < 8, Ers = -60e-3*ones( 1, num_neurons_to_create ); end
+            if nargin < 7, Gms = 1e-6*ones( 1, num_neurons_to_create ); end
+            if nargin < 6, Cms = 5e-9*ones( 1, num_neurons_to_create ); end
+            if nargin < 5, hs = zeros( 1, num_neurons_to_create ); end
+            if nargin < 4, Us = zeros( 1, num_neurons_to_create ); end
+            if nargin < 3, names = repmat( { '' }, 1, 4 ); end
+            if nargin < 2, IDs = self.generate_unique_neuron_IDs( num_neurons_to_create ); end
             
+            % Create each of the spcified neurons.
+            for k = 1:num_neurons_to_create                         % Iterate through each of the neurons we want to create...
+       
+                % Create this neuron.
+                self = self.create_neuron( IDs(k), names{k}, Us(k), hs(k), Cms(k), Gms(k), Ers(k), Rs(k), Ams(k), Sms(k), dEms(k), Ahs(k), Shs(k), dEhs(k), dEnas(k), tauh_maxs(k), Gnas(k), I_leaks(k), I_syns(k), I_nas(k), I_tonics(k), I_apps(k), I_totals(k), b_enableds(k) );
             
-            
-            self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total )
-            
+            end
             
         end
         

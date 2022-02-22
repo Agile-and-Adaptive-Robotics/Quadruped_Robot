@@ -41,6 +41,8 @@ classdef neuron_class
         I_app
         I_total
         
+        b_enabled
+        
         neuron_utilities
         
     end
@@ -52,12 +54,13 @@ classdef neuron_class
     methods
         
         % Implement the class constructor.
-        function self = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total )
+        function self = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled )
             
             % Create an instance of the neuron utilities class.
             self.neuron_utilities = neuron_utilities_class(  );
             
             % Set the default neuron properties.
+            if nargin < 24, self.b_enabled = true; else, self.b_enabled = b_enabled; end
             if nargin < 23, self.I_total = 0; else, self.I_total = I_total; end
             if nargin < 22, self.I_app = 0; else, self.I_app = I_app; end
             if nargin < 21, self.I_tonic = 0; else, self.I_tonic = I_tonic; end
@@ -169,7 +172,7 @@ classdef neuron_class
         end
         
         
-        %% Current Functions.
+        %% Current Functions
         
         % Implement a function to compute the leak current associated with this neuron.
         function I_leak = compute_leak_current( self )
@@ -221,6 +224,35 @@ classdef neuron_class
             
             % Compute and set the total current.
             self.I_total = self.neuron_utilities.compute_total_current( self.I_leak, self.I_syn, self.I_na, self.I_app );
+            
+        end
+        
+        
+        %% Enable & Disable Functions
+        
+        % Implement a function to toogle whether this neuron is enabled.
+        function self = toggle_enabled( self )
+            
+            % Toggle whether the neuron is enabled.
+           self.b_enabled = ~self.b_enabled; 
+            
+        end
+        
+        
+        % Implement a function to enable this neuron.
+        function self = enable( self )
+            
+           % Enable this neuron.
+           self.b_enabled = true;
+            
+        end
+        
+        
+        % Implement a function to disable this neuron.
+        function self = disable( self )
+            
+           % Disable this neuron.
+           self.b_enabled = false;
             
         end
         

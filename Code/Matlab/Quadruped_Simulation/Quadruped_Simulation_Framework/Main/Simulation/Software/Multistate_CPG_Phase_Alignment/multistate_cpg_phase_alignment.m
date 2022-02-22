@@ -69,11 +69,25 @@ network.synapse_manager = network.synapse_manager.compute_set_deltas( delta_osci
 network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
 
 
+%% TESTING CODE
+
+
+network.neuron_manager = network.neuron_manager.create_neuron(  );
+
+network.synapse_manager.synapses(2) = network.synapse_manager.synapses(2).disable(  );
+
+g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
+
 
 %% Simulate the Network.
 
 % Define the total simulation duration.
 tf = 5;
+
+
+% NEED TO BE ABLE TO SIMULATE USING ONLY A SUBSET OF THE NEURONS IN THE NETWORK.  THIS SHOULD TAKE THE FORM OF AN ENABLED FLAG.  IF THE NEURON IS DISABLED, EXCLUDE IT FROM THE SIMULATION.
+% NEED TO BE ABLE TO SIMULATE NEURONS THAT DO NOT HAVE FULLY CONNECTED SYNAPSES DEFINED.  IF THE NEURON IS ENABLED BUT IT NOT FULLY CONNECTED, DUMMY SYNAPSES NEED TO BE CREATED FOR THE SIMULATION.
+
 
 % Simulate the network.
 [ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network.compute_set_simulation( tf );

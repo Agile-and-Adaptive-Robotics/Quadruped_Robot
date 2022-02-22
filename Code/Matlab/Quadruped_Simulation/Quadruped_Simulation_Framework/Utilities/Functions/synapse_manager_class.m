@@ -158,11 +158,26 @@ classdef synapse_manager_class
             synapse_indexes = zeros( 1, num_synapse_IDs );
             
             % Retrieve the synapse index of each synapse ID.
-            for k = 1:num_synapse_IDs                   % Iterate through each synapse ID...
+            for k = 1:num_synapse_IDs                           % Iterate through each synapse ID...
             
-                % Retrieve the synapse index associated with this synapse ID.
-                synapse_indexes(k) = self.get_synapse_index( synapse_IDs(k) );
+                % Determine how to compute the synapse index.
+                if synapse_IDs(k) >= 0                           % If the synapse ID is positive... (this means that the synapse ID exists...)
+                
+                    % Retrieve the synapse index associated with this synapse ID.
+                    synapse_indexes(k) = self.get_synapse_index( synapse_IDs(k) );
             
+                elseif synapse_IDs(k) == -1                     % If the synapse ID is -1... (this means that the synapse ID does not exist...)
+                    
+                    % Set the synapse index to negative one (to indicate that it doesn't exist).
+                    synapse_indexes(k) = -1;
+                    
+                else                                            % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Synapse ID %0.2f not recognized.', synapse_IDs(k) )
+                    
+                end
+                    
             end
             
         end
@@ -215,7 +230,6 @@ classdef synapse_manager_class
            end
             
         end
-        
         
         
         
@@ -287,31 +301,31 @@ classdef synapse_manager_class
                 
             else                                                    % Otherwise...
                 
-                if strcmpi( undetected_option, 'error' )
+                % Determine how to handle the situation where we can not find a synapse that connects the selected neurons.
+                if strcmpi( undetected_option, 'error' )                                    % If the error option is selected...
                     
+                    % Throw an error.
                     error( 'No synapse found that connects neuron %0.0f to neuron %0.0f.', from_neuron_ID, to_neuron_ID )
                     
-                    
-                elseif strcmpi( undetected_option, 'warning' )
+                elseif strcmpi( undetected_option, 'warning' )                              % If the warning option is selected...
                     
                     % Throw a warning.
-                    warning( 'undetected_option %s unrecognized.', undetected_option )
+                    warning( 'No synapse found that connects neuron %0.0f to neuron %0.0f.', from_neuron_ID, to_neuron_ID )
                     
                     % Set the synapse ID to be negative one.
                     synapse_ID = -1;
                     
-                elseif strcmpi( undetected_option, 'ignore' )
+                elseif strcmpi( undetected_option, 'ignore' )                               % If the ignore option is selected...
                     
                     % Set the synapse ID to be negative one.
                     synapse_ID = -1;
                     
-                else
+                else                                                                        % Otherwise...
                     
                     % Throw an error.
                     error( 'undetected_option %s unrecognized.', undetected_option )
                     
                 end
-                
                 
             end
             
@@ -319,7 +333,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to retrieve the synpase IDs associated with the synapses that connect an array of specified neurons.
-        function synapse_IDs = from_to_neuron_IDs2synapse_IDs( self, from_neuron_IDs, to_neuron_IDs )
+        function synapse_IDs = from_to_neuron_IDs2synapse_IDs( self, from_neuron_IDs, to_neuron_IDs, undetected_option )
+            
+            % Set the default input argument.
+            if nargin < 4, undetected_option = 'error'; end
             
             % Ensure that the same number of from and to neuron IDs are specified.
             assert( length( from_neuron_IDs ) == length( to_neuron_IDs ), 'length(from_neuron_IDs) must equal length(to_neuron_IDs).' )
@@ -331,10 +348,10 @@ classdef synapse_manager_class
             synapse_IDs = zeros( 1, num_synapses_to_find );
             
             % Search for each synapse ID.
-            for k = 1:num_synapses_to_find                              % Iterate through each set of neurons for which we are searching for a connecting synapse.
+            for k = 1:num_synapses_to_find                              % Iterate through each set of neurons for which we are searching for a connecting synapse...
                 
                 % Retrieve the ID of the synapse that connects these neurons.
-                synapse_IDs(k) = self.from_to_neuron_ID2synapse_ID( from_neuron_IDs(k), to_neuron_IDs(k) );
+                synapse_IDs(k) = self.from_to_neuron_ID2synapse_ID( from_neuron_IDs(k), to_neuron_IDs(k), undetected_option );
                 
             end
             
@@ -370,7 +387,6 @@ classdef synapse_manager_class
             synapse_IDs = synapse_IDs( 1:index );
                 
         end
-        
         
         
         % Implement a function to convert a specific neuron ID order to oscillatory from-to neuron ID pairs.
@@ -471,13 +487,16 @@ classdef synapse_manager_class
         
         
         % Implement a function to retrieve the synapse IDs relevant to a set of neuron IDs.
-        function synapse_IDs = neuron_IDs2synapse_IDs( self, neuron_IDs )
+        function synapse_IDs = neuron_IDs2synapse_IDs( self, neuron_IDs, undetected_option )
+            
+            % Set the default input argument.
+            if nargin < 3, undetected_option = 'error'; end
             
             % Retrieve the IDs of all relevant from and to neurons.
             [ from_neuron_IDs, to_neuron_IDs ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_IDs );
             
             % Retrieve the synapse IDs associated with the given neuron IDs.
-            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs );
+            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs, undetected_option );
         
         end
         
@@ -519,6 +538,79 @@ classdef synapse_manager_class
         end
         
         
+        %% Enable & Disable Functions
+        
+        % Implement a function to enable synapses.
+        function self = enable_synapses( self, synapse_IDs )
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+                        
+            % Determine the number of synapses to enable.
+            num_synapses_to_enable = length( synapse_IDs );
+            
+            % Enable all of the specified synapses.
+            for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
+                
+                % Retrieve this synapse index.
+                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                
+                % Enable this synapse.
+                self.synapses( synapse_index ).b_enabled = true;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to disable synapses.
+        function self = disable_synapses( self, synapse_IDs )
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+                        
+            % Determine the number of synapses to disable.
+            num_synapses_to_enable = length( synapse_IDs );
+            
+            % Disable all of the specified synapses.
+            for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
+                
+                % Retrieve this synapse index.
+                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                
+                % Disable this synapse.
+                self.synapses( synapse_index ).b_enabled = false;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to toggle synapse enable state.
+        function self = toggle_enabled_synapses( self, synapse_IDs )
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+                        
+            % Determine the number of synapses to disable.
+            num_synapses_to_enable = length( synapse_IDs );
+            
+            % Disable all of the specified synapses.
+            for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
+                
+                % Retrieve this synapse index.
+                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                
+                % Toggle this synapse.
+                self.synapses( synapse_index ).b_enabled = ~self.synapses( synapse_index ).b_enabled;
+                
+            end
+            
+        end
+        
+        
+        
+        
         %% Save & Load Functions
         
         % Implement a function to save synapse manager data as a matlab object.
@@ -554,7 +646,6 @@ classdef synapse_manager_class
             self = data.self;
             
         end
-        
         
         
         % Implement a function to load synapse from a xlsx data.
