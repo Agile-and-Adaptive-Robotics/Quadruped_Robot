@@ -1,0 +1,5 @@
+~$*.SLDASM
+~$*.SLDPRT
+_$*.SLDASM
+_$*.SLDPRT
+*.asv
