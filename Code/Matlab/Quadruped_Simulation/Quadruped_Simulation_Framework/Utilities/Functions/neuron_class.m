@@ -80,7 +80,7 @@ classdef neuron_class
             if nargin < 7, self.Er = -60e-3; else, self.Er = Er; end
             if nargin < 6, self.Gm = 1e-6; else, self.Gm = Gm; end
             if nargin < 5, self.Cm = 5e-9; else, self.Cm = Cm; end
-            if nargin < 4, self.h = 0; else, self.h = h; end
+            if nargin < 4, self.h = [  ]; else, self.h = h; end
             if nargin < 3, self.U = 0; else, self.U = U; end
             if nargin < 2, self.name = ''; else, self.name = name; end
             if nargin < 1, self.ID = 0; else, self.ID = ID; end
@@ -88,6 +88,9 @@ classdef neuron_class
             % Set the steady state sodium channel activation and deactivation parameters.
             self = self.compute_set_minf(  );
             self = self.compute_set_hinf(  );
+            
+            % Determine whether to set the sodium channel activation parameter to its steady state value.
+            if isempty( self.h ), self.h = self.h_inf; end
             
             % Compute and set the sodium channel deactivation time constant.
             self = self.compute_set_tauh(  );

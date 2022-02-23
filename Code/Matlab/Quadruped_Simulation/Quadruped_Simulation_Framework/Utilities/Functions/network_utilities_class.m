@@ -343,7 +343,7 @@ classdef network_utilities_class
             if size( I_apps, 2 ) ~= num_timesteps                  % If the number of Iapps columns is not equal to the number of timesteps...
                 
                 % Throw an error.
-                error( 'size(Iapps, 2) must equal the number of simulation time steps.\n' )
+                error( 'size(Iapps, 2) must equal the number of simulation time steps.' )
                 
             end
             

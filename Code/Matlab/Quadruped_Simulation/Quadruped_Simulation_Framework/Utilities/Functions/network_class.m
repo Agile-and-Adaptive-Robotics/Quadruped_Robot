@@ -12,6 +12,7 @@ classdef network_class
         applied_current_manager
         
         dt
+        tf
         
         network_utilities
         numerical_method_utilities
@@ -25,7 +26,7 @@ classdef network_class
     methods
         
         % Implement the class constructor.
-        function self = network_class( dt, neuron_manager, synapse_manager, applied_current_manager )
+        function self = network_class( dt, tf, neuron_manager, synapse_manager, applied_current_manager )
             
             % Create an instance of the numeriacl methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class(  );
@@ -34,9 +35,10 @@ classdef network_class
             self.network_utilities = network_utilities_class(  );
             
             % Set the default network properties.
-            if nargin < 4, self.applied_current_manager = applied_current_manager_class(  ); else, self.applied_current_manager = applied_current_manager; end
-            if nargin < 3, self.synapse_manager = synapse_manager_class(  ); else, self.synapse_manager = synapse_manager; end
-            if nargin < 2, self.neuron_manager = neuron_manager_class(  ); else, self.neuron_manager = neuron_manager; end
+            if nargin < 5, self.applied_current_manager = applied_current_manager_class(  ); else, self.applied_current_manager = applied_current_manager; end
+            if nargin < 4, self.synapse_manager = synapse_manager_class(  ); else, self.synapse_manager = synapse_manager; end
+            if nargin < 3, self.neuron_manager = neuron_manager_class(  ); else, self.neuron_manager = neuron_manager; end
+            if nargin < 2, self.tf = 1; else, self.tf = tf; end
             if nargin < 1, self.dt = 1e-3; else, self.dt = dt; end
             
             % Compute and set the synaptic conductances.
@@ -593,7 +595,7 @@ classdef network_class
         %% Simulation Functions
         
         % Implement a function to compute a single network simulation step.
-        function [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = compute_simulation_step( self )
+        function [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation_step( self )
             
             % Ensure that the network is constructed properly.
             self.validate_network(  )
@@ -625,7 +627,7 @@ classdef network_class
             dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
             
             % Retrieve applied currents.
-            I_apps = self.applied_current_manager.get_applied_currents( 'all' )';
+            I_apps = self.applied_current_manager.get_applied_currents( neuron_IDs, self.dt, self.tf )';
             
             % Perform a single simulation step.
             [ dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulation_step( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps );
@@ -643,30 +645,31 @@ classdef network_class
         function self = compute_set_simulation_step( self )
             
             % Compute and set a single network simulation step.
-            [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = compute_simulation_step(  );
+            [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation_step(  );
             
             % Set the neuron properties.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', Us, 'U' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', hs, 'h' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', I_leaks, 'I_leak' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', I_syns, 'I_syn' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', I_nas, 'I_na' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', I_totals, 'I_total' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', m_infs, 'm_inf' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', h_infs, 'h_inf' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( 'all', tauhs, 'tauh' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, Us, 'U' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, hs, 'h' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, I_leaks, 'I_leak' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, I_syns, 'I_syn' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, I_nas, 'I_na' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, I_totals, 'I_total' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, m_infs, 'm_inf' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, h_infs, 'h_inf' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, tauhs, 'tauh' );
             
             % Set the synapse properties.
-            self = self.set_synaptic_conductances( G_syns );
+            self = self.set_synaptic_conductances( G_syns, neuron_IDs );
             
         end
         
         
         % Implement a function to compute network simulation results.
-        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation( self, tf )
+        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation( self, dt, tf )
             
             % Set the default simulation duration.
-            if nargin < 2, tf = 1; end
+            if nargin < 3, tf = self.tf; end
+            if nargin < 2, dt = self.dt; end
             
             % Ensure that the network is constructed properly.
             self.validate_network(  )
@@ -696,19 +699,23 @@ classdef network_class
             dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
             
             % Retrieve the applied currents.
-            I_apps = self.applied_current_manager.get_applied_currents( neuron_IDs )';
+            I_apps = self.applied_current_manager.get_applied_currents( neuron_IDs, self.dt, self.tf )';
             
             % Simulate the network.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, self.dt );
+            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt );
             
         end
         
         
         % Implement a function to compute and set network simulation results.
-        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = compute_set_simulation( self, tf )
+        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = compute_set_simulation( self, dt, tf )
+            
+            % Set the default input arguments.
+            if nargin < 3, tf = self.tf; end
+            if nargin < 2, dt = self.dt; end
             
             % Compute the network simulation results.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_simulation( tf );
+            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_simulation( dt, tf );
             
             % Set the neuron properties.
             self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, Us( :, end ), 'U' );

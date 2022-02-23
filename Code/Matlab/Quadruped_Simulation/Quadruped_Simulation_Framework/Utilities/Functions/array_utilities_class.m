@@ -141,6 +141,25 @@ classdef array_utilities_class
         end
         
         
+        % Implement a function to compute the step size of an array.
+        function step_size = compute_step_size( ~, array )
+            
+            % Determine how to compute the step size of the array.
+           if length( array ) > 1                                       % If there are at least two array elements...
+               
+               % Compute the step size.
+               step_size = mean( array(2:end) - array(1:end-1) );
+               
+           else                                                         % Otherwise...
+              
+               % Set the step size to be empty.
+               step_size = [  ];
+               
+           end
+            
+        end
+        
+        
     end
 end
 

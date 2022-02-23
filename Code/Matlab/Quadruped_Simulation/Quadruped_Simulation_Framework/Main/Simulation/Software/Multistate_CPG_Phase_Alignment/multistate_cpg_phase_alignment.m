@@ -10,17 +10,15 @@ clear, close('all'), clc
 b_verbose = true;
 
 % Define the path to the directory that contains the robot data.
-% robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
-% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
+% robot_data_save_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+% robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
-robot_data_save_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
-robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
-
-% robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
-% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
+robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
 % Define the network integration step size.
 network_dt = 1e-3;
+network_tf = 5;
 
 
 %% Initialize the Data Loader Class.
@@ -44,11 +42,10 @@ if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s]
 %% Initialize the Neural Network.
 
 % Create an instance of the network class.
-network = network_class( network_dt );
+network = network_class( network_dt, network_tf );
 
 % Load the network data.
 network = network.load_xlsx( robot_data_load_path );
-
 
 
 %% Modify Neural Network Parameters.
@@ -72,8 +69,14 @@ network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
 
 %% TESTING CODE
 
+network.neuron_manager = network.neuron_manager.create_neuron( 5 );
+network.neuron_manager = network.neuron_manager.create_neuron( 6 );
 
-network.neuron_manager = network.neuron_manager.create_neuron(  );
+network.neuron_manager = network.neuron_manager.disable_neuron( 5 );
+network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
+
+% network.neuron_manager = network.neuron_manager.delete_neuron( 5 );
+
 
 % network.neuron_manager.neurons(5) = network.neuron_manager.neurons(5).disable(  );
 % network.neuron_manager.neurons(4) = network.neuron_manager.neurons(4).disable(  );
@@ -87,17 +90,13 @@ network.neuron_manager = network.neuron_manager.create_neuron(  );
 
 % network.applied_current_manager.applied_currents(1) = network.applied_current_manager.applied_currents(1).disable(  );
 
-
 % g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
 
 
 %% Simulate the Network.
 
-% Define the total simulation duration.
-tf = 5;
-
 % Simulate the network.
-[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network.compute_set_simulation( tf );
+[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network.compute_set_simulation(  );
 
 
 %% Plot the Network Results.

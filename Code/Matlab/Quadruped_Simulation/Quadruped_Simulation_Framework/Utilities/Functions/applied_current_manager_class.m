@@ -10,7 +10,6 @@ classdef applied_current_manager_class
         applied_currents
         
         num_applied_currents
-        num_timesteps
         
         array_utilities
         data_loader_utilities
@@ -38,10 +37,274 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             self.num_applied_currents = length( self.applied_currents );
             
-            % Retrieve the number of timesteps.
-            self.num_timesteps = length( self.applied_currents(1).ts );
+        end
+        
+        
+        %% General Get & Set Applied Current Property Functions
+        
+        % Implement a function to retrieve the properties of specific applied currents.
+        function xs = get_applied_current_property( self, applied_current_IDs, applied_current_property )
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_properties_to_get = length( applied_current_IDs );
+            
+            % Preallocate a variable to store the applied current properties.
+            xs = cell( 1, num_properties_to_get );
+            
+            % Retrieve the given applied current property for each applied current.
+            for k = 1:num_properties_to_get                                                                         % Iterate through each of the properties to get...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs(k) );
+                
+                % Define the eval string.
+                eval_str = sprintf( 'xs{k} = self.applied_currents(%0.0f).%s;', applied_current_index, applied_current_property );
+                
+                % Evaluate the given applied current property.
+                eval( eval_str );
+                
+            end
             
         end
+        
+        
+        % Implement a function to set the properties of specific applied currents.
+        function self = set_applied_current_property( self, applied_current_IDs, applied_current_property_values, applied_current_property )
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Validate the applied current property values.
+            if ~isa( applied_current_property_values, 'cell' )                    % If the applied current property values are not a cell array...
+                
+                % Convert the applied current property values to a cell array.
+                applied_current_property_values = num2cell( applied_current_property_values );
+                
+            end
+            
+            % Set the properties of each applied current.
+            for k = 1:self.num_applied_currents                   % Iterate through each applied current...
+                
+                % Determine the index of the applied current property value that we want to apply to this applied current (if we want to set a property of this applied current).
+                index = find( self.applied_currents(k).ID == applied_current_IDs, 1 );
+                
+                % Determine whether to set a property of this applied current.
+                if ~isempty( index )                         % If a matching applied current ID was detected...
+                    
+                    % Create an evaluation string that sets the desired applied current property.
+                    eval_string = sprintf( 'self.applied_currents(%0.0f).%s = applied_current_property_values{%0.0f};', k, applied_current_property, index );
+                    
+                    % Evaluate the evaluation string.
+                    eval( eval_string );
+                    
+                end
+            end
+            
+        end
+        
+        
+        %% Specific Get & Set Functions
+        
+        % Implement a function to retrieve all of the neuron IDs.
+        function applied_current_IDs = get_all_applied_current_IDs( self )
+            
+            % Preallocate a variable to store the applied current IDs.
+            applied_current_IDs = zeros( 1, self.num_applied_currents );
+            
+            % Retrieve the ID associated with each applied current.
+            for k = 1:self.num_applied_currents                             % Iterate through each of the applied currents...
+                
+                % Retrieve this applied current ID.
+                applied_current_IDs(k) = self.applied_currents(k).ID;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the number of time steps of the specified applied currents.
+        function num_timesteps = get_num_timesteps( self, applied_current_IDs, process_option )
+            
+            % Set the default input arguments.
+            if nargin < 3, process_option = 'none'; end
+            
+            % Retrieve the number of timesteps associated with each applied current.
+            num_timesteps = cell2mat( self.get_applied_current_property( applied_current_IDs, 'num_timesteps' ) );
+            
+            % Determine how to process the number of timesteps.
+            if strcmpi( process_option, 'average' )                     % If we want the average time step...
+                
+                % Set the number of timesteps to be the average number of timesteps.
+                num_timesteps = mean( num_timesteps );
+
+            elseif strcmpi( process_option, 'max' )                    % If we want the maximum time step...
+                
+                % Set the number of timesteps to be the largest number of timesteps.
+                num_timesteps = max( num_timesteps );
+                
+            elseif strcmpi( process_option, 'min' )                    % If we want the minimum time step...
+                
+                % Set the number of timesteps to be the smallest number of timesteps.
+                num_timesteps = min( num_timesteps );
+                
+            elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                
+                % Do nothing.
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Process option %s not recognized.', process_option )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the step size of the specified applied currents.
+        function dt = get_step_sizes( self, applied_current_IDs, process_option )
+            
+            % Set the default input arguments.
+            if nargin < 3, process_option = 'none'; end
+            
+            % Retrieve the step size associated with each applied current.
+            dt = cell2mat( self.get_applied_current_property( applied_current_IDs, 'dt' ) );
+            
+            % Determine how to process the step size.
+            if strcmpi( process_option, 'average' )                     % If we want the average step size...
+                
+                % Set the step size to be the average step size.
+                dt = mean( dt );
+
+            elseif strcmpi( process_option, 'max' )                    % If we want the maximum step size...
+                
+                % Set the step size to be the largest step size.
+                dt = max( dt );
+                
+            elseif strcmpi( process_option, 'min' )                    % If we want the minimum step size...
+                
+                % Set the step size to be the smallest step size.
+                dt = min( dt );
+                
+            elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                
+                % Do nothing.
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Process option %s not recognized.', process_option )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the final time of the specified applied currents.
+        function tf = get_final_times( self, applied_current_IDs, process_option )
+            
+            % Set the default input arguments.
+            if nargin < 3, process_option = 'none'; end
+            
+            % Retrieve the final time associated with each applied current.
+            tf = cell2mat( self.get_applied_current_property( applied_current_IDs, 'tf' ) );
+            
+            % Determine how to process the final time.
+            if strcmpi( process_option, 'average' )                     % If we want the average final time...
+                
+                % Set the step size to be the average final time.
+                tf = mean( tf );
+
+            elseif strcmpi( process_option, 'max' )                    % If we want the maximum final time...
+                
+                % Set the step size to be the largest final time.
+                tf = max( tf );
+                
+            elseif strcmpi( process_option, 'min' )                    % If we want the minimum final time...
+                
+                % Set the step size to be the smallest final time.
+                tf = min( tf );
+                
+            elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                
+                % Do nothing.
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Process option %s not recognized.', process_option )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the applied currents.
+        function I_apps = get_applied_currents( self, applied_current_IDs, dt, tf )
+            
+            % Set the default input arguments.
+            if nargin < 4, tf = [  ]; end
+            if nargin < 3, dt = [  ]; end
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to get.
+            num_applied_currents_to_get = length( applied_current_IDs );
+                        
+            % Determine whether we need to set the final time.
+            if isempty( tf )                                                                % If the final time is empty...
+               
+                % Compute the maximum final time among the given applied currents.
+                tf = self.get_final_times( applied_current_IDs, 'max' );
+                
+            end
+            
+            % Determine whether we need to set the step size.
+            if isempty( dt )                                                                % If the step size is empty...
+                
+                % Compute the minimum step size among the given applied currents.
+                dt = self.get_step_sizes( applied_current_IDs, 'min' );
+                
+            end
+            
+            % Compute the number of time steps.
+            num_timesteps = floor( tf/dt ) + 1;
+            
+            % Preallocate a variable to store the applied current properties.
+            I_apps = zeros( num_timesteps, num_applied_currents_to_get );
+
+            % Retrieve the given neuron property for each applied current.
+            for k = 1:num_applied_currents_to_get                           % Iterate through each of the currents to retrieve...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs(k), 'ignore' );
+                
+                % Determine how to retrieve this applied current.
+                if ( applied_current_index >= 0 ) && ( self.applied_currents( applied_current_index ).b_enabled )                                                      % If the applied current ID is greater than or equal to zero...
+
+                    % Retrieve the applied currents.
+                    I_apps( :, k ) = self.applied_currents( applied_current_index ).sample_applied_current( dt, tf );
+                                    
+                elseif ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                                                % If the applied current ID is negative one...
+                    
+                    % Set the applied current to zero.
+                    I_apps( :, k ) = zeros( num_timesteps, 1 );
+                    
+                else                                                                                    % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Applied current ID %0.2f not recognized.', applied_current_IDs(k) )
+                    
+                end
+                
+            end
+            
+        end
+        
         
         
         %% Applied Current Index & ID Functions
@@ -241,67 +504,7 @@ classdef applied_current_manager_class
             end
             
         end
-        
-        
-        %% Basic Get & Set Functions
-        
-        % Implement a function to retrieve all of the neuron IDs.
-        function applied_current_IDs = get_all_applied_current_IDs( self )
-            
-            % Preallocate a variable to store the applied current IDs.
-            applied_current_IDs = zeros( 1, self.num_applied_currents );
-            
-            % Retrieve the ID associated with each applied current.
-            for k = 1:self.num_applied_currents                             % Iterate through each of the applied currents...
-                
-                % Retrieve this applied current ID.
-                applied_current_IDs(k) = self.applied_currents(k).ID;
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to retrieve the applied currents.
-        function I_apps = get_applied_currents( self, applied_current_IDs )
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to get.
-            num_applied_currents_to_get = length( applied_current_IDs );
-                        
-            % Preallocate a variable to store the applied current properties.
-            I_apps = zeros( self.num_timesteps, num_applied_currents_to_get );
-
-            % Retrieve the given neuron property for each applied current.
-            for k = 1:num_applied_currents_to_get                           % Iterate through each of the currents to retrieve...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k), 'ignore' );
-                
-                % Determine how to retrieve this applied current.
-                if ( applied_current_index >= 0 ) && ( self.applied_currents( applied_current_index ).b_enabled )                                                      % If the applied current ID is greater than or equal to zero...
-
-                    % Retrieve the applied currents.
-                    I_apps( :, k ) = self.applied_currents( applied_current_index ).I_apps;
-                
-                elseif ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                                                % If the applied current ID is negative one...
-                    
-                    % Set the applied current to zero.
-                    I_apps( :, k ) = zeros( self.num_timesteps, 1 );
-                    
-                else                                                                                    % Otherwise...
-                    
-                    % Throw an error.
-                    error( 'Applied current ID %0.2f not recognized.', applied_current_IDs(k) )
-                    
-                end
-                
-            end
-            
-        end
-        
+         
         
         %% Neuron ID Functions.
         
@@ -723,9 +926,6 @@ classdef applied_current_manager_class
                 % Update the number of applied currents.
                 self.num_applied_currents = length( self.applied_currents );
                 
-                % Update the number of time steps.
-                self.num_timesteps = length( self.applied_currents(1).ts );
-                
             else                                % Otherwise...
                 
                 % Replace the existing applied currents with the applied currents we just loaded.
@@ -733,9 +933,6 @@ classdef applied_current_manager_class
                 
                 % Update the number of applied currents.
                 self.num_applied_currents = length( self.applied_currents );
-                
-                % Update the number of time steps.
-                self.num_timesteps = length( self.applied_currents(1).ts );
                 
             end
             

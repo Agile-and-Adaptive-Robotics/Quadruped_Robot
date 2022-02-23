@@ -10,8 +10,8 @@ classdef synapse_manager_class
         synapses
         num_synapses
         
-        data_loader_utilities
         array_utilities
+        data_loader_utilities
         
     end
     

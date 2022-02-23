@@ -669,7 +669,7 @@ classdef neuron_manager_class
             if nargin < 8, Er = -60e-3; end
             if nargin < 7, Gm = 1e-6; end
             if nargin < 6, Cm = 5e-9; end
-            if nargin < 5, h = 0; end
+            if nargin < 5, h = [  ]; end
             if nargin < 4, U = 0; end
             if nargin < 3, name = ''; end
             if nargin < 2, ID = self.generate_unique_neuron_ID(  ); end
@@ -794,6 +794,25 @@ classdef neuron_manager_class
             
         end
         
+        
+        %% Neuron Enable & Disable Functions
+        
+        % Implement a function to enable a neuron.
+        
+        
+        % Implement a function to enable multiple neurons.
+        
+        
+        % Implement a function to disable a neuron.
+        
+        
+        % Implement a function to disable multiple neurons.
+        
+        
+        % Implement a function to toggle the enable / disable state of a neuron.
+        
+        
+        % Implement a function to toggle the enable / disable state of a neuron.
         
         
         %% Save & Load Functions
