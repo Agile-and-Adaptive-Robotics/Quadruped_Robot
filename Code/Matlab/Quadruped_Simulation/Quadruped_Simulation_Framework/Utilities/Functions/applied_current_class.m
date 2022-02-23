@@ -106,7 +106,6 @@ classdef applied_current_class
         end
         
         
-        
     end
 end
 

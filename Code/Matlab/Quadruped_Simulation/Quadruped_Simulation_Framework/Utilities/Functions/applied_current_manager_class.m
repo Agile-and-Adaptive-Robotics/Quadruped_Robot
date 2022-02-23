@@ -12,6 +12,7 @@ classdef applied_current_manager_class
         num_applied_currents
         num_timesteps
         
+        array_utilities
         data_loader_utilities
         
     end
@@ -28,6 +29,9 @@ classdef applied_current_manager_class
             % Create an instance of the data loader utilities class.
             self.data_loader_utilities = data_loader_utilities_class(  );
             
+            % Create an instance of the array manager class.
+            self.array_utilities = array_utilities_class(  );
+            
             % Set the default properties.
             if nargin < 1, self.applied_currents = applied_current_class(  ); else, self.applied_currents = applied_currents; end
             
@@ -35,7 +39,7 @@ classdef applied_current_manager_class
             self.num_applied_currents = length( self.applied_currents );
             
             % Retrieve the number of timesteps.
-            self.num_timesteps = length( self.applied_currents(1).I_apps );
+            self.num_timesteps = length( self.applied_currents(1).ts );
             
         end
         
@@ -43,15 +47,18 @@ classdef applied_current_manager_class
         %% Applied Current Index & ID Functions
         
         % Implement a function to retrieve the index associated with a given applied_current ID.
-        function applied_current_index = get_applied_current_index( self, applied_current_ID )
+        function applied_current_index = get_applied_current_index( self, applied_current_ID, undetected_option )
+            
+            % Set the default input argument.
+            if nargin < 3, undetected_option = 'error'; end
             
             % Set a flag variable to indicate whether a matching applied_current index has been found.
-            bMatchFound = false;
+            b_match_found = false;
             
             % Initialize the applied_current index.
             applied_current_index = 0;
             
-            while ( applied_current_index < self.num_applied_currents ) && ( ~bMatchFound )
+            while ( applied_current_index < self.num_applied_currents ) && ( ~b_match_found )
                 
                 % Advance the applied_current index.
                 applied_current_index = applied_current_index + 1;
@@ -60,18 +67,41 @@ classdef applied_current_manager_class
                 if self.applied_currents( applied_current_index ).ID == applied_current_ID                       % If this applied_current has the correct applied_current ID...
                     
                     % Set the match found flag to true.
-                    bMatchFound = true;
+                    b_match_found = true;
                     
                 end
                 
             end
             
-            % Determine whether a match was found.
-            if ~bMatchFound                     % If a match was not found...
-                
-                % Throw an error.
-                error( 'No applied current with ID %0.0f.', applied_current_ID )
-                
+            % Determine whether to adjust the applied current index.
+            if ~b_match_found                                                       % If a match was not found...
+            
+                % Determine how to handle when a match is not found.
+                if strcmpi( undetected_option, 'error' )                            % If the undetected option is set to 'error'...
+                    
+                    % Throw an error.
+                    error( 'No applied current with ID %0.0f.', applied_current_ID )
+                    
+                elseif strcmpi( undetected_option, 'warning' )                     % If the undetected option is set to 'warning'...
+                    
+                    % Throw a warning.
+                    warning( 'No applied current with ID %0.0f.', applied_current_ID )
+                    
+                    % Set the applied current index to negative one.
+                    applied_current_index = -1;
+                    
+                elseif strcmpi( undetected_option, 'ignore' )                       % If the undetected option is set to 'ignore'...
+                    
+                    % Set the applied current index to negative one.
+                    applied_current_index = -1;                    
+                    
+                else                                                                % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Undetected option %s not recognized.', undetected_option )
+                    
+                end
+            
             end
             
         end
@@ -109,8 +139,128 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to check if the existing applied current IDs are unique.
+        function [ b_unique, match_logicals ] = unique_existing_applied_current_IDs( self )
+            
+            % Retrieve all of the existing applied current IDs.
+            applied_current_IDs = self.get_all_applied_current_IDs(  );
+            
+            % Determine whether all entries are unique.
+            if length( unique( applied_current_IDs ) ) == self.num_applied_currents                    % If all of the applied current IDs are unique...
+                
+                % Set the unique flag to true.
+                b_unique = true;
+                
+                % Set the logicals array to true.
+                match_logicals = false( 1, self.num_applied_currents );
+                
+            else                                                                     % Otherwise...
+                
+                % Set the unique flag to false.
+                b_unique = false;
+                
+                % Set the logicals array to true.
+                match_logicals = false( 1, self.num_applied_currents );
+                
+                % Determine which applied currents have duplicate IDs.
+                for k1 = 1:self.num_applied_currents                          % Iterate through each applied current...
+                    
+                    % Initialize the loop variable.
+                    k2 = 0;
+                    
+                    % Determine whether there is another applied current with the same ID.
+                    while ( k2 < self.num_applied_currents ) && ( ~match_logicals(k1) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the applied currents and we haven't found a match...
+                        
+                        % Advance the loop variable.
+                        k2 = k2 + 1;
+                        
+                        % Determine whether this applied current is a match.
+                        if self.applied_currents(k2).ID == applied_current_IDs(k1)                              % If this applied current ID is a match...
+
+                            % Set this match logical to true.
+                            match_logicals(k1) = true;
+                            
+                        end
+                        
+                    end
+                    
+                end
+                
+            end
+                        
+        end
+        
+        
+        % Implement a function to generate a unique applied current ID.
+        function applied_current_ID = generate_unique_applied_current_ID( self )
+            
+            % Retrieve the existing applied current IDs.
+            existing_applied_current_IDs = self.get_all_applied_current_IDs(  );
+            
+            % Generate a unique applied current ID.
+            applied_current_ID = self.array_utilities.get_lowest_natural_number( existing_applied_current_IDs );
+            
+        end
+        
+        
+        % Implement a function to generate multiple unique applied current IDs.
+        function applied_current_IDs = generate_unique_applied_current_IDs( self, num_IDs )
+
+            % Retrieve the existing applied current IDs.
+            existing_applied_current_IDs = self.get_all_applied_current_IDs(  );
+            
+            % Preallocate an array to store the newly generated applied current IDs.
+            applied_current_IDs = zeros( 1, num_IDs );
+            
+            % Generate each of the new IDs.
+            for k = 1:num_IDs                           % Iterate through each of the new IDs...
+            
+                % Generate a unique applied current ID.
+                applied_current_IDs(k) = self.array_utilities.get_lowest_natural_number( [ existing_applied_current_IDs, applied_current_IDs( 1:(k - 1) ) ] );
+            
+            end
+                
+        end
+        
+        
+        % Implement a function to check whether a proposed applied current ID is a unique natural.
+        function b_unique_natural = unique_natural_applied_current_ID( self, applied_current_ID )
+
+            % Initialize the unique natural to false.
+            b_unique_natural = false;
+            
+            % Determine whether this applied current ID is unique.
+            b_unique = self.unique_applied_current_ID( applied_current_ID );
+            
+            % Determine whether this applied current ID is a unique natural.
+            if b_unique && ( applied_current_ID > 0 ) && ( round( applied_current_ID ) == applied_current_ID )                     % If this applied current ID is a unique natural...
+                
+                % Set the unique natural flag to true.
+                b_unique_natural = true;
+                
+            end
+            
+        end
+        
         
         %% Basic Get & Set Functions
+        
+        % Implement a function to retrieve all of the neuron IDs.
+        function applied_current_IDs = get_all_applied_current_IDs( self )
+            
+            % Preallocate a variable to store the applied current IDs.
+            applied_current_IDs = zeros( 1, self.num_applied_currents );
+            
+            % Retrieve the ID associated with each applied current.
+            for k = 1:self.num_applied_currents                             % Iterate through each of the applied currents...
+                
+                % Retrieve this applied current ID.
+                applied_current_IDs(k) = self.applied_currents(k).ID;
+                
+            end
+            
+        end
+        
         
         % Implement a function to retrieve the applied currents.
         function I_apps = get_applied_currents( self, applied_current_IDs )
@@ -127,21 +277,16 @@ classdef applied_current_manager_class
             % Retrieve the given neuron property for each applied current.
             for k = 1:num_applied_currents_to_get                           % Iterate through each of the currents to retrieve...
                 
-                % NEED TO RETRIEVE APPLIED CURRENT INDEX HERE.
-                % APPLIED CURRENT INDEX FUNCTION SHOULD BE MODIFIED TO ALLOW FOR MULTIPLE UNDETECTED OPTIONS.
-                % THE SAME MODIFICATIONS SHOULD BE ADDED TO NEURON AND SYNAPSE INDEX FUNCTIONS.
-                % THE FUNCTIONS BELOW NEED TO CHECK THE ENABLED STATUS AS PART OF THE PROCESS OF DETERMINING HOW TO RETURN APPLIED CURRENTS.
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs(k), 'ignore' );
                 
                 % Determine how to retrieve this applied current.
-                if ( applied_current_IDs(k) >= 0 )                                                      % If the applied current ID is greater than or equal to zero...
-                
-                    % Retrieve the index associated with this applied current ID.
-                    applied_current_index = self.get_applied_current_index( applied_current_IDs(k) );
+                if ( applied_current_index >= 0 ) && ( self.applied_currents( applied_current_index ).b_enabled )                                                      % If the applied current ID is greater than or equal to zero...
 
                     % Retrieve the applied currents.
                     I_apps( :, k ) = self.applied_currents( applied_current_index ).I_apps;
                 
-                elseif ( applied_current_IDs(k) == -1 )                                                 % If the applied current ID is negative one...
+                elseif ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                                                % If the applied current ID is negative one...
                     
                     % Set the applied current to zero.
                     I_apps( :, k ) = zeros( self.num_timesteps, 1 );
@@ -157,6 +302,8 @@ classdef applied_current_manager_class
             
         end
         
+        
+        %% Neuron ID Functions.
         
         % Implement a function to return the applied current ID associated with a given neuron ID.
         function applied_current_ID = neuron_ID2applied_current_ID( self, neuron_ID, undetected_option )
@@ -335,6 +482,167 @@ classdef applied_current_manager_class
             
         end
         
+        
+        %% Validation Functions
+        
+        % Ensure that each neuron has only one applied current.
+        function b_one_to_one = one_to_one_applied_currents( self )
+            
+            % Set the one-to-one flag.
+            b_one_to_one = true;
+            
+            % Initialize a counter variable.
+            k = 0;
+            
+            % Preallocate arrays to store the neuron IDs.
+            neuron_IDs = zeros( 1, self.num_applied_currents );
+            b_enableds = false( 1, self.num_applied_currents );
+            
+            % Determine whether there is only one synapse between each neuron.
+            while ( b_one_to_one ) && ( k < self.num_applied_currents )                             % While we haven't found an applied current repetition and we haven't checked all of the applied currents...
+               
+                % Advance the loop counter.
+                k = k + 1;
+                
+                % Store these from neuron and to neuron IDs.
+                neuron_IDs(k) = self.applied_currents(k).neuron_ID;
+
+                % Determine whether we need to check this synapse for repetition.
+                if k ~= 1                               % If this is not the first iteration...
+
+                    % Determine whether this neuron ID is unique.
+                    [ neuron_ID_match, neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( neuron_IDs(k), neuron_IDs( 1:( k  - 1) ) );
+
+                    % Determine whether this applied current is a duplicate.
+                    if neuron_ID_match && b_enableds(k) && any( neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If this neuron ID is a match, this applied current is enabled, and the matching applied current is enabled...
+
+                        % Set the one-to-one flag to false (this applied current is a duplicate).
+                        b_one_to_one = false;
+
+                    end
+                
+                end
+                
+            end            
+            
+        end
+        
+        
+        %% Applied Current Creation Functions
+        
+        % Implement a function to create a new applied current.
+        function self = create_applied_current( self, ID, name, neuron_ID, ts, I_apps, b_enabled )
+            
+            % Set the default input arguments.
+            if nargin < 7, b_enabled = true; end
+            if nargin < 6, I_apps = 0; end
+            if nargin < 5, ts = 0; end
+            if nargin < 4, neuron_ID = 0; end
+            if nargin < 3, name = ''; end
+            if nargin < 2, ID = self.generate_unique_applied_current_ID(  ); end
+            
+            % Ensure that this neuron ID is a unique natural.
+            assert( self.unique_natural_applied_current_ID( ID ), 'Proposed applied current ID %0.2f is not a unique natural number.', ID )
+            
+            % Create an instance of the applied current class.
+            applied_current = applied_current_class( ID, name, neuron_ID, ts, I_apps, b_enabled );
+            
+            % Append this applied current to the array of existing applied currents.
+            self.applied_currents = [ self.applied_currents applied_current ];
+            
+            % Increase the number of applied currents counter.
+            self.num_applied_currents = self.num_applied_currents + 1;
+            
+        end
+            
+            
+        % Implement a function to create multiple applied currents.
+        function self = create_applied_currents( self, IDs, names, neuron_IDs, tss, I_appss, b_enableds )
+            
+            % Determine whether number of applied currents to create.
+            if nargin > 2                                               % If more than just applied current IDs were provided...
+                
+                % Set the number of applied currents to create to be the number of provided IDs.
+                num_applied_currents_to_create = length( IDs );
+                
+            elseif nargin == 2                                          % If just the applied current IDs were provided...
+                
+                % Retrieve the number of IDs.
+                num_IDs = length( IDs );
+                
+                % Determine who to interpret this number of IDs.
+                if num_IDs == 1                                     % If the number of IDs is one...
+                    
+                    % Then create a number of applied currents equal to the specific ID.  (i.e., in this case we are treating the single provided ID value as the number of applied currents that we want to create.)
+                    num_applied_currents_to_create = IDs;
+                    
+                    % Preallocate an array of IDs.
+                    IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create );
+                    
+                else                                                % Otherwise... ( More than one ID was provided... )
+                    
+                    % Set the number of applied currents to create to be the number of provided applied current IDs.
+                    num_applied_currents_to_create = num_IDs;
+                    
+                end
+                
+            elseif nargin == 1                                      % If no input arguments were provided... ( Beyond the default self argument. )
+                
+                % Set the number of applied currents to create to one.
+                num_applied_currents_to_create = 1;
+                
+            end
+            
+            % Set the default input arguments.
+            if nargin < 7, b_enableds = true( 1, num_applied_currents_to_create ); end
+            if nargin < 6, I_appss = zeroes( 1, num_applied_currents_to_create ); end
+            if nargin < 5, tss = zeroes( 1, num_applied_currents_to_create ); end
+            if nargin < 4, neuron_IDs = zeroes( 1, num_applied_currents_to_create ); end
+            if nargin < 3, names = repmat( { '' }, 1, num_applied_currents_to_create ); end
+            if nargin < 2, IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create ); end
+            
+            % Create each of the spcified applied currents.
+            for k = 1:num_applied_currents_to_create                         % Iterate through each of the applied currents we want to create...
+       
+                % Create this applied current.
+                self = self.create_applied_current( IDs, names, neuron_IDs, tss, I_appss, b_enableds );
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to delete an applied current.
+        function self = delete_applied_current( self, applied_current_ID )
+            
+            % Retrieve the index associated with this applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_ID );
+            
+            % Remove this applied current from the array of applied currents.
+            self.applied_currents( applied_current_index ) = [  ];
+            
+            % Decrease the number of applied currents counter.
+            self.num_applied_currents = self.num_applied_currents - 1;
+            
+        end
+        
+        
+        % Implement a function to delete multiple applied currents. 
+        function self = delete_applied_currents( self, applied_current_IDs )
+            
+            % Retrieve the number of applied currents to delete.
+            num_applied_currents_to_delete = length( applied_current_IDs );
+            
+            % Delete each of the specified applied currents.
+            for k = 1:num_applied_currents_to_delete                      % Iterate through each of the applied currents we want to delete...
+                
+                % Delete this applied current.
+                self = self.delete_applied_current( applied_current_IDs(k) );
+                
+            end
+            
+        end
+       
         
         %% Save & Load Functions
         

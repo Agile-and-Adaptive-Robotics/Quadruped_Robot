@@ -47,21 +47,34 @@ classdef array_utilities_class
         % Implement a function to determine whether a value exists in an array.
         function [ b_match_found, match_logicals, match_indexes ] = is_value_in_array( ~, value, array )
             
-            % Retrieve the number of array values.
-            num_array_values = length( array );
+            % Determine how to process the inputs.
+            if ( ~isempty( value ) ) && ( ~isempty( array ) )                           % If neither the value nor the array are empty...
             
-            % Determine which array entries match the value.
-            match_logicals = value == array;
+                % Retrieve the number of array values.
+                num_array_values = length( array );
+
+                % Determine which array entries match the value.
+                match_logicals = value == array;
+
+                % Define an array of indexes.
+                indexes = 1:num_array_values;
+
+                % Retrieve the indexes of the array entries that match the value.
+                match_indexes = indexes( match_logicals );
+
+                % Determine whether the value is contained in the array.
+                b_match_found = any( match_logicals );
             
-            % Define an array of indexes.
-            indexes = 1:num_array_values;
-            
-            % Retrieve the indexes of the array entries that match the value.
-            match_indexes = indexes( match_logicals );
-            
-            % Determine whether the value is contained in the array.
-            b_match_found = any( match_logicals );
-            
+            else                                                                            % Otherwise...
+                
+                % Set the match found flag to false.
+                b_match_found = false;
+                
+                % Set the match logicals and match indexes to be empty.
+                [ match_logicals, match_indexes ] = deal( [  ] );
+                
+            end
+                
         end
         
         

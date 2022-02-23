@@ -13,10 +13,11 @@ b_verbose = true;
 % robot_data_load_path = 'C:\Users\USER\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 % robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Utilities\Robot_Data';
 
-% robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data';
+robot_data_save_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
-robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
+% robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
 % Define the network integration step size.
 network_dt = 1e-3;
@@ -74,20 +75,26 @@ network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
 
 network.neuron_manager = network.neuron_manager.create_neuron(  );
 
-network.synapse_manager.synapses(2) = network.synapse_manager.synapses(2).disable(  );
+% network.neuron_manager.neurons(5) = network.neuron_manager.neurons(5).disable(  );
+% network.neuron_manager.neurons(4) = network.neuron_manager.neurons(4).disable(  );
 
-g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
+% network.synapse_manager.synapses(2) = network.synapse_manager.synapses(2).disable(  );
+
+% network.synapse_manager.synapses(13) = network.synapse_manager.synapses(13).disable(  );
+% network.synapse_manager.synapses(14) = network.synapse_manager.synapses(14).disable(  );
+% network.synapse_manager.synapses(15) = network.synapse_manager.synapses(15).disable(  );
+% network.synapse_manager.synapses(16) = network.synapse_manager.synapses(16).disable(  );
+
+% network.applied_current_manager.applied_currents(1) = network.applied_current_manager.applied_currents(1).disable(  );
+
+
+% g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
 
 
 %% Simulate the Network.
 
 % Define the total simulation duration.
 tf = 5;
-
-
-% NEED TO BE ABLE TO SIMULATE USING ONLY A SUBSET OF THE NEURONS IN THE NETWORK.  THIS SHOULD TAKE THE FORM OF AN ENABLED FLAG.  IF THE NEURON IS DISABLED, EXCLUDE IT FROM THE SIMULATION.
-% NEED TO BE ABLE TO SIMULATE NEURONS THAT DO NOT HAVE FULLY CONNECTED SYNAPSES DEFINED.  IF THE NEURON IS ENABLED BUT IT NOT FULLY CONNECTED, DUMMY SYNAPSES NEED TO BE CREATED FOR THE SIMULATION.
-
 
 % Simulate the network.
 [ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network.compute_set_simulation( tf );

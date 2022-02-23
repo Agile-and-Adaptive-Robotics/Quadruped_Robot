@@ -45,32 +45,55 @@ classdef neuron_manager_class
         function neuron_index = get_neuron_index( self, neuron_ID )
             
             % Set a flag variable to indicate whether a matching neuron index has been found.
-            bMatchFound = false;
+            b_match_found = false;
             
             % Initialize the neuron index.
             neuron_index = 0;
             
-            while ( neuron_index < self.num_neurons ) && ( ~bMatchFound )
+            while ( neuron_index < self.num_neurons ) && ( ~b_match_found )
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
                 
                 % Check whether this neuron index is a match.
-                if self.neurons(neuron_index).ID == neuron_ID                       % If this neuron has the correct neuron ID...
+                if self.neurons( neuron_index ).ID == neuron_ID                       % If this neuron has the correct neuron ID...
                     
                     % Set the match found flag to true.
-                    bMatchFound = true;
+                    b_match_found = true;
                     
                 end
                 
             end
             
-            % Determine whether a match was found.
-            if ~bMatchFound                     % If a match was not found...
-                
-                % Throw an error.
-                error('No neuron with ID %0.0f.', neuron_ID)
-                
+            % Determine whether to adjust the neuron index.
+            if ~b_match_found                                                       % If a match was not found...
+            
+                % Determine how to handle when a match is not found.
+                if strcmpi( undetected_option, 'error' )                            % If the undetected option is set to 'error'...
+                    
+                    % Throw an error.
+                    error( 'No neuron with ID %0.0f.', neuron_ID )
+                    
+                elseif strcmpi( undetected_option, 'warning' )                     % If the undetected option is set to 'warning'...
+                    
+                    % Throw a warning.
+                    warning( 'No neuron with ID %0.0f.', neuron_ID )
+                    
+                    % Set the neuron index to negative one.
+                    neuron_index = -1;
+                    
+                elseif strcmpi( undetected_option, 'ignore' )                       % If the undetected option is set to 'ignore'...
+                    
+                    % Set the neuron index to negative one.
+                    neuron_index = -1;                    
+                    
+                else                                                                % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Undetected option %s not recognized.', undetected_option )
+                    
+                end
+            
             end
             
         end
@@ -487,7 +510,7 @@ classdef neuron_manager_class
             end
             
             % Remove extra neuron IDs.
-            neuron_IDs = neurons_IDs(1:k2);
+            neuron_IDs = neuron_IDs(1:k2);
             
         end
         
@@ -726,7 +749,7 @@ classdef neuron_manager_class
             if nargin < 6, Cms = 5e-9*ones( 1, num_neurons_to_create ); end
             if nargin < 5, hs = zeros( 1, num_neurons_to_create ); end
             if nargin < 4, Us = zeros( 1, num_neurons_to_create ); end
-            if nargin < 3, names = repmat( { '' }, 1, 4 ); end
+            if nargin < 3, names = repmat( { '' }, 1, num_neurons_to_create ); end
             if nargin < 2, IDs = self.generate_unique_neuron_IDs( num_neurons_to_create ); end
             
             % Create each of the spcified neurons.
@@ -765,7 +788,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_delete                      % Iterate through each of the neurons we want to delete...
                 
                 % Delete this neuron.
-                self = self.delete_neurons( neuron_IDs(k) );
+                self = self.delete_neuron( neuron_IDs(k) );
                 
             end
             

@@ -433,10 +433,10 @@ classdef network_class
                     synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'ignore' );
                     
                     % Retrieve the synapse index.
-                    synapse_index = self.synapse_manager.get_synapse_index( synapse_ID );
+                    synapse_index = self.synapse_manager.get_synapse_index( synapse_ID, 'ignore' );
                     
                     % Determine how to set the value for this synapse.
-                    if ( synapse_ID > 0) && ( self.synapse_manager.synapses( synapse_index ).b_enabled )                                % If the synapse ID is greater than zero...
+                    if ( synapse_ID >= 0) && ( self.synapse_manager.synapses( synapse_index ).b_enabled )                                % If the synapse ID is greater than zero...
                         
                         % Set the maximum synaptic conductance of this synapse.
                         self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, G_syns( k1, k2 ), 'G_syn' );
@@ -448,6 +448,7 @@ classdef network_class
                     else                                            % Otherwise...
                         
                         % Throw an error.
+                        error( 'Synapse ID %0.2f is not recognized.', synapse_ID )
                         
                     end
                     
@@ -551,10 +552,51 @@ classdef network_class
         end
         
         
+        %% Network Validation Functions
+        
+        % Implement a function to validate the network is setup correctly to simulate.
+        function validate_network( self )
+                        
+            % Ensure that the neuron IDs are unique.
+            b_valid = self.neuron_manager.unique_existing_neuron_IDs(  );
+
+            % Throw an error if the neuron IDs were not unique.
+            if ~b_valid, error( 'Invalid network.  Neuron IDs must be unique.' ), end
+            
+            % Ensure that the synapse IDs are unique.
+            b_valid = self.synapse_manager.unique_existing_synapse_IDs(  );
+            
+            % Throw an error if the synapse IDs were not unique.
+            if ~b_valid, error( 'Invalid network.  Synapse IDs must be unique.' ), end
+            
+            % Ensure that the applied current IDs are unique.
+            b_valid = self.applied_current_manager.unique_existing_applied_current_IDs(  );
+            
+            % Throw an error if the synapse IDs were not unique.
+            if ~b_valid, error( 'Invalid network.  Applied current IDs must be unique.' ), end
+            
+            % Ensure that only one synapse connects each pair of neurons.
+            b_valid = self.synapse_manager.one_to_one_synapses(  );
+            
+            % Throw an error if there are multiple synapses per pair of neurons.
+            if ~b_valid, error( 'Invalid network.  There must be only one synapse per pair of neurons.' ), end
+            
+            % Ensure that only one applied current applies to each neuron.
+            b_valid = self.applied_current_manager.one_to_one_applied_currents(  );
+            
+            % Throw an error if there are multiple applied currents per neuron.
+            if ~b_valid, error( 'Invalid network.  There must be only one applied current per neuron.' ), end
+            
+        end
+            
+        
         %% Simulation Functions
         
         % Implement a function to compute a single network simulation step.
         function [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = compute_simulation_step( self )
+            
+            % Ensure that the network is constructed properly.
+            self.validate_network(  )
             
             % Retrieve the IDs associated with the enabled neurons.
             neuron_IDs = self.neuron_manager.get_enabled_neuron_IDs(  );
@@ -626,6 +668,9 @@ classdef network_class
             % Set the default simulation duration.
             if nargin < 2, tf = 1; end
             
+            % Ensure that the network is constructed properly.
+            self.validate_network(  )
+            
             % Retrieve the IDs associated with the enabled neurons.
             neuron_IDs = self.neuron_manager.get_enabled_neuron_IDs(  );
             
@@ -634,7 +679,7 @@ classdef network_class
             hs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'h' ) )';
             Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) )';
             Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) )';
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
+            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) )'; Rs = repmat( Rs', [ length( Rs ), 1 ] );
             Ams = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Am' ) )';
             Sms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm' ) )';
             dEms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm' ) )';

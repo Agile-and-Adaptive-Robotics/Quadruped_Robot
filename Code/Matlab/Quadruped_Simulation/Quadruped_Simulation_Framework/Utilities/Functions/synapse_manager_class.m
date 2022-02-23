@@ -105,18 +105,50 @@ classdef synapse_manager_class
         end
         
         
+        %% Call Methods Functions
+        
+        % Implement a function to that calls a specified synapse method for each of the specified synapses.
+        function self = call_synapse_method( self, synapse_IDs, synapse_method )
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each synapse.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                
+                % Define the eval string.
+                eval_str = sprintf( 'self.synapses(%0.0f) = self.synapses(%0.0f).%s();', synapse_index, synapse_index, synapse_method );
+                
+                % Evaluate the given synapse method.
+                eval( eval_str );
+                
+            end
+            
+        end
+        
+        
+        
         %% Specific Get & Set Synapse Property Functions
         
         % Implement a function to retrieve the index associated with a given synapse ID.
-        function synapse_index = get_synapse_index( self, synapse_ID )
+        function synapse_index = get_synapse_index( self, synapse_ID, undetected_option )
+            
+            % Set the default input argument.
+            if nargin < 3, undetected_option = 'error'; end
             
             % Set a flag variable to indicate whether a matching synapse index has been found.
-            bMatchFound = false;
+            b_match_found = false;
             
             % Initialize the synapse index.
             synapse_index = 0;
             
-            while ( synapse_index < self.num_synapses ) && ( ~bMatchFound )
+            while ( synapse_index < self.num_synapses ) && ( ~b_match_found )
                 
                 % Advance the synapse index.
                 synapse_index = synapse_index + 1;
@@ -125,18 +157,41 @@ classdef synapse_manager_class
                 if self.synapses(synapse_index).ID == synapse_ID                       % If this synapse has the correct synapse ID...
                     
                     % Set the match found flag to true.
-                    bMatchFound = true;
+                    b_match_found = true;
                     
                 end
                 
             end
             
-            % Determine whether a match was found.
-            if ~bMatchFound                     % If a match was not found...
-                
-                % Throw an error.
-                error( 'No synapse with ID %0.0f.', synapse_ID )
-                
+            % Determine whether to adjust the synapse index.
+            if ~b_match_found                                                       % If a match was not found...
+            
+                % Determine how to handle when a match is not found.
+                if strcmpi( undetected_option, 'error' )                            % If the undetected option is set to 'error'...
+                    
+                    % Throw an error.
+                    error( 'No synapse with ID %0.0f.', synapse_ID )
+                    
+                elseif strcmpi( undetected_option, 'warning' )                     % If the undetected option is set to 'warning'...
+                    
+                    % Throw a warning.
+                    warning( 'No synapse with ID %0.0f.', synapse_ID )
+                    
+                    % Set the synapse index to negative one.
+                    synapse_index = -1;
+                    
+                elseif strcmpi( undetected_option, 'ignore' )                       % If the undetected option is set to 'ignore'...
+                    
+                    % Set the synapse index to negative one.
+                    synapse_index = -1;                    
+                    
+                else                                                                % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Undetected option %s not recognized.', undetected_option )
+                    
+                end
+            
             end
             
         end
@@ -183,6 +238,56 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to get all of the synapse IDs.
+        function synapse_IDs = get_all_synapse_IDs( self )
+            
+            % Preallocate an array to store the synapse IDs.
+           synapse_IDs = zeros( 1,  self.num_synapses );
+           
+           % Retrieve each synapse ID.
+           for k = 1:self.num_synapses                  % Iterate through each synapse...
+              
+               % Retrieve the ID of this synapse.
+               synapse_IDs(k) = self.synapses(k).ID;
+               
+           end
+            
+        end
+        
+        
+        % Implement a function to retrieve all self connecting synapses.
+        function synapse_IDs = get_self_connecting_sypnapse_IDs( self )
+            
+            % Initialize a loop counter.
+            index = 0;
+            
+            % Preallocate an array to store the synapses IDs.
+            synapse_IDs = zeros( 1, self.num_synapses );
+            
+            % Retrieve all self-connecting synapse IDs.
+            for k = 1:self.num_synapses                         % Iterate through each synapse...
+            
+                % Determine whether this synapse is a self-connection.
+                if ( self.synapses(k).from_neuron_ID == self.synapses(k).to_neuron_ID )             % If this synapse is a self-connection...
+
+                    % Advance the synapse ID index.
+                    index = index + 1;
+                    
+                    % Retrieve this synapse index.
+                    synapse_IDs(index) = self.synapses(k).ID;
+                    
+                end
+                    
+            end
+            
+            % Keep only the relevant synapse IDs.
+            synapse_IDs = synapse_IDs( 1:index );
+                
+        end
+                
+        
+        %% Synapse ID Functions
+        
         % Implement a function to validate synapse IDs.
         function synapse_IDs = validate_synapse_IDs( self, synapse_IDs )
             
@@ -215,53 +320,126 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to get all of the synapse IDs.
-        function synapse_IDs = get_all_synapse_IDs( self )
+        % Implement a function to generate a unique synapse ID.
+        function synapse_ID = generate_unique_synapse_ID( self )
             
-            % Preallocate an array to store the synapse IDs.
-           synapse_IDs = zeros( 1,  self.num_synapses );
-           
-           % Retrieve each synapse ID.
-           for k = 1:self.num_synapses                  % Iterate through each synapse...
-              
-               % Retrieve the ID of this synapse.
-               synapse_IDs(k) = self.synapses(k).ID;
-               
-           end
+            % Retrieve the existing synapse IDs.
+            existing_synapse_IDs = self.get_all_synapse_IDs(  );
+            
+            % Generate a unique synapse ID.
+            synapse_ID = self.array_utilities.get_lowest_natural_number( existing_synapse_IDs );
             
         end
         
         
+        % Implement a function to generate multiple unique synapse IDs.
+        function synapse_IDs = generate_unique_synapse_IDs( self, num_IDs )
+
+            % Retrieve the existing synapse IDs.
+            existing_synapse_IDs = self.get_all_synapse_IDs(  );
+            
+            % Preallocate an array to store the newly generated synapse IDs.
+            synapse_IDs = zeros( 1, num_IDs );
+            
+            % Generate each of the new IDs.
+            for k = 1:num_IDs                           % Iterate through each of the new IDs...
+            
+                % Generate a unique synapse ID.
+                synapse_IDs(k) = self.array_utilities.get_lowest_natural_number( [ existing_synapse_IDs, synapse_IDs( 1:(k - 1) ) ] );
+            
+            end
+                
+        end
         
-        %% Call Methods Functions
         
-        % Implement a function to that calls a specified synapse method for each of the specified synapses.
-        function self = call_synapse_method( self, synapse_IDs, synapse_method )
+        % Implement a function to check if a proposed synapse ID is unique.
+        function [ b_unique, match_logicals, match_indexes ] = unique_synapse_ID( self, synapse_ID )
             
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            % Retrieve all of the existing synapse IDs.
+            existing_synapse_IDs = self.get_all_synapse_IDs(  );
             
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
+            % Determine whether the given synapse ID is one of the existing synapse IDs ( if so, provide the matching logicals and indexes ).
+            [ b_match_found, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( synapse_ID, existing_synapse_IDs );
             
-            % Evaluate the given synapse method for each synapse.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            % Define the uniqueness flag.
+            b_unique = ~b_match_found;
+            
+        end
+        
+        
+        % Implement a function to check whether a proposed synapse ID is a unique natural.
+        function b_unique_natural = unique_natural_synapse_ID( self, synapse_ID )
+
+            % Initialize the unique natural to false.
+            b_unique_natural = false;
+            
+            % Determine whether this synapse ID is unique.
+            b_unique = self.unique_synapse_ID( synapse_ID );
+            
+            % Determine whether this synapse ID is a unique natural.
+            if b_unique && ( synapse_ID > 0 ) && ( round( synapse_ID ) == synapse_ID )                     % If this neuron ID is a unique natural...
                 
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
-                
-                % Define the eval string.
-                eval_str = sprintf( 'self.synapses(%0.0f) = self.synapses(%0.0f).%s();', synapse_index, synapse_index, synapse_method );
-                
-                % Evaluate the given synapse method.
-                eval( eval_str );
+                % Set the unique natural flag to true.
+                b_unique_natural = true;
                 
             end
             
         end
         
         
-        %% Multistate CPG Functions
+        % Implement a function to check if the existing synapse IDs are unique.
+        function [ b_unique, match_logicals ] = unique_existing_synapse_IDs( self )
+            
+            % Retrieve all of the existing synapse IDs.
+            synapse_IDs = self.get_all_synapse_IDs(  );
+            
+            % Determine whether all entries are unique.
+            if length( unique( synapse_IDs ) ) == self.num_synapses                    % If all of the synapse IDs are unique...
+                
+                % Set the unique flag to true.
+                b_unique = true;
+                
+                % Set the logicals array to true.
+                match_logicals = false( 1, self.num_synapses );
+                
+            else                                                                     % Otherwise...
+                
+                % Set the unique flag to false.
+                b_unique = false;
+                
+                % Set the logicals array to true.
+                match_logicals = false( 1, self.synapses );
+                
+                % Determine which synapses have duplicate IDs.
+                for k1 = 1:self.num_synapses                          % Iterate through each synapse...
+                    
+                    % Initialize the loop variable.
+                    k2 = 0;
+                    
+                    % Determine whether there is another synapse with the same ID.
+                    while ( k2 < self.num_synapses ) && ( ~match_logicals(k1) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the synapses and we haven't found a match...
+                        
+                        % Advance the loop variable.
+                        k2 = k2 + 1;
+                        
+                        % Determine whether this synapse is a match.
+                        if self.synapses(k2).ID == synapse_IDs(k1)                              % If this synapse ID is a match...
+
+                            % Set this match logical to true.
+                            match_logicals(k1) = true;
+                            
+                        end
+                        
+                    end
+                    
+                end
+                
+            end
+                        
+        end
+        
+        
+        %% From-To Neuron ID Functions
         
         % Implement a function to retrieve the synapse ID of the synapse that connect two specified neurons.
         function synapse_ID = from_to_neuron_ID2synapse_ID( self, from_neuron_ID, to_neuron_ID, undetected_option )
@@ -357,38 +535,7 @@ classdef synapse_manager_class
             
         end
         
-        
-        % Implement a function to retrieve all self connecting synapses.
-        function synapse_IDs = get_self_connecting_sypnapse_IDs( self )
-            
-            % Initialize a loop counter.
-            index = 0;
-            
-            % Preallocate an array to store the synapses IDs.
-            synapse_IDs = zeros( 1, self.num_synapses );
-            
-            % Retrieve all self-connecting synapse IDs.
-            for k = 1:self.num_synapses                         % Iterate through each synapse...
-            
-                % Determine whether this synapse is a self-connection.
-                if ( self.synapses(k).from_neuron_ID == self.synapses(k).to_neuron_ID )             % If this synapse is a self-connection...
 
-                    % Advance the synapse ID index.
-                    index = index + 1;
-                    
-                    % Retrieve this synapse index.
-                    synapse_IDs(index) = self.synapses(k).ID;
-                    
-                end
-                    
-            end
-            
-            % Keep only the relevant synapse IDs.
-            synapse_IDs = synapse_IDs( 1:index );
-                
-        end
-        
-        
         % Implement a function to convert a specific neuron ID order to oscillatory from-to neuron ID pairs.
         function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2oscillatory_from_to_neuron_IDs( ~, neuron_ID_order )
             
@@ -501,6 +648,54 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to determine whether only a single synapse connects each pair of neurons.
+        function b_one_to_one = one_to_one_synapses( self )
+           
+            % Set the one-to-one flag.
+            b_one_to_one = true;
+            
+            % Initialize a counter variable.
+            k = 0;
+            
+            % Preallocate arrays to store the from and to neuron IDs.
+            [ from_neuron_IDs, to_neuron_IDs ] = deal( zeros( 1, self.num_synapses ) );
+            b_enableds = false( 1, self.num_synapses );
+            
+            % Determine whether there is only one synapse between each neuron.
+            while ( b_one_to_one ) && ( k < self.num_synapses )                             % While we haven't found a synapse repetition and we haven't checked all of the synpases...
+               
+                % Advance the loop counter.
+                k = k + 1;
+                
+                % Store these from neuron and to neuron IDs.
+                from_neuron_IDs(k) = self.synapses(k).from_neuron_ID;
+                to_neuron_IDs(k) = self.synapses(k).to_neuron_ID;
+                b_enableds(k) = self.synapses(k).b_enabled;
+                
+                % Determine whether we need to check this synapse for repetition.
+                if k ~= 1                               % If this is not the first iteration...
+
+                    % Determine whether the from and to neuron IDs are unique.
+                    [ from_neuron_ID_match, from_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( from_neuron_IDs(k), from_neuron_IDs( 1:( k  - 1 ) ) );
+                    [ to_neuron_ID_match, to_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( to_neuron_IDs(k), to_neuron_IDs( 1:( k  - 1) ) );
+
+                    % Determine whether this synapse is a duplicate.
+                    if from_neuron_ID_match && to_neuron_ID_match && b_enableds(k) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
+
+                        % Set the one-to-one flag to false (this synapse is duplicate).
+                        b_one_to_one = false;
+
+                    end
+                
+                end
+                
+            end
+            
+        end
+        
+        
+        %% Multistate CPG Design Functions
+        
         % Implement a function to assign the desired delta value to each synapse based on the neuron order that we want to follow.
         function self = compute_set_deltas( self, delta_oscillatory, delta_bistable, neuron_ID_order )
             
@@ -609,6 +804,124 @@ classdef synapse_manager_class
         end
         
         
+        %% Synapse Creation Functions
+        
+        % Implement a function to create a new synapse.
+        function self = create_synapse( self, ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
+
+            % Set the default synapse properties.
+            if nargin < 9, self.b_enabled = true; end
+            if nargin < 8, self.delta = 0; end
+            if nargin < 7, self.to_neuron_ID = 0; end
+            if nargin < 6, self.from_neuron_ID = 0; end
+            if nargin < 5, self.g_syn_max = 1e-6; end
+            if nargin < 4, self.dE_syn = -40e-3; end
+            if nargin < 3, name = ''; end
+            if nargin < 2, ID = self.generate_unique_synapse_ID(  ); end
+            
+            % Ensure that this neuron ID is a unique natural.
+            assert( self.unique_natural_synapse_ID( ID ), 'Proposed synapse ID %0.2f is not a unique natural number.', ID )
+            
+            % Create an instance of the neuron class.
+            synapse = synapse_class( ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled );
+            
+            % Append this synapse to the array of existing synapses.
+            self.synapses = [ self.synapses synapse ];
+            
+            % Increase the number of synapses counter.
+            self.num_synapses = self.num_synapses + 1;
+            
+        end
+            
+            
+        % Implement a function to create multiple synapses.
+        function self = create_synapses( self, IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds )
+            
+            % Determine whether number of synapses to create.
+            if nargin > 2                                               % If more than just synapse IDs were provided...
+                
+                % Set the number of synapses to create to be the number of provided IDs.
+                num_synapses_to_create = length( IDs );
+                
+            elseif nargin == 2                                          % If just the synapse IDs were provided...
+                
+                % Retrieve the number of IDs.
+                num_IDs = length( IDs );
+                
+                % Determine who to interpret this number of IDs.
+                if num_IDs == 1                                     % If the number of IDs is one...
+                    
+                    % Then create a number of synapses equal to the specific ID.  (i.e., in this case we are treating the single provided ID value as the number of synapses that we want to create.)
+                    num_synapses_to_create = IDs;
+                    
+                    % Preallocate an array of IDs.
+                    IDs = self.generate_unique_synapse_IDs( num_synapses_to_create );
+                    
+                else                                                % Otherwise... ( More than one ID was provided... )
+                    
+                    % Set the number of synapses to create to be the number of provided synapse IDs.
+                    num_synapses_to_create = num_IDs;
+                    
+                end
+                
+            elseif nargin == 1                                      % If no input arguments were provided... ( Beyond the default self argument.)
+                
+                % Set the number of synapses to create to one.
+                num_synapses_to_create = 1;
+                
+            end
+            
+            % Set the default synapse properties.
+            if nargin < 9, self.b_enabled = true( 1, num_synapses_to_create ); end
+            if nargin < 8, self.delta = zeros( 1, num_synapses_to_create ); end
+            if nargin < 7, self.to_neuron_ID = zeros( 1, num_synapses_to_create ); end
+            if nargin < 6, self.from_neuron_ID = zeros( 1, num_synapses_to_create ); end
+            if nargin < 5, self.g_syn_max = 1e-6*ones( 1, num_synapses_to_create ); end
+            if nargin < 4, self.dE_syns = -40e-3*ones( 1, num_synapses_to_create ); end
+            if nargin < 3, names = repmat( { '' }, 1, num_synapses_to_create ); end
+            if nargin < 2, IDs = self.generate_unique_synapse_IDs( num_synapses_to_create ); end
+            
+            % Create each of the spcified synapses.
+            for k = 1:num_synapses_to_create                         % Iterate through each of the synapses we want to create...
+       
+                % Create this synapse.
+                self = self.create_synapse( IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds );
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to delete a synapse.
+        function self = delete_synapse( self, synapse_ID )
+            
+            % Retrieve the index associated with this synapse.
+            synapse_index = self.get_synapse_index( synapse_ID );
+            
+            % Remove this synapse from the array of synapses.
+            self.synapses( synapse_index ) = [  ];
+            
+            % Decrease the number of synapses counter.
+            self.num_synapses = self.num_synapses - 1;
+            
+        end
+        
+        
+        % Implement a function to delete multiple synapses. 
+        function self = delete_synapses( self, synapse_IDs )
+            
+            % Retrieve the number of synapses to delete.
+            num_synapses_to_delete = length( synapse_IDs );
+            
+            % Delete each of the specified synapses.
+            for k = 1:num_synapses_to_delete                      % Iterate through each of the synapses we want to delete...
+                
+                % Delete this synapse.
+                self = self.delete_synapse( synapse_IDs(k) );
+                
+            end
+            
+        end
         
         
         %% Save & Load Functions
