@@ -872,12 +872,12 @@ classdef synapse_manager_class
             end
             
             % Set the default synapse properties.
-            if nargin < 9, self.b_enabled = true( 1, num_synapses_to_create ); end
-            if nargin < 8, self.delta = zeros( 1, num_synapses_to_create ); end
-            if nargin < 7, self.to_neuron_ID = zeros( 1, num_synapses_to_create ); end
-            if nargin < 6, self.from_neuron_ID = zeros( 1, num_synapses_to_create ); end
-            if nargin < 5, self.g_syn_max = 1e-6*ones( 1, num_synapses_to_create ); end
-            if nargin < 4, self.dE_syns = -40e-3*ones( 1, num_synapses_to_create ); end
+            if nargin < 9, b_enableds = true( 1, num_synapses_to_create ); end
+            if nargin < 8, deltas = zeros( 1, num_synapses_to_create ); end
+            if nargin < 7, to_neuron_IDs = zeros( 1, num_synapses_to_create ); end
+            if nargin < 6, from_neuron_IDs = zeros( 1, num_synapses_to_create ); end
+            if nargin < 5, g_syn_maxs = 1e-6*ones( 1, num_synapses_to_create ); end
+            if nargin < 4, dE_syns = -40e-3*ones( 1, num_synapses_to_create ); end
             if nargin < 3, names = repmat( { '' }, 1, num_synapses_to_create ); end
             if nargin < 2, IDs = self.generate_unique_synapse_IDs( num_synapses_to_create ); end
             
@@ -885,7 +885,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_create                         % Iterate through each of the synapses we want to create...
        
                 % Create this synapse.
-                self = self.create_synapse( IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds );
+                self = self.create_synapse( IDs(k), names{k}, dE_syns(k), g_syn_maxs(k), from_neuron_IDs(k), to_neuron_IDs(k), deltas(k), b_enableds(k) );
             
             end
             

@@ -765,7 +765,7 @@ classdef neuron_manager_class
             if nargin < 8, Ers = -60e-3*ones( 1, num_neurons_to_create ); end
             if nargin < 7, Gms = 1e-6*ones( 1, num_neurons_to_create ); end
             if nargin < 6, Cms = 5e-9*ones( 1, num_neurons_to_create ); end
-            if nargin < 5, hs = zeros( 1, num_neurons_to_create ); end
+            if nargin < 5, hs = repmat( { [  ] }, 1, num_neurons_to_create ); end
             if nargin < 4, Us = zeros( 1, num_neurons_to_create ); end
             if nargin < 3, names = repmat( { '' }, 1, num_neurons_to_create ); end
             if nargin < 2, IDs = self.generate_unique_neuron_IDs( num_neurons_to_create ); end
@@ -774,7 +774,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_create                         % Iterate through each of the neurons we want to create...
        
                 % Create this neuron.
-                self = self.create_neuron( IDs(k), names{k}, Us(k), hs(k), Cms(k), Gms(k), Ers(k), Rs(k), Ams(k), Sms(k), dEms(k), Ahs(k), Shs(k), dEhs(k), dEnas(k), tauh_maxs(k), Gnas(k), I_leaks(k), I_syns(k), I_nas(k), I_tonics(k), I_apps(k), I_totals(k), b_enableds(k) );
+                self = self.create_neuron( IDs(k), names{k}, Us(k), hs{k}, Cms(k), Gms(k), Ers(k), Rs(k), Ams(k), Sms(k), dEms(k), Ahs(k), Shs(k), dEhs(k), dEnas(k), tauh_maxs(k), Gnas(k), I_leaks(k), I_syns(k), I_nas(k), I_tonics(k), I_apps(k), I_totals(k), b_enableds(k) );
             
             end
             

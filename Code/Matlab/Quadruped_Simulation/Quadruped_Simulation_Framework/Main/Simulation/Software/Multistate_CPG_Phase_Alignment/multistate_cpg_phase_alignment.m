@@ -10,11 +10,11 @@ clear, close('all'), clc
 b_verbose = true;
 
 % Define the path to the directory that contains the robot data.
-% robot_data_save_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
-% robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
+robot_data_save_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
-robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
-robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
+% robot_data_save_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Save';
+% robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
 % Define the network integration step size.
 network_dt = 1e-3;
@@ -69,45 +69,58 @@ network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
 
 %% TESTING CODE
 
-network.neuron_manager = network.neuron_manager.create_neuron( 5 );
-network.neuron_manager = network.neuron_manager.create_neuron( 6 );
-network.neuron_manager = network.neuron_manager.create_neuron( 7 );
 
-network.synapse_manager = network.synapse_manager.create_synapse( 17 );
-network.synapse_manager.synapses( 17 ).from_neuron_ID = 5;
-network.synapse_manager.synapses( 17 ).to_neuron_ID = 6;
-% network.synapse_manager.synapses( 17 ).from_neuron_ID = 1;
-% network.synapse_manager.synapses( 17 ).to_neuron_ID = 2;
+network = network.create_multistate_cpg_subnetwork( 4, delta_oscillatory, delta_bistable );
 
-network.synapse_manager = network.synapse_manager.create_synapse( 18 );
-network.synapse_manager.synapses( 18 ).from_neuron_ID = 4;
-network.synapse_manager.synapses( 18 ).to_neuron_ID = 5;
-
-
-network.applied_current_manager = network.applied_current_manager.create_applied_current( 5 );
-network.applied_current_manager.applied_currents(5).neuron_ID = 7;
-network.applied_current_manager.applied_currents(5).I_apps = 1e-7;
-
-% network.neuron_manager = network.neuron_manager.disable_neuron( 5 );
-% network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
-
-% network.neuron_manager = network.neuron_manager.delete_neuron( 5 );
-% network.neuron_manager = network.neuron_manager.delete_neuron( 6 );
-
-
-% network.neuron_manager.neurons(5) = network.neuron_manager.neurons(5).disable(  );
-% network.neuron_manager.neurons(4) = network.neuron_manager.neurons(4).disable(  );
-
-% network.synapse_manager.synapses(2) = network.synapse_manager.synapses(2).disable(  );
-
-% network.synapse_manager.synapses(13) = network.synapse_manager.synapses(13).disable(  );
-% network.synapse_manager.synapses(14) = network.synapse_manager.synapses(14).disable(  );
-% network.synapse_manager.synapses(15) = network.synapse_manager.synapses(15).disable(  );
-% network.synapse_manager.synapses(16) = network.synapse_manager.synapses(16).disable(  );
-
-% network.applied_current_manager.applied_currents(1) = network.applied_current_manager.applied_currents(1).disable(  );
-
-% g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
+% network.neuron_manager = network.neuron_manager.create_neuron( 5 );
+% network.neuron_manager = network.neuron_manager.create_neuron( 6 );
+% network.neuron_manager = network.neuron_manager.create_neuron( 7 );
+% network.neuron_manager = network.neuron_manager.create_neuron( 8 );
+% 
+% network.synapse_manager = network.synapse_manager.create_synapse( 17 );
+% network.synapse_manager.synapses( 17 ).from_neuron_ID = 5;
+% network.synapse_manager.synapses( 17 ).to_neuron_ID = 6;
+% % network.synapse_manager.synapses( 17 ).from_neuron_ID = 1;
+% % network.synapse_manager.synapses( 17 ).to_neuron_ID = 2;
+% 
+% network.synapse_manager = network.synapse_manager.create_synapse( 18 );
+% network.synapse_manager.synapses( 18 ).from_neuron_ID = 4;
+% network.synapse_manager.synapses( 18 ).to_neuron_ID = 5;
+% 
+% network.synapse_manager = network.synapse_manager.create_synapse( 19 );
+% network.synapse_manager.synapses( 19 ).from_neuron_ID = 8;
+% network.synapse_manager.synapses( 19 ).to_neuron_ID = 8;
+% 
+% 
+% network.applied_current_manager = network.applied_current_manager.create_applied_current( 5 );
+% network.applied_current_manager.applied_currents(5).neuron_ID = 7;
+% network.applied_current_manager.applied_currents(5).I_apps = 1e-7;
+% 
+% network.applied_current_manager = network.applied_current_manager.create_applied_current( 6 );
+% network.applied_current_manager.applied_currents(6).neuron_ID = 5;
+% network.applied_current_manager.applied_currents(6).I_apps = 1e-7;
+% network.applied_current_manager.applied_currents(6).b_enabled = false;
+% 
+% % network.neuron_manager = network.neuron_manager.disable_neuron( 5 );
+% % network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
+% 
+% % network.neuron_manager = network.neuron_manager.delete_neuron( 5 );
+% % network.neuron_manager = network.neuron_manager.delete_neuron( 6 );
+% 
+% 
+% % network.neuron_manager.neurons(5) = network.neuron_manager.neurons(5).disable(  );
+% % network.neuron_manager.neurons(4) = network.neuron_manager.neurons(4).disable(  );
+% 
+% % network.synapse_manager.synapses(2) = network.synapse_manager.synapses(2).disable(  );
+% 
+% % network.synapse_manager.synapses(13) = network.synapse_manager.synapses(13).disable(  );
+% % network.synapse_manager.synapses(14) = network.synapse_manager.synapses(14).disable(  );
+% % network.synapse_manager.synapses(15) = network.synapse_manager.synapses(15).disable(  );
+% % network.synapse_manager.synapses(16) = network.synapse_manager.synapses(16).disable(  );
+% 
+% % network.applied_current_manager.applied_currents(1) = network.applied_current_manager.applied_currents(1).disable(  );
+% 
+% % g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
 
 
 %% Simulate the Network.

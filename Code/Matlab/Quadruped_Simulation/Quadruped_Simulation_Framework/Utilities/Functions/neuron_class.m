@@ -113,8 +113,9 @@ classdef neuron_class
         function h_inf = compute_hinf( self )
            
             % Compute the steady state sodium channel deactivaiton parameter.
-            h_inf = self.neuron_utilities.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
-            
+%             h_inf = self.neuron_utilities.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
+            h_inf = self.neuron_utilities.compute_mhinf( self.U, self.Ah, self.Sh, self.dEh );
+
         end
 
         

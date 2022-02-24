@@ -554,6 +554,91 @@ classdef network_class
         end
         
         
+        %% Subnetwork Design Functions
+        
+        % Implement a function to design a multistate CPG oscillator subnetwork using existing neurons.
+        function self = design_multistate_cpg_subnetwork( self, neuron_ID_order, delta_oscillatory, delta_bistable )
+            
+            % Set the default input arguments.
+            if nargin < 4, delta_bistable = -10e-3; end
+            if nargin < 3, delta_oscillatory = 0.01e-3; end
+
+            % Set the sodium channel conductance of every neuron in the network using the CPG approach.
+            self.neuron_manager = self.neuron_manager.compute_set_CPG_Gna( neuron_ID_order );
+
+            % Set the synapse delta values.
+            self.synapse_manager = self.synapse_manager.compute_set_deltas( delta_oscillatory, delta_bistable, neuron_ID_order );
+
+            % Compute and set the maximum synaptic conductances required to achieve these delta values.
+            self = self.compute_set_max_synaptic_conductances( neuron_ID_order );
+            
+        end
+            
+        
+        % Implement a function to create a multistate CPG oscillator subnetwork.
+        function self = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
+        
+            % Set the default input arguments.
+            if nargin < 4, delta_bistable = -10e-3; end
+            if nargin < 3, delta_oscillatory = 0.01e-3; end
+            if nargin < 2, num_cpg_neurons = 2; end
+            
+            % Generate unique neuron IDs for the multistate CPG subnetwork.
+            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_cpg_neurons );
+            
+            % Create the multistate cpg subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
+            
+            % Generate unique synapse IDs for the multistate CPG subnetwork.
+            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_cpg_neurons^2 );
+            
+            % Create the multistate cpg subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
+            
+            % NEED TO CREATE ADD AN APPLIED CURRENT TO THE FIRST NEURON IN THE CHAIN.
+            
+            
+            
+            % Initialize a counter variable.
+            k3 = 0;
+            
+            % Edit the network properties.
+            for k1 = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
+                
+                % Get the index associated with this neuron.
+                neuron_index = self.neuron_manager.get_neuron_index( neuron_IDs(k1) );
+                
+                % Set this neurons name.
+                self.neuron_manager.neurons( neuron_index ).name = sprintf( 'Neuron %0.0f', neuron_IDs(k1) );
+                
+                for k2 = 1:num_cpg_neurons                          % Iterate through each of the CPG neurons (to which the synapses are going)...
+                   
+                    % Advance the counter variable.
+                    k3 = k3 + 1;
+                    
+                    % Get the index associated with this synapse.
+                    synapse_index = self.synapse_manager.get_synapse_index( synapse_IDs(k3) );
+                                        
+                    % Set the from neuron ID and to neuron ID.
+                    self.synapse_manager.synapses( synapse_index ).from_neuron_ID = neuron_IDs( k1 );
+                    self.synapse_manager.synapses( synapse_index ).to_neuron_ID = neuron_IDs( k2 );
+                    
+                    % Set the name of this synapse.
+                    self.synapse_manager.synapses( synapse_index ).name = sprintf( 'Syn %0.0f%0.0f', neuron_IDs( k1 ), neuron_IDs( k2 ) );
+                    
+                    % Set the reversal potential of this synapse (if necessary).
+                    if k1 == k2, self.synapse_manager.synapses( synapse_index ).dE_syn = 0; end
+                    
+                end
+            end
+            
+            
+            % Design the multistate cpg subnetwork.
+            self = self.design_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
+            
+        end
+        
+        
         %% Network Validation Functions
         
         % Implement a function to validate the network is setup correctly to simulate.
@@ -699,7 +784,7 @@ classdef network_class
             dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
             
             % Retrieve the applied currents.
-            I_apps = self.applied_current_manager.get_applied_currents( neuron_IDs, self.dt, self.tf )';
+            I_apps = self.applied_current_manager.neuron_IDs2applied_currents( neuron_IDs, self.dt, self.tf, 'ignore' )';
             
             % Simulate the network.
             [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt );

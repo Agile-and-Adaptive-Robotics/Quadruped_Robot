@@ -617,16 +617,18 @@ classdef applied_current_manager_class
         
         
         % Implement a function to return the applied currents associated with given neuron IDs.
-        function I_apps = neuron_IDs2applied_currents( self, neuron_IDs, undetected_option )
+        function I_apps = neuron_IDs2applied_currents( self, neuron_IDs, dt, tf, undetected_option )
 
-            % Set the default undetected option.
-            if nargin < 3, undetected_option = 'error'; end
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 4, tf = [  ]; end
+            if nargin < 3, dt = [  ]; end
             
             % Retrieve the applied current IDs.
             applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, undetected_option );
             
             % Retrieve the applied currents.
-            I_apps = self.get_applied_currents( applied_current_IDs );
+            I_apps = self.get_applied_currents( applied_current_IDs, dt, tf );
             
         end
         
