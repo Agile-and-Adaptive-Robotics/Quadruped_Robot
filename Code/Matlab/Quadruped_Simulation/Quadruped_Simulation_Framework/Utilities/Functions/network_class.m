@@ -708,7 +708,7 @@ classdef network_class
         
         
         % Implement a function to compute and set network simulation results.
-        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = compute_set_simulation( self, dt, tf )
+        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_set_simulation( self, dt, tf )
             
             % Set the default input arguments.
             if nargin < 3, tf = self.tf; end

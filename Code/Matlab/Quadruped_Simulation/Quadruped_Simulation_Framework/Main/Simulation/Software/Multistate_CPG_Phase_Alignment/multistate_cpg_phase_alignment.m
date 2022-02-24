@@ -71,11 +71,28 @@ network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
 
 network.neuron_manager = network.neuron_manager.create_neuron( 5 );
 network.neuron_manager = network.neuron_manager.create_neuron( 6 );
+network.neuron_manager = network.neuron_manager.create_neuron( 7 );
 
-network.neuron_manager = network.neuron_manager.disable_neuron( 5 );
-network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
+network.synapse_manager = network.synapse_manager.create_synapse( 17 );
+network.synapse_manager.synapses( 17 ).from_neuron_ID = 5;
+network.synapse_manager.synapses( 17 ).to_neuron_ID = 6;
+% network.synapse_manager.synapses( 17 ).from_neuron_ID = 1;
+% network.synapse_manager.synapses( 17 ).to_neuron_ID = 2;
+
+network.synapse_manager = network.synapse_manager.create_synapse( 18 );
+network.synapse_manager.synapses( 18 ).from_neuron_ID = 4;
+network.synapse_manager.synapses( 18 ).to_neuron_ID = 5;
+
+
+network.applied_current_manager = network.applied_current_manager.create_applied_current( 5 );
+network.applied_current_manager.applied_currents(5).neuron_ID = 7;
+network.applied_current_manager.applied_currents(5).I_apps = 1e-7;
+
+% network.neuron_manager = network.neuron_manager.disable_neuron( 5 );
+% network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
 
 % network.neuron_manager = network.neuron_manager.delete_neuron( 5 );
+% network.neuron_manager = network.neuron_manager.delete_neuron( 6 );
 
 
 % network.neuron_manager.neurons(5) = network.neuron_manager.neurons(5).disable(  );
@@ -96,16 +113,16 @@ network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
 %% Simulate the Network.
 
 % Simulate the network.
-[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network.compute_set_simulation(  );
+[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
 
 
 %% Plot the Network Results.
 
 % Plot the network states over time.
-fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs );
+fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
 
 % Animate the network states over time.
-fig_network_animation = network.network_utilities.animate_network_states( Us, hs );
+fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
 
 
 x = 1;

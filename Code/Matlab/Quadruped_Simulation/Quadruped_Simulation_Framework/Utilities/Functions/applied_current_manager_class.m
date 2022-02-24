@@ -454,6 +454,22 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to check if a proposed applied current ID is unique.
+        function [ b_unique, match_logicals, match_indexes ] = unique_applied_current_ID( self, applied_current_ID )
+            
+            % Retrieve all of the existing applied current IDs.
+            applied_current_IDs = self.get_all_applied_current_IDs(  );
+            
+            % Determine whether the given applied current ID is one of the existing applied current IDs ( if so, provide the matching logicals and indexes ).
+            [ b_match_found, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( applied_current_ID, applied_current_IDs );
+            
+            % Define the uniqueness flag.
+            b_unique = ~b_match_found;
+            
+        end
+        
+        
+        
         % Implement a function to generate a unique applied current ID.
         function applied_current_ID = generate_unique_applied_current_ID( self )
             

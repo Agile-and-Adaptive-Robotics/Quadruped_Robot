@@ -518,6 +518,18 @@ classdef neuron_manager_class
         
         %% Enable & Disable Functions
         
+        % Implement a function to enable a neuron.
+        function self = enable_neuron( self, neuron_ID )
+            
+            % Retrieve the index associated with this neuron.
+            neuron_index = self.get_neuron_index( neuron_ID );
+            
+            % Enable this neuron.
+            self.neurons( neuron_index ).b_enabled = true;
+            
+        end
+        
+        
         % Implement a function to enable neurons.
         function self = enable_neurons( self, neuron_IDs )
             
@@ -530,13 +542,22 @@ classdef neuron_manager_class
             % Enable all of the specified neurons.
             for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
                 
-                % Retrieve this neuron index.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
-                
                 % Enable this neuron.
-                self.neurons( neuron_index ).b_enabled = true;
+                self = self.enable_neuron( neuron_IDs(k) );
                 
             end
+            
+        end
+        
+        
+        % Implement a function to disable a neuron.
+        function self = disable_neuron( self, neuron_ID )
+            
+            % Retrieve the index associated with this neuron.
+            neuron_index = self.get_neuron_index( neuron_ID );
+            
+            % Disable this neuron.
+            self.neurons( neuron_index ).b_enabled = false;
             
         end
         
@@ -553,11 +574,8 @@ classdef neuron_manager_class
             % Disable all of the specified neurons.
             for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
                 
-                % Retrieve this neuron index.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
-                
                 % Disable this neuron.
-                self.neurons( neuron_index ).b_enabled = false;
+                self = self.disable_neuron( neuron_IDs(k) );
                 
             end
             
@@ -794,27 +812,7 @@ classdef neuron_manager_class
             
         end
         
-        
-        %% Neuron Enable & Disable Functions
-        
-        % Implement a function to enable a neuron.
-        
-        
-        % Implement a function to enable multiple neurons.
-        
-        
-        % Implement a function to disable a neuron.
-        
-        
-        % Implement a function to disable multiple neurons.
-        
-        
-        % Implement a function to toggle the enable / disable state of a neuron.
-        
-        
-        % Implement a function to toggle the enable / disable state of a neuron.
-        
-        
+       
         %% Save & Load Functions
         
         % Implement a function to save neuron manager data as a matlab object.

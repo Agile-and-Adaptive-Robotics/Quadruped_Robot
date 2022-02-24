@@ -385,8 +385,11 @@ classdef network_utilities_class
         %% Plotting Functions
         
         % Implement a function to plot the network states over time.
-        function fig = plot_network_states( ~, ts, Us, hs )
+        function fig = plot_network_states( ~, ts, Us, hs, neuron_IDs )
                         
+            % Set the default input arguments.
+            if nargin < 5, neuron_IDs = 1:size( Us, 1 ); end
+            
             % Create a figure to store the network states.
             fig = figure( 'Color', 'w', 'Name', 'Network States vs Time' );
             subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), title( 'CPG Membrane Voltage vs Time' )
@@ -402,11 +405,11 @@ classdef network_utilities_class
             for k = 1:num_neurons           % Iterate through each of the neurons.
                 
                 % Plot the states associated with this neuron.
-                subplot( 2, 1, 1 ), plot( ts, Us(k, :), '-', 'Linewidth', 3 )
-                subplot( 2, 1, 2 ), plot( ts, hs(k, :), '-', 'Linewidth', 3 )
+                subplot( 2, 1, 1 ), plot( ts, Us( k, : ), '-', 'Linewidth', 3 )
+                subplot( 2, 1, 2 ), plot( ts, hs( k, : ), '-', 'Linewidth', 3 )
                 
                 % Add an entry to our legend string.
-                legstr{k} = sprintf( 'Neuron %0.0f', k );
+                legstr{k} = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
                 
             end
             
@@ -418,11 +421,12 @@ classdef network_utilities_class
         
         
         % Implement a function to animate the network states over time.
-        function fig = animate_network_states( ~, Us, hs, num_playbacks, playback_speed )
+        function fig = animate_network_states( ~, Us, hs, neuron_IDs, num_playbacks, playback_speed )
             
             % Set the default input arguments.
-            if nargin < 5, playback_speed = 1; end
-            if nargin < 4, num_playbacks = 1; end
+            if nargin < 6, playback_speed = 1; end
+            if nargin < 5, num_playbacks = 1; end
+            if nargin < 4, neuron_IDs = 1:size( Us, 1 ); end
 
             % Compute the state space domain of interest.
             U_min = min( Us, [  ], 'all' ); U_max = max( Us, [  ], 'all' );
@@ -462,7 +466,7 @@ classdef network_utilities_class
                 line_ends(k) = plot( 0, 0, 'o', 'Linewidth', 2, 'Markersize', 15, 'Color', line_paths(k).Color, 'XDataSource', xdatastr_end, 'YDataSource', ydatastr_end );
                 
                 % Add an entry to our legend string.
-                legstr{k} = sprintf('Neuron %0.0f', k);
+                legstr{k} = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
                 
             end
             

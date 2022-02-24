@@ -810,19 +810,19 @@ classdef synapse_manager_class
         function self = create_synapse( self, ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
 
             % Set the default synapse properties.
-            if nargin < 9, self.b_enabled = true; end
-            if nargin < 8, self.delta = 0; end
-            if nargin < 7, self.to_neuron_ID = 0; end
-            if nargin < 6, self.from_neuron_ID = 0; end
-            if nargin < 5, self.g_syn_max = 1e-6; end
-            if nargin < 4, self.dE_syn = -40e-3; end
+            if nargin < 9, b_enabled = true; end
+            if nargin < 8, delta = 0; end
+            if nargin < 7, to_neuron_ID = 0; end
+            if nargin < 6, from_neuron_ID = 0; end
+            if nargin < 5, g_syn_max = 1e-6; end
+            if nargin < 4, dE_syn = -40e-3; end
             if nargin < 3, name = ''; end
             if nargin < 2, ID = self.generate_unique_synapse_ID(  ); end
             
-            % Ensure that this neuron ID is a unique natural.
+            % Ensure that this synapse ID is a unique natural.
             assert( self.unique_natural_synapse_ID( ID ), 'Proposed synapse ID %0.2f is not a unique natural number.', ID )
             
-            % Create an instance of the neuron class.
+            % Create an instance of the synapse class.
             synapse = synapse_class( ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled );
             
             % Append this synapse to the array of existing synapses.
