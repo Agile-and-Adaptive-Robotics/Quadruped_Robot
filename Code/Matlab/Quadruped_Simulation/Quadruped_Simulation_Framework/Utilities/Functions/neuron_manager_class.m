@@ -31,8 +31,9 @@ classdef neuron_manager_class
             self.data_loader_utilities = data_loader_utilities_class(  );
             
             % Set the default class properties.
-            if nargin < 1, self.neurons = neuron_class(  ); else, self.neurons = neurons; end
-            
+%             if nargin < 1, self.neurons = neuron_class(  ); else, self.neurons = neurons; end
+            if nargin < 1, self.neurons = [  ]; else, self.neurons = neurons; end
+
             % Compute the number of neurons.
             self.num_neurons = length( self.neurons );
             
@@ -636,7 +637,7 @@ classdef neuron_manager_class
         %% Sodium Channel Conductance Functions
         
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-        function self = compute_set_CPG_Gna( self, neuron_IDs )
+        function self = compute_set_cpg_Gna( self, neuron_IDs )
             
             % Set the default input arguments.
             if nargin < 2, neuron_IDs = 'all'; end
@@ -654,7 +655,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs(k) );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_CPG_Gna(  );
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_cpg_Gna(  );
                 
             end
             
@@ -798,6 +799,12 @@ classdef neuron_manager_class
         
         % Implement a function to delete multiple neurons.
         function self = delete_neurons( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
             % Retrieve the number of neurons to delete.
             num_neurons_to_delete = length( neuron_IDs );

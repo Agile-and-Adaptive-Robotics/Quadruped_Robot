@@ -113,7 +113,6 @@ classdef neuron_class
         function h_inf = compute_hinf( self )
            
             % Compute the steady state sodium channel deactivaiton parameter.
-%             h_inf = self.neuron_utilities.compute_mhinf( self.U, self.Am, self.Sm, self.dEm );
             h_inf = self.neuron_utilities.compute_mhinf( self.U, self.Ah, self.Sh, self.dEh );
 
         end
@@ -141,7 +140,7 @@ classdef neuron_class
         function tauh = compute_tauh( self )
             
             % Compute the sodium channel deactivation time constant.
-            tauh = self.neuron_utilities.compute_sodium_time_constant( self.U, self.tauh_max, self.h_inf, self.Ah, self.Sh, self.dEh );
+            tauh = self.neuron_utilities.compute_tauh( self.U, self.tauh_max, self.h_inf, self.Ah, self.Sh, self.dEh );
 
         end
         
@@ -159,19 +158,19 @@ classdef neuron_class
         %% Conductance Functions
         
         % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
-        function Gna = compute_CPG_Gna( self )
+        function Gna = compute_cpg_Gna( self )
             
             % Compute the required sodium channel conductance to create oscillation in a two neuron CPG subnetwork.
-            Gna = self.neuron_utilities.compute_CPG_Gna( self.R, self.Gm, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            Gna = self.neuron_utilities.compute_cpg_Gna( self.R, self.Gm, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
             
         end
         
 
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork.
-        function self = compute_set_CPG_Gna( self )
+        function self = compute_set_cpg_Gna( self )
             
             % Compute the sodium channel conductance for a two neuron CPG subnetwork.
-            self.Gna = self.compute_CPG_Gna(  );
+            self.Gna = self.compute_cpg_Gna(  );
             
         end
         
@@ -179,55 +178,55 @@ classdef neuron_class
         %% Current Functions
         
         % Implement a function to compute the leak current associated with this neuron.
-        function I_leak = compute_leak_current( self )
+        function I_leak = compute_Ileak( self )
            
             % Compute the leak current associated with this neuron.
-            I_leak = self.neuron_utilities.compute_leak_current( self.U, self.Gm );
+            I_leak = self.neuron_utilities.compute_Ileak( self.U, self.Gm );
             
         end
         
             
         % Implement a function to compute and set the leak current associated with this neuron.
-        function self = compute_set_leak_current( self )
+        function self = compute_set_Ileak( self )
             
            % Compute the leak current associated with this neuron.
-           self.I_leak = self.compute_leak_current(  );
+           self.I_leak = self.compute_Ileak(  );
             
         end
         
         
         % Implement a function to compute the sodium channel current associated with this neuron.
-        function I_na = compute_sodium_current( self )
+        function I_na = compute_Ina( self )
         
             % Compute the sodium channel current associated with this neuron.
-            I_na = self.neuron_utilities.compute_sodium_current( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            I_na = self.neuron_utilities.compute_Ina( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
                        
         end
         
         
         % Implement a function to compute and set the sodium channel current associated with this neuron.
-        function self = compute_set_sodium_current( self )
+        function self = compute_set_Ina( self )
         
             % Compute the sodium channel current associated with this neuron.
-            self.I_na = self.neuron_utilities.compute_sodium_current( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            self.I_na = self.neuron_utilities.compute_Ina( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
                        
         end
         
         
         % Implement a function to compute the total current associated with this neuron.
-        function I_total = compute_total_current( self )
+        function I_total = compute_Itotal( self )
             
             % Compute the total current.
-            I_total = self.neuron_utilities.compute_total_current( self.I_leak, self.I_syn, self.I_na, self.I_tonic, self.I_app );
+            I_total = self.neuron_utilities.compute_Itotal( self.I_leak, self.I_syn, self.I_na, self.I_tonic, self.I_app );
             
         end
         
         
         % Implement a function to compute and set the total current associated with this neuron.
-        function self = compute_set_total_current( self )
+        function self = compute_set_Itotal( self )
             
             % Compute and set the total current.
-            self.I_total = self.neuron_utilities.compute_total_current( self.I_leak, self.I_syn, self.I_na, self.I_app );
+            self.I_total = self.neuron_utilities.compute_Itotal( self.I_leak, self.I_syn, self.I_na, self.I_app );
             
         end
         

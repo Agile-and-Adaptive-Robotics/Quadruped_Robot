@@ -39,38 +39,24 @@ elapsed_time = toc;
 if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
 
 
-%% Initialize the Neural Network.
-
-% Create an instance of the network class.
-network = network_class( network_dt, network_tf );
-
-% Load the network data.
-network = network.load_xlsx( robot_data_load_path );
-
-
-%% Modify Neural Network Parameters.
+%% Build the Network.
 
 % Define the oscillatory and bistable delta CPG synapse design parameters.
 delta_oscillatory = 0.01e-3;
 delta_bistable = -10e-3;
 
-% Define the neuron ID order.
-neuron_ID_order = [ 1 2 3 4 ];
+% Create an instance of the network class.
+network = network_class( network_dt, network_tf );
 
-% Set the sodium channel conductance of every neuron in the network using the CPG approach.
-network.neuron_manager = network.neuron_manager.compute_set_CPG_Gna( neuron_ID_order );
+% Create the first multistate cpg subnetwork.
+[ network, neuron_IDs_cpg1, synapse_IDs_cpg1, applied_current_ID_cpg1 ] = network.create_multistate_cpg_subnetwork( 4, delta_oscillatory, delta_bistable );
 
-% Set the synapse delta values.
-network.synapse_manager = network.synapse_manager.compute_set_deltas( delta_oscillatory, delta_bistable, neuron_ID_order );
-
-% Compute and set the maximum synaptic conductances required to achieve these delta values.
-network = network.compute_set_max_synaptic_conductances( neuron_ID_order );
+% Create the second multistate cpg subnetwork.
+[ network, neuron_IDs_cpg2, synapse_IDs_cpg2, applied_current_ID_cpg2 ] = network.create_multistate_cpg_subnetwork( 4, delta_oscillatory, delta_bistable );
 
 
 %% TESTING CODE
 
-
-network = network.create_multistate_cpg_subnetwork( 4, delta_oscillatory, delta_bistable );
 
 % network.neuron_manager = network.neuron_manager.create_neuron( 5 );
 % network.neuron_manager = network.neuron_manager.create_neuron( 6 );

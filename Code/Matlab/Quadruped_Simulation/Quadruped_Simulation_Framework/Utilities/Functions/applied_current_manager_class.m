@@ -8,7 +8,6 @@ classdef applied_current_manager_class
     properties
         
         applied_currents
-        
         num_applied_currents
         
         array_utilities
@@ -32,8 +31,9 @@ classdef applied_current_manager_class
             self.array_utilities = array_utilities_class(  );
             
             % Set the default properties.
-            if nargin < 1, self.applied_currents = applied_current_class(  ); else, self.applied_currents = applied_currents; end
-            
+%             if nargin < 1, self.applied_currents = applied_current_class(  ); else, self.applied_currents = applied_currents; end
+            if nargin < 1, self.applied_currents = [  ]; else, self.applied_currents = applied_currents; end
+
             % Compute the number of applied currents.
             self.num_applied_currents = length( self.applied_currents );
             
@@ -165,7 +165,7 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the step size of the specified applied currents.
-        function dt = get_step_sizes( self, applied_current_IDs, process_option )
+        function dt = get_dts( self, applied_current_IDs, process_option )
             
             % Set the default input arguments.
             if nargin < 3, process_option = 'none'; end
@@ -204,7 +204,7 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the final time of the specified applied currents.
-        function tf = get_final_times( self, applied_current_IDs, process_option )
+        function tf = get_tfs( self, applied_current_IDs, process_option )
             
             % Set the default input arguments.
             if nargin < 3, process_option = 'none'; end
@@ -243,7 +243,7 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the applied currents.
-        function I_apps = get_applied_currents( self, applied_current_IDs, dt, tf )
+        function I_apps = get_Iapps( self, applied_current_IDs, dt, tf )
             
             % Set the default input arguments.
             if nargin < 4, tf = [  ]; end
@@ -259,7 +259,7 @@ classdef applied_current_manager_class
             if isempty( tf )                                                                % If the final time is empty...
                
                 % Compute the maximum final time among the given applied currents.
-                tf = self.get_final_times( applied_current_IDs, 'max' );
+                tf = self.get_tfs( applied_current_IDs, 'max' );
                 
             end
             
@@ -267,7 +267,7 @@ classdef applied_current_manager_class
             if isempty( dt )                                                                % If the step size is empty...
                 
                 % Compute the minimum step size among the given applied currents.
-                dt = self.get_step_sizes( applied_current_IDs, 'min' );
+                dt = self.get_dts( applied_current_IDs, 'min' );
                 
             end
             
@@ -616,7 +616,7 @@ classdef applied_current_manager_class
         
         
         % Implement a function to return the applied currents associated with given neuron IDs.
-        function I_apps = neuron_IDs2applied_currents( self, neuron_IDs, dt, tf, undetected_option )
+        function I_apps = neuron_IDs2Iapps( self, neuron_IDs, dt, tf, undetected_option )
 
             % Set the default input arguments.
             if nargin < 5, undetected_option = 'error'; end
@@ -627,7 +627,7 @@ classdef applied_current_manager_class
             applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, undetected_option );
             
             % Retrieve the applied currents.
-            I_apps = self.get_applied_currents( applied_current_IDs, dt, tf );
+            I_apps = self.get_Iapps( applied_current_IDs, dt, tf );
             
         end
         
@@ -849,6 +849,12 @@ classdef applied_current_manager_class
         
         % Implement a function to delete multiple applied currents. 
         function self = delete_applied_currents( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
             
             % Retrieve the number of applied currents to delete.
             num_applied_currents_to_delete = length( applied_current_IDs );

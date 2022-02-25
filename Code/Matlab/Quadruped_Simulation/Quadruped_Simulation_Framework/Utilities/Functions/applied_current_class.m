@@ -51,10 +51,10 @@ classdef applied_current_class
             self = self.compute_set_num_timesteps(  );
             
             % Compute and set the step size.
-            self = self.compute_set_step_size(  );
+            self = self.compute_set_dt(  );
             
             % Compute and set the final time.
-            self = self.compute_set_final_time(  );
+            self = self.compute_set_tf(  );
             
         end
         
@@ -106,7 +106,7 @@ classdef applied_current_class
         
         
         % Implement a function to compute the time step.
-        function dt = compute_step_size( self )
+        function dt = compute_dt( self )
             
             % Compute the step size.
             dt = self.array_utilities.compute_step_size( self.ts );
@@ -115,7 +115,7 @@ classdef applied_current_class
         
         
         % Implement a function to compute the final time.
-        function tf = compute_final_time( self )
+        function tf = compute_tf( self )
             
             % Compute the final time.
            tf = max( self.ts ); 
@@ -135,19 +135,19 @@ classdef applied_current_class
         
         
         % Implement a function to compute and set the step size.
-        function self = compute_set_step_size( self )
+        function self = compute_set_dt( self )
             
             % Compute the step size.
-            self.dt = self.compute_step_size(  );
+            self.dt = self.compute_dt(  );
             
         end
         
         
         % Implement a function to compute and set the final time.
-        function self = compute_set_final_time( self )
+        function self = compute_set_tf( self )
             
             % Compute and set the final time.
-            self.tf = self.compute_final_time(  );
+            self.tf = self.compute_tf(  );
             
         end
         
@@ -155,7 +155,7 @@ classdef applied_current_class
         %% Sampling Functions
         
         % Implement a function to sample an applied current.
-        function [ I_apps_sample, ts_sample ] = sample_applied_current( self, dt, tf )
+        function [ I_apps_sample, ts_sample ] = sample_Iapp( self, dt, tf )
             
             % Set the default input arguments.
             if nargin < 3, tf = max( self.ts ); end

@@ -34,7 +34,7 @@ classdef network_utilities_class
         %% Synapse Functions
         
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
-        function G_syn = compute_synaptic_conductance( ~, U, R, g_syn_max )
+        function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
 
             % Compute the synaptic conductance associated with this neuron.
             G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );
@@ -43,7 +43,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute synaptic current.
-        function I_syn = compute_synapse_current( ~, U, G_syn, dE_syn )
+        function I_syn = compute_Isyn( ~, U, G_syn, dE_syn )
             
             % Compute the synaptic current.
             I_syn = sum( G_syn.*( dE_syn - U ), 2 );
@@ -52,19 +52,19 @@ classdef network_utilities_class
         
         
         % Implement a function to perform a synaptic current step.
-        function [ I_syn, G_syn ] = synapse_current_step( self, U, R, g_syn_max, dE_syn )
+        function [ I_syn, G_syn ] = Isyn_step( self, U, R, g_syn_max, dE_syn )
                   
             % Compute the synaptic conductance of this synapse leaving this neuron.
-            G_syn = self.compute_synaptic_conductance( U, R, g_syn_max );
+            G_syn = self.compute_Gsyn( U, R, g_syn_max );
 
             % Compute the synaptic current for this neuron.
-            I_syn = self.compute_synapse_current( U, G_syn, dE_syn );
+            I_syn = self.compute_Isyn( U, G_syn, dE_syn );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance.
-        function g_syn_max_vector = compute_max_synaptic_conductance_vector( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic )
+        function g_syn_max_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic )
             
             % This function computes the maximum synaptic conductances for a chain of CPGs necessary to achieve the specified deltas with the given network properties.
             
@@ -94,14 +94,14 @@ classdef network_utilities_class
                     if i ~= k                   % If this synapse is not a self-connection...
                         
                         % Compute the leak current.
-                        I_leak = self.neuron_utilities.compute_leak_current( deltas(i, k), Gms(i) );
+                        I_leak = self.neuron_utilities.compute_Ileak( deltas(i, k), Gms(i) );
                         
                         % Compute the sodium channel steady state activation and deactivation parameters.
                         m_inf = self.neuron_utilities.compute_mhinf( deltas(i, k), Ams(i), Sms(i), dEms(i) );
                         h_inf = self.neuron_utilities.compute_mhinf( deltas(i, k), Ahs(i), Shs(i), dEhs(i) );
                         
                         % Compute the sodium channel current.
-                        I_na = self.neuron_utilities.compute_sodium_current( deltas(i, k), h_inf, m_inf, Gnas(i), dEnas(i) );
+                        I_na = self.neuron_utilities.compute_Ina( deltas(i, k), h_inf, m_inf, Gnas(i), dEnas(i) );
 
                         % Compute the system and right-hand side coefficients.
                         aik1 = deltas( i, k ) - dEsyns( i, k );
@@ -160,7 +160,7 @@ classdef network_utilities_class
         
         
         % Implement a function to convert a maximum synaptic conductance vector to a maximum synaptic conductance matrix.
-        function g_syn_max_matrix = g_syn_max_vector2g_syn_max_matrix( ~, g_syn_max_vector, num_neurons )
+        function g_syn_max_matrix = gsynmax_vector2gsynmax_matrix( ~, g_syn_max_vector, num_neurons )
             
 %             % Compute the number of neurons.
 %             num_neurons = sqrt( length( g_syn_max_vector ) );
@@ -215,18 +215,21 @@ classdef network_utilities_class
 
 
         % Implement a function to compute the maximum synaptic conductance matrix.
-        function g_syn_max_matrix = compute_max_synaptic_conductance( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics )
+        function g_syn_max_matrix = compute_cpg_gsynmax_matrix( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics )
 
             % Compute the maximum synaptic conductance vector.
-            g_syn_max_vector = self.compute_max_synaptic_conductance_vector( deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
+            g_syn_max_vector = self.compute_cpg_gsynmax_vector( deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
                         
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
             
             % Compute the maximum synaptic conductance matrix.
-            g_syn_max_matrix = self.g_syn_max_vector2g_syn_max_matrix( g_syn_max_vector, num_neurons );
+            g_syn_max_matrix = self.gsynmax_vector2gsynmax_matrix( g_syn_max_vector, num_neurons );
             
         end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance necessary 
         
         
         %% Simulation Functions
@@ -269,10 +272,10 @@ classdef network_utilities_class
             % tauhs = num_neurons x 1 vector of sodium channel deactivation parameter time constants.
             
             % Compute the leak currents.
-            I_leaks = self.neuron_utilities.compute_leak_current( Us, Gms );
+            I_leaks = self.neuron_utilities.compute_Ileak( Us, Gms );
             
             % Compute synaptic currents.
-            [ I_syns, G_syns ] = self.synapse_current_step( Us, Rs, g_syn_maxs, dE_syns );
+            [ I_syns, G_syns ] = self.Isyn_step( Us, Rs, g_syn_maxs, dE_syns );
             
             % Compute the sodium channel currents.            
             [ I_nas, m_infs ] = self.neuron_utilities.sodium_current_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );

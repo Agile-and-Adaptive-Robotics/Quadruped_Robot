@@ -37,7 +37,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the sodium channel conductances for a CPG subnetwork.
-        function Gna = compute_CPG_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
+        function Gna = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
             
             % Compute the steady state sodium channel activation & devactivation parameters at the upper equilibrium.
             minf_upper = self.compute_mhinf( R, Am, Sm, dEm );
@@ -50,7 +50,7 @@ classdef neuron_utilities_class
         
         
         % Compute the sodium channel deactivation time constant.
-        function tauhs = compute_sodium_time_constant( ~, Us, tauh_maxs, hinfs, Ahs, Shs, dEhs )
+        function tauhs = compute_tauh( ~, Us, tauh_maxs, hinfs, Ahs, Shs, dEhs )
 
             % This function computes the sodium channel deactivation time constant associated with each neuron in a network.
 
@@ -72,7 +72,7 @@ classdef neuron_utilities_class
 
         
         % Implement a function to perform a sodium channel time constant step.
-        function [ tauhs, hinfs ] = sodium_time_constant_step( self, Us, tauh_maxs, Ahs, Shs, dEhs )
+        function [ tauhs, hinfs ] = tauh_step( self, Us, tauh_maxs, Ahs, Shs, dEhs )
             
             % This function computes the sodium channel current for each neuron in a network.
             
@@ -99,7 +99,7 @@ classdef neuron_utilities_class
             hinfs = self.compute_mhinf( Us, Ahs, Shs, dEhs );
             
             % Compute the sodium channel deactivation time constants.            
-            tauhs = self.compute_sodium_time_constant( Us, tauh_maxs, hinfs, Ahs, Shs, dEhs );
+            tauhs = self.compute_tauh( Us, tauh_maxs, hinfs, Ahs, Shs, dEhs );
             
         end
         
@@ -107,7 +107,7 @@ classdef neuron_utilities_class
         %% Current Functions
         
         % Implement a function to compute leak currents.
-        function I_leak = compute_leak_current( ~, U, Gm )
+        function I_leak = compute_Ileak( ~, U, Gm )
         
             I_leak = -Gm.*U;
         
@@ -115,7 +115,7 @@ classdef neuron_utilities_class
         
 
         % Implement a function to compute a sodium current.
-        function I_na = compute_sodium_current( ~, U, h, m_inf, Gna, dEna )
+        function I_na = compute_Ina( ~, U, h, m_inf, Gna, dEna )
            
             I_na = Gna.*m_inf.*h.*( dEna - U );            
             
@@ -123,19 +123,19 @@ classdef neuron_utilities_class
 
         
         % Implement a function to compute sodium channel currents.
-        function [ I_na, m_inf ] = sodium_current_step( self, U, h, Gna, Am, Sm, dEm, dEna )
+        function [ I_na, m_inf ] = Ina_step( self, U, h, Gna, Am, Sm, dEm, dEna )
          
             % Compute the steady state sodium channel activation parameter.
             m_inf = self.compute_mhinf( U, Am, Sm, dEm );
 
             % Compute the sodium channel current.
-            I_na = self.compute_sodium_current( U, h, m_inf, Gna, dEna );
+            I_na = self.compute_Ina( U, h, m_inf, Gna, dEna );
             
         end
         
         
         % Implement a function to compute the total current.
-        function I_total = compute_total_current( ~, I_leak, I_syn, I_na, I_tonic, I_app )
+        function I_total = compute_Itotal( ~, I_leak, I_syn, I_na, I_tonic, I_app )
             
            % Compute the the total current.
            I_total = I_leak + I_syn + I_na + I_tonic + I_app;
@@ -146,7 +146,7 @@ classdef neuron_utilities_class
         %% Neuron State Flow Functions
         
         % Implement a function to compute the derivative of the membrane voltage with respect to time.
-        function dUs = compute_membrane_voltage_derivative( ~, Itotals, Cms )
+        function dUs = compute_dU( ~, Itotals, Cms )
             
             % Compute the membrane voltage derivative with respect to time.
             dUs = Itotals./Cms;
@@ -155,7 +155,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the derivative of the sodium channel deactivation parameter with respect to time.
-        function dhs = compute_sodium_deactivation_derivative( ~, hs, hinfs, tauhs )
+        function dhs = compute_dh( ~, hs, hinfs, tauhs )
             
             % Compute the sodium channel deactivation parameter derivative with respect to time.
             dhs = ( hinfs - hs )./tauhs;

@@ -31,8 +31,9 @@ classdef synapse_manager_class
             self.data_loader_utilities = data_loader_utilities_class(  );
             
             % Set the default synapse properties.
-            if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
-            
+%             if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
+            if nargin < 1, self.synapses = [  ]; else, self.synapses = synapses; end
+
             % Compute the number of synapses.
             self.num_synapses = length( self.synapses );
             
@@ -131,7 +132,6 @@ classdef synapse_manager_class
             end
             
         end
-        
         
         
         %% Specific Get & Set Synapse Property Functions
@@ -909,6 +909,12 @@ classdef synapse_manager_class
         
         % Implement a function to delete multiple synapses. 
         function self = delete_synapses( self, synapse_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the number of synapses to delete.
             num_synapses_to_delete = length( synapse_IDs );

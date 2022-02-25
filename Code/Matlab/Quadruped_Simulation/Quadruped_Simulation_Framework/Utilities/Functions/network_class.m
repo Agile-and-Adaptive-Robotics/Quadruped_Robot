@@ -108,7 +108,7 @@ classdef network_class
         
         
         % Implement a function to construct the synaptic reversal potential matrix from the stored synaptic reversal potential scalars.
-        function dE_syns = get_synaptic_reversal_potentials( self, neuron_IDs )
+        function dE_syns = get_dEsyns( self, neuron_IDs )
             
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end
@@ -166,7 +166,7 @@ classdef network_class
         
         
         % Implement a function to construct the maximum synaptic conductance matrix from the stored maximum synaptic conductance scalars.
-        function g_syn_maxs = get_max_synaptic_conductances( self, neuron_IDs )
+        function g_syn_maxs = get_gsynmaxs( self, neuron_IDs )
             
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end
@@ -224,7 +224,7 @@ classdef network_class
         
         
         % Implement a function to construct the synaptic condcutance matrix from the stored synaptic conductance scalars.
-        function G_syns = get_synaptic_conductances( self, neuron_IDs )
+        function G_syns = get_Gsyns( self, neuron_IDs )
             
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end
@@ -328,7 +328,7 @@ classdef network_class
         
         
         % Implement a function to set the synaptic reversal potentials of each synapse based on the synaptic reversal matrix.
-        function self = set_synaptic_reversal_potentials( self, dE_syns, neuron_IDs )
+        function self = set_dEsyns( self, dE_syns, neuron_IDs )
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -372,7 +372,7 @@ classdef network_class
         
         
         % Implement a function to set the maximum synaptic conductances of each synapse based on the maximum synaptic conductance matrix.
-        function self = set_max_synaptic_conductances( self, g_syn_maxs, neuron_IDs )
+        function self = set_gsynmaxs( self, g_syn_maxs, neuron_IDs )
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -416,7 +416,7 @@ classdef network_class
         
         
         % Implement a function to set the synaptic conductance of each synapse based on the synaptic conductance matrix.
-        function self = set_synaptic_conductances( self, G_syns, neuron_IDs )
+        function self = set_Gsyns( self, G_syns, neuron_IDs )
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -463,7 +463,7 @@ classdef network_class
         %% Compute Functions
         
         % Implement a function to compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-        function g_syn_maxs = compute_max_synaptic_conductance( self, neuron_IDs )
+        function g_syn_maxs = compute_cpg_gsynmaxs( self, neuron_IDs )
             
             % Set the default neuron IDs.
             if nargin < 2, neuron_IDs = 'all'; end
@@ -498,26 +498,26 @@ classdef network_class
             
             % Retrieve the synapse properties.
             deltas = self.get_deltas( neuron_IDs );
-            dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
+            dE_syns = self.get_dEsyns( neuron_IDs );
             
             % Compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-            g_syn_maxs = self.network_utilities.compute_max_synaptic_conductance( deltas, Gms, Rs, dE_syns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
+            g_syn_maxs = self.network_utilities.compute_cpg_gsynmax_matrix( deltas, Gms, Rs, dE_syns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
             
         end
         
         
         % Implement a function to compute the synaptic conductance for each synapse.
-        function G_syns = compute_synaptic_conductances( self )
+        function G_syns = compute_Gsyns( self )
             
             % Retrieve the neuron properties.
             Us = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'U' ) )';
             Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
             
             % Retrieve the maximum synaptic conductances.
-            g_syn_maxs = self.get_max_synaptic_conductances( 'all' );
+            g_syn_maxs = self.get_gsynmaxs( 'all' );
             
             % Compute the synaptic conductance.
-            G_syns = self.network_utilities.compute_synaptic_conductance( Us, Rs, g_syn_maxs );
+            G_syns = self.network_utilities.compute_Gsyn( Us, Rs, g_syn_maxs );
             
         end
         
@@ -534,10 +534,10 @@ classdef network_class
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Compute the maximum synaptic conductance matrix.
-            g_syn_maxs = self.compute_max_synaptic_conductance( neuron_IDs );
+            g_syn_maxs = self.compute_cpg_gsynmaxs( neuron_IDs );
             
             % Set the synaptic conductance of all of constinuent synapses.
-            self = self.set_max_synaptic_conductances( g_syn_maxs, neuron_IDs );
+            self = self.set_gsynmaxs( g_syn_maxs, neuron_IDs );
             
         end
         
@@ -546,43 +546,65 @@ classdef network_class
         function self = compute_set_synaptic_conductances( self )
             
             % Compute the synaptic conductances.
-            G_syns = self.compute_synaptic_conductances(  );
+            G_syns = self.compute_Gsyns(  );
             
             % Set the synaptic conductances.
-            self = self.set_synaptic_conductances( G_syns );
+            self = self.set_Gsyns( G_syns );
             
         end
+        
+        
+        %% Network Deletion Functions
+        
+        % Implement a function to delete all of the components in a network.
+        function self = delete_all( self )
+            
+            % Delete all of the neurons.
+            self.neuron_manager = self.neuron_manager.delete_neurons( 'all' );
+            
+            % Delete all of the synapses.
+            self.synapse_manager = self.synapse_manager.delete_synapses( 'all' );
+            
+            % Delete all of the applied currents.
+            self.applied_current_manager = self.applied_current_manager.delete_applied_currents( 'all' );
+           
+        end
+        
         
         
         %% Subnetwork Design Functions
         
         % Implement a function to design a multistate CPG oscillator subnetwork using existing neurons.
-        function self = design_multistate_cpg_subnetwork( self, neuron_ID_order, delta_oscillatory, delta_bistable )
+        function self = design_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable )
             
             % Set the default input arguments.
             if nargin < 4, delta_bistable = -10e-3; end
             if nargin < 3, delta_oscillatory = 0.01e-3; end
 
+            
+            % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+            
+            
             % Set the sodium channel conductance of every neuron in the network using the CPG approach.
-            self.neuron_manager = self.neuron_manager.compute_set_CPG_Gna( neuron_ID_order );
+            self.neuron_manager = self.neuron_manager.compute_set_CPG_Gna( neuron_IDs );
 
             % Set the synapse delta values.
-            self.synapse_manager = self.synapse_manager.compute_set_deltas( delta_oscillatory, delta_bistable, neuron_ID_order );
+            self.synapse_manager = self.synapse_manager.compute_set_deltas( delta_oscillatory, delta_bistable, neuron_IDs );
 
             % Compute and set the maximum synaptic conductances required to achieve these delta values.
-            self = self.compute_set_max_synaptic_conductances( neuron_ID_order );
+            self = self.compute_set_max_synaptic_conductances( neuron_IDs );
             
         end
             
         
         % Implement a function to create a multistate CPG oscillator subnetwork.
-        function self = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
         
             % Set the default input arguments.
             if nargin < 4, delta_bistable = -10e-3; end
             if nargin < 3, delta_oscillatory = 0.01e-3; end
             if nargin < 2, num_cpg_neurons = 2; end
-            
+                        
             % Generate unique neuron IDs for the multistate CPG subnetwork.
             neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_cpg_neurons );
             
@@ -606,7 +628,7 @@ classdef network_class
             applied_current_name = sprintf( 'Applied Current %0.0f', applied_current_ID );
             
             % Create an applied current for the first neuron in this multistate cpg subnetwork.
-            self.applied_current_manager = self.applied_current_manager.create_applied_current( applied_current_ID, applied_current_name, neuron_IDs(1), ts, I_apps, true );
+            self.applied_current_manager = self.applied_current_manager.create_applied_current( applied_current_ID, applied_current_name, neuron_IDs(end), ts, I_apps, true );
             
             % Initialize a counter variable.
             k3 = 0;
@@ -641,14 +663,46 @@ classdef network_class
                 end
             end
             
-            
             % Design the multistate cpg subnetwork.
             self = self.design_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
             
         end
         
         
-        % Implement a function to 
+        % Implement a function to design an addition subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_addition_subnetwork( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(1), neuron_IDs(3) );
+            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(2), neuron_IDs(3) );
+
+            % Get the synapse indexes associated with these synapse IDs.
+            synapse_index13 = self.synapse_manager.get_synapse_index( synapse_ID13 );
+            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
+
+            % Set the synapse reversal potentials.
+            self.synapse_manager.synapses( synapse_index13 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
+            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
+
+            
+            g_syn_max = ( k*R )/( dE_syn - k*R )
+            
+           delEsyn = Esyn - Er;
+            gMax = k*R/(delEsyn - k*R);
+            if gMax < 0
+                error('gMax must be greater than 0. Increase Esyn.')
+            end 
+            
+        end
+        
+        
+        % Implement a function to create an addition subnetwork ( generating neurons, synapses, etc. as necessary ).
+        
+        
+        
         
         
         %% Network Validation Functions
@@ -720,8 +774,8 @@ classdef network_class
             dEnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna' ) );
             
             % Retrieve synaptic properties.
-            g_syn_maxs = self.get_max_synaptic_conductances( neuron_IDs );
-            dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
+            g_syn_maxs = self.get_gsynmaxs( neuron_IDs );
+            dE_syns = self.get_dEsyns( neuron_IDs );
             
             % Retrieve applied currents.
             I_apps = self.applied_current_manager.get_applied_currents( neuron_IDs, self.dt, self.tf )';
@@ -756,7 +810,7 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, tauhs, 'tauh' );
             
             % Set the synapse properties.
-            self = self.set_synaptic_conductances( G_syns, neuron_IDs );
+            self = self.set_Gsyns( G_syns, neuron_IDs );
             
         end
         
@@ -792,8 +846,8 @@ classdef network_class
             I_tonics = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) )';
             
             % Retrieve the synapse properties.
-            g_syn_maxs = self.get_max_synaptic_conductances( neuron_IDs );
-            dE_syns = self.get_synaptic_reversal_potentials( neuron_IDs );
+            g_syn_maxs = self.get_gsynmaxs( neuron_IDs );
+            dE_syns = self.get_dEsyns( neuron_IDs );
             
             % Retrieve the applied currents.
             I_apps = self.applied_current_manager.neuron_IDs2applied_currents( neuron_IDs, self.dt, self.tf, 'ignore' )';
@@ -826,7 +880,7 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, tauhs( :, end ), 'tauh' );
             
             % Set the synapse properties.
-            self = self.set_synaptic_conductances( G_syns( :, :, end ), neuron_IDs );
+            self = self.set_Gsyns( G_syns( :, :, end ), neuron_IDs );
             
         end
         
