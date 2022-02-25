@@ -595,9 +595,18 @@ classdef network_class
             % Create the multistate cpg subnetwork synapses.
             self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
             
-            % NEED TO CREATE ADD AN APPLIED CURRENT TO THE FIRST NEURON IN THE CHAIN.
+            % Generate a unique applied current ID.
+            applied_current_ID = self.applied_current_manager.generate_unique_applied_current_ID(  );
             
+            % Create the applied current time and current vectors.
+            ts = ( 0:self.dt:self.tf )';
+            I_apps = zeros( length( ts ), 1 ); I_apps(1) = 20e-9;
             
+            % Define the applied current name.
+            applied_current_name = sprintf( 'Applied Current %0.0f', applied_current_ID );
+            
+            % Create an applied current for the first neuron in this multistate cpg subnetwork.
+            self.applied_current_manager = self.applied_current_manager.create_applied_current( applied_current_ID, applied_current_name, neuron_IDs(1), ts, I_apps, true );
             
             % Initialize a counter variable.
             k3 = 0;
@@ -637,6 +646,9 @@ classdef network_class
             self = self.design_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
             
         end
+        
+        
+        % Implement a function to 
         
         
         %% Network Validation Functions

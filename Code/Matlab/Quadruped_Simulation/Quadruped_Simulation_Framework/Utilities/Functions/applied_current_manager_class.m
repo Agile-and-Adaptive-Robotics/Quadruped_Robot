@@ -469,7 +469,6 @@ classdef applied_current_manager_class
         end
         
         
-        
         % Implement a function to generate a unique applied current ID.
         function applied_current_ID = generate_unique_applied_current_ID( self )
             
