@@ -229,7 +229,19 @@ classdef network_utilities_class
         end
         
         
-        % Implement a function to compute the maximum synaptic conductance necessary 
+        % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
+        function g_syn_max = compute_addition_gsynmax( ~, R, dE_syn, k )
+           
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+
+            % Ensure that the synaptic reversal potential is large enough.
+            assert( dE_syn > k*R, 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syn, R )
+            
+            % Compute the maximum synaptic conductances for an addition subnetwork.
+            g_syn_max = ( k*R )./( dE_syn - k*R );
+
+        end
         
         
         %% Simulation Functions

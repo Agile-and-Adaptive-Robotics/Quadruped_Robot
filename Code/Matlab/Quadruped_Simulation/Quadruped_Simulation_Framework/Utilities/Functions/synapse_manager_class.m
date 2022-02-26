@@ -697,16 +697,16 @@ classdef synapse_manager_class
         %% Multistate CPG Design Functions
         
         % Implement a function to assign the desired delta value to each synapse based on the neuron order that we want to follow.
-        function self = compute_set_deltas( self, delta_oscillatory, delta_bistable, neuron_ID_order )
+        function self = compute_set_cpg_deltas( self, neuron_IDs, delta_oscillatory, delta_bistable )
             
             % Retrieve the IDs of all relevant from and to neurons.
-            [ from_neuron_IDs_all, to_neuron_IDs_all ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_ID_order );
+            [ from_neuron_IDs_all, to_neuron_IDs_all ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_IDs );
             
             % Retrieve the IDs of the oscillatory from and to neurons.
-            [ from_neuron_IDs_oscillatory, to_neuron_IDs_oscillatory ] = self.neuron_ID_order2oscillatory_from_to_neuron_IDs( neuron_ID_order );
+            [ from_neuron_IDs_oscillatory, to_neuron_IDs_oscillatory ] = self.neuron_ID_order2oscillatory_from_to_neuron_IDs( neuron_IDs );
             
             % Retrieve the IDs of relevant self connecting from and to neurons.
-            [ from_neuron_IDs_self, to_neuron_IDs_self ] = self.neuron_ID_order2self_from_to_neuron_IDs( neuron_ID_order );
+            [ from_neuron_IDs_self, to_neuron_IDs_self ] = self.neuron_ID_order2self_from_to_neuron_IDs( neuron_IDs );
             
             % Retrieve all of the relevant synapse IDs.
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs_all, to_neuron_IDs_all );
