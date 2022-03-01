@@ -440,6 +440,30 @@ classdef neuron_manager_class
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
             
+            % Retreive the number of neuron IDs.
+            num_neuron_IDs = length( neuron_IDs );
+            
+            % Retrieve the number of neuron property values.
+            num_neuron_property_values = length( neuron_property_values );
+            
+            % Ensure that the provided neuron property values have the same length as the provided neuron IDs.
+            if ( num_neuron_IDs ~= num_neuron_property_values )                                     % If the number of provided neuron IDs does not match the number of provided property values...
+               
+                % Determine whether to agument the property values.
+                if num_neuron_property_values == 1                                                  % If there is only one provided property value...
+                    
+                    % Agument the property value length to match the ID length.
+                    neuron_property_values = neuron_property_values*ones( 1, num_neuron_IDs );
+                    
+                else                                                                                % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'The number of provided neuron propety values must match the number of provided neuron IDs, unless a single neuron property value is provided.' )
+                    
+                end
+                
+            end
+            
             % Validate the neuron property values.
             if ~isa( neuron_property_values, 'cell' )                    % If the neuron property values are not a cell array...
                 
@@ -665,7 +689,7 @@ classdef neuron_manager_class
         %% Neuron Creation Functions
         
         % Implement a function to create a new neuron.
-        function self = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled )
+        function [ self, ID ] = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled )
             
             % Set the default neuron properties.
             if nargin < 25, b_enabled = true; end
@@ -709,7 +733,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create multiple neurons.
-        function self = create_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds )
+        function [ self, IDs ] = create_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds )
             
             % Determine whether number of neurons to create.
             if nargin > 2                                               % If more than just neuron IDs were provided...

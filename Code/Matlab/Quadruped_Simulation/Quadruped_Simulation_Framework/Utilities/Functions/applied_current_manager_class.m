@@ -77,6 +77,31 @@ classdef applied_current_manager_class
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
             
+            % Retreive the number of applied current IDs.
+            num_applied_current_IDs = length( applied_current_IDs );
+            
+            % Retrieve the number of applied current property values.
+            num_applied_current_property_values = length( applied_current_property_values );
+            
+            % Ensure that the provided neuron property values have the same length as the provided applied current IDs.
+            if ( num_applied_current_IDs ~= num_applied_current_property_values )                                     % If the number of provided applied current IDs does not match the number of provided property values...
+               
+                % Determine whether to agument the property values.
+                if num_applied_current_property_values == 1                                                  % If there is only one provided property value...
+                    
+                    % Agument the property value length to match the ID length.
+                    applied_current_property_values = applied_current_property_values*ones( 1, num_applied_current_IDs );
+                    
+                else                                                                                % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'The number of provided applied current propety values must match the number of provided applied current IDs, unless a single applied current property value is provided.' )
+                    
+                end
+                
+            end
+            
+            
             % Validate the applied current property values.
             if ~isa( applied_current_property_values, 'cell' )                    % If the applied current property values are not a cell array...
                 
@@ -287,7 +312,7 @@ classdef applied_current_manager_class
                 if ( applied_current_index >= 0 ) && ( self.applied_currents( applied_current_index ).b_enabled )                                                      % If the applied current ID is greater than or equal to zero...
 
                     % Retrieve the applied currents.
-                    I_apps( :, k ) = self.applied_currents( applied_current_index ).sample_applied_current( dt, tf );
+                    I_apps( :, k ) = self.applied_currents( applied_current_index ).sample_Iapp( dt, tf );
                                     
                 elseif ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                                                % If the applied current ID is negative one...
                     
@@ -619,7 +644,7 @@ classdef applied_current_manager_class
         function I_apps = neuron_IDs2Iapps( self, neuron_IDs, dt, tf, undetected_option )
 
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = 'ignore'; end
             if nargin < 4, tf = [  ]; end
             if nargin < 3, dt = [  ]; end
             
@@ -751,7 +776,7 @@ classdef applied_current_manager_class
         %% Applied Current Creation Functions
         
         % Implement a function to create a new applied current.
-        function self = create_applied_current( self, ID, name, neuron_ID, ts, I_apps, b_enabled )
+        function [ self, ID ] = create_applied_current( self, ID, name, neuron_ID, ts, I_apps, b_enabled )
             
             % Set the default input arguments.
             if nargin < 7, b_enabled = true; end
@@ -772,12 +797,12 @@ classdef applied_current_manager_class
             
             % Increase the number of applied currents counter.
             self.num_applied_currents = self.num_applied_currents + 1;
-            
+                        
         end
             
             
         % Implement a function to create multiple applied currents.
-        function self = create_applied_currents( self, IDs, names, neuron_IDs, tss, I_appss, b_enableds )
+        function [ self, IDs ] = create_applied_currents( self, IDs, names, neuron_IDs, tss, I_appss, b_enableds )
             
             % Determine whether number of applied currents to create.
             if nargin > 2                                               % If more than just applied current IDs were provided...
@@ -815,9 +840,9 @@ classdef applied_current_manager_class
             
             % Set the default input arguments.
             if nargin < 7, b_enableds = true( 1, num_applied_currents_to_create ); end
-            if nargin < 6, I_appss = zeroes( 1, num_applied_currents_to_create ); end
-            if nargin < 5, tss = zeroes( 1, num_applied_currents_to_create ); end
-            if nargin < 4, neuron_IDs = zeroes( 1, num_applied_currents_to_create ); end
+            if nargin < 6, I_appss = zeros( 1, num_applied_currents_to_create ); end
+            if nargin < 5, tss = zeros( 1, num_applied_currents_to_create ); end
+            if nargin < 4, neuron_IDs = zeros( 1, num_applied_currents_to_create ); end
             if nargin < 3, names = repmat( { '' }, 1, num_applied_currents_to_create ); end
             if nargin < 2, IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create ); end
             
@@ -825,7 +850,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                         % Iterate through each of the applied currents we want to create...
        
                 % Create this applied current.
-                self = self.create_applied_current( IDs, names, neuron_IDs, tss, I_appss, b_enableds );
+                self = self.create_applied_current( IDs(k), names{k}, neuron_IDs(k), tss( :, k ), I_appss( :, k ), b_enableds(k) );
             
             end
             

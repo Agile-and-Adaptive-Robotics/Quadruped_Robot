@@ -57,6 +57,45 @@ network = network_class( network_dt, network_tf );
 
 %% TESTING CODE
 
+% Disable the cpg subnetworks.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2 );
+
+% Create an addition subnetwork.
+[ network, neuron_IDs_add, synapse_IDs_add ] = network.create_addition_subnetwork(  );
+
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_add, 10e-9, 'Cm' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_add, 1e-6, 'Gm' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_add, 20e-3, 'R' );
+% 
+% network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs_add, 60e-3, 'dE_syn' );
+
+
+% self = design_addition_subnetwork( self, neuron_IDs, k )
+% 
+% Cm = 10;
+% Gm = 1;
+% Iapp1 = 5;
+% Iapp2 = 5;
+% Er = -60;
+% Esyn = 0;
+% 
+% R = 20;
+% k = 1; % U3 = K*(U1 + U2)
+% 
+% %User doesn't program this! This is based on design rules.
+% delEsyn = Esyn - Er;
+% gMax = k*R/(delEsyn - k*R);
+
+% Create an applied current.
+% % network.applied_current_manager = network.applied_current_manager.create_applied_current( ID, name, neuron_ID, ts, I_apps, b_enabled );
+[ network.applied_current_manager, applied_current_IDs_add ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add, 5e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add, neuron_IDs_add(1:2), 'neuron_ID' );
+
+
+% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add(1:2) );
+
 
 % network.neuron_manager = network.neuron_manager.create_neuron( 5 );
 % network.neuron_manager = network.neuron_manager.create_neuron( 6 );
@@ -119,9 +158,11 @@ network = network_class( network_dt, network_tf );
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
+% fig_network_states = network.network_utilities.plot_network_states( ts, Us(1:2, :), hs(1:2, :), neuron_IDs );
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
+% fig_network_animation = network.network_utilities.animate_network_states( Us(1:2, :), hs(1:2, :), neuron_IDs );
 
 
 x = 1;

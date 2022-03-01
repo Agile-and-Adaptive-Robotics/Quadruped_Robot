@@ -160,6 +160,82 @@ classdef array_utilities_class
         end
         
         
+        % Implement a function to scale a domain in an absolute sense.
+        function domain = scale_domain_absolute( ~, domain, scale )
+            
+            % Determine whether to directly add the scale.
+            if domain(1) == 0                                           % If this bound is zero...
+                
+                % Directly add the scale to the bound.
+                domain(1) = domain(1) - scale;
+                
+            else                                                        % Otherwise...
+                
+                % Scale the domain lower bound.
+                domain(1) = domain(1) - abs( scale*domain(1) );
+                
+            end
+            
+            % Determine whether to directly add the scale.
+            if domain(2) == 0                                           % If this bound is zero...
+                
+                % Directly add the scale to the bound.
+                domain(2) = domain(2) + scale;
+                
+            else                                                        % Otherwise...
+                
+                % Scale the domain upper bound.
+                domain(2) = domain(2) + abs( scale*domain(2) );
+                
+            end
+
+        end
+        
+        % Implement a function to scale a domain in a relative sense.
+        function domain = scale_domain_relative( ~, domain, scale )
+           
+            % Compute the middle of the domain.
+            middle = ( domain(2) - domain(1) )/2 + domain(1);
+
+            % Center the domain at the origin.
+            domain_centered = domain - middle;
+            
+            % Scale the domain.
+            domain_scaled = scale*domain_centered;
+            
+            % Uncenter the scaled domain.
+            domain = domain_scaled + middle; 
+            
+        end
+        
+        
+        % Implement a function to expand a given domain.
+        function domain = scale_domain( self, domain, scale, type )
+        
+            % Define the default input arguments.
+            if nargin < 4, type = 'relative'; end
+            
+            % Determine how to perform the scaling.
+            if strcmpi( type, 'relative' )                                      % If the scaling type is relative...
+                
+                % Scale the domain in a relative sense.
+                domain = self.scale_domain_relative( domain, scale );
+                
+            elseif strcmpi( type, 'absolute' )                                  % If the scaling type is absolute...
+                
+                % Scale the domain in an absolute sense.
+                domain = self.scale_domain_absolute( domain, scale );
+                
+            else                                                                % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized scaling type: %s.', type )
+                
+            end
+            
+        end
+            
+        
     end
 end
 

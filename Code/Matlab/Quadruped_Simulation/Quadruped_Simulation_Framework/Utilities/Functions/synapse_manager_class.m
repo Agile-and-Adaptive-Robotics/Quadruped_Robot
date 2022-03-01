@@ -77,6 +77,31 @@ classdef synapse_manager_class
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
             
+            % Retreive the number of synapse IDs.
+            num_synapse_IDs = length( synapse_IDs );
+            
+            % Retrieve the number of synapse property values.
+            num_synapse_property_values = length( synapse_property_values );
+            
+            % Ensure that the provided synapse property values have the same length as the provided synapse IDs.
+            if ( num_synapse_IDs ~= num_synapse_property_values )                                     % If the number of provided synapse IDs does not match the number of provided property values...
+               
+                % Determine whether to agument the property values.
+                if num_synapse_property_values == 1                                                  % If there is only one provided property value...
+                    
+                    % Agument the property value length to match the ID length.
+                    synapse_property_values = synapse_property_values*ones( 1, num_synapse_IDs );
+                    
+                else                                                                                % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'The number of provided synapse propety values must match the number of provided synapse IDs, unless a single synapse property value is provided.' )
+                    
+                end
+                
+            end
+            
+            
             % Validate the synapse property values.
             if ~isa( synapse_property_values, 'cell' )                    % If the synapse property values are not a cell array...
                 
@@ -807,7 +832,7 @@ classdef synapse_manager_class
         %% Synapse Creation Functions
         
         % Implement a function to create a new synapse.
-        function self = create_synapse( self, ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
+        function [ self, ID ] = create_synapse( self, ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
 
             % Set the default synapse properties.
             if nargin < 9, b_enabled = true; end
@@ -835,7 +860,7 @@ classdef synapse_manager_class
             
             
         % Implement a function to create multiple synapses.
-        function self = create_synapses( self, IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds )
+        function [ self, IDs ] = create_synapses( self, IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds )
             
             % Determine whether number of synapses to create.
             if nargin > 2                                               % If more than just synapse IDs were provided...
@@ -924,6 +949,47 @@ classdef synapse_manager_class
                 
                 % Delete this synapse.
                 self = self.delete_synapse( synapse_IDs(k) );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to connect a synapse to neurons.
+        function self = connect_synapse( self, synapse_ID, from_neuron_ID, to_neuron_ID )
+            
+           % Retrieve the index associated with this synapse.
+            synapse_index = self.get_synapse_index( synapse_ID );
+           
+            % Set the from neuron ID property of this synapse.
+            self.synapses( synapse_index ).from_neuron_ID = from_neuron_ID;
+            
+            % Set the to neuron ID property of this synapse.
+            self.synapses( synapse_index ).to_neuron_ID = to_neuron_ID;
+            
+        end
+        
+        
+        % Implement a function to connet multiple synapses to multiple neurons.
+        function self = connect_synapses( self, synapse_IDs, from_neuron_IDs, to_neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the number of synapses to connect.
+            num_synapses_to_connect = length( synapse_IDs );
+            
+            % Ensure that the synapse IDs, from neuron IDs, and to neuron IDs have the same length.
+            assert( ( num_synapses_to_connect == length( from_neuron_IDs ) ) && ( num_synapses_to_connect == length( to_neuron_IDs ) ), 'The number of from and to neuron IDs must match the number of specified synapse IDs.' )
+            
+            % Connect each of the specified synapses.
+            for k = 1:num_synapses_to_connect                      % Iterate through each of the synapses we want to connect...
+                
+                % Connect this synapse.
+                self = connect_synapse( self, synapse_IDs(k), from_neuron_IDs(k), to_neuron_IDs(k) );
                 
             end
             

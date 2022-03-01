@@ -8,6 +8,7 @@ classdef network_utilities_class
     % Define the class properties.
     properties
         
+        array_utilities
         neuron_utilities
         numerical_method_utilities
         
@@ -21,6 +22,9 @@ classdef network_utilities_class
         
         % Implement the class constructor.
         function self = network_utilities_class(  )
+            
+            % Create an instance of the array utilities class.
+            self.array_utilities = array_utilities_class(  );
             
             % Create an instance of the neuron utilities class.
             self.neuron_utilities = neuron_utilities_class(  );
@@ -230,16 +234,21 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
-        function g_syn_max = compute_addition_gsynmax( ~, R, dE_syn, k )
-           
-            % Set the default input arguments.
-            if nargin < 3, k = 1; end
+%         function g_syn_maxs = compute_addition_gsynmax( ~, Rs, dE_syns, k )
+       function g_syn_maxs = compute_addition_gsynmax( ~, Gm, Rs, dE_syns, I_app, k )
 
+            % Set the default input arguments.
+            if nargin < 6, k = 1; end
+            if nargin < 5, I_app = 0; end
+
+            % NEED TO UPDATE THE FULLY ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
+            
             % Ensure that the synaptic reversal potential is large enough.
-            assert( dE_syn > k*R, 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syn, R )
+            assert( all( dE_syns > k*Rs ), 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syns, Rs )
             
             % Compute the maximum synaptic conductances for an addition subnetwork.
-            g_syn_max = ( k*R )./( dE_syn - k*R );
+%             g_syn_maxs = ( k*Rs )./( dE_syns - k*Rs );
+            g_syn_maxs = ( I_app - k*Gm*Rs )./( k*Rs - dE_syns );
 
         end
         
@@ -290,19 +299,19 @@ classdef network_utilities_class
             [ I_syns, G_syns ] = self.Isyn_step( Us, Rs, g_syn_maxs, dE_syns );
             
             % Compute the sodium channel currents.            
-            [ I_nas, m_infs ] = self.neuron_utilities.sodium_current_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );
+            [ I_nas, m_infs ] = self.neuron_utilities.Ina_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );
             
             % Compute the sodium channel deactivation time constant.
-            [ tauhs, h_infs ] = self.neuron_utilities.sodium_time_constant_step( Us, tauh_maxs, Ahs, Shs, dEhs );
+            [ tauhs, h_infs ] = self.neuron_utilities.tauh_step( Us, tauh_maxs, Ahs, Shs, dEhs );
                         
             % Compute the total currents.            
-            I_totals = self.neuron_utilities.compute_total_current( I_leaks, I_syns, I_nas, I_tonics, I_apps );
+            I_totals = self.neuron_utilities.compute_Itotal( I_leaks, I_syns, I_nas, I_tonics, I_apps );
             
             % Compute the membrane voltage derivatives.            
-            dUs = self.neuron_utilities.compute_membrane_voltage_derivative( I_totals, Cms );
+            dUs = self.neuron_utilities.compute_dU( I_totals, Cms );
             
             % Compute the sodium channel deactivation parameter derivatives.
-            dhs = self.neuron_utilities.compute_sodium_deactivation_derivative( hs, h_infs, tauhs );
+            dhs = self.neuron_utilities.compute_dh( hs, h_infs, tauhs );
             
         end
         
@@ -436,7 +445,7 @@ classdef network_utilities_class
         
         
         % Implement a function to animate the network states over time.
-        function fig = animate_network_states( ~, Us, hs, neuron_IDs, num_playbacks, playback_speed )
+        function fig = animate_network_states( self, Us, hs, neuron_IDs, num_playbacks, playback_speed )
             
             % Set the default input arguments.
             if nargin < 6, playback_speed = 1; end
@@ -452,6 +461,28 @@ classdef network_utilities_class
             
             % Retrieve the number of time steps.
             num_timesteps = size( Us, 2 );
+            
+            % Ensure that the voltage domain is not degenerate.
+            if U_min == U_max                           % If the minimum voltage is equal to the maximum voltage...
+            
+                % Scale the given domain.
+                domain = self.array_utilities.scale_domain( [ U_min U_max ], 0.25, 'absolute' );
+                
+                % Set the minimum and maximum voltage domain.
+                U_min = domain(1); U_max = domain(2);
+                
+            end
+            
+            % Ensure that the sodium deactivation domain is not degenerate.
+            if h_min == h_max                           % If the minimum sodium deactivation parameter is equal to the maximum sodium deactivation parameter...
+                
+                % Scale the given domain.
+                domain = self.array_utilities.scale_domain( [ h_min h_max ], 0.25, 'absolute' );
+                
+                % Set the minimum and maximum voltage domain.
+                h_min = domain(1); h_max = domain(2);
+                
+            end
             
             % Create a plot to store the CPG's State Space Trajectory animation.
             fig = figure( 'Color', 'w', 'Name', 'Network State Trajectory Animation' ); hold on, grid on, xlabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'Network State Space Trajectory' ), axis( [ U_min U_max h_min h_max ] )
