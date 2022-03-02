@@ -39,7 +39,7 @@ classdef network_utilities_class
         
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
-
+            
             % Compute the synaptic conductance associated with this neuron.
             G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );
             
@@ -51,16 +51,16 @@ classdef network_utilities_class
             
             % Compute the synaptic current.
             I_syn = sum( G_syn.*( dE_syn - U ), 2 );
-                        
+            
         end
         
         
         % Implement a function to perform a synaptic current step.
         function [ I_syn, G_syn ] = Isyn_step( self, U, R, g_syn_max, dE_syn )
-                  
+            
             % Compute the synaptic conductance of this synapse leaving this neuron.
             G_syn = self.compute_Gsyn( U, R, g_syn_max );
-
+            
             % Compute the synaptic current for this neuron.
             I_syn = self.compute_Isyn( U, G_syn, dE_syn );
             
@@ -106,12 +106,12 @@ classdef network_utilities_class
                         
                         % Compute the sodium channel current.
                         I_na = self.neuron_utilities.compute_Ina( deltas(i, k), h_inf, m_inf, Gnas(i), dEnas(i) );
-
+                        
                         % Compute the system and right-hand side coefficients.
                         aik1 = deltas( i, k ) - dEsyns( i, k );
                         aik2 = neq( p, k ).*( deltas( p, k )./Rs( p, k ) ).*( deltas( i, k ) - dEsyns( p, k ) );
                         bik = I_leak + I_na + Iapps_tonic(i);
-
+                        
                         % Determine the row index at which to store these coefficients.
                         r = ( num_neurons - 1 ).*( k - 1 ) + i;
                         
@@ -166,12 +166,12 @@ classdef network_utilities_class
         % Implement a function to convert a maximum synaptic conductance vector to a maximum synaptic conductance matrix.
         function g_syn_max_matrix = gsynmax_vector2gsynmax_matrix( ~, g_syn_max_vector, num_neurons )
             
-%             % Compute the number of neurons.
-%             num_neurons = sqrt( length( g_syn_max_vector ) );
+            %             % Compute the number of neurons.
+            %             num_neurons = sqrt( length( g_syn_max_vector ) );
             
-%             % Ensure that the number of neurons is an integer.
-%             assert( num_neurons == round( num_neurons ), 'Number of maximum synaptic conductances length( g_syn_max ) must be a perfect square.' )
-%             
+            %             % Ensure that the number of neurons is an integer.
+            %             assert( num_neurons == round( num_neurons ), 'Number of maximum synaptic conductances length( g_syn_max ) must be a perfect square.' )
+            %
             % Preallocate the synaptic conductance matrix.
             g_syn_max_matrix = zeros( num_neurons );
             
@@ -216,14 +216,14 @@ classdef network_utilities_class
             end
             
         end
-
-
+        
+        
         % Implement a function to compute the maximum synaptic conductance matrix.
         function g_syn_max_matrix = compute_cpg_gsynmax_matrix( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics )
-
+            
             % Compute the maximum synaptic conductance vector.
             g_syn_max_vector = self.compute_cpg_gsynmax_vector( deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
-                        
+            
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
             
@@ -233,23 +233,55 @@ classdef network_utilities_class
         end
         
         
-        % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
-%         function g_syn_maxs = compute_addition_gsynmax( ~, Rs, dE_syns, k )
-       function g_syn_maxs = compute_addition_gsynmax( ~, Gm, Rs, dE_syns, I_app, k )
-
+        % Implement a function to compute the maximum synaptic conductances for an signal transmission pathway.
+        function g_syn_maxs12 = compute_transmission_gsynmax( ~, Gm2, Rs1, dE_syns12, I_app2, k )
+            
             % Set the default input arguments.
             if nargin < 6, k = 1; end
-            if nargin < 5, I_app = 0; end
-
-            % NEED TO UPDATE THE FULLY ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
+            if nargin < 5, I_app2 = 0; end
+            
+            % NEED TO UPDATE THE FOLLOWING ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
             
             % Ensure that the synaptic reversal potential is large enough.
-            assert( all( dE_syns > k*Rs ), 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syns, Rs )
+            assert( all( dE_syns12 > k*Rs1 ), 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syns12, Rs1 )
             
             % Compute the maximum synaptic conductances for an addition subnetwork.
-%             g_syn_maxs = ( k*Rs )./( dE_syns - k*Rs );
-            g_syn_maxs = ( I_app - k*Gm*Rs )./( k*Rs - dE_syns );
+            g_syn_maxs12 = ( I_app2 - k*Gm2*Rs1 )./( k*Rs1 - dE_syns12 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
+        function g_syn_maxs12 = compute_addition_gsynmax( self, Gm2, Rs1, dE_syns12, I_app2, k )
+            
+            % Set the default input arguments.
+            if nargin < 6, k = 1; end
+            if nargin < 5, I_app2 = 0; end
+            
+            % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
+            g_syn_maxs12 = self.compute_transmission_gsynmax( Gm2, Rs1, dE_syns12, I_app2, k );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances for a subtraction subnetwork.
+        function [ g_syn_maxs1, g_syn_maxs2 ] = compute_subtraction_gsynmax( self, Gm3, Rs1, dE_syns13, dE_syns23, I_app3, k )
+            
+            % Set the default input arguments.
+            if nargin < 7, k = 1; end
+            if nargin < 6, I_app3 = 0; end
+            
+            % NEED TO UPDATE THE FOLLOWING ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
+            
+            % Ensure that the synaptic reversal potential is large enough.
+            assert( all( dE_syns13 > k*Rs1 ), 'It is not possible to design an subtraction subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syns13, Rs1 )
+            
+            % Compute the maximum synaptic conductances for the first neuron of the substraction subnetwork.            
+            g_syn_maxs1 = self.compute_transmission_gsynmax( Gm3, Rs1, dE_syns13, I_app3, k );
 
+            % Compute the maximum synaptic conductances for the second neuron of the subtraction subnetwork.
+            g_syn_maxs2 = -( dE_syns13*g_syn_maxs1 + Iapp3 )/dE_syns23;
+            
         end
         
         
@@ -298,16 +330,16 @@ classdef network_utilities_class
             % Compute synaptic currents.
             [ I_syns, G_syns ] = self.Isyn_step( Us, Rs, g_syn_maxs, dE_syns );
             
-            % Compute the sodium channel currents.            
+            % Compute the sodium channel currents.
             [ I_nas, m_infs ] = self.neuron_utilities.Ina_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );
             
             % Compute the sodium channel deactivation time constant.
             [ tauhs, h_infs ] = self.neuron_utilities.tauh_step( Us, tauh_maxs, Ahs, Shs, dEhs );
-                        
-            % Compute the total currents.            
+            
+            % Compute the total currents.
             I_totals = self.neuron_utilities.compute_Itotal( I_leaks, I_syns, I_nas, I_tonics, I_apps );
             
-            % Compute the membrane voltage derivatives.            
+            % Compute the membrane voltage derivatives.
             dUs = self.neuron_utilities.compute_dU( I_totals, Cms );
             
             % Compute the sodium channel deactivation parameter derivatives.
@@ -404,13 +436,13 @@ classdef network_utilities_class
             [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
             
         end
-
+        
         
         %% Plotting Functions
         
         % Implement a function to plot the network states over time.
         function fig = plot_network_states( ~, ts, Us, hs, neuron_IDs )
-                        
+            
             % Set the default input arguments.
             if nargin < 5, neuron_IDs = 1:size( Us, 1 ); end
             
@@ -451,7 +483,7 @@ classdef network_utilities_class
             if nargin < 6, playback_speed = 1; end
             if nargin < 5, num_playbacks = 1; end
             if nargin < 4, neuron_IDs = 1:size( Us, 1 ); end
-
+            
             % Compute the state space domain of interest.
             U_min = min( Us, [  ], 'all' ); U_max = max( Us, [  ], 'all' );
             h_min = min( hs, [  ], 'all' ); h_max = max( hs, [  ], 'all' );
@@ -464,7 +496,7 @@ classdef network_utilities_class
             
             % Ensure that the voltage domain is not degenerate.
             if U_min == U_max                           % If the minimum voltage is equal to the maximum voltage...
-            
+                
                 % Scale the given domain.
                 domain = self.array_utilities.scale_domain( [ U_min U_max ], 0.25, 'absolute' );
                 
@@ -486,7 +518,7 @@ classdef network_utilities_class
             
             % Create a plot to store the CPG's State Space Trajectory animation.
             fig = figure( 'Color', 'w', 'Name', 'Network State Trajectory Animation' ); hold on, grid on, xlabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'Network State Space Trajectory' ), axis( [ U_min U_max h_min h_max ] )
-                        
+            
             % Preallocate arrays to store the figure elements.
             line_paths = gobjects( num_neurons, 1 );
             line_ends = gobjects( num_neurons, 1 );

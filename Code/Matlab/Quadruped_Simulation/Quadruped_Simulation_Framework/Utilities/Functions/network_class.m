@@ -543,9 +543,35 @@ classdef network_class
             dE_syns = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs, 'dE_syn' ) )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
-%             g_syn_maxs = self.network_utilities.compute_addition_gsynmax( Rs, dE_syns, k );
             g_syn_maxs = self.network_utilities.compute_addition_gsynmax( Gm, Rs, dE_syns, I_app, k );
             
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances required to design a subtraction subnetwork with the specified parameters.
+        function [ g_syn_maxs1, g_syn_maxs2 ] = compute_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k )
+            
+            % Set the default input arguments.
+            if nargin < 5, k = 1; end
+            if nargin < 4, I_app3 = 0; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
+            Rs1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            
+            % Retrieve the synaptic reversal potentials associated with these synapses.
+            dE_syns13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
+            dE_syns23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+
+            % Compute the maximum synaptic conductances for this addition subnetwork.
+            [ g_syn_maxs1, g_syn_maxs2 ] = self.network_utilities.compute_subtraction_gsynmax( Gm3, Rs1, dE_syns13, dE_syns23, I_app3, k );
+
         end
         
         
@@ -603,6 +629,9 @@ classdef network_class
         end
 
         
+        % Implement a function to compute and set the maximum synaptic conductances for a subtraction subnetwork.
+        
+        
         
         %% Network Deletion Functions
         
@@ -646,6 +675,61 @@ classdef network_class
             
         end
             
+        
+        % Implement a function to design an addition subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_addition_subnetwork( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 4, k = 1; end
+
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            
+            % Set the neuron properties.
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, 10e-9, 'Cm' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, 1e-6, 'Gm' );
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, 20e-3, 'R' );
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(1), neuron_IDs(3) );
+            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(2), neuron_IDs(3) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Get the synapse indexes associated with these synapse IDs.
+            synapse_index13 = self.synapse_manager.get_synapse_index( synapse_ID13 );
+            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
+
+            % Set the synapse reversal potentials.
+            self.synapse_manager.synapses( synapse_index13 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
+            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
+
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs(end), [  ], [  ], 'ignore' );
+            
+            % Determine whether this applied current is constant.
+            if all( I_apps == I_apps(1) )                % If the applied current is constant...
+                
+                % Set the applied current to be a scalar version of this applied current.
+                I_app = I_apps(1);
+            
+            else                                        % Otherwise...
+                
+                % Throw a warning.
+                warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
+                
+                % Set the applied current to eb the average of the applied current.
+                I_app = mean( I_apps );
+                
+            end
+                
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+                        
+        end
+        
+        
+        %% Subnetwork Creation Functions
         
         % Implement a function to create a multistate CPG oscillator subnetwork.
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
@@ -728,62 +812,7 @@ classdef network_class
             
         end
         
-        
-        % Implement a function to design an addition subnetwork ( using the specified neurons & their existing synapses ).
-        function self = design_addition_subnetwork( self, neuron_IDs, k )
-            
-            % Set the default input arguments.
-            if nargin < 4, k = 1; end
-
-            
-            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
-            
-            
-            % Set the neuron properties.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, 10e-9, 'Cm' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, 1e-6, 'Gm' );
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, 20e-3, 'R' );
-            
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(1), neuron_IDs(3) );
-            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(2), neuron_IDs(3) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
-            
-            % Get the synapse indexes associated with these synapse IDs.
-            synapse_index13 = self.synapse_manager.get_synapse_index( synapse_ID13 );
-            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
-
-            % Set the synapse reversal potentials.
-%             self.synapse_manager.synapses( synapse_index13 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
-%             self.synapse_manager.synapses( synapse_index23 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
-            self.synapse_manager.synapses( synapse_index13 ).dE_syn = 60e-3;               % [mV] Reversal Potential of Calcium
-            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 60e-3;               % [mV] Reversal Potential of Calcium
-
-            % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs(end), [  ], [  ], 'ignore' );
-            
-            % Determine whether this applied current is constant.
-            if all( I_apps == I_apps(1) )                % If the applied current is constant...
-                
-                % Set the applied current to be a scalar version of this applied current.
-                I_app = I_apps(1);
-            
-            else                                        % Otherwise...
-                
-                % Throw a warning.
-                warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
-                
-                % Set the applied current to eb the average of the applied current.
-                I_app = mean( I_apps );
-                
-            end
-                
-            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
-                        
-        end
-        
-        
+    
         % Implement a function to create an addition subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs ] = create_addition_subnetwork( self, k )
         
@@ -824,7 +853,6 @@ classdef network_class
             self = self.design_addition_subnetwork( neuron_IDs, k );
         
         end
-        
         
         
         %% Network Validation Functions

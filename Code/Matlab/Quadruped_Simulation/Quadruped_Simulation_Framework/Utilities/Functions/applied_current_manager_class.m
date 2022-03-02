@@ -156,33 +156,49 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 3, process_option = 'none'; end
             
-            % Retrieve the number of timesteps associated with each applied current.
-            num_timesteps = cell2mat( self.get_applied_current_property( applied_current_IDs, 'num_timesteps' ) );
+            % Determine how to compute the number of timesteps.
+            if all( applied_current_IDs == -1 )                         % If all of the applied current IDs are invalid...
             
-            % Determine how to process the number of timesteps.
-            if strcmpi( process_option, 'average' )                     % If we want the average time step...
-                
-                % Set the number of timesteps to be the average number of timesteps.
-                num_timesteps = mean( num_timesteps );
-
-            elseif strcmpi( process_option, 'max' )                    % If we want the maximum time step...
-                
-                % Set the number of timesteps to be the largest number of timesteps.
-                num_timesteps = max( num_timesteps );
-                
-            elseif strcmpi( process_option, 'min' )                    % If we want the minimum time step...
-                
-                % Set the number of timesteps to be the smallest number of timesteps.
-                num_timesteps = min( num_timesteps );
-                
-            elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
-                
-                % Do nothing.
+                % Set the number of timesteps to zero.
+                num_timesteps = 0;
                 
             else                                                        % Otherwise...
                 
-                % Throw an error.
-                error( 'Process option %s not recognized.', process_option )
+                % Remove any invalid applied current IDs.
+                applied_current_IDs( applied_current_IDs == -1 ) = [  ];
+                
+                % Remove IDs associated with disabled applied currents (if desired).
+                if b_filter_disabled, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs ); end
+                
+                % Retrieve the number of timesteps associated with each applied current.
+                num_timesteps = cell2mat( self.get_applied_current_property( applied_current_IDs, 'num_timesteps' ) );
+                
+                % Determine how to process the number of timesteps.
+                if strcmpi( process_option, 'average' )                     % If we want the average time step...
+                    
+                    % Set the number of timesteps to be the average number of timesteps.
+                    num_timesteps = mean( num_timesteps );
+                    
+                elseif strcmpi( process_option, 'max' )                    % If we want the maximum time step...
+                    
+                    % Set the number of timesteps to be the largest number of timesteps.
+                    num_timesteps = max( num_timesteps );
+                    
+                elseif strcmpi( process_option, 'min' )                    % If we want the minimum time step...
+                    
+                    % Set the number of timesteps to be the smallest number of timesteps.
+                    num_timesteps = min( num_timesteps );
+                    
+                elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                    
+                    % Do nothing.
+                    
+                else                                                        % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Process option %s not recognized.', process_option )
+                    
+                end
                 
             end
             
@@ -195,33 +211,49 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 3, process_option = 'none'; end
             
-            % Retrieve the step size associated with each applied current.
-            dt = cell2mat( self.get_applied_current_property( applied_current_IDs, 'dt' ) );
-            
-            % Determine how to process the step size.
-            if strcmpi( process_option, 'average' )                     % If we want the average step size...
+            % Determine how to compute the step size.
+            if all( applied_current_IDs == -1 )                         % If all of the applied current IDs are invalid...
                 
-                % Set the step size to be the average step size.
-                dt = mean( dt );
-
-            elseif strcmpi( process_option, 'max' )                    % If we want the maximum step size...
-                
-                % Set the step size to be the largest step size.
-                dt = max( dt );
-                
-            elseif strcmpi( process_option, 'min' )                    % If we want the minimum step size...
-                
-                % Set the step size to be the smallest step size.
-                dt = min( dt );
-                
-            elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
-                
-                % Do nothing.
+                % Set the step size to zero.
+                dt = 1e-3;
                 
             else                                                        % Otherwise...
                 
-                % Throw an error.
-                error( 'Process option %s not recognized.', process_option )
+                % Remove any invalid applied current IDs.
+                applied_current_IDs( applied_current_IDs == -1 ) = [  ];
+                
+                % Remove IDs associated with disabled applied currents (if desired).
+                if b_filter_disabled, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs ); end
+                
+                % Retrieve the step size associated with each applied current.
+                dt = cell2mat( self.get_applied_current_property( applied_current_IDs, 'dt' ) );
+                
+                % Determine how to process the step size.
+                if strcmpi( process_option, 'average' )                     % If we want the average step size...
+                    
+                    % Set the step size to be the average step size.
+                    dt = mean( dt );
+                    
+                elseif strcmpi( process_option, 'max' )                    % If we want the maximum step size...
+                    
+                    % Set the step size to be the largest step size.
+                    dt = max( dt );
+                    
+                elseif strcmpi( process_option, 'min' )                    % If we want the minimum step size...
+                    
+                    % Set the step size to be the smallest step size.
+                    dt = min( dt );
+                    
+                elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                    
+                    % Do nothing.
+                    
+                else                                                        % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Process option %s not recognized.', process_option )
+                    
+                end
                 
             end
             
@@ -229,38 +261,55 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the final time of the specified applied currents.
-        function tf = get_tfs( self, applied_current_IDs, process_option )
+        function tf = get_tfs( self, applied_current_IDs, process_option, b_filter_disabled )
             
             % Set the default input arguments.
+            if nargin < 4, b_filter_disabled = false; end
             if nargin < 3, process_option = 'none'; end
             
-            % Retrieve the final time associated with each applied current.
-            tf = cell2mat( self.get_applied_current_property( applied_current_IDs, 'tf' ) );
+            % Determine how to compute the final time.
+            if all( applied_current_IDs == -1 )             % If all of the applied current IDs are invalid...
             
-            % Determine how to process the final time.
-            if strcmpi( process_option, 'average' )                     % If we want the average final time...
+                % Set the final time to zero.
+                tf = 0;
                 
-                % Set the step size to be the average final time.
-                tf = mean( tf );
-
-            elseif strcmpi( process_option, 'max' )                    % If we want the maximum final time...
+            else                                            % Otherwise...
                 
-                % Set the step size to be the largest final time.
-                tf = max( tf );
+                % Remove any invalid applied current IDs.
+                applied_current_IDs( applied_current_IDs == -1 ) = [  ];
                 
-            elseif strcmpi( process_option, 'min' )                    % If we want the minimum final time...
+                % Remove IDs associated with disabled applied currents (if desired).
+                if b_filter_disabled, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs ); end
                 
-                % Set the step size to be the smallest final time.
-                tf = min( tf );
+                % Retrieve the final time associated with each applied current.
+                tf = cell2mat( self.get_applied_current_property( applied_current_IDs, 'tf' ) );
                 
-            elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
-                
-                % Do nothing.
-                
-            else                                                        % Otherwise...
-                
-                % Throw an error.
-                error( 'Process option %s not recognized.', process_option )
+                % Determine how to process the final time.
+                if strcmpi( process_option, 'average' )                     % If we want the average final time...
+                    
+                    % Set the step size to be the average final time.
+                    tf = mean( tf );
+                    
+                elseif strcmpi( process_option, 'max' )                    % If we want the maximum final time...
+                    
+                    % Set the step size to be the largest final time.
+                    tf = max( tf );
+                    
+                elseif strcmpi( process_option, 'min' )                    % If we want the minimum final time...
+                    
+                    % Set the step size to be the smallest final time.
+                    tf = min( tf );
+                    
+                elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                    
+                    % Do nothing.
+                    
+                else                                                        % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Process option %s not recognized.', process_option )
+                    
+                end
                 
             end
             
@@ -545,6 +594,43 @@ classdef applied_current_manager_class
             
         end
          
+        
+        % Implement a function to remove disabled applied current IDs.
+        function applied_current_IDs = remove_disabled_applied_current_IDs( self, applied_current_IDs )
+
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Retrieve the number of applied current IDs.
+            num_applied_current_IDs = length( applied_current_IDs );
+
+            % Create an array to store the indexes to remove.
+            remove_indexes = zeros( 1, num_applied_current_IDs );
+            
+            % Remove any IDs associated with disabled applied currents.
+            for k = 1:num_applied_current_IDs                       % Iterate through each of the applied current IDs...
+               
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs(k), 'ignore' );
+                
+                % Determine whether to remove this applied current ID.
+                if ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                         % If this applied current index is invalid or this applied current is disabled...
+                    
+                    % Store the indexes to remove.
+                    remove_indexes(k) = k;
+                    
+                end
+                
+            end
+            
+            % Remove any extra zeros from the remove indexes.
+            remove_indexes( remove_indexes == 0 ) = [  ];
+            
+            % Remove the applied current IDs.
+            applied_current_IDs( remove_indexes ) = [  ];
+            
+        end
+        
         
         %% Neuron ID Functions.
         
