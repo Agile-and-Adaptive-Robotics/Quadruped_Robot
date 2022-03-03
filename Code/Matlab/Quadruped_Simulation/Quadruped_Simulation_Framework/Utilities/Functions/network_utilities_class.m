@@ -234,7 +234,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductances for an signal transmission pathway.
-        function g_syn_maxs12 = compute_transmission_gsynmax( ~, Gm2, Rs1, dE_syns12, I_app2, k )
+        function g_syn_max12 = compute_transmission_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, k )
             
             % Set the default input arguments.
             if nargin < 6, k = 1; end
@@ -243,44 +243,40 @@ classdef network_utilities_class
             % NEED TO UPDATE THE FOLLOWING ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
             
             % Ensure that the synaptic reversal potential is large enough.
-            assert( all( dE_syns12 > k*Rs1 ), 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syns12, Rs1 )
+            assert( all( dE_syn12 > k*R1 ), 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syn12, R1 )
             
             % Compute the maximum synaptic conductances for an addition subnetwork.
-            g_syn_maxs12 = ( I_app2 - k*Gm2*Rs1 )./( k*Rs1 - dE_syns12 );
+            g_syn_max12 = ( I_app2 - k*Gm2*R1 )./( k*R1 - dE_syn12 );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
-        function g_syn_maxs12 = compute_addition_gsynmax( self, Gm2, Rs1, dE_syns12, I_app2, k )
+        function [ g_syn_max13, g_syn_max23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
             if nargin < 6, k = 1; end
-            if nargin < 5, I_app2 = 0; end
+            if nargin < 5, I_app3 = 0; end
             
             % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
-            g_syn_maxs12 = self.compute_transmission_gsynmax( Gm2, Rs1, dE_syns12, I_app2, k );
+            g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
+            g_syn_max23 = self.compute_transmission_gsynmax( Gm3, R2, dE_syn23, I_app3, k );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances for a subtraction subnetwork.
-        function [ g_syn_maxs1, g_syn_maxs2 ] = compute_subtraction_gsynmax( self, Gm3, Rs1, dE_syns13, dE_syns23, I_app3, k )
+        function [ g_syn_max1, g_syn_max2 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
             if nargin < 7, k = 1; end
             if nargin < 6, I_app3 = 0; end
             
-            % NEED TO UPDATE THE FOLLOWING ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
-            
-            % Ensure that the synaptic reversal potential is large enough.
-            assert( all( dE_syns13 > k*Rs1 ), 'It is not possible to design an subtraction subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syns13, Rs1 )
-            
             % Compute the maximum synaptic conductances for the first neuron of the substraction subnetwork.            
-            g_syn_maxs1 = self.compute_transmission_gsynmax( Gm3, Rs1, dE_syns13, I_app3, k );
+            g_syn_max1 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
 
             % Compute the maximum synaptic conductances for the second neuron of the subtraction subnetwork.
-            g_syn_maxs2 = -( dE_syns13*g_syn_maxs1 + Iapp3 )/dE_syns23;
+            g_syn_max2 = -( dE_syn13*g_syn_max1 + I_app3 )/dE_syn23;
             
         end
         

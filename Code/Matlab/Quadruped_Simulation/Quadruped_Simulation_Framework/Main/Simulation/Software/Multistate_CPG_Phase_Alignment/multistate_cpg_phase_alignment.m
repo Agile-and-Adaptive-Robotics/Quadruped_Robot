@@ -64,11 +64,23 @@ network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2
 % Create an addition subnetwork.
 [ network, neuron_IDs_add, synapse_IDs_add ] = network.create_addition_subnetwork(  );
 
-% Create an applied current.
-% % network.applied_current_manager = network.applied_current_manager.create_applied_current( ID, name, neuron_ID, ts, I_apps, b_enabled );
+% Create applied currents.
 [ network.applied_current_manager, applied_current_IDs_add ] = network.applied_current_manager.create_applied_currents( 2 );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add, 5e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add, neuron_IDs_add(1:2), 'neuron_ID' );
+
+% Disable the addition subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add );
+
+% Create a subtraction subnetwork.
+[ network, neuron_IDs_sub, synapse_IDs_sub ] = network.create_subtraction_subnetwork(  );
+
+% Create applied currents.
+[ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 15e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 10e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
+
 
 
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add(1:2) );
