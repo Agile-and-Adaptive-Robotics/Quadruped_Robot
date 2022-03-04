@@ -233,20 +233,34 @@ classdef network_utilities_class
         end
         
         
-        % Implement a function to compute the maximum synaptic conductances for an signal transmission pathway.
+        % Implement a function to compute the maximum synaptic conductance for a signal transmission pathway.
         function g_syn_max12 = compute_transmission_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, k )
             
             % Set the default input arguments.
             if nargin < 6, k = 1; end
             if nargin < 5, I_app2 = 0; end
-            
-            % NEED TO UPDATE THE FOLLOWING ASSERTION TO CONSIDER A POSSIBLE APPLIED CURRENT.
+                        
+            % Compute the maximum synaptic conductances for a signal transmission pathway.
+            g_syn_max12 = ( I_app2 - k*Gm2*R1 )./( k*R1 - dE_syn12 );
             
             % Ensure that the synaptic reversal potential is large enough.
-            assert( all( dE_syn12 > k*R1 ), 'It is not possible to design an addition subnetwork with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, ensure that dEsyn > k*R.', k, dE_syn12, R1 )
+            assert( all( g_syn_max12 > 0 ), 'It is not possible to design a transmission pathway with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', k, dE_syn12, R1 )
             
-            % Compute the maximum synaptic conductances for an addition subnetwork.
-            g_syn_max12 = ( I_app2 - k*Gm2*R1 )./( k*R1 - dE_syn12 );
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance for a signal modulation pathway.
+        function g_syn_max12 = compute_modulation_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, c )
+            
+            % Set the default input arguments.
+            if nargin < 6, c = 1/R1; end
+            if nargin < 5, I_app2 = 0; end
+                        
+            % Compute the maximum synaptic condcutance for a signal modulation pathway.
+            g_syn_max12 = ( I_app2 - c*R1*Gm2 )/( c*R1 - dE_syn12 );
+            
+            % Ensure that the synaptic reversal potential is large enough.
+            assert( all( g_syn_max12 > 0 ), 'It is not possible to design a modulation pathway with the specified gain c = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', c, dE_syn12, R1 )
             
         end
         
@@ -280,6 +294,17 @@ classdef network_utilities_class
             
         end
         
+        
+        % Implement a function to compute the maximum synaptic conductances for a division subnetwork.
+        function [ g_syn_max1, g_syn_max2 ] = compute_division_gsynmax( self,  )
+        
+            g_syn_max1 = ( k*R1 )/( dE_syn13  - k*R1 );
+           
+            g_syn_max2 = ( ( c - 1 )*R2 )/( dE_syn23 - c*R2 )
+            
+            
+        end
+            
         
         %% Simulation Functions
         

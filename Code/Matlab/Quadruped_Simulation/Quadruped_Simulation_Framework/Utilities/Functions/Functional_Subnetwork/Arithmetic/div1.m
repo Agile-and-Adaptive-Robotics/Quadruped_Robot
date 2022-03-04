@@ -9,6 +9,8 @@ Iapp1 = 20; %modulatory neuron
 Iapp2 = 10; %expected output
 Er = -60;
 Esyn1 = Er;
+Esyn2 = Er;
+k2 = 1;
 
 R = 20;
 c = .2;
@@ -20,14 +22,14 @@ if gMax1 < 0
     error('gMax1 must be greater than 0. Increase Esyn.')
 end
 
-% delEsyn2 = Esyn2 - Er;
-% gMax2 = k2*R/(delEsyn2 - k2*R);
-% if gMax2 < 0
-%     error('gMax1 must be greater than 0. Decrease Esyn.')
-% end
+delEsyn2 = Esyn2 - Er;
+gMax2 = k2*R/(delEsyn2 - k2*R);
+if gMax2 < 0
+    error('gMax2 must be greater than 0. Decrease Esyn.')
+end
 
 fprintf('gMax1 = %1.3f, delEsyn1 = %1.3f\n',gMax1,delEsyn1);
-% fprintf('gMax2 = %1.3f, delEsyn2 = %1.3f\n',gMax2,delEsyn2);
+fprintf('gMax2 = %1.3f, delEsyn2 = %1.3f\n',gMax2,delEsyn2);
 
 
 dt = .01;
@@ -50,8 +52,8 @@ for i=2:numSteps
     U1sim(i) = U1sim(i-1) + dt/Cm*(Iapp1 - Gm*U1sim(i-1));
     gSyn1 = U1sim(i-1)/R*gMax1;
     U2sim(i) = U2sim(i-1) + dt/Cm*(Isignal(i-1) + gSyn1*(delEsyn1 - U2sim(i-1)) - Gm*U2sim(i-1));
-%     gSyn2 = U2sim(i-1)/R*gMax2;
-%     U3sim(i) = U3sim(i-1) + dt/Cm*(gSyn1*(delEsyn1 - U3sim(i-1)) + gSyn2*(delEsyn2 - U3sim(i-1)) - Gm*U3sim(i-1));
+    gSyn2 = U2sim(i-1)/R*gMax2;
+    U3sim(i) = U3sim(i-1) + dt/Cm*(gSyn1*(delEsyn1 - U3sim(i-1)) + gSyn2*(delEsyn2 - U3sim(i-1)) - Gm*U3sim(i-1));
 end
 V1sim = U1sim + Er;
 V2sim = U2sim + Er;
