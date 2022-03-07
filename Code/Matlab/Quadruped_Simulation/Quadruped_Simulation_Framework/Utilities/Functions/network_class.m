@@ -583,6 +583,74 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances required to design a division subnetwork with the specified parameters.
+        function g_syn_maxs = compute_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k, c )
+            
+            % Set the default input arguments.
+            if nargin < 6, c = [  ]; end
+            if nargin < 5, k = 1; end
+            if nargin < 4, I_app3 = 0; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
+            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
+            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) )';
+
+            % Retrieve the synaptic reversal potentials associated with these synapses.
+            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
+            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+
+            % Compute the maximum synaptic conductances for this division subnetwork.
+            [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_division_gsynmax( Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c );
+            
+            % Store the maximum synaptic conductances.
+            g_syn_maxs = [ g_syn_max13, g_syn_max23 ];
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances required to design a multiplication subnetwork with the specifed parameters.
+        function g_syn_maxs = compute_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, I_app4 )
+        
+            % Set the default input arguments.
+            if nargin < 5, I_app4 = 0; end
+            if nargin < 4, I_app3 = 0; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
+            Gm4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm' ) )';
+            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
+            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) )';
+            R4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R' ) )';
+
+            % Retrieve the synaptic reversal potentials associated with these synapses.
+            dE_syn14 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
+            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+            dE_syn34 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 3 ), 'dE_syn' ) )';
+
+            % Compute the maximum synaptic conductances for this multiplication subnetwork.
+            [ g_syn_max14, g_syn_max23, g_syn_max34 ] = self.network_utilities.compute_multiplication_gsynmax( Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4 );
+            
+            % Store the maximum synaptic conductances.
+            g_syn_maxs = [ g_syn_max14, g_syn_max23, g_syn_max34 ];
+            
+        end
+        
+        
         %% Compute-Set Functions
         
         % Implement a function to compute and set the synaptic conductance of each synapse.
@@ -659,6 +727,51 @@ classdef network_class
         end
         
         
+        % Implement a function to compute and set the maximum synaptic conductances for a division subnetwork.
+        function self = compute_set_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k, c )
+            
+            % Set the default input arguments.
+            if nargin < 6, c = [  ]; end
+            if nargin < 5, k = 1; end
+            if nargin < 4, I_app = 0; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Compute the maximum synaptic conductances.            
+            g_syn_maxs = self.compute_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+                        
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );            
+        
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductances for a multiplication subnetwork.
+        function self = compute_set_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, I_app4 )
+            
+            % Set the default input arguments.
+            if nargin < 5, I_app4 = 0; end
+            if nargin < 4, I_app3 = 0; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Compute the maximum synaptic conductances.                                    
+            g_syn_maxs = self.compute_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, I_app4 );
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );            
+        
+        end
+        
+        
         %% Network Deletion Functions
         
         % Implement a function to delete all of the components in a network.
@@ -704,7 +817,7 @@ classdef network_class
         function self = design_addition_subnetwork( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 4, k = 1; end
+            if nargin < 3, k = 1; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -750,7 +863,7 @@ classdef network_class
         function self = design_subtraction_subnetwork( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 4, k = 1; end
+            if nargin < 3, k = 1; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -789,6 +902,99 @@ classdef network_class
             % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
             self = self.compute_set_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
                         
+        end
+        
+        
+        % Implement a function to design a division subnetwork ( using the specified neurons & their existin synapses ).
+        function self = design_division_subnetwork( self, neuron_IDs, k, c )
+            
+            % Set the default input arguments.
+            if nargin < 4, c = [  ]; end
+            if nargin < 3, k = 1; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Get the synapse indexes associated with these synapse IDs.
+            synapse_index13 = self.synapse_manager.get_synapse_index( synapse_ID13 );
+            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
+
+            % Set the synapse reversal potentials.
+            self.synapse_manager.synapses( synapse_index13 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium ( Maximize )
+            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 0;               % [mV] ( Minimize )
+
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether this applied current is constant.
+            if all( I_apps == I_apps(1) )                % If the applied current is constant...
+                
+                % Set the applied current to be a scalar version of this applied current.
+                I_app = I_apps(1);
+            
+            else                                        % Otherwise...
+                
+                % Throw a warning.
+                warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
+                
+                % Set the applied current to eb the average of the applied current.
+                I_app = mean( I_apps );
+                
+            end
+                
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+            
+        end
+        
+        
+        % Implement a function to design a multiplication subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_multiplication_subnetwork( self, neuron_IDs )
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID14 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 4 ) );
+            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_ID34 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 3 ), neuron_IDs( 4 ) );
+            synapse_IDs = [ synapse_ID14 synapse_ID23 synapse_ID34 ];
+            
+            % Get the synapse indexes associated with these synapse IDs.
+            synapse_index14 = self.synapse_manager.get_synapse_index( synapse_ID14 );
+            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
+            synapse_index34 = self.synapse_manager.get_synapse_index( synapse_ID34 );
+
+            % Set the synapse reversal potentials.
+            self.synapse_manager.synapses( synapse_index14 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium ( Maximize )
+            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 0;               % [mV] ( Minimize )
+
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether this applied current is constant.
+            if all( I_apps == I_apps(1) )                % If the applied current is constant...
+                
+                % Set the applied current to be a scalar version of this applied current.
+                I_app = I_apps(1);
+            
+            else                                        % Otherwise...
+                
+                % Throw a warning.
+                warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
+                
+                % Set the applied current to eb the average of the applied current.
+                I_app = mean( I_apps );
+                
+            end
+                
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+            
+            
         end
         
         
@@ -956,6 +1162,49 @@ classdef network_class
             
             % Design the addition subnetwork.
             self = self.design_subtraction_subnetwork( neuron_IDs, k );
+        
+        end
+        
+        
+        % Implement a function to create a division subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs ] = create_division_subnetwork( self, k, c )
+        
+            % Set the default input arugments.
+            if nargin < 3, c = [  ]; end
+            if nargin < 2, k = 1; end
+            
+            % Specify the (constant) number of neuron IDs to generate.
+            num_neuron_IDs = 3;
+            
+            % Generate unique neuron IDs for the addition subnetwork.
+            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
+                
+            % Create the addition subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
+            
+            % Set the names of the addition subnetwork neurons. 
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Division Numerator', 'Division Denominator', 'Division Result' }, 'name'  );
+            
+            % Set the sodium channel conductance of the division neurons to zero.
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
+            
+            % Specify the (constant) number of synapse IDs to generate.
+            num_synapse_IDs = 2;
+            
+            % Generate unique synapse IDs for the division subnetwork.
+            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
+            
+            % Create the division subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
+            
+            % Set the names of the division subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Subtraction 13', 'Subtraction 23' }, 'name' );
+            
+            % Connect the addition subnetwork synapses to the division subnetwork neurons.
+            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs(1) neuron_IDs(2) ], [ neuron_IDs(3) neuron_IDs(3) ] );
+            
+            % Design the division subnetwork.
+            self = self.design_division_subnetwork( neuron_IDs, k, c );
         
         end
         

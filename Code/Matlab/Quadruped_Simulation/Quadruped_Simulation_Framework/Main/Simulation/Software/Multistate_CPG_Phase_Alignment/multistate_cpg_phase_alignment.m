@@ -41,12 +41,12 @@ if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s]
 
 %% Build the Network.
 
-% Define the oscillatory and bistable delta CPG synapse design parameters.
-delta_oscillatory = 0.01e-3;
-delta_bistable = -10e-3;
-
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
+
+% Define the oscillatory and bistable delta CPG synapse design parameters.
+delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
+delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
 
 % Create the first multistate cpg subnetwork.
 [ network, neuron_IDs_cpg1, synapse_IDs_cpg1, applied_current_ID_cpg1 ] = network.create_multistate_cpg_subnetwork( 4, delta_oscillatory, delta_bistable );
@@ -66,7 +66,8 @@ network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2
 
 % Create applied currents.
 [ network.applied_current_manager, applied_current_IDs_add ] = network.applied_current_manager.create_applied_currents( 2 );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add, 5e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add(1), 5e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add(2), 10e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_add, neuron_IDs_add(1:2), 'neuron_ID' );
 
 % Disable the addition subnetwork.
@@ -80,6 +81,19 @@ network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add 
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 15e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 10e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
+
+% Disable the subtraction subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_sub );
+
+% Create a division subnetwork.
+[ network, neuron_IDs_div, synapse_IDs_div ] = network.create_division_subnetwork(  );
+
+% Create applied currents.
+[ network.applied_current_manager, applied_current_IDs_div ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_div(1), 15e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_div(2), 5e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_div, neuron_IDs_div(1:2), 'neuron_ID' );
+
 
 
 

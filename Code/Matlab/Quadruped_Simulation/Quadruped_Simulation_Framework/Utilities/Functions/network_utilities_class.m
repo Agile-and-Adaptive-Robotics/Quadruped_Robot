@@ -247,23 +247,23 @@ classdef network_utilities_class
             assert( all( g_syn_max12 > 0 ), 'It is not possible to design a transmission pathway with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', k, dE_syn12, R1 )
             
         end
-        
+
         
         % Implement a function to compute the maximum synaptic conductance for a signal modulation pathway.
-        function g_syn_max12 = compute_modulation_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, c )
+        function g_syn_max12 = compute_modulation_gsynmax( ~, Gm2, R1, R2, dE_syn12, I_app2, c )
             
             % Set the default input arguments.
-            if nargin < 6, c = 1/R1; end
-            if nargin < 5, I_app2 = 0; end
-                        
+            if nargin < 7, c = 0.05*( R2/R1 ); end
+            if nargin < 6, I_app2 = 0; end
+
             % Compute the maximum synaptic condcutance for a signal modulation pathway.
-            g_syn_max12 = ( I_app2 - c*R1*Gm2 )/( c*R1 - dE_syn12 );
-            
+            g_syn_max12 = ( I_app2 + ( R2 - c*R1 )*Gm2 )/( c*R1 - dE_syn12 );
+
             % Ensure that the synaptic reversal potential is large enough.
             assert( all( g_syn_max12 > 0 ), 'It is not possible to design a modulation pathway with the specified gain c = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', c, dE_syn12, R1 )
             
         end
-        
+
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
@@ -280,31 +280,65 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductances for a subtraction subnetwork.
-        function [ g_syn_max1, g_syn_max2 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
+        function [ g_syn_max13, g_syn_max23 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
             if nargin < 7, k = 1; end
             if nargin < 6, I_app3 = 0; end
             
             % Compute the maximum synaptic conductances for the first neuron of the substraction subnetwork.            
-            g_syn_max1 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
+            g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
 
             % Compute the maximum synaptic conductances for the second neuron of the subtraction subnetwork.
-            g_syn_max2 = -( dE_syn13*g_syn_max1 + I_app3 )/dE_syn23;
+            g_syn_max23 = -( dE_syn13*g_syn_max13 + I_app3 )/dE_syn23;
+            
+            % Ensure that the maximum synaptic condcutance for the second synapse is valid.
+            assert( g_syn_max23 > 0, 'It is not possible to design the secon  synpase of this subtraction network given the current parameters.  g_syn_max23 must be positive.' )
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances for a division subnetwork.
-        function [ g_syn_max1, g_syn_max2 ] = compute_division_gsynmax( self,  )
+        function [ g_syn_max13, g_syn_max23 ] = compute_division_gsynmax( self, Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c )
         
-            g_syn_max1 = ( k*R1 )/( dE_syn13  - k*R1 );
-           
-            g_syn_max2 = ( ( c - 1 )*R2 )/( dE_syn23 - c*R2 )
+            % Set the default input arguments.
+            if ( nargin < 10 ) || ( isempty( c ) ), c = 0.05*( R3/R2 ); end
+            if nargin < 9, k = 1; end
+            if nargin < 8, I_app3 = 0; end
             
+            % Compute the maximum synaptic conductance for the first synapse.
+            g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
+            
+            % Compute the maximum synaptic conductance for the second synapse.
+            g_syn_max23 = self.compute_modulation_gsynmax( Gm3, R2, R3, dE_syn23, I_app3, c );
             
         end
             
+        
+        % Implement a function to compute the maximum synaptic conductances for a multiplication subnetwork.
+        function [ g_syn_max14, g_syn_max23, g_syn_max34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4 )
+        
+            % Set the default input arguments.
+            if nargin < 12, I_app4 = 0; end
+            if nargin < 11, I_app3 = 0; end
+            
+            % Set the synaptic transmission gain to one.
+            k = 1;
+            
+            % Compute the maximum synaptic conductance for the first synapse.
+            g_syn_max14 = self.compute_transmission_gsynmax( Gm4, R1, dE_syn14, I_app4, k );
+            
+            % Set the synaptic modulation parameter to zero.
+            c = 0;
+            
+            % Compute the maximum synaptic conductance for the second synapse.
+            g_syn_max23 = self.compute_modulation_gsynmax( Gm3, R2, R3, dE_syn23, I_app3, c );
+            
+            % Compute the maximum synaptic conductance for the third synapse.
+            g_syn_max34 = self.compute_modulation_gsynmax( Gm4, R3, R4, dE_syn34, I_app4, c );
+            
+        end
+        
         
         %% Simulation Functions
         
