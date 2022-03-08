@@ -41,7 +41,10 @@ classdef network_utilities_class
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
             
             % Compute the synaptic conductance associated with this neuron.
-            G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );
+%             G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );
+            
+            G_syn = g_syn_max.*( U'./R );
+
             
         end
         
@@ -316,14 +319,12 @@ classdef network_utilities_class
             
         
         % Implement a function to compute the maximum synaptic conductances for a multiplication subnetwork.
-        function [ g_syn_max14, g_syn_max23, g_syn_max34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4 )
+        function [ g_syn_max14, g_syn_max23, g_syn_max34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4, k )
         
             % Set the default input arguments.
+            if nargin < 13, k = 1; end
             if nargin < 12, I_app4 = 0; end
             if nargin < 11, I_app3 = 0; end
-            
-            % Set the synaptic transmission gain to one.
-            k = 1;
             
             % Compute the maximum synaptic conductance for the first synapse.
             g_syn_max14 = self.compute_transmission_gsynmax( Gm4, R1, dE_syn14, I_app4, k );
@@ -338,6 +339,10 @@ classdef network_utilities_class
             g_syn_max34 = self.compute_modulation_gsynmax( Gm4, R3, R4, dE_syn34, I_app4, c );
             
         end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
+        
         
         
         %% Simulation Functions
@@ -403,8 +408,74 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function that defines the network flow.
+        function dx = network_flow( self, t, x, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps )
+           
+            % Retrieve the number of states.
+            num_states = length( x );
+            
+            % Ensure that the number of states is even.
+            assert( ~mod( num_states, 2 ), 'The number of network flow states must be even.' )
+            
+            % Separate the input state into its voltage and sodium channel deactivation parameter components.
+            Us = x( 1:num_states/2 );
+            hs = x( ( num_states/2 + 1 ):end );
+            
+            % Perform a simulation step.
+            [ dUs, dhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps );
+            
+            % Store the simulation step state derivatives into a single state variable.
+            dx = [ dUs; dhs ];
+            
+        end
+        
+        
+        % Implement a function to perform an integration step.
+        function [ Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = integration_step( self, Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, dt, method )
+        
+            % Set the default input arguments.
+            if nargin < 21, method = 'RK4'; end
+            
+            % Perform a single simulation step.
+            [ ~, ~, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps );
+            
+            % Define the network flow.
+            f = @( t, x ) self.network_flow( t, x, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps );
+            
+            % Determine how to perform a single numerical integration step.
+            if strcmpi( method, 'FE' )                                                  % If the numerical integration method is set to FE...
+                
+                % Perform a single forward euler step.
+                [ x, dx ] = self.numerical_method_utilities.FE( f, 0, [ Us; hs ], dt );
+                
+            elseif strcmpi( method, 'RK4' )                                             % If the numerical integration method is set to RK4...
+                
+                % Perform a single RK4 step.
+                [ x, dx ] = self.numerical_method_utilities.RK4( f, 0, [ Us; hs ], dt );
+                
+            else                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Numerical integration method %s not recognized.' )
+                
+            end
+
+            % Retrieve the number of states.
+            num_states = length(x)/2;
+            
+            % Extract the voltage and sodium deactivation parameter.
+            Us = x( 1:num_states );
+            hs = x( ( num_states + 1 ):end );
+            
+            % Extract the voltage and sodium deactivation parameter derivatives.
+            dUs = dx( 1:num_states );
+            dhs = dx( ( num_states + 1 ):end );
+            
+        end
+            
+        
         % Implement a function to simulate the network.
-        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt )
+        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt )
             
             % This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, dEsyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
             
@@ -473,14 +544,18 @@ classdef network_utilities_class
             % Simulate the network.
             for k = 1:( num_timesteps - 1 )               % Iterate through each timestep...
                 
-                % Compute the network state derivatives (as well as other intermediate network values).
-                [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
+%                 % Compute the network state derivatives (as well as other intermediate network values).
+%                 [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
+%                 
+%                 % Compute the membrane voltages at the next time step.
+%                 Us( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( Us(:, k), dUs(:, k), dt );
+%                 
+%                 % Compute the sodium channel deactivation parameters at the next time step.
+%                 hs( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( hs(:, k), dhs(:, k), dt );
                 
-                % Compute the membrane voltages at the next time step.
-                Us( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( Us(:, k), dUs(:, k), dt );
+                % Perform a single integration step.
+                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), G_syns( :, :, k ), I_leaks( :, k ), I_syns( :, k ), I_nas( :, k ), I_totals( :, k ), m_infs( :, k ), h_infs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps( :, k ), dt );
                 
-                % Compute the sodium channel deactivation parameters at the next time step.
-                hs( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( hs(:, k), dhs(:, k), dt );
                 
             end
             
@@ -494,6 +569,47 @@ classdef network_utilities_class
         
         
         %% Plotting Functions
+        
+        % Implement a function to plot the network currents over time.
+        function fig = plot_network_currents( ~, ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs )
+        
+            % Set the default input arguments.
+            if nargin < 8, neuron_IDs = 1:size( I_totals, 1 ); end
+            
+            % Create a figure to store the network applied currents.
+            fig = figure( 'Color', 'w', 'Name', 'Network Applied Currents vs Time' );
+            subplot( 5, 1, 1 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Leak Current, $I_{leak}$ [A]', 'Interpreter', 'Latex' ), title( 'Leak Current vs Time' )
+            subplot( 5, 1, 2 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Synaptic Current, $I_{syn}$ [A]', 'Interpreter', 'Latex' ), title( 'Synaptic Current vs Time' )
+            subplot( 5, 1, 3 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Sodium Current, $I_{na}$ [A]', 'Interpreter', 'Latex' ), title( 'Sodium Current vs Time' )
+            subplot( 5, 1, 4 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Applied Current, $I_{app}$ [A]', 'Interpreter', 'Latex' ), title( 'Applied Current vs Time' )
+            subplot( 5, 1, 5 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Total Current, $I_{total}$ [A]', 'Interpreter', 'Latex' ), title( 'Total Current vs Time' )
+
+            % Retrieve the number of neurons.
+            num_neurons = length( neuron_IDs );
+            
+            % Prellocate an array to store the legend entries.
+            legstr = cell( 1, num_neurons );
+            
+            % Plot the currents associated with each neuron.
+            for k = 1:num_neurons                       % Iterate through each neuron...
+               
+                % Plot the currents associated with this neuron.
+                subplot( 5, 1, 1 ), plot( ts, I_leaks( k, : ), '-', 'Linewidth', 3 )
+                subplot( 5, 1, 2 ), plot( ts, I_syns( k, : ), '-', 'Linewidth', 3 )
+                subplot( 5, 1, 3 ), plot( ts, I_nas( k, : ), '-', 'Linewidth', 3 )
+                subplot( 5, 1, 4 ), plot( ts, I_apps( k, : ), '-', 'Linewidth', 3 )
+                subplot( 5, 1, 5 ), plot( ts, I_totals( k, : ), '-', 'Linewidth', 3 )
+
+                % Add an entry to our legend string.
+                legstr{k} = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
+                
+            end
+            
+            % Add a legend to the plot.
+            subplot( 5, 1, 5 ), legend( legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+            
+        end
+        
         
         % Implement a function to plot the network states over time.
         function fig = plot_network_states( ~, ts, Us, hs, neuron_IDs )

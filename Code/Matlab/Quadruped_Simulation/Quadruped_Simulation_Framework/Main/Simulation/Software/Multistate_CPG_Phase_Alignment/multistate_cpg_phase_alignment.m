@@ -17,8 +17,10 @@ robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadrupe
 % robot_data_load_path = 'C:\Users\Cody Scharzenberger\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadruped_Simulation\Quadruped_Simulation_Framework\Main\Simulation\Software\Multistate_CPG_Phase_Alignment\Robot_Data\Load';
 
 % Define the network integration step size.
-network_dt = 1e-3;
-network_tf = 5;
+% network_dt = 1e-3;
+network_dt = 1e-4;
+% network_dt = 1e-6;
+network_tf = 1;
 
 
 %% Initialize the Data Loader Class.
@@ -94,7 +96,21 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_div(2), 5e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_div, neuron_IDs_div(1:2), 'neuron_ID' );
 
+% Disable the division subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_div );
 
+% Create a multiplication subnetwork.
+[ network, neuron_IDs_mult, synapse_IDs_mult ] = network.create_multiplication_subnetwork(  );
+
+% Create applied currents.
+[ network.applied_current_manager, applied_current_IDs_mult ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(1), 10e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(2), 30e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult, neuron_IDs_mult(1:2), 'neuron_ID' );
+
+% network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end-2).ID );
+% network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end-1).ID );
+% network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end).ID );
 
 
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add(1:2) );
@@ -154,10 +170,13 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 %% Simulate the Network.
 
 % Simulate the network.
-[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
+[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
 
 
 %% Plot the Network Results.
+
+% Plot the network currents over time.
+fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
