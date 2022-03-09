@@ -342,7 +342,12 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
-        
+        function [ g_syn_max13, g_syn_max23 ] = compute_derivation_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
+            
+            % Compute the maximum synaptic conductances for a derivative subnetwork in the same way as for a subtraction subnetwork.
+            [ g_syn_max13, g_syn_max23 ] = self.compute_subtraction_gsynmax( Gm3, R1, dE_syn13, dE_syn23, I_app3, k );
+            
+        end
         
         
         %% Simulation Functions
