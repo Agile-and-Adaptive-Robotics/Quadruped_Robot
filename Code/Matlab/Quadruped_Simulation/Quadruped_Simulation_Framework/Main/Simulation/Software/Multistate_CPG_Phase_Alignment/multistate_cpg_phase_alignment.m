@@ -20,7 +20,8 @@ robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadrupe
 % network_dt = 1e-3;
 network_dt = 1e-4;
 % network_dt = 1e-6;
-network_tf = 1;
+% network_tf = 1;
+network_tf = 5;
 
 
 %% Initialize the Data Loader Class.
@@ -41,7 +42,7 @@ elapsed_time = toc;
 if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
 
 
-%% Build the Network.
+%% Create Multistate CPG Subnetworks.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -56,12 +57,12 @@ delta_bistable = -10e-3;                        % [-] Relative Inhibition Parame
 % Create the second multistate cpg subnetwork.
 [ network, neuron_IDs_cpg2, synapse_IDs_cpg2, applied_current_ID_cpg2 ] = network.create_multistate_cpg_subnetwork( 4, delta_oscillatory, delta_bistable );
 
-
-%% TESTING CODE
-
 % Disable the cpg subnetworks.
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2 );
+
+
+%% Create Addition Subnetwork.
 
 % Create an addition subnetwork.
 [ network, neuron_IDs_add, synapse_IDs_add ] = network.create_addition_subnetwork(  );
@@ -75,6 +76,9 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % Disable the addition subnetwork.
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add );
 
+
+%% Create Subtraction Subnetwork.
+
 % Create a subtraction subnetwork.
 [ network, neuron_IDs_sub, synapse_IDs_sub ] = network.create_subtraction_subnetwork(  );
 
@@ -84,8 +88,34 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 10e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
 
+% % Set the applied current properties.
+% ts = 0:network.dt:network.tf;
+% I_apps1 = (15e-9)*ts;
+% I_apps2 = max( (15e-9)*( ts - 0.1 ), 0 );
+% 
+% % Create applied currents.
+% [ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, { ts }, 'ts' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, { I_apps1 I_apps1 }, 'I_apps' );
+% % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, { I_apps1 I_apps2 }, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
+
+
+% % Modify the subtraction subnetwork neurons.
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_sub( 1:2 ), [ 0.95e-6, 0.95e-6 ], 'Gm' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_sub( 1:2 ), [ 47.5e-9, 950e-9 ], 'Cm' );
+
+
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_sub( 1:2 ), [ 0.1e-6, 0.1e-6 ], 'Gm' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_sub( 1:3 ), [ 0.1e-6, 0.1e-6, 0.1e-6 ], 'Gm' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_sub( 1:2 ), [ 0.95e-6, 0.95e-6 ], 'Gm' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_sub( 1:3 ), [ 0.95e-6, 0.95e-6, 0.95e-6 ], 'Gm' );
+
 % Disable the subtraction subnetwork.
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_sub );
+
+
+%% Create Division Subnetwork.
 
 % Create a division subnetwork.
 [ network, neuron_IDs_div, synapse_IDs_div ] = network.create_division_subnetwork(  );
@@ -99,14 +129,54 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % Disable the division subnetwork.
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_div );
 
-% Create a multiplication subnetwork.
-[ network, neuron_IDs_mult, synapse_IDs_mult ] = network.create_multiplication_subnetwork(  );
 
-% Create applied currents.
+%% Create Multiplication Subnetwork.
+
+% Create a multiplication subnetwork.
+[ network, neuron_IDs_mult, synapse_IDs_mult, applied_current_ID_mult ] = network.create_multiplication_subnetwork(  );
+
+% Create applied currents for the multiplication subnetwork.
 [ network.applied_current_manager, applied_current_IDs_mult ] = network.applied_current_manager.create_applied_currents( 2 );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(1), 10e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(2), 30e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult, neuron_IDs_mult(1:2), 'neuron_ID' );
+
+% Disable the multiplication subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_mult );
+
+
+%% Create Derivation Subnetwork.
+
+% Create a derivation subnetwork.
+[ network, neuron_IDs_der, synapse_IDs_der ] = network.create_derivation_subnetwork(  );
+
+% Define the properties of the applied currents for the derivation subnetwork.
+I_mag = 20e-9;
+ts = ( 0:network.dt:network.tf )';
+I_apps = I_mag*ts;
+num_timesteps = length( ts );
+
+% Create applied currents for the derivation subnetwork.
+[ network.applied_current_manager, applied_current_IDs_der ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, { 'Der1', 'Der2' }, 'name' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, neuron_IDs_der( 1:2 ), 'neuron_ID' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, { ts }, 'ts' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, { I_apps }, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, num_timesteps, 'num_timesteps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, network.dt, 'dt' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_der, network.tf, 'tf' );
+
+% Disable the derivation subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_der );
+
+%% Create an Integration Subnetwork.
+
+% Create an integration subnetwork.
+
+
+
+
+%% DEBUGGING CODE
 
 % network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end-2).ID );
 % network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end-1).ID );
@@ -181,6 +251,9 @@ fig_network_currents = network.network_utilities.plot_network_currents( ts, I_le
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
 % fig_network_states = network.network_utilities.plot_network_states( ts, Us(1:2, :), hs(1:2, :), neuron_IDs );
+
+dUs = Us( 1, : ) - Us( 2, : );
+figure( 'Color', 'w' ), plot( ts, dUs, '-m', 'Linewidth', 3 )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );

@@ -77,9 +77,18 @@ classdef applied_current_manager_class
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
             
+            % Validate the applied current property values.
+            if ~isa( applied_current_property_values, 'cell' )                    % If the applied current property values are not a cell array...
+                
+                % Convert the applied current property values to a cell array.
+                applied_current_property_values = num2cell( applied_current_property_values );
+                
+            end
+            
             % Retreive the number of applied current IDs.
             num_applied_current_IDs = length( applied_current_IDs );
-            
+%             num_applied_current_IDs = size( applied_current_IDs, 2 );
+
             % Retrieve the number of applied current property values.
             num_applied_current_property_values = length( applied_current_property_values );
             
@@ -90,8 +99,9 @@ classdef applied_current_manager_class
                 if num_applied_current_property_values == 1                                                  % If there is only one provided property value...
                     
                     % Agument the property value length to match the ID length.
-                    applied_current_property_values = applied_current_property_values*ones( 1, num_applied_current_IDs );
-                    
+%                     applied_current_property_values = applied_current_property_values*ones( 1, num_applied_current_IDs );
+                    applied_current_property_values = repmat( applied_current_property_values, [ 1, num_applied_current_IDs ] );
+
                 else                                                                                % Otherwise...
                     
                     % Throw an error.
@@ -101,14 +111,6 @@ classdef applied_current_manager_class
                 
             end
             
-            
-            % Validate the applied current property values.
-            if ~isa( applied_current_property_values, 'cell' )                    % If the applied current property values are not a cell array...
-                
-                % Convert the applied current property values to a cell array.
-                applied_current_property_values = num2cell( applied_current_property_values );
-                
-            end
             
             % Set the properties of each applied current.
             for k = 1:self.num_applied_currents                   % Iterate through each applied current...

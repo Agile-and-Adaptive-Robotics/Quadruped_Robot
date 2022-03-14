@@ -350,6 +350,45 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute membrane conductance for a derivative subnetwork.
+        function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
+            
+            % Set the default input arugments.
+            if nargin < 4, safety_factor = 0.05; end
+%             if nargin < 3, w = 1e3; end
+%             if nargin < 2, k = 1e3; end
+            if nargin < 3, w = 1; end
+            if nargin < 2, k = 1e6; end
+            
+            % Compute the required membrance conductance.
+            Gm = (1 - safety_factor)/(k*w);    
+            
+        end
+        
+        
+        % Implement a function to compute membrane capacitances for a derivative subnetwork.
+        function [ Cm1, Cm2 ] = compute_derivation_Cms( ~, Gm, k, w )
+            
+            % Set the default input arugments.
+            if nargin < 4, w = 1e3; end
+            if nargin < 3, k = 1e3; end
+            if nargin < 2, Gm = 1e-6; end
+            
+           % Compute the required time constant.
+            tau = 1/w;
+            
+            % Compute the required membrane capacitance of the second neuron.
+            Cm2 = Gm*tau;
+            
+            % Compute the required membrane capacitance of the first neuron.
+            Cm1 = Cm2 - ( Gm^2 )*k; 
+            
+        end
+        
+        
+        
+        
+        
         %% Simulation Functions
         
         % Implement a function to perform a single simulation step.
