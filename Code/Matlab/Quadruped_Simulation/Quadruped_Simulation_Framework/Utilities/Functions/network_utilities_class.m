@@ -355,8 +355,6 @@ classdef network_utilities_class
             
             % Set the default input arugments.
             if nargin < 4, safety_factor = 0.05; end
-%             if nargin < 3, w = 1e3; end
-%             if nargin < 2, k = 1e3; end
             if nargin < 3, w = 1; end
             if nargin < 2, k = 1e6; end
             
