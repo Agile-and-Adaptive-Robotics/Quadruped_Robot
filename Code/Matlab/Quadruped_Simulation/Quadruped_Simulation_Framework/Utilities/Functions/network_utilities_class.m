@@ -384,9 +384,42 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the membrane capacitances for an integration subnetwork.
+        function Cm = compute_integration_Cm( ~, ki_mean )
+        
+            % Compute the integration subnetwork membrane capacitance.
+            Cm = 1/( 2*ki_mean );
+            
+        end
+            
+        
+        % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
+        function gs = compute_integration_gsynmax( ~, Gm, Cm, ki_range )
+        
+            % Compute the integration subnetwork maximum synaptic conductances.
+            gs = ( -2*Gm*Cm*ki_range )/( Cm*ki_range - 1 );
+            
+        end
         
         
+        % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
+        function dEsyn = compute_integration_dEsyn( ~, Gm, R, gs )
         
+           % Compute the synaptic reversal potentials for an integration subnetwork.
+           dEsyn = - ( Gm*R )/gs;
+            
+        end
+            
+        
+        % Implement a function to compute the applied current for an integration subnetwork.
+        function Iapp = compute_integration_Iapp( ~, Gm, R )
+            
+            % Compute the applied current for an integration subnetwork.
+            Iapp = Gm*R;
+            
+        end
+        
+            
         %% Simulation Functions
         
         % Implement a function to perform a single simulation step.

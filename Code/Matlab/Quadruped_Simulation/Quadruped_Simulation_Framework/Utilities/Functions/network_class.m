@@ -719,6 +719,88 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the membrane capacitances required to design an integration subnetwork with the specified parameters.
+        function Cm = compute_integration_Cm( self, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            
+            % Compute the integration subnetwork membrane capacitance.
+            Cm = self.network_utilities.compute_integration_Cm( ki_mean );
+            
+        end
+            
+        
+        % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
+        function g_syn_max = compute_integration_gsynmax( self, neuron_IDs, ki_range )
+        
+            % Set the default input arguments.
+            if nargin < 3, ki_range = 1/( 2*( 1e-9 ) ); end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the membrane conductances and membrane capacitances of these neurons.
+            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
+            Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) );
+
+            % Ensure that the integration neurons are symmetrical.
+            assert( Gms(1) == Gms(2), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Cms(1) == Cms(2), 'Integration subnetwork neurons must have symmetrical membrance capacitances.' );
+
+            % Compute the integration subnetwork maximum synaptic conductances.
+            g_syn_max = self.network_utilities.compute_integration_gsynmax( Gms(1), Cms(1), ki_range );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
+        function dEsyn = compute_integration_dEsyn( self, neuron_IDs, synapse_IDs )
+        
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the membrane conductancs and voltage domains.
+            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
+            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
+
+            % Retrieve the maximum synaptic conductances
+            g_syn_maxs = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs, 'g_syn_max' ) )';
+
+            % Ensure that the integration network is symmetric.
+            assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
+            assert( g_syn_maxs( 1 ) == g_syn_maxs( 2 ), 'Integration subnetwork neurons must have symmetrical maximum synaptic conductances.' );
+
+           % Compute the synaptic reversal potentials for an integration subnetwork.
+            dEsyn = self.network_utilities.compute_integration_dEsyn( Gms( 1 ), Rs( 1 ), g_syn_maxs( 1 ) );
+            
+        end
+        
+        
+        % Implement a function to compute the applied current for an integration network.
+        function Iapp = compute_integration_Iapp( self, neuron_IDs )
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the membrane conductances and voltage domain.
+            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
+            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
+            
+            % Ensure that the integration network is symmetric.
+            assert( Gms(1) == Gms(2), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Rs(1) == Rs(2), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
+            
+            % Compute the applied current.
+            Iapp = Gms(1)*Rs(1);
+            
+        end
+        
+        
         %% Compute-Set Functions
         
         % Implement a function to compute and set the synaptic conductance of each synapse.
@@ -890,7 +972,6 @@ classdef network_class
             if nargin < 4, w = 1; end
             if nargin < 3, k = 1e6; end   
             
-            
             % Compute the membrane capacitances necessary for a derivation subnetwork.
             [ Cm1, Cm2 ] = self.compute_derivation_Cms( neuron_IDs, k, w );
             
@@ -899,6 +980,62 @@ classdef network_class
             
         end
         
+        
+        % Implement a function to compute and set the membrane capacitances required to design an integration subnetwork with the specified parameters.
+        function self = compute_set_integration_Cms( self, neuron_IDs, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            
+            % Compute the integration subnetwork membrane capacitance.            
+            Cm = self.compute_integration_Cm( ki_mean );
+            
+            % Set the membrance capacitances of the specified neurons.
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, Cm*ones( 1, 2 ), 'Cm' );
+            
+        end
+            
+        
+        % Implement a function to compute and set the maximum synaptic conductances for an integration subnetwork.
+        function self = compute_set_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, ki_range )
+        
+            % Set the default input arguments.
+            if nargin < 4, ki_range = 1/( 2*( 1e-9 ) ); end
+            
+            % Compute the maximum synaptic conductances for thi
+            g_syn_max = self.compute_integration_gsynmax( neuron_IDs, ki_range );
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_max*ones( 1, 2 ), 'g_syn_max' );   
+        
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
+        function self = compute_set_integration_dEsyns( self, neuron_IDs, synapse_IDs )
+            
+            % Compute the synaptic reversal potentials for an integration subnetwork.
+            dEsyn = self.compute_integration_dEsyn( neuron_IDs, synapse_IDs );
+
+            % Set the synaptic reversal potentials of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, dEsyn*ones( 1, 2 ), 'dE_syn' );   
+        
+        end
+        
+        
+        % Implement a function to compute the applied currents for an integration subnetwork.
+        function self = compute_set_integration_Iapps( self, neuron_IDs )
+           
+            % Compute the applied currents for an integration subnetwork.
+            Iapp = self.compute_integration_Iapp( neuron_IDs );
+            
+            % Retrieve the applied currents IDs associated with these neuron IDs.
+            applied_current_IDs = self.applied_current_manager.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Set the applied current magnitude of these applied currents.
+            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs, Iapp, 'I_apps' );
+            
+        end
         
         
         %% Network Deletion Functions
@@ -1120,7 +1257,7 @@ classdef network_class
             I_app3 = mean( I_apps3 );
             
             % Compute the subtraction subnetwork gain.
-            k_sub = (1e6)/k;
+            k_sub = ( 1e6 )/k;
 
             % Compute and set the maximum synaptic conductances associated with this derivation subnetwork.
             self = self.compute_set_derivation_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, k_sub );
@@ -1129,9 +1266,30 @@ classdef network_class
         
         
         % Implement a function to design an integration subnetwork ( using the specified neurons & their existing synapses ).
-        function self = design_integration_subnetwork( self )
+        function self = design_integration_subnetwork( self, neuron_IDs, ki_mean, ki_range )
             
+            % Set the default input arugments.
+            if nargin < 4, ki_range = 1/( 2*( 1e-9 ) ); end
+            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
+
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
+            % Get the synapse IDs that connect the two neurons.
+            synapse_ID12 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            synapse_ID21 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 1 ) );
+            synapse_IDs = [ synapse_ID12 synapse_ID21 ];
+
+            % Compute and set the integration subnetwork capacitances.
+            self = self.compute_set_integration_Cms( neuron_IDs, ki_mean );
+
+            % Compute and set the integration subnetwork maximum synaptic conductances.
+            self = self.compute_set_integration_gsynmaxs( neuron_IDs, synapse_IDs, ki_range );
+            
+            % Compute and set the integration subnetwork synaptic reversal potentials.
+            self = self.compute_set_integration_dEsyns( neuron_IDs, synapse_IDs );
+            
+            % Compute and set the integration subnetwork applied current magnitudes.
+            self = self.compute_set_integration_Iapps( neuron_IDs );
             
         end
         
@@ -1444,10 +1602,51 @@ classdef network_class
         
         
         % Implement a function to create an integration subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ self, neuron_IDs, synapse_IDs ] = create_integration_subnetwork( self )
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_integration_subnetwork( self, ki_mean, ki_range )
             
+            % Set the default input arugments.
+            if nargin < 4, ki_range = 1/( 2*( 1e-9 ) ); end
+            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
             
+            % Specify the (constant) number of neuron IDs to generate.
+            num_neuron_IDs = 2;
             
+            % Generate unique neuron IDs for the integration subnetwork.
+            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
+                
+            % Create the integration subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
+            
+            % Set the names of the integration subnetwork neurons. 
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Integration 1', 'Integration 2' }, 'name'  );
+            
+            % Set the sodium channel conductance of the integration neurons to zero.
+            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
+            
+            % Specify the (constant) number of synapse IDs to generate.
+            num_synapse_IDs = 2;
+            
+            % Generate unique synapse IDs for the addition subnetwork.
+            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
+            
+            % Create the addition subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
+            
+            % Set the names of the addition subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Integration 12', 'Integration 21' }, 'name' );
+            
+            % Connect the addition subnetwork synapses to the addition subnetwork neurons.
+            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 2 ) neuron_IDs( 1 ) ] );
+            
+            % Create an applied current for each neuron.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_applied_currents( num_neuron_IDs );
+            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs, { 'Int1', 'Int2' }, 'name' );
+            
+            % Connect the multiplication subnetwork applied currents to the multiplication subnetwork neurons.
+            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs, 'neuron_ID' );
+            
+            % Design the integration subnetwork.
+            self = self.design_integration_subnetwork( neuron_IDs, ki_mean, ki_range );
             
         end
         

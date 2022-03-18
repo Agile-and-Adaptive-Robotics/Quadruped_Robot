@@ -20,8 +20,8 @@ robot_data_load_path = 'D:\Documents\GitHub\Quadruped_Robot\Code\Matlab\Quadrupe
 % network_dt = 1e-3;
 network_dt = 1e-4;
 % network_dt = 1e-6;
-% network_tf = 1;
-network_tf = 5;
+network_tf = 1;
+% network_tf = 3;
 
 
 %% Initialize the Data Loader Class.
@@ -169,72 +169,38 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % Disable the derivation subnetwork.
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_der );
 
+
 %% Create an Integration Subnetwork.
 
-% Create an integration subnetwork.
+% Define the integration constants.
+ki_mean = 0.5e9;
+ki_range = 0.5e9;
 
+% Create an integration subnetwork.
+[ network, neuron_IDs_int, synapse_IDs_int, applied_current_IDs_int ] = network.create_integration_subnetwork( ki_mean, ki_range );
+
+% Define the properties of the applied currents for the derivation subnetwork.
+Gm = cell2mat( network.neuron_manager.get_neuron_property( neuron_IDs_int(1), 'Gm' ) );
+R = cell2mat( network.neuron_manager.get_neuron_property( neuron_IDs_int(1), 'R' ) );
+ts = ( 0:network.dt:network.tf )';
+num_timesteps = length( ts );
+I_mag1 = 20e-9;
+I_mag2 = 1e-9;
+I_apps = I_mag1*ones( num_timesteps, 1 ) + I_mag2*( ts > 0.5 & ts < 0.75 );
+
+% Create applied currents for the integration subnetwork.
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int(1), { ts }, 'ts' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int(1), { I_apps }, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int(1), num_timesteps, 'num_timesteps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int(1), network.dt, 'dt' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int(1), network.tf, 'tf' );
+
+% Disable the integration subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( applied_current_IDs_int );
 
 
 
 %% DEBUGGING CODE
-
-% network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end-2).ID );
-% network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end-1).ID );
-% network.synapse_manager = network.synapse_manager.disable_synapses( network.synapse_manager.synapses(end).ID );
-
-
-% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add(1:2) );
-
-
-% network.neuron_manager = network.neuron_manager.create_neuron( 5 );
-% network.neuron_manager = network.neuron_manager.create_neuron( 6 );
-% network.neuron_manager = network.neuron_manager.create_neuron( 7 );
-% network.neuron_manager = network.neuron_manager.create_neuron( 8 );
-% 
-% network.synapse_manager = network.synapse_manager.create_synapse( 17 );
-% network.synapse_manager.synapses( 17 ).from_neuron_ID = 5;
-% network.synapse_manager.synapses( 17 ).to_neuron_ID = 6;
-% % network.synapse_manager.synapses( 17 ).from_neuron_ID = 1;
-% % network.synapse_manager.synapses( 17 ).to_neuron_ID = 2;
-% 
-% network.synapse_manager = network.synapse_manager.create_synapse( 18 );
-% network.synapse_manager.synapses( 18 ).from_neuron_ID = 4;
-% network.synapse_manager.synapses( 18 ).to_neuron_ID = 5;
-% 
-% network.synapse_manager = network.synapse_manager.create_synapse( 19 );
-% network.synapse_manager.synapses( 19 ).from_neuron_ID = 8;
-% network.synapse_manager.synapses( 19 ).to_neuron_ID = 8;
-% 
-% 
-% network.applied_current_manager = network.applied_current_manager.create_applied_current( 5 );
-% network.applied_current_manager.applied_currents(5).neuron_ID = 7;
-% network.applied_current_manager.applied_currents(5).I_apps = 1e-7;
-% 
-% network.applied_current_manager = network.applied_current_manager.create_applied_current( 6 );
-% network.applied_current_manager.applied_currents(6).neuron_ID = 5;
-% network.applied_current_manager.applied_currents(6).I_apps = 1e-7;
-% network.applied_current_manager.applied_currents(6).b_enabled = false;
-% 
-% % network.neuron_manager = network.neuron_manager.disable_neuron( 5 );
-% % network.neuron_manager = network.neuron_manager.disable_neuron( 6 );
-% 
-% % network.neuron_manager = network.neuron_manager.delete_neuron( 5 );
-% % network.neuron_manager = network.neuron_manager.delete_neuron( 6 );
-% 
-% 
-% % network.neuron_manager.neurons(5) = network.neuron_manager.neurons(5).disable(  );
-% % network.neuron_manager.neurons(4) = network.neuron_manager.neurons(4).disable(  );
-% 
-% % network.synapse_manager.synapses(2) = network.synapse_manager.synapses(2).disable(  );
-% 
-% % network.synapse_manager.synapses(13) = network.synapse_manager.synapses(13).disable(  );
-% % network.synapse_manager.synapses(14) = network.synapse_manager.synapses(14).disable(  );
-% % network.synapse_manager.synapses(15) = network.synapse_manager.synapses(15).disable(  );
-% % network.synapse_manager.synapses(16) = network.synapse_manager.synapses(16).disable(  );
-% 
-% % network.applied_current_manager.applied_currents(1) = network.applied_current_manager.applied_currents(1).disable(  );
-% 
-% % g_syn_maxs = network.get_max_synaptic_conductances( [1 2 3 5] );
 
 
 %% Simulate the Network.
@@ -252,8 +218,8 @@ fig_network_currents = network.network_utilities.plot_network_currents( ts, I_le
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
 % fig_network_states = network.network_utilities.plot_network_states( ts, Us(1:2, :), hs(1:2, :), neuron_IDs );
 
-dUs = Us( 1, : ) - Us( 2, : );
-figure( 'Color', 'w' ), plot( ts, dUs, '-m', 'Linewidth', 3 )
+% dUs = Us( 1, : ) - Us( 2, : );
+% figure( 'Color', 'w' ), plot( ts, dUs, '-m', 'Linewidth', 3 )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
