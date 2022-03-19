@@ -41,10 +41,8 @@ classdef network_utilities_class
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
             
             % Compute the synaptic conductance associated with this neuron.
-%             G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );
-            
-            G_syn = g_syn_max.*( U'./R );
-
+            G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );                   % CPG SUBNETWORK SEEMS TO REQUIR SATURATION...
+%             G_syn = g_syn_max.*( U'./R );                                     % MULTIPLICATION SUBNETWORK SEEMS TO REQUIRE NO SATURATION...
             
         end
         
@@ -550,7 +548,7 @@ classdef network_utilities_class
             
         
         % Implement a function to simulate the network.
-        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt )
+        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt, method )
             
             % This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, dEsyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
             
@@ -590,6 +588,9 @@ classdef network_utilities_class
             % hinfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel deactivation values.
             % tauhs = num_neurons x num_timesteps matrix of sodium channel deactivation parameter time constants.
             
+            % Set the default input arguments.
+            if nargin < 22, method = 'RK4'; end
+            
             % Compute the simulation time vector.
             ts = 0:dt:tf;
             
@@ -619,18 +620,8 @@ classdef network_utilities_class
             % Simulate the network.
             for k = 1:( num_timesteps - 1 )               % Iterate through each timestep...
                 
-%                 % Compute the network state derivatives (as well as other intermediate network values).
-%                 [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
-%                 
-%                 % Compute the membrane voltages at the next time step.
-%                 Us( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( Us(:, k), dUs(:, k), dt );
-%                 
-%                 % Compute the sodium channel deactivation parameters at the next time step.
-%                 hs( :, k + 1 ) = self.numerical_method_utilities.forward_euler_step( hs(:, k), dhs(:, k), dt );
-                
                 % Perform a single integration step.
-                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), G_syns( :, :, k ), I_leaks( :, k ), I_syns( :, k ), I_nas( :, k ), I_totals( :, k ), m_infs( :, k ), h_infs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps( :, k ), dt );
-                
+                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), G_syns( :, :, k ), I_leaks( :, k ), I_syns( :, k ), I_nas( :, k ), I_totals( :, k ), m_infs( :, k ), h_infs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps( :, k ), dt, method );
                 
             end
             

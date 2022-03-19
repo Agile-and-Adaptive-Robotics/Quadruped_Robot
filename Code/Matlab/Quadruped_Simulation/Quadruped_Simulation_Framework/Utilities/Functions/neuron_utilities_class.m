@@ -109,6 +109,7 @@ classdef neuron_utilities_class
         % Implement a function to compute leak currents.
         function I_leak = compute_Ileak( ~, U, Gm )
         
+            % Compute the leak current.
             I_leak = -Gm.*U;
         
         end
@@ -117,6 +118,7 @@ classdef neuron_utilities_class
         % Implement a function to compute a sodium current.
         function I_na = compute_Ina( ~, U, h, m_inf, Gna, dEna )
            
+            % Compute teh sodium current.
             I_na = Gna.*m_inf.*h.*( dEna - U );            
             
         end

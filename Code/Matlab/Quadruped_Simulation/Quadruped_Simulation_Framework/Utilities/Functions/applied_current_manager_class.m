@@ -348,7 +348,7 @@ classdef applied_current_manager_class
             end
             
             % Compute the number of time steps.
-            num_timesteps = floor( tf/dt ) + 1;
+            num_timesteps = floor( round( tf/dt, 8 ) ) + 1;
             
             % Preallocate a variable to store the applied current properties.
             I_apps = zeros( num_timesteps, num_applied_currents_to_get );

@@ -1557,11 +1557,7 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs ] = create_derivation_subnetwork( self, k, w, safety_factor )
             
             % Set the default input arguments.
-            if nargin < 4, safety_factor = 0.05; end
-%             if nargin < 3, w = 1e3; end
-%             if nargin < 2, k = 1e3; end
-%             if nargin < 3, w = 1; end
-%             if nargin < 2, k = 1e6; end               
+            if nargin < 4, safety_factor = 0.05; end           
             if nargin < 3, w = 1; end
             if nargin < 2, k = 1e6; end 
 
@@ -1605,8 +1601,8 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_integration_subnetwork( self, ki_mean, ki_range )
             
             % Set the default input arugments.
-            if nargin < 4, ki_range = 1/( 2*( 1e-9 ) ); end
-            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
+            if nargin < 3, ki_range = 0.01e9; end
+            if nargin < 2, ki_mean = 0.01e9; end
             
             % Specify the (constant) number of neuron IDs to generate.
             num_neuron_IDs = 2;
@@ -1762,9 +1758,10 @@ classdef network_class
         
         
         % Implement a function to compute network simulation results.
-        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation( self, dt, tf )
+        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation( self, dt, tf, method )
             
             % Set the default simulation duration.
+            if nargin < 4, method = 'RK4'; end
             if nargin < 3, tf = self.tf; end
             if nargin < 2, dt = self.dt; end
             
@@ -1814,7 +1811,7 @@ classdef network_class
 %             I_apps = (1e9)*I_apps;
             
             % Simulate the network.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt );
+            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt, method );
             
 %             Us = (1e-3)*Us;
 %             Gms = (1e-6)*Gms;
@@ -1835,14 +1832,15 @@ classdef network_class
         
         
         % Implement a function to compute and set network simulation results.
-        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_set_simulation( self, dt, tf )
+        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_set_simulation( self, dt, tf, method )
             
             % Set the default input arguments.
+            if nargin < 4, method = 'RK4'; end
             if nargin < 3, tf = self.tf; end
             if nargin < 2, dt = self.dt; end
             
             % Compute the network simulation results.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_simulation( dt, tf );
+            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_simulation( dt, tf, method );
             
             % Set the neuron properties.
             self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, Us( :, end ), 'U' );
