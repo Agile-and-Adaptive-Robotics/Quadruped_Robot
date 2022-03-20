@@ -1057,11 +1057,8 @@ classdef synapse_manager_class
         % Implement a function to create the synapses for a transmission subnetwork.
         function [ self, synapse_ID ] = create_transmission_synapses( self, neuron_IDs )
             
-            % Generate unique synapse IDs for the transmission subnetwork.
-            synapse_ID = self.generate_unique_synapse_IDs( self.NUM_TRANSMISSION_SYNAPSES );
-            
             % Create the transmission subnetwork synapses.
-            self = self.create_synapses( synapse_ID );
+            [ self, synapse_ID ] = self.create_synapses( self.NUM_TRANSMISSION_SYNAPSES );
             
             % Set the names of the transmission subnetwork synapses.
             self = self.set_synapse_property( synapse_ID, { 'Trans 12' }, 'name' );
@@ -1073,13 +1070,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a modulation subnetwork.
-        function [ self, synapse_ID ] = create_modulation_synapses( self )
-            
-            % Generate unique synapse IDs for the modulation subnetwork.
-            synapse_ID = self.generate_unique_synapse_IDs( self.NUM_MODULATION_SYNAPSES );
-            
+        function [ self, synapse_ID ] = create_modulation_synapses( self, neuron_IDs )
+
             % Create the modulation subnetwork synapses.
-            self = self.create_synapses( synapse_ID );
+            [ self, synapse_ID ] = self.create_synapses( self.NUM_MODULATION_SYNAPSES );
             
             % Set the names of the modulation subnetwork synapses.
             self = self.set_synapse_property( synapse_ID, { 'Mod 12' }, 'name' );
@@ -1092,12 +1086,9 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for an addition subnetwork.
         function [ self, synapse_IDs ] = create_addition_synapses( self, neuron_IDs )
-            
-            % Generate unique synapse IDs for the addition subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( self.NUM_ADDITION_SYNAPSES );
-            
+
             % Create the addition subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_ADDITION_SYNAPSES );
             
             % Set the names of the addition subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs, { 'Add 13', 'Add 23' }, 'name' );
@@ -1111,11 +1102,8 @@ classdef synapse_manager_class
         % Implement a function to create the synapses for a subtraction subnetwork.
         function [ self, synapse_IDs ] = create_subtraction_synapses( self, neuron_IDs )
             
-            % Generate unique synapse IDs for the addition subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( self.NUM_SUBTRACTION_SYNAPSES );
-            
             % Create the subtraction subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_SUBTRACTION_SYNAPSES );
             
             % Set the names of the subtraction subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23' }, 'name' );
@@ -1129,11 +1117,8 @@ classdef synapse_manager_class
         % Implement a function to create the synapses for a multiplication subnetwork.
         function [ self, synapse_IDs ] = create_multiplication_synapses( self, neuron_IDs )
             
-            % Generate unique synapse IDs for the multiplication subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( self.NUM_MULTIPLICATION_SYNAPSES );
-            
             % Create the multiplication subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_MULTIPLICATION_SYNAPSES );
             
             % Set the names of the multiplication subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs, { 'Mult 14', 'Mult 23', 'Mult 34' }, 'name' );
@@ -1146,12 +1131,9 @@ classdef synapse_manager_class
         
         % Implement a function to create the synpases for a division subnetwork.
         function [ self, synapse_IDs ] = create_division_synapses( self, neuron_IDs )
-
-            % Generate unique synapse IDs for the division subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( self.NUM_DIVISION_SYNAPSES );
             
             % Create the division subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_DIVISION_SYNAPSES );
             
             % Set the names of the division subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs, { 'Div 13', 'Div 23' }, 'name' );
@@ -1165,11 +1147,8 @@ classdef synapse_manager_class
         % Implement a function to create the synpases for a derivation subnetwork.
         function [ self, synapse_IDs ] = create_derivation_synapses( self, neuron_IDs )
             
-            % Generate unique synapse IDs for the derivation subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( self.NUM_DERIVATION_SYNAPSES );
-            
             % Create the derivation subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_DERIVATION_SYNAPSES );
             
             % Set the names of the derivation subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs, { 'Der 13', 'Der 23' }, 'name' );
@@ -1183,11 +1162,8 @@ classdef synapse_manager_class
         % Implement a function to create the synapses for an integration subnetwork.
         function [ self, synapse_IDs ] = create_integration_synapses( self, neuron_IDs )
             
-            % Generate unique synapse IDs for the integration subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( self.NUM_INTEGRATION_SYNAPSES );
-            
             % Create the integration subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_INTEGRATION_SYNAPSES );
             
             % Set the names of the integration subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs, { 'Int 12', 'Int 21' }, 'name' );
@@ -1196,6 +1172,35 @@ classdef synapse_manager_class
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 2 ) neuron_IDs( 1 ) ] );
             
         end
+        
+        
+        %% Subnetwork Synapse Design Functions
+        
+        % Implement a function to design the synapses for a multistate cpg subnetwork.
+        
+        
+        % Implement a function to design the synapses for a transmission subnetwork.
+        
+        
+        % Implement a function to design the synapses for a modulation subnetwork.
+        
+        
+        % Implement a function to design the synapses for an addition subnetwork.
+        
+        
+        % Implement a function to design the synapses for a subtraction subnetwork.
+        
+        
+        % Implement a function to design the synapses for a multiplication subnetwork.
+        
+        
+        % Implement a function to design the synapses for a division subnetwork.
+        
+        
+        % Implement a function to design the synapses for a derivation subnetwork.
+        
+        
+        % Implement a function to design the synapses for an integration subnetwork.
         
         
         %% Save & Load Functions

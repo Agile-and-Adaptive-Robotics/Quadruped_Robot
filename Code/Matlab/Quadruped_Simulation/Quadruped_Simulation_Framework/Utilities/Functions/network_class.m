@@ -540,7 +540,7 @@ classdef network_class
             R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
 
             % Retrieve the synaptic reversal potential.
-            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID ) );
+            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID, 'dE_syn' ) );
                         
             % Compute the required maximum synaptic conductances required to design a transmission subnetwork.
             g_syn_max12 = self.network_utilities.compute_transmission_gsynmax( Gm2, R1, dE_syn12, I_app2, k );
@@ -567,7 +567,7 @@ classdef network_class
             R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
 
             % Retrieve the synaptic reversal potential.
-            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID ) );
+            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID, 'dE_syn' ) );
             
             % Compute the maximum synaptic conductance for a modulation subnetwork.
             g_syn_max12 = self.network_utilities.compute_modulation_gsynmax( Gm2, R1, R2, dE_syn12, I_app2, c );
@@ -1187,11 +1187,14 @@ classdef network_class
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
+            % Set the synaptic reversal potential of this synapse.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, 194e-3, 'dE_syn' );
+            
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps(1) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
 
             % Set the applied current to be the average current.
             I_app = mean( I_apps );
@@ -1213,11 +1216,14 @@ classdef network_class
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
+            % Set the synaptic reversal potential of this synapse.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, 0, 'dE_syn' );
+            
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps(1) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
 
             % Set the applied current to be the average current.
             I_app = mean( I_apps );
@@ -1253,7 +1259,7 @@ classdef network_class
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps(1) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
 
             % Set the applied current to be the average current.
             I_app = mean( I_apps );
@@ -1400,7 +1406,7 @@ classdef network_class
             I_apps3 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
 
             % Determine whether to throw a warning.
-            if ~all( I_apps3 == I_apps3(1) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( I_apps3 == I_apps3( 1 ) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
 
             % Set the applied current to be the average current.
             I_app3 = mean( I_apps3 );
@@ -1446,25 +1452,8 @@ classdef network_class
         %% Subnetwork Component Creation Functions
         
         % Implement a function to create the multistate CPG subnetwork components.
-        
-        
-        % Implement a function to create the transmission subnetwork components.
-        
-        
-        % Implement a function to create the the modulation subnetwork components.
-       
-        
-        
-        %% Subnetwork Creation Functions
-        
-        % Implement a function to create a multistate CPG oscillator subnetwork.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
-        
-            % Set the default input arguments.
-            if nargin < 4, delta_bistable = -10e-3; end
-            if nargin < 3, delta_oscillatory = 0.01e-3; end
-            if nargin < 2, num_cpg_neurons = 2; end
-                
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multistate_cpg_subnetwork_components( self, num_cpg_neurons )
+            
             % Create the multistate cpg neurons.
             [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_multistate_cpg_neurons( num_cpg_neurons );
 
@@ -1472,8 +1461,126 @@ classdef network_class
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_multistate_cpg_synapses( neuron_IDs );
 
             % Create the multistate cpg applied current.
-            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multistate_cpg_applied_currents( neuron_IDs, self.dt, self.tf );
+            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multistate_cpg_applied_currents( neuron_IDs, self.dt, self.tf );    
+            
+        end
+        
+        
+        % Implement a function to create the transmission subnetwork components.
+        function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork_components( self )
+            
+            % Create the transmission neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_transmission_neurons(  );
 
+            % Create the transmission synapses.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.create_transmission_synapses( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to create the modulation subnetwork components.
+        function [ self, neuron_IDs, synapse_ID ] = create_modulation_subnetwork_components( self )
+            
+            % Create the modulation neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_modulation_neurons(  );
+
+            % Create the modulation synapses.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.create_modulation_synapses( neuron_IDs );    
+            
+        end
+        
+        
+        % Implement a function to create the addition subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs ] = create_addition_subnetwork_components( self )
+           
+            % Create the addition neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_addition_neurons(  );
+
+            % Create the addition synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_addition_synapses( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to create the subtraction subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs ] = create_subtraction_subnetwork_components( self )
+        
+            % Create the subtraction neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_subtraction_neurons(  );
+
+            % Create the subtraction synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_subtraction_synapses( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to create the multiplication subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork_components( self )
+            
+            % Create the multiplication neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_multiplication_neurons(  );
+
+            % Create the multiplication synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_multiplication_synapses( neuron_IDs );
+            
+            % Create the multiplication applied currents.
+            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multiplication_applied_currents( neuron_IDs );    
+            
+        end
+        
+        
+        % Implement a function to create the division subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs ] = create_division_subnetwork_components( self )
+        
+            % Create the division neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_division_neurons(  );
+            
+            % Create the division synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_division_synapses( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to create the derivation subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs ] = create_derivation_subnetwork_components( self )
+        
+            % Create the derivation neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_derivation_neurons(  );
+
+            % Create the derivation synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_derivation_synapses( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to create the integration subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_integration_subnetwork_components( self )
+            
+            % Create the integration neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_integration_neurons(  );
+            
+            % Create the integration synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_integration_synapses( neuron_IDs );
+            
+            % Create the integration applied currents.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_integration_applied_currents( neuron_IDs );
+            
+        end
+        
+        
+        %% Subnetwork Creation Functions
+        
+        % Implement a function to create a multistate CPG oscillator subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
+        
+            % Set the default input arguments.
+            if nargin < 4, delta_bistable = -10e-3; end
+            if nargin < 3, delta_oscillatory = 0.01e-3; end
+            if nargin < 2, num_cpg_neurons = 2; end
+                
+            % Create the multistate cpg subnetwork components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = self.create_multistate_cpg_subnetwork_components( num_cpg_neurons );
+            
             % Design the multistate cpg subnetwork.
             self = self.design_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
             
@@ -1486,11 +1593,8 @@ classdef network_class
             % Set the default input arugments.
             if nargin < 2, k = 1; end
             
-            % Create the transmission neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_transmission_neurons(  );
-
-            % Create the transmission synapses.
-            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.create_transmission_synapses( neuron_IDs );
+            % Create the transmission subnetwork components.
+            [ self, neuron_IDs, synapse_ID ] = self.create_transmission_subnetwork_components(  );
             
             % Design a transmission subnetwork.
             self = self.design_transmission_subnetwork( neuron_IDs, k );
@@ -1502,15 +1606,12 @@ classdef network_class
         function [ self, neuron_IDs, synapse_ID ] = create_modulation_subnetwork( self, c )
             
             % Set the default input arugments.
-            if nargin < 2, c = 1; end
+            if nargin < 2, c = 0.05; end
             
-            % Create the modulation neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_modulation_neurons(  );
-
-            % Create the modulation synapses.
-            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.create_modulation_synapses(  );
+            % Create the modulation subnetwork components.
+            [ self, neuron_IDs, synapse_ID ] = self.create_modulation_subnetwork_components(  );
             
-            % Design a transmission subnetwork.
+            % Design a modulation subnetwork.
             self = self.design_modulation_subnetwork( neuron_IDs, c );
             
         end
@@ -1522,11 +1623,8 @@ classdef network_class
             % Set the default input arugments.
             if nargin < 2, k = 1; end
             
-            % Create the addition neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_addition_neurons(  );
-
-            % Create the addition synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_addition_synapses( neuron_IDs );
+            % Create addition subnetwork components.
+            [ self, neuron_IDs, synapse_IDs ] = self.create_addition_subnetwork_components(  );
             
             % Design the addition subnetwork.
             self = self.design_addition_subnetwork( neuron_IDs, k );
@@ -1540,11 +1638,8 @@ classdef network_class
             % Set the default input arugments.
             if nargin < 2, k = 1; end
             
-            % Create the subtraction neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_subtraction_neurons(  );
-
-            % Create the subtraction synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_subtraction_synapses( neuron_IDs );
+            % Create the subtraction subnetwork components.
+            [ self, neuron_IDs, synapse_IDs ] = self.create_subtraction_subnetwork_components(  );
             
             % Design the addition subnetwork.
             self = self.design_subtraction_subnetwork( neuron_IDs, k );
@@ -1558,15 +1653,9 @@ classdef network_class
             % Set the default input arugments.
             if nargin < 2, k = 1; end
             
-            % Create the multiplication neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_multiplication_neurons(  );
-
-            % Create the multiplication synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_multiplication_synapses( neuron_IDs );
+            % Create the multiplication subnetwork components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = self.create_multiplication_subnetwork_components(  );
             
-            % Create the multiplication applied currents.
-            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multiplication_applied_currents( neuron_IDs );
-
             % Design the multiplication subnetwork.
             self = self.design_multiplication_subnetwork( neuron_IDs, k );
         
@@ -1580,11 +1669,8 @@ classdef network_class
             if nargin < 3, c = [  ]; end
             if nargin < 2, k = 1; end
             
-            % Create the division neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_division_neurons(  );
-            
-            % Create the division synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_division_synapses( neuron_IDs );
+            % Create division subnetwork components.
+            [ self, neuron_IDs, synapse_IDs ] = self.create_division_subnetwork_components(  );
             
             % Design the division subnetwork.
             self = self.design_division_subnetwork( neuron_IDs, k, c );
@@ -1600,11 +1686,8 @@ classdef network_class
             if nargin < 3, w = 1; end
             if nargin < 2, k = 1e6; end 
 
-            % Create the derivation neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_derivation_neurons(  );
-
-            % Create the derivation synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_derivation_synapses( neuron_IDs );
+            % Create the derivation subnetwork components.
+            [ self, neuron_IDs, synapse_IDs ] = self.create_derivation_subnetwork_components(  );
             
             % Design the derivation subnetwork.
             self = self.design_derivation_subnetwork( neuron_IDs, k, w, safety_factor );
@@ -1619,14 +1702,8 @@ classdef network_class
             if nargin < 3, ki_range = 0.01e9; end
             if nargin < 2, ki_mean = 0.01e9; end
             
-            % Create the integration neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_integration_neurons(  );
-            
-            % Create the integration synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_integration_synapses( neuron_IDs );
-            
-            % Create the integration applied currents.
-            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_integration_applied_currents( neuron_IDs );
+            % Create the integration subnetwork components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_integration_subnetwork_components(  );
             
             % Design the integration subnetwork.
             self = self.design_integration_subnetwork( neuron_IDs, ki_mean, ki_range );

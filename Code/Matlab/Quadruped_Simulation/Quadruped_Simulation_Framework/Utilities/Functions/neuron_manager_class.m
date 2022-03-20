@@ -892,18 +892,14 @@ classdef neuron_manager_class
                 
             end
             
-            
         end
         
             
         % Implement a function to create the neurons for a transmission subnetwork.
         function [ self, neuron_IDs ] = create_transmission_neurons( self )
-            
-            % Generate unique neuron IDs for the transmission subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_TRANSMISSION_NEURONS );
                 
             % Create the transmission subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_TRANSMISSION_NEURONS );
             
             % Set the names of the transmission subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Trans 1', 'Trans 2' }, 'name'  );
@@ -916,12 +912,9 @@ classdef neuron_manager_class
             
         % Implement a function to create the neurons for a modulation subnetwork.
         function [ self, neuron_IDs ] = create_modulation_neurons( self )
-            
-            % Generate unique neuron IDs for the modulation subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_MODULATION_NEURONS );
-                
+
             % Create the modulation subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_MODULATION_NEURONS );
             
             % Set the names of the modulation subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Mod 1', 'Mod 2' }, 'name'  );
@@ -934,12 +927,9 @@ classdef neuron_manager_class
         
         % Implement a function to create the neurons for an addition subnetwork.
         function [ self, neuron_IDs ] = create_addition_neurons( self )
-            
-            % Generate unique neuron IDs for the addition subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_ADDITION_NEURONS );
-                
+ 
             % Create the addition subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_ADDITION_NEURONS );
             
             % Set the names of the addition subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Add 1', 'Add 2', 'Sum' }, 'name'  );
@@ -952,12 +942,9 @@ classdef neuron_manager_class
             
         % Implement a function to create the neurons for a subtraction subnetwork.
         function [ self, neuron_IDs ] = create_subtraction_neurons( self )
-            
-            % Generate unique neuron IDs for the subtraction subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_SUBTRACTION_NEURONS );
                 
             % Create the subtraction subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_SUBTRACTION_NEURONS );
             
             % Set the names of the subtraction subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Sub 1', 'Sub 2', 'Sub 3' }, 'name'  );
@@ -970,12 +957,9 @@ classdef neuron_manager_class
         
         % Implement a function to create the neurons for a multiplication subnetwork.
         function [ self, neuron_IDs ] = create_multiplication_neurons( self )
-            
-            % Generate unique neuron IDs for the multiplication subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_MULTIPLICATION_NEURONS );
-                
+
             % Create the multiplication subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_MULTIPLICATION_NEURONS );
             
             % Set the names of the multiplication subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Mult1', 'Mult2', 'Mult Inter', 'Prod' }, 'name'  );
@@ -988,12 +972,9 @@ classdef neuron_manager_class
         
         % Implement a function to create the neurons for a division subnetwork.
         function [ self, neuron_IDs ] = create_division_neurons( self )
-            
-            % Generate unique neuron IDs for the division subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_DIVISION_NEURONS );
                 
             % Create the division subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_DIVISION_NEURONS );
             
             % Set the names of the division subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Div Num', 'Div Denom', 'Div Result' }, 'name'  );
@@ -1006,12 +987,9 @@ classdef neuron_manager_class
         
         % Implement a function to create the neurons for a derivation subnetwork.
         function [ self, neuron_IDs ] = create_derivation_neurons( self )
-            
-            % Generate unique neuron IDs for the derivation subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_DERIVATION_NEURONS );
-                
+
             % Create the derivation subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_DERIVATION_NEURONS );
             
             % Set the names of the derivation subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Der 1', 'Der 2', 'Der 3' }, 'name'  );
@@ -1025,11 +1003,8 @@ classdef neuron_manager_class
         % Implement a function to create the neurons for an integration subnetwork.
         function [ self, neuron_IDs ] = create_integration_neurons( self )
 
-            % Generate unique neuron IDs for the integration subnetwork.
-            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_INTEGRATION_NEURONS );
-                
             % Create the integration subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_INTEGRATION_NEURONS );
             
             % Set the names of the integration subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Int 1', 'Int 2' }, 'name'  );
@@ -1038,6 +1013,35 @@ classdef neuron_manager_class
             self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_INTEGRATION_NEURONS ), 'Gna' );
             
         end
+        
+        
+        %% Subnetwork Neuron Design Functions
+        
+        % Implement a function to design the neurons for a multistate cpg subnetwork.
+        
+        
+        % Implement a function to design the neurons for a transmission subnetwork.
+        
+        
+        % Implement a function to design the neurons for a modulation subnetwork.
+        
+        
+        % Implement a function to design the neurons for an addition subnetwork.
+        
+        
+        % Implement a function to design the neurons for a subtraction subnetwork.
+        
+        
+        % Implement a function to design the neurons for a multiplication subnetwork.
+        
+        
+        % Implement a function to design the neurons for a division subnetwork.
+        
+        
+        % Implement a function to design the neurons for a derivation subnetwork.
+        
+        
+        % Implement a function to design the neurons for an integration subnetwork.
         
         
         

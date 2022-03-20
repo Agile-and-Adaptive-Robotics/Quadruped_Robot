@@ -1052,6 +1052,36 @@ classdef applied_current_manager_class
         end
         
         
+        %% Subnetwork Applied Current Design Functions
+        
+        % Implement a function to design the applied currents for a multistate cpg subnetwork.
+        
+        
+        % Implement a function to design the applied currents for a transmission subnetwork.
+        
+        
+        % Implement a function to design the applied currents for a modulation subnetwork.
+        
+        
+        % Implement a function to design the applied currents for an addition subnetwork.
+        
+        
+        % Implement a function to design the applied currents for a subtraction subnetwork.
+        
+        
+        % Implement a function to design the applied currents for a multiplication subnetwork.
+        
+        
+        % Implement a function to design the applied currents for a division subnetwork.
+        
+        
+        % Implement a function to design the applied currents for a derivation subnetwork.
+        
+        
+        % Implement a function to design the applied currents for an integration subnetwork.
+        
+        
+        
         %% Save & Load Functions
         
         % Implement a function to save applied current manager data as a matlab object.

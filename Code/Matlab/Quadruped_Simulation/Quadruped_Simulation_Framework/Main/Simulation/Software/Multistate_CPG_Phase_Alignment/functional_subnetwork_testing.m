@@ -66,9 +66,38 @@ num_cpg_neurons = 4;
 [ network, neuron_IDs_cpg2, synapse_IDs_cpg2, applied_current_ID_cpg2 ] = network.create_multistate_cpg_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable );
 
 % Disable the cpg subnetworks.
-% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2 );
 
+
+%% Create Transmission Subnetwork.
+
+% Create a transmission subnetwork.
+[ network, neuron_IDs_trans, synapse_ID_trans ] = network.create_transmission_subnetwork(  );
+
+% Create an applied current for the input of the transmission subnetwork.
+[ network.applied_current_manager, applied_current_ID_trans ] = network.applied_current_manager.create_applied_currents( 1 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_trans, 5e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_trans, neuron_IDs_trans( 1 ), 'neuron_ID' );
+
+% Disable the transmission subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_trans );
+
+
+%% Create Modulation Subnetwork.
+
+% Create a modulation subnetwork.
+[ network, neuron_IDs_mod, synapse_ID_mod ] = network.create_modulation_subnetwork(  );
+
+% Create applied currents to test the modulation network.
+[ network.applied_current_manager, applied_current_IDs_mod ] = network.applied_current_manager.create_applied_currents( 2 );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 5e-9, 0 }, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 0, 5e-9 }, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 1e-9, 20e-9 }, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, neuron_IDs_mod, 'neuron_ID' );
+
+% Disable the modulation subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_mod );
 
 
 
