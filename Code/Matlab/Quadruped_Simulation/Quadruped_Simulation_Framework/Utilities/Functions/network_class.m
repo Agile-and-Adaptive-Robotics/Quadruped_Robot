@@ -522,6 +522,59 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances required to design a transmission subnetwork with the specified parameters.
+        function g_syn_max12 = compute_transmission_gsynmax( self, neuron_IDs, synapse_ID, I_app2, k )
+        
+            % Set the default input arguments.
+            if nargin < 5, k = 1; end
+            if nargin < 4, I_app2 = 0; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse ID.
+            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            
+            % Retrieve the neuron properties.
+            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
+            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
+
+            % Retrieve the synaptic reversal potential.
+            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID ) );
+                        
+            % Compute the required maximum synaptic conductances required to design a transmission subnetwork.
+            g_syn_max12 = self.network_utilities.compute_transmission_gsynmax( Gm2, R1, dE_syn12, I_app2, k );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances required to design a modulation subnetwork with the specified parameters.
+        function g_syn_max12 = compute_modulation_gsynmax( self, neuron_IDs, synapse_ID, I_app2, c )
+            
+            % Set the default input arugments.
+            if nargin < 5, c = 1; end
+            if nargin < 4, I_app2 = 0; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse ID.
+            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            
+            % Retrieve the neuron properties.
+            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
+            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
+            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+
+            % Retrieve the synaptic reversal potential.
+            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID ) );
+            
+            % Compute the maximum synaptic conductance for a modulation subnetwork.
+            g_syn_max12 = self.network_utilities.compute_modulation_gsynmax( Gm2, R1, R2, dE_syn12, I_app2, c );
+        
+        end
+        
+        
         % Implement a function to compute the maximum synaptic conductances required to design an addition subnetwork with the specified parameters.
         function g_syn_maxs = compute_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k )
             
@@ -833,6 +886,50 @@ classdef network_class
         end
         
         
+        % Implement a function to compute and set the maximum synaptic conductance for a transmission subnetwork.
+        function self = compute_set_transmission_gsynmax( self, neuron_IDs, synapse_ID, I_app, k )
+            
+            % Set the default input arguments.
+            if nargin < 5, k = 1; end
+            if nargin < 4, I_app = 0; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            
+            % Compute the maximum synaptic conductance for a transmission subnetwork.
+            g_syn_max12 = self.compute_transmission_gsynmax( neuron_IDs, synapse_ID, I_app, k );
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, g_syn_max12, 'g_syn_max' );            
+        
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance for a modulation subnetwork.
+        function self = compute_set_modulation_gsynmax( self, neuron_IDs, synapse_ID, I_app, c )
+            
+            % Set the default input arguments.
+            if nargin < 5, c = 1; end
+            if nargin < 4, I_app = 0; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            
+            % Compute the maximum synaptic conductance for a modulation subnetwork.
+            g_syn_max12 = self.compute_modulation_gsynmax( neuron_IDs, synapse_ID, I_app, c );
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, g_syn_max12, 'g_syn_max' );   
+            
+        end
+        
+        
         % Implement a function to compute and set the maximum synaptic conductances for an addition subnetwork.
         function self = compute_set_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
             
@@ -1079,6 +1176,58 @@ classdef network_class
         end
             
         
+        % Implement a function to design a transmission subnetwork using existing neurons.
+        function self = design_transmission_subnetwork( self, neuron_IDs, k )
+        
+            % Set the default input arugments.
+            if nargin < 3, k = 1; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Retrieve the synapse ID associated with the transmission neurons.
+            synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps(1) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+            
+            % Compute and set the maximum synaptic conductance for a transmission subnetwork.
+            self = self.compute_set_transmission_gsynmax( neuron_IDs, synapse_ID, I_app, k );
+            
+        end
+        
+            
+        % Implement a function to design a modulation subnetwork using existing neurons.
+        function self = design_modulation_subnetwork( self, neuron_IDs, c )
+            
+            % Set the default input arugments.
+            if nargin < 3, c = 1; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            % Retrieve the synapse ID associated with the transmission neurons.
+            synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps(1) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+            
+            % Compute and set the maximum synaptic conductance for a transmission subnetwork.
+            self = self.compute_set_modulation_gsynmax( neuron_IDs, synapse_ID, I_app, c );
+            
+        end
+        
+        
         % Implement a function to design an addition subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_addition_subnetwork( self, neuron_IDs, k )
             
@@ -1294,6 +1443,18 @@ classdef network_class
         end
         
         
+        %% Subnetwork Component Creation Functions
+        
+        % Implement a function to create the multistate CPG subnetwork components.
+        
+        
+        % Implement a function to create the transmission subnetwork components.
+        
+        
+        % Implement a function to create the the modulation subnetwork components.
+       
+        
+        
         %% Subnetwork Creation Functions
         
         % Implement a function to create a multistate CPG oscillator subnetwork.
@@ -1303,116 +1464,69 @@ classdef network_class
             if nargin < 4, delta_bistable = -10e-3; end
             if nargin < 3, delta_oscillatory = 0.01e-3; end
             if nargin < 2, num_cpg_neurons = 2; end
-                        
-            % Determine whether to generate unique neuron IDs or use the specified neuron IDs.
-            if length( num_cpg_neurons ) > 1                            % If more than one "number of cpg neurons" was specified...
-            
-                % Set the neuron IDs to be those specified by the first input argument. ( We assume that this variable is instead the IDs that we would like to use for the newly created neurons.)
-                neuron_IDs = num_cpg_neurons;
+                
+            % Create the multistate cpg neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_multistate_cpg_neurons( num_cpg_neurons );
 
-            else
-                
-                % Generate unique neuron IDs for the multistate CPG subnetwork.
-                neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_cpg_neurons );
+            % Create the multistate cpg synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_multistate_cpg_synapses( neuron_IDs );
 
-            end
-                
-            % Create the multistate cpg subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
-            
-            % Generate unique synapse IDs for the multistate CPG subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_cpg_neurons^2 );
-            
-            % Create the multistate cpg subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Generate a unique applied current ID.
-            applied_current_ID = self.applied_current_manager.generate_unique_applied_current_ID(  );
-            
-            % Create the applied current time and current vectors.
-            ts = ( 0:self.dt:self.tf )';
-            I_apps = zeros( length( ts ), 1 ); I_apps(1) = 20e-9;
-            
-            % Define the applied current name.
-            applied_current_name = sprintf( 'Applied Current %0.0f', applied_current_ID );
-            
-            % Create an applied current for the first neuron in this multistate cpg subnetwork.
-            self.applied_current_manager = self.applied_current_manager.create_applied_current( applied_current_ID, applied_current_name, neuron_IDs(end), ts, I_apps, true );
-            
-            % Initialize a counter variable.
-            k3 = 0;
-            
-            % Edit the network properties.
-            for k1 = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
-                
-                % Get the index associated with this neuron.
-                neuron_index = self.neuron_manager.get_neuron_index( neuron_IDs(k1) );
-                
-                % Set this neurons name.
-                self.neuron_manager.neurons( neuron_index ).name = sprintf( 'Neuron %0.0f', neuron_IDs(k1) );
-                
-                for k2 = 1:num_cpg_neurons                          % Iterate through each of the CPG neurons (to which the synapses are going)...
-                   
-                    % Advance the counter variable.
-                    k3 = k3 + 1;
-                    
-                    % Get the index associated with this synapse.
-                    synapse_index = self.synapse_manager.get_synapse_index( synapse_IDs(k3) );
-                                        
-                    % Set the from neuron ID and to neuron ID.
-                    self.synapse_manager.synapses( synapse_index ).from_neuron_ID = neuron_IDs( k1 );
-                    self.synapse_manager.synapses( synapse_index ).to_neuron_ID = neuron_IDs( k2 );
-                    
-                    % Set the name of this synapse.
-                    self.synapse_manager.synapses( synapse_index ).name = sprintf( 'Syn %0.0f%0.0f', neuron_IDs( k1 ), neuron_IDs( k2 ) );
-                    
-                    % Set the reversal potential of this synapse (if necessary).
-                    if k1 == k2, self.synapse_manager.synapses( synapse_index ).dE_syn = 0; end
-                    
-                end
-            end
-            
+            % Create the multistate cpg applied current.
+            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multistate_cpg_applied_currents( neuron_IDs, self.dt, self.tf );
+
             % Design the multistate cpg subnetwork.
             self = self.design_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
             
         end
         
     
+        % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork( self, k )
+            
+            % Set the default input arugments.
+            if nargin < 2, k = 1; end
+            
+            % Create the transmission neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_transmission_neurons(  );
+
+            % Create the transmission synapses.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.create_transmission_synapses( neuron_IDs );
+            
+            % Design a transmission subnetwork.
+            self = self.design_transmission_subnetwork( neuron_IDs, k );
+            
+        end
+        
+        
+        % Implement a function to create a modulation subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_ID ] = create_modulation_subnetwork( self, c )
+            
+            % Set the default input arugments.
+            if nargin < 2, c = 1; end
+            
+            % Create the modulation neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_modulation_neurons(  );
+
+            % Create the modulation synapses.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.create_modulation_synapses(  );
+            
+            % Design a transmission subnetwork.
+            self = self.design_modulation_subnetwork( neuron_IDs, c );
+            
+        end
+        
+        
         % Implement a function to create an addition subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs ] = create_addition_subnetwork( self, k )
         
             % Set the default input arugments.
             if nargin < 2, k = 1; end
             
-            % Specify the (constant) number of neuron IDs to generate.
-            num_neuron_IDs = 3;
-            
-            % Generate unique neuron IDs for the addition subnetwork.
-            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
-                
-            % Create the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
-            
-            % Set the names of the addition subnetwork neurons. 
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Addition 1', 'Addition 2', 'Sum' }, 'name'  );
-            
-            % Set the sodium channel conductance of the addition neurons to zero.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
-            
-            % Specify the (constant) number of synapse IDs to generate.
-            num_synapse_IDs = 2;
-            
-            % Generate unique synapse IDs for the addition subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
-            
-            % Create the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Set the names of the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Addition 13', 'Addition 23' }, 'name' );
-            
-            % Connect the addition subnetwork synapses to the addition subnetwork neurons.
-            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs(1) neuron_IDs(2) ], [ neuron_IDs(3) neuron_IDs(3) ] );
+            % Create the addition neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_addition_neurons(  );
+
+            % Create the addition synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_addition_synapses( neuron_IDs );
             
             % Design the addition subnetwork.
             self = self.design_addition_subnetwork( neuron_IDs, k );
@@ -1426,38 +1540,35 @@ classdef network_class
             % Set the default input arugments.
             if nargin < 2, k = 1; end
             
-            % Specify the (constant) number of neuron IDs to generate.
-            num_neuron_IDs = 3;
-            
-            % Generate unique neuron IDs for the addition subnetwork.
-            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
-                
-            % Create the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
-            
-            % Set the names of the addition subnetwork neurons. 
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Subtraction 1', 'Subtraction 2', 'Difference' }, 'name'  );
-            
-            % Set the sodium channel conductance of the addition neurons to zero.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
-            
-            % Specify the (constant) number of synapse IDs to generate.
-            num_synapse_IDs = 2;
-            
-            % Generate unique synapse IDs for the addition subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
-            
-            % Create the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Set the names of the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Subtraction 13', 'Subtraction 23' }, 'name' );
-            
-            % Connect the addition subnetwork synapses to the addition subnetwork neurons.
-            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs(1) neuron_IDs(2) ], [ neuron_IDs(3) neuron_IDs(3) ] );
+            % Create the subtraction neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_subtraction_neurons(  );
+
+            % Create the subtraction synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_subtraction_synapses( neuron_IDs );
             
             % Design the addition subnetwork.
             self = self.design_subtraction_subnetwork( neuron_IDs, k );
+        
+        end
+        
+        
+        % Implement a function to create a multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork( self, k )
+        
+            % Set the default input arugments.
+            if nargin < 2, k = 1; end
+            
+            % Create the multiplication neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_multiplication_neurons(  );
+
+            % Create the multiplication synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_multiplication_synapses( neuron_IDs );
+            
+            % Create the multiplication applied currents.
+            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multiplication_applied_currents( neuron_IDs );
+
+            % Design the multiplication subnetwork.
+            self = self.design_multiplication_subnetwork( neuron_IDs, k );
         
         end
         
@@ -1469,86 +1580,14 @@ classdef network_class
             if nargin < 3, c = [  ]; end
             if nargin < 2, k = 1; end
             
-            % Specify the (constant) number of neuron IDs to generate.
-            num_neuron_IDs = 3;
+            % Create the division neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_division_neurons(  );
             
-            % Generate unique neuron IDs for the addition subnetwork.
-            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
-                
-            % Create the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
-            
-            % Set the names of the addition subnetwork neurons. 
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Division Numerator', 'Division Denominator', 'Division Result' }, 'name'  );
-            
-            % Set the sodium channel conductance of the division neurons to zero.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
-            
-            % Specify the (constant) number of synapse IDs to generate.
-            num_synapse_IDs = 2;
-            
-            % Generate unique synapse IDs for the division subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
-            
-            % Create the division subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Set the names of the division subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Subtraction 13', 'Subtraction 23' }, 'name' );
-            
-            % Connect the addition subnetwork synapses to the division subnetwork neurons.
-            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs(1) neuron_IDs(2) ], [ neuron_IDs(3) neuron_IDs(3) ] );
+            % Create the division synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_division_synapses( neuron_IDs );
             
             % Design the division subnetwork.
             self = self.design_division_subnetwork( neuron_IDs, k, c );
-        
-        end
-        
-        
-        % Implement a function to create a multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork( self, k )
-        
-            % Set the default input arugments.
-            if nargin < 2, k = 1; end
-            
-            % Specify the (constant) number of neuron IDs to generate.
-            num_neuron_IDs = 4;
-            
-            % Generate unique neuron IDs for the addition subnetwork.
-            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
-                
-            % Create the multiplication subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
-            
-            % Set the names of the multiplication subnetwork neurons. 
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Mult1', 'Mult2', 'Mult Inter', 'Prod' }, 'name'  );
-            
-            % Set the sodium channel conductance of the multiplication neurons to zero.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
-            
-            % Specify the (constant) number of synapse IDs to generate.
-            num_synapse_IDs = 3;
-            
-            % Generate unique synapse IDs for the multiplication subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
-            
-            % Create the multiplication subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Set the names of the multiplication subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Multiplication 14', 'Multiplication 23', 'Multiplication 34' }, 'name' );
-            
-            % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
-            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs(1) neuron_IDs(2) neuron_IDs(3) ], [ neuron_IDs(4) neuron_IDs(3) neuron_IDs(4) ] );
-            
-            % Create an applied current for the third neuron.
-            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_applied_currents(  );
-            
-            % Connect the multiplication subnetwork applied currents to the multiplication subnetwork neurons.
-            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_ID, neuron_IDs( 3 ), 'neuron_ID' );
-
-            % Design the multiplication subnetwork.
-            self = self.design_multiplication_subnetwork( neuron_IDs, k );
         
         end
         
@@ -1561,35 +1600,11 @@ classdef network_class
             if nargin < 3, w = 1; end
             if nargin < 2, k = 1e6; end 
 
-            % Specify the (constant) number of neuron IDs to generate.
-            num_neuron_IDs = 3;
-            
-            % Generate unique neuron IDs for the addition subnetwork.
-            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
-                
-            % Create the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
-            
-            % Set the names of the addition subnetwork neurons. 
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Subtraction 1', 'Subtraction 2', 'Difference' }, 'name'  );
-            
-            % Set the sodium channel conductance of the addition neurons to zero.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
-            
-            % Specify the (constant) number of synapse IDs to generate.
-            num_synapse_IDs = 2;
-            
-            % Generate unique synapse IDs for the addition subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
-            
-            % Create the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Set the names of the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Subtraction 13', 'Subtraction 23' }, 'name' );
-            
-            % Connect the addition subnetwork synapses to the addition subnetwork neurons.
-            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs(1) neuron_IDs(2) ], [ neuron_IDs(3) neuron_IDs(3) ] );
+            % Create the derivation neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_derivation_neurons(  );
+
+            % Create the derivation synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_derivation_synapses( neuron_IDs );
             
             % Design the derivation subnetwork.
             self = self.design_derivation_subnetwork( neuron_IDs, k, w, safety_factor );
@@ -1604,42 +1619,14 @@ classdef network_class
             if nargin < 3, ki_range = 0.01e9; end
             if nargin < 2, ki_mean = 0.01e9; end
             
-            % Specify the (constant) number of neuron IDs to generate.
-            num_neuron_IDs = 2;
+            % Create the integration neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_integration_neurons(  );
             
-            % Generate unique neuron IDs for the integration subnetwork.
-            neuron_IDs = self.neuron_manager.generate_unique_neuron_IDs( num_neuron_IDs );
-                
-            % Create the integration subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.create_neurons( neuron_IDs );
+            % Create the integration synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_integration_synapses( neuron_IDs );
             
-            % Set the names of the integration subnetwork neurons. 
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, { 'Integration 1', 'Integration 2' }, 'name'  );
-            
-            % Set the sodium channel conductance of the integration neurons to zero.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, zeros( 1, num_neuron_IDs ), 'Gna' );
-            
-            % Specify the (constant) number of synapse IDs to generate.
-            num_synapse_IDs = 2;
-            
-            % Generate unique synapse IDs for the addition subnetwork.
-            synapse_IDs = self.synapse_manager.generate_unique_synapse_IDs( num_synapse_IDs );
-            
-            % Create the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.create_synapses( synapse_IDs );
-            
-            % Set the names of the addition subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, { 'Integration 12', 'Integration 21' }, 'name' );
-            
-            % Connect the addition subnetwork synapses to the addition subnetwork neurons.
-            self.synapse_manager = self.synapse_manager.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 2 ) neuron_IDs( 1 ) ] );
-            
-            % Create an applied current for each neuron.
-            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_applied_currents( num_neuron_IDs );
-            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs, { 'Int1', 'Int2' }, 'name' );
-            
-            % Connect the multiplication subnetwork applied currents to the multiplication subnetwork neurons.
-            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs, 'neuron_ID' );
+            % Create the integration applied currents.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_integration_applied_currents( neuron_IDs );
             
             % Design the integration subnetwork.
             self = self.design_integration_subnetwork( neuron_IDs, ki_mean, ki_range );

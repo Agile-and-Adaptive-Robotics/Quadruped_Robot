@@ -4,7 +4,7 @@ classdef neuron_manager_class
     
     %% NEURON MANAGER PROPERTIES
     
-    % Define the class properties.
+    % Define general class properties.
     properties
         
         neurons
@@ -12,6 +12,21 @@ classdef neuron_manager_class
         
         array_utilities
         data_loader_utilities
+        
+    end
+    
+    
+    % Define privateconstant class properties.
+    properties ( Access = private, Constant = true )
+    
+        NUM_TRANSMISSION_NEURONS = 2;                   % [#] Number of Transmission Neurons.
+        NUM_MODULATION_NEURONS = 2;                     % [#] Number of Modulation Neurons.
+        NUM_ADDITION_NEURONS = 3;                       % [#] Number of Addition Neurons.
+        NUM_SUBTRACTION_NEURONS = 3;                    % [#] Number of Subtraction Neurons.
+        NUM_MULTIPLICATION_NEURONS = 4;                 % [#] Number of Multiplication Neurons.
+        NUM_DIVISION_NEURONS = 3;                       % [#] Number of Division Neurons.
+        NUM_DERIVATION_NEURONS = 3;                     % [#] Number of Derivation Neurons.
+        NUM_INTEGRATION_NEURONS = 2;                    % [#] Number of Integration Neurons.
         
     end
     
@@ -401,6 +416,53 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to retrieve all of the neuron IDs.
+        function neuron_IDs = get_all_neuron_IDs( self )
+            
+            % Preallocate a variable to store the neuron IDs.
+            neuron_IDs = zeros( 1, self.num_neurons );
+            
+            % Retrieve the ID associated with each neuron.
+            for k = 1:self.num_neurons
+                
+                neuron_IDs(k) = self.neurons(k).ID;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to get all enabled neuron IDs.
+        function neuron_IDs = get_enabled_neuron_IDs( self )
+            
+            % Preallocate an array to store the neuron IDs.
+            neuron_IDs = zeros( 1, self.num_neurons );
+            
+            % Initialize a counter variable.
+            k2 = 0;
+            
+            % Retrieve the IDs of the enabled neurons.
+            for k1 = 1:self.num_neurons                       % Iterate through each of the neurons...
+                
+                % Determine whether to store this neuron ID.
+                if self.neurons(k1).b_enabled                        % If this neuron is enabled...
+                    
+                    % Advance the counter variable.
+                    k2 = k2 + 1;
+                    
+                    % Store this neuron ID.
+                    neuron_IDs(k2) = self.neurons(k1).ID;
+                    
+                end
+                
+            end
+            
+            % Remove extra neuron IDs.
+            neuron_IDs = neuron_IDs(1:k2);
+            
+        end
+        
+        
         
         
         %% General Get & Set Neuron Property Functions
@@ -493,53 +555,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to retrieve all of the neuron IDs.
-        function neuron_IDs = get_all_neuron_IDs( self )
-            
-            % Preallocate a variable to store the neuron IDs.
-            neuron_IDs = zeros( 1, self.num_neurons );
-            
-            % Retrieve the ID associated with each neuron.
-            for k = 1:self.num_neurons
-                
-                neuron_IDs(k) = self.neurons(k).ID;
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to get all enabled neuron IDs.
-        function neuron_IDs = get_enabled_neuron_IDs( self )
-            
-            % Preallocate an array to store the neuron IDs.
-            neuron_IDs = zeros( 1, self.num_neurons );
-            
-            % Initialize a counter variable.
-            k2 = 0;
-            
-            % Retrieve the IDs of the enabled neurons.
-            for k1 = 1:self.num_neurons                       % Iterate through each of the neurons...
-                
-                % Determine whether to store this neuron ID.
-                if self.neurons(k1).b_enabled                        % If this neuron is enabled...
-                    
-                    % Advance the counter variable.
-                    k2 = k2 + 1;
-                    
-                    % Store this neuron ID.
-                    neuron_IDs(k2) = self.neurons(k1).ID;
-                    
-                end
-                
-            end
-            
-            % Remove extra neuron IDs.
-            neuron_IDs = neuron_IDs(1:k2);
-            
-        end
-        
-        
+
         
         %% Enable & Disable Functions
         
@@ -844,6 +860,187 @@ classdef neuron_manager_class
         end
         
        
+        %% Subnetwork Neuron Creation Functions
+                
+        % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
+        function [ self, neuron_IDs ] = create_multistate_cpg_neurons( self, num_cpg_neurons )
+        
+            % Determine whether to generate unique neuron IDs or use the specified neuron IDs.
+            if length( num_cpg_neurons ) > 1                            % If more than one "number of cpg neurons" was specified...
+            
+                % Set the neuron IDs to be those specified by the first input argument. ( We assume that this variable is instead the IDs that we would like to use for the newly created neurons.)
+                neuron_IDs = num_cpg_neurons;
+
+            else                                                        % Otherwise...
+                
+                % Generate unique neuron IDs for the multistate CPG subnetwork.
+                neuron_IDs = self.generate_unique_neuron_IDs( num_cpg_neurons );
+
+            end
+                
+            % Create the multistate cpg subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Edit the network properties.
+            for k = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
+                
+                % Get the index associated with this neuron.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Set this neurons name.
+                self.neurons( neuron_index ).name = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
+                
+            end
+            
+            
+        end
+        
+            
+        % Implement a function to create the neurons for a transmission subnetwork.
+        function [ self, neuron_IDs ] = create_transmission_neurons( self )
+            
+            % Generate unique neuron IDs for the transmission subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_TRANSMISSION_NEURONS );
+                
+            % Create the transmission subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the transmission subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Trans 1', 'Trans 2' }, 'name'  );
+            
+            % Set the sodium channel conductance of the transmission neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_TRANSMISSION_NEURONS ), 'Gna' );
+            
+        end
+        
+            
+        % Implement a function to create the neurons for a modulation subnetwork.
+        function [ self, neuron_IDs ] = create_modulation_neurons( self )
+            
+            % Generate unique neuron IDs for the modulation subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_MODULATION_NEURONS );
+                
+            % Create the modulation subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the modulation subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Mod 1', 'Mod 2' }, 'name'  );
+            
+            % Set the sodium channel conductance of the modulation neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_MODULATION_NEURONS ), 'Gna' );
+                        
+        end
+        
+        
+        % Implement a function to create the neurons for an addition subnetwork.
+        function [ self, neuron_IDs ] = create_addition_neurons( self )
+            
+            % Generate unique neuron IDs for the addition subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_ADDITION_NEURONS );
+                
+            % Create the addition subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the addition subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Add 1', 'Add 2', 'Sum' }, 'name'  );
+            
+            % Set the sodium channel conductance of the addition neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_ADDITION_NEURONS ), 'Gna' );
+            
+        end
+        
+            
+        % Implement a function to create the neurons for a subtraction subnetwork.
+        function [ self, neuron_IDs ] = create_subtraction_neurons( self )
+            
+            % Generate unique neuron IDs for the subtraction subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_SUBTRACTION_NEURONS );
+                
+            % Create the subtraction subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the subtraction subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Sub 1', 'Sub 2', 'Sub 3' }, 'name'  );
+            
+            % Set the sodium channel conductance of the subtraction neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_SUBTRACTION_NEURONS ), 'Gna' );
+            
+        end
+        
+        
+        % Implement a function to create the neurons for a multiplication subnetwork.
+        function [ self, neuron_IDs ] = create_multiplication_neurons( self )
+            
+            % Generate unique neuron IDs for the multiplication subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_MULTIPLICATION_NEURONS );
+                
+            % Create the multiplication subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the multiplication subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Mult1', 'Mult2', 'Mult Inter', 'Prod' }, 'name'  );
+            
+            % Set the sodium channel conductance of the multiplication neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_MULTIPLICATION_NEURONS ), 'Gna' );
+            
+        end
+        
+        
+        % Implement a function to create the neurons for a division subnetwork.
+        function [ self, neuron_IDs ] = create_division_neurons( self )
+            
+            % Generate unique neuron IDs for the division subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_DIVISION_NEURONS );
+                
+            % Create the division subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the division subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Div Num', 'Div Denom', 'Div Result' }, 'name'  );
+            
+            % Set the sodium channel conductance of the division neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_DIVISION_NEURONS ), 'Gna' );
+            
+        end
+        
+        
+        % Implement a function to create the neurons for a derivation subnetwork.
+        function [ self, neuron_IDs ] = create_derivation_neurons( self )
+            
+            % Generate unique neuron IDs for the derivation subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_DERIVATION_NEURONS );
+                
+            % Create the derivation subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the derivation subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Der 1', 'Der 2', 'Der 3' }, 'name'  );
+            
+            % Set the sodium channel conductance of the derivation neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_DERIVATION_NEURONS ), 'Gna' );
+            
+        end
+        
+        
+        % Implement a function to create the neurons for an integration subnetwork.
+        function [ self, neuron_IDs ] = create_integration_neurons( self )
+
+            % Generate unique neuron IDs for the integration subnetwork.
+            neuron_IDs = self.generate_unique_neuron_IDs( self.NUM_INTEGRATION_NEURONS );
+                
+            % Create the integration subnetwork neurons.
+            self = self.create_neurons( neuron_IDs );
+            
+            % Set the names of the integration subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Int 1', 'Int 2' }, 'name'  );
+            
+            % Set the sodium channel conductance of the integration neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_INTEGRATION_NEURONS ), 'Gna' );
+            
+        end
+        
+        
+        
         %% Save & Load Functions
         
         % Implement a function to save neuron manager data as a matlab object.

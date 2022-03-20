@@ -1,4 +1,4 @@
-%% Multistate CPG Phase Alignment
+%% CPG Frequency Testing
 
 % Clear Everything.
 clear, close('all'), clc
@@ -49,6 +49,10 @@ if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s]
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
+% % Define the oscillatory and bistable delta CPG synapse design parameters.
+% delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
+% delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
+
 % Define the oscillatory and bistable delta CPG synapse design parameters.
 delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
 delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
@@ -59,15 +63,40 @@ num_cpg_neurons = 4;
 % Create the first multistate cpg subnetwork.
 [ network, neuron_IDs_cpg1, synapse_IDs_cpg1, applied_current_ID_cpg1 ] = network.create_multistate_cpg_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable );
 
+% Delete the initial applied current.
+network.applied_current_manager = network.applied_current_manager.delete_applied_currents( applied_current_ID_cpg1 );
+
+% Create applied current.
+[ network.applied_current_manager, applied_current_ID_cpg1 ] = network.applied_current_manager.create_applied_currents( num_cpg_neurons );
+
+% Apply a small constant current to each neuron.
+ts = ( 0:network.dt:network.tf )';
+num_timesteps = length( ts );
+I_mag = -0.02e-9;                            % T = 2.3 [s], f = 0.4348 [hz]
+% I_mag = -0.01e-9;                            % T = 2.1285 [s], f = 0.4698 [hz]
+% I_mag = 0;                            % T = 2.0890 [s], f = 0.4787 [hz]
+% I_mag = 0.5e-9;                       % T = 1.1225 [s], f = 0.8909 [hz]
+% I_mag = 1e-9;                       % T = 0.8750 [s], f = 1.1429 [hz]
+% I_mag = 1.25e-9;                       % T = 0.6351 [s], f = 1.5746 [hz]
+% I_mag = 1.5e-9;                       % T = 0.5174 [s], f = 1.9327 [hz]
+% I_mag = 2e-9;                       % T = 0.3812 [s], f = 2.6235 [hz]
+
+I_apps = I_mag*ones( num_timesteps, 1 );
+
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_cpg1, neuron_IDs_cpg1, 'neuron_ID' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_cpg1, { ts }, 'ts' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_cpg1, { I_apps }, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_cpg1, num_timesteps, 'num_timesteps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_cpg1, network.dt, 'dt' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_cpg1, network.tf, 'tf' );
+
+
 % % Create the second multistate cpg subnetwork.
 % [ network, neuron_IDs_cpg2, synapse_IDs_cpg2, applied_current_ID_cpg2 ] = network.create_multistate_cpg_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable );
-% 
-% % % Disable the cpg subnetworks.
-% % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
-% % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2 );
-% 
-% % Create a subtraction network to compute the CPG state difference.
-% [ network, neuron_IDs_sub, synapse_IDs_sub ] = network.create_subtraction_subnetwork(  );
+%
+% % Disable the cpg subnetworks.
+% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
+% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2 );
 
 
 

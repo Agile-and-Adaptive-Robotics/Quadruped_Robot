@@ -4,7 +4,7 @@ classdef applied_current_manager_class
     
     %% APPLIED CURRENT MANAGER PROPERTIES
     
-    % Define the class properties.
+    % Define general class properties.
     properties
         
         applied_currents
@@ -12,6 +12,16 @@ classdef applied_current_manager_class
         
         array_utilities
         data_loader_utilities
+        
+    end
+    
+    
+    % Define private, constant class properties.
+    properties ( Access = private, Constant = true )
+    
+       NUM_MULTISTATE_CPG_APPLIED_CURRENTS = 1;                     % [#] Number of Multistate CPG Applied Currents.
+       NUM_MULTIPLICATION_APPLIED_CURRENTS = 1;                     % [#] Number of Multiplication Applied Currents.
+       NUM_INTEGRATION_APPLIED_CURRENTS = 2;                        % [#] Number of Integration Applied Currents.
         
     end
     
@@ -982,6 +992,65 @@ classdef applied_current_manager_class
             
         end
        
+        
+        %% Subnetwork Applied Current Creation Functions
+        
+        % Implement a function to create the applied currents for a multistate CPG subnetwork.
+        function [ self, applied_current_ID ] = create_multistate_cpg_applied_currents( self, neuron_IDs, dt, tf )
+            
+            % Create the applied current time vector.
+            ts = ( 0:dt:tf )';
+            
+            % Create the applied current magnitude vector.
+            I_apps = zeros( length( ts ), 1 ); I_apps( 1 ) = 20e-9;
+            
+            % Create an applied current for the third neuron.
+            [ self, applied_current_ID ] = self.create_applied_currents( self.NUM_MULTISTATE_CPG_APPLIED_CURRENTS );
+            
+            % Set the applied current name.
+            self = self.set_applied_current_property( applied_current_ID, { sprintf( 'CPG %0.0f', applied_current_ID ) }, 'name' );
+            
+            % Connect the applied current to the final neuron.
+            self = self.set_applied_current_property( applied_current_ID, neuron_IDs( end ), 'neuron_ID' );
+
+            % Set the applied current time vector.
+            self = self.set_applied_current_property( applied_current_ID, { ts }, 'ts' );
+            
+            % Set the applied current magnitude vector.
+            self = self.set_applied_current_property( applied_current_ID, { I_apps }, 'I_apps' );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a multiplication subnetwork.
+        function [ self, applied_current_IDs ] = create_multiplication_applied_currents( self, neuron_IDs )
+            
+            % Create an applied current for the third neuron.
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_MULTIPLICATION_APPLIED_CURRENTS );
+            
+            % Set the name of the applied current.
+            self = self.set_applied_current_property( applied_current_IDs, { 'Inter' }, 'name' );
+
+            % Connect the multiplication subnetwork applied currents to the multiplication subnetwork neurons.
+            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 3 ), 'neuron_ID' ); 
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for an integration subnetwork.
+        function [ self, applied_current_IDs ] = create_integration_applied_currents( self, neuron_IDs )
+            
+            % Create an applied current for each neuron.
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_INTEGRATION_APPLIED_CURRENTS );
+            
+            % Set the name of the applied currents.
+            self = self.set_applied_current_property( applied_current_IDs, { 'Int1', 'Int2' }, 'name' );
+            
+            % Connect the integration subnetwork applied currents to the integration subnetwork neurons.
+            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs, 'neuron_ID' );
+            
+        end
+        
         
         %% Save & Load Functions
         
