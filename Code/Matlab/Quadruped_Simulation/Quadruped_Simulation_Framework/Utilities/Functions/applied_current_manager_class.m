@@ -13,6 +13,7 @@ classdef applied_current_manager_class
         array_utilities
         data_loader_utilities
         
+        
     end
     
     
@@ -996,13 +997,7 @@ classdef applied_current_manager_class
         %% Subnetwork Applied Current Creation Functions
         
         % Implement a function to create the applied currents for a multistate CPG subnetwork.
-        function [ self, applied_current_ID ] = create_multistate_cpg_applied_currents( self, neuron_IDs, dt, tf )
-            
-            % Create the applied current time vector.
-            ts = ( 0:dt:tf )';
-            
-            % Create the applied current magnitude vector.
-            I_apps = zeros( length( ts ), 1 ); I_apps( 1 ) = 20e-9;
+        function [ self, applied_current_ID ] = create_multistate_cpg_applied_currents( self, neuron_IDs )
             
             % Create an applied current for the third neuron.
             [ self, applied_current_ID ] = self.create_applied_currents( self.NUM_MULTISTATE_CPG_APPLIED_CURRENTS );
@@ -1012,12 +1007,6 @@ classdef applied_current_manager_class
             
             % Connect the applied current to the final neuron.
             self = self.set_applied_current_property( applied_current_ID, neuron_IDs( end ), 'neuron_ID' );
-
-            % Set the applied current time vector.
-            self = self.set_applied_current_property( applied_current_ID, { ts }, 'ts' );
-            
-            % Set the applied current magnitude vector.
-            self = self.set_applied_current_property( applied_current_ID, { I_apps }, 'I_apps' );
             
         end
         
@@ -1055,31 +1044,44 @@ classdef applied_current_manager_class
         %% Subnetwork Applied Current Design Functions
         
         % Implement a function to design the applied currents for a multistate cpg subnetwork.
-        
-        
-        % Implement a function to design the applied currents for a transmission subnetwork.
-        
-        
-        % Implement a function to design the applied currents for a modulation subnetwork.
-        
-        
-        % Implement a function to design the applied currents for an addition subnetwork.
-        
-        
-        % Implement a function to design the applied currents for a subtraction subnetwork.
+        function self = design_multistate_cpg_applied_current( self, neuron_IDs, dt, tf )
+            
+            % Create the applied current time vector.
+            ts = ( 0:dt:tf )';
+            
+            % Create the applied current magnitude vector.
+            I_apps = zeros( length( ts ), 1 ); I_apps( 1 ) = 20e-9;
+                        
+            % Retrieve the applied current ID associated with the given final neuron ID.
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( end ) );
+            
+            % Set the applied current time vector.
+            self = self.set_applied_current_property( applied_current_ID, { ts }, 'ts' );
+            
+            % Set the applied current magnitude vector.
+            self = self.set_applied_current_property( applied_current_ID, { I_apps }, 'I_apps' );
+            
+        end
         
         
         % Implement a function to design the applied currents for a multiplication subnetwork.
-        
-        
-        % Implement a function to design the applied currents for a division subnetwork.
-        
-        
-        % Implement a function to design the applied currents for a derivation subnetwork.
+        function self = design_multiplication_applied_current( self, neuron_IDs, Gm3, R3 )
+            
+            % Get the applied currents IDs that comprise this multiplication subnetwork.            
+            applied_current_ID3 = self.neuron_ID2applied_current_ID( neuron_IDs( 3 ), 'ignore' );
+            
+            % Set the applied current magnitude.
+            self = self.set_applied_current_property( applied_current_ID3, Gm3*R3, 'I_apps' );
+            
+        end
         
         
         % Implement a function to design the applied currents for an integration subnetwork.
-        
+        function self = design_integration_applied_currents( self )
+            
+            
+            
+        end
         
         
         %% Save & Load Functions

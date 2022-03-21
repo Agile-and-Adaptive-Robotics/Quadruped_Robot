@@ -66,7 +66,7 @@ num_cpg_neurons = 4;
 [ network, neuron_IDs_cpg2, synapse_IDs_cpg2, applied_current_ID_cpg2 ] = network.create_multistate_cpg_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable );
 
 % Disable the cpg subnetworks.
-network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
+% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg2 );
 
 

@@ -165,6 +165,17 @@ classdef neuron_utilities_class
         end
         
         
+%         %% Neuron Design Functions
+%         
+%         % Implement a function to compute the membrane capacitances for an integration subnetwork.
+%         function Cm = compute_integration_Cm( ~, ki_mean )
+%         
+%             % Compute the integration subnetwork membrane capacitance.
+%             Cm = 1/( 2*ki_mean );
+%             
+%         end
+        
+        
     end
     
     

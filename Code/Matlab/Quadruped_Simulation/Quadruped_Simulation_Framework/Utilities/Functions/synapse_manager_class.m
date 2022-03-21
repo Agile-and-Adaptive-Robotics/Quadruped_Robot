@@ -46,7 +46,6 @@ classdef synapse_manager_class
             self.data_loader_utilities = data_loader_utilities_class(  );
             
             % Set the default synapse properties.
-%             if nargin < 1, self.synapses = synapse_class(  ); else, self.synapses = synapses; end
             if nargin < 1, self.synapses = [  ]; else, self.synapses = synapses; end
 
             % Compute the number of synapses.
@@ -1177,30 +1176,108 @@ classdef synapse_manager_class
         %% Subnetwork Synapse Design Functions
         
         % Implement a function to design the synapses for a multistate cpg subnetwork.
+        function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable )
+        
+            % Set the synapse delta values.
+            self = self.compute_set_cpg_deltas( neuron_IDs, delta_oscillatory, delta_bistable );
+            
+        end
         
         
         % Implement a function to design the synapses for a transmission subnetwork.
+        function [ self, synapse_ID ] = design_transmission_synapse( self, neuron_IDs )
+            
+            % Retrieve the synapse ID associated with the transmission neurons.
+            synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            
+            % Set the synaptic reversal potential of this synapse.
+            self = self.set_synapse_property( synapse_ID, 194e-3, 'dE_syn' ); 
+            
+        end
         
         
         % Implement a function to design the synapses for a modulation subnetwork.
+        function [ self, synapse_ID ] = design_modulation_synapse( self, neuron_IDs )
+            
+            % Retrieve the synapse ID associated with the transmission neurons.
+            synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            
+            % Set the synaptic reversal potential of this synapse.
+            self = self.set_synapse_property( synapse_ID, 0, 'dE_syn' );
+            
+        end
         
         
         % Implement a function to design the synapses for an addition subnetwork.
+        function [ self, synapse_IDs ] = design_addition_synapses( self, neuron_IDs )
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Set the synapse reversal potentials.
+            self = self.set_synapse_property( synapse_IDs, [ 194e-3 194e-3 ], 'dE_syn' );     
+            
+        end
         
         
         % Implement a function to design the synapses for a subtraction subnetwork.
+        function [ self, synapse_IDs ] = design_subtraction_synapses( self, neuron_IDs )
+            
+           % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Set the synaptic reversal potentials of the synapses.
+            self = self.set_synapse_property( synapse_IDs, [ 194e-3 -40e-3 ], 'dE_syn' ); 
+            
+        end
         
         
         % Implement a function to design the synapses for a multiplication subnetwork.
+        function [ self, synapse_IDs ] = design_multiplication_synapses( self, neuron_IDs )
+            
+           % Get the synapse IDs that comprise this multiplication subnetwork.
+            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
+            
+            % Set the synaptic reversal potentials.
+            self = self.set_synapse_property( synapse_IDs, [ 194e-3 -1e-3 -1e-3 ], 'dE_syn' );
+            
+        end
         
         
         % Implement a function to design the synapses for a division subnetwork.
+        function [ self, synapse_IDs ] = design_division_synapses( self, neuron_IDs )
+           
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Set the synaptic reversal potentials of the synapses.
+            self = self.set_synapse_property( synapse_IDs, [ 194e-3 0 ], 'dE_syn' ); 
+            
+        end
         
         
         % Implement a function to design the synapses for a derivation subnetwork.
+        function [ self, synapse_IDs ] = design_derivation_synapses( self, neuron_IDs )
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Set the synaptic reversal potentials of the synapses.
+            self = self.set_synapse_property( synapse_IDs, [ 194e-3 -40e-3 ], 'dE_syn' );
+            
+        end
         
         
         % Implement a function to design the synapses for an integration subnetwork.
+        
         
         
         %% Save & Load Functions

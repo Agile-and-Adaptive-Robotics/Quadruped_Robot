@@ -12,11 +12,12 @@ classdef neuron_manager_class
         
         array_utilities
         data_loader_utilities
+        neuron_utilities
         
     end
     
     
-    % Define privateconstant class properties.
+    % Define private, constant class properties.
     properties ( Access = private, Constant = true )
     
         NUM_TRANSMISSION_NEURONS = 2;                   % [#] Number of Transmission Neurons.
@@ -45,8 +46,10 @@ classdef neuron_manager_class
             % Create an instance of the data loader class.
             self.data_loader_utilities = data_loader_utilities_class(  );
             
+            % Create an instance of the neuron utilities class.
+            self.neuron_utilities = neuron_utilities_class(  );
+            
             % Set the default class properties.
-%             if nargin < 1, self.neurons = neuron_class(  ); else, self.neurons = neurons; end
             if nargin < 1, self.neurons = [  ]; else, self.neurons = neurons; end
 
             % Compute the number of neurons.
@@ -463,8 +466,6 @@ classdef neuron_manager_class
         end
         
         
-        
-        
         %% General Get & Set Neuron Property Functions
         
         % Implement a function to retrieve the properties of specific neurons.
@@ -553,8 +554,6 @@ classdef neuron_manager_class
             end
             
         end
-        
-        
 
         
         %% Enable & Disable Functions
@@ -903,10 +902,7 @@ classdef neuron_manager_class
             
             % Set the names of the transmission subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Trans 1', 'Trans 2' }, 'name'  );
-            
-            % Set the sodium channel conductance of the transmission neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_TRANSMISSION_NEURONS ), 'Gna' );
-            
+
         end
         
             
@@ -918,10 +914,7 @@ classdef neuron_manager_class
             
             % Set the names of the modulation subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Mod 1', 'Mod 2' }, 'name'  );
-            
-            % Set the sodium channel conductance of the modulation neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_MODULATION_NEURONS ), 'Gna' );
-                        
+                 
         end
         
         
@@ -934,9 +927,6 @@ classdef neuron_manager_class
             % Set the names of the addition subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Add 1', 'Add 2', 'Sum' }, 'name'  );
             
-            % Set the sodium channel conductance of the addition neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_ADDITION_NEURONS ), 'Gna' );
-            
         end
         
             
@@ -948,10 +938,7 @@ classdef neuron_manager_class
             
             % Set the names of the subtraction subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Sub 1', 'Sub 2', 'Sub 3' }, 'name'  );
-            
-            % Set the sodium channel conductance of the subtraction neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_SUBTRACTION_NEURONS ), 'Gna' );
-            
+
         end
         
         
@@ -963,9 +950,6 @@ classdef neuron_manager_class
             
             % Set the names of the multiplication subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Mult1', 'Mult2', 'Mult Inter', 'Prod' }, 'name'  );
-            
-            % Set the sodium channel conductance of the multiplication neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_MULTIPLICATION_NEURONS ), 'Gna' );
             
         end
         
@@ -979,9 +963,6 @@ classdef neuron_manager_class
             % Set the names of the division subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Div Num', 'Div Denom', 'Div Result' }, 'name'  );
             
-            % Set the sodium channel conductance of the division neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_DIVISION_NEURONS ), 'Gna' );
-            
         end
         
         
@@ -993,9 +974,6 @@ classdef neuron_manager_class
             
             % Set the names of the derivation subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Der 1', 'Der 2', 'Der 3' }, 'name'  );
-            
-            % Set the sodium channel conductance of the derivation neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_DERIVATION_NEURONS ), 'Gna' );
             
         end
         
@@ -1009,40 +987,90 @@ classdef neuron_manager_class
             % Set the names of the integration subnetwork neurons. 
             self = self.set_neuron_property( neuron_IDs, { 'Int 1', 'Int 2' }, 'name'  );
             
-            % Set the sodium channel conductance of the integration neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, zeros( 1, self.NUM_INTEGRATION_NEURONS ), 'Gna' );
-            
         end
         
         
         %% Subnetwork Neuron Design Functions
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
+        function self = design_multistate_cpg_neurons( self, neuron_IDs )
+        
+            % Set the sodium channel conductance of every neuron in the network using the CPG approach.
+            self = self.compute_set_cpg_Gna( neuron_IDs );
+            
+        end
         
         
         % Implement a function to design the neurons for a transmission subnetwork.
+        function self = design_transmission_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the transmission neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for a modulation subnetwork.
+        function self = design_modulation_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the modulation neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for an addition subnetwork.
+        function self = design_addition_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the addition neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for a subtraction subnetwork.
+        function self = design_subtraction_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the subtraction neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for a multiplication subnetwork.
+        function self = design_multiplication_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the multiplication neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for a division subnetwork.
+        function self = design_division_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the division neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for a derivation subnetwork.
+        function self = design_derivation_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the derivation neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         % Implement a function to design the neurons for an integration subnetwork.
-        
+        function self = design_integration_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the integration neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+        end
         
         
         %% Save & Load Functions
@@ -1143,9 +1171,7 @@ classdef neuron_manager_class
             if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
-        
-        
-        
+
         
     end
 end

@@ -755,8 +755,6 @@ classdef network_class
         function [ Cm1, Cm2 ] = compute_derivation_Cms( self, neuron_IDs, k, w )
         
             % Set the default input arugments.
-%             if nargin < 4, w = 1e3; end
-%             if nargin < 3, k = 1e3; end
             if nargin < 4, w = 1; end
             if nargin < 3, k = 1e6; end 
             
@@ -1164,12 +1162,15 @@ classdef network_class
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
-            % Set the sodium channel conductance of every neuron in the network using the CPG approach.
-            self.neuron_manager = self.neuron_manager.compute_set_cpg_Gna( neuron_IDs );
+            % Design the multistate cpg subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_multistate_cpg_neurons( neuron_IDs );
+            
+            % Design the multistate cpg subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
 
-            % Set the synapse delta values.
-            self.synapse_manager = self.synapse_manager.compute_set_cpg_deltas( neuron_IDs, delta_oscillatory, delta_bistable );
-
+            % Design the multistate cpg subnetwork applied current.
+            self.applied_current_manager = self.applied_current_manager.design_multistate_cpg_applied_current( neuron_IDs, self.dt, self.tf );
+            
             % Compute and set the maximum synaptic conductances required to achieve these delta values.
             self = self.compute_set_cpg_gsynmaxs( neuron_IDs );
             
@@ -1184,11 +1185,11 @@ classdef network_class
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
-            % Retrieve the synapse ID associated with the transmission neurons.
-            synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            % Design the transmission subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_transmission_neurons( neuron_IDs );
             
-            % Set the synaptic reversal potential of this synapse.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, 194e-3, 'dE_syn' );
+            % Design the transmission subnetwork neurons.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_transmission_synapse( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
@@ -1213,11 +1214,11 @@ classdef network_class
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
-            % Retrieve the synapse ID associated with the transmission neurons.
-            synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-            
-            % Set the synaptic reversal potential of this synapse.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, 0, 'dE_syn' );
+            % Design the modulation neurons.
+            self.neuron_manager = self.neuron_manager.design_modulation_neurons( neuron_IDs );
+
+            % Design the modulation synapses.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_modulation_synapse( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
@@ -1242,19 +1243,12 @@ classdef network_class
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
-            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            % Design the addition subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_addition_neurons( neuron_IDs );
             
-            % Get the synapse indexes associated with these synapse IDs.
-            synapse_index13 = self.synapse_manager.get_synapse_index( synapse_ID13 );
-            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
-
-            % Set the synapse reversal potentials.
-            self.synapse_manager.synapses( synapse_index13 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
-            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium
-
+            % Design the addition subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_addition_synapses( neuron_IDs );
+            
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
             
@@ -1278,13 +1272,11 @@ classdef network_class
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
-            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            % Design the subtraction subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( neuron_IDs );
             
-            % Set the synaptic reversal potentials of the synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, [ 194e-3 -40e-3 ], 'dE_syn' );
+            % Design the subtraction subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
@@ -1301,6 +1293,43 @@ classdef network_class
         end
         
         
+        % Implement a function to design a multiplication subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_multiplication_subnetwork( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Design the multiplication subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_multiplication_neurons( neuron_IDs );
+
+            % Design the multiplication subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_multiplication_synapses( neuron_IDs );
+
+            % Retrieve the necessary neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
+            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
+            
+            % Design the multiplication subnetwork applied current.
+            self.applied_current_manager = self.applied_current_manager.design_multiplication_applied_current( neuron_IDs, Gm3, R3 );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps4 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
+
+            % Determine whether to throw a warning.
+            if ~all( I_apps4 == I_apps4( 1 ) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app3 = 0;
+            I_app4 = mean( I_apps4 );
+                
+            % Compute and set the maximum synaptic reversal potentials necessary to design this multiplication subnetwork.
+            self = self.compute_set_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, I_app4, k );
+            
+        end
+        
+        
         % Implement a function to design a division subnetwork ( using the specified neurons & their existin synapses ).
         function self = design_division_subnetwork( self, neuron_IDs, k, c )
             
@@ -1310,19 +1339,12 @@ classdef network_class
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
-            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            % Design the division subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_division_neurons( neuron_IDs );
             
-            % Get the synapse indexes associated with these synapse IDs.
-            synapse_index13 = self.synapse_manager.get_synapse_index( synapse_ID13 );
-            synapse_index23 = self.synapse_manager.get_synapse_index( synapse_ID23 );
-
-            % Set the synapse reversal potentials.
-            self.synapse_manager.synapses( synapse_index13 ).dE_syn = 194e-3;               % [mV] Reversal Potential of Calcium ( Maximize )
-            self.synapse_manager.synapses( synapse_index23 ).dE_syn = 0;               % [mV] ( Minimize )
-
+            % Design the division subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_division_synapses( neuron_IDs );
+            
             % Get the applied current associated with the final neuron.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
             
@@ -1337,47 +1359,7 @@ classdef network_class
             
         end
         
-        
-        % Implement a function to design a multiplication subnetwork ( using the specified neurons & their existing synapses ).
-        function self = design_multiplication_subnetwork( self, neuron_IDs, k )
-            
-            % Set the default input arguments.
-            if nargin < 3, k = 1; end
-            
-            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
-
-            % Retrieve the necessary neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
-
-            % Get the synapse IDs that comprise this multiplication subnetwork.
-            synapse_IDs = self.synapse_manager.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
-            
-            % Set the synaptic reversal potentials.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, [ 194e-3 -1e-3 -1e-3 ], 'dE_syn' );
-
-            % Get the applied currents IDs that comprise this multiplication subnetwork.            
-            applied_current_ID3 = self.applied_current_manager.neuron_ID2applied_current_ID( neuron_IDs( 3 ), 'ignore' );
-            
-            % Set the applied current magnitude.
-            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_ID3, Gm3*R3, 'I_apps' );
-
-            % Get the applied current associated with the final neuron.
-            I_apps4 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
-
-            % Determine whether to throw a warning.
-            if ~all( I_apps4 == I_apps4(1) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app3 = 0;
-            I_app4 = mean( I_apps4 );
                 
-            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, I_app4, k );
-            
-        end
-        
-        
         % Implement a function to design a derivation subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_derivation_subnetwork( self, neuron_IDs, k, w, safety_factor )
             
@@ -1388,19 +1370,17 @@ classdef network_class
 
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
+            % Design the derivation subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_derivation_neurons( neuron_IDs );
+            
             % Compute and set the required membrane conductance.
             self = self.compute_set_derivation_Gm( neuron_IDs, k, w, safety_factor );
             
             % Compute and set the required membrane capacitances.
             self = self.compute_set_derivation_Cms( neuron_IDs, k, w );
 
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
-            synapse_ID23 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
-            
-            % Set the synaptic reversal potentials of the synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, [ 194e-3 -40e-3 ], 'dE_syn' );
+            % Design the derivation subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_derivation_synapses( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
             I_apps3 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
@@ -1428,6 +1408,9 @@ classdef network_class
             if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
 
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            % Design the integration subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_integration_neurons( neuron_IDs );
             
             % Get the synapse IDs that connect the two neurons.
             synapse_ID12 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
@@ -1461,7 +1444,7 @@ classdef network_class
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_multistate_cpg_synapses( neuron_IDs );
 
             % Create the multistate cpg applied current.
-            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multistate_cpg_applied_currents( neuron_IDs, self.dt, self.tf );    
+            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multistate_cpg_applied_currents( neuron_IDs );    
             
         end
         
