@@ -96,9 +96,11 @@ classdef neuron_class
             self = self.compute_set_tauh(  );
 
         end
+         
         
-
-        %% Sodium Channel Activation & Deactivation Functions
+        %% Neuron Compute Functions
+        
+        % -------------------------------------------------- Sodium Channel Activation & Deactivation Functions --------------------------------------------------
         
         % Implement a function to compute the steady state sodium channel activation parameter.
         function m_inf = compute_minf( self )
@@ -116,7 +118,114 @@ classdef neuron_class
             h_inf = self.neuron_utilities.compute_mhinf( self.U, self.Ah, self.Sh, self.dEh );
 
         end
+        
+        
+        % Implement a function to compute the sodium channel deactivation time constant.
+        function tauh = compute_tauh( self )
+            
+            % Compute the sodium channel deactivation time constant.
+            tauh = self.neuron_utilities.compute_tauh( self.U, self.tauh_max, self.h_inf, self.Ah, self.Sh, self.dEh );
 
+        end
+        
+        
+        % ---------------------------------------------------------------- Conductance Functions ----------------------------------------------------------------
+        
+        % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
+        function Gna = compute_cpg_Gna( self )
+            
+            % Compute the required sodium channel conductance to create oscillation in a two neuron CPG subnetwork.
+            Gna = self.neuron_utilities.compute_cpg_Gna( self.R, self.Gm, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            
+        end
+        
+        
+        % Implement a function to compute the required membrane conductance for a derivation neuron.
+        function Gm = compute_derivation_Gm( self, k, w, safety_factor )
+            
+            % Set the default input arugments.
+            if nargin < 4, safety_factor = 0.05; end
+            if nargin < 3, w = 1; end
+            if nargin < 2, k = 1e6; end
+            
+            % Compute the membrane conductance for this derivation neuron.
+            Gm = self.neuron_utilities.compute_derivation_Gm( k, w, safety_factor );
+            
+        end
+        
+        
+        % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
+
+        % Implement a function to compute the first membrane capacitance for a derivation subnetwork neuron.
+        function Cm1 = compute_derivation_Cm1( self, Cm2, k  )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1e3; end
+            if nargin < 2, Cm2 = 1e-9; end
+            
+            % Compute the first membrane capacitance for a derivation subnetwork neuron.
+            Cm1 = self.neuron_utilities.compute_derivation_Cm1( self.Gm, Cm2, k );
+            
+        end
+        
+        
+        % Implement a function to compute the second membrane capacitance for a derivation subnetwork neuron.
+        function Cm2 = compute_derivation_Cm2( self, w )
+        
+            % Set the default input arguments.
+            if nargin < 2, w = 1e3; end
+            
+            % Compute the second membrane capacitance for a derivation subnetwork neuron.
+            Cm2 = self.neuron_utilities.compute_derivation_Cm2( self.Gm, w );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance for an integration neuron.
+        function Cm = compute_integration_Cm( self, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            
+            % Compute the membrane capacitance for this integration neuron.
+            Cm = self.neuron_utilities.compute_integration_Cm( ki_mean );
+        
+        end
+        
+        
+        
+        % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
+        
+        % Implement a function to compute the leak current associated with this neuron.
+        function I_leak = compute_Ileak( self )
+           
+            % Compute the leak current associated with this neuron.
+            I_leak = self.neuron_utilities.compute_Ileak( self.U, self.Gm );
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel current associated with this neuron.
+        function I_na = compute_Ina( self )
+        
+            % Compute the sodium channel current associated with this neuron.
+            I_na = self.neuron_utilities.compute_Ina( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+                       
+        end
+        
+        
+        % Implement a function to compute the total current associated with this neuron.
+        function I_total = compute_Itotal( self )
+            
+            % Compute the total current.
+            I_total = self.neuron_utilities.compute_Itotal( self.I_leak, self.I_syn, self.I_na, self.I_tonic, self.I_app );
+            
+        end
+        
+        
+        %% Neuron Compute & Set Functions
+        
+        % -------------------------------------------------- Sodium Channel Activation & Deactivation Functions --------------------------------------------------
         
         % Implement a function to set the steady state sodium channel activation parameter.
         function self = compute_set_minf( self )
@@ -136,15 +245,6 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the sodium channel deactivation time constant.
-        function tauh = compute_tauh( self )
-            
-            % Compute the sodium channel deactivation time constant.
-            tauh = self.neuron_utilities.compute_tauh( self.U, self.tauh_max, self.h_inf, self.Ah, self.Sh, self.dEh );
-
-        end
-        
-        
         % Implement a function to compute and set the sodium channel deactivation time constant.
         function self = compute_set_tauh( self )
             
@@ -153,39 +253,73 @@ classdef neuron_class
             
         end
         
+                
+        % ---------------------------------------------------------------- Conductance Functions ----------------------------------------------------------------
         
-        
-        %% Conductance Functions
-        
-        % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
-        function Gna = compute_cpg_Gna( self )
-            
-            % Compute the required sodium channel conductance to create oscillation in a two neuron CPG subnetwork.
-            Gna = self.neuron_utilities.compute_cpg_Gna( self.R, self.Gm, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
-            
-        end
-        
-
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork.
         function self = compute_set_cpg_Gna( self )
             
-            % Compute the sodium channel conductance for a two neuron CPG subnetwork.
+            % Compute and set the sodium channel conductance for a two neuron CPG subnetwork.
             self.Gna = self.compute_cpg_Gna(  );
             
         end
         
         
-        %% Current Functions
-        
-        % Implement a function to compute the leak current associated with this neuron.
-        function I_leak = compute_Ileak( self )
+        % Implement a function to compute and set the membrane conductance for a derivation neuron.
+        function self = compute_set_derivation_Gm( self, k, w, safety_factor )
            
-            % Compute the leak current associated with this neuron.
-            I_leak = self.neuron_utilities.compute_Ileak( self.U, self.Gm );
+            % Set the default input arugments.
+            if nargin < 4, safety_factor = 0.05; end
+            if nargin < 3, w = 1; end
+            if nargin < 2, k = 1e6; end
+            
+            % Compute and set the membrane conductance for a derivation neuron.
+            self.Gm = self.compute_derivation_Gm( k, w, safety_factor );
             
         end
         
+        
+        % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
+
+        % Implement a function to compute and set the first membrane capacitance for a derivation subnetwork neuron.
+        function self = compute_set_derivation_Cm1( self, Cm2, k )
             
+            % Set the default input arguments.
+            if nargin < 3, k = 1e3; end
+            if nargin < 2, Cm2 = 1e-9; end
+            
+            % Compute and set the first membrane capacitance for a derivation subnetwork neuron.
+           self.Cm = self.compute_derivation_Cm1( Cm2, k  ); 
+            
+        end
+        
+        
+        % Implement a function to compute and set the second membrane capacitance for a derivation subnetwork neuron.
+        function self = compute_set_derivation_Cm2( self, w )
+            
+            % Set the default input arguments.
+            if nargin < 2, w = 1e3; end
+            
+            % Compute and set the second membrane capacitance for a derivation subnetwork neuron.
+            self.Cm = self.compute_derivation_Cm2( w );
+            
+        end
+        
+        
+        % Implement a function to compute and set the membrane capacitance for an integration neuron.
+        function self = compute_set_integration_Cm( self, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            
+            % Compute and set the membrane capacitance for this integration neuron.
+            self.Cm = self.compute_integration_Cm( ki_mean );
+            
+        end
+        
+        
+        % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
+        
         % Implement a function to compute and set the leak current associated with this neuron.
         function self = compute_set_Ileak( self )
             
@@ -195,30 +329,12 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the sodium channel current associated with this neuron.
-        function I_na = compute_Ina( self )
-        
-            % Compute the sodium channel current associated with this neuron.
-            I_na = self.neuron_utilities.compute_Ina( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
-                       
-        end
-        
-        
         % Implement a function to compute and set the sodium channel current associated with this neuron.
         function self = compute_set_Ina( self )
         
             % Compute the sodium channel current associated with this neuron.
             self.I_na = self.neuron_utilities.compute_Ina( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
                        
-        end
-        
-        
-        % Implement a function to compute the total current associated with this neuron.
-        function I_total = compute_Itotal( self )
-            
-            % Compute the total current.
-            I_total = self.neuron_utilities.compute_Itotal( self.I_leak, self.I_syn, self.I_na, self.I_tonic, self.I_app );
-            
         end
         
         

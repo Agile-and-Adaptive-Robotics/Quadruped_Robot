@@ -629,7 +629,7 @@ classdef network_utilities_class
             k = k + 1;
             
             % Compute the network state derivatives (as well as other intermediate network values).
-            [ dUs(:, k), dhs(:, k), G_syns(:, :, k), I_leaks(:, k), I_syns(:, k), I_nas(:, k), I_totals(:, k), m_infs(:, k), h_infs(:, k), tauhs(:, k) ] = self.simulation_step( Us(:, k), hs(:, k), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps(:, k) );
+            [ dUs( :, k ), dhs( :, k ), G_syns( :, :, k ), I_leaks( :, k ), I_syns( :, k ), I_nas( :, k ), I_totals( :, k ), m_infs( :, k ), h_infs( :, k ), tauhs( :, k ) ] = self.simulation_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps( :, k ) );
             
         end
         

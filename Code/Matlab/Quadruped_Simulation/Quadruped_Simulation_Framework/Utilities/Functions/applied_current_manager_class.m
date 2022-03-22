@@ -13,7 +13,6 @@ classdef applied_current_manager_class
         array_utilities
         data_loader_utilities
         
-        
     end
     
     
@@ -219,9 +218,10 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the step size of the specified applied currents.
-        function dt = get_dts( self, applied_current_IDs, process_option )
+        function dt = get_dts( self, applied_current_IDs, process_option, b_filter_disabled )
             
             % Set the default input arguments.
+            if nargin < 4, b_filter_disabled = false; end
             if nargin < 3, process_option = 'none'; end
             
             % Determine how to compute the step size.
@@ -240,6 +240,9 @@ classdef applied_current_manager_class
                 
                 % Retrieve the step size associated with each applied current.
                 dt = cell2mat( self.get_applied_current_property( applied_current_IDs, 'dt' ) );
+                
+                % Determine whether the step size needs to be set.
+                if isempty( dt ), dt = 1e-3; end
                 
                 % Determine how to process the step size.
                 if strcmpi( process_option, 'average' )                     % If we want the average step size...
@@ -391,7 +394,6 @@ classdef applied_current_manager_class
             end
             
         end
-        
         
         
         %% Applied Current Index & ID Functions
@@ -1077,9 +1079,13 @@ classdef applied_current_manager_class
         
         
         % Implement a function to design the applied currents for an integration subnetwork.
-        function self = design_integration_applied_currents( self )
+        function self = design_integration_applied_currents( self, neuron_IDs, Gm, R )
             
+            % Get the applied current IDs that comprise this integration subnetwork.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, 'ignore' );
             
+            % Set the applied current magnitude.
+            self = self.set_applied_current_property( applied_current_IDs, Gm*R, 'I_apps' );
             
         end
         

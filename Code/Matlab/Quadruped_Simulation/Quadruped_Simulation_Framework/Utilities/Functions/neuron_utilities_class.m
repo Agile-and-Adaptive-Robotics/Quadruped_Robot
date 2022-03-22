@@ -165,15 +165,62 @@ classdef neuron_utilities_class
         end
         
         
-%         %% Neuron Design Functions
-%         
-%         % Implement a function to compute the membrane capacitances for an integration subnetwork.
-%         function Cm = compute_integration_Cm( ~, ki_mean )
-%         
-%             % Compute the integration subnetwork membrane capacitance.
-%             Cm = 1/( 2*ki_mean );
-%             
-%         end
+        %% Neuron Design Functions
+        
+        % Implement a function to compute the first membrane capacitance of the derivation subnetwork neurons.
+        function Cm1 = compute_derivation_Cm1( ~, Gm, Cm2, k )
+            
+            % Set the default input arguments.
+            if nargin < 4, k = 1e3; end
+            if nargin < 3, Cm2 = 1e-9; end
+            if nargin < 2, Gm = 1e-6; end
+
+            % Compute the required membrane capacitance of the first neuron.
+            Cm1 = Cm2 - ( Gm.^2 ).*k; 
+            
+        end
+        
+        
+        % Implement a function to compute the second membrane capacitance of the derivation subnetwork neurons.
+        function Cm2 = compute_derivation_Cm2( ~, Gm, w )
+        
+            % Set the default input arugments.
+            if nargin < 3, w = 1e3; end
+            if nargin < 2, Gm = 1e-6; end
+            
+           % Compute the required time constant.
+            tau = 1./w;
+            
+            % Compute the required membrane capacitance of the second neuron.
+            Cm2 = Gm.*tau;
+            
+        end
+              
+        
+        % Implement a function to compute membrane conductance for a derivative subnetwork.
+        function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
+            
+            % Set the default input arugments.
+            if nargin < 4, safety_factor = 0.05; end
+            if nargin < 3, w = 1; end
+            if nargin < 2, k = 1e6; end
+            
+            % Compute the required membrance conductance.
+            Gm = ( 1 - safety_factor )/( k*w );    
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitances for an integration subnetwork.
+        function Cm = compute_integration_Cm( ~, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            
+            % Compute the integration subnetwork membrane capacitance.
+            Cm = 1./( 2*ki_mean );
+            
+        end
         
         
     end

@@ -733,53 +733,6 @@ classdef network_class
             g_syn_maxs = [ g_syn_max13, g_syn_max23 ];
 
         end
-        
-        
-        % Implement a function to compute the membrane conductance required to design a derivation subnetwork with the specified parameters.
-        function Gm = compute_derivation_Gm( self, k, w, safety_factor )
-            
-            % Set the default input arugments.
-            if nargin < 4, safety_factor = 0.05; end
-%             if nargin < 3, w = 1e6; end
-%             if nargin < 2, k = 1; end
-            if nargin < 3, w = 1; end
-            if nargin < 2, k = 1e6; end             
-
-            % Compute the membrane conductances required to design a derivation subnetwork.
-            Gm = self.network_utilities.compute_derivation_Gm( k, w, safety_factor );
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitances required to design a derivation subnetwork with the specified parameters.
-        function [ Cm1, Cm2 ] = compute_derivation_Cms( self, neuron_IDs, k, w )
-        
-            % Set the default input arugments.
-            if nargin < 4, w = 1; end
-            if nargin < 3, k = 1e6; end 
-            
-            % Retrieve the membrane conductance associated with the specified neuruons.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1:2 ), 'Gm' ) );
-            
-            % Ensure the first two membrane conductances are the same.
-            assert( Gms(1) == Gms(2), 'The membrane conductances of the first two neurons must be equal.' )
-            
-            % Compute the membrane conductances required to design a derivation subnetwork.
-            [ Cm1, Cm2 ] = self.network_utilities.compute_derivation_Cms( Gms(1), k, w );
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitances required to design an integration subnetwork with the specified parameters.
-        function Cm = compute_integration_Cm( self, ki_mean )
-        
-            % Set the default input arguments.
-            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
-            
-            % Compute the integration subnetwork membrane capacitance.
-            Cm = self.network_utilities.compute_integration_Cm( ki_mean );
-            
-        end
             
         
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
@@ -796,11 +749,11 @@ classdef network_class
             Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) );
 
             % Ensure that the integration neurons are symmetrical.
-            assert( Gms(1) == Gms(2), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
-            assert( Cms(1) == Cms(2), 'Integration subnetwork neurons must have symmetrical membrance capacitances.' );
+            assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Cms( 1 ) == Cms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance capacitances.' );
 
             % Compute the integration subnetwork maximum synaptic conductances.
-            g_syn_max = self.network_utilities.compute_integration_gsynmax( Gms(1), Cms(1), ki_range );
+            g_syn_max = self.network_utilities.compute_integration_gsynmax( Gms( 1 ), Cms( 1 ), ki_range );
             
         end
         
@@ -843,11 +796,11 @@ classdef network_class
             Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
             
             % Ensure that the integration network is symmetric.
-            assert( Gms(1) == Gms(2), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
-            assert( Rs(1) == Rs(2), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
+            assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
             
             % Compute the applied current.
-            Iapp = Gms(1)*Rs(1);
+            Iapp = Gms( 1 )*Rs( 1 );
             
         end
         
@@ -1039,58 +992,7 @@ classdef network_class
         
         end
             
-        
-        % Implement a function to compute and set the membrane conductances for a derivation subnetwork.
-        function self = compute_set_derivation_Gm( self, neuron_IDs, k, w, safety_factor )
-        
-            % Set the default input arguments.
-            if nargin < 5, safety_factor = 0.05; end
-            if nargin < 4, w = 1; end
-            if nargin < 3, k = 1e6; end
-            
-            % Compute the membrane conductance necessary for a derivation subnetwork.
-            Gm = self.compute_derivation_Gm( k, w, safety_factor );
-            
-            % Set the membrane conductance of the neurons.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs( 1:2 ), Gm, 'Gm' );
-            
-            
-        end
-        
-        
-        % Implement a funtion to compute and set the membrane capacitances for a derivation subnetwork.
-        function self = compute_set_derivation_Cms( self, neuron_IDs, k, w )
-            
-            % Set the default input arugments.
-%             if nargin < 4, w = 1e3; end
-%             if nargin < 3, k = 1e3; end
-            if nargin < 4, w = 1; end
-            if nargin < 3, k = 1e6; end   
-            
-            % Compute the membrane capacitances necessary for a derivation subnetwork.
-            [ Cm1, Cm2 ] = self.compute_derivation_Cms( neuron_IDs, k, w );
-            
-            % Set the membrane conductances of the neurons.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs( 1:2 ), [ Cm1 Cm2 ], 'Cm' );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitances required to design an integration subnetwork with the specified parameters.
-        function self = compute_set_integration_Cms( self, neuron_IDs, ki_mean )
-        
-            % Set the default input arguments.
-            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
-            
-            % Compute the integration subnetwork membrane capacitance.            
-            Cm = self.compute_integration_Cm( ki_mean );
-            
-            % Set the membrance capacitances of the specified neurons.
-            self.neuron_manager = self.neuron_manager.set_neuron_property( neuron_IDs, Cm*ones( 1, 2 ), 'Cm' );
-            
-        end
-            
-        
+
         % Implement a function to compute and set the maximum synaptic conductances for an integration subnetwork.
         function self = compute_set_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, ki_range )
         
@@ -1118,21 +1020,6 @@ classdef network_class
         end
         
         
-        % Implement a function to compute the applied currents for an integration subnetwork.
-        function self = compute_set_integration_Iapps( self, neuron_IDs )
-           
-            % Compute the applied currents for an integration subnetwork.
-            Iapp = self.compute_integration_Iapp( neuron_IDs );
-            
-            % Retrieve the applied currents IDs associated with these neuron IDs.
-            applied_current_IDs = self.applied_current_manager.neuron_IDs2applied_current_IDs( neuron_IDs );
-            
-            % Set the applied current magnitude of these applied currents.
-            self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs, Iapp, 'I_apps' );
-            
-        end
-        
-        
         %% Network Deletion Functions
         
         % Implement a function to delete all of the components in a network.
@@ -1147,8 +1034,266 @@ classdef network_class
             % Delete all of the applied currents.
             self.applied_current_manager = self.applied_current_manager.delete_applied_currents( 'all' );
            
+        end        
+        
+        
+        %% Subnetwork Applied Current Design Functions
+        
+        % Implement a function to design the applied currents for a multistate cpg subnetwork.
+        function self = design_multistate_cpg_applied_currents( self, neuron_IDs )
+            
+            % Design the applied currents for a multistate cpg subnetwork.
+            self.applied_current_manager = self.applied_current_manager.design_multistate_cpg_applied_current( neuron_IDs, self.dt, self.tf );
+            
         end
         
+        
+        % Implement a function to design the applied currents for a multiplication subnetwork.
+        function self = design_multiplication_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the necessary neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
+            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
+            
+            % Design the multiplication subnetwork applied current.
+            self.applied_current_manager = self.applied_current_manager.design_multiplication_applied_current( neuron_IDs, Gm3, R3 );
+             
+        end
+        
+        
+        % Implement a function to design the applied currents for an integration subnetwork.
+        function self = design_integration_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the membrane conductances and voltage domain.
+            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
+            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
+            
+            % Ensure that the integration network is symmetric.
+            assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
+            
+            % Design the multiplication subnetwork applied current.
+            self.applied_current_manager = self.applied_current_manager.design_integration_applied_currents( neuron_IDs, Gms( 1 ), Rs( 1 ) );
+            
+        end
+        
+        
+        %% Subnetwork Synapse Design Functions
+        
+        % Implement a function to design the synapses for a multistate cpg subnetwork.
+        function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable )
+           
+            % Design the multistate cpg subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
+
+            % Compute and set the maximum synaptic conductances required to achieve these delta values.
+            self = self.compute_set_cpg_gsynmaxs( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a transmission subnetwork.
+        function self = design_transmission_synapse( self, neuron_IDs, k, b_applied_current_compensation )
+           
+            % Set the default input arugments.
+            if nargin < 4, b_applied_current_compensation = true; end
+            if nargin < 3, k = 1; end
+            
+            % Design the transmission subnetwork neurons.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_transmission_synapse( neuron_IDs );
+            
+            % Determine whether to consider the applied current.
+            if b_applied_current_compensation                       % If we want to compensate for the applied current...
+            
+                % Get the applied current associated with the final neuron.
+                I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+
+                % Determine whether to throw a warning.
+                if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+                % Set the applied current to be the average current.
+                I_app = mean( I_apps );
+
+            else                                                    % Otherwise...
+
+                % Set the applied current magnitude to zero.
+                I_app = 0;
+                
+            end
+            
+            % Compute and set the maximum synaptic conductance for a transmission subnetwork.
+            self = self.compute_set_transmission_gsynmax( neuron_IDs, synapse_ID, I_app, k );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a modulation subnetwork.
+        function self = design_modulation_synapses( self, neuron_IDs, c )
+            
+            % Set the default input arugments.
+            if nargin < 3, c = 1; end
+            
+           % Design the modulation synapses.
+            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_modulation_synapse( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+            
+            % Compute and set the maximum synaptic conductance for a transmission subnetwork.
+            self = self.compute_set_modulation_gsynmax( neuron_IDs, synapse_ID, I_app, c ); 
+            
+        end
+        
+        
+        % Implement a function to design the synapses for an addition subnetwork.
+        function self = design_addition_synapses( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % Design the addition subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_addition_synapses( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+            
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a subtraction subnetwork.
+        function self = design_subtraction_synapses( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % Design the subtraction subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+            
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a multiplication subnetwork.
+        function self = design_multiplication_synapses( self, neuron_IDs, k )
+            
+           % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % Design the multiplication subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_multiplication_synapses( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps4 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
+
+            % Determine whether to throw a warning.
+            if ~all( I_apps4 == I_apps4( 1 ) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app3 = 0;
+            I_app4 = mean( I_apps4 );
+                
+            % Compute and set the maximum synaptic reversal potentials necessary to design this multiplication subnetwork.
+            self = self.compute_set_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, I_app4, k ); 
+            
+        end
+        
+        
+        % Implement a function to design the synapses of a division subnetwork.
+        function self = design_division_synapses( self, neuron_IDs, k, c )
+        
+            % Set the default input arguments.
+            if nargin < 4, c = [  ]; end
+            if nargin < 3, k = 1; end
+            
+            % Design the division subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_division_synapses( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic division subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+                
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a derivation subnetwork.
+        function self = design_derivation_synapses( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+           if nargin < 3, k = 1e6; end            
+            
+            % Design the derivation subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_derivation_synapses( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps3 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+
+            % Determine whether to throw a warning.
+            if ~all( I_apps3 == I_apps3( 1 ) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app3 = mean( I_apps3 );
+            
+            % Compute the subtraction subnetwork gain.
+            k_sub = ( 1e6 )/k;
+
+            % Compute and set the maximum synaptic conductances associated with this derivation subnetwork.
+            self = self.compute_set_derivation_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, k_sub ); 
+            
+        end
+        
+        
+        % Implement a function to design the synapses for an integration subnetwork.
+        function self = design_integration_synapses( self, neuron_IDs, ki_range )
+            
+            % Set the default input arugments.
+            if nargin < 3, ki_range = 1/( 2*( 1e-9 ) ); end
+            
+            % Get the synapse IDs that connect the two neurons.
+            synapse_ID12 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            synapse_ID21 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 1 ) );
+            synapse_IDs = [ synapse_ID12 synapse_ID21 ];
+
+            % Compute and set the integration subnetwork maximum synaptic conductances.
+            self = self.compute_set_integration_gsynmaxs( neuron_IDs, synapse_IDs, ki_range );
+            
+            % Compute and set the integration subnetwork synaptic reversal potentials.
+            self = self.compute_set_integration_dEsyns( neuron_IDs, synapse_IDs );    
+            
+        end
         
         
         %% Subnetwork Design Functions
@@ -1165,14 +1310,11 @@ classdef network_class
             % Design the multistate cpg subnetwork neurons.
             self.neuron_manager = self.neuron_manager.design_multistate_cpg_neurons( neuron_IDs );
             
-            % Design the multistate cpg subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
-
             % Design the multistate cpg subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_multistate_cpg_applied_current( neuron_IDs, self.dt, self.tf );
+            self = self.design_multistate_cpg_applied_currents( neuron_IDs );
             
-            % Compute and set the maximum synaptic conductances required to achieve these delta values.
-            self = self.compute_set_cpg_gsynmaxs( neuron_IDs );
+            % Design the multistate cpg subnetwork synapses.
+            self = self.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
             
         end
             
@@ -1188,20 +1330,8 @@ classdef network_class
             % Design the transmission subnetwork neurons.
             self.neuron_manager = self.neuron_manager.design_transmission_neurons( neuron_IDs );
             
-            % Design the transmission subnetwork neurons.
-            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_transmission_synapse( neuron_IDs );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
-            
-            % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app = mean( I_apps );
-            
-            % Compute and set the maximum synaptic conductance for a transmission subnetwork.
-            self = self.compute_set_transmission_gsynmax( neuron_IDs, synapse_ID, I_app, k );
+            % Design the tranmission subnetwork synapses.
+            self = self.design_transmission_synapse( neuron_IDs, k );
             
         end
         
@@ -1218,19 +1348,7 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.design_modulation_neurons( neuron_IDs );
 
             % Design the modulation synapses.
-            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_modulation_synapse( neuron_IDs );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
-            
-            % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app = mean( I_apps );
-            
-            % Compute and set the maximum synaptic conductance for a transmission subnetwork.
-            self = self.compute_set_modulation_gsynmax( neuron_IDs, synapse_ID, I_app, c );
+            self = self.design_modulation_synapses( neuron_IDs, c );
             
         end
         
@@ -1247,19 +1365,7 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.design_addition_neurons( neuron_IDs );
             
             % Design the addition subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_addition_synapses( neuron_IDs );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
-            
-            % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app = mean( I_apps );
-                
-            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            self = self.design_addition_synapses( neuron_IDs, k );
                         
         end
         
@@ -1276,19 +1382,7 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.design_subtraction_neurons( neuron_IDs );
             
             % Design the subtraction subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
-            
-            % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps(1) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app = mean( I_apps );
-            
-            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            self = self.design_subtraction_synapses( neuron_IDs, k );
                         
         end
         
@@ -1304,28 +1398,11 @@ classdef network_class
             % Design the multiplication subnetwork neurons.
             self.neuron_manager = self.neuron_manager.design_multiplication_neurons( neuron_IDs );
 
+            % Design the multiplication subnetwork applied currents.
+            self = self.design_multiplication_applied_currents( neuron_IDs );
+            
             % Design the multiplication subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_multiplication_synapses( neuron_IDs );
-
-            % Retrieve the necessary neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
-            
-            % Design the multiplication subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_multiplication_applied_current( neuron_IDs, Gm3, R3 );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps4 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
-
-            % Determine whether to throw a warning.
-            if ~all( I_apps4 == I_apps4( 1 ) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app3 = 0;
-            I_app4 = mean( I_apps4 );
-                
-            % Compute and set the maximum synaptic reversal potentials necessary to design this multiplication subnetwork.
-            self = self.compute_set_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, I_app4, k );
+            self = self.design_multiplication_synapses( neuron_IDs, k );
             
         end
         
@@ -1343,19 +1420,7 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.design_division_neurons( neuron_IDs );
             
             % Design the division subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_division_synapses( neuron_IDs );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
-            
-            % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps(1) ), warning( 'The basic division subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app = mean( I_apps );
-                
-            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+            self = self.design_division_synapses( neuron_IDs, k, c );
             
         end
         
@@ -1371,31 +1436,10 @@ classdef network_class
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the derivation subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_derivation_neurons( neuron_IDs );
-            
-            % Compute and set the required membrane conductance.
-            self = self.compute_set_derivation_Gm( neuron_IDs, k, w, safety_factor );
-            
-            % Compute and set the required membrane capacitances.
-            self = self.compute_set_derivation_Cms( neuron_IDs, k, w );
+            self.neuron_manager = self.neuron_manager.design_derivation_neurons( neuron_IDs, k, w, safety_factor );
 
             % Design the derivation subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_derivation_synapses( neuron_IDs );
-            
-            % Get the applied current associated with the final neuron.
-            I_apps3 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
-
-            % Determine whether to throw a warning.
-            if ~all( I_apps3 == I_apps3( 1 ) ), warning( 'The basic multiplication subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-
-            % Set the applied current to be the average current.
-            I_app3 = mean( I_apps3 );
-            
-            % Compute the subtraction subnetwork gain.
-            k_sub = ( 1e6 )/k;
-
-            % Compute and set the maximum synaptic conductances associated with this derivation subnetwork.
-            self = self.compute_set_derivation_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, k_sub );
+            self = self.design_derivation_synapses( neuron_IDs, k );
             
         end
         
@@ -1410,24 +1454,13 @@ classdef network_class
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the integration subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_integration_neurons( neuron_IDs );
+            self.neuron_manager = self.neuron_manager.design_integration_neurons( neuron_IDs, ki_mean );
             
-            % Get the synapse IDs that connect the two neurons.
-            synapse_ID12 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-            synapse_ID21 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 1 ) );
-            synapse_IDs = [ synapse_ID12 synapse_ID21 ];
-
-            % Compute and set the integration subnetwork capacitances.
-            self = self.compute_set_integration_Cms( neuron_IDs, ki_mean );
-
-            % Compute and set the integration subnetwork maximum synaptic conductances.
-            self = self.compute_set_integration_gsynmaxs( neuron_IDs, synapse_IDs, ki_range );
+            % Design the integration applied currents.
+            self = self.design_integration_applied_currents( neuron_IDs );
             
-            % Compute and set the integration subnetwork synaptic reversal potentials.
-            self = self.compute_set_integration_dEsyns( neuron_IDs, synapse_IDs );
-            
-            % Compute and set the integration subnetwork applied current magnitudes.
-            self = self.compute_set_integration_Iapps( neuron_IDs );
+            % Design the integration synapses.
+            self = self.design_integration_synapses( neuron_IDs, ki_range );
             
         end
         
@@ -1973,7 +2006,6 @@ classdef network_class
             self.applied_current_manager = self.applied_current_manager.load_xlsx( file_name_applied_current, directory, b_append, b_verbose );
             
         end
-        
         
         
     end
