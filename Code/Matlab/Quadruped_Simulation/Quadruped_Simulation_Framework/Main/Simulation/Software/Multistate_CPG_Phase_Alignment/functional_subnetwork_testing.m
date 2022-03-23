@@ -161,6 +161,27 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_sub );
 
 
+%% Create Double Subtraction Subnetwork.
+
+% Create a double subtraction subnetwork.
+[ network, neuron_IDs_dsub, synapse_IDs_dsub ] = network.create_double_subtraction_subnetwork(  );
+
+% Create applied currents for the double subtraction subnetwork.
+[ network.applied_current_manager, applied_current_IDs_dsub ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_dsub( 1 ), 15e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_dsub( 2 ), 10e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_dsub, neuron_IDs_dsub( 1:2 ), 'neuron_ID' );
+
+% % Create applied currents for the double subtraction subnetwork.
+% [ network.applied_current_manager, applied_current_IDs_dsub ] = network.applied_current_manager.create_applied_currents( 2 );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_dsub( 1 ), 10e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_dsub( 2 ), 15e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_dsub, neuron_IDs_dsub( 1:2 ), 'neuron_ID' );
+
+% % Disable the double subtraction subnetwork.
+% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_dsub );
+
+
 %% Create Multiplication Subnetwork.
 
 % Create a multiplication subnetwork.
@@ -263,8 +284,8 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int( 2 ), network.dt, 'dt' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_int( 2 ), network.tf, 'tf' );
 
-% % Disable the integration subnetwork.
-% network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_int );
+% Disable the integration subnetwork.
+network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_int );
 
 
 

@@ -106,11 +106,11 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 %% CPG State Difference Approach 1 ( Unique Neurons )
 
 % Create a subtraction network to compute the CPG state difference.
-[ network, neuron_IDs_sub, synapse_IDs_sub ] = network.create_subtraction_subnetwork(  );
+[ network, neuron_IDs_sub1, synapse_IDs_sub1 ] = network.create_double_subtraction_subnetwork(  );
 
 % Define the neuron IDs of the transmission subnetwork neurons.
-neuron_IDs_trans1 = [ neuron_IDs_cpg1( 1 ) neuron_IDs_sub( 1 ) ];
-neuron_IDs_trans2 = [ neuron_IDs_cpg2( 1 ) neuron_IDs_sub( 2 ) ];
+neuron_IDs_trans1 = [ neuron_IDs_cpg1( 1 ) neuron_IDs_sub1( 1 ) ];
+neuron_IDs_trans2 = [ neuron_IDs_cpg2( 1 ) neuron_IDs_sub1( 2 ) ];
 
 % Create transmission subnetwork synapses.
 [ network.synapse_manager, synapse_ID_trans1 ] = network.synapse_manager.create_transmission_synapses( neuron_IDs_trans1 );
@@ -120,22 +120,56 @@ neuron_IDs_trans2 = [ neuron_IDs_cpg2( 1 ) neuron_IDs_sub( 2 ) ];
 network = network.design_transmission_synapse( neuron_IDs_trans1 );
 network = network.design_transmission_synapse( neuron_IDs_trans2 );
 
-% Create an integration subnetwork.
+% Define the parameters of the integration subnetwork.
 % ki_mean = 0.01e9;
 % ki_range = 0.01e9;
 ki_mean = 1.445e6;
 ki_range = 1.445e6;
+
+% Create an integration subnetwork.
 [ network, neuron_IDs_int, synapse_IDs_int, applied_current_IDs_int ] = network.create_integration_subnetwork( ki_mean, ki_range );
 
 % Define the neuron IDs of the tranmission subnetwork neurons.
-neuron_IDs_trans3 = [ neuron_IDs_sub( 3 ) neuron_IDs_int( 1 ) ];
+neuron_IDs_trans3 = [ neuron_IDs_sub1( 3 ) neuron_IDs_int( 1 ) ];
+neuron_IDs_trans4 = [ neuron_IDs_sub1( 4 ) neuron_IDs_int( 1 ) ];
 
 % Create the transmission subnetwork synapse.
 [ network.synapse_manager, synapse_ID_trans3 ] = network.synapse_manager.create_transmission_synapses( neuron_IDs_trans3 );
+[ network.synapse_manager, synapse_ID_trans4 ] = network.synapse_manager.create_transmission_synapses( neuron_IDs_trans4 );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_ID_trans4, -cell2mat( network.synapse_manager.get_synapse_property( synapse_ID_trans4, 'g_syn_max' ) ), 'g_syn_max' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_ID_trans4, false, 'b_enabled' );
 
 % Design the transmission subnetwork synapse.
 network = network.design_transmission_synapse( neuron_IDs_trans3, 1, false );
 
+% Create a neuron to represent the desired phase.
+[ network.neuron_manager, neuron_ID_desired_phase ] = network.neuron_manager.create_neuron(  );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_ID_desired_phase, 0, 'Gna' );
+
+% Create an applied current for the desired phase neuron to represent the desired phase.
+[ network.applied_current_manager, applied_current_ID_desired_phase ] = network.applied_current_manager.create_applied_current(  );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, { 'Desired Phase' }, 'name' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, neuron_ID_desired_phase, 'neuron_ID' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, {  }, 'ts' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, 10e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, {  }, 'num_timesteps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, {  }, 'dt' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired_phase, {  }, 'tf' );
+
+% Create a subtraction network to compute the phase difference.
+[ network, neuron_IDs_sub2, synapse_IDs_sub2 ] = network.create_double_subtraction_subnetwork(  );
+
+% Define the neurons IDs of the transmission subnetwork neurons.
+neuron_IDs_trans5 = [ neuron_IDs_int( 1 ) neuron_IDs_sub2( 1 ) ];
+neuron_IDs_trans6 = [ neuron_ID_desired_phase neuron_IDs_sub2( 2 ) ];
+
+% Create transmission subnetwork synapses.
+[ network.synapse_manager, synapse_ID_trans5 ] = network.synapse_manager.create_transmission_synapses( neuron_IDs_trans5 );
+[ network.synapse_manager, synapse_ID_trans6 ] = network.synapse_manager.create_transmission_synapses( neuron_IDs_trans6 );
+
+% Design the transmission subnetwork synapses.
+network = network.design_transmission_synapse( neuron_IDs_trans5 );
+network = network.design_transmission_synapse( neuron_IDs_trans6 );
 
 
 %% CPG State Difference Approach 2 ( Reused Neurons )
@@ -192,16 +226,13 @@ fprintf('Oscillation Frequency: [hz]\n'), disp( fs_frequency )
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
-fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
-% fig_network_states = network.network_utilities.plot_network_states( ts, Us(1:2, :), hs(1:2, :), neuron_IDs );
-
-% dUs = Us( 1, : ) - Us( 2, : );
-% figure( 'Color', 'w' ), plot( ts, dUs, '-m', 'Linewidth', 3 )
-
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 1:4, : ), hs( 1:4, : ), neuron_IDs( 1:4 ) );
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 5:8, : ), hs( 5:8, : ), neuron_IDs( 5:8 ) );
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 9:11, : ), hs( 9:11, : ), neuron_IDs( 9:11 ) );
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 12:13, : ), hs( 12:13, : ), neuron_IDs( 12:13 ) );
+fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs ); fig_network_states.Name = 'Network States: All';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 1:4, : ), hs( 1:4, : ), neuron_IDs( 1:4 ) ); fig_network_states.Name = 'Network States: CPG 1 (Multistate CPG)';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 5:8, : ), hs( 5:8, : ), neuron_IDs( 5:8 ) ); fig_network_states.Name = 'Network States: CPG 2 (Multistate CPG)';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 9:12, : ), hs( 9:12, : ), neuron_IDs( 9:12 ) ); fig_network_states.Name = 'Network States: Phase Rate (Double Subtraction)';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 13:14, : ), hs( 13:14, : ), neuron_IDs( 13:14 ) ); fig_network_states.Name = 'Network States: Phase (Integration)';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 15, : ), hs( 15, : ), neuron_IDs( 15 ) ); fig_network_states.Name = 'Network States: Desired Phase';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 16:19, : ), hs( 16:19, : ), neuron_IDs( 16:19 ) ); fig_network_states.Name = 'Network States: Phase Error (Double Subtraction)';
 
 
 % Animate the network states over time.

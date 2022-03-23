@@ -23,6 +23,7 @@ classdef synapse_manager_class
         NUM_MODULATION_SYNAPSES = 1;                            % [#] Number of Modulation Synapses.
         NUM_ADDITION_SYNAPSES = 2;                              % [#] Number of Addition Synapses.
         NUM_SUBTRACTION_SYNAPSES = 2;                           % [#] Number of Subtraction Synapses.
+        NUM_DOUBLE_SUBTRACTION_SYNAPSES = 4;                    % [#] Number of Subtraction Synapses.
         NUM_MULTIPLICATION_SYNAPSES = 3;                        % [#] Number of Multiplication Synapses.
         NUM_DIVISION_SYNAPSES = 2;                              % [#] Number of Division Synapses.
         NUM_DERIVATION_SYNAPSES = 2;                            % [#] Number of Derivation Synapses.
@@ -1109,6 +1110,21 @@ classdef synapse_manager_class
             
             % Connect the subtraction subnetwork synapses to the subtraction subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            
+        end
+        
+        
+        % Implement a function to create the synapses for a double subtraction subnetwork.
+        function [ self, synapse_IDs ] = create_double_subtraction_synapses( self, neuron_IDs )
+            
+            % Create the double subtraction subnetwork synapses.
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_DOUBLE_SUBTRACTION_SYNAPSES );
+            
+            % Set the names of the double subtraction subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24' }, 'name' );
+            
+            % Connect the double subtraction subnetwork synapses to the subtraction subnetwork neurons.
+            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 4 ) ] );
             
         end
         

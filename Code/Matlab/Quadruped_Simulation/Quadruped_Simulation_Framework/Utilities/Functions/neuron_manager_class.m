@@ -24,6 +24,7 @@ classdef neuron_manager_class
         NUM_MODULATION_NEURONS = 2;                     % [#] Number of Modulation Neurons.
         NUM_ADDITION_NEURONS = 3;                       % [#] Number of Addition Neurons.
         NUM_SUBTRACTION_NEURONS = 3;                    % [#] Number of Subtraction Neurons.
+        NUM_DOUBLE_SUBTRACTION_NEURONS = 4;             % [#] Number of Double Subtraction Neurons.
         NUM_MULTIPLICATION_NEURONS = 4;                 % [#] Number of Multiplication Neurons.
         NUM_DIVISION_NEURONS = 3;                       % [#] Number of Division Neurons.
         NUM_DERIVATION_NEURONS = 3;                     % [#] Number of Derivation Neurons.
@@ -1043,6 +1044,18 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to create the neurons for a double subtraction subnetwork.
+        function [ self, neuron_IDs ] = create_double_subtraction_neurons( self )
+                
+            % Create the double subtraction subnetwork neurons.
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_DOUBLE_SUBTRACTION_NEURONS );
+            
+            % Set the names of the double subtraction subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4' }, 'name'  );
+
+        end
+        
+        
         % Implement a function to create the neurons for a multiplication subnetwork.
         function [ self, neuron_IDs ] = create_multiplication_neurons( self )
 
@@ -1135,7 +1148,19 @@ classdef neuron_manager_class
             % Set the sodium channel conductance of the subtraction neurons to zero.
             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
-            % Set the membrane capacitance.
+            % Set the membrane capacitance of the subtraction neurons.
+            self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
+            
+        end
+        
+        
+        % Implement a function to design the neurons for a double subtraction subnetwork.
+        function self = design_double_subtraction_neurons( self, neuron_IDs )
+           
+            % Set the sodium channel conductance of the double subtraction neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+            % Set the membrane capacitance of the double subtraction neurons.
             self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
             
         end

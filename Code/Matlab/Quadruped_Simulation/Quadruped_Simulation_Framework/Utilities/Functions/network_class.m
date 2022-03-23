@@ -1199,6 +1199,39 @@ classdef network_class
         end
         
         
+        % Implement a function to design the synapses for a double subtraction subnetwork.
+        function self = design_double_subtraction_synapses( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % Retrieve the neuron IDs associated with each subtraction subnetwork.
+            neuron_IDs1 = neuron_IDs( 1:3 );
+            neuron_IDs2 = [ neuron_IDs( 2 ) neuron_IDs( 1 ) neuron_IDs( 4 ) ];
+            
+            % Design the subtraction subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs1 ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs1 );
+            [ self.synapse_manager, synapse_IDs2 ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs2 );
+
+            % Get the applied current associated with the final neuron.
+            I_apps1 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            I_apps2 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
+
+            % Determine whether to throw a warning.
+            if ~all( I_apps1 == I_apps1( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( I_apps2 == I_apps2( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+
+            % Set the applied current to be the average current.
+            I_app1 = mean( I_apps1 );
+            I_app2 = mean( I_apps2 );
+
+            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs1, synapse_IDs1, I_app1, k );
+            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs2, synapse_IDs2, I_app2, k );
+
+        end
+        
+        
         % Implement a function to design the synapses for a multiplication subnetwork.
         function self = design_multiplication_synapses( self, neuron_IDs, k )
             
@@ -1387,6 +1420,23 @@ classdef network_class
         end
         
         
+        % Implement a function to design a double subtraction subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_double_subtraction_subnetwork( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = 1; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Design the double subtraction subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_double_subtraction_neurons( neuron_IDs );
+            
+            % Design the double subtraction subnetwork synapses.
+            self = self.design_double_subtraction_synapses( neuron_IDs, k );
+                        
+        end
+        
+        
         % Implement a function to design a multiplication subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_multiplication_subnetwork( self, neuron_IDs, k )
             
@@ -1530,6 +1580,18 @@ classdef network_class
         end
         
         
+        % Implement a function to create the double subtraction subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs ] = create_double_subtraction_subnetwork_components( self )
+        
+            % Create the double subtraction neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_double_subtraction_neurons(  );
+
+            % Create the double subtraction synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_double_subtraction_synapses( neuron_IDs );
+            
+        end
+        
+        
         % Implement a function to create the multiplication subnetwork components.
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork_components( self )
             
@@ -1657,9 +1719,24 @@ classdef network_class
             % Create the subtraction subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_subtraction_subnetwork_components(  );
             
-            % Design the addition subnetwork.
+            % Design the subtraction subnetwork.
             self = self.design_subtraction_subnetwork( neuron_IDs, k );
         
+        end
+        
+        
+        % Implement a function to create a double subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs ] = create_double_subtraction_subnetwork( self, k )
+            
+            % Set the default input arugments.
+            if nargin < 2, k = 1; end
+            
+            % Create the double subtraction subnetwork components.
+            [ self, neuron_IDs, synapse_IDs ] = self.create_double_subtraction_subnetwork_components(  );
+            
+            % Design the double subtraction subnetwork.
+            self = self.design_double_subtraction_subnetwork( neuron_IDs, k );
+            
         end
         
         
