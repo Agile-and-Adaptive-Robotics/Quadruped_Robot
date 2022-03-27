@@ -37,7 +37,7 @@ classdef array_utilities_class
             for k = 1:num_entries_to_remove                          % Iterate through each of the entries ot remove...
                 
                 % Remove this entry.
-                array( array == entries_to_remove(k) ) = [  ];
+                array( array == entries_to_remove( k ) ) = [  ];
                 
             end
             
@@ -95,7 +95,7 @@ classdef array_utilities_class
             for k = 1:num_values                % Iterate through each of the values...
                 
                 % Determine whether this value is in the array.
-                [ b_match_founds(k), match_logicals(k, :), match_indexes(k, :) ] = self.is_value_in_array( values(k), array );
+                [ b_match_founds( k ), match_logicals( k, : ), match_indexes( k, : ) ] = self.is_value_in_array( values( k ), array );
                 
             end
             
@@ -137,7 +137,6 @@ classdef array_utilities_class
                 
             end
             
-            
         end
         
         
@@ -148,7 +147,7 @@ classdef array_utilities_class
            if length( array ) > 1                                       % If there are at least two array elements...
                
                % Compute the step size.
-               step_size = mean( array(2:end) - array(1:end-1) );
+               step_size = mean( array( 2:end ) - array( 1:end-1 ) );
                
            else                                                         % Otherwise...
               
@@ -164,28 +163,28 @@ classdef array_utilities_class
         function domain = scale_domain_absolute( ~, domain, scale )
             
             % Determine whether to directly add the scale.
-            if domain(1) == 0                                           % If this bound is zero...
+            if domain( 1 ) == 0                                           % If this bound is zero...
                 
                 % Directly add the scale to the bound.
-                domain(1) = domain(1) - scale;
+                domain( 1 ) = domain( 1 ) - scale;
                 
             else                                                        % Otherwise...
                 
                 % Scale the domain lower bound.
-                domain(1) = domain(1) - abs( scale*domain(1) );
+                domain( 1 ) = domain( 1 ) - abs( scale*domain( 1 ) );
                 
             end
             
             % Determine whether to directly add the scale.
-            if domain(2) == 0                                           % If this bound is zero...
+            if domain( 2 ) == 0                                           % If this bound is zero...
                 
                 % Directly add the scale to the bound.
-                domain(2) = domain(2) + scale;
+                domain( 2 ) = domain( 2 ) + scale;
                 
             else                                                        % Otherwise...
                 
                 % Scale the domain upper bound.
-                domain(2) = domain(2) + abs( scale*domain(2) );
+                domain( 2 ) = domain( 2 ) + abs( scale*domain( 2 ) );
                 
             end
 
@@ -195,7 +194,7 @@ classdef array_utilities_class
         function domain = scale_domain_relative( ~, domain, scale )
            
             % Compute the middle of the domain.
-            middle = ( domain(2) - domain(1) )/2 + domain(1);
+            middle = ( domain( 2 ) - domain( 1 ) )/2 + domain( 1 );
 
             % Center the domain at the origin.
             domain_centered = domain - middle;

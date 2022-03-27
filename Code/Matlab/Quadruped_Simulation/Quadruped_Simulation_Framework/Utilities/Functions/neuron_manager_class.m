@@ -31,6 +31,12 @@ classdef neuron_manager_class
         NUM_INTEGRATION_NEURONS = 2;                    % [#] Number of Integration Neurons.
         NUM_VB_INTEGRATION_NEURONS = 4;                 % [#] Number of Voltage Based Integration Neurons.
         
+        K_DERIVATION = 1e6;
+        W_DERIVATION = 1;
+        SF_DERIVATION = 0.05;
+        
+        K_INTEGRATION_MEAN = 0.01e9;
+
     end
     
     
@@ -705,13 +711,221 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to compute and set the sodium channel conductance of transmission neurons.
+        function self = compute_set_transmission_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_transmission_Gna(  );
+                
+            end
+            
+        end
+        
+                
+        % Implement a function to compute and set the sodium channel conductance of modulation neurons.
+        function self = compute_set_modulation_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_modulation_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of addition neurons.
+        function self = compute_set_addition_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_addition_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
+        function self = compute_set_subtraction_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_subtraction_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of double subtraction neurons.
+        function self = compute_set_double_subtraction_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_double_subtraction_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of multiplication neurons.
+        function self = compute_set_multiplication_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_multiplication_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of division neurons.
+        function self = compute_set_division_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_division_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of derivation neurons.
+        function self = compute_set_derivation_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_derivation_Gna(  );
+                
+            end
+            
+        end
+        
+        
         % Implement a function to compute and set the membrane conductance of derivation neurons.
         function self = compute_set_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor )
             
             % Set the default input arguments.
-            if nargin < 5, safety_factor = 0.05; end
-            if nargin < 4, w = 1; end
-            if nargin < 3, k_gain = 1e6; end
+            if nargin < 5, safety_factor = self.SF_DERIVATION; end
+            if nargin < 4, w = self.W_DERIVATION; end
+            if nargin < 3, k_gain = self.K_DERIVATION; end
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
@@ -732,16 +946,119 @@ classdef neuron_manager_class
             end
             
         end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of integration neurons.
+        function self = compute_set_integration_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_integration_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of voltage based integration neurons.
+        function self = compute_set_vb_integration_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_vb_integration_Gna(  );
+                
+            end
+            
+        end
                 
         
         % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
 
+        % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
+        function self = compute_set_subtraction_Cm( self, neuron_IDs )
+
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the membrane capacitance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_subtraction_Cm(  );
+                
+            end
+            
+        end
         
-        % Implement a function to compute and set the first memebrane capacitance of derivation subnetwork neurons.
+        
+        % Implement a function to compute and set the membrane capacitance of double subtraction subnetwork neurons.
+        function self = compute_set_double_subtraction_Cm( self, neuron_IDs )
+
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the membrane capacitance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_double_subtraction_Cm(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the first membrane capacitance of derivation subnetwork neurons.
         function self = compute_set_derivation_Cm1( self, neuron_IDs, k_gain )
             
             % Set the default input arguments.            
-            if nargin < 3, k_gain = 1e3; end
+            if nargin < 3, k_gain = self.K_DERIVATION; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
@@ -762,7 +1079,7 @@ classdef neuron_manager_class
         function self = compute_set_derivation_Cm2( self, neuron_IDs, w )
             
             % Set the default input arguments.            
-            if nargin < 3, w = 1e3; end
+            if nargin < 3, w = self.W_DERIVATION; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
@@ -780,7 +1097,7 @@ classdef neuron_manager_class
         function self = compute_set_integration_Cm( self, neuron_IDs, ki_mean )
             
             % Set the default input arguments.
-            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
@@ -802,6 +1119,32 @@ classdef neuron_manager_class
 
         end
         
+        
+        % Implement a function to compute and set the membrane capacitance of voltage based integration neurons.
+        function self = compute_set_vb_integration_Cm( self, neuron_IDs, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_vb_integration_Cm( ki_mean );
+                
+            end
+
+        end
         
         
         %% Basic Neuron Creation / Deletion Functions
@@ -1131,8 +1474,11 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for a transmission subnetwork.
         function self = design_transmission_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the transmission neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the transmission subnetwork neurons.
+            self = self.compute_set_transmission_Gna( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the transmission neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1140,8 +1486,11 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for a modulation subnetwork.
         function self = design_modulation_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the modulation neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the modulation subnetwork neurons.
+            self = self.compute_set_modulation_Gna( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the modulation neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1149,8 +1498,11 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for an addition subnetwork.
         function self = design_addition_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the addition neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the addition subnetwork neurons.
+            self = self.compute_set_addition_Gna( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the addition neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1158,11 +1510,17 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for a subtraction subnetwork.
         function self = design_subtraction_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the subtraction neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the subtraction subnetwork neurons.
+            self = self.compute_set_subtraction_Gna( neuron_IDs );
             
-            % Set the membrane capacitance of the subtraction neurons.
-            self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
+            % Compute and set the sodium channel conductance of the subtraction subnetwork neurons.
+            self = self.compute_set_subtraction_Cm( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the subtraction neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+%             
+%             % Set the membrane capacitance of the subtraction neurons.
+%             self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
             
         end
         
@@ -1170,11 +1528,17 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for a double subtraction subnetwork.
         function self = design_double_subtraction_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the double subtraction neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the double subtraction subnetwork neurons.
+            self = self.compute_set_double_subtraction_Gna( neuron_IDs );
             
-            % Set the membrane capacitance of the double subtraction neurons.
-            self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
+            % Compute and set the sodium channel conductance of the double subtraction subnetwork neurons.
+            self = self.compute_set_double_subtraction_Cm( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the double subtraction neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+%             
+%             % Set the membrane capacitance of the double subtraction neurons.
+%             self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
             
         end
         
@@ -1182,8 +1546,11 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for a multiplication subnetwork.
         function self = design_multiplication_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the multiplication neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the multiplication subnetwork neurons.
+            self = self.compute_set_multiplication_Gna( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the multiplication neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1191,8 +1558,11 @@ classdef neuron_manager_class
         % Implement a function to design the neurons for a division subnetwork.
         function self = design_division_neurons( self, neuron_IDs )
            
-            % Set the sodium channel conductance of the division neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the division subnetwork neurons.
+            self = self.compute_set_division_Gna( neuron_IDs );
+            
+%             % Set the sodium channel conductance of the division neurons to zero.
+%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1201,12 +1571,12 @@ classdef neuron_manager_class
         function self = design_derivation_neurons( self, neuron_IDs, k_gain, w, safety_factor )
            
             % Set the default input arguments.
-            if nargin < 5, safety_factor = 0.05; end
-            if nargin < 4, w = 1; end
-            if nargin < 3, k_gain = 1e6; end
+            if nargin < 5, safety_factor = self.SF_DERIVATION; end
+            if nargin < 4, w = self.W_DERIVATION; end
+            if nargin < 3, k_gain = self.K_DERIVATION; end
             
-            % Set the sodium channel conductance of the derivation neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            % Compute and set the sodium channel conductance of the derivation subnetwork neurons.
+            self = self.compute_set_derivation_Gna( neuron_IDs );
             
             % Compute and set the membrane conductance for a derivation subnetwork.
             self = self.compute_set_derivation_Gm( neuron_IDs, k_gain, w, safety_factor );
@@ -1224,11 +1594,11 @@ classdef neuron_manager_class
         function self = design_integration_neurons( self, neuron_IDs, ki_mean )
 
             % Set the default input arugments.
-            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
 
-            % Set the sodium channel conductance of the integration neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
-            
+            % Compute and set the sodium channel conductance of the integration subnetwork neurons.
+            self = self.compute_set_integration_Gna( neuron_IDs );
+
             % Compute and set the membrane capacitance of the integration neurons.
             self = self.compute_set_integration_Cm( neuron_IDs, ki_mean );
             
@@ -1239,13 +1609,13 @@ classdef neuron_manager_class
         function self = design_vb_integration_neurons( self, neuron_IDs, ki_mean )
 
             % Set the default input arugments.
-            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
-
-            % Set the sodium channel conductance of the integration neurons to zero.
-            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
             
+            % Compute and set the sodium channel conductance of the voltage based integration subnetwork neurons.
+            self = self.compute_set_vb_integration_Gna( neuron_IDs );
+
             % Compute and set the membrane capacitance of the integration neurons.
-            self = self.compute_set_integration_Cm( neuron_IDs( 3:4 ), ki_mean );
+            self = self.compute_set_vb_integration_Cm( neuron_IDs( 3:4 ), ki_mean );
             
         end
         

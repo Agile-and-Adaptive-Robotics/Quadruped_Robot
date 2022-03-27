@@ -12,6 +12,18 @@ classdef neuron_utilities_class
     end
     
     
+    % Define private, constant class properties.
+    properties ( Access = private, Constant = true )
+
+        K_DERIVATION = 1e6;
+        W_DERIVATION = 1;
+        SF_DERIVATION = 0.05;
+        
+        K_INTEGRATION_MEAN = 0.01e9;
+
+    end
+    
+    
     %% NEURON UTILITIES METHODS SETUP
     
     % Define the class methods.
@@ -167,11 +179,139 @@ classdef neuron_utilities_class
         
         %% Neuron Design Functions
         
+        % ---------------------------------------------------------------- Sodium Channel Conductance Functions ----------------------------------------------------------------        
+
+        % Implement a function to compute the sodium channel conductance of a transmission subnetwork neuron.
+        function Gna = compute_transmission_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+            
+        
+        % Implement a function to compute the sodium channel conductance of a modulation subnetwork neuron.
+        function Gna = compute_modulation_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of an addition subnetwork neuron.
+        function Gna = compute_addition_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a subtraction subnetwork neuron.
+        function Gna = compute_subtraction_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a double subtraction subnetwork neuron.
+        function Gna = compute_double_subtraction_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a multiplication subnetwork neuron.
+        function Gna = compute_multiplication_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a division subnetwork neuron.
+        function Gna = compute_division_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a derivation subnetwork neuron.
+        function Gna = compute_derivation_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of an integration subnetwork neuron.
+        function Gna = compute_integration_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a voltage based integration subnetwork neuron.
+        function Gna = compute_vb_integration_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
+        % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------        
+
+        % Implement a function to compute membrane conductance for a derivative subnetwork.
+        function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
+            
+            % Set the default input arugments.
+            if nargin < 4, safety_factor = self.SF_DERIVATION; end
+            if nargin < 3, w = self.W_DERIVATION; end
+            if nargin < 2, k = self.K_DERIVATION; end
+            
+            % Compute the required membrance conductance.
+            Gm = ( 1 - safety_factor )./( k.*w );    
+            
+        end
+        
+        
+        % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------        
+
+        % Implement a function to compute the membrane capacitance of subtraction subnetwork neurons.
+        function Cm = compute_subtraction_Cm( ~ )
+           
+            % Compute the membrane capacitance.
+            Cm = 1e-9;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance of double subtraction subnetwork neurons.
+        function Cm = compute_double_subtraction_Cm( ~ )
+           
+            % Compute the membrane capacitance.
+            Cm = 1e-9;
+            
+        end
+        
+        
         % Implement a function to compute the first membrane capacitance of the derivation subnetwork neurons.
         function Cm1 = compute_derivation_Cm1( ~, Gm, Cm2, k )
             
             % Set the default input arguments.
-            if nargin < 4, k = 1e3; end
+            if nargin < 4, k = self.K_DERIVATION; end
             if nargin < 3, Cm2 = 1e-9; end
             if nargin < 2, Gm = 1e-6; end
 
@@ -185,7 +325,7 @@ classdef neuron_utilities_class
         function Cm2 = compute_derivation_Cm2( ~, Gm, w )
         
             % Set the default input arugments.
-            if nargin < 3, w = 1e3; end
+            if nargin < 3, w = self.W_DERIVATION; end
             if nargin < 2, Gm = 1e-6; end
             
            % Compute the required time constant.
@@ -197,27 +337,25 @@ classdef neuron_utilities_class
         end
               
         
-        % Implement a function to compute membrane conductance for a derivative subnetwork.
-        function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
-            
-            % Set the default input arugments.
-            if nargin < 4, safety_factor = 0.05; end
-            if nargin < 3, w = 1; end
-            if nargin < 2, k = 1e6; end
-            
-            % Compute the required membrance conductance.
-            Gm = ( 1 - safety_factor )/( k*w );    
-            
-        end
-        
-        
         % Implement a function to compute the membrane capacitances for an integration subnetwork.
         function Cm = compute_integration_Cm( ~, ki_mean )
         
             % Set the default input arguments.
-            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
             
             % Compute the integration subnetwork membrane capacitance.
+            Cm = 1./( 2*ki_mean );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitances for a voltage based integration subnetwork.
+        function Cm = compute_vb_integration_Cm( ~, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute the voltage based integration subnetwork membrane capacitance.
             Cm = 1./( 2*ki_mean );
             
         end

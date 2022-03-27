@@ -1,4 +1,4 @@
-%% Functional Subnetwork Testing
+%% Subtraction Subnetwork Testing
 
 % Clear Everything.
 clear, close('all'), clc
@@ -11,10 +11,6 @@ b_verbose = true;
 
 % Define the network integration step size.
 network_dt = 1e-3;
-% network_dt = 1e-4;
-% network_dt = 1e-5;
-% network_dt = 1e-6;
-% network_tf = 1;
 network_tf = 3;
 
 

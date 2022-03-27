@@ -6,6 +6,7 @@ classdef conversion_manager_class
     
     % Define the class properties.
     properties ( Constant = true )
+        
         MAX_UINT16_VALUE = 65535;
         LB_PER_N = 0.2248;
         N_PER_LB = 4.4482;
@@ -17,7 +18,9 @@ classdef conversion_manager_class
         DEG_PER_RAD = 180/pi;
         FTLB_PER_NM = 0.7375621493;
         NM_PER_FTLB = 1.3558179483;
+        
     end
+    
     
     %% CONVERSION MANAGER SETUP FUNCTIONS
     

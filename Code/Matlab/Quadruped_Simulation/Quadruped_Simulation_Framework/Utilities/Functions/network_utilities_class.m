@@ -15,6 +15,30 @@ classdef network_utilities_class
     end
     
     
+    % Define private, constant class properties.
+    properties ( Access = private, Constant = true )
+    
+        K_TRANSMISSION = 1;
+        C_MODULATION = 0.05;
+        
+        K_ADDITION = 1;
+        K_SUBTRACTION = 1;
+        
+        K_MULTIPLICATION = 1;
+        K_DIVISION = 1;
+        
+        K_DERIVATION = 1e6;
+        W_DERIVATION = 1;
+        SF_DERIVATION = 0.05;
+        
+        K_INTEGRATION_MEAN = 0.01e9;
+        K_INTEGRATION_RANGE = 0.01e9;
+
+        I_APP = 0;
+        
+    end
+    
+    
     %% NETWORK UTILITIES METHODS SETUP
     
     % Define the class methods.
@@ -254,11 +278,11 @@ classdef network_utilities_class
         function g_syn_max12 = compute_transmission_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, k )
             
             % Set the default input arguments.
-            if nargin < 6, k = 1; end
-            if nargin < 5, I_app2 = 0; end
+            if nargin < 6, k = self.K_TRANSMISSION; end
+            if nargin < 5, I_app2 = self.I_APP; end
                         
             % Compute the maximum synaptic conductances for a signal transmission pathway.
-            g_syn_max12 = ( I_app2 - k*Gm2*R1 )./( k*R1 - dE_syn12 );
+            g_syn_max12 = ( I_app2 - k.*Gm2.*R1 )./( k.*R1 - dE_syn12 );
             
             % Ensure that the synaptic reversal potential is large enough.
             assert( all( g_syn_max12 > 0 ), 'It is not possible to design a transmission pathway with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', k, dE_syn12, R1 )
@@ -270,11 +294,11 @@ classdef network_utilities_class
         function g_syn_max12 = compute_modulation_gsynmax( ~, Gm2, R1, R2, dE_syn12, I_app2, c )
             
             % Set the default input arguments.
-            if nargin < 7, c = 0.05*( R2/R1 ); end
-            if nargin < 6, I_app2 = 0; end
+            if nargin < 7, c = self.C_MODULATION*( R2/R1 ); end
+            if nargin < 6, I_app2 = self.I_APP; end
 
             % Compute the maximum synaptic condcutance for a signal modulation pathway.
-            g_syn_max12 = ( I_app2 + ( R2 - c*R1 )*Gm2 )/( c*R1 - dE_syn12 );
+            g_syn_max12 = ( I_app2 + ( R2 - c.*R1 ).*Gm2 )./( c.*R1 - dE_syn12 );
 
             % Ensure that the synaptic reversal potential is large enough.
             assert( all( g_syn_max12 > 0 ), 'It is not possible to design a modulation pathway with the specified gain c = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', c, dE_syn12, R1 )
@@ -288,8 +312,8 @@ classdef network_utilities_class
         function [ g_syn_max13, g_syn_max23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
-            if nargin < 6, k = 1; end
-            if nargin < 5, I_app3 = 0; end
+            if nargin < 6, k = self.K_ADDITION; end
+            if nargin < 5, I_app3 = self.I_APP; end
             
             % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
@@ -302,14 +326,14 @@ classdef network_utilities_class
         function [ g_syn_max13, g_syn_max23 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
-            if nargin < 7, k = 1; end
-            if nargin < 6, I_app3 = 0; end
+            if nargin < 7, k = self.K_SUBTRACTION; end
+            if nargin < 6, I_app3 = self.I_APP; end
             
             % Compute the maximum synaptic conductances for the first neuron of the substraction subnetwork.            
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
 
             % Compute the maximum synaptic conductances for the second neuron of the subtraction subnetwork.
-            g_syn_max23 = -( dE_syn13*g_syn_max13 + I_app3 )/dE_syn23;
+            g_syn_max23 = -( dE_syn13*g_syn_max13 + I_app3 )./dE_syn23;
             
             % Ensure that the maximum synaptic condcutance for the second synapse is valid.
             assert( g_syn_max23 > 0, 'It is not possible to design the secon  synpase of this subtraction network given the current parameters.  g_syn_max23 must be positive.' )
@@ -321,9 +345,9 @@ classdef network_utilities_class
         function [ g_syn_max13, g_syn_max23 ] = compute_division_gsynmax( self, Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c )
         
             % Set the default input arguments.
-            if ( nargin < 10 ) || ( isempty( c ) ), c = 0.05*( R3/R2 ); end
-            if nargin < 9, k = 1; end
-            if nargin < 8, I_app3 = 0; end
+            if ( nargin < 10 ) || ( isempty( c ) ), c = self.C_MODULATION*( R3/R2 ); end
+            if nargin < 9, k = self.K_DIVISION; end
+            if nargin < 8, I_app3 = self.I_APP; end
             
             % Compute the maximum synaptic conductance for the first synapse.
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
@@ -338,9 +362,9 @@ classdef network_utilities_class
         function [ g_syn_max14, g_syn_max23, g_syn_max34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4, k )
         
             % Set the default input arguments.
-            if nargin < 13, k = 1; end
-            if nargin < 12, I_app4 = 0; end
-            if nargin < 11, I_app3 = 0; end
+            if nargin < 13, k = self.K_MULTIPLICATION; end
+            if nargin < 12, I_app4 = self.I_APP; end
+            if nargin < 11, I_app3 = self.I_APP; end
             
             % Compute the maximum synaptic conductance for the first synapse.
             g_syn_max14 = self.compute_transmission_gsynmax( Gm4, R1, dE_syn14, I_app4, k );
@@ -372,12 +396,12 @@ classdef network_utilities_class
         function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
             
             % Set the default input arugments.
-            if nargin < 4, safety_factor = 0.05; end
-            if nargin < 3, w = 1; end
-            if nargin < 2, k = 1e6; end
+            if nargin < 4, safety_factor = self.SF_DERIVATION; end
+            if nargin < 3, w = self.W_DERIVATION; end
+            if nargin < 2, k = self.K_DERIVATION; end
             
             % Compute the required membrance conductance.
-            Gm = (1 - safety_factor)/(k*w);    
+            Gm = ( 1 - safety_factor )./( k.*w );    
             
         end
         
@@ -386,18 +410,18 @@ classdef network_utilities_class
         function [ Cm1, Cm2 ] = compute_derivation_Cms( ~, Gm, k, w )
             
             % Set the default input arugments.
-            if nargin < 4, w = 1e3; end
-            if nargin < 3, k = 1e3; end
+            if nargin < 4, w = self.W_DERIVATION; end
+            if nargin < 3, k = self.K_DERIVATION; end
             if nargin < 2, Gm = 1e-6; end
             
            % Compute the required time constant.
-            tau = 1/w;
+            tau = 1./w;
             
             % Compute the required membrane capacitance of the second neuron.
-            Cm2 = Gm*tau;
+            Cm2 = Gm.*tau;
             
             % Compute the required membrane capacitance of the first neuron.
-            Cm1 = Cm2 - ( Gm^2 )*k; 
+            Cm1 = Cm2 - ( Gm.^2 ).*k; 
             
         end
         
@@ -407,8 +431,11 @@ classdef network_utilities_class
         % Implement a function to compute the membrane capacitances for an integration subnetwork.
         function Cm = compute_integration_Cm( ~, ki_mean )
         
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
             % Compute the integration subnetwork membrane capacitance.
-            Cm = 1/( 2*ki_mean );
+            Cm = 1./( 2*ki_mean );
             
         end
             
@@ -416,8 +443,11 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
         function gs = compute_integration_gsynmax( ~, Gm, Cm, ki_range )
         
+            % Set the default input arguments.
+            if nargin < 4, ki_range = self.K_INTEGRATION_RANGE; end
+            
             % Compute the integration subnetwork maximum synaptic conductances.
-            gs = ( -2*Gm*Cm*ki_range )/( Cm*ki_range - 1 );
+            gs = ( -2*Gm.*Cm.*ki_range )./( Cm.*ki_range - 1 );
             
         end
         
@@ -426,7 +456,7 @@ classdef network_utilities_class
         function dEsyn = compute_integration_dEsyn( ~, Gm, R, gs )
         
            % Compute the synaptic reversal potentials for an integration subnetwork.
-           dEsyn = - ( Gm*R )/gs;
+           dEsyn = - ( Gm*R )./gs;
             
         end
             
@@ -435,7 +465,7 @@ classdef network_utilities_class
         function Iapp = compute_integration_Iapp( ~, Gm, R )
             
             % Compute the applied current for an integration subnetwork.
-            Iapp = Gm*R;
+            Iapp = Gm.*R;
             
         end
         
@@ -447,12 +477,13 @@ classdef network_utilities_class
 
             % Set the default input arguments.
             if nargin < 5, b_inhibition = false; end
+            if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
             
             % Compute the intermediate synaptic current.
-            I_syn12 = R2/( 2*Ta*ki_mean );    
+            I_syn12 = R2./( 2*Ta.*ki_mean );    
             
             % Determine whether to switch the sign on the intermediate synaptic current.
-            if b_inhibition, I_syn12 = -I_syn12; end
+            if b_inhibition, I_syn12 = - I_syn12; end
             
         end
         
@@ -854,8 +885,6 @@ classdef network_utilities_class
             end
             
         end
-        
-        
         
         
     end

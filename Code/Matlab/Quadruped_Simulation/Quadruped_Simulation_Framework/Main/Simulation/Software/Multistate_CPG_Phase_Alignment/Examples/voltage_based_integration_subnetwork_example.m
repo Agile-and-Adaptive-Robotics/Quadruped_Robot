@@ -11,10 +11,6 @@ b_verbose = true;
 
 % Define the network integration step size.
 network_dt = 1e-3;
-% network_dt = 1e-4;
-% network_dt = 1e-5;
-% network_dt = 1e-6;
-% network_tf = 1;
 network_tf = 3;
 
 
@@ -28,8 +24,6 @@ T = 2;
 n = 4;
 ki_mean = 0.01e9;
 ki_range = 0.01e9;
-% ki_mean = 0.001e9;
-% ki_range = 0.001e9;
 
 % Create an integration subnetwork.
 [ network, neuron_IDs, synapse_IDs, applied_current_IDs ] = network.create_vb_integration_subnetwork( T, n, ki_mean, ki_range );

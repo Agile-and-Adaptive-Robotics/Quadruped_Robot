@@ -48,6 +48,18 @@ classdef neuron_class
     end
     
     
+    % Define private, constant class properties.
+    properties ( Access = private, Constant = true )
+
+        K_DERIVATION = 1e6;
+        W_DERIVATION = 1;
+        SF_DERIVATION = 0.05;
+        
+        K_INTEGRATION_MEAN = 0.01e9;
+
+    end
+    
+    
     %% NEURON METHODS SETUP
     
     % Define the class methods.
@@ -129,7 +141,7 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Conductance Functions ----------------------------------------------------------------
+        % ---------------------------------------------------------------- Sodium Channel Conductance Functions ----------------------------------------------------------------
         
         % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
         function Gna = compute_cpg_Gna( self )
@@ -140,13 +152,105 @@ classdef neuron_class
         end
         
         
+        % Implement a function to compute the required sodium channel conductance for a transmission subnetwork neuron.
+        function Gna = compute_transmission_Gna( self )
+
+            % Compute the sodium channel conductance for a transmission subnetwork neuron.
+            Gna = self.neuron_utilities.compute_transmission_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a modulation subnetwork neuron.
+        function Gna = compute_modulation_Gna( self )
+
+            % Compute the sodium channel conductance for a modulation subnetwork neuron.
+            Gna = self.neuron_utilities.compute_modulation_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for an addition subnetwork neuron.
+        function Gna = compute_addition_Gna( self )
+
+            % Compute the sodium channel conductance for an addition subnetwork neuron.
+            Gna = self.neuron_utilities.compute_addition_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a subtraction subnetwork neuron.
+        function Gna = compute_subtraction_Gna( self )
+
+            % Compute the sodium channel conductance for a subtraction subnetwork neuron.
+            Gna = self.neuron_utilities.compute_subtraction_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a double subtraction subnetwork neuron.
+        function Gna = compute_double_subtraction_Gna( self )
+
+            % Compute the sodium channel conductance for a double subtraction subnetwork neuron.
+            Gna = self.neuron_utilities.compute_double_subtraction_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a multiplication subnetwork neuron.
+        function Gna = compute_multiplication_Gna( self )
+
+            % Compute the sodium channel conductance for a multiplication subnetwork neuron.
+            Gna = self.neuron_utilities.compute_multiplication_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a division subnetwork neuron.
+        function Gna = compute_division_Gna( self )
+
+            % Compute the sodium channel conductance for a division subnetwork neuron.
+            Gna = self.neuron_utilities.compute_division_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a derivation subnetwork neuron.
+        function Gna = compute_derivation_Gna( self )
+
+            % Compute the sodium channel conductance for a derivation subnetwork neuron.
+            Gna = self.neuron_utilities.compute_derivation_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for an integration subnetwork neuron.
+        function Gna = compute_integration_Gna( self )
+
+            % Compute the sodium channel conductance for an integration subnetwork neuron.
+            Gna = self.neuron_utilities.compute_integration_Gna(  );
+        
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a voltage based integration subnetwork neuron.
+        function Gna = compute_vb_integration_Gna( self )
+
+            % Compute the sodium channel conductance for a voltage based integration subnetwork neuron.
+            Gna = self.neuron_utilities.compute_vb_integration_Gna(  );
+        
+        end
+        
+        
+        % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------
+        
         % Implement a function to compute the required membrane conductance for a derivation neuron.
         function Gm = compute_derivation_Gm( self, k, w, safety_factor )
             
             % Set the default input arugments.
-            if nargin < 4, safety_factor = 0.05; end
-            if nargin < 3, w = 1; end
-            if nargin < 2, k = 1e6; end
+            if nargin < 4, safety_factor = self.SF_DERIVATION; end
+            if nargin < 3, w = self.W_DERIVATION; end
+            if nargin < 2, k = self.K_DERIVATION; end
             
             % Compute the membrane conductance for this derivation neuron.
             Gm = self.neuron_utilities.compute_derivation_Gm( k, w, safety_factor );
@@ -154,13 +258,32 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
+        % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------
 
+        
+        % Implement a function to compute the membrane capacitance for a subtraction subnetwork neuron.
+        function Cm = compute_subtraction_Cm( self )
+        
+            % Compute the membrane capacitance for a subtraction subnetwork neuron.
+            Cm = self.neuron_utilities.compute_subtraction_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance for a double subtraction subnetwork neuron.
+        function Cm = compute_double_subtraction_Cm( self )
+        
+            % Compute the membrane capacitance for a double subtraction subnetwork neuron.
+            Cm = self.neuron_utilities.compute_double_subtraction_Cm(  );
+            
+        end
+        
+        
         % Implement a function to compute the first membrane capacitance for a derivation subnetwork neuron.
         function Cm1 = compute_derivation_Cm1( self, Cm2, k  )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1e3; end
+            if nargin < 3, k = self.K_DERIVATION; end
             if nargin < 2, Cm2 = 1e-9; end
             
             % Compute the first membrane capacitance for a derivation subnetwork neuron.
@@ -173,7 +296,7 @@ classdef neuron_class
         function Cm2 = compute_derivation_Cm2( self, w )
         
             % Set the default input arguments.
-            if nargin < 2, w = 1e3; end
+            if nargin < 2, w = self.W_DERIVATION; end
             
             % Compute the second membrane capacitance for a derivation subnetwork neuron.
             Cm2 = self.neuron_utilities.compute_derivation_Cm2( self.Gm, w );
@@ -185,13 +308,24 @@ classdef neuron_class
         function Cm = compute_integration_Cm( self, ki_mean )
         
             % Set the default input arguments.
-            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
             
             % Compute the membrane capacitance for this integration neuron.
             Cm = self.neuron_utilities.compute_integration_Cm( ki_mean );
         
         end
         
+        
+        % Implement a function to compute the membrane capacitance for a voltage based integration neuron.
+        function Cm = compute_vb_integration_Cm( self, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute the membrane capacitance for this integration neuron.
+            Cm = self.neuron_utilities.compute_vb_integration_Cm( ki_mean );
+        
+        end
         
         
         % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
@@ -254,7 +388,7 @@ classdef neuron_class
         end
         
                 
-        % ---------------------------------------------------------------- Conductance Functions ----------------------------------------------------------------
+        % ---------------------------------------------------------------- Sodium Channel Conductance Functions ----------------------------------------------------------------
         
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork.
         function self = compute_set_cpg_Gna( self )
@@ -265,13 +399,104 @@ classdef neuron_class
         end
         
         
+        % Implement a function to compute and set the sodium channel conductance for transmission subnetwork neurons.
+        function self = compute_set_transmission_Gna( self )
+            
+           % Compute and set the sodium channel conductance for transmission subnetwork neurons.
+           self.Gna = self.compute_transmission_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for modulation subnetwork neurons.
+        function self = compute_set_modulation_Gna( self )
+            
+           % Compute and set the sodium channel conductance for modulation subnetwork neurons.
+           self.Gna = self.compute_modulation_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for addition subnetwork neurons.
+        function self = compute_set_addition_Gna( self )
+            
+           % Compute and set the sodium channel conductance for addition subnetwork neurons.
+           self.Gna = self.compute_addition_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for subtraction subnetwork neurons.
+        function self = compute_set_subtraction_Gna( self )
+            
+           % Compute and set the sodium channel conductance for subtraction subnetwork neurons.
+           self.Gna = self.compute_subtraction_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for double subtraction subnetwork neurons.
+        function self = compute_set_double_subtraction_Gna( self )
+            
+           % Compute and set the sodium channel conductance for double subtraction subnetwork neurons.
+           self.Gna = self.compute_double_subtraction_Gna(  );
+            
+        end
+        
+        % Implement a function to compute and set the sodium channel conductance for multiplication subnetwork neurons.
+        function self = compute_set_multiplication_Gna( self )
+            
+           % Compute and set the sodium channel conductance for multiplication subnetwork neurons.
+           self.Gna = self.compute_multiplication_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for division subnetwork neurons.
+        function self = compute_set_division_Gna( self )
+            
+           % Compute and set the sodium channel conductance for division subnetwork neurons.
+           self.Gna = self.compute_division_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for derivation subnetwork neurons.
+        function self = compute_set_derivation_Gna( self )
+            
+           % Compute and set the sodium channel conductance for derivation subnetwork neurons.
+           self.Gna = self.compute_derivation_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for integration subnetwork neurons.
+        function self = compute_set_integration_Gna( self )
+            
+           % Compute and set the sodium channel conductance for integration subnetwork neurons.
+           self.Gna = self.compute_integration_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for integration subnetwork neurons.
+        function self = compute_set_vb_integration_Gna( self )
+            
+           % Compute and set the sodium channel conductance for integration subnetwork neurons.
+           self.Gna = self.compute_vb_integration_Gna(  );
+            
+        end
+        
+        
+        % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------        
+        
         % Implement a function to compute and set the membrane conductance for a derivation neuron.
         function self = compute_set_derivation_Gm( self, k, w, safety_factor )
            
             % Set the default input arugments.
-            if nargin < 4, safety_factor = 0.05; end
-            if nargin < 3, w = 1; end
-            if nargin < 2, k = 1e6; end
+            if nargin < 4, safety_factor = self.SF_DERIVATION; end
+            if nargin < 3, w = self.W_DERIVATION; end
+            if nargin < 2, k = self.K_DERIVATION; end
             
             % Compute and set the membrane conductance for a derivation neuron.
             self.Gm = self.compute_derivation_Gm( k, w, safety_factor );
@@ -279,13 +504,31 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
-
+        % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------        
+        
+        % Implement a function to compute and set the membrane capacitance for a subtraction subnetwork neuron.
+        function self = compute_set_subtraction_Cm( self )
+        
+            % Compute and set the membrane capacitance for a subtraction subnetwork neuron.
+            self.Cm = self.compute_subtraction_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the membrane capacitance for a double subtraction subnetwork neuron.
+        function self = compute_set_double_subtraction_Cm( self )
+        
+            % Compute and set the membrane capacitance for a double subtraction subnetwork neuron.
+            self.Cm = self.compute_double_subtraction_Cm(  );
+            
+        end
+        
+        
         % Implement a function to compute and set the first membrane capacitance for a derivation subnetwork neuron.
         function self = compute_set_derivation_Cm1( self, Cm2, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1e3; end
+            if nargin < 3, k = self.K_DERIVATION; end
             if nargin < 2, Cm2 = 1e-9; end
             
             % Compute and set the first membrane capacitance for a derivation subnetwork neuron.
@@ -298,7 +541,7 @@ classdef neuron_class
         function self = compute_set_derivation_Cm2( self, w )
             
             % Set the default input arguments.
-            if nargin < 2, w = 1e3; end
+            if nargin < 2, w = self.W_DERIVATION; end
             
             % Compute and set the second membrane capacitance for a derivation subnetwork neuron.
             self.Cm = self.compute_derivation_Cm2( w );
@@ -310,10 +553,22 @@ classdef neuron_class
         function self = compute_set_integration_Cm( self, ki_mean )
             
             % Set the default input arguments.
-            if nargin < 2, ki_mean = 1/( 2*( 1e-9 ) ); end
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
             
             % Compute and set the membrane capacitance for this integration neuron.
             self.Cm = self.compute_integration_Cm( ki_mean );
+            
+        end
+        
+        
+        % Implement a function to compute and set the membrane capacitance for a voltage based integration neuron.
+        function self = compute_set_vb_integration_Cm( self, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute and set the membrane capacitance for this voltage based integration neuron.
+            self.Cm = self.compute_vb_integration_Cm( ki_mean );
             
         end
         
@@ -333,7 +588,7 @@ classdef neuron_class
         function self = compute_set_Ina( self )
         
             % Compute the sodium channel current associated with this neuron.
-            self.I_na = self.neuron_utilities.compute_Ina( self.U, self.Gna, self.Am, self.Sm, self.dEm, self.Ah, self.Sh, self.dEh, self.dEna );
+            self.I_na = self.compute_Ina(  );
                        
         end
         
@@ -342,7 +597,7 @@ classdef neuron_class
         function self = compute_set_Itotal( self )
             
             % Compute and set the total current.
-            self.I_total = self.neuron_utilities.compute_Itotal( self.I_leak, self.I_syn, self.I_na, self.I_app );
+            self.I_total = self.compute_Itotal(  );
             
         end
         

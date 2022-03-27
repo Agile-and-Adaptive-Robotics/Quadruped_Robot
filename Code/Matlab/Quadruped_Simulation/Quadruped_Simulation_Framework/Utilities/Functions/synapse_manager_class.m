@@ -31,6 +31,9 @@ classdef synapse_manager_class
         NUM_INTEGRATION_SYNAPSES = 2;                           % [#] Number of Integration Synapses.
         NUM_VB_INTEGRATION_SYNAPSES = 4;                        % [#] Number of Voltage Based Integration Synapses.
         
+        DELTA_BISTABLE = -10e-3;
+        DELTA_OSCILLATORY = 0.01e-3;
+        
     end
     
     
@@ -744,6 +747,10 @@ classdef synapse_manager_class
         % Implement a function to assign the desired delta value to each synapse based on the neuron order that we want to follow.
         function self = compute_set_cpg_deltas( self, neuron_IDs, delta_oscillatory, delta_bistable )
             
+            % Set the default input arguments.
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            
             % Retrieve the IDs of all relevant from and to neurons.
             [ from_neuron_IDs_all, to_neuron_IDs_all ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_IDs );
             
@@ -882,7 +889,6 @@ classdef synapse_manager_class
         end
         
         
-        
         % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
         function self = compute_set_subtraction_dEsyn1( self, synapse_IDs )
                     
@@ -935,7 +941,6 @@ classdef synapse_manager_class
         end
         
         
-        
         % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
         function self = compute_set_multiplication_dEsyn1( self, synapse_IDs )
                     
@@ -962,7 +967,7 @@ classdef synapse_manager_class
         end
         
         
-                % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
+        % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
         function self = compute_set_multiplication_dEsyn2( self, synapse_IDs )
                     
             % Set the default input arguments.
@@ -1012,7 +1017,6 @@ classdef synapse_manager_class
             end
             
         end
-        
         
         
         % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
@@ -1065,7 +1069,6 @@ classdef synapse_manager_class
             end
             
         end
-        
         
         
         % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
@@ -1222,7 +1225,6 @@ classdef synapse_manager_class
             end
             
         end
-        
         
         
         %% Enable & Disable Functions
@@ -1661,6 +1663,10 @@ classdef synapse_manager_class
         % Implement a function to design the synapses for a multistate cpg subnetwork.
         function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable )
         
+            % Set the default input arguments.
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            
             % Set the synapse delta values.
             self = self.compute_set_cpg_deltas( neuron_IDs, delta_oscillatory, delta_bistable );
             
@@ -1793,9 +1799,7 @@ classdef synapse_manager_class
             self = self.compute_set_vb_integration_dEsyn2( synapse_IDs( 2 ) );
 
         end
-        
-        
-        
+                
         
         %% Save & Load Functions
         

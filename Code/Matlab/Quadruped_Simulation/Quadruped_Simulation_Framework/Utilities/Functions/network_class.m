@@ -24,14 +24,26 @@ classdef network_class
     properties ( Access = private, Constant = true )
     
         K_TRANSMISSION = 1;
-        C_MODULATION = 1;
+        C_MODULATION = 0.05;
         
         K_ADDITION = 1;
         K_SUBTRACTION = 1;
         
+        K_MULTIPLICATION = 1;
+        K_DIVISION = 1;
+        
+        K_DERIVATION = 1e6;
+        W_DERIVATION = 1;
+        SF_DERIVATION = 0.05;
+        
         K_INTEGRATION_MEAN = 0.01e9;
         K_INTEGRATION_RANGE = 0.01e9;
 
+        I_APP = 0;
+        
+        DELTA_BISTABLE = -10e-3;
+        DELTA_OSCILLATORY = 0.01e-3;
+        
     end
     
     
@@ -542,7 +554,7 @@ classdef network_class
         
             % Set the default input arguments.
             if nargin < 5, k = self.K_TRANSMISSION; end
-            if nargin < 4, I_app2 = 0; end
+            if nargin < 4, I_app2 = self.I_APP; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -568,7 +580,7 @@ classdef network_class
             
             % Set the default input arugments.
             if nargin < 5, c = self.C_MODULATION; end
-            if nargin < 4, I_app2 = 0; end
+            if nargin < 4, I_app2 = self.I_APP; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -595,7 +607,7 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 5, k = self.K_ADDITION; end
-            if nargin < 4, I_app3 = 0; end
+            if nargin < 4, I_app3 = self.I_APP; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -626,7 +638,7 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 5, k = self.K_SUBTRACTION; end
-            if nargin < 4, I_app3 = 0; end
+            if nargin < 4, I_app3 = self.I_APP; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -651,46 +663,13 @@ classdef network_class
         end
         
         
-        % Implement a function to compute the maximum synaptic conductances required to design a division subnetwork with the specified parameters.
-        function g_syn_maxs = compute_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k, c )
-            
-            % Set the default input arguments.
-            if nargin < 6, c = [  ]; end
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app3 = 0; end
-
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
-            
-            % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) )';
-
-            % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
-
-            % Compute the maximum synaptic conductances for this division subnetwork.
-            [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_division_gsynmax( Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c );
-            
-            % Store the maximum synaptic conductances.
-            g_syn_maxs = [ g_syn_max13, g_syn_max23 ];
-            
-        end
-        
-        
         % Implement a function to compute the maximum synaptic conductances required to design a multiplication subnetwork with the specifed parameters.
         function g_syn_maxs = compute_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, I_app4, k )
         
             % Set the default input arguments.
-            if nargin < 6, k = 1; end
-            if nargin < 5, I_app4 = 0; end
-            if nargin < 4, I_app3 = 0; end
+            if nargin < 6, k = self.K_MULTIPLICATION; end
+            if nargin < 5, I_app4 = self.I_APP; end
+            if nargin < 4, I_app3 = self.I_APP; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -720,12 +699,46 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances required to design a division subnetwork with the specified parameters.
+        function g_syn_maxs = compute_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k, c )
+            
+            % Set the default input arguments.
+            if nargin < 6, c = [  ]; end
+            if nargin < 5, k = self.K_DIVISION; end
+            if nargin < 4, I_app3 = self.I_APP; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
+            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
+            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) )';
+
+            % Retrieve the synaptic reversal potentials associated with these synapses.
+            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
+            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+
+            % Compute the maximum synaptic conductances for this division subnetwork.
+            [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_division_gsynmax( Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c );
+            
+            % Store the maximum synaptic conductances.
+            g_syn_maxs = [ g_syn_max13, g_syn_max23 ];
+            
+        end
+        
+        
+        
         % Implement a function to compute the maximum synaptic conductances required to design a derivation subnetwork with the specified parameters.
         function g_syn_maxs = compute_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k )
             
             % Set the default input arguments.
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app3 = 0; end
+            if nargin < 5, k = self.K_DERIVATION; end
+            if nargin < 4, I_app3 = self.I_APP; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -892,8 +905,8 @@ classdef network_class
         function self = compute_set_transmission_gsynmax( self, neuron_IDs, synapse_ID, I_app, k )
             
             % Set the default input arguments.
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app = 0; end
+            if nargin < 5, k = self.K_TRANSMISSION; end
+            if nargin < 4, I_app = self.I_APP; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -914,8 +927,8 @@ classdef network_class
         function self = compute_set_modulation_gsynmax( self, neuron_IDs, synapse_ID, I_app, c )
             
             % Set the default input arguments.
-            if nargin < 5, c = 1; end
-            if nargin < 4, I_app = 0; end
+            if nargin < 5, c = self.C_MODULATION; end
+            if nargin < 4, I_app = self.I_APP; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -936,8 +949,8 @@ classdef network_class
         function self = compute_set_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
             
             % Set the default input arguments.
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app = 0; end
+            if nargin < 5, k = self.K_ADDITION; end
+            if nargin < 4, I_app = self.I_APP; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -958,8 +971,8 @@ classdef network_class
         function self = compute_set_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
             
             % Set the default input arguments.
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app = 0; end
+            if nargin < 5, k = self.K_SUBTRACTION; end
+            if nargin < 4, I_app = self.I_APP; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -976,36 +989,13 @@ classdef network_class
         end
         
         
-        % Implement a function to compute and set the maximum synaptic conductances for a division subnetwork.
-        function self = compute_set_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k, c )
-            
-            % Set the default input arguments.
-            if nargin < 6, c = [  ]; end
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app = 0; end
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
-            
-            % Compute the maximum synaptic conductances.            
-            g_syn_maxs = self.compute_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
-                        
-            % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );            
-        
-        end
-        
-        
         % Implement a function to compute and set the maximum synaptic conductances for a multiplication subnetwork.
         function self = compute_set_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, I_app4, k )
             
             % Set the default input arguments.
-            if nargin < 6, k = 1; end
-            if nargin < 5, I_app4 = 0; end
-            if nargin < 4, I_app3 = 0; end
+            if nargin < 6, k = self.K_MULTIPLICATION; end
+            if nargin < 5, I_app4 = self.I_APP; end
+            if nargin < 4, I_app3 = self.I_APP; end
 
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1022,12 +1012,35 @@ classdef network_class
         end
         
         
+        % Implement a function to compute and set the maximum synaptic conductances for a division subnetwork.
+        function self = compute_set_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k, c )
+            
+            % Set the default input arguments.
+            if nargin < 6, c = [  ]; end
+            if nargin < 5, k = self.K_DIVISION; end
+            if nargin < 4, I_app = self.I_APP; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Compute the maximum synaptic conductances.            
+            g_syn_maxs = self.compute_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+                        
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );            
+        
+        end
+        
+                
         % Implement a function to compute and set the maximum synaptic conductances for a derivation subnetwork.
         function self = compute_set_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
         
             % Set the default input arguments.
-            if nargin < 5, k = 1; end
-            if nargin < 4, I_app = 0; end
+            if nargin < 5, k = self.K_DERIVATION; end
+            if nargin < 4, I_app = self.I_APP; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1239,9 +1252,9 @@ classdef network_class
         function self = design_derivation_neurons( self, neuron_IDs, k, w, safety_factor )
             
             % Set the default input arguments.
-            if nargin < 5, safety_factor = 0.05; end
-            if nargin < 4, w = 1; end
-            if nargin < 3, k = 1e6; end     
+            if nargin < 5, safety_factor = self.SF_DERIVATION; end
+            if nargin < 4, w = self.W_DERIVATION; end
+            if nargin < 3, k = self.K_DERIVATION; end     
             
             % Design the derivation subnetwork neurons.
             self.neuron_manager = self.neuron_manager.design_derivation_neurons( neuron_IDs, k, w, safety_factor );
@@ -1292,7 +1305,7 @@ classdef network_class
            
             % Set the default input arugments.
             if nargin < 4, b_applied_current_compensation = true; end
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_TRANSMISSION; end
             
             % Design the transmission subnetwork neurons.
             [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_transmission_synapse( neuron_IDs );
@@ -1326,7 +1339,7 @@ classdef network_class
         function self = design_modulation_synapses( self, neuron_IDs, c )
             
             % Set the default input arugments.
-            if nargin < 3, c = 1; end
+            if nargin < 3, c = self.C_MODULATION; end
             
            % Design the modulation synapses.
             [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_modulation_synapse( neuron_IDs );
@@ -1350,7 +1363,7 @@ classdef network_class
         function self = design_addition_synapses( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_ADDITION; end
             
             % Design the addition subnetwork synapses.
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_addition_synapses( neuron_IDs );
@@ -1374,7 +1387,7 @@ classdef network_class
         function self = design_subtraction_synapses( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_SUBTRACTION; end
             
             % Design the subtraction subnetwork synapses.
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs );
@@ -1398,7 +1411,7 @@ classdef network_class
         function self = design_double_subtraction_synapses( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_SUBTRACTION; end
             
             % Retrieve the neuron IDs associated with each subtraction subnetwork.
             neuron_IDs1 = neuron_IDs( 1:3 );
@@ -1431,7 +1444,7 @@ classdef network_class
         function self = design_multiplication_synapses( self, neuron_IDs, k )
             
            % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_MULTIPLICATION; end
             
             % Design the multiplication subnetwork synapses.
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_multiplication_synapses( neuron_IDs );
@@ -1457,7 +1470,7 @@ classdef network_class
         
             % Set the default input arguments.
             if nargin < 4, c = [  ]; end
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_DIVISION; end
             
             % Design the division subnetwork synapses.
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_division_synapses( neuron_IDs );
@@ -1481,7 +1494,7 @@ classdef network_class
         function self = design_derivation_synapses( self, neuron_IDs, k )
             
             % Set the default input arguments.
-           if nargin < 3, k = 1e6; end            
+           if nargin < 3, k = self.K_DERIVATION; end            
             
             % Design the derivation subnetwork synapses.
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_derivation_synapses( neuron_IDs );
@@ -1556,8 +1569,8 @@ classdef network_class
         function self = design_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable )
             
             % Set the default input arguments.
-            if nargin < 4, delta_bistable = -10e-3; end
-            if nargin < 3, delta_oscillatory = 0.01e-3; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
@@ -1577,7 +1590,7 @@ classdef network_class
         function self = design_transmission_subnetwork( self, neuron_IDs, k )
         
             % Set the default input arugments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_TRANSMISSION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -1594,7 +1607,7 @@ classdef network_class
         function self = design_modulation_subnetwork( self, neuron_IDs, c )
             
             % Set the default input arugments.
-            if nargin < 3, c = 1; end
+            if nargin < 3, c = self.C_MODULATION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -1611,7 +1624,7 @@ classdef network_class
         function self = design_addition_subnetwork( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_ADDITION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -1628,7 +1641,7 @@ classdef network_class
         function self = design_subtraction_subnetwork( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_SUBTRACTION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -1645,7 +1658,7 @@ classdef network_class
         function self = design_double_subtraction_subnetwork( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_SUBTRACTION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -1662,7 +1675,7 @@ classdef network_class
         function self = design_multiplication_subnetwork( self, neuron_IDs, k )
             
             % Set the default input arguments.
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_MULTIPLICATION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -1683,7 +1696,7 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 4, c = [  ]; end
-            if nargin < 3, k = 1; end
+            if nargin < 3, k = self.K_DIVISION; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
 
@@ -1700,9 +1713,9 @@ classdef network_class
         function self = design_derivation_subnetwork( self, neuron_IDs, k, w, safety_factor )
             
             % Set the default input arguments.
-            if nargin < 5, safety_factor = 0.05; end
-            if nargin < 4, w = 1; end
-            if nargin < 3, k = 1e6; end            
+            if nargin < 5, safety_factor = self.SF_DERIVATION; end
+            if nargin < 4, w = self.W_DERIVATION; end
+            if nargin < 3, k = self.K_DERIVATION; end            
 
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -1909,8 +1922,8 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable )
         
             % Set the default input arguments.
-            if nargin < 4, delta_bistable = -10e-3; end
-            if nargin < 3, delta_oscillatory = 0.01e-3; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
             if nargin < 2, num_cpg_neurons = 2; end
                 
             % Create the multistate cpg subnetwork components.
@@ -1926,7 +1939,7 @@ classdef network_class
         function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork( self, k )
             
             % Set the default input arugments.
-            if nargin < 2, k = 1; end
+            if nargin < 2, k = self.K_TRANSMISSION; end
             
             % Create the transmission subnetwork components.
             [ self, neuron_IDs, synapse_ID ] = self.create_transmission_subnetwork_components(  );
@@ -1941,8 +1954,9 @@ classdef network_class
         function [ self, neuron_IDs, synapse_ID ] = create_modulation_subnetwork( self, c )
             
             % Set the default input arugments.
-            if nargin < 2, c = 0.05; end
-            
+%             if nargin < 2, c = 0.05; end
+            if nargin < 2, c = self.C_MODULATION; end
+
             % Create the modulation subnetwork components.
             [ self, neuron_IDs, synapse_ID ] = self.create_modulation_subnetwork_components(  );
             
@@ -1956,7 +1970,7 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs ] = create_addition_subnetwork( self, k )
         
             % Set the default input arugments.
-            if nargin < 2, k = 1; end
+            if nargin < 2, k = self.K_ADDITION; end
             
             % Create addition subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_addition_subnetwork_components(  );
@@ -1971,7 +1985,7 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs ] = create_subtraction_subnetwork( self, k )
         
             % Set the default input arugments.
-            if nargin < 2, k = 1; end
+            if nargin < 2, k = self.K_SUBTRACTION; end
             
             % Create the subtraction subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_subtraction_subnetwork_components(  );
@@ -1986,7 +2000,7 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs ] = create_double_subtraction_subnetwork( self, k )
             
             % Set the default input arugments.
-            if nargin < 2, k = 1; end
+            if nargin < 2, k = self.K_SUBTRACTION; end
             
             % Create the double subtraction subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_double_subtraction_subnetwork_components(  );
@@ -2001,7 +2015,7 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork( self, k )
         
             % Set the default input arugments.
-            if nargin < 2, k = 1; end
+            if nargin < 2, k = self.K_MULTIPLICATION; end
             
             % Create the multiplication subnetwork components.
             [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = self.create_multiplication_subnetwork_components(  );
@@ -2017,7 +2031,7 @@ classdef network_class
         
             % Set the default input arugments.
             if nargin < 3, c = [  ]; end
-            if nargin < 2, k = 1; end
+            if nargin < 2, k = self.K_DIVISION; end
             
             % Create division subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_division_subnetwork_components(  );
@@ -2032,9 +2046,9 @@ classdef network_class
         function [ self, neuron_IDs, synapse_IDs ] = create_derivation_subnetwork( self, k, w, safety_factor )
             
             % Set the default input arguments.
-            if nargin < 4, safety_factor = 0.05; end           
-            if nargin < 3, w = 1; end
-            if nargin < 2, k = 1e6; end 
+            if nargin < 4, safety_factor = self.SF_DERIVATION; end           
+            if nargin < 3, w = self.W_DERIVATION; end
+            if nargin < 2, k = self.K_DERIVATION; end 
 
             % Create the derivation subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_derivation_subnetwork_components(  );

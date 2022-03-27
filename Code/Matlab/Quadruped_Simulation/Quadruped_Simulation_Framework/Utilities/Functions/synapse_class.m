@@ -427,8 +427,6 @@ classdef synapse_class
         end
 
 
-        
-
     end
 end
 
