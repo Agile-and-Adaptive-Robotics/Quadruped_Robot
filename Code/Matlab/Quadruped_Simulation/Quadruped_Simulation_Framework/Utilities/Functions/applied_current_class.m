@@ -2,6 +2,7 @@ classdef applied_current_class
     
     % This class contains properties and methods related to applied currents.
     
+    
     %% APPLIED CURRENT PROPERTIES
     
     % Define the class properties.
@@ -21,6 +22,7 @@ classdef applied_current_class
         b_enabled
         
         array_utilities
+        applied_current_utilities
         
     end
     
@@ -35,6 +37,9 @@ classdef applied_current_class
             
             % Create an instance of the array manager class.
             self.array_utilities = array_utilities_class(  );
+            
+            % Create an instance of the array manager class.
+            self.applied_current_utilities = applied_current_utilities_class(  );
             
             % Set the default properties.
             if nargin < 6, self.b_enabled = true; else, self.b_enabled = b_enabled; end

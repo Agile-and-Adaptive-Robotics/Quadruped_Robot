@@ -29,6 +29,7 @@ classdef neuron_manager_class
         NUM_DIVISION_NEURONS = 3;                       % [#] Number of Division Neurons.
         NUM_DERIVATION_NEURONS = 3;                     % [#] Number of Derivation Neurons.
         NUM_INTEGRATION_NEURONS = 2;                    % [#] Number of Integration Neurons.
+        NUM_VB_INTEGRATION_NEURONS = 4;                 % [#] Number of Voltage Based Integration Neurons.
         
     end
     
@@ -1104,6 +1105,18 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to create the voltage based neurons for an integration subnetwork.
+        function [ self, neuron_IDs ] = create_vb_integration_neurons( self )
+            
+            % Create the voltage based integration subnetwork neurons..
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_VB_INTEGRATION_NEURONS );
+            
+            % Set the names of the integration subnetwork neurons.
+            self = self.set_neuron_property( neuron_IDs, { 'Pos', 'Neg', 'Int 1', 'Int 2' }, 'name' );
+            
+        end
+        
+        
         %% Subnetwork Neuron Design Functions
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
@@ -1218,6 +1231,21 @@ classdef neuron_manager_class
             
             % Compute and set the membrane capacitance of the integration neurons.
             self = self.compute_set_integration_Cm( neuron_IDs, ki_mean );
+            
+        end
+        
+        
+        % Implement a function to design the neurons for an integration subnetwork.
+        function self = design_vb_integration_neurons( self, neuron_IDs, ki_mean )
+
+            % Set the default input arugments.
+            if nargin < 3, ki_mean = 1/( 2*( 1e-9 ) ); end
+
+            % Set the sodium channel conductance of the integration neurons to zero.
+            self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
+            
+            % Compute and set the membrane capacitance of the integration neurons.
+            self = self.compute_set_integration_Cm( neuron_IDs( 3:4 ), ki_mean );
             
         end
         

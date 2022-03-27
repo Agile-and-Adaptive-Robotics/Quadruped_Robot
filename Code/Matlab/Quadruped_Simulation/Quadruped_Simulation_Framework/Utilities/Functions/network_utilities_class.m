@@ -68,6 +68,8 @@ classdef network_utilities_class
         end
         
         
+        %% Multistate CPG Subnetwork Design Functions
+        
         % Implement a function to compute the maximum synaptic conductance.
         function g_syn_max_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic )
             
@@ -233,6 +235,20 @@ classdef network_utilities_class
             
         end
         
+                
+        % Implement a function to compute the activation and deactivation periods.
+        function [ Ta, Td ] = compute_activation_period( ~, T, n )
+        
+            % Compute the activation period.
+            Ta = T/n;
+            
+            % Compute the deactivation period.
+            Td = T - Ta;
+            
+        end
+            
+        
+        %% Basic Transmission / Modulation Subnetwork Design Functions
         
         % Implement a function to compute the maximum synaptic conductance for a signal transmission pathway.
         function g_syn_max12 = compute_transmission_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, k )
@@ -265,6 +281,8 @@ classdef network_utilities_class
             
         end
 
+        
+        %% Arithmetic Subnetwork Design Functions
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
@@ -339,6 +357,8 @@ classdef network_utilities_class
         end
         
         
+        %% Derivation Subnetwork Design Functions
+        
         % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_derivation_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
             
@@ -382,6 +402,8 @@ classdef network_utilities_class
         end
         
         
+        %% Integration Subnetwork Design Functions
+        
         % Implement a function to compute the membrane capacitances for an integration subnetwork.
         function Cm = compute_integration_Cm( ~, ki_mean )
         
@@ -418,6 +440,36 @@ classdef network_utilities_class
         end
         
             
+        %% Voltage Based Integration Design Functions
+        
+        % Implement a function to compute the desired intermediate synaptic current for a voltage based integration subnetwork.
+        function I_syn12 = compute_vb_integration_Isyn( ~, R2, Ta, ki_mean, b_inhibition )
+
+            % Set the default input arguments.
+            if nargin < 5, b_inhibition = false; end
+            
+            % Compute the intermediate synaptic current.
+            I_syn12 = R2/( 2*Ta*ki_mean );    
+            
+            % Determine whether to switch the sign on the intermediate synaptic current.
+            if b_inhibition, I_syn12 = -I_syn12; end
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances for a voltage based integration subnetwork.
+        function g_syn_max12 = compute_vb_integration_gsynmax( ~, R2, dE_syn12, I_syn12 )
+                    
+            % Compute the maximum synaptic conductance for a voltage based integration subnetwork.
+            g_syn_max12 = I_syn12./( dE_syn12 - ( R2/2 ) );
+            
+        end
+            
+        
+        %% Network Functions
+        
+        
+        
         %% Simulation Functions
         
         % Implement a function to perform a single simulation step.

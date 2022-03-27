@@ -12,6 +12,7 @@ classdef synapse_manager_class
         
         array_utilities
         data_loader_utilities
+        synapse_utilities
         
     end
     
@@ -28,6 +29,7 @@ classdef synapse_manager_class
         NUM_DIVISION_SYNAPSES = 2;                              % [#] Number of Division Synapses.
         NUM_DERIVATION_SYNAPSES = 2;                            % [#] Number of Derivation Synapses.
         NUM_INTEGRATION_SYNAPSES = 2;                           % [#] Number of Integration Synapses.
+        NUM_VB_INTEGRATION_SYNAPSES = 4;                        % [#] Number of Voltage Based Integration Synapses.
         
     end
     
@@ -45,6 +47,9 @@ classdef synapse_manager_class
             
             % Create an instance of the data loader utilities class.
             self.data_loader_utilities = data_loader_utilities_class(  );
+            
+            % Create an instance of the synapse utilities class.
+            self.synapse_utilities = synapse_utilities_class(  );
             
             % Set the default synapse properties.
             if nargin < 1, self.synapses = [  ]; else, self.synapses = synapses; end
@@ -734,7 +739,7 @@ classdef synapse_manager_class
         end
         
         
-        %% Multistate CPG Design Functions
+        %% Compute-Set Functions
         
         % Implement a function to assign the desired delta value to each synapse based on the neuron order that we want to follow.
         function self = compute_set_cpg_deltas( self, neuron_IDs, delta_oscillatory, delta_bistable )
@@ -771,6 +776,453 @@ classdef synapse_manager_class
             self = self.set_synapse_property( synapse_IDs_self_connections, zeros( 1, length( synapse_IDs_self_connections ) ), 'delta' );
             
         end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
+        function self = compute_set_transmission_dEsyn( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_transmission_dEsyn(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a modulation subnetwork.
+        function self = compute_set_modulation_dEsyn( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_modulation_dEsyn(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
+        function self = compute_set_addition_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_addition_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
+        function self = compute_set_addition_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_addition_dEsyn2(  );
+                                
+            end
+            
+        end
+        
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
+        function self = compute_set_subtraction_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_subtraction_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
+        function self = compute_set_subtraction_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_subtraction_dEsyn2(  );
+                                
+            end
+            
+        end
+        
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
+        function self = compute_set_multiplication_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+                % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
+        function self = compute_set_multiplication_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn2(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
+        function self = compute_set_multiplication_dEsyn3( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn3(  );
+                                
+            end
+            
+        end
+        
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
+        function self = compute_set_division_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_division_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
+        function self = compute_set_division_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_division_dEsyn2(  );
+                                
+            end
+            
+        end
+        
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
+        function self = compute_set_derivation_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_derivation_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
+        function self = compute_set_derivation_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_derivation_dEsyn2(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
+        function self = compute_set_integration_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_integration_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
+        function self = compute_set_integration_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_integration_dEsyn2(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
+        function self = compute_set_vb_integration_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_vb_integration_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
+        function self = compute_set_vb_integration_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_vb_integration_dEsyn2(  );
+                                
+            end
+            
+        end
+        
         
         
         %% Enable & Disable Functions
@@ -1189,6 +1641,21 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapses for a voltage based integration subnetwork.
+        function [ self, synapse_IDs ] = create_vb_integration_synapses( self, neuron_IDs )
+        
+            % Create the voltage based integetration subnetwork synpases.
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_VB_INTEGRATION_SYNAPSES );
+            
+            % Set the names of the voltage based integration subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43' }, 'name' );
+            
+            % Connect the voltage based integration subnetwork synapses to the integration subnetwrok neurons.
+            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ] );
+            
+        end
+        
+        
         %% Subnetwork Synapse Design Functions
         
         % Implement a function to design the synapses for a multistate cpg subnetwork.
@@ -1206,8 +1673,8 @@ classdef synapse_manager_class
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
-            % Set the synaptic reversal potential of this synapse.
-            self = self.set_synapse_property( synapse_ID, 194e-3, 'dE_syn' ); 
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_transmission_dEsyn( synapse_ID );
             
         end
         
@@ -1218,8 +1685,8 @@ classdef synapse_manager_class
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
-            % Set the synaptic reversal potential of this synapse.
-            self = self.set_synapse_property( synapse_ID, 0, 'dE_syn' );
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_modulation_dEsyn( synapse_ID );
             
         end
         
@@ -1232,9 +1699,10 @@ classdef synapse_manager_class
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
             
-            % Set the synapse reversal potentials.
-            self = self.set_synapse_property( synapse_IDs, [ 194e-3 194e-3 ], 'dE_syn' );     
-            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_addition_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_addition_dEsyn2( synapse_IDs( 2 ) );
+
         end
         
         
@@ -1246,9 +1714,10 @@ classdef synapse_manager_class
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
             
-            % Set the synaptic reversal potentials of the synapses.
-            self = self.set_synapse_property( synapse_IDs, [ 194e-3 -40e-3 ], 'dE_syn' ); 
-            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_subtraction_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_subtraction_dEsyn2( synapse_IDs( 2 ) );
+
         end
         
         
@@ -1258,9 +1727,11 @@ classdef synapse_manager_class
            % Get the synapse IDs that comprise this multiplication subnetwork.
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
             
-            % Set the synaptic reversal potentials.
-            self = self.set_synapse_property( synapse_IDs, [ 194e-3 -1e-3 -1e-3 ], 'dE_syn' );
-            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_multiplication_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_multiplication_dEsyn2( synapse_IDs( 2 ) );
+            self = self.compute_set_multiplication_dEsyn3( synapse_IDs( 3 ) );
+
         end
         
         
@@ -1272,9 +1743,10 @@ classdef synapse_manager_class
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
             
-            % Set the synaptic reversal potentials of the synapses.
-            self = self.set_synapse_property( synapse_IDs, [ 194e-3 0 ], 'dE_syn' ); 
-            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_division_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_division_dEsyn2( synapse_IDs( 2 ) );
+
         end
         
         
@@ -1286,13 +1758,42 @@ classdef synapse_manager_class
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
             
-            % Set the synaptic reversal potentials of the synapses.
-            self = self.set_synapse_property( synapse_IDs, [ 194e-3 -40e-3 ], 'dE_syn' );
-            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_derivation_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_derivation_dEsyn2( synapse_IDs( 2 ) );
+
         end
         
         
         % Implement a function to design the synapses for an integration subnetwork.
+        function [ self, synapse_IDs ] = design_integration_synapses( self, neuron_IDs )
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID12 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            synapse_ID21 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 1 ) );
+            synapse_IDs = [ synapse_ID12 synapse_ID21 ];
+            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_integration_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_integration_dEsyn2( synapse_IDs( 2 ) );
+
+        end
+        
+        
+        % Implement a function to design the synapses for a voltage based integration subnetwork.
+        function [ self, synapse_IDs ] = design_vb_integration_synapses( self, neuron_IDs )
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_vb_integration_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_vb_integration_dEsyn2( synapse_IDs( 2 ) );
+
+        end
+        
         
         
         

@@ -22,7 +22,8 @@ classdef applied_current_manager_class
        NUM_MULTISTATE_CPG_APPLIED_CURRENTS = 1;                     % [#] Number of Multistate CPG Applied Currents.
        NUM_MULTIPLICATION_APPLIED_CURRENTS = 1;                     % [#] Number of Multiplication Applied Currents.
        NUM_INTEGRATION_APPLIED_CURRENTS = 2;                        % [#] Number of Integration Applied Currents.
-        
+       NUM_VB_INTEGRATION_APPLIED_CURRENTS = 2;                     % [#] Number of Voltage Based Integration Applied Currents. 
+       
     end
     
     
@@ -1035,11 +1036,26 @@ classdef applied_current_manager_class
             [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_INTEGRATION_APPLIED_CURRENTS );
             
             % Set the name of the applied currents.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Int1', 'Int2' }, 'name' );
+            self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
             
             % Connect the integration subnetwork applied currents to the integration subnetwork neurons.
             self = self.set_applied_current_property( applied_current_IDs, neuron_IDs, 'neuron_ID' );
             
+        end
+        
+        
+        % Implement a function to create the applied currents for a voltage based integration subnetwork.
+        function [ self, applied_current_IDs ] = create_vb_integration_applied_currents( self, neuron_IDs )
+            
+           % Create applied currents for the two integration neurons.
+           [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_VB_INTEGRATION_APPLIED_CURRENTS );
+            
+           % Set the name of the applied currents.
+           self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
+           
+           % Connect the voltage based integration subnetwork applied currents to the subnetwork neurons.
+            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 3:4 ), 'neuron_ID' );
+           
         end
         
         
@@ -1088,6 +1104,7 @@ classdef applied_current_manager_class
             self = self.set_applied_current_property( applied_current_IDs, Gm*R, 'I_apps' );
             
         end
+        
         
         
         %% Save & Load Functions
