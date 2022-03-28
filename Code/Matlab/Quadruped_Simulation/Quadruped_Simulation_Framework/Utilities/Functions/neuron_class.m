@@ -268,7 +268,15 @@ classdef neuron_class
         
         
         % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------
-
+        
+        % Implement a function to compute the membrane capacitance for a transmission subnetwork neuron.
+        function Cm = compute_transmission_Cm( self )
+        
+            % Compute the membrane capacitance for a transmission subnetwork neuron.
+            Cm = self.neuron_utilities.compute_transmission_Cm(  );
+            
+        end
+        
         
         % Implement a function to compute the membrane capacitance for a subtraction subnetwork neuron.
         function Cm = compute_subtraction_Cm( self )
@@ -350,7 +358,7 @@ classdef neuron_class
         
         
         % Implement a function to second compute the membrane capacitance for a split voltage based integration neuron.
-        function Cm = compute_set_split_vb_integration_Cm2( self )
+        function Cm = compute_split_vb_integration_Cm2( self )
             
             % Compute the second membrane capacitance for this split voltage based integration neuron.
             Cm = self.neuron_utilities.compute_split_vb_integration_Cm2(  );
@@ -546,6 +554,15 @@ classdef neuron_class
         
         % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------        
         
+        % Implement a function to compute and set the membrane capacitance for a transmission subnetwork neuron.
+        function self = compute_set_transmission_Cm( self )
+        
+            % Compute and set the membrane capacitance for a transmission subnetwork neuron.
+            self.Cm = self.compute_transmission_Cm(  );
+            
+        end
+                
+        
         % Implement a function to compute and set the membrane capacitance for a subtraction subnetwork neuron.
         function self = compute_set_subtraction_Cm( self )
         
@@ -624,6 +641,14 @@ classdef neuron_class
             
         end
         
+        
+        % Implement a function to compute and set the second membrane capacitance for a split voltage based integration neuron.
+        function self = compute_set_split_vb_integration_Cm2( self )
+            
+            % Compute and set the second membrane capacitance for this split voltage based integration neuron.
+            self.Cm = self.compute_split_vb_integration_Cm1(  );
+            
+        end
         
         
         

@@ -128,14 +128,70 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute the time vector of multistate cpg subnetwork applied currents.
+        function ts = compute_multistate_cpg_ts( self, dt, tf )
+            
+           % Compute the time vector of multistate cpg subnetwork applied currents.
+           ts = self.applied_current_utilities.compute_multistate_cpg_ts( dt, tf );
+            
+        end
+        
+        
+        % Implement a function to compute the magnitude of multistate cpg subnetwork applied currents.
+        function I_apps = compute_multistate_cpg_Iapps( self, dt, tf )
+            
+           % Compute the magnitude of multistate cpg subnetwork applied currents.
+           I_apps = self.applied_current_utilities.compute_multistate_cpg_Iapps( dt, tf );
+            
+        end
+        
+        
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function I_apps = compute_multiplication_Iapps( self, Gm, R )
         
+            % Compute the magnitude of multiplication subnetwork applied currents.
             I_apps = self.applied_current_utilities.compute_multiplication_Iapps( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute the magnitude of integration subnetwork applied currents.
+        function I_apps = compute_integration_Iapps( self, Gm, R )
+        
+            % Compute the magnitude of integration subnetwork applied currents.
+            I_apps = self.applied_current_utilities.compute_integration_Iapps( Gm, R );
             
         end
             
         
+        % Implement a function to compute the magnitude of voltage based integration subnetwork applied currents.
+        function I_apps = compute_vb_integration_Iapps( self, Gm, R )
+        
+            % Compute the magnitude of voltage based integration subnetwork applied currents.
+            I_apps = self.applied_current_utilities.compute_vb_integration_Iapps( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute the first magnitude of split voltage based integration subnetwork applied currents.
+        function I_apps = compute_split_vb_integration_Iapps1( self, Gm, R )
+        
+            % Compute the first magnitude of split voltage based integration subnetwork applied currents.
+            I_apps = self.applied_current_utilities.compute_split_vb_integration_Iapps1( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute the second magnitude of split voltage based integration subnetwork applied currents.
+        function I_apps = compute_split_vb_integration_Iapps2( self, Gm, R )
+        
+            % Compute the second magnitude of split voltage based integration subnetwork applied currents.
+            I_apps = self.applied_current_utilities.compute_split_vb_integration_Iapps2( Gm, R );
+            
+        end
+        
+        
+                
         %% Compute-Set Functions
         
         % Implement a function to compute and set the number of time steps.
@@ -165,13 +221,70 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute and set the time vector of multistate cpg subnetwork applied currents.
+        function self = compute_set_multistate_cpg_ts( self, dt, tf )
+            
+           % Compute and set the time vector of multistate cpg subnetwork applied currents.
+            self.ts = self.compute_multistate_cpg_ts( dt, tf );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of multistate cpg subnetwork applied currents.
+        function self = compute_set_multistate_cpg_Iapps( self, dt, tf )
+            
+           % Compute and set the magnitude of multistate cpg subnetwork applied currents.
+            self.I_apps = self.compute_multistate_cpg_Iapps( dt, tf );
+            
+        end
+        
+        
         % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
         function self = compute_set_multiplication_Iapps( self, Gm, R )
         
             % Compute and set the magnitude of multiplication subnetwork applied currents.
-            self.I_apps = compute_multiplication_Iapps( Gm, R );
+            self.I_apps = self.compute_multiplication_Iapps( Gm, R );
             
         end
+        
+        
+        % Implement a function to compute and set the magnitude of integration subnetwork applied currents.
+        function self = compute_set_integration_Iapps( self, Gm, R )
+        
+            % Compute and set the magnitude of integration subnetwork applied currents.
+            self.I_apps = self.compute_integration_Iapps( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of voltage based integration subnetwork applied currents.
+        function self = compute_set_vb_integration_Iapps( self, Gm, R )
+        
+            % Compute and set the magnitude of voltage based integration subnetwork applied currents.
+            self.I_apps = self.compute_vb_integration_Iapps( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute and set the first magnitude of split voltage based integration subnetwork applied currents.
+        function self = compute_set_split_vb_integration_Iapps1( self, Gm, R )
+        
+            % Compute and set the first magnitude of split voltage based integration subnetwork applied currents.
+            self.I_apps = self.compute_split_vb_integration_Iapps1( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute and set the second magnitude of split voltage based integration subnetwork applied currents.
+        function self = compute_set_split_vb_integration_Iapps2( self, Gm, R )
+        
+            % Compute and set the second magnitude of split voltage based integration subnetwork applied currents.
+            self.I_apps = self.compute_split_vb_integration_Iapps2( Gm, R );
+            
+        end
+        
+        
+        
         
         
         %% Sampling Functions

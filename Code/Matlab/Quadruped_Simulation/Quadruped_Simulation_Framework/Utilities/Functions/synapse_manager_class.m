@@ -31,6 +31,7 @@ classdef synapse_manager_class
         NUM_INTEGRATION_SYNAPSES = 2;                           % [#] Number of Integration Synapses.
         NUM_VB_INTEGRATION_SYNAPSES = 4;                        % [#] Number of Voltage Based Integration Synapses.
         NUM_SPLIT_VB_INTEGRATION_SYNAPSES =  10;                % [#] Number of Split Voltage Based Integration Synapses.
+        NUM_MOD_SPLIT_VB_INTEGRATION_SYNAPSES = 6;              % [#] Number of Modulated Split Voltage Based Integration Synapses.
         
         DELTA_BISTABLE = -10e-3;
         DELTA_OSCILLATORY = 0.01e-3;
@@ -1672,11 +1673,36 @@ classdef synapse_manager_class
             from_neuron_IDs = [ neuron_IDs( 1:4 ) neuron_IDs( 5:6 ) neuron_IDs( 5:6 ) neuron_IDs( 9 ) neuron_IDs( 3 ) ];
             to_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 7 ) neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 8 ) neuron_IDs( 6 ) neuron_IDs( 5 ) ];
             
-            % Connect the voltage based integration subnetwork synapses to the integration subnetwrok neurons.
+            % Connect the voltage based integration subnetwork synapses to the integration subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
             
         end
         
+        
+        % Implement a function to create the synapses for a split voltage based integration subnetwork.
+        function [ self, synapse_IDs ] = create_mod_split_vb_integration_synapses( self, neuron_IDs )
+           
+            % Create the split voltage based integration subnetwork synapses.
+            [ self, synapse_IDs1 ] = self.create_split_vb_integration_synapses( neuron_IDs( 1:9 ) );
+            
+            % Create the synapses that are unique to the modulated split voltage based integration subnetwork.
+            [ self, synapse_IDs2 ] = self.create_synapses( self.NUM_MOD_SPLIT_VB_INTEGRATION_SYNAPSES );
+            
+            % Set the names of the modulated split voltage based integration subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs2, { 'Sub 3 -> Mod 2', 'Sub 4 -> Mod 3', 'Mod 1 -> Mod 2', 'Mod 1 -> Mod 3', 'Int 1 -> Mod 1', 'Int 2 -> Mod 1' }, 'name' );
+
+            % Define the from and to neuron IDs. NOTE: Neurons are organized as follows: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1', 'Mod 1', 'Mod 2', 'Mod 3' }
+            from_neuron_IDs = [ neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 10 ) neuron_IDs( 10 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ];
+            to_neuron_IDs = [ neuron_IDs( 11 ) neuron_IDs( 12 ) neuron_IDs( 11 ) neuron_IDs( 12 ) neuron_IDs( 10 ) neuron_IDs( 10 ) ];
+
+            % Connect the modulated split voltage based integration subnetwork synapses.
+            self = self.connect_synapses( synapse_IDs2, from_neuron_IDs, to_neuron_IDs );
+            
+            % Concatenate the syanpse IDs.
+            synapse_IDs = [ synapse_IDs1, synapse_IDs2 ];
+            
+        end
+                
         
         %% Subnetwork Synapse Design Functions
         

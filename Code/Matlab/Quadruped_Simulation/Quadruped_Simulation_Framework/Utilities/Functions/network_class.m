@@ -1174,7 +1174,7 @@ classdef network_class
         end
         
         
-        % Implement a function to design the applied currents for a voltage based integration subnetwork.
+        % Implement a function to design the applied currents for a split voltage based integration subnetwork.
         function self = design_split_vb_integration_applied_currents( self, neuron_IDs )
             
             % Retrieve the relevant membrane conductance.
@@ -1193,14 +1193,22 @@ classdef network_class
             assert( R3 == R4, 'Integration subnetwork neurons must have symmetrical voltage domains.' );
             
             % Design the voltage based integration subnetwork applied current.
-%             self.applied_current_manager = self.applied_current_manager.design_integration_applied_currents( neuron_IDs( 3:4 ), Gms( 1 ), Rs( 1 ) );
-            self.applied_current_manager = self.applied_current_manager.design_split_vb_integration_applied_currents( neuron_IDs, Gms, Rs );
+            self.applied_current_manager = self.applied_current_manager.design_split_vb_integration_applied_currents( [ neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 9 ) ], Gms, Rs );
 
         end
         
         
+        % Implement a function to design the applied currents for a modulated split voltage based integration subnetwork.
+        function self = design_mod_split_vb_integration_applied_currents( self, neuron_IDs )
+            
+            % Design the split voltage based integration applied currents.
+            self = self.design_split_vb_integration_applied_currents( neuron_IDs );
+            
+        end
         
         
+        
+                
         %% Subnetwork Neuron Design Functions
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
@@ -1324,6 +1332,22 @@ classdef network_class
             
         end
             
+        
+        % Implement a function to design the neurons for a modulated split voltage based integration subnetwork.
+        function self = design_mod_split_vb_integration_neurons( self, neuron_IDs, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end     
+            
+            % Design the split voltage based integration neurons.
+            self = self.design_split_vb_integration_neurons( neuron_IDs( 1:9 ), ki_mean );
+            
+            % Design the modulation neurons.
+            self = self.design_modulation_neurons( neuron_IDs( 10:12 ) );
+            
+        end
+        
+        
             
         %% Subnetwork Synapse Design Functions
         
@@ -1601,7 +1625,51 @@ classdef network_class
         end
         
         
+        % Implement a function to design the synapses for a split voltage based integration subnetwork.
+        function self = design_split_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub )
+            
+            % Set the default input arugments.
+            if nargin < 7, k_sub = self.K_SUBTRACTION; end
+            if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Design the voltage based integration synapses.
+            self = self.design_vb_integration_synapses( neuron_IDs( 1:4 ), T, n, ki_mean, ki_range );
+            
+            % Design the double subtraction synapses.
+            self = self.design_double_subtraction_synapses( neuron_IDs( 5:8 ), k_sub );
+            
+            % Design the transmission synapses. NOTE: Neuron IDs are in this order: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }
+            self = self.design_transmission_synapse( [ neuron_IDs( 9 ) neuron_IDs( 6 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 3 ) neuron_IDs( 5 ) ], 1, false );
+
+        end
+                
         
+        % Implement a function to design the synapses for a modulated split voltage based integration subnetwork.
+        function self = design_mod_split_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod )
+    
+            % Set the default input arugments.
+            if nargin < 8, c_mod = self.C_MODULATION; end
+            if nargin < 7, k_sub = self.K_SUBTRACTION; end
+            if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Design the synapses for a split voltage based integration subnetwork.
+            self = self.design_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub );
+            
+            % Design the modulation synapses.
+            self = self.design_modulation_synapses( [ neuron_IDs( 10 ) neuron_IDs( 11 ) ], c_mod )  ;          
+            self = self.design_modulation_synapses( [ neuron_IDs( 10 ) neuron_IDs( 12 ) ], c_mod )  ;          
+
+            % Design the transmission synapses.
+            self = self.design_transmission_synapse( [ neuron_IDs( 7 ) neuron_IDs( 11 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 8 ) neuron_IDs( 12 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 1 ) neuron_IDs( 10 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 2 ) neuron_IDs( 10 ) ], 1, false );
+
+        end
+            
         
         
         %% Subnetwork Design Functions
@@ -1815,7 +1883,7 @@ classdef network_class
         function self = design_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub )
             
             % Set the default input arguments.
-            if nargin < 7, k_sub = self.K_SUBTRACTION; end
+            if nargin < 7, k_sub = 2*self.K_SUBTRACTION; end
             if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
             if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end     
             
@@ -1829,6 +1897,29 @@ classdef network_class
             
             % Design the split voltage based integration synapses.
             self = self.design_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub );
+            
+        end
+        
+        
+        % Implement a function to design a modulated split voltage based integration subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_mod_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod )
+            
+            % Set the default input arguments.
+            if nargin < 8, k_sub = self.C_MODULATION; end
+            if nargin < 7, k_sub = 2*self.K_SUBTRACTION; end
+            if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end     
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Design the modulated split voltage based integration subnetwork neurons.
+            self = self.design_mod_split_vb_integration_neurons( neuron_IDs, ki_mean );
+
+            % Design the modulated split voltage based integration applied currents.
+            self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs );
+            
+            % Design the modulated split voltage based integration synapses.
+            self = self.design_mod_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod );
             
         end
         
@@ -1992,6 +2083,23 @@ classdef network_class
             [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_split_vb_integration_applied_currents( neuron_IDs );
 
         end
+        
+        
+        % Implement a function to create the modulated split voltage based integration subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_vb_integration_subnetwork_components( self )
+            
+           % Create the modulated split voltage based integration neurons.
+           [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_mod_split_vb_integration_neurons(  );
+           
+           % Create the modulated split voltage based integration synapses.
+           [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_mod_split_vb_integration_synapses( neuron_IDs );
+
+           % Create the modulated split voltage based integration applied currents.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_mod_split_vb_integration_applied_currents( neuron_IDs );
+
+        end
+        
+        
         
         
         %% Subnetwork Creation Functions
@@ -2177,25 +2285,30 @@ classdef network_class
             if nargin < 5, ki_range = self.K_INTEGRATION_RANGE; end
             if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
             
-%             % Create a voltage based integration subnetwork.
-%             [ self, neuron_IDs_vbint, synapse_IDs_vbint, applied_current_IDs_vbint ] = self.create_vb_integration_subnetwork( T, n, ki_mean, ki_range );
-%             
-%             % Create a double subtraction subnetwork.
-%             [ self, neuron_IDs_dsub, synapse_IDs_dsub ] = self.create_double_subtraction_subnetwork( k_sub );
-            
             % Create the split voltage based integration subnetwork specific components.
             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_split_vb_integration_subnetwork_components(  );
             
             % Design the split voltage based integration subnetwork.
             self = self.design_split_vb_integration_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub );
+
+        end
+        
+        
+        % Implement a function to create a modulated split voltage based integration subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_vb_integration_subnetwork( self, T, n, ki_mean, ki_range, k_sub, c_mod )
+        
+            % Set the default input arugments.
+            if nargin < 7, c_mod = self.C_MODULATION; end
+            if nargin < 6, k_sub = 2*self.K_SUBTRACTION; end
+            if nargin < 5, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
             
+            % Create the modulated split voltage based integration subnetwork specific components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_mod_split_vb_integration_subnetwork_components(  );
             
-%             % Create a neuron to represent the integration equilibrium.
-%             [ self.neuron_manager, neuron_ID_eq ] = self.neuron_manager.create_neuron(  );
-%             
-%             % Create an applied current to represent the integration equilibrium.
-%             [ self.applied_current_manager, applied_current_ID_eq ] = self.applied_current_manager.create_applied_current(  );
-            
+            % Design the modulated split voltage based integration subnetwork.
+            self = self.design_mod_split_vb_integration_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod );
+
         end
         
         

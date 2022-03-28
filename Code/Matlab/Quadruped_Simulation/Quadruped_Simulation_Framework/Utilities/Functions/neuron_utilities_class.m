@@ -298,12 +298,23 @@ classdef neuron_utilities_class
         
         % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------        
 
+        % Implement a function to compute the membrane capacitance of transmission subnetwork neurons.
+        function Cm = compute_transmission_Cm( ~ )
+           
+            % Compute the membrane capacitance.
+%             Cm = 1e-9;
+            Cm = 0.5e-9;
+
+        end
+        
+        
         % Implement a function to compute the membrane capacitance of subtraction subnetwork neurons.
         function Cm = compute_subtraction_Cm( ~ )
            
             % Compute the membrane capacitance.
-            Cm = 1e-9;
-            
+%             Cm = 1e-9;
+            Cm = 0.5e-9;
+
         end
         
         

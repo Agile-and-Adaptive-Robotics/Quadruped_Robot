@@ -31,7 +31,8 @@ classdef neuron_manager_class
         NUM_INTEGRATION_NEURONS = 2;                    % [#] Number of Integration Neurons.
         NUM_VB_INTEGRATION_NEURONS = 4;                 % [#] Number of Voltage Based Integration Neurons.
         NUM_SPLIT_VB_INTEGRATION_NEURONS = 9;           % [#] Number of Split Voltage Based Integration Neurons.
-        
+        NUM_MOD_SPLIT_VB_INTEGRATION_NEURONS = 3;      % [#] Number of Modualted Split Voltage Based Integration Neurons.
+
         K_DERIVATION = 1e6;
         W_DERIVATION = 1;
         SF_DERIVATION = 0.05;
@@ -1030,6 +1031,34 @@ classdef neuron_manager_class
         
         % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
 
+        % Implement a function to compute and set the membrane capacitance of tranmission subnetwork neurons.
+        function self = compute_set_transmission_Cm( self, neuron_IDs )
+
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the membrane capacitance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_transmission_Cm(  );
+                
+            end
+            
+        end
+        
+        
+        
+        
         % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
         function self = compute_set_subtraction_Cm( self, neuron_IDs )
 
@@ -1555,6 +1584,24 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to create the modulated split voltage based neurons for an integration subnetwork.
+        function [ self, neuron_IDs ] = create_mod_split_vb_integration_neurons( self )
+            
+            % Create the split voltage based integration neurons.
+            [ self, neuron_IDs1 ] = self.create_split_vb_integration_neurons(  );            
+            
+            % Create the modulated split voltage based integration subnetwork neurons..
+            [ self, neuron_IDs2 ] = self.create_neurons( self.NUM_MOD_SPLIT_VB_INTEGRATION_NEURONS );
+            
+            % Set the names of the modulated split voltage based integration subnetwork neurons.
+            self = self.set_neuron_property( neuron_IDs2, { 'Mod 1', 'Mod 2', 'Mod 3' }, 'name' );
+            
+            % Concatenate the neuron IDs.
+            neuron_IDs = [ neuron_IDs1 neuron_IDs2 ];
+            
+        end
+                
+        
         %% Subnetwork Neuron Design Functions
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
@@ -1571,6 +1618,9 @@ classdef neuron_manager_class
            
             % Compute and set the sodium channel conductance of the transmission subnetwork neurons.
             self = self.compute_set_transmission_Gna( neuron_IDs );
+            
+            % Compute and set the membrane capacitance of the transmission subnetwork neurons..
+            self = self.compute_set_transmission_Cm( neuron_IDs );
             
         end
         
