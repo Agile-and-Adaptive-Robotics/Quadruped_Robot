@@ -22,7 +22,11 @@ network = network_class( network_dt, network_tf );
 % Set the integration subnetwork properties.
 T = 2;
 n = 4;
-ki_mean = 0.01e9;
+% ki_mean = 0.01e9;
+% ki_range = 0.01e9;
+% ki_mean = 0.01e9;
+% ki_range = 0.01e8;
+ki_mean = 0.01e10;
 ki_range = 0.01e9;
 
 % Create an integration subnetwork.

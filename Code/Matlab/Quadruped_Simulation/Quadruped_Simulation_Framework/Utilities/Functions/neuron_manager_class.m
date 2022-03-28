@@ -30,6 +30,7 @@ classdef neuron_manager_class
         NUM_DERIVATION_NEURONS = 3;                     % [#] Number of Derivation Neurons.
         NUM_INTEGRATION_NEURONS = 2;                    % [#] Number of Integration Neurons.
         NUM_VB_INTEGRATION_NEURONS = 4;                 % [#] Number of Voltage Based Integration Neurons.
+        NUM_SPLIT_VB_INTEGRATION_NEURONS = 9;           % [#] Number of Split Voltage Based Integration Neurons.
         
         K_DERIVATION = 1e6;
         W_DERIVATION = 1;
@@ -1000,6 +1001,33 @@ classdef neuron_manager_class
         end
                 
         
+        % Implement a function to compute and set the sodium channel conductance of split voltage based integration neurons.
+        function self = compute_set_split_vb_integration_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_split_vb_integration_Gna(  );
+                
+            end
+            
+        end
+        
+        
+        
         % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
 
         % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
@@ -1145,6 +1173,61 @@ classdef neuron_manager_class
             end
 
         end
+        
+        
+        % Implement a function to compute and set the first membrane capacitance of split voltage based integration neurons.
+        function self = compute_set_split_vb_integration_Cm1( self, neuron_IDs, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_split_vb_integration_Cm1( ki_mean );
+                
+            end
+
+        end
+        
+        
+        % Implement a function to compute and set the second membrane capacitance of split voltage based integration neurons.
+        function self = compute_set_split_vb_integration_Cm2( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_split_vb_integration_Cm2(  );
+                
+            end
+
+        end
+        
+        
         
         
         %% Basic Neuron Creation / Deletion Functions
@@ -1454,8 +1537,20 @@ classdef neuron_manager_class
             % Create the voltage based integration subnetwork neurons..
             [ self, neuron_IDs ] = self.create_neurons( self.NUM_VB_INTEGRATION_NEURONS );
             
-            % Set the names of the integration subnetwork neurons.
+            % Set the names of the voltage based integration subnetwork neurons.
             self = self.set_neuron_property( neuron_IDs, { 'Pos', 'Neg', 'Int 1', 'Int 2' }, 'name' );
+            
+        end
+        
+        
+        % Implement a function to create the split voltage based neurons for an integration subnetwork.
+        function [ self, neuron_IDs ] = create_split_vb_integration_neurons( self )
+            
+            % Create the split voltage based integration subnetwork neurons..
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_SPLIT_VB_INTEGRATION_NEURONS );
+            
+            % Set the names of the split voltage based integration subnetwork neurons.
+            self = self.set_neuron_property( neuron_IDs, { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }, 'name' );
             
         end
         
@@ -1476,9 +1571,6 @@ classdef neuron_manager_class
            
             % Compute and set the sodium channel conductance of the transmission subnetwork neurons.
             self = self.compute_set_transmission_Gna( neuron_IDs );
-            
-%             % Set the sodium channel conductance of the transmission neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1534,12 +1626,6 @@ classdef neuron_manager_class
             % Compute and set the sodium channel conductance of the double subtraction subnetwork neurons.
             self = self.compute_set_double_subtraction_Cm( neuron_IDs );
             
-%             % Set the sodium channel conductance of the double subtraction neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
-%             
-%             % Set the membrane capacitance of the double subtraction neurons.
-%             self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
-            
         end
         
         
@@ -1549,8 +1635,6 @@ classdef neuron_manager_class
             % Compute and set the sodium channel conductance of the multiplication subnetwork neurons.
             self = self.compute_set_multiplication_Gna( neuron_IDs );
             
-%             % Set the sodium channel conductance of the multiplication neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1605,7 +1689,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to design the neurons for an integration subnetwork.
+        % Implement a function to design the neurons for a voltage based integration subnetwork.
         function self = design_vb_integration_neurons( self, neuron_IDs, ki_mean )
 
             % Set the default input arugments.
@@ -1616,6 +1700,22 @@ classdef neuron_manager_class
 
             % Compute and set the membrane capacitance of the integration neurons.
             self = self.compute_set_vb_integration_Cm( neuron_IDs( 3:4 ), ki_mean );
+            
+        end
+        
+        
+        % Implemenet a function to design the neurons for a split voltage based integration subnetwork.
+        function self = design_split_vb_integration_neurons( self, neuron_IDs, ki_mean )
+        
+            % Set the default input arugments.
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute and set the sodium channel conductance of the split voltage based integration subnetwork neurons.
+            self = self.compute_set_split_vb_integration_Gna( neuron_IDs );
+            
+            % Compute and set the membrane capacitance of the split voltage based integration subnetwork neurons.
+            self = self.compute_set_split_vb_integration_Cm1( neuron_IDs( 3:4 ), ki_mean );
+            self = self.compute_set_split_vb_integration_Cm2( neuron_IDs( 5:8 ) );
             
         end
         

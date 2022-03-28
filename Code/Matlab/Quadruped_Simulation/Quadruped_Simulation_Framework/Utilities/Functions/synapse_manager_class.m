@@ -30,6 +30,7 @@ classdef synapse_manager_class
         NUM_DERIVATION_SYNAPSES = 2;                            % [#] Number of Derivation Synapses.
         NUM_INTEGRATION_SYNAPSES = 2;                           % [#] Number of Integration Synapses.
         NUM_VB_INTEGRATION_SYNAPSES = 4;                        % [#] Number of Voltage Based Integration Synapses.
+        NUM_SPLIT_VB_INTEGRATION_SYNAPSES =  10;                % [#] Number of Split Voltage Based Integration Synapses.
         
         DELTA_BISTABLE = -10e-3;
         DELTA_OSCILLATORY = 0.01e-3;
@@ -1654,6 +1655,25 @@ classdef synapse_manager_class
             
             % Connect the voltage based integration subnetwork synapses to the integration subnetwrok neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ] );
+            
+        end
+        
+        
+        % Implement a function to create the synapses for a split voltage based integration subnetwork.
+        function [ self, synapse_IDs ] = create_split_vb_integration_synapses( self, neuron_IDs )
+           
+            % Create the voltage based integetration subnetwork synpases.
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_SPLIT_VB_INTEGRATION_SYNAPSES );
+            
+            % Set the names of the voltage based integration subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43', 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24', 'Eq 1 -> Sub 2', 'Int 3 -> Sub 1' }, 'name' );
+            
+            % Define the from and to neuron IDs.  NOTE: Neuron IDs are in this order: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }
+            from_neuron_IDs = [ neuron_IDs( 1:4 ) neuron_IDs( 5:6 ) neuron_IDs( 5:6 ) neuron_IDs( 9 ) neuron_IDs( 3 ) ];
+            to_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 7 ) neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 8 ) neuron_IDs( 6 ) neuron_IDs( 5 ) ];
+            
+            % Connect the voltage based integration subnetwork synapses to the integration subnetwrok neurons.
+            self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
             
         end
         

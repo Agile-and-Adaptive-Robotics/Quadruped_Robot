@@ -27,7 +27,13 @@ classdef applied_current_utilities_class
         
         %% Applied Current Design Functions
         
-        
+        % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
+        function I_apps = compute_multiplication_Iapps( ~, Gm, R )
+           
+            % Compute the magnitude of multiplication subnetwork applied currents.
+            I_apps = Gm.*R;
+            
+        end
         
         
     end

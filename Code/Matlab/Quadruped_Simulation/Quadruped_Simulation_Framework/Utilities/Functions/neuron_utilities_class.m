@@ -271,6 +271,15 @@ classdef neuron_utilities_class
         end
         
         
+        % Implement a function to compute the sodium channel conductance of a split voltage based integration subnetwork neuron.
+        function Gna = compute_split_vb_integration_Gna( ~ )
+        
+            % Compute the sodium channel conductance.
+           Gna = 0;
+            
+        end
+        
+        
         % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------        
 
         % Implement a function to compute membrane conductance for a derivative subnetwork.
@@ -357,6 +366,27 @@ classdef neuron_utilities_class
             
             % Compute the voltage based integration subnetwork membrane capacitance.
             Cm = 1./( 2*ki_mean );
+            
+        end
+        
+        
+        % Implement a function to compute the first membrane capacitance for a split voltage based integration subnetwork.
+        function Cm = compute_split_vb_integration_Cm1( ~, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute the first split voltage based integration subnetwork membrane capacitance.
+            Cm = 1./( 2*ki_mean );
+            
+        end
+        
+        
+        % Implement a function to compute the second membrane capacitance for a split voltage based integration subnetwork.
+        function Cm = compute_split_vb_integration_Cm2( ~ )
+           
+            % Compute the second split voltage based integration subnetwork membrane capacitance.
+            Cm = 1e-9;
             
         end
         

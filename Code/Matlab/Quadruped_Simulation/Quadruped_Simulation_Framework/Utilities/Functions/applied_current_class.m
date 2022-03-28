@@ -128,6 +128,14 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
+        function I_apps = compute_multiplication_Iapps( self, Gm, R )
+        
+            I_apps = self.applied_current_utilities.compute_multiplication_Iapps( Gm, R );
+            
+        end
+            
+        
         %% Compute-Set Functions
         
         % Implement a function to compute and set the number of time steps.
@@ -153,6 +161,15 @@ classdef applied_current_class
             
             % Compute and set the final time.
             self.tf = self.compute_tf(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
+        function self = compute_set_multiplication_Iapps( self, Gm, R )
+        
+            % Compute and set the magnitude of multiplication subnetwork applied currents.
+            self.I_apps = compute_multiplication_Iapps( Gm, R );
             
         end
         

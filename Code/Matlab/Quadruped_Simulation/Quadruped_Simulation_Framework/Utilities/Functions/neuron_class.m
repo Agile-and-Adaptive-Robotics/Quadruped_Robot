@@ -242,6 +242,15 @@ classdef neuron_class
         end
         
         
+        % Implement a function to compute the required sodium channel conductance for a split voltage based integration subnetwork neuron.
+        function Gna = compute_split_vb_integration_Gna( self )
+
+            % Compute the sodium channel conductance for a split voltage based integration subnetwork neuron.
+            Gna = self.neuron_utilities.compute_split_vb_integration_Gna(  );
+        
+        end
+        
+        
         % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------
         
         % Implement a function to compute the required membrane conductance for a derivation neuron.
@@ -322,10 +331,32 @@ classdef neuron_class
             % Set the default input arguments.
             if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
             
-            % Compute the membrane capacitance for this integration neuron.
+            % Compute the membrane capacitance for this voltage based integration neuron.
             Cm = self.neuron_utilities.compute_vb_integration_Cm( ki_mean );
         
         end
+        
+        
+        % Implement a function to first compute the membrane capacitance for a split voltage based integration neuron.
+        function Cm = compute_split_vb_integration_Cm1( self, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute the first membrane capacitance for this split voltage based integration neuron.
+            Cm = self.neuron_utilities.compute_split_vb_integration_Cm1( ki_mean );
+        
+        end
+        
+        
+        % Implement a function to second compute the membrane capacitance for a split voltage based integration neuron.
+        function Cm = compute_set_split_vb_integration_Cm2( self )
+            
+            % Compute the second membrane capacitance for this split voltage based integration neuron.
+            Cm = self.neuron_utilities.compute_split_vb_integration_Cm2(  );
+        
+        end
+        
         
         
         % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
@@ -479,11 +510,20 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance for integration subnetwork neurons.
+        % Implement a function to compute and set the sodium channel conductance for voltage based integration subnetwork neurons.
         function self = compute_set_vb_integration_Gna( self )
             
-           % Compute and set the sodium channel conductance for integration subnetwork neurons.
+           % Compute and set the sodium channel conductance for voltage based integration subnetwork neurons.
            self.Gna = self.compute_vb_integration_Gna(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance for split voltage based integration subnetwork neurons.
+        function self = compute_set_split_vb_integration_Gna( self )
+            
+           % Compute and set the sodium channel conductance for split voltage based integration subnetwork neurons.
+           self.Gna = self.compute_split_vb_integration_Gna(  );
             
         end
         
@@ -571,6 +611,20 @@ classdef neuron_class
             self.Cm = self.compute_vb_integration_Cm( ki_mean );
             
         end
+        
+        
+        % Implement a function to compute and set the first membrane capacitance for a split voltage based integration neuron.
+        function self = compute_set_split_vb_integration_Cm1( self, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Compute and set the first membrane capacitance for this split voltage based integration neuron.
+            self.Cm = self.compute_split_vb_integration_Cm1( ki_mean );
+            
+        end
+        
+        
         
         
         % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
