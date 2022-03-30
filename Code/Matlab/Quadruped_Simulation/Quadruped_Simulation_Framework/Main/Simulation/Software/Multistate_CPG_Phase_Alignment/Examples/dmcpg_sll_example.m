@@ -59,8 +59,8 @@ ts = ( 0:network.dt:network.tf )';
 num_timesteps = length( ts );
 
 % Define the drive current magnitude.
-Imag_low1 = 0; Imag_middle1 = 1e-9; Imag_high1 = 20e-9;
-Imag_low2 = 0; Imag_middle2= 1e-9; Imag_high2 = 20e-9;
+Imag_neg1 = -1e-9; Imag_low1 = 0; Imag_middle1 = 1e-9; Imag_high1 = 20e-9; Imag_veryhigh1 = 1000e-9;
+Imag_neg2 = -1e-9; Imag_low2 = 0; Imag_middle2= 1e-9; Imag_high2 = 20e-9; Imag_veryhigh2 = 1000e-9;
 
 % Define the drive current applied magnitude vector.
 % I_apps1 = Imag_low1*( ts >= 0 & ts < 1.00 ) + Imag_middle1*( ts >= 1.00 & ts < 2.00 ) + Imag_high1*( ts >= 2.00 & ts <= 3.00 );
@@ -72,11 +72,18 @@ Imag_low2 = 0; Imag_middle2= 1e-9; Imag_high2 = 20e-9;
 % I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 & ts < 1.75 ) + Imag_low1*( ts >= 1.75 & ts < 2.75 );
 % I_apps2 = Imag_low2*( ts >= 0 & ts < 0.25 ) + Imag_middle2*( ts >= 0.25 & ts < 1.25 ) + Imag_low2*( ts >= 1.25 & ts < 2.25 );
 
-% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 );
-% I_apps2 = Imag_low2*( ts >= 0 & ts < 0.50 ) + Imag_middle2*( ts >= 0.50 );
+I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 );
+I_apps2 = Imag_low2*( ts >= 0 & ts < 0.50 ) + Imag_middle2*( ts >= 0.50 );
 
-I_apps1 = Imag_middle1*( ts >= 0 );
-I_apps2 = Imag_high2*( ts >= 0 & ts < 0.25 ) + Imag_middle2*( ts >= 0.25 );
+% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_neg1*( ts >= 0.75 );
+% I_apps2 = Imag_low2*( ts >= 0 & ts < 0.50 ) + Imag_neg2*( ts >= 0.50 );
+
+% I_apps1 = Imag_veryhigh1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 );
+% I_apps2 = Imag_veryhigh2*( ts >= 0 & ts < 0.50 ) + Imag_middle2*( ts >= 0.50 );
+
+
+% I_apps1 = Imag_middle1*( ts >= 0 );
+% I_apps2 = Imag_high2*( ts >= 0 & ts < 0.25 ) + Imag_middle2*( ts >= 0.25 );
 
 
 % Setup the first drive current.
