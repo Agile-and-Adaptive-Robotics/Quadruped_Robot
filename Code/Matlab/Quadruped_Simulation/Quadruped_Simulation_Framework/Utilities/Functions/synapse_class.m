@@ -52,6 +52,24 @@ classdef synapse_class
         
         %% Compute Functions
         
+        % Implement a function to compute the synaptic reversal potential of a driven multistate cpg subnetwork.
+        function dE_syn = compute_driven_multistate_cpg_dEsyn( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn = self.synapse_utilities.compute_driven_multistate_cpg_dEsyn(  );
+            
+        end
+        
+
+        % Implement a function to compute the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function g_syn_max = compute_driven_multistate_cpg_gsynmax( self, delta_oscillatory, I_drive_max )
+            
+           % Compute the maximum synaptic conductance.
+           g_syn_max = self.synapse_utilities.compute_driven_multistate_cpg_gsynmax( self.dE_syn, delta_oscillatory, I_drive_max );
+            
+        end
+        
+                
         % Implement a function to compute the synaptic reversal potential of a transmission subnetwork.
         function dE_syn = compute_transmission_dEsyn( self )
             
@@ -207,6 +225,26 @@ classdef synapse_class
         
         %% Compute & Set Functions
 
+        % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
+        function self = compute_set_driven_multistate_cpg_dEsyn( self )
+            
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_driven_multistate_cpg_dEsyn(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function self = compute_set_driven_multistate_cpg_gsynmax( self, delta_oscillatory, I_drive_max )
+            
+            % Compute and set the maximum synaptic conductance.
+            self.g_syn_max = self.compute_driven_multistate_cpg_gsynmax( delta_oscillatory, I_drive_max );
+            
+        end
+        
+        
+        
+        
         % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
         function self = compute_set_transmission_dEsyn( self )
             

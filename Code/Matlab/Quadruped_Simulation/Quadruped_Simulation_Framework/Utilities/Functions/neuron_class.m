@@ -152,6 +152,15 @@ classdef neuron_class
         end
         
         
+        % Implement a function to compute the required sodium channel conductance for a driven multistate cpg subnetwork neuron.
+        function Gna = compute_driven_multistate_cpg_Gna( self )
+
+            % Compute the sodium channel conductance for a driven multistate cpg subnetwork neuron.
+            Gna = self.neuron_utilities.compute_driven_multistate_cpg_Gna(  );
+        
+        end
+                
+        
         % Implement a function to compute the required sodium channel conductance for a transmission subnetwork neuron.
         function Gna = compute_transmission_Gna( self )
 
@@ -438,6 +447,15 @@ classdef neuron_class
         end
         
         
+        % Implement a function to compute and set the sodium channel conductance for a driven multistate cpg subnetwork.
+        function self = compute_set_driven_multistate_cpg_Gna( self )
+        
+           % Compute and set the sodium channel conductance for driven multistate cpg subnetwork neurons.
+           self.Gna = self.compute_driven_multistate_cpg_Gna(  );
+            
+        end
+        
+            
         % Implement a function to compute and set the sodium channel conductance for transmission subnetwork neurons.
         function self = compute_set_transmission_Gna( self )
             

@@ -32,9 +32,12 @@ classdef synapse_manager_class
         NUM_VB_INTEGRATION_SYNAPSES = 4;                        % [#] Number of Voltage Based Integration Synapses.
         NUM_SPLIT_VB_INTEGRATION_SYNAPSES =  10;                % [#] Number of Split Voltage Based Integration Synapses.
         NUM_MOD_SPLIT_VB_INTEGRATION_SYNAPSES = 6;              % [#] Number of Modulated Split Voltage Based Integration Synapses.
+        NUM_MOD_SPLIT_SUB_VB_INTEGRATION_SYNAPSES = 2;          % [#] Number fo Modulated Split Difference Voltage Based Integration Synapses.
         
         DELTA_BISTABLE = -10e-3;
         DELTA_OSCILLATORY = 0.01e-3;
+        
+        I_DRIVE_MAX = 1.25e-9;
         
     end
     
@@ -786,6 +789,61 @@ classdef synapse_manager_class
             
         end
         
+                
+        % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
+        function self = compute_set_driven_multistate_cpg_dEsyn( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_dEsyn(  );
+                                
+            end
+            
+        end
+        
+    
+        % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function self = compute_set_driven_multistate_cpg_gsynmax( self, synapse_IDs, delta_oscillatory, I_drive_max )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_gsynmax( delta_oscillatory, I_drive_max );
+                                
+            end
+            
+        end
+        
+        
+        
+        
         
         % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
         function self = compute_set_transmission_dEsyn( self, synapse_IDs )
@@ -1510,6 +1568,160 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapses for a multistate CPG subnetwork.
+        function [ self, synapse_IDs ] = create_driven_multistate_cpg_synapses( self, neuron_IDs )
+           
+            % Create the multistate cpg synapses.
+            [ self, synapse_IDs_cpg ] = self.create_multistate_cpg_synapses( neuron_IDs( 1:( end - 1 ) ) );
+            
+            % Compute the number of drive synapses.
+            num_drive_synapses = length( neuron_IDs ) - 1;
+            
+            % Create the drive synapses.
+            [ self, synapse_IDs_drive ] = self.create_synapses( num_drive_synapses );
+            
+            % Connect and set the name of each drive synapse.
+            for k = 1:num_drive_synapses                    % Iterate through each of the drive synapses...
+                
+                % Set the name of this synapse.
+                self = self.set_synapse_property( synapse_IDs_drive( k ), { sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ) }, 'name' );
+                
+                % Connect this synapse.
+                self = self.connect_synapse( synapse_IDs_drive( k ), neuron_IDs( end ), neuron_IDs( k ) );
+                
+            end
+            
+            % Concatenate the synapse IDs.
+            synapse_IDs = [ synapse_IDs_cpg, synapse_IDs_drive ];
+            
+        end
+            
+        
+        % Implement a function to create the synapses that connect driven multistate cpg to their respective modulated split subtraction voltage based integration subnetworks.
+        function [ self, synapse_IDs ] = create_dmcpg2mssvbi_synapses( self, neuron_IDs_cell )
+           
+            % Determine the number of cpg neurons.
+            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Define the number of unique synapses.
+            num_unique_synapses = 2*num_cpg_neurons;
+            
+            % Create the unique synapses.
+            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            
+            % Create the synapses that connect the driven multistate cpg neurons to the modulated split subtraction voltage based integration neurons.
+            for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...        %NOTE: While it may seem odd that I have two separate consecutive loops with the same iterator, this is done because we want to create all of the modulated split subtraction voltage based integration synapses first before creating the unique synapses.
+                
+                % Compute the index.
+                index = 2*( k - 1 ) + 1;
+                                
+                % Define the from and to neuron IDs.
+                from_neuron_ID1 = neuron_IDs_cell{ 1 }( k ); to_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 1 );
+                from_neuron_ID2 = neuron_IDs_cell{ 2 }( k ); to_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 2 );
+                
+                % Define the synapse names.
+                synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+                synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+
+                % Set the names of these synapses.
+                self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name' );
+
+                % Connect this synapse.
+                self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
+                self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the synapses that connect modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
+        function [ self, synapse_IDs ] = create_mssvbi2sll_synapses( self, neuron_IDs_cell )
+           
+            % Determine the number of cpg neurons.
+            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Define the number of unique synapses.
+            num_unique_synapses = 2*num_cpg_neurons + 2;
+            
+            % Create the unique synapses.
+            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            
+            % Create the addition synapses of the split lead lag subnetwork.
+            for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+                
+                % Compute the index.
+                index = 2*( k - 1 ) + 1;
+                                
+                % Define the from and to neuron IDs.
+                from_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 15 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 1 );
+                from_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 16 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 2 );
+                
+                % Define the synapse names.
+                synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+                synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+
+                % Set the names of these synapses.
+                self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name' );
+
+                % Connect this synapse.
+                self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
+                self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
+
+            end
+            
+            % Define the from and to neuron IDs for the slow tranmission synapses.
+            from_neuron_ID1 = neuron_IDs_cell{ end }( 1 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 3 );
+            from_neuron_ID2 = neuron_IDs_cell{ end }( 2 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 4 );
+
+            % Define the synapse names for the slow transmission synapses
+            synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+            synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+            
+            % Set the names of the slow transmission synapses of the split lead lag subnetwork.
+            self = self.set_synapse_property( synapse_IDs( end - 1 ), { synapse_name1 }, 'name' );
+            self = self.set_synapse_property( synapse_IDs( end ), { synapse_name2 }, 'name' );
+            
+            % Connect the slow tranmission synapses of the split lead lag subnetwork.
+            self = self.connect_synapse( synapse_IDs( end - 1 ), from_neuron_ID1, to_neuron_ID1 );
+            self = self.connect_synapse( synapse_IDs( end ), from_neuron_ID2, to_neuron_ID2 );
+            
+        end
+        
+        
+        % Implement a function to create the synapses for a multistate CPG subnetwork.
+        function [ self, synapse_IDs_cell ] = create_dmcpg_sll_synapses( self, neuron_IDs_cell )
+        
+            % Retrieve the number of subnetworks and cpg neurons.
+            num_subnetworks = length( neuron_IDs_cell );
+            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Preallocate a cell array to store the synapse IDs.
+            synapse_IDs_cell = cell( 1, num_subnetworks + 1 );
+            
+            % Create the driven multistate cpg synapses.
+            [ self, synapse_IDs_cell{ 1 } ] = self.create_driven_multistate_cpg_synapses( neuron_IDs_cell{ 1 } );
+            [ self, synapse_IDs_cell{ 2 } ] = self.create_driven_multistate_cpg_synapses( neuron_IDs_cell{ 2 } );
+            
+            % Create the synapses for each of the modulated split subtraction voltage based integration synapses.
+            for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
+                
+                % Create the modulated split subtraction voltage based integration synapses for this subnetwork.
+                [ self, synapse_IDs_cell{ k + 2 } ] = self.create_mod_split_sub_vb_integration_synapses( neuron_IDs_cell{ k + 2 } );
+            
+            end
+            
+            % Create the synapses that connect the driven multistate cpg to the modulated split subtraction voltage based integration subnetworks.
+            [ self, synapse_IDs_cell{ end - 1 } ] = self.create_dmcpg2mssvbi_synapses( neuron_IDs_cell );
+            
+            % Create the synapses that connect the modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
+            [ self, synapse_IDs_cell{ end } ] = self.create_mssvbi2sll_synapses( neuron_IDs_cell );
+            
+        end
+        
+        
         % Implement a function to create the synapses for a transmission subnetwork.
         function [ self, synapse_ID ] = create_transmission_synapses( self, neuron_IDs )
             
@@ -1679,7 +1891,7 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to create the synapses for a split voltage based integration subnetwork.
+        % Implement a function to create the synapses for a modulated split voltage based integration subnetwork.
         function [ self, synapse_IDs ] = create_mod_split_vb_integration_synapses( self, neuron_IDs )
            
             % Create the split voltage based integration subnetwork synapses.
@@ -1698,11 +1910,41 @@ classdef synapse_manager_class
             % Connect the modulated split voltage based integration subnetwork synapses.
             self = self.connect_synapses( synapse_IDs2, from_neuron_IDs, to_neuron_IDs );
             
-            % Concatenate the syanpse IDs.
+            % Concatenate the synapse IDs.
             synapse_IDs = [ synapse_IDs1, synapse_IDs2 ];
             
         end
                 
+        
+        % Implement a function to create the synapses for a modulated split difference voltage based integration subnetwork.
+        function [ self, synapse_IDs ] = create_mod_split_sub_vb_integration_synapses( self, neuron_IDs )
+            
+            % Create the double subtraction subnetwork synapses.
+            [ self, synapse_IDs1 ] = self.create_double_subtraction_synapses( neuron_IDs( 1:4 ) );
+            
+            % Create the modulated split voltage based integration subnetwork synapses.
+            [ self, synapse_IDs2 ] = self.create_mod_split_vb_integration_synapses( neuron_IDs( 5:end ) );
+            
+            % Create the synapses unique to this subnetwork.
+            [ self, synapse_IDs3 ] = self.create_synapses( self.NUM_MOD_SPLIT_SUB_VB_INTEGRATION_SYNAPSES );
+            
+            % Set the names of the synapses that are unique to this subnetwork.
+            self = self.set_synapse_property( synapse_IDs3, { 'Sub 3 -> Int 1', 'Sub 4 -> Int 2' }, 'name' );
+
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 4 ) ];
+            to_neuron_IDs = [ neuron_IDs( 5 ) neuron_IDs( 6 ) ];
+
+            % Connect the synapses that are unique to this subnetwork.
+            self = self.connect_synapses( synapse_IDs3, from_neuron_IDs, to_neuron_IDs );
+            
+            % Concatenate the synapse IDs.
+            synapse_IDs = [ synapse_IDs1, synapse_IDs2, synapse_IDs3 ];
+            
+        end
+        
+        
+        
         
         %% Subnetwork Synapse Design Functions
         
@@ -1717,6 +1959,32 @@ classdef synapse_manager_class
             self = self.compute_set_cpg_deltas( neuron_IDs, delta_oscillatory, delta_bistable );
             
         end
+        
+       
+        % Implement a function to design the synapses for a driven multistate cpg subnetwork.
+        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, I_drive_max )
+        
+            % Set the default input arguments.
+            if nargin < 4, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            
+            % Retrieve the number of cpg neurons.
+            num_cpg_neurons = length( neuron_IDs ) - 1;
+            
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = neuron_IDs( end )*ones( 1, num_cpg_neurons );
+            to_neuron_IDs = neuron_IDs( 1:( end - 1 ) );
+            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs );
+            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_driven_multistate_cpg_dEsyn( synapse_IDs );
+            
+            % Compute and set the maximum synaptic conductances.
+            self = self.compute_set_driven_multistate_cpg_gsynmax( synapse_IDs, delta_oscillatory, I_drive_max );
+            
+        end
+        
+        
         
         
         % Implement a function to design the synapses for a transmission subnetwork.

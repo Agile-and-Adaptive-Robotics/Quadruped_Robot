@@ -27,6 +27,24 @@ classdef synapse_utilities_class
         
         %% Synapse Design Functions
         
+        % Implement a function to compute the synaptic reversal potential for a driven multistate cpg subnetwork.
+        function dE_syn = compute_driven_multistate_cpg_dEsyn( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn = 194e-3;
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance for a driven multistate cpg subnetwork.
+        function g_syn_max = compute_driven_multistate_cpg_gsynmax( ~, dE_syn, delta_oscillatory, I_drive_max )
+        
+            % Compute the maximum synaptic conductance.
+            g_syn_max = I_drive_max./( dE_syn - delta_oscillatory );
+            
+        end
+        
+        
         % Implement a function to compute the synaptic reversal potential for a transmission subnetwork.
         function dE_syn = compute_transmission_dEsyn( ~ )
             

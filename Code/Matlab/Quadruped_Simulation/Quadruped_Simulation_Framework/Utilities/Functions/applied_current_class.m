@@ -146,6 +146,17 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute the magnitude of driven multistate cpg subnetwork applied currents.
+        function I_apps = compute_driven_multistate_cpg_Iapps( self, Gm, R )
+            
+           % Compute the magnitude of driven multistate cpg subnetwork applied currents.
+           I_apps = self.applied_current_utilities.compute_driven_multistate_cpg_Iapps( Gm, R );
+            
+        end
+        
+        
+        
+        
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function I_apps = compute_multiplication_Iapps( self, Gm, R )
         
@@ -237,6 +248,17 @@ classdef applied_current_class
             self.I_apps = self.compute_multistate_cpg_Iapps( dt, tf );
             
         end
+        
+        
+        % Implement a function to compute and set the magnitude of driven multistate cpg subnetwork applied currents.
+        function self = compute_set_driven_multistate_cpg_Iapps( self, Gm, R )
+            
+           % Compute and set the magnitude of driven multistate cpg subnetwork applied currents.
+            self.I_apps = self.compute_driven_multistate_cpg_Iapps( Gm, R );
+            
+        end
+        
+        
         
         
         % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.

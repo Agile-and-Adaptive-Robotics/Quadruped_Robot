@@ -36,7 +36,7 @@ classdef applied_current_utilities_class
         end
         
                 
-        % Implement a function to compute the time vector of multistate cpg subnetwork applied currents.
+        % Implement a function to compute the magnitude of multistate cpg subnetwork applied currents.
         function I_apps = compute_multistate_cpg_Iapps( ~, dt, tf )
         
             % Compute the number of applied currents.
@@ -48,6 +48,15 @@ classdef applied_current_utilities_class
         end
         
         
+        % Implement a function to compute the magnitude of driven multistate cpg subnetwork applied currents.
+        function I_apps = compute_driven_multistate_cpg_Iapps( ~, Gm, R )
+        
+            % Compute the applied current magnitude.
+            I_apps = ( Gm.*R )/2;
+            
+        end
+        
+            
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function I_apps = compute_multiplication_Iapps( ~, Gm, R )
            

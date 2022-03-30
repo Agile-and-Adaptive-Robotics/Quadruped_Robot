@@ -1052,6 +1052,34 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to compute and set the magnitude of driven multistate cpg applied currents.
+        function self = compute_set_driven_multistate_cpg_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the time vector for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_driven_multistate_cpg_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        
+        
         % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
         function self = compute_set_multiplication_Iapps( self, applied_current_IDs, Gm, R )
             
@@ -1206,6 +1234,55 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents for a driven multistate CPG subnetwork.
+        function [ self, applied_current_IDs ] = create_driven_multistate_cpg_applied_currents( self, neuron_IDs )
+            
+            % Create the multistate cpg subnetwork applied current.
+            [ self, applied_current_ID_cpg ] = self.create_multistate_cpg_applied_currents( neuron_IDs( 1:( end - 1 ) ) );
+        
+            % Create an applied current for the drive neuron.
+            [ self, applied_current_ID_drive ] = self.create_applied_currents(  );
+
+            % Set the drive applied current name.
+            self = self.set_applied_current_property( applied_current_ID_drive, { 'Drive' }, 'name' );
+            
+            % Connect the drive applied current to the drive neuron.
+            self = self.set_applied_current_property( applied_current_ID_drive, neuron_IDs( end ), 'neuron_ID' );
+            
+            % Concatenate the applied current IDs.
+            applied_current_IDs = [ applied_current_ID_cpg applied_current_ID_drive ];
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a driven multistate CPG split lead lag subnetwork.
+        function [ self, applied_current_IDs_cell ] = create_dmcpg_sll_applied_currents( self, neuron_IDs_cell )
+            
+            % Retrieve the number of subnetworks and the number of cpg neurons.
+            num_subnetworks = length( neuron_IDs_cell );
+            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Preallocate a cell array to store the applied current IDs.
+            applied_current_IDs_cell = cell( 1, num_subnetworks - 1 );
+            
+            % Create the applied currents for the driven multistate cpg subnetworks.
+            [ self, applied_current_IDs_cell{ 1 } ] = self.create_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 1 } );
+            [ self, applied_current_IDs_cell{ 2 } ] = self.create_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 2 } );
+
+            % Create the applied currents for each of the modulated split subtraction voltage based integration subnetworks.
+            for k = 1:num_cpg_neurons                       % Iterate through each of the CPG neurons...
+                
+                % Create the applied currents for each of the modulated split subtraction voltage based integration subnetworks.
+                [ self, applied_current_IDs_cell{ k + 2 } ] = self.create_mod_split_sub_vb_integration_applied_currents( neuron_IDs_cell{ k + 2 } );
+                
+            end
+            
+        end
+        
+        
+        
+        
+        
         % Implement a function to create the applied currents for a multiplication subnetwork.
         function [ self, applied_current_IDs ] = create_multiplication_applied_currents( self, neuron_IDs )
             
@@ -1275,6 +1352,14 @@ classdef applied_current_manager_class
             
         end
         
+        % Implement a function to create the applied currents for a modulated split voltage based integration subnetwork.
+        function [ self, applied_current_IDs ] = create_mod_split_sub_vb_integration_applied_currents( self, neuron_IDs )
+            
+            % Create the modulated split voltage based integration applied currents.
+            [ self, applied_current_IDs ] = self.create_mod_split_vb_integration_applied_currents( neuron_IDs( 5:end ) );
+
+        end
+            
         
         
         
@@ -1293,6 +1378,21 @@ classdef applied_current_manager_class
             self = self.compute_set_multistate_cpg_Iapps( applied_current_ID, dt, tf );
             
         end
+        
+        
+        % Implement a function to design the applied currents for a driven multistate cpg subnetwork.
+        function self = design_driven_multistate_cpg_applied_current( self, neuron_ID, Gm, R )
+            
+            % Retrieve the applied current ID associated with the neuron ID.
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_ID );
+            
+            % Set the applied current magnitude vector.
+            self = self.compute_set_driven_multistate_cpg_Iapps( applied_current_ID, Gm, R );
+            
+        end
+        
+        
+        
         
         
         % Implement a function to design the applied currents for a multiplication subnetwork.

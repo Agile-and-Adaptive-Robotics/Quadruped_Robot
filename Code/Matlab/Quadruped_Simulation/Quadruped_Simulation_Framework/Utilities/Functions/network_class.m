@@ -44,6 +44,12 @@ classdef network_class
         DELTA_BISTABLE = -10e-3;
         DELTA_OSCILLATORY = 0.01e-3;
         
+        I_DRIVE_MAX = 1.25e-9;              % [A] Maximum Drive Current.
+        
+        T_OSCILLATION = 2;                  % [s] Oscillation Period. 
+        
+        NUM_CPG_NEURONS = 2;                % [#] Number of CPG Neurons.
+        
     end
     
     
@@ -1126,6 +1132,42 @@ classdef network_class
             
         end
         
+        % Implement a function to design the applied currents for a driven multistate cpg subnetwork.
+        function self = design_driven_multistate_cpg_applied_currents( self, neuron_IDs )
+            
+            % Design the multistate cpg applied currents.
+            self = self.design_multistate_cpg_applied_currents( neuron_IDs( 1:( end - 1 ) ) );
+            
+            % Retrieve the relevant neuron properties of the drive neuron.
+            Gm = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm' ) );
+            R = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R' ) );
+
+            % Design the driven multistate cpg applied current.
+            self.applied_current_manager = self.applied_current_manager.design_driven_multistate_cpg_applied_current( neuron_IDs( end ), Gm, R );
+            
+        end
+
+        
+        % Implement a function to design the applied currents for a driven multistate cpg split lead lag subnetwork.
+        function self = design_dmcpg_sll_applied_currents( self, neuron_IDs_cell )
+        
+            % Retrieve the number of cpg neurons.
+            num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Design the applied currents for the driven multistate cpg subnetworks.
+            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 1 } );
+            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 2 } );
+
+            % Design the applied currents for the modulated split subtraction voltage based integration subnetworks.
+            for k = 1:num_cpg_neurons                               % Iterate through each of the cpg neurons...
+                
+                % Design the applied currents for this modulated split subtraction voltage based integration subnetwork
+                self = self.design_mod_split_sub_vb_integration_applied_currents( neuron_IDs_cell{ k + 2 } );
+            
+            end
+        
+        end
+        
         
         % Implement a function to design the applied currents for a multiplication subnetwork.
         function self = design_multiplication_applied_currents( self, neuron_IDs )
@@ -1207,6 +1249,19 @@ classdef network_class
         end
         
         
+        % Implement a function to design the applied currents for a modulated split difference voltage based integration subnetwork.
+        function self = design_mod_split_sub_vb_integration_applied_currents( self, neuron_IDs )
+            
+            % Design the modulated split voltage based integration applied currents.
+            self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs( 5:end ) );
+            
+%             % Design the modulated split voltage based integration applied currents.
+%             self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs( 1:( end - 4 ) ) );
+            
+        end
+        
+        
+        
         
                 
         %% Subnetwork Neuron Design Functions
@@ -1218,6 +1273,46 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.design_multistate_cpg_neurons( neuron_IDs );
             
         end
+        
+        
+        % Implement a function to design the neurons for a driven multistate cpg subnetwork.
+        function self = design_driven_multistate_cpg_neurons( self, neuron_IDs )
+            
+            % Design the multistate cpg neurons.
+            self = self.design_multistate_cpg_neurons( neuron_IDs( 1:( end - 1 ) ) );
+            
+            % Design the drive neuron.
+            self.neuron_manager = self.neuron_manager.design_driven_multistate_cpg_neurons( neuron_IDs( end ) );
+            
+        end
+        
+        
+        % Implement a function to design the neurons for a driven multistate cpg split lead lag subnetwork.
+        function self = design_dmcpg_sll_neurons( self, neuron_IDs_cell, ki_mean )
+        
+            % Set the default input arguments.
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Retrieve the number of cpg neurons.
+            num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Design the driven multistate CPG neurons.
+            self = self.design_driven_multistate_cpg_neurons( neuron_IDs_cell{ 1 } );
+            self = self.design_driven_multistate_cpg_neurons( neuron_IDs_cell{ 2 } );
+
+            % Design the modulated split subtraction voltage based integration subnetwork neurons.
+            for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
+            
+                % Design the neurons of this modulated split subtraction voltage based integration subnetworks.
+                self = self.design_mod_split_sub_vb_integration_neurons( neuron_IDs_cell{ k + 2 }, ki_mean );
+                
+            end
+            
+            % Design the split lead lag subnetwork neurons.  ( They participate in both addition and transmission, which have the same neuron setup. )
+            self = self.design_addition_neurons( neuron_IDs_cell{ end } );
+            
+        end
+        
         
         
         % Implement a function to design the neurons for a transmission subnetwork.
@@ -1348,6 +1443,21 @@ classdef network_class
         end
         
         
+        % Implement a function to design the neurons for a modulated split difference voltage based integration subnetwork.
+        function self = design_mod_split_sub_vb_integration_neurons( self, neuron_IDs, ki_mean )
+            
+            % Set the default input arguments.
+            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end  
+            
+            % Design the double subtraction neurons.
+            self = self.design_double_subtraction_neurons( neuron_IDs( 1:4 ) );
+            
+            % Design the modulated split voltage based integration neurons.
+            self = self.design_mod_split_vb_integration_neurons( neuron_IDs( 5:end ), ki_mean );
+            
+        end
+        
+        
             
         %% Subnetwork Synapse Design Functions
         
@@ -1359,6 +1469,77 @@ classdef network_class
 
             % Compute and set the maximum synaptic conductances required to achieve these delta values.
             self = self.compute_set_cpg_gsynmaxs( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a driven multistate cpg subnetwork.
+        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max )
+           
+            % Design the synapses of the multistate cpg subnetwork.
+            self = self.design_multistate_cpg_synapses( neuron_IDs( 1:( end - 1 ) ), delta_oscillatory, delta_bistable );
+            
+            % Design the driven multistate cpg subnetwork synapses.
+            self.synapse_manager = self.synapse_manager.design_driven_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, I_drive_max );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a driven multistate cpg split lead lag subnetwork.
+        function self = design_dmcpg_sll_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+           
+            % Set the default input arguments.
+            if nargin < 11, c_mod = self.C_MODULATION; end
+            if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 8, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 7, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 6, T = self.T_OSCILLATION; end
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+        
+            % Design the synapses of the driven multistate cpg subnetworks.
+            self = self.design_driven_multistate_cpg_synapses( neuron_IDs_cell{ 1 }, delta_oscillatory, delta_bistable, I_drive_max );
+            self = self.design_driven_multistate_cpg_synapses( neuron_IDs_cell{ 2 }, delta_oscillatory, delta_bistable, I_drive_max );
+
+            % Compute the number of cpg neurons.
+            num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
+            
+            % Compute the number of transmission pathways to design.
+            num_transmission_synapses = 4*num_cpg_neurons + 2;
+            
+            % Preallocate an array to store the from and to neuron IDs.
+            [ from_neuron_IDs, to_neuron_IDs ] = deal( zeros( 1, num_transmission_synapses ) );
+            
+            % Design the synapses of the modulated split subtraction voltage based integration subnetworks.
+            for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
+                
+                % Design the synapses of this modulated split subtraction voltage based integration subnetwork.
+                self = self.design_mod_split_sub_vb_integration_synapses( neuron_IDs_cell{ k + 2 }, T, num_cpg_neurons, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            
+                % Compute the index variable.
+                index = 4*(k - 1) + 1;
+                
+                % Store these pairs of from and to neuron IDs.
+                from_neuron_IDs( index ) = neuron_IDs_cell{ k + 2 }( 15 ); to_neuron_IDs( index ) = neuron_IDs_cell{ end }( 1 );
+                from_neuron_IDs( index + 1 ) = neuron_IDs_cell{ k + 2 }( 16 ); to_neuron_IDs( index + 1 ) = neuron_IDs_cell{ end }( 2 );
+                from_neuron_IDs( index + 2 ) = neuron_IDs_cell{ 1 }( k ); to_neuron_IDs( index + 2 ) = neuron_IDs_cell{ k + 2 }( 1 );
+                from_neuron_IDs( index + 3 ) = neuron_IDs_cell{ 2 }( k ); to_neuron_IDs( index + 3 ) = neuron_IDs_cell{ k + 2 }( 2 );
+
+            end
+            
+            % Define the final pair of from and to neuron IDs.
+            from_neuron_IDs( end - 1 ) = neuron_IDs_cell{ end }( 1 ); to_neuron_IDs( end - 1 ) = neuron_IDs_cell{ end }( 3 );
+            from_neuron_IDs( end ) = neuron_IDs_cell{ end }( 2 ); to_neuron_IDs( end ) = neuron_IDs_cell{ end }( 4 );
+
+            % Design each of the transmission synapses.
+            for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways.
+               
+                % Design this transmission synapse.
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false );
+                
+            end
             
         end
         
@@ -1440,7 +1621,7 @@ classdef network_class
             % Set the applied current to be the average current.
             I_app = mean( I_apps );
             
-            % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
+            % Compute and set the maximum synaptic conductances necessary to design this addition subnetwork.
             self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
             
         end
@@ -1651,7 +1832,7 @@ classdef network_class
     
             % Set the default input arugments.
             if nargin < 8, c_mod = self.C_MODULATION; end
-            if nargin < 7, k_sub = self.K_SUBTRACTION; end
+            if nargin < 7, k_sub = 2*self.K_SUBTRACTION; end
             if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
             if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end
             
@@ -1670,6 +1851,28 @@ classdef network_class
 
         end
             
+        
+        % Implement a function to design the synapses for a modulated split difference voltage based integration subnetwork.
+        function self = design_mod_split_sub_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+    
+            % Set the default input arugments.
+            if nargin < 9, c_mod = self.C_MODULATION; end
+            if nargin < 8, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 7, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Design the double subtraction synapses.
+            self = self.design_double_subtraction_synapses( neuron_IDs( 1:4 ), k_sub2 );
+            
+            % Design the modulated split voltage based integration synapses.
+            self = self.design_mod_split_vb_integration_synapses( neuron_IDs( 5:end ), T, n, ki_mean, ki_range, k_sub1, c_mod );
+            
+            % Design the transmission synapses.            
+            self = self.design_transmission_synapse( [ neuron_IDs( 3 ) neuron_IDs( 5 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 4 ) neuron_IDs( 6 ) ], 1, false );
+            
+        end        
         
         
         %% Subnetwork Design Functions
@@ -1694,6 +1897,58 @@ classdef network_class
             
         end
             
+        
+        % Implement a function to design a driven multistate CPG oscillator subnetwork using existing neurons.
+        function self = design_driven_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max )
+            
+            % Set the default input arguments.
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            
+            % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+            
+            % Design the driven multistate cpg subnetwork neurons.
+            self = self.design_driven_multistate_cpg_neurons( neuron_IDs );
+            
+            % Design the driven multistate cpg subnetwork applied current.
+            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs );
+            
+            % Design the driven multistate cpg subnetwork synapses.
+            self = self.design_driven_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max );
+            
+        end
+        
+        
+        % Implement a function to design a driven multistate CPG split lead lag subnetwork using existing neurons.
+        function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+
+            % Set the default input arguments.
+            if nargin < 11, c_mod = self.C_MODULATION; end
+            if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 8, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 7, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 6, T = self.T_OSCILLATION; end
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+
+            % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+
+            % Design the driven multistate CPG split lead lag subnetwork neurons.
+            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, ki_mean );
+            
+            % Design the driven multistate CPG split lead lag subnetwork applied currents.
+            self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell );
+            
+            % Design the driven multistate CPG split lead lag subnetwork synapses.
+            self = self.design_dmcpg_sll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            
+        end
+        
+        
+        
         
         % Implement a function to design a transmission subnetwork using existing neurons.
         function self = design_transmission_subnetwork( self, neuron_IDs, k )
@@ -1905,7 +2160,7 @@ classdef network_class
         function self = design_mod_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod )
             
             % Set the default input arguments.
-            if nargin < 8, k_sub = self.C_MODULATION; end
+            if nargin < 8, c_mod = self.C_MODULATION; end
             if nargin < 7, k_sub = 2*self.K_SUBTRACTION; end
             if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
             if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end     
@@ -1924,6 +2179,32 @@ classdef network_class
         end
         
         
+        % Implement a function to design a modulated difference split voltage based integration subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_mod_split_sub_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+            
+            % Set the default input arguments.
+            if nargin < 9, c_mod = self.C_MODULATION; end
+            if nargin < 8, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 7, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 6, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 5, ki_mean = self.K_INTEGRATION_MEAN; end     
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Design the modulated split voltage based integration subnetwork neurons.
+            self = self.design_mod_split_sub_vb_integration_neurons( neuron_IDs, ki_mean );
+
+            % Design the modulated split voltage based integration applied currents.
+            self = self.design_mod_split_sub_vb_integration_applied_currents( neuron_IDs );
+            
+            % Design the modulated split voltage based integration synapses.
+            self = self.design_mod_split_sub_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            
+        end
+        
+        
+        
+        
         %% Subnetwork Component Creation Functions
         
         % Implement a function to create the multistate CPG subnetwork components.
@@ -1939,6 +2220,42 @@ classdef network_class
             [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_multistate_cpg_applied_currents( neuron_IDs );    
             
         end
+        
+        
+        % Implement a function to create the driven multistate CPG subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_driven_multistate_cpg_subnetwork_components( self, num_cpg_neurons )
+            
+            % Create the driven multistate cpg neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_driven_multistate_cpg_neurons( num_cpg_neurons );
+
+            % Create the driven multistate cpg synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_driven_multistate_cpg_synapses( neuron_IDs );
+
+            % Create the driven multistate cpg applied current.
+            [ self.applied_current_manager, applied_current_ID ] = self.applied_current_manager.create_driven_multistate_cpg_applied_currents( neuron_IDs );    
+            
+        end
+        
+        
+        % Implement a function to create the driven multistate CPG split lead lag subnetwork components.
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork_components( self, num_cpg_neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
+            % Create the driven multistate cpg neurons.
+            [ self.neuron_manager, neuron_IDs_cell ] = self.neuron_manager.create_dmcpg_sll_neurons( num_cpg_neurons );
+
+            % Create the driven multistate cpg synapses.
+            [ self.synapse_manager, synapse_IDs_cell ] = self.synapse_manager.create_dmcpg_sll_synapses( neuron_IDs_cell );
+
+            % Create the driven multistate cpg applied current.
+            [ self.applied_current_manager, applied_current_IDs_cell ] = self.applied_current_manager.create_dmcpg_sll_applied_currents( neuron_IDs_cell );    
+            
+        end
+        
+        
+        
         
         
         % Implement a function to create the transmission subnetwork components.
@@ -2100,6 +2417,23 @@ classdef network_class
         end
         
         
+        % Implement a function to create the modulated split difference voltage based integration subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_sub_vb_integration_subnetwork_components( self )
+            
+           % Create the modulated split difference voltage based integration neurons.
+           [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_mod_split_sub_vb_integration_neurons(  );
+           
+           % Create the modulated split difference voltage based integration synapses.
+           [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_mod_split_sub_vb_integration_synapses( neuron_IDs );
+
+           % Create the modulated split difference voltage based integration applied currents.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_mod_split_sub_vb_integration_applied_currents( neuron_IDs );
+
+        end
+        
+        
+        
+        
         
         
         %% Subnetwork Creation Functions
@@ -2120,7 +2454,50 @@ classdef network_class
             
         end
         
+        
+        % Implement a function to create a driven multistate CPG oscillator subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_driven_multistate_cpg_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max )
+        
+            % Set the default input arguments.
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            if nargin < 2, num_cpg_neurons = 2; end
+                
+            % Create the driven multistate cpg subnetwork components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = self.create_driven_multistate_cpg_subnetwork_components( num_cpg_neurons );
+            
+            % Design the driven multistate cpg subnetwork.
+            self = self.design_driven_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max );
+            
+        end
     
+        
+        % Implement a function to create a driven multistate cpg split lead lag subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+        
+            % Set the default input arguments.
+            if nargin < 11, c_mod = self.C_MODULATION; end
+            if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 8, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 7, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 6, T = self.T_OSCILLATION; end
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+                
+            % Create the driven multistate cpg subnetwork components.
+            [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_dmcpg_sll_subnetwork_components( num_cpg_neurons );
+            
+            % Design the driven multistate cpg subnetwork.
+            self = self.design_dmcpg_sll_subnetwork( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            
+        end
+    
+        
+        
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork( self, k )
             
@@ -2310,6 +2687,26 @@ classdef network_class
             self = self.design_mod_split_vb_integration_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod );
 
         end
+        
+        
+        % Implement a function to create a modulated split difference voltage based integration subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_sub_vb_integration_subnetwork( self, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+        
+            % Set the default input arugments.
+            if nargin < 8, c_mod = self.C_MODULATION; end
+            if nargin < 7, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 6, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 5, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
+            
+            % Create the modulated split difference voltage based integration subnetwork specific components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_mod_split_sub_vb_integration_subnetwork_components(  );
+            
+            % Design the modulated split difference voltage based integration subnetwork.
+            self = self.design_mod_split_sub_vb_integration_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+
+        end
+        
         
         
         %% Network Validation Functions

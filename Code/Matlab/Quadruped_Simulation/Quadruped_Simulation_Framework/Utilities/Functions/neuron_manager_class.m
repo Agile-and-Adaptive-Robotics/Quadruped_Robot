@@ -31,8 +31,12 @@ classdef neuron_manager_class
         NUM_INTEGRATION_NEURONS = 2;                    % [#] Number of Integration Neurons.
         NUM_VB_INTEGRATION_NEURONS = 4;                 % [#] Number of Voltage Based Integration Neurons.
         NUM_SPLIT_VB_INTEGRATION_NEURONS = 9;           % [#] Number of Split Voltage Based Integration Neurons.
-        NUM_MOD_SPLIT_VB_INTEGRATION_NEURONS = 3;      % [#] Number of Modualted Split Voltage Based Integration Neurons.
+        NUM_MOD_SPLIT_VB_INTEGRATION_NEURONS = 3;       % [#] Number of Unique Modualted Split Voltage Based Integration Neurons.
 
+        NUM_MSSVB_INTEGRATION_NEURONS_TOTAL = 16;       % [#] Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
+        
+        NUM_DMCPG_SLL_NEURONS = 4;                      % [#] Number of Unique Driven Multistate Central Pattern Generator Split Lead Lag Neurons.
+        
         K_DERIVATION = 1e6;
         W_DERIVATION = 1;
         SF_DERIVATION = 0.05;
@@ -711,6 +715,33 @@ classdef neuron_manager_class
             end
             
         end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of driven multistate cpg neurons.
+        function self = compute_set_driven_multistate_cpg_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_driven_multistate_cpg_Gna(  );
+                
+            end
+            
+        end
+        
         
         
         % Implement a function to compute and set the sodium channel conductance of transmission neurons.
@@ -1451,7 +1482,53 @@ classdef neuron_manager_class
             
         end
         
+        
+        % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
+        function [ self, neuron_IDs ] = create_driven_multistate_cpg_neurons( self, num_cpg_neurons )
+        
+            % Create the neurons for a multistate cpg subnetwork.
+            [ self, neuron_IDs_cpg ] = self.create_multistate_cpg_neurons( num_cpg_neurons );
             
+            % Create an additional neuron to drive the multistate cpg.
+            [ self, neuron_ID_drive ] = self.create_neuron(  );
+           
+            % Set the name of the drive neuron.
+            self = self.set_neuron_property( neuron_ID_drive, { 'CPG Drive' }, 'name' );
+            
+            % Concatenate the neuron IDs.
+            neuron_IDs = [ neuron_IDs_cpg, neuron_ID_drive ];
+            
+        end
+        
+            
+        % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
+        function [ self, neuron_IDs_cell ] = create_dmcpg_sll_neurons( self, num_cpg_neurons )
+        
+            % Preallocat a cell array to store the neuron IDs.
+            neuron_IDs_cell = cell( 1, num_cpg_neurons + 3 );
+            
+            % Create the driven multistate cpg subnetwork neurons.
+            [ self, neuron_IDs_cell{ 1 } ] = self.create_driven_multistate_cpg_neurons( num_cpg_neurons );
+            [ self, neuron_IDs_cell{ 2 } ] = self.create_driven_multistate_cpg_neurons( num_cpg_neurons );
+
+            % Create the modulated split subtraction voltage based integration subnetwork neurons for each pair of driven multistate cpg neurons.
+            for k = 1:num_cpg_neurons                               % Iterate through each of the cpg neurons...
+                
+                % Create the modulated split difference voltage based integration subnetwork neurons.
+                [ self, neuron_IDs_cell{ k + 2 } ] = self.create_mod_split_sub_vb_integration_neurons(  );
+            
+            end
+            
+            % Create the unique driven multistate cpg split lead lag neurons.
+            [ self, neuron_IDs_cell{ end } ] = self.create_neurons( self.NUM_DMCPG_SLL_NEURONS );
+
+            % Set the names of these addition neurons.
+            self = self.set_neuron_property( neuron_IDs_cell{ end }, { 'Fast Lead', 'Fast Lag', 'Slow Lead', 'Slow Lag' }, 'name' );
+
+        end
+        
+        
+        
         % Implement a function to create the neurons for a transmission subnetwork.
         function [ self, neuron_IDs ] = create_transmission_neurons( self )
                 
@@ -1602,6 +1679,22 @@ classdef neuron_manager_class
         end
                 
         
+        % Implement a function to create the modulated split difference voltage based neurons for an integration subnetwork.
+        function [ self, neuron_IDs ] = create_mod_split_sub_vb_integration_neurons( self )
+            
+            % Create the double subtraction neurons.
+            [ self, neuron_IDs1 ] = self.create_double_subtraction_neurons(  );
+            
+            % Create the modulated split voltage based integration neurons.
+            [ self, neuron_IDs2 ] = self.create_mod_split_vb_integration_neurons(  );
+            
+            % Concatenate the neuron IDs.
+            neuron_IDs = [ neuron_IDs1 neuron_IDs2 ];
+            
+        end
+        
+        
+        
         %% Subnetwork Neuron Design Functions
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
@@ -1611,6 +1704,17 @@ classdef neuron_manager_class
             self = self.compute_set_cpg_Gna( neuron_IDs );
             
         end
+        
+        
+        % Implement a function to design the neurons for a driven multistate cpg subnetwork.
+        function self = design_driven_multistate_cpg_neurons( self, neuron_IDs )
+        
+            % Compute and set the sodium channel conductance of the driven multistate cpg neuron.
+            self = self.compute_set_driven_multistate_cpg_Gna( neuron_IDs );
+            
+        end
+        
+        
         
         
         % Implement a function to design the neurons for a transmission subnetwork.
@@ -1631,9 +1735,6 @@ classdef neuron_manager_class
             % Compute and set the sodium channel conductance of the modulation subnetwork neurons.
             self = self.compute_set_modulation_Gna( neuron_IDs );
             
-%             % Set the sodium channel conductance of the modulation neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
-            
         end
         
         
@@ -1642,9 +1743,6 @@ classdef neuron_manager_class
            
             % Compute and set the sodium channel conductance of the addition subnetwork neurons.
             self = self.compute_set_addition_Gna( neuron_IDs );
-            
-%             % Set the sodium channel conductance of the addition neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         
@@ -1657,12 +1755,6 @@ classdef neuron_manager_class
             
             % Compute and set the sodium channel conductance of the subtraction subnetwork neurons.
             self = self.compute_set_subtraction_Cm( neuron_IDs );
-            
-%             % Set the sodium channel conductance of the subtraction neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
-%             
-%             % Set the membrane capacitance of the subtraction neurons.
-%             self = self.set_neuron_property( neuron_IDs, 1e-9, 'Cm' );
             
         end
         
@@ -1694,9 +1786,6 @@ classdef neuron_manager_class
            
             % Compute and set the sodium channel conductance of the division subnetwork neurons.
             self = self.compute_set_division_Gna( neuron_IDs );
-            
-%             % Set the sodium channel conductance of the division neurons to zero.
-%             self = self.set_neuron_property( neuron_IDs, 0, 'Gna' );
             
         end
         

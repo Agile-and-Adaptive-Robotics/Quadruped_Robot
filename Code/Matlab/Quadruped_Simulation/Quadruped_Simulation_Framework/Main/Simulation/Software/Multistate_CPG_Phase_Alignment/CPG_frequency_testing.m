@@ -26,24 +26,6 @@ network_dt = 1e-3;
 network_tf = 5;
 
 
-%% Initialize the Data Loader Class.
-
-% Determine whether to print status messages.
-if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait...\n' ), end
-
-% Start a timer.
-tic
-
-% Create an instance of the data loader class.
-data_loader = data_loader_utilities_class( robot_data_load_path );
-
-% Retrieve the elapsed time.
-elapsed_time = toc;
-
-% Determine whether to print status messages.
-if b_verbose, fprintf( 'INITIALIZING DATA LOADER. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
-
-
 %% Create Multistate CPG Subnetworks.
 
 % Create an instance of the network class.
@@ -53,15 +35,29 @@ network = network_class( network_dt, network_tf );
 % delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
 % delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
 
+% % Define the oscillatory and bistable delta CPG synapse design parameters.
+% delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
+% delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
+
 % Define the oscillatory and bistable delta CPG synapse design parameters.
-delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
+delta_oscillatory = 0;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
 delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
+
+% % Define the oscillatory and bistable delta CPG synapse design parameters.
+% delta_oscillatory = 0.40e-3;                    % [-] Relative Inhibition Parameter for Oscillatory Connections
+% delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
+
+
 
 % Define the number of CPG neurons.
 num_cpg_neurons = 4;
 
 % Create the first multistate cpg subnetwork.
 [ network, neuron_IDs_cpg1, synapse_IDs_cpg1, applied_current_ID_cpg1 ] = network.create_multistate_cpg_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable );
+
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs_cpg1, 1e-9, 'Cm' );
+
+
 
 % Delete the initial applied current.
 network.applied_current_manager = network.applied_current_manager.delete_applied_currents( applied_current_ID_cpg1 );
@@ -72,14 +68,20 @@ network.applied_current_manager = network.applied_current_manager.delete_applied
 % Apply a small constant current to each neuron.
 ts = ( 0:network.dt:network.tf )';
 num_timesteps = length( ts );
-I_mag = -0.02e-9;                            % T = 2.3 [s], f = 0.4348 [hz]
+% I_mag = -0.05e-9;                            % T = 2.3 [s], f = 0.4348 [hz]
+% I_mag = -0.04e-9;                            % T = 2.3 [s], f = 0.4348 [hz]
+% I_mag = -0.03e-9;                            % T = 2.3 [s], f = 0.4348 [hz]
+% I_mag = -0.02e-9;                            % T = 2.3 [s], f = 0.4348 [hz]
 % I_mag = -0.01e-9;                            % T = 2.1285 [s], f = 0.4698 [hz]
 % I_mag = 0;                            % T = 2.0890 [s], f = 0.4787 [hz]
+% I_mag = 0.45e-9;                       % T = 1.1225 [s], f = 0.8909 [hz]
 % I_mag = 0.5e-9;                       % T = 1.1225 [s], f = 0.8909 [hz]
 % I_mag = 1e-9;                       % T = 0.8750 [s], f = 1.1429 [hz]
-% I_mag = 1.25e-9;                       % T = 0.6351 [s], f = 1.5746 [hz]
+I_mag = 1.25e-9;                       % T = 0.6351 [s], f = 1.5746 [hz]
 % I_mag = 1.5e-9;                       % T = 0.5174 [s], f = 1.9327 [hz]
 % I_mag = 2e-9;                       % T = 0.3812 [s], f = 2.6235 [hz]
+% I_mag = 80e-9;                       % T = 0.3812 [s], f = 2.6235 [hz]
+% I_mag = 160e-9;                       % T = 0.3812 [s], f = 2.6235 [hz]
 
 I_apps = I_mag*ones( num_timesteps, 1 );
 
