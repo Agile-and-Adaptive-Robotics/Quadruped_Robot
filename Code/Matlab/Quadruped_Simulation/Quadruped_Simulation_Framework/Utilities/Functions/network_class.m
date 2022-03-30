@@ -738,7 +738,6 @@ classdef network_class
         end
         
         
-        
         % Implement a function to compute the maximum synaptic conductances required to design a derivation subnetwork with the specified parameters.
         function g_syn_maxs = compute_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k )
             
@@ -1132,6 +1131,7 @@ classdef network_class
             
         end
         
+        
         % Implement a function to design the applied currents for a driven multistate cpg subnetwork.
         function self = design_driven_multistate_cpg_applied_currents( self, neuron_IDs )
             
@@ -1259,10 +1259,7 @@ classdef network_class
 %             self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs( 1:( end - 4 ) ) );
             
         end
-        
-        
-        
-        
+                
                 
         %% Subnetwork Neuron Design Functions
         
@@ -1947,9 +1944,7 @@ classdef network_class
             
         end
         
-        
-        
-        
+                
         % Implement a function to design a transmission subnetwork using existing neurons.
         function self = design_transmission_subnetwork( self, neuron_IDs, k )
         
@@ -2255,9 +2250,6 @@ classdef network_class
         end
         
         
-        
-        
-        
         % Implement a function to create the transmission subnetwork components.
         function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork_components( self )
             
@@ -2432,10 +2424,6 @@ classdef network_class
         end
         
         
-        
-        
-        
-        
         %% Subnetwork Creation Functions
         
         % Implement a function to create a multistate CPG oscillator subnetwork ( generating neurons, synapses, etc. as necessary ).
@@ -2496,7 +2484,6 @@ classdef network_class
             
         end
     
-        
         
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork( self, k )
