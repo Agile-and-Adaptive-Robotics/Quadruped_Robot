@@ -2,6 +2,7 @@ classdef applied_current_manager_class
     
     % This class contains properties and methods related to managing applied currents.
     
+    
     %% APPLIED CURRENT MANAGER PROPERTIES
     
     % Define general class properties.
@@ -1078,8 +1079,6 @@ classdef applied_current_manager_class
         end
         
         
-        
-        
         % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
         function self = compute_set_multiplication_Iapps( self, applied_current_IDs, Gm, R )
             
@@ -1211,12 +1210,6 @@ classdef applied_current_manager_class
         
         
         
-        
-        
-        
-        
-        
-        
         %% Subnetwork Applied Current Creation Functions
         
         % Implement a function to create the applied currents for a multistate CPG subnetwork.
@@ -1278,9 +1271,6 @@ classdef applied_current_manager_class
             end
             
         end
-        
-        
-        
         
         
         % Implement a function to create the applied currents for a multiplication subnetwork.
@@ -1361,8 +1351,6 @@ classdef applied_current_manager_class
         end
             
         
-        
-        
         %% Subnetwork Applied Current Design Functions
         
         % Implement a function to design the applied currents for a multistate cpg subnetwork.
@@ -1392,9 +1380,6 @@ classdef applied_current_manager_class
         end
         
         
-        
-        
-        
         % Implement a function to design the applied currents for a multiplication subnetwork.
         function self = design_multiplication_applied_current( self, neuron_IDs, Gm3, R3 )
             
@@ -1405,10 +1390,7 @@ classdef applied_current_manager_class
             self = self.compute_set_multiplication_Iapps( applied_current_ID, Gm3, R3 );
             
         end
-        
-        
-        % NOTE: IN THE PROCESS OF BRINGING ALL OF THE APPLIED CURRENT DESIGN TOOLS TO THE SAME LEVEL OF RIGOR AS NEURON AND SYNAPSE DESIGN TOOLS.  THEN NEED TO CREATE THE NEW APPLIED CURRENT DESIGN TOOLS FOR THE SPLIT VOLTAGE BASED INTEGRATION SUBNETWORK.  THEN ON TO THE SPLIT VOLTAGE BASED INTEGRATION SUBNETWORK SYNAPSES...
-        
+                
         
         % Implement a function to design the applied currents for an integration subnetwork.
         function self = design_integration_applied_currents( self, neuron_IDs, Gm, R )
@@ -1446,9 +1428,7 @@ classdef applied_current_manager_class
 
         end
         
-        
-        
-        
+                
         %% Save & Load Functions
         
         % Implement a function to save applied current manager data as a matlab object.
@@ -1545,7 +1525,6 @@ classdef applied_current_manager_class
             if b_verbose, fprintf( 'LOADING APPLIED CURRENT DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
-        
         
         
     end
