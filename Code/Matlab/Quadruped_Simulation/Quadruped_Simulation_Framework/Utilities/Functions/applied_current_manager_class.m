@@ -21,6 +21,7 @@ classdef applied_current_manager_class
     properties ( Access = private, Constant = true )
         
         NUM_MULTISTATE_CPG_APPLIED_CURRENTS = 1;                     % [#] Number of Multistate CPG Applied Currents.
+        NUM_CENTERING_APPLIED_CURRENTS = 1;                          % [#] Number of Centering Applied Currents.
         NUM_MULTIPLICATION_APPLIED_CURRENTS = 1;                     % [#] Number of Multiplication Applied Currents.
         NUM_INTEGRATION_APPLIED_CURRENTS = 2;                        % [#] Number of Integration Applied Currents.
         NUM_VB_INTEGRATION_APPLIED_CURRENTS = 2;                     % [#] Number of Voltage Based Integration Applied Currents.
@@ -906,7 +907,7 @@ classdef applied_current_manager_class
         
         
         % Implement a function to create multiple applied currents.
-        function [ self, IDs ] = create_applied_currents( self, IDs, names, neuron_IDs, tss, I_appss, b_enableds )
+        function [ self, IDs ] = create_applied_currents( self, IDs, names, neuron_IDs, tss, I_apps, b_enableds )
             
             % Determine whether number of applied currents to create.
             if nargin > 2                                               % If more than just applied current IDs were provided...
@@ -944,7 +945,7 @@ classdef applied_current_manager_class
             
             % Set the default input arguments.
             if nargin < 7, b_enableds = true( 1, num_applied_currents_to_create ); end
-            if nargin < 6, I_appss = zeros( 1, num_applied_currents_to_create ); end
+            if nargin < 6, I_apps = zeros( 1, num_applied_currents_to_create ); end
             if nargin < 5, tss = zeros( 1, num_applied_currents_to_create ); end
             if nargin < 4, neuron_IDs = zeros( 1, num_applied_currents_to_create ); end
             if nargin < 3, names = repmat( { '' }, 1, num_applied_currents_to_create ); end
@@ -954,7 +955,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                         % Iterate through each of the applied currents we want to create...
                 
                 % Create this applied current.
-                self = self.create_applied_current( IDs(k), names{k}, neuron_IDs(k), tss( :, k ), I_appss( :, k ), b_enableds(k) );
+                self = self.create_applied_current( IDs(k), names{k}, neuron_IDs(k), tss( :, k ), I_apps( :, k ), b_enableds(k) );
                 
             end
             
@@ -1209,7 +1210,6 @@ classdef applied_current_manager_class
         end
         
         
-        
         %% Subnetwork Applied Current Creation Functions
         
         % Implement a function to create the applied currents for a multistate CPG subnetwork.
@@ -1273,6 +1273,21 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents for a centering subnetwork.
+        function [ self, applied_current_IDs ] = create_centering_applied_currents( self, neuron_IDs )
+       
+            % Create the centering applied current.
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_CENTERING_APPLIED_CURRENTS );
+
+            % Set the name of this applied current.
+            self = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name' );
+            
+            % Connect the centering applied current to the centering neuron.
+            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs(  ), 'neuron_ID' );
+            
+        end
+            
+            
         % Implement a function to create the applied currents for a multiplication subnetwork.
         function [ self, applied_current_IDs ] = create_multiplication_applied_currents( self, neuron_IDs )
             
@@ -1298,7 +1313,7 @@ classdef applied_current_manager_class
             self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
             
             % Connect the integration subnetwork applied currents to the integration subnetwork neurons.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs, 'neuron_ID' );
+            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID' );
             
         end
         

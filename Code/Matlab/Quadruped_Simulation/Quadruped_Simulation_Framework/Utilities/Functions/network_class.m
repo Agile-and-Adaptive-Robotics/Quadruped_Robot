@@ -2311,7 +2311,7 @@ classdef network_class
             [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_subtraction_synapses( neuron_IDs );
             
         end
-        
+                
         
         % Implement a function to create the double subtraction subnetwork components.
         function [ self, neuron_IDs, synapse_IDs ] = create_double_subtraction_subnetwork_components( self )
@@ -2325,6 +2325,21 @@ classdef network_class
         end
         
         
+        % Implement a function to create the centering subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_centering_subnetwork_components( self )
+           
+            % Create the centering subnetwork neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_centering_neurons(  );
+            
+            % Create the centering subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_centering_synapses( neuron_IDs );
+            
+            % Create the centering subnetwork applied currents.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_centering_applied_currents( neuron_IDs );
+            
+        end
+            
+            
         % Implement a function to create the multiplication subnetwork components.
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork_components( self )
             
@@ -2577,6 +2592,22 @@ classdef network_class
         end
         
         
+        % Implement a function to create a centering subnetwork ( genearing neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_centering_subnetwork( self, k_add, k_sub )
+            
+            % Set the default input arguments.
+            if nargin < 3, k_sub = self.K_SUBTRACTION; end
+            if nargin < 2, k_add = self.K_ADDITION; end
+            
+            % Create the centering subnetwork components.
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_subtraction_subnetwork_components(  );
+            
+            % Design the centering subnetwork.
+            self = self.design_centering_subnetwork( k_add, k_sub );
+            
+        end
+        
+        
         % Implement a function to create a multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork( self, k )
         
@@ -2709,7 +2740,6 @@ classdef network_class
             self = self.design_mod_split_sub_vb_integration_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
 
         end
-        
         
         
         %% Network Validation Functions
