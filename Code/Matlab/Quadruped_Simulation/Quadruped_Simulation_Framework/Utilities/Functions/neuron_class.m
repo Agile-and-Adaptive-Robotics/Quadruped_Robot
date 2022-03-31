@@ -51,6 +51,8 @@ classdef neuron_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
 
+        NUM_CPG_NEURONS = 2;
+        
         K_DERIVATION = 1e6;
         W_DERIVATION = 1;
         SF_DERIVATION = 0.05;
@@ -283,6 +285,20 @@ classdef neuron_class
         
             % Compute the membrane capacitance for a transmission subnetwork neuron.
             Cm = self.neuron_utilities.compute_transmission_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance for a transmission subnetwork neuron.
+        function Cm = compute_slow_transmission_Cm( self, num_cpg_neurons, T, r )
+        
+            % Set the default input arguments.
+            if nargin < 4, r = self.r_OSCILLATION; end
+            if nargin < 3, T = self.T_OSCILLATION; end
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+
+            % Compute the membrane capacitance for a transmission subnetwork neuron.
+            Cm = self.neuron_utilities.compute_slow_transmission_Cm( self.Gm, num_cpg_neurons, T, r );
             
         end
         
@@ -577,6 +593,20 @@ classdef neuron_class
         
             % Compute and set the membrane capacitance for a transmission subnetwork neuron.
             self.Cm = self.compute_transmission_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the membrane capacitance for a slow transmission subnetwork neuron.
+        function self = compute_set_slow_transmission_Cm( self, num_cpg_neurons, T, r )
+        
+            % Set the default input arguments.
+            if nargin < 4, r = self.r_OSCILLATION; end
+            if nargin < 3, T = self.T_OSCILLATION; end 
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end 
+
+            % Compute and set the membrane capacitance for a slow transmission subnetwork neuron.
+            self.Cm = self.compute_slow_transmission_Cm( num_cpg_neurons, T, r );
             
         end
                 

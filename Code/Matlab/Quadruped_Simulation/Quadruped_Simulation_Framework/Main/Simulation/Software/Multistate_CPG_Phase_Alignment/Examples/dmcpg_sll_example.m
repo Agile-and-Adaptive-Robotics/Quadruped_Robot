@@ -11,8 +11,12 @@ b_verbose = true;
 
 % Define the network integration step size.
 % network_dt = 1e-3;
-network_dt = 1e-4;
+network_dt = 0.5e-3;
+% network_dt = 1e-4;
 network_tf = 5;
+% network_tf = 10;
+% network_tf = 40;
+
 
 
 %% Create Multistate CPG Subnetworks.
@@ -40,8 +44,9 @@ ki_range = 0.01e9;
 k_sub1 = 2;
 k_sub2 = 1;
 c_mod = 0.05;
+r = 0.5;
 
-[ network, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = network.create_dmcpg_sll_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+[ network, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = network.create_dmcpg_sll_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r );
 
 % % Disable the cpg subnetworks.
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
@@ -63,28 +68,14 @@ Imag_neg1 = -1e-9; Imag_low1 = 0; Imag_middle1 = 1e-9; Imag_high1 = 20e-9; Imag_
 Imag_neg2 = -1e-9; Imag_low2 = 0; Imag_middle2= 1e-9; Imag_high2 = 20e-9; Imag_veryhigh2 = 1000e-9;
 
 % Define the drive current applied magnitude vector.
-% I_apps1 = Imag_low1*( ts >= 0 & ts < 1.00 ) + Imag_middle1*( ts >= 1.00 & ts < 2.00 ) + Imag_high1*( ts >= 2.00 & ts <= 3.00 );
-% I_apps2 = Imag_low2*( ts >= 0 & ts < 1.00 ) + Imag_middle2*( ts >= 1.00 & ts < 2.00 ) + Imag_high2*( ts >= 2.00 & ts <= 3.00 );
+% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 );
+% I_apps2 = Imag_low2*( ts >= 0 & ts < 0.50 ) + Imag_middle2*( ts >= 0.50 );
 
-% I_apps1 = Imag_low1*( ts >= 0 & ts < 1.00 ) + Imag_middle1*( ts >= 1.00 & ts < 2.00 ) + Imag_high1*( ts >= 2.00 & ts < 3.00 ) + Imag_middle1*( ts >= 3.00 & ts < 4.00 ) + Imag_low1*( ts >= 4.00 & ts <= 5.00 );
-% I_apps2 = Imag_low2*( ts >= 0 & ts < 1.00 ) + Imag_middle2*( ts >= 1.00 & ts < 2.00 ) + Imag_high2*( ts >= 2.00 & ts < 3.00 ) + Imag_middle2*( ts >= 3.00 & ts < 4.00 ) + Imag_low2*( ts >= 4.00 & ts <= 5.00 );
+% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.50 ) + ( 0.1e-9 )*( ts >= 0.50 );
+% I_apps2 = Imag_low2*( ts >= 0 & ts < 0.25 ) + ( 0.1e-9 )*( ts >= 0.25 );
 
-% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 & ts < 1.75 ) + Imag_low1*( ts >= 1.75 & ts < 2.75 );
-% I_apps2 = Imag_low2*( ts >= 0 & ts < 0.25 ) + Imag_middle2*( ts >= 0.25 & ts < 1.25 ) + Imag_low2*( ts >= 1.25 & ts < 2.25 );
-
-I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 );
-I_apps2 = Imag_low2*( ts >= 0 & ts < 0.50 ) + Imag_middle2*( ts >= 0.50 );
-
-% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.75 ) + Imag_neg1*( ts >= 0.75 );
-% I_apps2 = Imag_low2*( ts >= 0 & ts < 0.50 ) + Imag_neg2*( ts >= 0.50 );
-
-% I_apps1 = Imag_veryhigh1*( ts >= 0 & ts < 0.75 ) + Imag_middle1*( ts >= 0.75 );
-% I_apps2 = Imag_veryhigh2*( ts >= 0 & ts < 0.50 ) + Imag_middle2*( ts >= 0.50 );
-
-
-% I_apps1 = Imag_middle1*( ts >= 0 );
-% I_apps2 = Imag_high2*( ts >= 0 & ts < 0.25 ) + Imag_middle2*( ts >= 0.25 );
-
+I_apps1 = Imag_low1*( ts >= 0 & ts < 0.125 ) + ( 0.1e-9 )*( ts >= 0.125 );
+I_apps2 = ( 0.1e-9 )*( ts >= 0 ); I_apps2( 1 ) = Imag_low2;
 
 % Setup the first drive current.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_drive1, { ts }, 'ts' );
@@ -100,6 +91,30 @@ etwork.applied_current_manager = network.applied_current_manager.set_applied_cur
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_drive2, network.dt, 'dt' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_drive2, network.tf, 'tf' );
 
+
+%% Setup Applied Voltages.
+
+% Initialize the applied voltages.
+[ V_apps1, V_apps2 ] = deal( cell( size( ts ) ) );
+
+% Define the applied voltage magnitudes.
+% V_apps1( ts >= 0 & ts < 0.5 ) = { 0 };
+% V_apps2( ts >= 0 & ts < 0.25 ) = { 0 };
+% V_apps1( ts >= 0 & ts < 0.25 ) = { 0 };
+% V_apps2( ts >= 0 & ts < 0.125 ) = { 0 };
+V_apps1( ts >= 0 & ts < 0.125 ) = { 0 };
+V_apps2( 1 ) = { 0 };
+
+
+% Create the applied voltages.
+[ network.applied_voltage_manager, applied_voltage_IDs_CPG ] = network.applied_voltage_manager.create_applied_voltages( 2*num_cpg_neurons );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, [ neuron_IDs_cell{ 1 }( 1:4 ) neuron_IDs_cell{ 2 }( 1:4 ) ], 'neuron_ID' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, { ts }, 'ts' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG( 1:4 ), { V_apps1 }, 'V_apps' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG( 5:8 ), { V_apps2 }, 'V_apps' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, { num_timesteps }, 'num_timesteps' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, { network.dt }, 'dt' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, { network.tf }, 'tf' );
 
 
 %% Simulate the Network.
@@ -176,6 +191,6 @@ fig_network_states = network.network_utilities.plot_network_states( ts, Us( 72:7
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( ( end - 3  ):end, : ), hs( ( end - 3  ):end, : ), neuron_IDs( ( end - 3  ):end ) ); fig_network_states.Name = 'Lead / Lag';
 
 
-% Animate the network states over time.
-fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
+% % Animate the network states over time.
+% fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
 

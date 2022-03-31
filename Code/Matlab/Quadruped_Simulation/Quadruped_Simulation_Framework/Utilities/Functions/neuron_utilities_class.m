@@ -317,6 +317,15 @@ classdef neuron_utilities_class
         end
         
         
+        % Implement a function to compute the membrane capacitance of slow transmission subnetwork neurons.
+        function Cm = compute_slow_transmission_Cm( ~, Gm, n, T, r )
+            
+            % Compute the membrane capacitance.
+            Cm = -( Gm.*T )./( n.*log( r ) );
+            
+        end
+        
+        
         % Implement a function to compute the membrane capacitance of subtraction subnetwork neurons.
         function Cm = compute_subtraction_Cm( ~ )
             

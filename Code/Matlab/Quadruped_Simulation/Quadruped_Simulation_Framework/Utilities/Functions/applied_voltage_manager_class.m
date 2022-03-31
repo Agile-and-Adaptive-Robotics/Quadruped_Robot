@@ -19,12 +19,8 @@ classdef applied_voltage_manager_class
     
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
+
         
-        NUM_MULTISTATE_CPG_APPLIED_VOLTAGES = 1;                     % [#] Number of Multistate CPG Applied Voltages.
-        NUM_MULTIPLICATION_APPLIED_VOLTAGES = 1;                     % [#] Number of Multiplication Applied Voltages.
-        NUM_INTEGRATION_APPLIED_VOLTAGES = 2;                        % [#] Number of Integration Applied Voltages.
-        NUM_VB_INTEGRATION_APPLIED_VOLTAGES = 2;                     % [#] Number of Voltage Based Integration Applied Voltages.
-        NUM_SPLIT_VB_INTEGRATION_APPLIED_VOLTAGES = 3;               % [#] Number of Split Voltage Based Integration Applied Voltages.
         
     end
     
@@ -44,7 +40,6 @@ classdef applied_voltage_manager_class
             self.array_utilities = array_utilities_class(  );
             
             % Set the default properties.
-            %             if nargin < 1, self.applied_voltages = applied_voltage_class(  ); else, self.applied_voltages = applied_voltages; end
             if nargin < 1, self.applied_voltages = [  ]; else, self.applied_voltages = applied_voltages; end
             
             % Compute the number of applied voltages.
@@ -368,7 +363,7 @@ classdef applied_voltage_manager_class
             num_timesteps = floor( round( tf/dt, 8 ) ) + 1;
             
             % Preallocate a variable to store the applied voltage properties.
-            V_apps = zeros( num_timesteps, num_applied_voltages_to_get );
+            V_apps = cell( num_timesteps, num_applied_voltages_to_get );
             
             % Retrieve the given neuron property for each applied voltage.
             for k = 1:num_applied_voltages_to_get                           % Iterate through each of the voltages to retrieve...
@@ -380,12 +375,12 @@ classdef applied_voltage_manager_class
                 if ( applied_voltage_index >= 0 ) && ( self.applied_voltages( applied_voltage_index ).b_enabled )                                                      % If the applied voltage ID is greater than or equal to zero...
                     
                     % Retrieve the applied voltages.
-                    V_apps( :, k ) = self.applied_voltages( applied_voltage_index ).sample_Iapp( dt, tf );
+                    V_apps( :, k ) = self.applied_voltages( applied_voltage_index ).sample_Vapp( dt, tf );
                     
                 elseif ( applied_voltage_index == -1 ) || ( ~self.applied_voltages( applied_voltage_index ).b_enabled )                                                % If the applied voltage ID is negative one...
                     
-                    % Set the applied voltage to zero.
-                    V_apps( :, k ) = zeros( num_timesteps, 1 );
+%                     % Set the applied voltage to zero.
+%                     V_apps( :, k ) = zeros( num_timesteps, 1 );
                     
                 else                                                                                    % Otherwise...
                     
@@ -884,7 +879,7 @@ classdef applied_voltage_manager_class
             
             % Set the default input arguments.
             if nargin < 7, b_enabled = true; end
-            if nargin < 6, V_apps = 0; end
+            if nargin < 6, V_apps = { [ ] }; end
             if nargin < 5, ts = 0; end
             if nargin < 4, neuron_ID = 0; end
             if nargin < 3, name = ''; end
@@ -906,7 +901,7 @@ classdef applied_voltage_manager_class
         
         
         % Implement a function to create multiple applied voltages.
-        function [ self, IDs ] = create_applied_voltages( self, IDs, names, neuron_IDs, tss, V_appss, b_enableds )
+        function [ self, IDs ] = create_applied_voltages( self, IDs, names, neuron_IDs, ts, V_apps, b_enableds )
             
             % Determine whether number of applied voltages to create.
             if nargin > 2                                               % If more than just applied voltage IDs were provided...
@@ -944,8 +939,8 @@ classdef applied_voltage_manager_class
             
             % Set the default input arguments.
             if nargin < 7, b_enableds = true( 1, num_applied_voltages_to_create ); end
-            if nargin < 6, V_appss = zeros( 1, num_applied_voltages_to_create ); end
-            if nargin < 5, tss = zeros( 1, num_applied_voltages_to_create ); end
+            if nargin < 6, V_apps = cell( 1, num_applied_voltages_to_create ); end
+            if nargin < 5, ts = zeros( 1, num_applied_voltages_to_create ); end
             if nargin < 4, neuron_IDs = zeros( 1, num_applied_voltages_to_create ); end
             if nargin < 3, names = repmat( { '' }, 1, num_applied_voltages_to_create ); end
             if nargin < 2, IDs = self.generate_unique_applied_voltage_IDs( num_applied_voltages_to_create ); end
@@ -954,7 +949,7 @@ classdef applied_voltage_manager_class
             for k = 1:num_applied_voltages_to_create                         % Iterate through each of the applied voltages we want to create...
                 
                 % Create this applied voltage.
-                self = self.create_applied_voltage( IDs(k), names{k}, neuron_IDs(k), tss( :, k ), V_appss( :, k ), b_enableds(k) );
+                self = self.create_applied_voltage( IDs(k), names{k}, neuron_IDs(k), ts( :, k ), V_apps( :, k ), b_enableds(k) );
                 
             end
             
@@ -1054,7 +1049,6 @@ classdef applied_voltage_manager_class
             % Load the applied voltage data.
             [ applied_voltage_IDs, applied_voltage_names, applied_voltage_neuron_IDs, applied_voltage_ts, applied_voltage_V_apps ] = self.data_loader_utilities.load_applied_voltage_data( file_name, directory );
             
-            
             % Define the number of synapses.
             num_applied_voltages_to_load = length( applied_voltage_IDs );
             
@@ -1095,7 +1089,6 @@ classdef applied_voltage_manager_class
             if b_verbose, fprintf( 'LOADING APPLIED VOLTAGE DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
-        
         
         
     end

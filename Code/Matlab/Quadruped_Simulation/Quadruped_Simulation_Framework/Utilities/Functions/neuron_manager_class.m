@@ -19,7 +19,8 @@ classdef neuron_manager_class
     
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
-    
+        
+        NUM_CPG_NEURONS = 2;                            % [#] Number of CPG Neurons.
         NUM_TRANSMISSION_NEURONS = 2;                   % [#] Number of Transmission Neurons.
         NUM_MODULATION_NEURONS = 2;                     % [#] Number of Modulation Neurons.
         NUM_ADDITION_NEURONS = 3;                       % [#] Number of Addition Neurons.
@@ -43,6 +44,9 @@ classdef neuron_manager_class
         
         K_INTEGRATION_MEAN = 0.01e9;
 
+        T_OSCILLATION = 2;                  % [s] Oscillation Period. 
+        r_OSCILLATION = 0.90;               % [-] Oscillation Decay.
+        
     end
     
     
@@ -1062,7 +1066,7 @@ classdef neuron_manager_class
         
         % ---------------------------------------------------------------- Capacitance Functions ----------------------------------------------------------------
 
-        % Implement a function to compute and set the membrane capacitance of tranmission subnetwork neurons.
+        % Implement a function to compute and set the membrane capacitance of transmission subnetwork neurons.
         function self = compute_set_transmission_Cm( self, neuron_IDs )
 
             % Set the default input arguments.
@@ -1088,6 +1092,30 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to compute and set the membrane capacitance of slow transmission subnetwork neurons.
+        function self = compute_set_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r )
+
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the membrane capacitance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_slow_transmission_Cm( num_cpg_neurons, T, r );
+                
+            end
+            
+        end
         
         
         % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
@@ -1725,6 +1753,23 @@ classdef neuron_manager_class
             
             % Compute and set the membrane capacitance of the transmission subnetwork neurons..
             self = self.compute_set_transmission_Cm( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the neurons for a slow transmission subnetwork.
+        function self = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r )
+           
+            % Set the default input arguments.
+            if nargin < 5, r = self.r_OSCILLATION; end
+            if nargin < 4, T = self.T_OSCILLATION; end
+            if nargin < 3, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+
+            % Compute and set the sodium channel conductance of the transmission subnetwork neurons.
+            self = self.compute_set_transmission_Gna( neuron_IDs );
+            
+            % Compute and set the membrane capacitance of the transmission subnetwork neurons..
+            self = self.compute_set_slow_transmission_Cm( neuron_IDs, num_cpg_neurons, T, r );
             
         end
         

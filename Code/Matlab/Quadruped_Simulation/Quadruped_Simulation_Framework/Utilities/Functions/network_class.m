@@ -10,6 +10,7 @@ classdef network_class
         neuron_manager
         synapse_manager
         applied_current_manager
+        applied_voltage_manager
         
         dt
         tf
@@ -47,6 +48,7 @@ classdef network_class
         I_DRIVE_MAX = 1.25e-9;              % [A] Maximum Drive Current.
         
         T_OSCILLATION = 2;                  % [s] Oscillation Period. 
+        r_OSCILLATION = 0.90;               % [-] Oscillation Decay.
         
         NUM_CPG_NEURONS = 2;                % [#] Number of CPG Neurons.
         
@@ -59,7 +61,7 @@ classdef network_class
     methods
         
         % Implement the class constructor.
-        function self = network_class( dt, tf, neuron_manager, synapse_manager, applied_current_manager )
+        function self = network_class( dt, tf, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager )
             
             % Create an instance of the numeriacl methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class(  );
@@ -68,6 +70,7 @@ classdef network_class
             self.network_utilities = network_utilities_class(  );
             
             % Set the default network properties.
+            if nargin < 6, self.applied_voltage_manager = applied_voltage_manager_class(  ); else, self.applied_voltage_manager = applied_voltage_manager; end
             if nargin < 5, self.applied_current_manager = applied_current_manager_class(  ); else, self.applied_current_manager = applied_current_manager; end
             if nargin < 4, self.synapse_manager = synapse_manager_class(  ); else, self.synapse_manager = synapse_manager; end
             if nargin < 3, self.neuron_manager = neuron_manager_class(  ); else, self.neuron_manager = neuron_manager; end
@@ -1285,10 +1288,12 @@ classdef network_class
         
         
         % Implement a function to design the neurons for a driven multistate cpg split lead lag subnetwork.
-        function self = design_dmcpg_sll_neurons( self, neuron_IDs_cell, ki_mean )
+        function self = design_dmcpg_sll_neurons( self, neuron_IDs_cell, T, ki_mean, r )
         
             % Set the default input arguments.
-            if nargin < 3, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 5, r = self.r_OSCILLATION; end
+            if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 3, T = self.T_OSCILLATION; end
             
             % Retrieve the number of cpg neurons.
             num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
@@ -1305,11 +1310,11 @@ classdef network_class
                 
             end
             
-            % Design the split lead lag subnetwork neurons.  ( They participate in both addition and transmission, which have the same neuron setup. )
-            self = self.design_addition_neurons( neuron_IDs_cell{ end } );
+            % Design the split lead lag subnetwork neurons.
+            self = self.design_addition_neurons( neuron_IDs_cell{ end }( 1:2 ) );
+            self = self.design_slow_transmission_neurons( neuron_IDs_cell{ end }( 3:4 ), num_cpg_neurons, T, r );
             
         end
-        
         
         
         % Implement a function to design the neurons for a transmission subnetwork.
@@ -1321,6 +1326,15 @@ classdef network_class
         end
         
         
+        % Implement a function to design the neurons for a transmission subnetwork.
+        function self = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r )
+            
+            % Design the slow transmission subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_slow_transmission_neurons( neuron_IDs, num_cpg_neurons, T, r );
+            
+        end
+        
+                
         % Implement a function to design the neurons for a modulation subnetwork.
         function self = design_modulation_neurons( self, neuron_IDs )
             
@@ -1918,9 +1932,10 @@ classdef network_class
         
         
         % Implement a function to design a driven multistate CPG split lead lag subnetwork using existing neurons.
-        function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+        function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r )
 
             % Set the default input arguments.
+            if nargin < 12, r = self.r_OSCILLATION; end
             if nargin < 11, c_mod = self.C_MODULATION; end
             if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
             if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
@@ -1934,7 +1949,7 @@ classdef network_class
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
 
             % Design the driven multistate CPG split lead lag subnetwork neurons.
-            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, ki_mean );
+            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, T, ki_mean, r );
             
             % Design the driven multistate CPG split lead lag subnetwork applied currents.
             self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell );
@@ -2462,9 +2477,10 @@ classdef network_class
     
         
         % Implement a function to create a driven multistate cpg split lead lag subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r )
         
             % Set the default input arguments.
+            if nargin < 12, r = self.r_OSCILLATION; end
             if nargin < 11, c_mod = self.C_MODULATION; end
             if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
             if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
@@ -2480,7 +2496,7 @@ classdef network_class
             [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_dmcpg_sll_subnetwork_components( num_cpg_neurons );
             
             % Design the driven multistate cpg subnetwork.
-            self = self.design_dmcpg_sll_subnetwork( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            self = self.design_dmcpg_sll_subnetwork( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r );
             
         end
     
@@ -2844,6 +2860,9 @@ classdef network_class
             % Retrieve the applied currents.
             I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs, self.dt, self.tf, 'ignore' )';
             
+            % Retrieve the applied voltages.
+            V_apps_cell = self.applied_voltage_manager.neuron_IDs2Vapps( neuron_IDs, self.dt, self.tf, 'ignore' )';
+            
 %             Us = (1e3)*Us;
 %             Gms = (1e6)*Gms;
 %             Cms = (1e9)*Cms;
@@ -2860,7 +2879,7 @@ classdef network_class
 %             I_apps = (1e9)*I_apps;
             
             % Simulate the network.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt, method );
+            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = self.network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, V_apps_cell, tf, dt, method );
             
 %             Us = (1e-3)*Us;
 %             Gms = (1e-6)*Gms;

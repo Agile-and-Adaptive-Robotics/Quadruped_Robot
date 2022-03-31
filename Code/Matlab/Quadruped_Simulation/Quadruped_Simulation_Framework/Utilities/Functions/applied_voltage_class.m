@@ -43,7 +43,7 @@ classdef applied_voltage_class
             
             % Set the default properties.
             if nargin < 6, self.b_enabled = true; else, self.b_enabled = b_enabled; end
-            if nargin < 5, self.V_apps = 0; else, self.V_apps = V_apps; end
+            if nargin < 5, self.V_apps = { [  ] }; else, self.V_apps = V_apps; end
             if nargin < 4, self.ts = 0; else, self.ts = ts; end
             if nargin < 3, self.neuron_ID = 0; else, self.neuron_ID = neuron_ID; end
             if nargin < 2, self.name = ''; else, self.name = name; end
@@ -161,7 +161,7 @@ classdef applied_voltage_class
         %% Sampling Functions
         
         % Implement a function to sample an applied voltage.
-        function [ V_apps_sample, ts_sample ] = sample_Iapp( self, dt, tf )
+        function [ V_apps_sample, ts_sample ] = sample_Vapp( self, dt, tf )
             
             % Set the default input arguments.
             if nargin < 3, tf = max( self.ts ); end
@@ -177,12 +177,12 @@ classdef applied_voltage_class
                 if self.num_timesteps == 1                                           % If the number of timesteps is one.. ( The applied voltage is constant. )
                     
                     % Create the applied voltage sample as a constant vector.
-                    V_apps_sample = self.V_apps*ones( self.num_timesteps, 1 );
+                    V_apps_sample = repmat( self.V_apps, [ self.num_timesteps, 1 ] );
                     
                 else                                                                % Otherwise...
                     
                     % Create the applied voltage sample via interpolation.
-                    V_apps_sample = interp1( self.ts, self.V_apps, ts_sample );
+                    V_apps_sample = self.array_utilities.interp1_cell( self.ts, self.V_apps, ts_sample );
                     
                 end
                 

@@ -587,10 +587,10 @@ classdef network_utilities_class
         
         
         % Implement a function to perform an integration step.
-        function [ Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = integration_step( self, Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, dt, method )
+        function [ Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = integration_step( self, Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, V_apps_cell, dt, method )
         
             % Set the default input arguments.
-            if nargin < 21, method = 'RK4'; end
+            if nargin < 22, method = 'RK4'; end
             
             % Perform a single simulation step.
             [ ~, ~, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps );
@@ -627,11 +627,26 @@ classdef network_utilities_class
             dUs = dx( 1:num_states );
             dhs = dx( ( num_states + 1 ):end );
             
+            % Determine whether there are applied voltages to consider.
+            for k = 1:num_states                % Iterate through each of the states...
+               
+                if ~isempty(  V_apps_cell{ k } )
+                    
+                    Us( k ) = V_apps_cell{ k };
+                    hs( k ) = self.neuron_utilities.compute_mhinf( Us( k ), Ahs( k ), Shs( k ), dEhs( k ) );
+                    
+                    dUs( k ) = 0;
+                    dhs( k ) = 0;
+                    
+                end
+                
+            end
+            
         end
             
         
         % Implement a function to simulate the network.
-        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, tf, dt, method )
+        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, V_apps_cell, tf, dt, method )
             
             % This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, dEsyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
             
@@ -672,7 +687,7 @@ classdef network_utilities_class
             % tauhs = num_neurons x num_timesteps matrix of sodium channel deactivation parameter time constants.
             
             % Set the default input arguments.
-            if nargin < 22, method = 'RK4'; end
+            if nargin < 23, method = 'RK4'; end
             
             % Compute the simulation time vector.
             ts = 0:dt:tf;
@@ -681,12 +696,7 @@ classdef network_utilities_class
             num_timesteps = length( ts );
             
             % Ensure that there are the correct number of applied currents.
-            if size( I_apps, 2 ) ~= num_timesteps                  % If the number of Iapps columns is not equal to the number of timesteps...
-                
-                % Throw an error.
-                error( 'size(Iapps, 2) must equal the number of simulation time steps.' )
-                
-            end
+            if size( I_apps, 2 ) ~= num_timesteps, error( 'size(Iapps, 2) must equal the number of simulation time steps.' ), end
             
             % Retrieve the number of neurons from the input dimensions.
             num_neurons = size( Us0, 1 );
@@ -698,13 +708,13 @@ classdef network_utilities_class
             G_syns = zeros( num_neurons, num_neurons, num_timesteps );
             
             % Set the initial network condition.
-            Us(:, 1) = Us0; hs(:, 1) = hs0;
+            Us( :, 1 ) = Us0; hs( :, 1 ) = hs0;
             
             % Simulate the network.
             for k = 1:( num_timesteps - 1 )               % Iterate through each timestep...
                 
                 % Perform a single integration step.
-                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), G_syns( :, :, k ), I_leaks( :, k ), I_syns( :, k ), I_nas( :, k ), I_totals( :, k ), m_infs( :, k ), h_infs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps( :, k ), dt, method );
+                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), G_syns( :, :, k ), I_leaks( :, k ), I_syns( :, k ), I_nas( :, k ), I_totals( :, k ), m_infs( :, k ), h_infs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps( :, k ), V_apps_cell( :, k), dt, method );
                 
             end
             
