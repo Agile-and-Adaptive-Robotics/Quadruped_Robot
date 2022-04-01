@@ -1185,6 +1185,15 @@ classdef network_class
         end
         
         
+        % Implement a function to design the applied currents for a double centering subnetwork.
+        function self = design_double_centering_applied_currents( self, neuron_IDs )
+            
+            % Design the double centering applied currents (in the same way as the single centering applied currents).
+            self = self.design_centering_applied_currents( neuron_IDs );
+            
+        end
+        
+        
         % Implement a function to design the applied currents for a multiplication subnetwork.
         function self = design_multiplication_applied_currents( self, neuron_IDs )
             
@@ -1393,6 +1402,20 @@ classdef network_class
             % Design the subtraction subnetwork neurons.
             self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ] );            
             
+        end
+        
+        
+        % Implement a function to design the neurons for a double centering subnetwork.
+        function self = design_double_centering_neurons( self, neuron_IDs )
+        
+            % Design the addition subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ] );
+            self.neuron_manager = self.neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ] );
+
+            % Design the subtraction subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 6 ) ] );            
+            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 5 ) neuron_IDs( 1 ) neuron_IDs( 7 ) ] );            
+
         end
         
         
@@ -1732,6 +1755,24 @@ classdef network_class
             
             % Design the subtraction subnetwork synapses.
             self = self.design_subtraction_synapses( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ], k_sub );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a double centering subnetwork.
+        function self = design_double_centering_synapses( self, neuron_IDs, k_add, k_sub )
+            
+            % Set the default input arguments.
+            if nargin < 4, k_sub = self.K_SUBTRACTION; end
+            if nargin < 3, k_add = self.K_ADDITION; end
+            
+            % Design the addition subnetwork neurons.
+            self = self.design_addition_synapses( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ], k_add );
+            self = self.design_addition_synapses( [ neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ], k_add );
+
+            % Design the subtraction subnetwork neurons.
+            self = self.design_subtraction_synapses( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 6 ) ], k_sub );            
+            self = self.design_subtraction_synapses( [ neuron_IDs( 5 ) neuron_IDs( 1 ) neuron_IDs( 7 ) ], k_sub );  
             
         end
         
@@ -2105,6 +2146,25 @@ classdef network_class
         end
         
         
+        % Implement a function to design a double centering subnetwork ( using the specified neurons, including their existing synapses and applied currents ).
+        function self = design_double_centering_subnetwork( self, neuron_IDs, k_add, k_sub )
+        
+            % Set the default input arguments.
+            if nargin < 4, k_sub = self.K_SUBTRACTION; end
+            if nargin < 3, k_add = self.K_ADDITION; end
+            
+            % Design the double centering subnetwork neurons.
+            self = self.design_double_centering_neurons( neuron_IDs );
+            
+            % Design the double centering subnetwork applied currents.
+            self = self.design_double_centering_applied_currents( neuron_IDs );
+            
+            % Design the double centering subnetwork synapses.
+            self = self.design_double_centering_synapses( neuron_IDs, k_add, k_sub );
+            
+        end
+        
+        
         % Implement a function to design a multiplication subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_multiplication_subnetwork( self, neuron_IDs, k )
             
@@ -2400,6 +2460,22 @@ classdef network_class
         end
             
             
+        % Implement a function to create the double centering subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_double_centering_subnetwork_components( self )
+            
+            % Create the double centering subnetwork neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_double_centering_neurons(  );
+            
+            % Create the double centering subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_double_centering_synapses( neuron_IDs );
+            
+            % Create the double centering subnetwork applied currents.
+            [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_double_centering_applied_currents( neuron_IDs );
+            
+            
+        end
+        
+        
         % Implement a function to create the multiplication subnetwork components.
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork_components( self )
             
@@ -2652,7 +2728,7 @@ classdef network_class
         end
         
         
-        % Implement a function to create a centering subnetwork ( genearing neurons, synapses, etc. as necessary ).
+        % Implement a function to create a centering subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_centering_subnetwork( self, k_add, k_sub )
             
             % Set the default input arguments.
@@ -2664,6 +2740,23 @@ classdef network_class
             
             % Design the centering subnetwork.
             self = self.design_centering_subnetwork( neuron_IDs, k_add, k_sub );
+            
+        end
+        
+        
+        % Implement a function to create a double centering subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_double_centering_subnetwork( self, k_add, k_sub )
+        
+            % Set the default input arguments.
+            if nargin < 3, k_sub = self.K_SUBTRACTION; end
+            if nargin < 2, k_add = self.K_ADDITION; end
+            
+            % Create the double centering subnetwork components.
+            [  self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_double_centering_subnetwork_components(  );
+            
+            % Design the double centering subnetwork.
+            self = self.design_double_centering_subnetwork( neuron_IDs, k_add, k_sub );
+            
             
         end
         

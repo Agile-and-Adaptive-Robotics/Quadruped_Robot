@@ -1,4 +1,4 @@
-%% Subtraction Subnetwork Testing
+%% Centering Subnetwork Testing
 
 % Clear Everything.
 clear, close('all'), clc
@@ -15,7 +15,7 @@ network_dt = 1e-4;
 network_tf = 3;
 
 
-%% Create Subtraction Subnetwork.
+%% Create Centering Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -24,10 +24,10 @@ network = network_class( network_dt, network_tf );
 k_add = 1;
 k_sub = 1;
 
-% Create a subtraction subnetwork.
+% Create a centering subnetwork.
 [ network, neuron_IDs, synapse_IDs, applied_current_IDs ] = network.create_centering_subnetwork( k_add, k_sub );
 
-% % Disable the subtraction subnetwork.
+% % Disable the centering subnetwork.
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_sub );
 
 

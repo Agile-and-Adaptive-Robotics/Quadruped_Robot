@@ -26,6 +26,7 @@ classdef synapse_manager_class
         NUM_SUBTRACTION_SYNAPSES = 2;                           % [#] Number of Subtraction Synapses.
         NUM_DOUBLE_SUBTRACTION_SYNAPSES = 4;                    % [#] Number of Double Subtraction Synapses.
         NUM_CENTERING_SYNAPSES = 4;                             % [#] Number of Centering Synapses.
+        NUM_DOUBLE_CENTERING_SYNAPSES = 8;                      % [#] Number of Double Centering Synapses.
         NUM_MULTIPLICATION_SYNAPSES = 3;                        % [#] Number of Multiplication Synapses.
         NUM_DIVISION_SYNAPSES = 2;                              % [#] Number of Division Synapses.
         NUM_DERIVATION_SYNAPSES = 2;                            % [#] Number of Derivation Synapses.
@@ -1806,6 +1807,25 @@ classdef synapse_manager_class
            
            % Connect the centering subnetwork synapses.
            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) ] );
+           
+        end
+        
+        
+        % Implement a function to create the synapses for a double centering subnetwork.
+        function [ self, synapse_IDs ] = create_double_centering_synapses( self, neuron_IDs )
+            
+           % Create the centering subnetwork synapses.
+           [ self, synapse_IDs ] = self.create_synapses( self.NUM_DOUBLE_CENTERING_SYNAPSES );
+            
+           % Set the names of the centering subnetwork synapses.
+           self = self.set_synapse_property( synapse_IDs, { '14', '24', '25', '35', '46', '36', '57', '17' }, 'name' );
+           
+           % Set the from and to neuron IDs.
+           from_neuron_IDs = [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) neuron_IDs( 1 ) ];
+           to_neuron_IDs = [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) neuron_IDs( 6 ) neuron_IDs( 6 ) neuron_IDs( 7 ) neuron_IDs( 7 ) ];
+           
+           % Connect the centering subnetwork synapses.
+           self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
            
         end
         

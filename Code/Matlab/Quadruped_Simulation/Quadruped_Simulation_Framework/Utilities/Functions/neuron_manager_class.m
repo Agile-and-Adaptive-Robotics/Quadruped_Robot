@@ -27,6 +27,7 @@ classdef neuron_manager_class
         NUM_SUBTRACTION_NEURONS = 3;                    % [#] Number of Subtraction Neurons.
         NUM_DOUBLE_SUBTRACTION_NEURONS = 4;             % [#] Number of Double Subtraction Neurons.
         NUM_CENTERING_NEURONS = 5;                      % [#] Number of Centering Neurons.
+        NUM_DOUBLE_CENTERING_NEURONS = 7;               % [#] Number of Double Centering Neurons.
         NUM_MULTIPLICATION_NEURONS = 4;                 % [#] Number of Multiplication Neurons.
         NUM_DIVISION_NEURONS = 3;                       % [#] Number of Division Neurons.
         NUM_DERIVATION_NEURONS = 3;                     % [#] Number of Derivation Neurons.
@@ -47,7 +48,7 @@ classdef neuron_manager_class
 
         T_OSCILLATION = 2;                  % [s] Oscillation Period. 
         r_OSCILLATION = 0.90;               % [-] Oscillation Decay.
-        
+                
     end
     
     
@@ -1629,6 +1630,18 @@ classdef neuron_manager_class
             
         end
         
+        
+        % Implement a function to create the neurons for a double centering subnetwork.
+        function [ self, neuron_IDs ] = create_double_centering_neurons( self )
+            
+            % Create the centering subnetwork neurons.
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_DOUBLE_CENTERING_NEURONS );
+            
+            % Set the names of the centering subnetwork neurons.
+            self = self.set_neuron_property( neuron_IDs, { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5', 'Center 6', 'Center 7' }, 'name' );
+            
+        end
+
         
         % Implement a function to create the neurons for a multiplication subnetwork.
         function [ self, neuron_IDs ] = create_multiplication_neurons( self )
