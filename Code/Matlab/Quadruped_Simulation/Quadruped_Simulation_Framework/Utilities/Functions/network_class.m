@@ -1194,6 +1194,15 @@ classdef network_class
         end
         
         
+        % Implement a function to design the applied currents for a centered double subtraction subnetwork.
+        function self = design_centered_double_subtraction_applied_currents( self, neuron_IDs_cell )
+            
+            % Design the applied currents for a double centering subnetwork.
+            self = self.design_double_centering_applied_currents( neuron_IDs_cell{ 2 } );
+            
+        end
+        
+        
         % Implement a function to design the applied currents for a multiplication subnetwork.
         function self = design_multiplication_applied_currents( self, neuron_IDs )
             
@@ -1397,10 +1406,10 @@ classdef network_class
         function self = design_centering_neurons( self, neuron_IDs )
             
             % Design the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ] );
+            self = self.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ] );
             
             % Design the subtraction subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ] );            
+            self = self.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ] );            
             
         end
         
@@ -1416,6 +1425,18 @@ classdef network_class
             self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 6 ) ] );            
             self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 5 ) neuron_IDs( 1 ) neuron_IDs( 7 ) ] );            
 
+        end
+        
+        
+        % Implement a function to design the neurons for a centered double subtraction subnetwork.
+        function self = design_centered_double_subtraction_neurons( self, neuron_IDs_cell )
+            
+            % Design the double subtraction subnetwork neurons.
+            self = self.design_double_subtraction_neurons( neuron_IDs_cell{ 1 } );
+            
+            % Design the double centering subnetwork neurons.
+            self = self.design_double_centering_neurons( neuron_IDs_cell{ 2 } );
+            
         end
         
         
@@ -1593,7 +1614,7 @@ classdef network_class
             from_neuron_IDs( end ) = neuron_IDs_cell{ end }( 2 ); to_neuron_IDs( end ) = neuron_IDs_cell{ end }( 4 );
 
             % Design each of the transmission synapses.
-            for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways.
+            for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                
                 % Design this transmission synapse.
                 self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false );
@@ -1773,6 +1794,38 @@ classdef network_class
             % Design the subtraction subnetwork neurons.
             self = self.design_subtraction_synapses( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 6 ) ], k_sub );            
             self = self.design_subtraction_synapses( [ neuron_IDs( 5 ) neuron_IDs( 1 ) neuron_IDs( 7 ) ], k_sub );  
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a centered double subtraction subnetwork.
+        function self = design_centered_double_subtraction_synapses( self, neuron_IDs_cell, k_sub1, k_sub2, k_add )
+        
+            % Set the default input arguments.
+            if nargin < 5, k_add = self.K_ADDITION; end
+            if nargin < 4, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 3, k_sub1 = self.K_SUBTRACTION; end      
+            
+            % Design the double subtraction subnetwork synapses.
+            self = self.design_double_subtraction_synapses( neuron_IDs_cell{ 1 }, k_sub1 );
+            
+            % Design the double centering subnetwork synpases.
+            self = self.design_double_centering_synapses( neuron_IDs_cell{ 2 }, k_add, k_sub2 );
+            
+            % Define the number of transmission synapses.
+            num_transmission_synapses = 2;
+            
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs_cell{ 1 }( 3 ) neuron_IDs_cell{ 1 }( 4 ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];            
+            
+            % Design each of the transmission synapses.
+            for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
+               
+                % Design this transmission synapse.
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 0.5, false );
+                
+            end
             
         end
         
@@ -2165,6 +2218,26 @@ classdef network_class
         end
         
         
+        % Implement a function to design a centered double subtraction subnetwork ( using the specified neurons, including their existing synapses and applied currents ).
+        function self = design_centered_double_subtraction_subnetwork( self, neuron_IDs_cell, k_sub1, k_sub2, k_add )
+        
+            % Set the default input arguments.
+            if nargin < 5, k_add = self.K_ADDITION; end
+            if nargin < 4, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 3, k_sub1 = self.K_SUBTRACTION; end
+            
+            % Design the centered double subtraction neurons.
+            self = self.design_centered_double_subtraction_neurons( neuron_IDs_cell );
+            
+            % Design the centered double subtraction applied currents.
+            self = self.design_centered_double_subtraction_applied_currents( neuron_IDs_cell );
+            
+            % Design the centered double subtraction synapses.
+            self = self.design_centered_double_subtraction_synapses( neuron_IDs_cell, k_sub1, k_sub2, k_add );
+
+        end
+        
+        
         % Implement a function to design a multiplication subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_multiplication_subnetwork( self, neuron_IDs, k )
             
@@ -2472,6 +2545,20 @@ classdef network_class
             % Create the double centering subnetwork applied currents.
             [ self.applied_current_manager, applied_current_IDs ] = self.applied_current_manager.create_double_centering_applied_currents( neuron_IDs );
             
+        end
+        
+        
+        % Implement a function to create the centered double subtraction subnetwork components.
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_centered_double_subtraction_subnetwork_components( self )
+            
+            % Create the centered double subtraction subnetwork neurons.
+            [ self.neuron_manager, neuron_IDs_cell ] = self.neuron_manager.create_centered_double_subtraction_neurons(  );
+
+            % Create the centered double subtraction subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs_cell ] = self.synapse_manager.create_centered_double_subtraction_synapses( neuron_IDs_cell );
+            
+            % Create the centered double subtraction subnetwork applied currents.
+            [ self.applied_current_manager, applied_current_IDs_cell ] = self.applied_current_manager.create_centered_double_subtraction_applied_currents( neuron_IDs_cell );
             
         end
         
@@ -2758,6 +2845,23 @@ classdef network_class
             self = self.design_double_centering_subnetwork( neuron_IDs, k_add, k_sub );
             
             
+        end
+        
+        
+        % Implement a function to create a centered double subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_ID_cell ] = create_centered_double_subtraction_subnetwork( self, k_sub1, k_sub2, k_add )
+        
+            % Set the default input arguments.
+            if nargin < 4, k_add = self.K_ADDITION; end
+            if nargin < 3, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 2, k_sub1 = self.K_SUBTRACTION; end
+            
+            % Create the centered double subtraction subnetwork components.
+            [  self, neuron_IDs_cell, synapse_IDs_cell, applied_current_ID_cell ] = self.create_centered_double_subtraction_subnetwork_components(  );
+            
+            % Design the centered double subtraction subnetwork.
+            self = self.design_centered_double_subtraction_subnetwork( neuron_IDs_cell, k_sub1, k_sub2, k_add );
+
         end
         
         

@@ -1830,6 +1830,51 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapses that connect a double subtraction subnetwork to a double centering subnetwork.
+        function [ self, synapse_IDs ] = create_ds2dc_synapses( self, neuron_IDs_cell )
+            
+            % Define the number of unique synapses.
+            num_unique_synapses = 2;
+            
+            % Create the unique synapses.
+            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs_cell{ 1 }( 3 ) neuron_IDs_cell{ 1 }( 4 ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];
+            
+            % Setup each of the synapses.
+            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+                
+                % Set the names of each of the unique synapses.
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+
+                % Connect the unique synapses.
+                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to create the synapses for a centered double subtraction subnetwork.
+        function [ self, synapse_IDs_cell ] = create_centered_double_subtraction_synapses( self, neuron_IDs_cell )
+        
+            % Create the double subtraction subnetwork synapses.
+            [ self, synapse_IDs_double_subtraction ] = self.create_double_subtraction_synapses( neuron_IDs_cell{ 1 } );
+            
+            % Create the double centering subnetwork synapses.
+            [ self, synapse_IDs_double_centering ] = self.create_double_centering_synapses( neuron_IDs_cell{ 2 } );
+            
+            % Create the double subtraction subnetwork to double centering subnetwork synapses.
+            [ self, synapse_IDs_ds2dc ] = self.create_ds2dc_synapses( neuron_IDs_cell );
+            
+            % Concatenate the synapse IDs.
+            synapse_IDs_cell = { synapse_IDs_double_subtraction, synapse_IDs_double_centering, synapse_IDs_ds2dc };
+            
+        end
+        
+        
         % Implement a function to create the synapses for a multiplication subnetwork.
         function [ self, synapse_IDs ] = create_multiplication_synapses( self, neuron_IDs )
             

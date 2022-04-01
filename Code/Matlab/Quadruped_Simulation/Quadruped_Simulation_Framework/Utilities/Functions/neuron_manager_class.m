@@ -1643,6 +1643,21 @@ classdef neuron_manager_class
         end
 
         
+        % Implement a function to create the neurons for a centered double subtraction subnetwork.
+        function [ self, neuron_IDs_cell ] = create_centered_double_subtraction_neurons( self )
+            
+            % Create the double subtraction subnetwork neurons.
+            [ self, neuron_IDs_double_subtraction ] = self.create_double_subtraction_neurons(  );
+            
+            % Create the double centering subnetwork neurons.
+            [ self, neuron_IDs_double_centering ] = self.create_double_centering_neurons(  );
+            
+            % Concatenate the neuron IDs.
+            neuron_IDs_cell = { neuron_IDs_double_subtraction, neuron_IDs_double_centering };
+            
+        end
+        
+        
         % Implement a function to create the neurons for a multiplication subnetwork.
         function [ self, neuron_IDs ] = create_multiplication_neurons( self )
 

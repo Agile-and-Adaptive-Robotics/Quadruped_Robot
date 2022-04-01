@@ -1331,6 +1331,16 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents for a centered double subtraction subnetwork.
+        function [ self, applied_current_IDs_cell ] = create_centered_double_subtraction_applied_currents( self, neuron_IDs_cell )
+        
+            % Create the double centering applied currents.
+            [ self, applied_current_IDs ] = self.create_double_centering_applied_currents( neuron_IDs_cell{ 2 } );
+            
+            % Store these applied current IDs in a cell.
+            applied_current_IDs_cell = { applied_current_IDs };
+            
+        end
         
             
         % Implement a function to create the applied currents for a multiplication subnetwork.
