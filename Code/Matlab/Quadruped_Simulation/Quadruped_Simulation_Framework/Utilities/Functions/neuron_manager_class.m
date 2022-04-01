@@ -1531,7 +1531,7 @@ classdef neuron_manager_class
         end
         
             
-        % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
+        % Implement a function to create the neurons for a driven multistate cpg split lead lag subnetwork.
         function [ self, neuron_IDs_cell ] = create_dmcpg_sll_neurons( self, num_cpg_neurons )
         
             % Preallocat a cell array to store the neuron IDs.
@@ -1557,6 +1557,21 @@ classdef neuron_manager_class
 
         end
         
+        
+        % Implement a function to create the neurons for a driven multistate cpg double centered lead lag subnetwork.
+        function [ self, neuron_IDs_cell ] = create_dmcpg_dcll_neurons( self, num_cpg_neurons )
+            
+            % Create the neurons for a driven multistate cpg split lead lag subnetwork.
+            [ self, neuron_IDs_dmcpgsll ] = self.create_dmcpg_sll_neurons( num_cpg_neurons );
+            
+            % Create the neurons for a double centering subnetwork.
+            [ self, neuron_IDs_dc ] = self.create_double_centering_neurons(  );
+           
+            % Concatenate the neuron IDs.
+            neuron_IDs_cell = { neuron_IDs_dmcpgsll, neuron_IDs_dc };
+%             neuron_IDs_cell = { cell2mat( neuron_IDs_dmcpgsll ), neuron_IDs_dc };
+
+        end
         
         
         % Implement a function to create the neurons for a transmission subnetwork.

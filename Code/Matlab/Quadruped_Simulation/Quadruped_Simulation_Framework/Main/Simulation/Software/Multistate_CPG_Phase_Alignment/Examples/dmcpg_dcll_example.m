@@ -1,4 +1,4 @@
-%% Driven Multistate CPG Split Lead Lag Subnetwork Example
+%% Driven Multistate CPG Double Centered Lead Lag Subnetwork Example
 
 % Clear Everything.
 clear, close('all'), clc
@@ -43,11 +43,13 @@ ki_mean = 0.01e10;
 ki_range = 0.01e9;
 k_sub1 = 2;
 k_sub2 = 1;
+k_sub3 = 1;
+k_add = 1;
 c_mod = 0.05;
 r = 0.5;
 
-% Create the driven multistate cpg split lead lag subnetwork.
-[ network, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = network.create_dmcpg_sll_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r );
+% Create the driven multistate cpg double centered lead lag subnetwork.
+[ network, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = network.create_dmcpg_dcll_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r );
 
 % % Disable the cpg subnetworks.
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_cpg1 );
@@ -57,8 +59,8 @@ r = 0.5;
 %% Setup the Drive Currents.
 
 % Retrieve the drive current IDs.
-applied_current_ID_drive1 = applied_current_IDs_cell{ 1 }( end );
-applied_current_ID_drive2 = applied_current_IDs_cell{ 2 }( end );
+applied_current_ID_drive1 = applied_current_IDs_cell{ 1 }{ 1 }( end );
+applied_current_ID_drive2 = applied_current_IDs_cell{ 1 }{ 2 }( end );
 
 % Define the drive current time vector.
 ts = ( 0:network.dt:network.tf )';
@@ -109,7 +111,7 @@ V_apps2( 1 ) = { 0 };
 
 % Create the applied voltages.
 [ network.applied_voltage_manager, applied_voltage_IDs_CPG ] = network.applied_voltage_manager.create_applied_voltages( 2*num_cpg_neurons );
-network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, [ neuron_IDs_cell{ 1 }( 1:4 ) neuron_IDs_cell{ 2 }( 1:4 ) ], 'neuron_ID' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, [ neuron_IDs_cell{ 1 }{ 1 }( 1:4 ) neuron_IDs_cell{ 1 }{ 2 }( 1:4 ) ], 'neuron_ID' );
 network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, { ts }, 'ts' );
 network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG( 1:4 ), { V_apps1 }, 'V_apps' );
 network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG( 5:8 ), { V_apps2 }, 'V_apps' );
@@ -189,7 +191,9 @@ fig_network_states = network.network_utilities.plot_network_states( ts, Us( 63:6
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 67:71, : ), hs( 67:71, : ), neuron_IDs( 67:71 ) ); fig_network_states.Name = 'Shifted Int 4';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 72:74, : ), hs( 72:74, : ), neuron_IDs( 72:74 ) ); fig_network_states.Name = 'Modulated Int 4';
 
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( ( end - 3  ):end, : ), hs( ( end - 3  ):end, : ), neuron_IDs( ( end - 3  ):end ) ); fig_network_states.Name = 'Lead / Lag';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 75:78, : ), hs( 75:78, : ), neuron_IDs( 75:78 ) ); fig_network_states.Name = 'Split Lead / Lag';
+
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 79:85, : ), hs( 79:85, : ), neuron_IDs( 79:85 ) ); fig_network_states.Name = 'Centered Lead / Lag';
 
 
 % % Animate the network states over time.

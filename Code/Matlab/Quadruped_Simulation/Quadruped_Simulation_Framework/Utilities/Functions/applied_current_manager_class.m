@@ -1301,6 +1301,22 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents for a driven multistate CPG double centered lead lag subnetwork.
+        function [ self, applied_current_IDs_cell ] = create_dmcpg_dcll_applied_currents( self, neuron_IDs_cell )
+            
+            % Create the applied currents for a driven multistate cpg split lead lag subnetwork.
+            [ self, applied_current_IDs_dmcpgsll ] = self.create_dmcpg_sll_applied_currents( neuron_IDs_cell{ 1 } );
+            
+            % Create the applied currents for the double centering subnetwork.
+            [ self, applied_current_IDs_dc ] = self.create_double_centering_applied_currents( neuron_IDs_cell{ 2 } );
+            
+            % Concatenate the applied current IDs.
+            applied_current_IDs_cell = { applied_current_IDs_dmcpgsll, applied_current_IDs_dc };
+            
+        end
+        
+        
+        
         % Implement a function to create the applied currents for a centering subnetwork.
         function [ self, applied_current_IDs ] = create_centering_applied_currents( self, neuron_IDs )
        
