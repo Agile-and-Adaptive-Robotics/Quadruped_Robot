@@ -155,6 +155,13 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute the magnitude of centering subnetwork applied currents.
+        function I_apps = compute_centering_Iapps( self, Gm, R )
+            
+            % Compute the magnitude of centering subnetwork applied currents.
+            I_apps = self.applied_current_utilities.compute_centering_Iapps( Gm, R );
+            
+        end
         
         
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
@@ -259,6 +266,13 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
+        function self = compute_set_centering_Iapps( self, Gm, R )
+        
+            % Compute and set the magnitude of centering subnetwork applied currents.
+            self.I_apps = self.compute_centering_Iapps( Gm, R );
+            
+        end
         
         
         % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.

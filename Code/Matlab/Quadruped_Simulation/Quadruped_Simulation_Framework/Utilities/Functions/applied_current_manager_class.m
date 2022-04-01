@@ -1080,6 +1080,33 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
+        function self = compute_set_centering_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_centering_Iapps( Gm, R );
+                
+            end
+            
+            
+        end
+        
+        
         % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
         function self = compute_set_multiplication_Iapps( self, applied_current_IDs, Gm, R )
             
@@ -1283,7 +1310,7 @@ classdef applied_current_manager_class
             self = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name' );
             
             % Connect the centering applied current to the centering neuron.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs(  ), 'neuron_ID' );
+            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID' );
             
         end
             
@@ -1391,6 +1418,18 @@ classdef applied_current_manager_class
             
             % Set the applied current magnitude vector.
             self = self.compute_set_driven_multistate_cpg_Iapps( applied_current_ID, Gm, R );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for a centering subnetwork.
+        function self = design_centering_applied_current( self, neuron_IDs, Gm2, R2 )
+            
+            % Get the applied currents IDs that comprise this multiplication subnetwork.
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), 'ignore' );
+            
+            % Compute and set the applied current magnitude.
+            self = self.compute_set_centering_Iapps( applied_current_ID, Gm2, R2 );
             
         end
         
