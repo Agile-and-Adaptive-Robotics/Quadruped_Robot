@@ -57,6 +57,15 @@ classdef applied_current_utilities_class
         end
         
         
+        % Implement a function to compute the applied current magnitudes that connect the dmcpgdcll and cds subnetworks.
+        function I_apps = compute_dmcpgdcll2cds_Iapps( ~, Gm, R )
+        
+            % Compute the applied current magnitude.
+            I_apps = Gm.*R;
+            
+        end
+                
+        
         % Implement a function to compute the magnitude of centering subnetwork applied currents.
         function I_apps = compute_centering_Iapps( ~, Gm, R )
            

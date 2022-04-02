@@ -1766,6 +1766,49 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapses that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+        function [ self, synapse_IDs ] = create_dmcpgdcll2cds_synapses( self, neuron_IDs_cell )
+        
+            % Define the number of unique synapses.
+            num_unique_synapses = 2;
+            
+            % Create the unique synapses.
+            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 2 }( end - 1 ) neuron_IDs_cell{ 3 } ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 2 ) ];
+            
+            % Setup each of the synapses.
+            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+                
+                % Set the names of each of the unique synapses.
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+
+                % Connect the unique synapses.
+                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork.
+        function [ self, synapse_IDs_cell ] = create_ol_dmcpg_dclle_synapses( self, neuron_IDs_cell )
+        
+            % Create the driven multistate cpg double centered lead lag subnetwork synapses.
+            [ self, synapse_IDs_dmcpgdcll ] = self.create_dmcpg_dcll_synapses( neuron_IDs_cell{ 1 } );
+            
+            % Create the centered double subtraction subnetwork synapses.
+            [ self, synapse_IDs_cds ] = self.create_centered_double_subtraction_synapses( neuron_IDs_cell{ 2 } );
+            
+            % Create the synapses that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+            [ self, synapse_IDs_dmcpgdcll2cds ] = self.create_dmcpgdcll2cds_synapses( neuron_IDs_cell );
+            
+            % Concatenate the synapse IDs.
+            synapse_IDs_cell = { synapse_IDs_dmcpgdcll, synapse_IDs_cds, synapse_IDs_dmcpgdcll2cds };
+            
+        end
         
         
         % Implement a function to create the synapses for a transmission subnetwork.

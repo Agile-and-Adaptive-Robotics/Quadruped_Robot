@@ -1081,6 +1081,35 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to compute and set the magnitude of the applied currents that connect the driven multistate cpg double centered lead lag and centered doube subtraction subnetworks.
+        function self = compute_set_dmcpgdcll2cds_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the time vector for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_dmcpgdcll2cds_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        
+        
+        
         % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
         function self = compute_set_centering_Iapps( self, applied_current_IDs, Gm, R )
             
@@ -1316,6 +1345,39 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+        function [ self, applied_current_ID ] = create_dmcpgdcll2cds_applied_current( self, neuron_IDs_cell )
+            
+            % Create the applied current.
+            [ self, applied_current_ID ] = self.create_applied_current(  );
+            
+            % Set the name of the applied current.
+            self = self.set_applied_current_property( applied_current_ID, 'Desired Lead / Lag', 'name' );
+            
+            % Attach this applied current to a neuron.
+            self = self.set_applied_current_property( applied_current_ID, neuron_IDs_cell{ 3 }, 'neuron_ID' );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for an open loop driven multistate CPG double centered lead lag error subnetwork.
+        function [ self, applied_current_IDs_cell ] = create_ol_dmcpg_dclle_applied_currents( self, neuron_IDs_cell )
+            
+            % Create the applied currents for the driven multistate cpg double centered lead lag subnetwork.
+            [ self, applied_current_IDs_dmcpgdcll ] = self.create_dmcpg_dcll_applied_currents( neuron_IDs_cell{ 1 } );
+            
+            % Create the applied currents for the centered double subtraction subnetwork.
+            [ self, applied_current_IDs_cds ] = self.create_centered_double_subtraction_applied_currents( neuron_IDs_cell{ 2 } );
+            
+            % Create the applied currents associated with connecting the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+            [ self, applied_current_ID ] = self.create_dmcpgdcll2cds_applied_current( neuron_IDs_cell );
+            
+            % Concatenate the applied current IDs.
+            applied_current_IDs_cell = { applied_current_IDs_dmcpgdcll, applied_current_IDs_cds, applied_current_ID };
+            
+        end
+        
+        
         
         % Implement a function to create the applied currents for a centering subnetwork.
         function [ self, applied_current_IDs ] = create_centering_applied_currents( self, neuron_IDs )
@@ -1462,6 +1524,18 @@ classdef applied_current_manager_class
             
             % Set the applied current magnitude vector.
             self = self.compute_set_driven_multistate_cpg_Iapps( applied_current_ID, Gm, R );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents that connect a driven multistate cpg double centering lead lag subnetwork to a centered double subtraction subnetwork.
+        function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID, Gm, R )
+            
+            % Retrieve the applied current ID associated with the neuron ID.
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_ID );
+            
+            % Set the applied current magnitude vector.
+            self = self.compute_set_dmcpgdcll2cds_Iapps( applied_current_ID, Gm, R );
             
         end
         

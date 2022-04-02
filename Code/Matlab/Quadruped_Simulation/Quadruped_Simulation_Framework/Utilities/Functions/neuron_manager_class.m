@@ -1483,6 +1483,9 @@ classdef neuron_manager_class
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
         function [ self, neuron_IDs ] = create_multistate_cpg_neurons( self, num_cpg_neurons )
         
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
             % Determine whether to generate unique neuron IDs or use the specified neuron IDs.
             if length( num_cpg_neurons ) > 1                            % If more than one "number of cpg neurons" was specified...
             
@@ -1516,6 +1519,9 @@ classdef neuron_manager_class
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
         function [ self, neuron_IDs ] = create_driven_multistate_cpg_neurons( self, num_cpg_neurons )
         
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
             % Create the neurons for a multistate cpg subnetwork.
             [ self, neuron_IDs_cpg ] = self.create_multistate_cpg_neurons( num_cpg_neurons );
             
@@ -1534,6 +1540,9 @@ classdef neuron_manager_class
         % Implement a function to create the neurons for a driven multistate cpg split lead lag subnetwork.
         function [ self, neuron_IDs_cell ] = create_dmcpg_sll_neurons( self, num_cpg_neurons )
         
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
             % Preallocat a cell array to store the neuron IDs.
             neuron_IDs_cell = cell( 1, num_cpg_neurons + 3 );
             
@@ -1561,6 +1570,9 @@ classdef neuron_manager_class
         % Implement a function to create the neurons for a driven multistate cpg double centered lead lag subnetwork.
         function [ self, neuron_IDs_cell ] = create_dmcpg_dcll_neurons( self, num_cpg_neurons )
             
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
             % Create the neurons for a driven multistate cpg split lead lag subnetwork.
             [ self, neuron_IDs_dmcpgsll ] = self.create_dmcpg_sll_neurons( num_cpg_neurons );
             
@@ -1569,8 +1581,40 @@ classdef neuron_manager_class
            
             % Concatenate the neuron IDs.
             neuron_IDs_cell = { neuron_IDs_dmcpgsll, neuron_IDs_dc };
-%             neuron_IDs_cell = { cell2mat( neuron_IDs_dmcpgsll ), neuron_IDs_dc };
 
+        end
+        
+        
+        % Implemenet a function to create the neurons that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the double centered subtraction subnetwork.
+        function [ self, neuron_ID ] = create_dmcpgdcll2cds_neuron( self )
+
+            % Create the desired lead lag input neuron.
+            [ self, neuron_ID ] = self.create_neuron(  );
+            
+            % Set the name of this neuron.
+            self = self.set_neuron_property( neuron_ID, 'Desired Lead / Lag', 'name' );
+            
+        end
+        
+        
+        % Implement a function to create the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
+        function [ self, neuron_IDs_cell ] = create_ol_dmcpg_dclle_neurons( self, num_cpg_neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
+            % Create the neurons for a driven multistate cpg double centered lead lag subnetwork.
+            [ self, neuron_IDs_dmcpgdcll ] = self.create_dmcpg_dcll_neurons( num_cpg_neurons );
+        
+            % Create the neurons for a centered double subtraction subnetwork.
+            [ self, neuron_IDs_cds ] = self.create_centered_double_subtraction_neurons(  );
+            
+            % Create the neurons that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the double centered subtraction subnetwork.
+            [ self, neuron_IDs_dmcpgdcll2cds ] = self.create_dmcpgdcll2cds_neurons(  );
+            
+            % Concatenate the neuron IDs.
+            neuron_IDs_cell = { neuron_IDs_dmcpgdcll, neuron_IDs_cds, neuron_IDs_dmcpgdcll2cds };
+            
         end
         
         

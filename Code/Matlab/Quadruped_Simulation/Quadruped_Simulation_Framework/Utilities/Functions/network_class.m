@@ -1184,6 +1184,34 @@ classdef network_class
         end
         
         
+        % Implement a function to design the applied currents that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+        function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID )
+           
+            % Retrieve the necessary neuron properties.
+            Gm = cell2mat( self.neuron_manager.get_neuron_property( neuron_ID, 'Gm' ) );
+            R = cell2mat( self.neuron_manager.get_neuron_property( neuron_ID, 'R' ) );      
+            
+            % Design the centering subnetwork applied current.
+            self.applied_current_manager = self.applied_current_manager.design_dmcpgdcll2cds_applied_current( neuron_IDs, Gm, R );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for a driven multistate cpg double centered lead lag subnetwork.
+        function self = design_ol_dmcpg_dclle_applied_currents( self, neuron_IDs_cell )
+        
+            % Design the applied currents for the driven multistate cpg double centered lead lag subnetwork.
+            self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell{ 1 } );
+            
+            % Design the applied currents for the centered double subtraction subnetwork.
+            self = self.design_centered_double_subtraction_applied_currents( neuron_IDs_cell{ 2 } );
+            
+            % Design the desired lead lag applied current.
+            self = self.design_dmcpgdcll2cds_applied_current( neuron_IDs_cell{ 3 } );
+        
+        end
+        
+            
         % Implement a function to design the applied currents for a centering subnetwork.
         function self = design_centering_applied_currents( self, neuron_IDs )
             
@@ -1376,6 +1404,26 @@ classdef network_class
             
         end
         
+        
+        % Implement a function to design the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
+        function self = design_ol_dmcpg_dclle_neurons( self, neuron_IDs_cell, T, ki_mean, r )
+        
+            % Set the default input arguments.
+            if nargin < 5, r = self.r_OSCILLATION; end
+            if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 3, T = self.T_OSCILLATION; end
+        
+            % Design the neurons for the driven multiple cpg double centered lead lag subnetwork.
+            self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell{ 1 }, T, ki_mean, r );
+            
+            % Design the neurons for the centered double subtraction subnetwork.
+            self = self.design_centered_double_subtraction_neurons( neuron_IDs_cell{ 2 } );
+            
+            % Design the neurons for the transmission subnetwork neurons.
+            self = self.design_transmission_neurons( neuron_IDs_cell{ 3 } );
+            
+        end
+            
         
         % Implement a function to design the neurons for a transmission subnetwork.
         function self = design_transmission_neurons( self, neuron_IDs )
@@ -1691,6 +1739,52 @@ classdef network_class
             end
             
         end
+        
+        
+        % Implement a function to design the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork.
+        function self = design_ol_dmcpg_dclle_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod )
+         
+            % Set the default input arguments.
+            if nargin < 16, c_mod = self.C_MODULATION; end
+            if nargin < 15, k_add2 = self.K_ADDITION; end
+            if nargin < 14, k_add1 = self.K_ADDITION; end
+            if nargin < 13, k_sub5 = self.K_SUBTRACTION; end
+            if nargin < 12, k_sub4 = self.K_SUBTRACTION; end
+            if nargin < 11, k_sub3 = self.K_SUBTRACTION; end
+            if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 8, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 7, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 6, T = self.T_OSCILLATION; end
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            
+            % Design the driven multistate cpg double centered lead lag subnetwork synapses.
+            self = self.design_dmcpg_dcll_synapses( neuron_IDs_cell{ 1 }, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add1, c_mod );
+            
+            % Design the centered double subtraction subnetwork synapses.
+            self = self.design_centered_double_subtraction_synapses( neuron_IDs_cell{ 2 }, k_sub4, k_sub5, k_add2 );
+            
+            % Define the number of transmission synapses.
+            num_transmission_synapses = 2;
+            
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 2 }( end - 1 ) neuron_IDs_cell{ 3 } ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 2 ) ];
+            
+            % Design each of the transmission synapses.
+            for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
+               
+                % Design this transmission synapse.
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false );
+                
+            end
+            
+            
+        end
+        
+        
         
         
         % Implement a function to design the synapses for a transmission subnetwork.
@@ -2195,6 +2289,40 @@ classdef network_class
         end
             
         
+        % Implement a function to design an open loop driven multistate CPG double centered lead lag error subnetwork using existing neurons.
+        function self = design_ol_dmcpg_dclle_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r )
+            
+            % Set the default input arguments.
+            if nargin < 17, r = self.r_OSCILLATION; end
+            if nargin < 16, c_mod = self.C_MODULATION; end
+            if nargin < 15, k_add2 = self.K_ADDITION; end
+            if nargin < 14, k_add1 = self.K_ADDITION; end
+            if nargin < 13, k_sub5 = self.K_SUBTRACTION; end
+            if nargin < 12, k_sub4 = self.K_SUBTRACTION; end
+            if nargin < 11, k_sub3 = self.K_SUBTRACTION; end
+            if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 8, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 7, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 6, T = self.T_OSCILLATION; end
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            
+            % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+
+            % Design the open loop driven multistate cpg double centered lead lag error subnetwork neurons.
+            self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r );
+            
+            % Design the open loop driven multistate cpg double centered lead lag error subnetwork applied currents.
+            self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );
+            
+            % Design the open loop driven multistate cpg double centered lead lag error subnetwork synapses.
+            self = self.design_ol_dmcpg_dclle_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod );
+            
+        end
+                
+        
         % Implement a function to design a transmission subnetwork using existing neurons.
         function self = design_transmission_subnetwork( self, neuron_IDs, k )
         
@@ -2558,7 +2686,7 @@ classdef network_class
         end
         
         
-        %Implement a function to create the driven multistate cpg double centered lead lag subnetwork components.
+        % Implement a function to create the driven multistate cpg double centered lead lag subnetwork components.
         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_dcll_subnetwork_components( self, num_cpg_neurons )
             
             % Set the default input arguments.
@@ -2574,6 +2702,27 @@ classdef network_class
             [ self.applied_current_manager, applied_current_IDs_cell ] = self.applied_current_manager.create_dmcpg_dcll_applied_currents( neuron_IDs_cell );    
             
         end
+        
+        
+        % Implement a function to create the open loop driven multistate cpg double centered lead lag error subnetwork components.
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_ol_dmcpg_dclle_subnetwork_components( self, num_cpg_neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
+            % Create the open loop driven multistate cpg double centered lead lag error subnetwork neurons.
+            [ self.neuron_manager, neuron_IDs_cell ] = self.neuron_manager.create_ol_dmcpg_dclle_neurons( num_cpg_neurons );
+
+            % Create the open loop driven multistate cpg double centered lead lag error subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs_cell ] = self.synapse_manager.create_ol_dmcpg_dclle_synapses( neuron_IDs_cell );
+
+            % Create the open loop driven multistate cpg double centered lead lag error subnetwork applied currents.
+            [ self.applied_current_manager, applied_current_IDs_cell ] = self.applied_current_manager.create_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );    
+            
+        end
+        
+        
+        
         
         
         % Implement a function to create the transmission subnetwork components.
@@ -2882,6 +3031,37 @@ classdef network_class
             self = self.design_dmcpg_dcll_subnetwork( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r );
             
         end
+        
+        
+        % Implement a function to create an open loop driven multistate cpg double centered lead lag error subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_ol_dmcpg_dclle_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r )
+        
+            % Set the default input arguments.
+            if nargin < 17, r = self.r_OSCILLATION; end
+            if nargin < 16, c_mod = self.C_MODULATION; end
+            if nargin < 15, k_add2 = self.K_ADDITION; end
+            if nargin < 14, k_add1 = self.K_ADDITION; end
+            if nargin < 13, k_sub5 = self.K_SUBTRACTION; end
+            if nargin < 12, k_sub4 = self.K_SUBTRACTION; end
+            if nargin < 11, k_sub3 = self.K_SUBTRACTION; end
+            if nargin < 10, k_sub2 = self.K_SUBTRACTION; end
+            if nargin < 9, k_sub1 = 2*self.K_SUBTRACTION; end
+            if nargin < 8, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 7, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 6, T = self.T_OSCILLATION; end
+            if nargin < 5, I_drive_max = self.I_DRIVE_MAX; end
+            if nargin < 4, delta_bistable = self.DELTA_BISTABLE; end
+            if nargin < 3, delta_oscillatory = self.DELTA_OSCILLATORY; end
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
+            % Create the open loop driven multistate cpg double centered lead lag error subnetwork components.
+            [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_ol_dmcpg_dclle_subnetwork_components( num_cpg_neurons );
+            
+            % Design the open loop driven multistate cpg double centered lead lag error subnetwork.
+            self = self.design_ol_dmcpg_dclle_subnetwork( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r );
+            
+        end
+        
             
             
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).

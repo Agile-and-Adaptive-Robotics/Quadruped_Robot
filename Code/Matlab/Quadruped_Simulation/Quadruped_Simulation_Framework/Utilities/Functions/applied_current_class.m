@@ -155,6 +155,15 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute the applied current magnitude that connects the dmcpgdcll and cds subnetworks.
+        function I_apps = compute_dmcpgdcll2cds_Iapps( self, Gm, R )
+            
+           % Compute the magnitude of these applied currents.
+           I_apps = self.applied_current_utilities.compute_dmcpgdcll2cds_Iapps( Gm, R );
+            
+        end
+                
+        
         % Implement a function to compute the magnitude of centering subnetwork applied currents.
         function I_apps = compute_centering_Iapps( self, Gm, R )
             
@@ -264,6 +273,16 @@ classdef applied_current_class
             self.I_apps = self.compute_driven_multistate_cpg_Iapps( Gm, R );
             
         end
+       
+        
+        % Implement a function to compute and set the applied current magnitude that connects the dmcpgdcll and cds subnetworks.
+        function self = compute_set_dmcpgdcll2cds_Iapps( self, Gm, R )
+            
+           % Compute and set the magnitude of this applied current.
+            self.I_apps = self.compute_dmcpgdcll2cds_Iapps( Gm, R );
+            
+        end
+        
         
         
         % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
