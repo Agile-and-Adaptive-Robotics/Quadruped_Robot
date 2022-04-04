@@ -1811,6 +1811,48 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapses that close the open loop driven multistate cpg double centered lead lag error subnetwork using a proportional controller.
+        function [ self, synapse_IDs ] = create_oldmcpgdclle2dmcpg_synapses( self, neuron_IDs_cell )
+        
+            % Define the number of unique synapses.
+            num_unique_synapses = 2;
+            
+            % Create the unique synapses.
+            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            
+            % Define the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 2 }( end - 1 ) neuron_IDs_cell{ 2 }{ 2 }( end ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 1 }{ 2 }( end ) neuron_IDs_cell{ 1 }{ 1 }{ 1 }( end ) ];
+            
+            % Setup each of the synapses.
+            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+                
+                % Set the names of each of the unique synapses.
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+
+                % Connect the unique synapses.
+                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+                
+            end
+            
+        end
+        
+    
+        % Implement a function to create the synapses for an closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
+        function [ self, synapse_IDs_cell ] = create_clpc_dmcpg_dcll_synapses( self, neuron_IDs_cell )
+        
+            % Create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork synapses.
+            [ self, synapse_IDs_oldmcpgdclle ] = self.create_ol_dmcpg_dclle_synapses( neuron_IDs_cell );
+        
+            % Create the synapses that assist in closing the open loop driven multistate cpg double centered lead lag error subnetwork using a proportional controller.
+            [ self, synapse_IDs_oldmcpgdclle2dmcpg ] = self.create_oldmcpgdclle2dmcpg_synapses( neuron_IDs_cell );
+            
+            % Concatenate the synapse IDs.
+            synapse_IDs_cell = { synapse_IDs_oldmcpgdclle, synapse_IDs_oldmcpgdclle2dmcpg };
+        
+        end
+            
+        
         % Implement a function to create the synapses for a transmission subnetwork.
         function [ self, synapse_ID ] = create_transmission_synapses( self, neuron_IDs )
             

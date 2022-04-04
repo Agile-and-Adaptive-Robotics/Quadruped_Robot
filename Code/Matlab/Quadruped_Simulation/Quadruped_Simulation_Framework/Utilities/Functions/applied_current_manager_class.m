@@ -1378,6 +1378,14 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents for a closed loop P controlled driven multistate CPG double centered lead lag subnetwork.
+        function [ self, applied_current_IDs_cell ] = create_clpc_dmcpg_dcll_applied_currents( self, neuron_IDs_cell )
+            
+            % Create the applied currents for an open loop driven multistate CPG double centered lead lag error subnetwork.
+            [ self, applied_current_IDs_cell ] = self.create_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );
+            
+        end
+            
         
         % Implement a function to create the applied currents for a centering subnetwork.
         function [ self, applied_current_IDs ] = create_centering_applied_currents( self, neuron_IDs )

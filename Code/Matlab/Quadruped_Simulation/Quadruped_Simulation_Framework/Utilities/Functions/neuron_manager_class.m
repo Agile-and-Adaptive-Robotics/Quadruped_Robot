@@ -1618,6 +1618,18 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to create the neurons for an closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
+        function [ self, neuron_IDs_cell ] = create_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons )
+        
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.NUM_CPG_NEURONS; end
+            
+            % Create the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
+            [ self, neuron_IDs_cell ] = self.create_ol_dmcpg_dclle_neurons( num_cpg_neurons );
+            
+        end
+        
+        
         % Implement a function to create the neurons for a transmission subnetwork.
         function [ self, neuron_IDs ] = create_transmission_neurons( self )
                 

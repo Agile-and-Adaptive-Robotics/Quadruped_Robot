@@ -785,7 +785,7 @@ classdef applied_voltage_manager_class
         function self = disable_applied_voltages( self, applied_voltage_IDs )
             
             % Validate the applied voltage IDs.
-            applied_voltage_IDs = self.validate_synapse_IDs( applied_voltage_IDs );
+            applied_voltage_IDs = self.validate_applied_voltage_IDs( applied_voltage_IDs );
             
             % Determine the number of applied voltages to disable.
             num_applied_voltages_to_enable = length( applied_voltage_IDs );
