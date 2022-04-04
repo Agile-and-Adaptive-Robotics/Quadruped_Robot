@@ -1592,7 +1592,7 @@ classdef neuron_manager_class
             [ self, neuron_ID ] = self.create_neuron(  );
             
             % Set the name of this neuron.
-            self = self.set_neuron_property( neuron_ID, 'Desired Lead / Lag', 'name' );
+            self = self.set_neuron_property( neuron_ID, { 'Desired Lead / Lag' }, 'name' );
             
         end
         
@@ -1610,7 +1610,7 @@ classdef neuron_manager_class
             [ self, neuron_IDs_cds ] = self.create_centered_double_subtraction_neurons(  );
             
             % Create the neurons that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the double centered subtraction subnetwork.
-            [ self, neuron_IDs_dmcpgdcll2cds ] = self.create_dmcpgdcll2cds_neurons(  );
+            [ self, neuron_IDs_dmcpgdcll2cds ] = self.create_dmcpgdcll2cds_neuron(  );
             
             % Concatenate the neuron IDs.
             neuron_IDs_cell = { neuron_IDs_dmcpgdcll, neuron_IDs_cds, neuron_IDs_dmcpgdcll2cds };

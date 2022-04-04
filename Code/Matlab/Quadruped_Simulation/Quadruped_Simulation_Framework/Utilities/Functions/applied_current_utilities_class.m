@@ -61,7 +61,7 @@ classdef applied_current_utilities_class
         function I_apps = compute_dmcpgdcll2cds_Iapps( ~, Gm, R )
         
             % Compute the applied current magnitude.
-            I_apps = Gm.*R;
+            I_apps = ( Gm.*R )/2;
             
         end
                 

@@ -1352,7 +1352,7 @@ classdef applied_current_manager_class
             [ self, applied_current_ID ] = self.create_applied_current(  );
             
             % Set the name of the applied current.
-            self = self.set_applied_current_property( applied_current_ID, 'Desired Lead / Lag', 'name' );
+            self = self.set_applied_current_property( applied_current_ID, { 'Desired Lead / Lag' }, 'name' );
             
             % Attach this applied current to a neuron.
             self = self.set_applied_current_property( applied_current_ID, neuron_IDs_cell{ 3 }, 'neuron_ID' );

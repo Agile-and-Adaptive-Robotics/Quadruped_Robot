@@ -58,8 +58,8 @@ r = 0.5;
 %% Setup the Drive Currents.
 
 % Retrieve the drive current IDs.
-applied_current_ID_drive1 = applied_current_IDs_cell{ 1 }{ 1 }( end );
-applied_current_ID_drive2 = applied_current_IDs_cell{ 1 }{ 2 }( end );
+applied_current_ID_drive1 = applied_current_IDs_cell{ 1 }{ 1 }{ 1 }( end );
+applied_current_ID_drive2 = applied_current_IDs_cell{ 1 }{ 1 }{ 2 }( end );
 
 % Define the drive current time vector.
 ts = ( 0:network.dt:network.tf )';
@@ -110,7 +110,7 @@ V_apps2( 1 ) = { 0 };
 
 % Create the applied voltages.
 [ network.applied_voltage_manager, applied_voltage_IDs_CPG ] = network.applied_voltage_manager.create_applied_voltages( 2*num_cpg_neurons );
-network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, [ neuron_IDs_cell{ 1 }{ 1 }( 1:4 ) neuron_IDs_cell{ 1 }{ 2 }( 1:4 ) ], 'neuron_ID' );
+network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, [ neuron_IDs_cell{ 1 }{ 1 }{ 1 }( 1:4 ) neuron_IDs_cell{ 1 }{ 1 }{ 2 }( 1:4 ) ], 'neuron_ID' );
 network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG, { ts }, 'ts' );
 network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG( 1:4 ), { V_apps1 }, 'V_apps' );
 network.applied_voltage_manager = network.applied_voltage_manager.set_applied_voltage_property( applied_voltage_IDs_CPG( 5:8 ), { V_apps2 }, 'V_apps' );
@@ -191,8 +191,11 @@ fig_network_states = network.network_utilities.plot_network_states( ts, Us( 67:7
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 72:74, : ), hs( 72:74, : ), neuron_IDs( 72:74 ) ); fig_network_states.Name = 'Modulated Int 4';
 
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 75:78, : ), hs( 75:78, : ), neuron_IDs( 75:78 ) ); fig_network_states.Name = 'Split Lead / Lag';
-
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 79:85, : ), hs( 79:85, : ), neuron_IDs( 79:85 ) ); fig_network_states.Name = 'Centered Lead / Lag';
+
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 86:89, : ), hs( 86:89, : ), neuron_IDs( 86:89 ) ); fig_network_states.Name = 'Split Lead / Lag Error';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 90:96, : ), hs( 90:96, : ), neuron_IDs( 90:96 ) ); fig_network_states.Name = 'Centered Lead / Lag Error';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 97, : ), hs( 97, : ), neuron_IDs( 97 ) ); fig_network_states.Name = 'Desired Lead / Lag';
 
 
 % % Animate the network states over time.

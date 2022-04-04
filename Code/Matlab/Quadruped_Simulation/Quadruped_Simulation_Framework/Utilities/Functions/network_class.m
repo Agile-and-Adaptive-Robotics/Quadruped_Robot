@@ -1192,7 +1192,7 @@ classdef network_class
             R = cell2mat( self.neuron_manager.get_neuron_property( neuron_ID, 'R' ) );      
             
             % Design the centering subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_dmcpgdcll2cds_applied_current( neuron_IDs, Gm, R );
+            self.applied_current_manager = self.applied_current_manager.design_dmcpgdcll2cds_applied_current( neuron_ID, Gm, R );
             
         end
         
@@ -1771,7 +1771,7 @@ classdef network_class
             
             % Define the from and to neuron IDs.
             from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 2 }( end - 1 ) neuron_IDs_cell{ 3 } ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 2 ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 1 }( 1 ) neuron_IDs_cell{ 2 }{ 1 }( 2 ) ];
             
             % Design each of the transmission synapses.
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...

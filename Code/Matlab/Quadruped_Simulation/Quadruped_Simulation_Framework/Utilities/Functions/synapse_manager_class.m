@@ -1777,7 +1777,7 @@ classdef synapse_manager_class
             
             % Define the from and to neuron IDs.
             from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 2 }( end - 1 ) neuron_IDs_cell{ 3 } ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 2 ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 1 }( 1 ) neuron_IDs_cell{ 2 }{ 1 }( 2 ) ];
             
             % Setup each of the synapses.
             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
