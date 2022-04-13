@@ -10,25 +10,33 @@ classdef joint_class
         
         ID
         name
+        
         parent_link_ID
         child_link_ID
+        
         p
         R
+        
         v
         w
         v_screw
         w_screw
+        
         S
         M
         T
+        
         theta
         theta_domain
         orientation
         torque
         
+        data_validation_policy
+        
         conversion_manager
         
     end
+    
     
     %% JOINT METHODS SETUP
     
@@ -36,12 +44,13 @@ classdef joint_class
     methods
         
         % Implement the class constructor.
-        function self = joint_class( ID, name, parent_link_ID, child_link_ID, p, R, v, w, w_screw, theta, theta_domain, orientation, torque )
+        function self = joint_class( ID, name, parent_link_ID, child_link_ID, p, R, v, w, w_screw, theta, theta_domain, orientation, torque, data_validation_policy )
 
             % Create an instance of the conversion manager class.
             self.conversion_manager = conversion_manager_class(  );
             
             % Set the default class properties.
+            if nargin < 14, self.data_validation_policy = 'saturate'; else, self.data_validation_policy = data_validation_policy; end
             if nargin < 13, self.torque = 0; else, self.torque = torque; end
             if nargin < 12, self.orientation = 'Ext'; else, self.orientation = orientation; end
             if nargin < 11, self.theta_domain = [ 0; 2*pi ]; else, self.theta_domain = theta_domain; end
@@ -80,7 +89,7 @@ classdef joint_class
             if nargin < 2, limit_type = 'Ext'; end
             
             % Ensure that the limit type is valid before proceeding.
-            if strcmp( limit_type, 'Ext' ) || strcmp( limit_type, 'ext' ) || strcmp( limit_type, 'Flx' ) || strcmp( limit_type, 'flx' )         % If the joint orientation is recognized...
+            if strcmpi( limit_type, 'Ext' ) || strcmpi( limit_type, 'Flx' )         % If the joint orientation is recognized...
                 
                 % Determine the joint limit index.
                 if strcmp( limit_type, self.orientation )                   % If the joint limit type matches the joint orientation...
@@ -96,15 +105,102 @@ classdef joint_class
                 end
                 
                 % Retrieve the joint limit.
-                joint_limit = self.theta_domain(joint_limit_index);
+                joint_limit = self.theta_domain( joint_limit_index );
                 
             else                                % Otherwise...
                 
                 % Throw an error.
-                error('Joint limit type %s not recognized.  Possible limit types: Ext, ext, Flx, flx', limit_type)
+                error( 'Joint limit type %s not recognized.  Possible limit types: Ext, ext, Flx, flx', limit_type )
                 
             end
             
+        end
+        
+        
+        %% Data Validation Functions
+        
+        % Implement a function to saturate a joint angle.
+        function joint_angle = saturate_joint_angle( self, joint_angle, bVerbose )
+            
+            % Set the default input arguments.
+            if nargin < 3, bVerbose = false; end
+            
+            % Determine how to saturate the joint angle.
+            if joint_angle < self.theta_domain(1)                            % If the joint angle is less than the lower bound...
+                
+                % Determine whether to throw a warning.
+                if bVerbose, warning('Joint angle %0.2f [deg] is below the minimum joint angle of %0.2f [deg].  Setting joint angle to %0.2f [deg].', self.conversion_manager.rad2deg( joint_angle ), self.conversion_manager.rad2deg( self.theta_domain(1) ), self.conversion_manager.rad2deg( self.theta_domain(1) ) ); end
+                
+                % Set the joint angle to be the lower bound.
+                joint_angle = self.theta_domain(1);
+                
+            elseif joint_angle > self.theta_domain(2)        % If the joint angle is greater than the upper bound...
+                
+                % Determine whether to throw a warning.
+                if bVerbose, warning('Joint angle %0.2f [deg] is above the maximum joint angle of %0.2f [deg].  Setting joint angle to %0.2f [deg].', self.conversion_manager.rad2deg( joint_angle ), self.conversion_manager.rad2deg( self.theta_domain(2) ), self.conversion_manager.rad2deg( self.theta_domain(2) ) ); end
+                
+                % Set the joint angle to be the upper bound.
+                joint_angle = self.theta_domain(2);
+                
+            end
+        
+        end
+        
+        
+        % Implement a function to error check a joint angle.
+        function error_check_joint_angle( self, joint_angle )
+            
+            % Validate the given joint angle.
+            if ( joint_angle < self.theta_domain(1) ) || ( joint_angle > self.theta_domain(2) )                 % Ensure that the given pressure is in bounds...
+            
+                % Throw an error.
+                error( 'Joint angle %0.2f [deg] is out of bounds.  Joint angle must be in the domain [%0.2f, %0.2f] [deg].', self.conversion_manager.rad2deg( joint_angle ), self.conversion_manager.rad2deg( self.theta_domain(1) ), self.conversion_manager.rad2deg( self.theta_domain(2) ) )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to validate an angle.
+        function angle = validate_angle( self, angle, bVerbose )
+        
+           % Set the default verbosity.
+            if nargin < 2, bVerbose = false; end
+            
+            % Determine how to validate the joint angle.
+            if strcmpi( self.data_validation_policy, 'error' )                      % If the data validation policy is set to 'error'...
+                
+                % Error check the joint angle.
+                self.error_check_joint_angle( angle )
+                
+            elseif strcmpi( self.data_validation_policy, 'saturate' )               % If the data validation policy is set to 'saturate'...
+                
+                % Saturate the joint angle.
+                angle = self.saturate_joint_angle( angle, bVerbose );
+                
+            elseif strcmpi( self.data_validation_policy, 'none' )                   % If the data validation policy is set to 'none'...
+                
+                % Do nothing.
+                
+            else                                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'data_validation_policy %s not recognized.  data_validation_policy must be either: ''error'', ''saturate'', or ''none''.', self.data_validation_policy )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to validate the joint angle.
+        function self = validate_joint_angle( self, bVerbose )
+
+           % Set the default verbosity.
+            if nargin < 2, bVerbose = false; end
+            
+            % Validate the current joint angle.
+            self.theta = self.validate_angle( self.theta, bVerbose );
+
         end
         
         

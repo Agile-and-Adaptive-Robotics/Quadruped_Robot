@@ -82,25 +82,43 @@ classdef limb_class
             else                                            % Otherwise...
                 
                 % Set the end effector variables to be empty.
-                self.p_end_effector = [];
-                self.R_end_effector = [];
-                self.M_end_effector = [];
-                self.T_end_effector = [];
-                self.J_end_effector = [];
+                self.p_end_effector = [  ];
+                self.R_end_effector = [  ];
+                self.M_end_effector = [  ];
+                self.T_end_effector = [  ];
+                self.J_end_effector = [  ];
                 
             end
             
         end
         
         
-        % Implement a function to set the joint angles of this limb.
-        function self = set_joint_angles( self, thetas )
-            
-            % Set the joint angles.
-            self.joint_manager = self.joint_manager.set_joint_property( 'all', thetas, 'theta' );
+        % Implement a function to get the joint angles of this limb.
+        function joint_angles = get_joint_angles( self, joint_IDs, joint_angles )
+        
+            % Retrieve the joint angles associated with these joint IDs.
+            joint_angles = self.joint_manager.get_joint_angles( joint_IDs, joint_angles );
             
         end
-          
+        
+        
+        % Implement a function to get all of the joint angles.
+        function joint_angles = get_all_joint_angles( self, joint_angles )
+        
+            % Retrieve the joint angles associated with these joint IDs.
+            joint_angles = self.joint_manager.get_joint_angles( 'all', joint_angles );
+            
+        end        
+        
+        
+        % Implement a function to set the joint angles of this limb.
+        function self = set_joint_angles( self, joint_IDs, joint_angles )
+            
+            % Set the joint angles.
+            self.joint_manager = self.joint_manager.set_joint_angles( joint_IDs, joint_angles );
+
+        end
+        
         
         % Implement a function to set the tendon lengths of the BPA muscles on this limb.
         function self = set_tendon_lengths( self )
@@ -141,8 +159,9 @@ classdef limb_class
                     self = self.joint_angles2BPA_muscle_configurations(  );
                     
                     % Compute the BPA muscle total muscle-tendon lengths in this configuration.
-                    self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
-                    
+%                     self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
+                    self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2total_muscle_tendon_length' );
+
                     % Retrieve the BPA muscle lengths associated with this limb in this configuration.
                     total_muscle_tendon_lengths = cell2mat( self.BPA_muscle_manager.get_muscle_property( 'all', 'total_muscle_tendon_length' ) );
                     
@@ -150,13 +169,14 @@ classdef limb_class
                     tendon_lengths = total_muscle_tendon_lengths - resting_muscle_lengths;
                     
                     % Retrieve the muscle indexes.
-                    muscle_indexes = strcmp( muscle_types, joint_orientations{k} );
-                    
+%                     muscle_indexes = strcmp( muscle_types, joint_orientations{k} );
+                    muscle_indexes = ~strcmp( muscle_types, joint_orientations{k} );
+
                     % Retrieve the muscle IDs to set.
-                    muscle_IDs_to_set = muscle_IDs(muscle_indexes);
+                    muscle_IDs_to_set = muscle_IDs( muscle_indexes );
                     
                     % Retrieve the tendon lengths to set.
-                    tendon_lengths_to_set = tendon_lengths(muscle_indexes);
+                    tendon_lengths_to_set = tendon_lengths( muscle_indexes );
                     
                     % Store these tendon lengths for each muscle that matches the current joint orientation.
                     self.BPA_muscle_manager = self.BPA_muscle_manager.set_BPA_muscle_property( muscle_IDs_to_set, tendon_lengths_to_set, 'tendon_length' );
@@ -169,9 +189,10 @@ classdef limb_class
                 % Return this BPA muscles to their original configuration.
                 self = self.joint_angles2BPA_muscle_configurations(  );
 
-                % Compute the BPA muscle lengths in this configuration.
-                self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
-                
+                % Compute the BPA total muscle tendon lengths in this configuration.
+%                 self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2muscle_length' );
+                self.BPA_muscle_manager = self.BPA_muscle_manager.call_muscle_method( 'all', 'ps2total_muscle_tendon_length' );
+
             end
             
         end
@@ -219,7 +240,6 @@ classdef limb_class
                 % Throw an error stating that we must have two muscles per joint.
                 warning( 'This limb has %0.0f joints and %0.0f muscles, while the current algorithm assumes that there are two muscles per joint.\n', num_joints, num_muscles )
 
-                
             end
             
             % Compute the force required in each muscle.
@@ -244,8 +264,9 @@ classdef limb_class
                     BPA_muscle_index = self.BPA_muscle_manager.get_muscle_index( BPA_muscle_IDs(k2) );
                     
                     % Compute the position of the second to last muscle attachment point with respect to the last muscle attachment point.
-                    p = self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).ps( :, end ) - self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).ps( :, end - 1 );
-                    
+%                     p = self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).ps( :, end ) - self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).ps( :, end - 1 );
+                    p = self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).ps( :, end - 1 ) - self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).ps( :, end );
+
                     % Compute the line of action of the force generated by this muscle.
                     Fhat = p/norm( p, 2 );
                     
@@ -256,7 +277,13 @@ classdef limb_class
                     F = self.BPA_muscle_manager.BPA_muscles( BPA_muscle_index ).desired_tension;
                     
                     % Compute the moment about this joint generated by this muscle.
-                    joint_torque = joint_torque + norm( cross( r, F*Fhat ), 2 );
+                    M = cross( r, F*Fhat );
+                    
+                    % Convert this moment vector to a joint torque.
+                    joint_torque_this_muscle = sign( dot( self.joint_manager.joints(k1).w_screw, M ) )*norm( M, 2 );
+                    
+                    % Compute the total joint torque generated by the muscles we have analyzed so far.
+                    joint_torque = joint_torque + joint_torque_this_muscle;
                     
                 end
                 
@@ -269,9 +296,10 @@ classdef limb_class
         
         
         % Implement a function to compute the next joint angles of this limb if the current joint torques are maintained for a single time step. ( Forward Dynamics: Joint Torque -> Joint Angle )
-        function self = joint_torques2joint_angles( self, dt, g, dyn_int_steps )
+        function self = joint_torques2joint_angles( self, dt, g, dyn_int_steps, bVerbose )
 
             % Define the default input arguments.
+            if nargin < 5, bVerbose = false; end
             if nargin < 4, dyn_int_steps = 10; end
             if nargin < 3, g = [ 0; -9.81; 0 ]; end
             
@@ -301,6 +329,9 @@ classdef limb_class
             
             % Compute the joint angles and velocities generated by these joint torques.
             [ thetas, dthetas ] = self.physics_manager.forward_dynamics( theta0, dtheta0, taus, g, Ftipmat, Mcms, Mend, Gs, Ss, dt, dyn_int_steps );
+            
+            % Validate the forward dynamics results.
+            [ thetas, dthetas ] = self.validate_forward_dynamics( theta0, thetas, dthetas, dt, bVerbose );
             
             % Set the joint angles.
             self.joint_manager = self.joint_manager.set_joint_angles( 'all', thetas );
@@ -348,6 +379,33 @@ classdef limb_class
             self.joint_manager = self.joint_manager.set_joint_torques( 'all', taus );
             
         end
+        
+        
+        %% Validation Functions
+        
+        % Implement a function to validate the forward dynamics results.
+        function [ thetas_valid, dthetas_valid ] = validate_forward_dynamics( self, theta0, thetas, dthetas, dt, bVerbose )
+            
+            % Set the default verbosity.
+            if nargin < 6, bVerbose = false; end
+            
+            % Validate the joint angles.
+            thetas_valid = self.joint_manager.validate_angles( 'all', thetas, bVerbose );
+            
+            % Determine whether the valid thetas are different from the proposed thetas.
+            if ~isequal( thetas, thetas_valid )                                             % If the proposed thetas are not the same as the validate thetas...
+                
+                % Compute the valid joint velocities.
+                dthetas_valid = ( thetas_valid - theta0 )/dt;
+                
+            else                                                                            % Otherwise...
+                
+                % Set the valid joint velocities to be the proposed joint velocities.
+                dthetas_valid = dthetas;
+            end
+            
+        end
+        
         
         
         %% Configuration Functions

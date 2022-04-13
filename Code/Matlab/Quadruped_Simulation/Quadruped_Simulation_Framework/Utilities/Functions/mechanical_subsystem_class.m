@@ -22,7 +22,7 @@ classdef mechanical_subsystem_class
         function self = mechanical_subsystem_class( body, limb_manager, g, dyn_int_steps )
 
             % Set the default mechanical subsystem properties.
-            if nargin < 4, self.dyn_int_steps; else, self.dyn_int_steps = dyn_int_steps; end
+            if nargin < 4, self.dyn_int_steps = 10; else, self.dyn_int_steps = dyn_int_steps; end
             if nargin < 3, self.g = [ 0; -9.81; 0 ]; else, self.g = g; end
             if nargin < 2, self.limb_manager = limb_manager_class(  ); else, self.limb_manager = limb_manager; end
             if nargin < 1, self.body = body_class(  ); else, self.body = body; end

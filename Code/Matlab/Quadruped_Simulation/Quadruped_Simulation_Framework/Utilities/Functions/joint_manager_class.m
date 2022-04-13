@@ -245,7 +245,7 @@ classdef joint_manager_class
             % Initialize the joint index.
             joint_index = 0;
             
-            while (joint_index < self.num_joints) && (~bMatchFound)
+            while ( joint_index < self.num_joints ) && ( ~bMatchFound )
                 
                 % Advance the joint index.
                 joint_index = joint_index + 1;
@@ -264,8 +264,31 @@ classdef joint_manager_class
             if ~bMatchFound                     % If a match was not found...
                 
                 % Throw an error.
-                error('No joint with ID %0.0f.', joint_ID)
+                error( 'No joint with ID %0.0f.', joint_ID )
                 
+            end
+            
+        end
+        
+        
+        % Implement a function to get all of the joint indexes associated with a joint ID.
+        function joint_indexes = get_joint_indexes( self, joint_IDs )
+        
+            % Validate the joint IDs.
+            joint_IDs = self.validate_joint_IDs( joint_IDs );
+            
+            % Retrieve the number of joint IDs.
+            num_joint_IDs = length( joint_IDs );
+            
+            % Preallocate a variable to store the joint indexes.
+            joint_indexes = zeros( 1, num_joint_IDs );
+            
+            % Retrieve the joint index associated with each joint ID.
+            for k = 1:num_joint_IDs                                             % Iterate through each of the joint IDs.
+            
+                % Retrieve the joint index associated with this joint ID.
+                joint_indexes(k) = self.get_joint_index( joint_IDs(k) );
+            
             end
             
         end
@@ -278,7 +301,7 @@ classdef joint_manager_class
             if isa( joint_IDs, 'char' )                                                      % If the joint IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmp( joint_IDs, 'all' ) || strcmp( joint_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
+                if  strcmpi( joint_IDs, 'all' )                  % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the joint IDs.
                     joint_IDs = zeros( 1, self.num_joints );
@@ -312,7 +335,7 @@ classdef joint_manager_class
             joint_IDs = self.validate_joint_IDs( joint_IDs );
             
             % Determine how many joints to which we are going to apply the given method.
-            num_properties_to_get = length(joint_IDs);
+            num_properties_to_get = length( joint_IDs );
             
             % Preallocate a variable to store the joint properties.
 %             xs = zeros( 1, num_properties_to_get );
@@ -582,6 +605,60 @@ classdef joint_manager_class
                 
                 % Evaluate the given muscle method.
                 eval(eval_str);
+                
+            end
+            
+        end
+        
+        
+        %% Joint Manager Validation Functions
+        
+        % Implement a function to validate proposed joint angles.
+        function angles = validate_angles( self, joint_IDs, angles, bVerbose )
+            
+           % Set the default verbosity.
+            if nargin < 3, bVerbose = false; end
+            
+            % Validate the joint IDs.
+            joint_IDs = self.validate_joint_IDs( joint_IDs );
+            
+            % Retrieve the number of joint IDs.
+            num_joint_IDs = length( joint_IDs );
+            
+            % Retrieve the joint indexes.
+            joint_indexes = self.get_joint_indexes( joint_IDs );
+            
+            % Validate the angle of each of the specified joints.
+            for k = 1:num_joint_IDs                             % Iterate through each of the specified joints...
+               
+                % Validate the angle of this joint.
+                angles(k) = self.joints( joint_indexes(k) ).validate_angle( angles(k), bVerbose );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to validate the joint angles.
+        function self = validate_joint_angles( self, joint_IDs, bVerbose )
+            
+           % Set the default verbosity.
+            if nargin < 2, bVerbose = false; end
+            
+            % Validate the joint IDs.
+            joint_IDs = self.validate_joint_IDs( joint_IDs );
+            
+            % Retrieve the number of joint IDs.
+            num_joint_IDs = length( joint_IDs );
+            
+            % Retrieve the joint indexes.
+            joint_indexes = self.get_joint_indexes( joint_IDs );
+            
+            % Validate the angle of each of the specified joints.
+            for k = 1:num_joint_IDs                             % Iterate through each of the specified joints...
+               
+                % Validate the angle of this joint.
+                self.joints( joint_indexes(k) ).validate_joint_angle( bVerbose );
                 
             end
             

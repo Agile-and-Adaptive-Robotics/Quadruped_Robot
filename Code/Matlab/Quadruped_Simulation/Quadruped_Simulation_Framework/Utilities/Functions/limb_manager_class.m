@@ -1052,6 +1052,36 @@ classdef limb_manager_class
         end
         
         
+        % Implement a function to retrieve the muscle strains from all of the BPA muscles.
+        function BPA_muscle_strains = get_muscle_strain_from_all_BPA_muscles( self )
+           
+            % Retrieve the total number of BPA muscles.
+            num_BPA_muscles = self.get_number_of_BPA_muscles(  );
+            
+            % Preallocate an array to store the BPA muscle property values.
+            BPA_muscle_strains = zeros( 1, num_BPA_muscles );
+            
+            % Initialize an indexing variable.
+            index = 1;
+            
+            % Retrieve the BPA muscle properties from each limb.
+            for k = 1:self.num_limbs                % Iterate through each limb...
+                
+                % Retrieve the number of BPA muscles on this limb.
+                num_BPA_muscles_on_limb = self.limbs(k).BPA_muscle_manager.num_BPA_muscles;
+                
+                % Retrieve the BPA muscle properties from this limb.
+                BPA_muscle_strains( index:(index + num_BPA_muscles_on_limb - 1) ) = self.limbs(k).BPA_muscle_manager.get_BPA_muscle_strains( 'all' );
+                
+                % Advance the index variable.
+                index = index + num_BPA_muscles_on_limb;
+                
+            end
+            
+        end
+        
+        
+        
         % Implement a function to get the desired pressures from the specified BPA muscles.
         function BPA_muscle_desired_tensions = get_BPA_muscle_desired_tensions( self, BPA_muscle_IDs )
             
@@ -1676,8 +1706,14 @@ classdef limb_manager_class
         % Implement a function to update BPA muscle measured tension, BPA muscle length, & BPA muscle strain.
         function self = update_BPA_muscle_properties( self )
                
-            % Compute the BPA muscle measured tension associated with the BPA muscle measured pressure. ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension )
-            self = self.call_BPA_muscle_method( 'all', 'measured_pressure2measured_tension' );
+%             % Compute the BPA muscle measured tension associated with the BPA muscle measured pressure. ( BPA Muscle Measured Pressure -> BPA Muscle Measured Tension )
+%             self = self.call_BPA_muscle_method( 'all', 'measured_pressure2measured_tension' );
+% 
+%             % Compute the BPA muscle strain equilibrium associated with the BPA muscle measured pressured. ( BPA Muscle Measured Pressure -> BPA Muscle Strain Equilibrium )
+%             self = self.call_BPA_muscle_method( 'all', 'measured_pressure2equilibrium_strain' );
+%             
+%             % Compute the BPA muscle equilibrium length associated with the BPA muscle measured pressure. ( BPA Muscle Strain Equilibrium -> BPA Muscle Equilibrium Length )
+%             self = self.call_BPA_muscle_method( 'all', 'equilibrium_strain2equilibrium_length' );
 
             % Compute the BPA muscle length associated with the joint angles. ( BPA Muscle Attachment Positions -> BPA Muscle Length )
             self = self.call_BPA_muscle_method( 'all', 'ps2muscle_length' );
@@ -1845,16 +1881,16 @@ classdef limb_manager_class
             % Compute the joint angles associated with the current joint torques. ( Joint Torques -> Joint Angles )
             self = self.joint_torques2joint_angles( dt, g, dyn_int_steps );
 
-            % Set the BPA muscle measured pressure to be the same as the BPA muscle desired pressure.
+            % Set the BPA muscle measured pressure to be the same as the BPA muscle desired pressure.  ( BPA Desired Pressures -> BPA Measured Pressures )
             self = self.desired_pressures2measured_pressures( 'all' );
             
-            % Compute the BPA muscle equilibrium strain (Type I) associated with the BPA muscle measured pressure.
+            % Compute the BPA muscle equilibrium strain (Type I) associated with the BPA muscle measured pressure.  ( BPA Measured Pressures -> BPA Muscle Strain Equilibrium (Type I) )
             self = self.get_BPA_muscle_strain_equilibrium( 'all' );
             
-            % Compute the BPA muscle equilibrium length associated with the BPA muscle equilibrium strain (Type I).
+            % Compute the BPA muscle equilibrium length associated with the BPA muscle equilibrium strain (Type I).  ( BPA Muscle Strain Equilibrium (Type I) -> BPA Muscle Equilibrium Length )
             self = self.equilibrium_strain2equilibrium_length( 'all' ); 
 
-            % Set the BPA muscle measured tension to be the same as the BPA muscle desired tension.
+            % Set the BPA muscle measured tension to be the same as the BPA muscle desired tension.  ( BPA Muscle Desired Tensions -> BPA Muscle Measured Tensions )
             self = self.desired_tensions2measured_tensions( 'all' );
             
         end

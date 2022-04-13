@@ -131,7 +131,7 @@ classdef BPA_muscle_manager_class
             if isa( BPA_muscle_IDs, 'char' )                                                      % If the muscle IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmp( BPA_muscle_IDs, 'all' ) || strcmp( BPA_muscle_IDs, 'All' )                  % If the character array is either 'all' or 'All'...
+                if  strcmpi( BPA_muscle_IDs, 'all' )                  % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the muscle IDs.
                     BPA_muscle_IDs = zeros( 1, self.num_BPA_muscles );
@@ -738,7 +738,7 @@ classdef BPA_muscle_manager_class
                 if muscle_index ~= -1                   % If a valid BPA muscle index was found...
                     
                     % Compute the BPA muscle equilibrium strain associated with the current BPA muscle measured pressure.
-                    self.BPA_muscles(muscle_index) = self.BPA_muscles(muscle_index).get_BPA_muscle_strain_equilibrium(  );
+                    self.BPA_muscles(muscle_index) = self.BPA_muscles(muscle_index).measured_pressure2equilibrium_strain(  );
                     
                 end
                 

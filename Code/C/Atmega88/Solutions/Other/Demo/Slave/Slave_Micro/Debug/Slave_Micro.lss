@@ -1,0 +1,342 @@
+
+Slave_Micro.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         0000001a  00800100  00000152  000001e6  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00000152  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          00000006  0080011a  0080011a  00000200  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000200  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000230  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000118  00000000  00000000  0000026c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00001500  00000000  00000000  00000384  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000b82  00000000  00000000  00001884  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   000007fe  00000000  00000000  00002406  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  000002a8  00000000  00000000  00002c04  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000792  00000000  00000000  00002eac  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00000951  00000000  00000000  0000363e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 000000d8  00000000  00000000  00003f8f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	19 c0       	rjmp	.+50     	; 0x34 <__ctors_end>
+   2:	33 c0       	rjmp	.+102    	; 0x6a <__bad_interrupt>
+   4:	32 c0       	rjmp	.+100    	; 0x6a <__bad_interrupt>
+   6:	31 c0       	rjmp	.+98     	; 0x6a <__bad_interrupt>
+   8:	30 c0       	rjmp	.+96     	; 0x6a <__bad_interrupt>
+   a:	2f c0       	rjmp	.+94     	; 0x6a <__bad_interrupt>
+   c:	2e c0       	rjmp	.+92     	; 0x6a <__bad_interrupt>
+   e:	2d c0       	rjmp	.+90     	; 0x6a <__bad_interrupt>
+  10:	2c c0       	rjmp	.+88     	; 0x6a <__bad_interrupt>
+  12:	2b c0       	rjmp	.+86     	; 0x6a <__bad_interrupt>
+  14:	2a c0       	rjmp	.+84     	; 0x6a <__bad_interrupt>
+  16:	71 c0       	rjmp	.+226    	; 0xfa <__vector_11>
+  18:	28 c0       	rjmp	.+80     	; 0x6a <__bad_interrupt>
+  1a:	27 c0       	rjmp	.+78     	; 0x6a <__bad_interrupt>
+  1c:	26 c0       	rjmp	.+76     	; 0x6a <__bad_interrupt>
+  1e:	25 c0       	rjmp	.+74     	; 0x6a <__bad_interrupt>
+  20:	24 c0       	rjmp	.+72     	; 0x6a <__bad_interrupt>
+  22:	23 c0       	rjmp	.+70     	; 0x6a <__bad_interrupt>
+  24:	22 c0       	rjmp	.+68     	; 0x6a <__bad_interrupt>
+  26:	21 c0       	rjmp	.+66     	; 0x6a <__bad_interrupt>
+  28:	20 c0       	rjmp	.+64     	; 0x6a <__bad_interrupt>
+  2a:	1f c0       	rjmp	.+62     	; 0x6a <__bad_interrupt>
+  2c:	1e c0       	rjmp	.+60     	; 0x6a <__bad_interrupt>
+  2e:	1d c0       	rjmp	.+58     	; 0x6a <__bad_interrupt>
+  30:	1c c0       	rjmp	.+56     	; 0x6a <__bad_interrupt>
+  32:	1b c0       	rjmp	.+54     	; 0x6a <__bad_interrupt>
+
+00000034 <__ctors_end>:
+  34:	11 24       	eor	r1, r1
+  36:	1f be       	out	0x3f, r1	; 63
+  38:	cf ef       	ldi	r28, 0xFF	; 255
+  3a:	d4 e0       	ldi	r29, 0x04	; 4
+  3c:	de bf       	out	0x3e, r29	; 62
+  3e:	cd bf       	out	0x3d, r28	; 61
+
+00000040 <__do_copy_data>:
+  40:	11 e0       	ldi	r17, 0x01	; 1
+  42:	a0 e0       	ldi	r26, 0x00	; 0
+  44:	b1 e0       	ldi	r27, 0x01	; 1
+  46:	e2 e5       	ldi	r30, 0x52	; 82
+  48:	f1 e0       	ldi	r31, 0x01	; 1
+  4a:	02 c0       	rjmp	.+4      	; 0x50 <__do_copy_data+0x10>
+  4c:	05 90       	lpm	r0, Z+
+  4e:	0d 92       	st	X+, r0
+  50:	aa 31       	cpi	r26, 0x1A	; 26
+  52:	b1 07       	cpc	r27, r17
+  54:	d9 f7       	brne	.-10     	; 0x4c <__do_copy_data+0xc>
+
+00000056 <__do_clear_bss>:
+  56:	21 e0       	ldi	r18, 0x01	; 1
+  58:	aa e1       	ldi	r26, 0x1A	; 26
+  5a:	b1 e0       	ldi	r27, 0x01	; 1
+  5c:	01 c0       	rjmp	.+2      	; 0x60 <.do_clear_bss_start>
+
+0000005e <.do_clear_bss_loop>:
+  5e:	1d 92       	st	X+, r1
+
+00000060 <.do_clear_bss_start>:
+  60:	a0 32       	cpi	r26, 0x20	; 32
+  62:	b2 07       	cpc	r27, r18
+  64:	e1 f7       	brne	.-8      	; 0x5e <.do_clear_bss_loop>
+  66:	40 d0       	rcall	.+128    	; 0xe8 <main>
+  68:	72 c0       	rjmp	.+228    	; 0x14e <_exit>
+
+0000006a <__bad_interrupt>:
+  6a:	ca cf       	rjmp	.-108    	; 0x0 <__vectors>
+
+0000006c <setup_pins>:
+	
+	// Set which pins contribute to the pin change interrupt.
+	PCMSK2 |= ( (1 << PCINT21) |(1 << PCINT22) | (1 << PCINT23) );					// Pins PD5 = PCINT21, Pins PD6 = PCINT22, and PD7 = PCINT23 contribute to the pin change interrupt.
+	
+	// Enable the pin change interrupts.
+	PCICR |= (1 << PCIE2);
+  6c:	83 e1       	ldi	r24, 0x13	; 19
+  6e:	84 b9       	out	0x04, r24	; 4
+  70:	17 b8       	out	0x07, r1	; 7
+  72:	8e e3       	ldi	r24, 0x3E	; 62
+  74:	8a b9       	out	0x0a, r24	; 10
+  76:	28 98       	cbi	0x05, 0	; 5
+  78:	29 98       	cbi	0x05, 1	; 5
+  7a:	2c 98       	cbi	0x05, 4	; 5
+  7c:	5a 98       	cbi	0x0b, 2	; 11
+  7e:	5b 98       	cbi	0x0b, 3	; 11
+  80:	5c 98       	cbi	0x0b, 4	; 11
+  82:	5d 98       	cbi	0x0b, 5	; 11
+  84:	08 95       	ret
+
+00000086 <setup_SPI>:
+  86:	82 ec       	ldi	r24, 0xC2	; 194
+  88:	8c bd       	out	0x2c, r24	; 44
+  8a:	8d b5       	in	r24, 0x2d	; 45
+  8c:	8e b5       	in	r24, 0x2e	; 46
+  8e:	08 95       	ret
+
+00000090 <setup_timer_interrupts>:
+  90:	e1 e8       	ldi	r30, 0x81	; 129
+  92:	f0 e0       	ldi	r31, 0x00	; 0
+  94:	80 81       	ld	r24, Z
+  96:	88 60       	ori	r24, 0x08	; 8
+  98:	80 83       	st	Z, r24
+  9a:	af e6       	ldi	r26, 0x6F	; 111
+  9c:	b0 e0       	ldi	r27, 0x00	; 0
+  9e:	8c 91       	ld	r24, X
+  a0:	82 60       	ori	r24, 0x02	; 2
+  a2:	8c 93       	st	X, r24
+  a4:	8f e7       	ldi	r24, 0x7F	; 127
+  a6:	9e e3       	ldi	r25, 0x3E	; 62
+  a8:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__DATA_REGION_ORIGIN__+0x29>
+  ac:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__DATA_REGION_ORIGIN__+0x28>
+  b0:	80 81       	ld	r24, Z
+  b2:	81 60       	ori	r24, 0x01	; 1
+  b4:	80 83       	st	Z, r24
+  b6:	08 95       	ret
+
+000000b8 <setup_USART>:
+
+// Implement a function to setup USART communication.
+void setup_USART( void )
+{
+	//USART Setup
+	UBRR0H = MYUBRR >> 8;
+  b8:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__DATA_REGION_ORIGIN__+0x65>
+	UBRR0L = MYUBRR;
+  bc:	80 e1       	ldi	r24, 0x10	; 16
+  be:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__DATA_REGION_ORIGIN__+0x64>
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  c2:	88 e1       	ldi	r24, 0x18	; 24
+  c4:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__DATA_REGION_ORIGIN__+0x61>
+	stdout = &mystdout;
+  c8:	80 e0       	ldi	r24, 0x00	; 0
+  ca:	91 e0       	ldi	r25, 0x01	; 1
+  cc:	90 93 1d 01 	sts	0x011D, r25	; 0x80011d <__data_end+0x3>
+  d0:	80 93 1c 01 	sts	0x011C, r24	; 0x80011c <__data_end+0x2>
+  d4:	08 95       	ret
+
+000000d6 <setup_micro>:
+// Implement a function to setup microcontroller functionality.
+void setup_micro( void )
+{
+	
+	//Setup the microcontroller pins.
+	setup_pins();
+  d6:	ca df       	rcall	.-108    	; 0x6c <setup_pins>
+
+// Implement a function to setup ADC.
+void setup_ADC( void )
+{
+	//Setup the ADC.
+	ADCSRA = 0b10000111;	//ADC on, /128 for a 16 MHz clock, interrupt off.		
+  d8:	87 e8       	ldi	r24, 0x87	; 135
+  da:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__DATA_REGION_ORIGIN__+0x1a>
+	
+	//Setup for ADC.
+	setup_ADC();
+	
+	//Setup SPI communication.
+	setup_SPI();
+  de:	d3 df       	rcall	.-90     	; 0x86 <setup_SPI>
+	
+	//Setup timer interrupts.
+	setup_timer_interrupts();
+  e0:	d7 df       	rcall	.-82     	; 0x90 <setup_timer_interrupts>
+	
+	//Setup USART communication.
+	setup_USART();	
+  e2:	ea df       	rcall	.-44     	; 0xb8 <setup_USART>
+	
+	//Enable global interrupts.
+	sei();													// Enable global interrupts
+  e4:	78 94       	sei
+  e6:	08 95       	ret
+
+000000e8 <main>:
+// Implement the main function.
+int main( void )
+{
+	
+	// Setup the microcontroller.
+	setup_micro(  );
+  e8:	f6 df       	rcall	.-20     	; 0xd6 <setup_micro>
+
+	// Set the SPI bytes to send to be all zeros.
+	initialize_spi_bytes_to_send( &SPI_manager );
+  ea:	8e e0       	ldi	r24, 0x0E	; 14
+  ec:	91 e0       	ldi	r25, 0x01	; 1
+  ee:	18 d0       	rcall	.+48     	; 0x120 <initialize_spi_bytes_to_send>
+
+	// Toggle a pin to indicate that the microcontroller setup was completed.
+	//toggle_pin( &PORTD, 4 );
+	tbi( PORTD, 2 );
+  f0:	9b b1       	in	r25, 0x0b	; 11
+  f2:	84 e0       	ldi	r24, 0x04	; 4
+  f4:	89 27       	eor	r24, r25
+  f6:	8b b9       	out	0x0b, r24	; 11
+  f8:	ff cf       	rjmp	.-2      	; 0xf8 <main+0x10>
+
+000000fa <__vector_11>:
+
+
+
+// Implement a function to execute the bang-bang control algorithm at a fixed time interval.
+ISR( TIMER1_COMPA_vect )								// First timer interrupt function.
+{
+  fa:	1f 92       	push	r1
+  fc:	0f 92       	push	r0
+  fe:	0f b6       	in	r0, 0x3f	; 63
+ 100:	0f 92       	push	r0
+ 102:	11 24       	eor	r1, r1
+ 104:	8f 93       	push	r24
+ 106:	9f 93       	push	r25
+	
+	//// Close the valve to exhaust air.
+	//PORTB &=~(1 << 1);
+	//
+	 //Open the valve to add air.
+	PORTB |= (1 << 1);
+ 108:	29 9a       	sbi	0x05, 1	; 5
+	
+	//sbi( PORTB, 1 );
+	
+	// Toggle a pin each time this interrupt executes.
+	//toggle_pin( &PORTD, 3 );
+	tbi( PORTD, 3 );
+ 10a:	9b b1       	in	r25, 0x0b	; 11
+ 10c:	88 e0       	ldi	r24, 0x08	; 8
+ 10e:	89 27       	eor	r24, r25
+ 110:	8b b9       	out	0x0b, r24	; 11
+	
+}
+ 112:	9f 91       	pop	r25
+ 114:	8f 91       	pop	r24
+ 116:	0f 90       	pop	r0
+ 118:	0f be       	out	0x3f, r0	; 63
+ 11a:	0f 90       	pop	r0
+ 11c:	1f 90       	pop	r1
+ 11e:	18 95       	reti
+
+00000120 <initialize_spi_bytes_to_send>:
+#include "Slave_Micro_Header.h"
+
+
+// Implement a function to initialize the SPI bytes to send.
+void initialize_spi_bytes_to_send( struct SPI_data_struct * SPI_manager_ptr )
+{
+ 120:	fc 01       	movw	r30, r24
+	// Initialize the SPI bytes to send to be all zeros.
+	for ( uint8_t k = 0; k < NUM_SPI_BYTES_TO_SEND; ++k )					// Iterate through each of the SPI bytes to send...
+	{
+		
+		// Set each SPI byte to zero.
+		SPI_manager_ptr->spi_bytes_to_send[k] = 0;
+ 122:	14 82       	std	Z+4, r1	; 0x04
+ 124:	15 82       	std	Z+5, r1	; 0x05
+ 126:	16 82       	std	Z+6, r1	; 0x06
+ 128:	17 82       	std	Z+7, r1	; 0x07
+ 12a:	10 86       	std	Z+8, r1	; 0x08
+ 12c:	11 86       	std	Z+9, r1	; 0x09
+ 12e:	08 95       	ret
+
+00000130 <usart_write_uint8>:
+}
+
+
+// Implement a function to write a uint8 to Matlab via USART.
+void usart_write_uint8( uint8_t write_value, FILE * stream )
+{
+ 130:	cf 93       	push	r28
+ 132:	c8 2f       	mov	r28, r24
+	
+	// UCSRnA = USART Control and Status Register n A (e.g., UCSR0A = USART Control and Status Register 0 A).  Contains information relevant to USART operation, such as whether transmission / reception has been completed.
+	// UDREn = USART Data Register Empty (e.g., UDRE0 = USART Data Register Empty 0).  0 = The register is not empty and therefore not ready to be written to, 1 = The register is empty and therefore ready to be written to.
+	
+	// Determine whether to replace the uint8 we are writing.
+	if (write_value == '\n')					// If the write value uint8 represents a new line character...
+ 134:	8a 30       	cpi	r24, 0x0A	; 10
+ 136:	11 f4       	brne	.+4      	; 0x13c <usart_write_uint8+0xc>
+	{
+		
+		// Replace the new line character with a carriage return character.
+		usart_write_uint8( '\r', stream );
+ 138:	8d e0       	ldi	r24, 0x0D	; 13
+ 13a:	fa df       	rcall	.-12     	; 0x130 <usart_write_uint8>
+		
+	}
+	
+	// Ensure that the USART data register is ready to be written to.
+	loop_until_bit_is_set(UCSR0A, UDRE0);
+ 13c:	e0 ec       	ldi	r30, 0xC0	; 192
+ 13e:	f0 e0       	ldi	r31, 0x00	; 0
+ 140:	80 81       	ld	r24, Z
+ 142:	85 ff       	sbrs	r24, 5
+ 144:	fd cf       	rjmp	.-6      	; 0x140 <usart_write_uint8+0x10>
+	
+	// Write the uint8 to the
+	UDR0 = write_value;
+ 146:	c0 93 c6 00 	sts	0x00C6, r28	; 0x8000c6 <__DATA_REGION_ORIGIN__+0x66>
+	
+}
+ 14a:	cf 91       	pop	r28
+ 14c:	08 95       	ret
+
+0000014e <_exit>:
+ 14e:	f8 94       	cli
+
+00000150 <__stop_program>:
+ 150:	ff cf       	rjmp	.-2      	; 0x150 <__stop_program>

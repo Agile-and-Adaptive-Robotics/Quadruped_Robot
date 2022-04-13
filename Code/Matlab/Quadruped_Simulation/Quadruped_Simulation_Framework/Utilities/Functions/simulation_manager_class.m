@@ -16,6 +16,8 @@ classdef simulation_manager_class
         bSimulateDynamics
         
         plotting_utilities
+        
+        conversion_manager
     
     end
     
@@ -30,6 +32,9 @@ classdef simulation_manager_class
             
             % Create an instance of the plotting utilities class.
             self.plotting_utilities = plotting_utilities_class(  );
+            
+            % Create an instance of the conversion manager class.
+            self.conversion_manager = conversion_manager_class(  );
             
             % Set the default simulation manager properties.
             if nargin < 5, self.bVerbose = false; else, self.bVerbose = bVerbose; end
@@ -339,6 +344,8 @@ classdef simulation_manager_class
         
         %% Specific Get History Functions
                 
+        % --------------- GET SIMULATION PROPERTY HISTORIES ---------------
+        
         % Implement a function to retrieve the history of the angles of specified joints.
         function joint_angle_history = get_joint_angle_history( self, joint_IDs )
 
@@ -353,6 +360,26 @@ classdef simulation_manager_class
                 
                 % Retrieve the joint property values for this robot state.
                 joint_angle_history( :, k) = self.robot_states(k).mechanical_subsystem.limb_manager.get_joint_angles( joint_IDs )';
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve the history of the joint torques.
+        function joint_torque_history = get_joint_torque_history( self, joint_IDs )
+            
+            % Determine the number of joints.
+            num_joints = self.joint_IDs2num_joints( joint_IDs );
+
+            % Preallocate a variable to store the joint property history.
+            joint_torque_history = zeros( num_joints, self.max_states );
+            
+            % Retrieve the joint property values associated with each robot state.
+            for k = 1:self.max_states                   % Iterate through each robot state...
+                
+                % Retrieve the joint property values for this robot state.
+                joint_torque_history( :, k) = self.robot_states(k).mechanical_subsystem.limb_manager.get_joint_torques( joint_IDs )';
                 
             end
             
@@ -539,10 +566,8 @@ classdef simulation_manager_class
         end
         
        
-        
-        
-        
-        
+        % --------------- HILL MUSCLE GET DESIRED TENSION FUNCTIONS ---------------
+
         % Implement a function to get the hill muscle desired total tension.
         function hill_muscle_desired_total_tension = get_hill_muscle_desired_total_tension_history( self, hill_muscle_IDs )
            
@@ -603,8 +628,7 @@ classdef simulation_manager_class
         end
         
         
-        
-        
+        % --------------- HILL MUSCLE GET MEASURED TENSION FUNCTIONS ---------------
                 
         % Implement a function to get the hill muscle measured total tension.
         function hill_muscle_measured_total_tension = get_hill_muscle_measured_total_tension_history( self, hill_muscle_IDs )
@@ -664,10 +688,7 @@ classdef simulation_manager_class
             end
             
         end
-        
-        
-        
-        
+                
         
         %% BPA History Functions
         
@@ -768,6 +789,8 @@ classdef simulation_manager_class
     
         %% Plotting Functions
         
+        % --------------- SIMULATION PROPERTY HISTORY PLOTTING FUNCTIONS ---------------
+        
         % Implement a function to plot the joint angle history.
         function fig = plot_joint_angle_history( self, joint_IDs, fig, plotting_options )
             
@@ -800,10 +823,10 @@ classdef simulation_manager_class
         % Implement a function to plot the joint angle, velocity, and acceleration history.
         function fig = plot_joint_kinematic_history( self, joint_IDs, fig )
             
-            % Determine whether we want to add the mechanical subsystem points to an existing plot or create a new plot.
+            % Determine whether we want to add the joint kinematic history to an existing plot or create a new plot.
             if ( nargin < 3 ) || ( isempty(fig) )
                 
-                % Create a figure to store the body mesh points.
+                % Create a figure to store the joint kinematic history.
                 fig = figure( 'Color', 'w', 'Name', 'Joint Kinematic History' ); 
                 
             end
@@ -822,11 +845,37 @@ classdef simulation_manager_class
 
             % Plot the joint kinematic data.
             subplot(3, 2, 1), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angle [rad]'), title('Joint Angle vs Time (Metric)'), plot( self.ts, thetas, '-', 'Linewidth', 3 )
-            subplot(3, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angle [deg]'), title('Joint Angle vs Time (Imperial)'), plot( self.ts, (180/pi)*thetas, '-', 'Linewidth', 3 )
+            subplot(3, 2, 2), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Angle [deg]'), title('Joint Angle vs Time (Imperial)'), plot( self.ts, self.conversion_manager.rad2deg( thetas ), '-', 'Linewidth', 3 )
             subplot(3, 2, 3), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Velocity [rad/s]'), title('Joint Velocity vs Time (Metric)'), plot( self.ts, dthetas, '-', 'Linewidth', 3 )
-            subplot(3, 2, 4), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Velocity [deg/s]'), title('Joint Velocity vs Time (Imperial)'), plot( self.ts, (180/pi)*dthetas, '-', 'Linewidth', 3 )
+            subplot(3, 2, 4), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Velocity [deg/s]'), title('Joint Velocity vs Time (Imperial)'), plot( self.ts, self.conversion_manager.rad2deg( dthetas ), '-', 'Linewidth', 3 )
             subplot(3, 2, 5), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Acceleration [rad/s^2]'), title('Joint Acceleration vs Time (Metric)'), plot( self.ts, ddthetas, '-', 'Linewidth', 3 )
-            subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Acceleration [deg/s^2]'), title('Joint Acceleration vs Time (Imperial)'), plot( self.ts, (180/pi)*ddthetas, '-', 'Linewidth', 3 )
+            subplot(3, 2, 6), hold on, grid on, xlabel('Time [s]'), ylabel('Joint Acceleration [deg/s^2]'), title('Joint Acceleration vs Time (Imperial)'), plot( self.ts, self.conversion_manager.rad2deg( ddthetas ), '-', 'Linewidth', 3 )
+            
+        end
+        
+        
+        % Implement a function to plot the joint torque history.
+        function fig = plot_joint_torque_history( self, joint_IDs, fig, plotting_options )
+            
+            % Determine whether to specify default plotting options.
+            if ( ( nargin < 4 ) || isempty( plotting_options ) ), plotting_options = { '-', 'Linewidth', 3 }; end
+            
+            % Determine whether we want to add the mechanical subsystem points to an existing plot or create a new plot.
+            if ( nargin < 3 ) || ( isempty(fig) )
+                
+                % Create a figure to store the joint torque history.
+                fig = figure( 'Color', 'w', 'Name', 'Joint Torque History' ); hold on, grid on, xlabel('Time [s]'), ylabel('Joint Torque [ft-lb]'), title('Joint Torque vs Time')
+                
+            end
+            
+            % Set the default joint IDs.
+            if nargin < 2, joint_IDs = 'all'; end
+            
+            % Retrieve the joint property history.            
+            torques = self.get_joint_torque_history( joint_IDs );
+
+            % Plot the joint torque data.
+            plot( self.ts, self.conversion_manager.nm2ftlb( torques ), plotting_options{:} )
             
         end
         
@@ -841,7 +890,7 @@ classdef simulation_manager_class
             if ( nargin < 3 ) || ( isempty(fig) )
                 
                 % Create a figure to store the body mesh points.
-                fig = figure( 'Color', 'w', 'Name', 'End Effector Position History' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('End Effector Position History'), rotate3d on
+                fig = figure( 'Color', 'w', 'Name', 'End Effector Path' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), zlabel('z [in]'), title('End Effector Path'), rotate3d on
                 
             end
             
@@ -860,6 +909,9 @@ classdef simulation_manager_class
             % Preallocate an array to store legend entries.
             leg_str = cell( 1, num_limbs );
             
+            % Preallocate an array to store the end effector paths.
+            h_paths = gobjects( 1, num_limbs );
+            
             % Plot the end effector position history of each limb.
             for k = 1:num_limbs                                 % Iterate through each limb...
                 
@@ -867,15 +919,17 @@ classdef simulation_manager_class
                 limb_end_effector_position_history = 39.3701*squeeze( end_effector_position_history( :, k, : ) );               % [in] Converting from meters to inches.
                 
                 % Plot the end effector position history.
-                plot3( limb_end_effector_position_history( 1, : ), limb_end_effector_position_history( 2, : ), limb_end_effector_position_history( 3, : ), plotting_options{:} )
-                
+                h_paths(k) = plot3( limb_end_effector_position_history( 1, : ), limb_end_effector_position_history( 2, : ), limb_end_effector_position_history( 3, : ), plotting_options{:} );
+                plot3( limb_end_effector_position_history( 1, 1 ), limb_end_effector_position_history( 2, 1 ), limb_end_effector_position_history( 3, 1 ), 'o', 'Linewidth', 3, 'Markersize', 20, 'Color', h_paths(k).Color )
+                plot3( limb_end_effector_position_history( 1, end ), limb_end_effector_position_history( 2, end ), limb_end_effector_position_history( 3, end ), 'x', 'Linewidth', 3, 'Markersize', 20, 'Color', h_paths(k).Color )
+
                 % Store a legend entry for this limb.
                 leg_str{k} = sprintf( 'Limb %0.0f', k );
                 
             end
             
             % Create a legend for this plot.
-            legend( leg_str )
+            legend( h_paths, leg_str )
 
         end
         
@@ -1350,10 +1404,7 @@ classdef simulation_manager_class
         end
 
         
-        
-        
-        
-        
+        % --------------- HILL MUSCLE DESIRED TENSION PLOTTING FUNCTIONS ---------------
         
         % Implement a function to plot the hill muscle desired total tension history.
         function fig = plot_hill_muscle_desired_total_tension_history( self, hill_muscle_IDs, fig, plotting_options )
@@ -1478,12 +1529,7 @@ classdef simulation_manager_class
         end
         
         
-        
-        
-        
-        
-        
-        
+        % --------------- HILL MUSCLE MEASURED TENSION PLOTTING FUNCTIONS ---------------
         
         % Implement a function to plot the hill muscle measured total tension history.
         function fig = plot_hill_muscle_measured_total_tension_history( self, hill_muscle_IDs, fig, plotting_options )
@@ -1608,13 +1654,76 @@ classdef simulation_manager_class
         end
         
         
+        %% Animation Functions
+        
+        % Implement a function to animate the robot's mechanical history.
+        function animate_robot_history( self )
+            
+            
+           get_angles_from_all_joints 
+            
+            
+        end
         
         
         
+        %% Printing Functions
         
-        
-        
-        
+        % Implement a function to print debugging information.
+        function print_debugging_information( self )
+            
+            % Retrieve the hill muscel desired tensions.
+            hill_muscle_desired_passive_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_passive_tension( 'all' );
+            hill_muscle_desired_active_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_active_tension( 'all' );
+            hill_muscle_desired_total_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
+
+            % Retrieve the hill muscle measured tensions.
+            hill_muscle_measured_passive_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_passive_tension( 'all' );
+            hill_muscle_measured_active_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_active_tension( 'all' );
+            hill_muscle_measured_total_tensions = self.robot_states(end).neural_subsystem.hill_muscle_manager.get_hill_muscle_desired_total_tension( 'all' );
+
+            % Retrieve the BPA muscle desired & measured pressures.
+            BPA_muscle_desired_pressures = self.robot_states(end).mechanical_subsystem.limb_manager.get_desired_pressure_from_all_BPA_muscles(  );
+            BPA_muscle_measured_pressures = self.robot_states(end).mechanical_subsystem.limb_manager.get_measured_pressure_from_all_BPA_muscles(  );
+
+            % Retrieve the BPA muscle desired & measured tensions.
+            BPA_muscle_desired_tensions = self.robot_states(end).mechanical_subsystem.limb_manager.get_desired_tension_from_all_BPA_muscles(  );
+            BPA_muscle_measured_tensions = self.robot_states(end).mechanical_subsystem.limb_manager.get_measured_tension_from_all_BPA_muscles(  );
+
+            % Retrieve the BPA muscle strain (type I).
+            BPA_muscle_strains = self.robot_states(end).mechanical_subsystem.limb_manager.get_muscle_strain_from_all_BPA_muscles(  );
+            
+            % Retrieve the joint information.
+            torques = self.robot_states(end).mechanical_subsystem.limb_manager.get_torques_from_all_joints(  );
+            thetas = self.robot_states(end).mechanical_subsystem.limb_manager.get_angles_from_all_joints(  );
+
+%             % Print out the hill muscle desired tensions.
+%             fprintf( 'Hill Muscle Desired Passive Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_desired_passive_tensions ) )
+%             fprintf( 'Hill Muscle Desired Active Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_desired_active_tensions ) )
+%             fprintf( 'Hill Muscle Desired Total Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_desired_total_tensions ) )
+% 
+%             % Print out the hill muscle measure tensions.
+%             fprintf( 'Hill Muscle Measured Passive Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_measured_passive_tensions ) )
+%             fprintf( 'Hill Muscle Measured Active Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_measured_active_tensions ) )
+%             fprintf( 'Hill Muscle Measured Total Tension:' ), disp( self.conversion_manager.n2lb( hill_muscle_measured_total_tensions ) )
+
+%             % Print out the BPA muscle desired & measured pressures.
+%             fprintf( 'BPA Muscle Desired Pressure:' ), disp( self.conversion_manager.pa2psi( BPA_muscle_desired_pressures ) )
+%             fprintf( 'BPA Muscle Measured Pressure:' ), disp( self.conversion_manager.pa2psi( BPA_muscle_measured_pressures ) )
+
+            % Print out the BPA muscle desired & measured tensions.
+            fprintf( 'BPA Muscle Desired Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_desired_tensions ) )
+%             fprintf( 'BPA Muscle Measured Tension:' ), disp( self.conversion_manager.n2lb( BPA_muscle_measured_tensions ) )    
+
+%             % Print out the BPA muscle strains.
+%             fprintf( 'BPA Muscle Strains:' ), disp( BPA_muscle_strains )
+
+
+%             % Print out the joint information.
+            fprintf( 'Joint Torques:' ), disp( self.conversion_manager.nm2ftlb( torques ) )
+            fprintf( 'Joint Angles:' ), disp( self.conversion_manager.rad2deg( thetas ) )
+            
+        end
         
         
     end
