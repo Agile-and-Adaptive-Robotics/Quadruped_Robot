@@ -66,12 +66,15 @@ ts = ( 0:network.dt:network.tf )';
 num_timesteps = length( ts );
 
 % Define the drive current magnitude.
-Imag_low1 = 0; Imag_middle1 = 10e-9; Imag_high1 = 20e-9;
-Imag_low2 = 0; Imag_middle2= 10e-9; Imag_high2 = 20e-9;
+Imag_low1 = 0; Imag_middle1 = 0.1e-9; Imag_high1 = 20e-9;
+Imag_low2 = 0; Imag_middle2= 0.1e-9; Imag_high2 = 20e-9;
 
 % Define the drive current applied magnitude vector.
 I_apps1 = Imag_low1*( ts >= 0 & ts < 0.125 ) + Imag_middle1*( ts >= 0.125 );
 I_apps2 = Imag_middle2*( ts >= 0 ); I_apps2( 1 ) = Imag_low2;
+
+% I_apps1 = Imag_low1*( ts >= 0 & ts < 0.50 ) + Imag_middle1*( ts >= 0.50 );
+% I_apps2 = Imag_middle2*( ts >= 0 ); I_apps2( 1 ) = Imag_low2;
 
 % I_apps1 = ( 0.1e-9 )*( ts >= 0 );
 % I_apps2 = ( 0.1e-9 )*( ts >= 0 );
@@ -99,6 +102,9 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % Define the applied voltage magnitudes.
 V_apps1( ts >= 0 & ts < 0.125 ) = { 0 };
 V_apps2( 1 ) = { 0 };
+
+% V_apps1( ts >= 0 & ts < 0.50 ) = { 0 };
+% V_apps2( 1 ) = { 0 };
 
 % V_apps1( 1 ) = { 0 };
 % V_apps2( 1 ) = { 0 };
@@ -158,12 +164,19 @@ fprintf('Oscillation Frequency: [hz]\n'), disp( fs_frequency )
 
 %% Plot the Network Results.
 
+% Update the membrane voltage and sodium channel deactivation parameter organization.
+[ Us( 1, : ), Us( 2:5, : ) ] = deal( Us( 5, : ), Us( 1:4, : ) );
+[ hs( 1, : ), hs( 2:5, : ) ] = deal( hs( 5, : ), hs( 1:4, : ) );
+[ Us( 6, : ), Us( 7:10, : ) ] = deal( Us( 10, : ), Us( 6:9, : ) );
+[ hs( 6, : ), hs( 7:10, : ) ] = deal( hs( 10, : ), hs( 6:9, : ) );
+
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 1:5, : ), hs( 1:5, : ), neuron_IDs( 1:5 ) ); fig_network_states.Name = 'CPG 1';
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 6:10, : ), hs( 6:10, : ), neuron_IDs( 6:10 ) ); fig_network_states.Name = 'CPG 2';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 6:10, : ), hs( 6:10, : ), neuron_IDs( 6:10 ) ); fig_network_states.Name = 'CPG 2'; subplot( 2, 1, 1 ), legend( 'C1', 'C2', 'C3', 'C4', 'C5' ), title('CPG: Membrane Voltage vs Time')
+axes = gca( fig_network_states ); axes.FontSize = 14;
 
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 11:14, : ), hs( 11:14, : ), neuron_IDs( 11:14 ) ); fig_network_states.Name = 'Sub 1';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 15:18, : ), hs( 15:18, : ), neuron_IDs( 15:18 ) ); fig_network_states.Name = 'Int 1';
@@ -175,18 +188,19 @@ fig_network_states = network.network_utilities.plot_network_states( ts, Us( 31:3
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 35:39, : ), hs( 35:39, : ), neuron_IDs( 35:39 ) ); fig_network_states.Name = 'Shifted Int 2';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 40:42, : ), hs( 40:42, : ), neuron_IDs( 40:42 ) ); fig_network_states.Name = 'Modulated Int 2';
 
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 43:46, : ), hs( 43:46, : ), neuron_IDs( 43:46 ) ); fig_network_states.Name = 'Sub 3';
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 47:50, : ), hs( 47:50, : ), neuron_IDs( 47:50 ) ); fig_network_states.Name = 'Int 3';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 43:46, : ), hs( 43:46, : ), neuron_IDs( 43:46 ) ); fig_network_states.Name = 'Sub 3'; subplot( 2, 1, 1 ), legend( 'S1', 'S2', 'S3', 'S4' ), title('Subtraction: Membrane Voltage vs Time'); axes = gca( fig_network_states ); axes.FontSize = 14;
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 47:50, : ), hs( 47:50, : ), neuron_IDs( 47:50 ) ); fig_network_states.Name = 'Int 3'; subplot( 2, 1, 1 ), legend( 'I1', 'I2', 'I3', 'I4' ), title('Integration: Membrane Voltage vs Time'); axes = gca( fig_network_states ); axes.FontSize = 14;
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 51:55, : ), hs( 51:55, : ), neuron_IDs( 51:55 ) ); fig_network_states.Name = 'Shifted Int 3';
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 56:58, : ), hs( 56:58, : ), neuron_IDs( 56:58 ) ); fig_network_states.Name = 'Modulated Int 3';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 56:58, : ), hs( 56:58, : ), neuron_IDs( 56:58 ) ); fig_network_states.Name = 'Modulated Int 3'; subplot( 2, 1, 1 ), legend( 'M1', 'M2', 'M3' ), title('Modulation: Membrane Voltage vs Time'); axes = gca( fig_network_states ); axes.FontSize = 14;
 
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 59:62, : ), hs( 59:62, : ), neuron_IDs( 59:62 ) ); fig_network_states.Name = 'Sub 4';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 63:66, : ), hs( 63:66, : ), neuron_IDs( 63:66 ) ); fig_network_states.Name = 'Int 4';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 67:71, : ), hs( 67:71, : ), neuron_IDs( 67:71 ) ); fig_network_states.Name = 'Shifted Int 4';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 72:74, : ), hs( 72:74, : ), neuron_IDs( 72:74 ) ); fig_network_states.Name = 'Modulated Int 4';
 
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 75:78, : ), hs( 75:78, : ), neuron_IDs( 75:78 ) ); fig_network_states.Name = 'Split Lead / Lag';
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 79:85, : ), hs( 79:85, : ), neuron_IDs( 79:85 ) ); fig_network_states.Name = 'Centered Lead / Lag';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 75:78, : ), hs( 75:78, : ), neuron_IDs( 75:78 ) ); fig_network_states.Name = 'Split Lead / Lag'; subplot( 2, 1, 1 ), legend( 'A1', 'A2', 'T2', 'T3' ), title('Addition: Membrane Voltage vs Time'); axes = gca( fig_network_states ); axes.FontSize = 14;
+% fig_network_states = network.network_utilities.plot_network_states( ts, Us( 79:85, : ), hs( 79:85, : ), neuron_IDs( 79:85 ) ); fig_network_states.Name = 'Centered Lead / Lag'; subplot( 2, 1, 1 ), legend( 'A3', 'A4', 'S9', 'S10' ), title('Centering: Membrane Voltage vs Time')
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( [ 79 81 84 85 ], : ), hs( [ 79 81 84 85 ], : ), neuron_IDs( [ 79 81 84 85 ] ) ); fig_network_states.Name = 'Centered Lead / Lag'; subplot( 2, 1, 1 ), legend( 'A3', 'A4', 'S9', 'S10' ), title('Centering: Membrane Voltage vs Time'); axes = gca( fig_network_states ); axes.FontSize = 14;
 
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 86:89, : ), hs( 86:89, : ), neuron_IDs( 86:89 ) ); fig_network_states.Name = 'Split Lead / Lag Error';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 90:96, : ), hs( 90:96, : ), neuron_IDs( 90:96 ) ); fig_network_states.Name = 'Centered Lead / Lag Error';

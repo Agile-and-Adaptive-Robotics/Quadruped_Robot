@@ -280,12 +280,27 @@ classdef network_utilities_class
             % Set the default input arguments.
             if nargin < 6, k = self.K_TRANSMISSION; end
             if nargin < 5, I_app2 = self.I_APP; end
-                        
-            % Compute the maximum synaptic conductances for a signal transmission pathway.
-            g_syn_max12 = ( I_app2 - k.*Gm2.*R1 )./( k.*R1 - dE_syn12 );
+                      
+            % Determine how to compute the transmission maximum synaptic conductance.
+            if k > 0                % If the specified gain is positive...
             
-            % Ensure that the synaptic reversal potential is large enough.
-            assert( all( g_syn_max12 > 0 ), 'It is not possible to design a transmission pathway with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', k, dE_syn12, R1 )
+                % Compute the maximum synaptic conductances for a signal transmission pathway.
+                g_syn_max12 = ( I_app2 - k.*Gm2.*R1 )./( k.*R1 - dE_syn12 );
+            
+                % Ensure that the synaptic reversal potential is large enough.
+                assert( all( g_syn_max12 > 0 ), 'It is not possible to design a transmission pathway with the specified gain k = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', k, dE_syn12, R1 )
+                
+            elseif k == 0           % If the specified gain is zero...
+                
+                % Set the maximum synaptic conductance to zero.
+                g_syn_max12 = 0;
+                
+            else                    % If the specified gain is negative.                
+                
+                % Throw an error.
+                error( 'Transmission synapse gain must be greater than or equal to zero.' )
+                
+            end
             
         end
 
@@ -778,8 +793,8 @@ classdef network_utilities_class
             
             % Create a figure to store the network states.
             fig = figure( 'Color', 'w', 'Name', 'Network States vs Time' );
-            subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), title( 'CPG Membrane Voltage vs Time' )
-            subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Time [s]' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'CPG Sodium Channel Deactivation Parameter vs Time' )
+            subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Time, $t$ [s]', 'Interpreter', 'Latex' ), ylabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), title( 'CPG Membrane Voltage vs Time' )
+            subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Time, $t$ [s]', 'Interpreter', 'Latex' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'CPG Sodium Channel Deactivation Parameter vs Time' )
             
             % Retrieve the number of neurons.
             num_neurons = size( Us, 1 );

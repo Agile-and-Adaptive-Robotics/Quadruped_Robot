@@ -128,7 +128,10 @@ fprintf('Oscillation Frequency: [hz]\n'), disp( fs_frequency )
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
+Us = circshift( Us, [ 1, 0 ] );
+hs = circshift( hs, [ 1, 0 ] );
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
+subplot( 2, 1, 1 ), legend( 'C1', 'C2', 'C3', 'C4', 'C5' )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );

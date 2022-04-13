@@ -41,7 +41,8 @@ classdef synapse_utilities_class
         
             % Compute the maximum synaptic conductance.
             g_syn_max = I_drive_max./( dE_syn - delta_oscillatory );
-            
+%             g_syn_max = 0;
+
         end
         
         

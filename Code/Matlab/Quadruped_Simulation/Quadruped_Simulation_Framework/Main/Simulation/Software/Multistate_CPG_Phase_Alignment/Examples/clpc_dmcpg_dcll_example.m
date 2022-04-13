@@ -13,8 +13,8 @@ b_verbose = true;
 % network_dt = 1e-3;
 network_dt = 0.5e-3;
 % network_dt = 1e-4;
-network_tf = 5;
-% network_tf = 10;
+% network_tf = 5;
+network_tf = 10;
 % network_tf = 40;
 
 
@@ -52,10 +52,55 @@ c_mod = 0.05;
 % r = 0.1;
 r = 0.5;
 % r = 0.9;
-kp_gain = 1;
+% kp_gain = 1;
+% kp_gain = 0;
+kp_gain = 1e-1;             % Seemed to kind of work.
+% kp_gain = 1;
 
 % Create the driven multistate cpg double centered lead lag subnetwork.
 [ network, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = network.create_clpc_dmcpg_dcll_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, kp_gain );
+
+
+%% Setup the CPG Impulse Currents.
+
+% Retrieve the IDs associated with the impulse applied currents.
+applied_current_ID_impulse1 = applied_current_IDs_cell{ 1 }{ 1 }{ 1 }( 1 );
+applied_current_ID_impulse2 = applied_current_IDs_cell{ 1 }{ 1 }{ 2 }( 1 );
+
+% Define the impulse current time vector.
+ts = ( 0:network.dt:network.tf )';
+num_timesteps = length( ts );
+
+% Define the impulse current magnitude.
+Imag1 = 1e-9;
+Imag2 = 1e-9;
+
+% Define the impulse current applied magnitude vector.
+% I_apps1 = ( 0e-9 )*( ts >= 0 & ts < 0.125 ) + Imag1*( ts == 0.125 ) + ( 0e-9 )*( ts > 0.125 );
+% I_apps2 = Imag2*( ts == 0 ) + ( 0e-9 )*( ts > 0 );
+
+I_apps1 = Imag1*( ts == 0 ) + ( 0e-9 )*( ts > 0 );
+I_apps2 = Imag2*( ts == 0 ) + ( 0e-9 )*( ts > 0 );
+
+
+% % USE THIS WHEN STARTING IN A LAG CONFIGURATION.
+% I_apps1 = ( 0e-9 )*( ts >= 0 & ts < 0.125 ) + Imag1*( ts == 0.125 ) + ( 0e-9 )*( ts > 0.125 );
+% I_apps2 = Imag2*( ts == 0 ) + ( 0e-9 )*( ts > 0 );
+
+
+% Setup the first impulse current.
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse1, { ts }, 'ts' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse1, { I_apps1 }, 'I_apps' );
+etwork.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse1, num_timesteps, 'num_timesteps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse1, network.dt, 'dt' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse1, network.tf, 'tf' );
+
+% Setup the second impulse current.
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse2, { ts }, 'ts' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse2, { I_apps2 }, 'I_apps' );
+etwork.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse2, num_timesteps, 'num_timesteps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse2, network.dt, 'dt' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_impulse2, network.tf, 'tf' );
 
 
 %% Setup the Drive Currents.
@@ -76,11 +121,17 @@ Imag_low2 = 0; Imag_middle2= 0.1e-9; Imag_high2 = 20e-9;
 % I_apps1 = Imag_low1*( ts >= 0 & ts < 0.125 ) + Imag_middle1*( ts >= 0.125 );
 % I_apps2 = Imag_middle2*( ts >= 0 ); I_apps2( 1 ) = Imag_low2;
 
-I_apps1 = ( 0.1e-9 )*( ts >= 0 );
-I_apps2 = ( 0.1e-9 )*( ts >= 0 );
+% I_apps1 = ( 0.1e-9 )*( ts >= 0 );
+% I_apps2 = ( 0.1e-9 )*( ts >= 0 );
 
+I_apps1 = ( 0e-9 )*( ts >= 0 );
+I_apps2 = ( 0e-9 )*( ts >= 0 );
+
+
+% % USE THIS WHEN STARTING IN A LAG CONFIGURATION.
 % I_apps1 = ( 0e-9 )*( ts >= 0 );
 % I_apps2 = ( 0e-9 )*( ts >= 0 );
+
 
 % Setup the first drive current.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_drive1, { ts }, 'ts' );
@@ -107,14 +158,21 @@ ts = ( 0:network.dt:network.tf )';
 num_timesteps = length( ts );
 
 % Define the desired lead lag current magnitude.
-% Imag_low = 0; Imag_middle = 15e-9; Imag_high = 20e-9;
+% Imag_low = 0; Imag_middle = 12.5e-9; Imag_high = 20e-9;
 % Imag_low = 0; Imag_middle = 10e-9; Imag_high = 20e-9;
-Imag_low = 0; Imag_middle = 10e-9; Imag_high = 20e-9;
-% Imag_low = 0; Imag_middle = 5e-9; Imag_high = 20e-9;
+% Imag_low = 0; Imag_middle = 7.5e-9; Imag_high = 20e-9;
+Imag_low = 7.5e-9; Imag_middle = 10e-9; Imag_high = 12.5e-9;
 
 % Define the desired lead lag current applied magnitude vector.
-I_apps = Imag_low*( ts >= 0 & ts < 0.125 ) + Imag_middle*( ts >= 0.125 );
+% I_apps = Imag_low*( ts >= 0 & ts < 0.125 ) + Imag_middle*( ts >= 0.125 );
 % I_apps = Imag_middle*( ts >= 0 );
+
+I_apps = Imag_middle*( ts >= 0 & ts < 1.75 ) + Imag_low*( ts >= 1.75 & ts < 4.5 ) +  Imag_high*( ts >= 4.5 );
+
+
+% % USE THIS WHEN STARTING IN A LAG CONFIGURATION.
+% I_apps = Imag_low*( ts >= 0 & ts < 0.125 ) + Imag_middle*( ts >= 0.125 );
+
 
 % Setup the desired lead lag current.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_ID_desired, { ts }, 'ts' );
@@ -136,8 +194,15 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % V_apps1( 1 ) = { 0 };
 % V_apps2( 1 ) = { 0 };
 
-V_apps1( ts >= 0 & ts < 0.125 ) = { 0 };
-V_apps2( ts >= 0 & ts < 0.125 ) = { 0 };
+% V_apps1( ts >= 0 & ts < 0.125 ) = { 0 };
+% V_apps2( ts >= 0 & ts < 0.125 ) = { 0 };
+
+
+
+% % USE THIS WHEN STARTING IN A LAG CONFIGURATION.
+% V_apps1( ts >= 0 & ts < 0.125 ) = { 0 };
+
+
 
 
 % Create the applied voltages.
@@ -230,8 +295,25 @@ fig_network_states = network.network_utilities.plot_network_states( ts, Us( 79:8
 
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 86:89, : ), hs( 86:89, : ), neuron_IDs( 86:89 ) ); fig_network_states.Name = 'Split Lead / Lag Error';
 fig_network_states = network.network_utilities.plot_network_states( ts, Us( 90:96, : ), hs( 90:96, : ), neuron_IDs( 90:96 ) ); fig_network_states.Name = 'Centered Lead / Lag Error';
-fig_network_states = network.network_utilities.plot_network_states( ts, Us( 97, : ), hs( 97, : ), neuron_IDs( 97 ) ); fig_network_states.Name = 'Desired Lead / Lag';
+fig_network_states = network.network_utilities.plot_network_states( ts, Us( 97, : ), hs( 97, : ), neuron_IDs( 97 ) ); fig_network_states.Name = 'Desired Lead / Lag'; subplot( 2, 1, 1 ), title( 'Desired Lead/Lag: Membrane Voltage vs Time' ), axes = gca( fig_network_states ); axes.FontSize = 14;
 
+
+fig = figure( 'Color', 'w', 'Name', 'Phase Alignment Comparison' ); hold on, grid on, xlabel( 'Time, $t$ [s]', 'Interpreter', 'Latex' ), ylabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), title( 'CPG: Membrane Voltage vs Time' ), ylim( [ -0.020 0.030 ] )
+h1a = plot( ts, Us( 1, : ), '-', 'Linewidth', 3 );
+h1b = plot( ts, Us( 6, : ), '--', 'Linewidth', 3, 'Color', h1a.Color );
+
+h2a = plot( ts, Us( 2, : ), '-', 'Linewidth', 3 );
+h2b = plot( ts, Us( 7, : ), '--', 'Linewidth', 3, 'Color', h2a.Color );
+
+h3a = plot( ts, Us( 3, : ), '-', 'Linewidth', 3 );
+h3b = plot( ts, Us( 8, : ), '--', 'Linewidth', 3, 'Color', h3a.Color );
+
+h4a = plot( ts, Us( 4, : ), '-', 'Linewidth', 3 );
+h4b = plot( ts, Us( 9, : ), '--', 'Linewidth', 3, 'Color', h4a.Color );
+
+legend( 'A1', 'B1', 'A2', 'B2', 'A3', 'B3', 'A4', 'B4', 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+
+axes = gca( fig ); axes.FontSize = 14;
 
 % % Animate the network states over time.
 % fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
