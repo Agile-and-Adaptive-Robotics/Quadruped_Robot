@@ -144,7 +144,6 @@ subplot(2, 1, 2), legend(legstr, 'Location', 'Southoutside', 'Orientation', 'Hor
 % % Save this figure.
 % SaveFigureAtSize(fig_CPGStatesVsTime, 'C:\Users\USER\Documents\Graduate_School\Coursework\Year3\Spring2020\ME610_NeuromechanicalModeling\Project\Paper\MultistateCPG_State_vs_Time.jpg', 0.5)
 
-
 %% Animate the CPG's State Space Trajectory.
 
 % Create a plot to store the CPG's State Space Trajectory animation.
