@@ -2422,7 +2422,6 @@ classdef network_class
         end
         
         
-        
         % Implement a function to design a transmission subnetwork using existing neurons.
         function self = design_transmission_subnetwork( self, neuron_IDs, k )
         
@@ -2732,8 +2731,6 @@ classdef network_class
             self = self.design_mod_split_sub_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
             
         end
-        
-        
         
         
         %% Subnetwork Component Creation Functions

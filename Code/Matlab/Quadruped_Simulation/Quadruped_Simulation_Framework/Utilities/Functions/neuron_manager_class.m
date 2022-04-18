@@ -749,7 +749,6 @@ classdef neuron_manager_class
         end
         
         
-        
         % Implement a function to compute and set the sodium channel conductance of transmission neurons.
         function self = compute_set_transmission_Gna( self, neuron_IDs )
             
