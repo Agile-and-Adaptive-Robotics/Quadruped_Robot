@@ -241,9 +241,7 @@ classdef synapse_class
             self.g_syn_max = self.compute_driven_multistate_cpg_gsynmax( delta_oscillatory, I_drive_max );
             
         end
-        
-        
-        
+
         
         % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
         function self = compute_set_transmission_dEsyn( self )

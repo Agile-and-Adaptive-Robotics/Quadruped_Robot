@@ -130,7 +130,7 @@ classdef neuron_utilities_class
         % Implement a function to compute a sodium current.
         function I_na = compute_Ina( ~, U, h, m_inf, Gna, dEna )
             
-            % Compute teh sodium current.
+            % Compute the sodium current.
             I_na = Gna.*m_inf.*h.*( dEna - U );
             
         end
