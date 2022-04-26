@@ -4,3 +4,4 @@ _$*.SLDASM
 _$*.SLDPRT
 *.asv
 ~*.xlsx
+.venv/
