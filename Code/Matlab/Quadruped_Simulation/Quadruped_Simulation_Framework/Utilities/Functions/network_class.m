@@ -644,6 +644,37 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances required to design a relative addition subnetwork with the specified parameters.
+        function g_syn_maxs = compute_relative_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k )
+            
+            % Set the default input arguments.
+            if nargin < 5, k = self.K_ADDITION; end
+            if nargin < 4, I_app3 = self.I_APP; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
+            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
+
+            % Retrieve the synaptic reversal potentials associated with these synapses.
+            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
+            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+
+            % Compute the maximum synaptic conductances for this addition subnetwork.            
+            [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_relative_addition_gsynmax( Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k );
+            
+            % Store the maximum synaptic conductances.
+            g_syn_maxs = [ g_syn_max13, g_syn_max23 ];
+            
+        end
+        
+        
         % Implement a function to compute the maximum synaptic conductances required to design a subtraction subnetwork with the specified parameters.
         function g_syn_maxs = compute_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, k )
             
@@ -976,6 +1007,28 @@ classdef network_class
         
         end
 
+        
+        % Implement a function to compute and set the maximum synaptic conductances for a relative addition subnetwork.
+        function self = compute_set_relative_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
+            
+            % Set the default input arguments.
+            if nargin < 5, k = self.K_ADDITION; end
+            if nargin < 4, I_app = self.I_APP; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Compute the maximum synaptic conductances.
+            g_syn_maxs = self.compute_relative_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );            
+        
+        end
+        
         
         % Implement a function to compute and set the maximum synaptic conductances for a subtraction subnetwork.
         function self = compute_set_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
@@ -1486,6 +1539,16 @@ classdef network_class
         end
         
         
+        % Implement a function to design the neurons for a relative addition subnetwork.
+        function self = design_relative_addition_neurons( self, neuron_IDs )
+            
+            % Design the relative addition subnetwork neurons.
+            self.neuron_manager = self.neuron_manager.design_relative_addition_neurons( neuron_IDs );
+            
+        end
+        
+        
+        
         % Implement a function to design the neurons for a subtraction subnetwork.
         function self = design_subtraction_neurons( self, neuron_IDs )
             
@@ -1930,6 +1993,30 @@ classdef network_class
             
             % Compute and set the maximum synaptic conductances necessary to design this addition subnetwork.
             self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            
+        end
+        
+        
+        % Implement a function to design the synapses for a relative addition subnetwork.
+        function self = design_relative_addition_synapses( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = self.K_ADDITION; end
+            
+            % Design the addition subnetwork synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_relative_addition_synapses( neuron_IDs );
+            
+            % Get the applied current associated with the final neuron.
+            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            
+            % Determine whether to throw a warning.
+            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            
+            % Set the applied current to be the average current.
+            I_app = mean( I_apps );
+            
+            % Compute and set the maximum synaptic conductances necessary to design this addition subnetwork.
+            self = self.compute_set_relative_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
             
         end
         
@@ -2473,6 +2560,23 @@ classdef network_class
         end
         
         
+        % Implement a function to design a relative addition subnetwork ( using the specified neurons & their existing synapses ).
+        function self = design_relative_addition_subnetwork( self, neuron_IDs, k )
+            
+            % Set the default input arguments.
+            if nargin < 3, k = self.K_ADDITION; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+
+            % Design the relative addition subnetwork neurons.
+            self = self.design_relative_addition_neurons( neuron_IDs );
+            
+            % Design the relative addition subnetwork synapses.
+            self = self.design_relative_addition_synapses( neuron_IDs, k );
+                        
+        end
+        
+        
         % Implement a function to design a subtraction subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_subtraction_subnetwork( self, neuron_IDs, k )
             
@@ -2873,6 +2977,18 @@ classdef network_class
         end
         
         
+        % Implement a function to create the relative addition subnetwork components.
+        function [ self, neuron_IDs, synapse_IDs ] = create_relative_addition_subnetwork_components( self )
+           
+            % Create the relative addition neurons.
+            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_relative_addition_neurons(  );
+
+            % Create the relative addition synapses.
+            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_relative_addition_synapses( neuron_IDs );
+            
+        end
+
+        
         % Implement a function to create the subtraction subnetwork components.
         function [ self, neuron_IDs, synapse_IDs ] = create_subtraction_subnetwork_components( self )
         
@@ -3249,6 +3365,21 @@ classdef network_class
             % Design the addition subnetwork.
             self = self.design_addition_subnetwork( neuron_IDs, k );
         
+        end
+        
+        
+        % Implement a function to create a relative addition subnetwork ( generating neurons, synapses, etc. as necessary ).
+        function [ self, neuron_IDs, synapse_IDs ] = create_relative_addition_subnetwork( self, k )
+            
+            % Set the default input arguments.
+            if nargin < 2, k = self.K_ADDITION; end
+            
+            % Create relative addition subnetwork components.
+            [ self, neuron_IDs, synapse_IDs ] = self.create_relative_addition_subnetwork_components(  );
+            
+            % Design the relative addition subnetwork.
+            self = self.design_relative_addition_subnetwork( neuron_IDs, k );
+            
         end
         
         

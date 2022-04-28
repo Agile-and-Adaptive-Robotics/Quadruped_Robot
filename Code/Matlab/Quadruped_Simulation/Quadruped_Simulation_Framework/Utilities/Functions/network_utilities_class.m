@@ -337,6 +337,20 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances for a relative addition subnetwork.
+        function [ g_syn_max13, g_syn_max23 ] = compute_relative_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
+            
+            % Set the default input arguments.
+            if nargin < 6, k = self.K_ADDITION; end
+            if nargin < 5, I_app3 = self.I_APP; end
+            
+            % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
+            g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
+            g_syn_max23 = self.compute_transmission_gsynmax( Gm3, R2, dE_syn23, I_app3, k );
+            
+        end
+        
+
         % Implement a function to compute the maximum synaptic conductances for a subtraction subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
             

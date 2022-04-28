@@ -827,6 +827,32 @@ classdef neuron_manager_class
         end
         
         
+        % Implement a function to compute and set the sodium channel conductance of relative addition neurons.
+        function self = compute_set_relative_addition_Gna( self, neuron_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_Gna(  );
+                
+            end
+            
+        end
+        
+        
         % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
         function self = compute_set_subtraction_Gna( self, neuron_IDs )
             
@@ -1664,6 +1690,18 @@ classdef neuron_manager_class
             
         end
         
+        
+        % Implement a function to create the neurons for a relative addition subnetwork.
+        function [ self, neuron_IDs ] = create_relative_addition_neurons( self )
+ 
+            % Create the relative addition subnetwork neurons.
+            [ self, neuron_IDs ] = self.create_neurons( self.NUM_ADDITION_NEURONS );
+            
+            % Set the names of the relative addition subnetwork neurons. 
+            self = self.set_neuron_property( neuron_IDs, { 'Add 1', 'Add 2', 'Sum' }, 'name'  );
+            
+        end
+        
             
         % Implement a function to create the neurons for a subtraction subnetwork.
         function [ self, neuron_IDs ] = create_subtraction_neurons( self )
@@ -1899,6 +1937,15 @@ classdef neuron_manager_class
            
             % Compute and set the sodium channel conductance of the addition subnetwork neurons.
             self = self.compute_set_addition_Gna( neuron_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the neurons for a relative addition subnetwork.
+        function self = design_relative_addition_neurons( self, neuron_IDs )
+           
+            % Compute and set the sodium channel conductance of the relative addition subnetwork neurons.
+            self = self.compute_set_relative_addition_Gna( neuron_IDs );
             
         end
         

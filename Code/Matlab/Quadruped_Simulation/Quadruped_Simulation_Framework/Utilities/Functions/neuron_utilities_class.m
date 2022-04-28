@@ -217,6 +217,15 @@ classdef neuron_utilities_class
         end
         
         
+        % Implement a function to compute the sodium channel conductance of a relative addition subnetwork neuron.
+        function Gna = compute_relative_addition_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;
+            
+        end
+        
+        
         % Implement a function to compute the sodium channel conductance of a subtraction subnetwork neuron.
         function Gna = compute_subtraction_Gna( ~ )
             

@@ -922,6 +922,32 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute and set the synaptic reversal potential of a relative addition subnetwork.
+        function self = compute_set_relative_addition_dEsyn1( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_dEsyn1(  );
+                                
+            end
+            
+        end
+        
+        
         % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
         function self = compute_set_addition_dEsyn2( self, synapse_IDs )
                     
@@ -947,6 +973,32 @@ classdef synapse_manager_class
             
         end
         
+        
+        % Implement a function to compute and set the synaptic reversal potential of a relative addition subnetwork.
+        function self = compute_set_relative_addition_dEsyn2( self, synapse_IDs )
+                    
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_dEsyn2(  );
+                                
+            end
+            
+        end
+
         
         % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
         function self = compute_set_subtraction_dEsyn1( self, synapse_IDs )
@@ -1898,6 +1950,21 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapses for a relative addition subnetwork.
+        function [ self, synapse_IDs ] = create_relative_addition_synapses( self, neuron_IDs )
+
+            % Create the relative addition subnetwork synapses.
+            [ self, synapse_IDs ] = self.create_synapses( self.NUM_ADDITION_SYNAPSES );
+            
+            % Set the names of the relative addition subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs, { 'Add 13', 'Add 23' }, 'name' );
+            
+            % Connect the relative addition subnetwork synapses to the relative addition subnetwork neurons.
+            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            
+        end
+                
+        
         % Implement a function to create the synapses for a subtraction subnetwork.
         function [ self, synapse_IDs ] = create_subtraction_synapses( self, neuron_IDs )
             
@@ -2232,6 +2299,21 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_addition_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_addition_dEsyn2( synapse_IDs( 2 ) );
+
+        end
+        
+        
+        % Implement a function to design the synapses for a relative addition subnetwork.
+        function [ self, synapse_IDs ] = design_relative_addition_synapses( self, neuron_IDs )
+            
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
+            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
+            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
+            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            
+            % Compute and set the synaptic reversal potential.
+            self = self.compute_set_relative_addition_dEsyn1( synapse_IDs( 1 ) );
+            self = self.compute_set_relative_addition_dEsyn2( synapse_IDs( 2 ) );
 
         end
         

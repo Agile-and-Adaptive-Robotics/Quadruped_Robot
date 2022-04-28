@@ -72,6 +72,16 @@ classdef synapse_utilities_class
             
         end
         
+        
+        % Implement a function to compute the first synaptic reversal potential for a relative addition subnetwork.
+        function dE_syn1 = compute_relative_addition_dEsyn1( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn1 = 194e-3;
+            
+        end
+        
+        
         % Implement a function to compute the second synaptic reversal potential for an addition subnetwork.
         function dE_syn2 = compute_addition_dEsyn2( ~ )
             
@@ -80,6 +90,15 @@ classdef synapse_utilities_class
             
         end
         
+        
+        % Implement a function to compute the second synaptic reversal potential for a relative addition subnetwork.
+        function dE_syn2 = compute_relative_addition_dEsyn2( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn2 = 194e-3;
+            
+        end
+
         
         % Implement a function to compute the synaptic reversal potential for a subtraction subnetwork.
         function dE_syn1 = compute_subtraction_dEsyn1( ~ )

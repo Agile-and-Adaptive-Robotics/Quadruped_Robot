@@ -97,6 +97,16 @@ classdef synapse_class
         end
         
         
+        % Implement a function to compute the synaptic reversal potential of a relative addition subnetwork.
+        function dE_syn1 = compute_relative_addition_dEsyn1( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn1 = self.synapse_utilities.compute_relative_addition_dEsyn1(  );
+            
+        end
+        
+        
+        
         % Implement a function to compute the synaptic reversal potential of an addition subnetwork.
         function dE_syn2 = compute_addition_dEsyn2( self )
             
@@ -106,6 +116,15 @@ classdef synapse_class
         end
         
         
+        % Implement a function to compute the synaptic reversal potential of a relative addition subnetwork.
+        function dE_syn2 = compute_relative_addition_dEsyn2( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn2 = self.synapse_utilities.compute_relative_addition_dEsyn2(  );
+            
+        end
+        
+
         % Implement a function to compute the synaptic reversal potential of a subtraction subnetwork.
         function dE_syn1 = compute_subtraction_dEsyn1( self )
             
@@ -270,11 +289,29 @@ classdef synapse_class
         end
         
         
+        % Implement a function to compute and set the synaptic reversal potential of a relative addition subnetwork.
+        function self = compute_set_relative_addition_dEsyn1( self )
+            
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_relative_addition_dEsyn1(  );
+            
+        end
+        
+        
         % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
         function self = compute_set_addition_dEsyn2( self )
             
             % Compute and set the synaptic reversal potential.
             self.dE_syn = self.compute_addition_dEsyn2(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a relative addition subnetwork.
+        function self = compute_set_relative_addition_dEsyn2( self )
+            
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_relative_addition_dEsyn2(  );
             
         end
         
