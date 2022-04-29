@@ -16,8 +16,8 @@ syms g m1 m2 m3 I1 I2 I3 c1 c2 c3 k1 k2 k3 L1 L2 L3 R1 R2 R3 theta1o theta2o the
 % I2 = (1/12)*m2*L2^2;
 % I3 = (1/12)*m3*L3^2;
 I1 = (1/3)*m1*( L1^2 - 3*L1*R1 + 3*R1^2 );
-I2 = (1/3)*m1*( L2^2 - 3*L2*R2 + 3*R2^2 );
-I3 = (1/3)*m1*( L3^2 - 3*L3*R3 + 3*R3^2 );
+I2 = (1/3)*m2*( L2^2 - 3*L2*R2 + 3*R2^2 );
+I3 = (1/3)*m3*( L3^2 - 3*L3*R3 + 3*R3^2 );
 
 % Define canonical angles.
 phi1 = pi - theta1;
@@ -40,14 +40,19 @@ dx2 = diff( x2, t ); dy2 = diff( y2, t );
 dx3 = diff( x3, t ); dy3 = diff( y3, t );
 
 % Substitute in convenient angle derivative variables.
-dx1 = subs( dx1, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] );
-dx2 = subs( dx2, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] );
-dx3 = subs( dx3, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] );
+dx1 = subs( dx1, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] ); dy1 = subs( dy1, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] );
+dx2 = subs( dx2, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] ); dy2 = subs( dy2, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] );
+dx3 = subs( dx3, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] ); dy3 = subs( dy3, [ diff( theta1( t ), t ) diff( theta2( t ), t ) diff( theta3( t ), t ) ], [ dtheta1 dtheta2 dtheta3 ] );
+
+% Compute the velocity magnitudes of the centers of mass.
+v1 = sqrt( dx1.^2 + dy1.^2 );
+v2 = sqrt( dx2.^2 + dy2.^2 );
+v3 = sqrt( dx3.^2 + dy3.^2 );
 
 % Compute the kinetic energy.
-T1 = (1/2)*m1*dx1.^2 + (1/2)*I1*dtheta1.^2; T1 = simplify( T1 );
-T2 = (1/2)*m2*dx2.^2 + (1/2)*I2*dtheta2.^2; T2 = simplify( T2 );
-T3 = (1/2)*m3*dx3.^2 + (1/2)*I3*dtheta3.^2; T3 = simplify( T3 );
+T1 = (1/2)*m1*v1.^2 + (1/2)*I1*dtheta1.^2; T1 = simplify( T1 );
+T2 = (1/2)*m2*v2.^2 + (1/2)*I2*dtheta2.^2; T2 = simplify( T2 );
+T3 = (1/2)*m3*v3.^2 + (1/2)*I3*dtheta3.^2; T3 = simplify( T3 );
 T = T1 + T2 + T3;
 
 % Compute the potential energy.
@@ -57,13 +62,16 @@ V3 = -m3*g*y3 + (1/2)*k3*( theta3 - theta3o ).^2; V3 = simplify( V3 );
 V = V1 + V2 + V3;
 
 % Compute the energy dissipation term.
-C1 = (1/2)*c1*dx1.^2; C1 = simplify( C1 );
-C2 = (1/2)*c2*dx2.^2; C2 = simplify( C2 );
-C3 = (1/2)*c3*dx3.^2; C3 = simplify( C3 );
+C1 = (1/2)*c1*v1.^2; C1 = simplify( C1 );
+C2 = (1/2)*c2*v2.^2; C2 = simplify( C2 );
+C3 = (1/2)*c3*v3.^2; C3 = simplify( C3 );
 C = C1 + C2 + C3;
 
 % Compute the Largangian.
 L = T - V; L = simplify( L );
+
+% Compute the total energy.
+Etotal = T + V;
 
 % Remove the time dependence terms.
 Law = subs( L, [ theta1 theta2 theta3 dtheta1 dtheta2 dtheta3 ], [ a1 a2 a3 w1 w2 w3 ] );
@@ -134,8 +142,8 @@ m1_value = 0.001 * 13.26;                   % [kg]
 R1_value = 0.01 * 1.305;                    % [m]
 L1_value = 0.01 * 2.9;                      % [m]
 % I1 = (1/3) * M1 * (L1)^2;                 % [kg*m^2]
-c1_value = 1e-2;                            % [Ns/m]
-% c1_value = 0;                            % [Ns/m]
+% c1_value = 1e-2;                            % [Ns/m]
+c1_value = 0;                            % [Ns/m]
 k1_value = 0;                               % [N/m]
 theta1o_value = ( pi/180 )*135;             % [rad]
 
@@ -145,8 +153,8 @@ R2_value = 0.01 * 1.558;                    % [m]
 L2_value = 0.01 * 4.1;                      % [m]
 % I2 = (1/3) * M2 * (L2)^2;                 % [kg*m^2]
 % c2_value = 1;                            % [Ns/m]
-c2_value = 1e-2;                            % [Ns/m]
-% c2_value = 0;                            % [Ns/m]
+% c2_value = 1e-2;                            % [Ns/m]
+c2_value = 0;                            % [Ns/m]
 k2_value = 0;                               % [N/m]
 theta2o_value = ( pi/180 )*135;             % [rad]
 
@@ -156,8 +164,8 @@ R3_value = 0.01 * 1.6;                      % [m]
 L3_value = 0.01 * 3.3;                      % [m]
 % I3 = (1/3) * M3 * L3^2;                   % [kg*m^2]
 % c3_value = 1;                            % [Ns/m]
-c3_value = 1e-2;                            % [Ns/m]
-% c3_value = 0;                            % [Ns/m]
+% c3_value = 1e-2;                            % [Ns/m]
+c3_value = 0;                            % [Ns/m]
 k3_value = 0;                               % [N/m]
 theta3o_value = ( pi/180 )*135;             % [rad]
 
@@ -234,8 +242,8 @@ V3_value = subs( V3, [ L1 L2 L3 R1 R2 R3 m1 m2 m3 c1 c2 c3 k1 k2 k3 theta1o thet
 
 
 % Create anonymous functions from the Lagrangian energy components.
-fT1_temp = matlabFunction( subs( T1_value, [ theta1 dtheta1 theta2 dtheta2 theta3 dtheta3 ], [ u1 u2 u3 u4 u5 u6 ] ) ); fT1 = @( t, u ) fT1_temp( t, u(1), u(2) );
-fT2_temp = matlabFunction( subs( T2_value, [ theta1 dtheta1 theta2 dtheta2 theta3 dtheta3 ], [ u1 u2 u3 u4 u5 u6 ] ) ); fT2 = @( t, u ) fT2_temp( t, u(1), u(2), u(3), u(4) );
+fT1_temp = matlabFunction( subs( T1_value, [ theta1 dtheta1 theta2 dtheta2 theta3 dtheta3 ], [ u1 u2 u3 u4 u5 u6 ] ) ); fT1 = @( t, u ) fT1_temp( t, u(2) );
+fT2_temp = matlabFunction( subs( T2_value, [ theta1 dtheta1 theta2 dtheta2 theta3 dtheta3 ], [ u1 u2 u3 u4 u5 u6 ] ) ); fT2 = @( t, u ) fT2_temp( t, u(2), u(3), u(4) );
 fT3_temp = matlabFunction( subs( T3_value, [ theta1 dtheta1 theta2 dtheta2 theta3 dtheta3 ], [ u1 u2 u3 u4 u5 u6 ] ) ); fT3 = @( t, u ) fT3_temp( t, u(1), u(2), u(3), u(4), u(5), u(6) );
 fT = @( t, u ) fT1( t, u ) + fT2( t, u ) + fT3( t, u );
 
@@ -245,6 +253,8 @@ fV3_temp = matlabFunction( subs( V3_value, [ theta1 dtheta1 theta2 dtheta2 theta
 fV = @( t, u ) fV1( t, u ) + fV2( t, u ) + fV3( t, u );
 
 fL = @( t, u ) fT( t, u ) - fV( t, u );
+
+fEtotal = @( t, u ) fT( t, u ) + fV( t, u );
 
 
 %% Simulate the Triple Pendulum Dynamics.
@@ -260,6 +270,7 @@ taus = zeros( 3, 1 );
 % theta0s = ( pi/180 )*[ 0; 180; 180 ];
 % theta0s = ( pi/180 )*[ 90; 180; 90 ];
 theta0s = ( pi/180 )*[ 60; 180; 180 ];
+% theta0s = ( pi/180 )*[ -60; 180; 180 ];
 
 % Define the initial joint angular velocities.
 w0s = zeros( 3, 1 );
@@ -269,8 +280,8 @@ u0s = [ theta0s( 1 ); w0s( 1 ); theta0s( 2 ); w0s( 2 ); theta0s( 3 ); w0s( 3 ); 
 
 % Simulate the triple pendulum dynamics.
 % [ ts, us ] = ode113( @( t, u ) fdu( t, u, taus ), [ 0 tf ], u0s );
-% [ ts, us ] = ode45( @( t, u ) fdu( t, u, taus ), [ 0 tf ], u0s );
-[ ts, us ] = ode15s( @( t, u ) fdu( t, u, taus ), [ 0 tf ], u0s );
+[ ts, us ] = ode45( @( t, u ) fdu( t, u, taus ), [ 0 tf ], u0s );
+% [ ts, us ] = ode15s( @( t, u ) fdu( t, u, taus ), [ 0 tf ], u0s );
 
 
 %% Compute Center-Of-Mass Trajectories.
@@ -286,7 +297,7 @@ us_sample = interp1( ts, us, ts_sample );
 num_timesteps = length( ts_sample );
 
 % Preallocate arrays to store the kinematic results.
-[ xs1, ys1, xs2, ys2, xs3, ys3, xs_knee, ys_knee, xs_ankle, ys_ankle, xs_foot, ys_foot, T1s, T2s, T3s, Ts, V1s, V2s, V3s, Vs, Ls ] = deal( zeros( num_timesteps, 1 ) );
+[ xs1, ys1, xs2, ys2, xs3, ys3, xs_knee, ys_knee, xs_ankle, ys_ankle, xs_foot, ys_foot, T1s, T2s, T3s, Ts, V1s, V2s, V3s, Vs, Ls, Etotals ] = deal( zeros( num_timesteps, 1 ) );
 
 % Compute the center of mass trajectories.
 for k = 1:num_timesteps                     % Iterate through all of the timesteps...
@@ -326,6 +337,8 @@ for k = 1:num_timesteps                     % Iterate through all of the timeste
     
     Ls( k ) = fL( ts_sample( k ), us_sample( k, : ) );
     
+    Etotals( k ) = fEtotal( ts_sample( k ), us_sample( k, : ) );
+    
 end
 
 
@@ -349,8 +362,8 @@ legend( { 'Link 1', 'Link 2', 'Link 3' }, 'Location', 'Southoutside', 'Orientati
 
 % Create a figure to store the triple pendulum total energies over time.
 figure( 'Color', 'w', 'Name', 'Triple Pendulum Total Energies' ), hold on, grid on, xlabel('Time [s]'), ylabel('Energy [J]'), title('Energy vs Time')
-plot( ts_sample, Ts, '-', 'Linewidth', 3 ), plot( ts_sample, Vs, '-', 'Linewidth', 3 ), plot( ts_sample, Ls, '-', 'Linewidth', 3 )
-legend( { 'Kinetic Energy', 'Potential Energy', 'Lagrangian' }, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+plot( ts_sample, Ts, '-', 'Linewidth', 3 ), plot( ts_sample, Vs, '-', 'Linewidth', 3 ), plot( ts_sample, Ls, '-', 'Linewidth', 3 ), plot( ts_sample, Etotals, '-', 'Linewidth', 3 )
+legend( { 'Kinetic Energy', 'Potential Energy', 'Lagrangian', 'Total Energy' }, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
 
 % Create a figure to store an animation of the simulation results.
 fig = figure( 'Color', 'w', 'Name', 'Triple Pendulum Animation' ); hold on, grid on, xlabel('x [in]'), ylabel('y [in]'), title('Triple Pendulum Animation'), axis( 39.3701*[ -( L1_value + L2_value + L3_value ), L1_value + L2_value + L3_value, -( L1_value + L2_value + L3_value ), L1_value + L2_value + L3_value ] )
