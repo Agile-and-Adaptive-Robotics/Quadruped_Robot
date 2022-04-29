@@ -7,7 +7,8 @@
 # Import standard libraries.
 import numpy as np
 import matplotlib.pyplot as plt
-
+import lava
+import lava.lib.dl.slayer as slayer
 
 # Import custom libraries.
 
