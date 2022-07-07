@@ -1,12 +1,8 @@
 /*
- * PWM_Testing
+ * Angle_Test
  * 
  * Tests control of test bench leg through pulse width modulation (PWM)
  * Program outputs angle of hip, knee, and ankle joint during pulsing
- * 
- * IN PROGRESS: 
- * Tracks minimum and maximum reading for each joint per 10-second cycle
- * Program outputs their difference (variance)
  * 
  * Author: Flora Huang
  * Last Updated: 6 July 2022
@@ -191,19 +187,19 @@ void displayJointInfo() {
     Serial.print(angleHip);
     Serial.print("\t");
     // Serial.print("Hip Var = ");
-    Serial.print(maxHip - minHip);
-    Serial.print("\t");
+    // Serial.print(maxHip - minHip);
+    // Serial.print("\t");
     // Serial.print("Knee Angle = ");
     Serial.print(angleKne);
     Serial.print("\t");
     // Serial.print("Knee Var = ");
-    Serial.print(maxKne - minKne);
-    Serial.print("\t");
+    // Serial.print(maxKne - minKne);
+    // Serial.print("\t");
     // Serial.print("Ankle Angle = ");
     Serial.print(angleAnk);
-    Serial.print("\t");
+    // Serial.print("\t");
     // Serial.print("Ankle Var = ");
-    Serial.print(maxAnk - minAnk);
+    // Serial.print(maxAnk - minAnk);
     Serial.println();
     previousPrint = millis();
   }
