@@ -4,29 +4,38 @@
  * Program adjusts pulsing parameters to achieve desired joint angle
  * 
  * TO DO: 
- * Implement knee and ankle control
- * Simultaneous control of multiple joints
+ * Simultaneous control of multiple joints (how to not have different muscles counteract each other?)
+ * Smoothen motion towards target (shorter/more increments?)
  * 
  * ISSUES: 
  * Angle readings incosistent (issue with encoders?)
- * Are ankle and knee muscles switched?
+ * Are ankle and knee muscles switched? Figure out effects of each muscle
  * 
  * Author: Flora Huang
  * Last Updated: 8 July 2022
  */
 
- /*
-  * HIP:
-  * Hip1: [-42.28, 0]
-  * Hip2: [0, 26.56]
-  * 
-  * KNEE:
-  * Ankle2: [-45, 0]
-  * 
-  * ANKLE:
-  * Knee1: [0, 25]
-  */
- 
+/*
+ * SOLO ANGLE RANGES:
+ * 
+ * HIP:
+ * Hip1: [-42.28, 0]
+ * Hip2: [0, 26.56]
+ * 
+ * KNEE:
+ * Ankle2: [-45, 0]
+ * 
+ * ANKLE:
+ * Knee1: [0, 25]
+ */
+
+/*
+ * TARGET SET:
+ * angleHip = -18
+ * angleKne = -22
+ * angleAnk = 40
+ */
+  
 # include <Arduino.h>
 # include <Encoder.h>
 
@@ -47,9 +56,9 @@ Encoder encoderKne(6,7);
 float angleHip, angleKne, angleAnk;
 
 // Control parameters:
-float targetHip = 10;
-float targetKne;
-float targetAnk;
+float targetHip = -10;
+float targetKne = -20;
+float targetAnk = 10;
 float deviation = 5;   // Accepted deviation(+/-) from target angle
 
 // Pulsing paramters:
@@ -65,12 +74,12 @@ void setup() {
   Serial.begin(115200);
 
   // Set pins to output:
-  pinMode(Hip1, OUTPUT);
-  pinMode(Hip2, OUTPUT);
-  pinMode(Ankle1, OUTPUT);
-  pinMode(Ankle2, OUTPUT);
-  pinMode(Knee1, OUTPUT);
-  pinMode(Knee2, OUTPUT);
+  pinMode(Hip1, OUTPUT);     // Moves hip right
+  pinMode(Hip2, OUTPUT);     // Moves hip left 
+  pinMode(Ankle1, OUTPUT);   // Moves knee left <- only works when hip is pulsing left
+  pinMode(Ankle2, OUTPUT);   // Moves knee right
+  pinMode(Knee1, OUTPUT);    // Moves ankle left
+  pinMode(Knee2, OUTPUT);    // ???
 }
 
 void loop() {
@@ -90,15 +99,15 @@ void loop() {
     // Only make new adjustment once every 5 seconds:
     if (millis() - previousAdjust > 5000) {
       adjustHip();
-      // adjustKne();
-      // adjustAnk();
+      adjustKne();
+      adjustAnk();
       previousAdjust = millis();
     }
 
     // Pulse according to current paramters: 
     pulseMuscle(currHip, dtOnHip);
-    // pulseMuscle(currKne, dtOnKne);
-    // pulseMuscle(currAnk, dtOnAnk);
+    pulseMuscle(currKne, dtOnKne);
+    pulseMuscle(currAnk, dtOnAnk);
 
     displayStatus();
   } else {
@@ -166,6 +175,32 @@ void adjustHip() {
   }
 }
 
+void adjustKne() {
+/*
+ * Adjust knee to target angle
+ */
+  currKne = Ankle2;
+
+  if (angleKne < (targetKne - deviation)) {
+    dtOnKne -= 5;
+  } else if (angleKne > (targetKne + deviation)) {
+    dtOnKne += 5;
+  }
+}
+
+void adjustAnk() {
+/*
+ * Adjust ankle to target ankle
+ */
+  currAnk = Knee1;
+
+  if (angleAnk < (targetAnk - deviation)) {
+    dtOnAnk += 5;
+  } else if (angleAnk > (targetAnk + deviation)) {
+    dtOnAnk -= 5;
+  }
+}
+
 void displayStatus() {
 /*
  * Print status of joints
@@ -173,12 +208,11 @@ void displayStatus() {
   readJoints();
   
   if (millis() - previousPrint > 1000) {
-    Serial.print("\nHip target = ");
+    Serial.print("Hip target = ");
     Serial.print(targetHip);
     Serial.print("\t");
     Serial.print("Hip angle = ");
     Serial.println(angleHip);
-    /*
     Serial.print("Knee target = ");
     Serial.print(targetKne);
     Serial.print("\t");
@@ -189,7 +223,6 @@ void displayStatus() {
     Serial.print("\t");
     Serial.print("Ankle angle = ");
     Serial.println(angleAnk);
-    */
 
     previousPrint = millis();
   }
