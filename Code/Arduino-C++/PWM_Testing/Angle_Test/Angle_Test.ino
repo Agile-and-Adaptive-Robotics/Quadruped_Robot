@@ -26,7 +26,6 @@ Encoder encoderKne(6,7);
 
 // Variables for joints:
 float angleHip, angleKne, angleAnk;         // Averaged joint angle
-float tempAvgHip, tempAvgKne, tempAvgAnk;   // Cumulative sum of 20 angle measurements 
 
 // Variables for muscles:
 int currMuscle;   // Muscle currently being pulsed
@@ -114,8 +113,6 @@ void setupPulse() {
   angleHip = encoderHip.read()*0.04395;
   angleKne = encoderKne.read()*0.04395;
   angleAnk = encoderAnk.read()*0.04395;
-
-  tempAvgHip = tempAvgKne = tempAvgAnk = 0;
 }
 
 void pulseMuscle() {
@@ -141,6 +138,7 @@ void updateJointInfo() {
  * Read and update joint angles
  */
   float beta = 0.15;
+  float tempAvgHip = 0, tempAvgKne = 0, tempAvgAnk = 0;
 
   // Sum 20 angle readings for each joint and convert to degrees:
   for (int i=0; i<20; i++) {
