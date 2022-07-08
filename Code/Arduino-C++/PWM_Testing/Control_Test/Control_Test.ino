@@ -5,7 +5,7 @@
  * Program adjusts pulsing parameters to achieve desired joint angle
  * 
  * Author: Flora Huang
- * Last Updated: 7 July 2022
+ * Last Updated: 8 July 2022
  */
 
  /*
@@ -34,11 +34,18 @@ Encoder encoderKne(6,7);
 float angleHip = 0, angleKne = 0, angleAnk = 0;
 
 // Control parameters:
-float targetHip, targetKne, targetAnk;
+float targetHip = -10
+float targetKne;
+float targetAnk;
 float deviation = 5;   // Accepted deviation(+/-) from target angle
 
+// Pulsing paramters:
+int dtOnHip = 0, dtOnKne = 0, dtOnAnk = 0; // [ms] Amount of time muscle is set to HIGH when pulsing
+int currHip, currKne, currAnk;             // Muscle currently being pulsed
+
 // Other variables:
-bool systemOn = false;   // Whether pulsing functions are currently running
+bool systemOn                = false;   // Whether muscles are currently being pulsed
+unsigned long previousAdjust = 0;       // Last time pulsing was adjusted
 
 void setup() {
   Serial.begin(115200);
@@ -53,48 +60,45 @@ void setup() {
 }
 
 void loop() {
-  // If 1 is entered, toggle systemOn:
+  // If 1 is entered, toggle system on/off:
   if (Serial.available()) {
-    if (Serial.read() == 1) {
+    if (Serial.read() == '1') {
       systemOn = !systemOn;
+      resetVariables();
+      // TO DO: Wait 5 seconds (to not run into error with adjustment delay)
     }
     Serial.flush();
   }
 
   // If system is on, adjust joints. Otherwise, turn off all muscles:
   if (systemOn) {
-    adjustHip();
-    adjustKne();
-    adjustAnk();
+    // Only make new adjustment once every 5 seconds:
+    if (millis() - previousAdjust > 5000) {
+      readJoints();
+      adjustHip();
+      // adjustKne();
+      // adjustAnk();
+      previousAdjust = millis();
+    }
+
+    // Pulse according to current paramters: 
+    pulseMuscle(currHip, dtOnHip);
+    // pulseMuscle(currKne, dtOnKne);
+    // pulseMuscle(currAnk, dtOnAnk);
   } else {
     resetMuscles();
-    angleHip = angleKne = angleAnk = 0;   // Reset angle variables
   }
 }
 
-void adjustHip() {
+void resetVariables() {
 /*
- * Adjust hip to target angle
+ * Reset variables after pulsing starts/stops
  */
-  readJoints();   // Read current angle of joints
-  
-  if (targetHip >= 0) {
-    if (angleHip < (targetHip - deviation) {
-      // Increase Hip2 dtOn
-    } else if (angleHip > (targetHip + deviation)) {
-      // Decrease Hip2 dtOn
-    } else {
-      // Maintain Hip2 dtOn
-    }
-  } else if (targetHip < 0) {
-    if (angleHip < (targetHip - deviation) {
-      // Decrease Hip1 dtOn
-    } else if (angleHip > (targetHip + deviation) {
-      // Increase Hip1 dtOn
-    } else {
-      // Maintain Hip1 dtOn
-    }
-  }
+ angleHip = encoderHip.read()*0.04395;
+ angleKne = encoderKne.read()*0.04395;
+ angleAnk = encoderAnk.read()*0.04395;
+
+ dtOnHip = dtOnKne = dtOnAnk = 0;
 }
 
 void readJoints() {
@@ -120,6 +124,50 @@ void readJoints() {
   angleHip = beta*tempAvgHip + (1-beta)*angleHip;
   angleKne = beta*tempAvgKne + (1-beta)*angleKne;
   angleAnk = beta*tempAvgAnk + (1-beta)*angleAnk; 
+}
+
+void adjustHip() {
+/*
+ * Adjust hip to target angle
+ */    
+  if (targetHip >= 0) {
+    currHip = Hip2;
+      
+    if (angleHip < (targetHip - deviation)) {
+      dtOnHip += 5;
+    } else if (angleHip > (targetHip + deviation)) {
+      dtOnHip -= 5;
+    } else {
+      // Maintain Hip2 dtOn
+    }
+  } else if (targetHip < 0) {
+    currHip = Hip1;
+      
+    if (angleHip < (targetHip - deviation)) {
+      dtOnHip -= 5;
+    } else if (angleHip > (targetHip + deviation)) {
+      dtOnHip += 5;
+    } else {
+      // Maintain Hip1 dtOn
+    }
+  }
+}
+
+void pulseMuscle(int muscle, int dtOn) {
+/*
+ * Pulses given muscle at given dtOn
+ */
+  // Variables for pulsing:
+  int freq    = 20;                  // [Hz] Number of periods per 1000 milliseconds
+  int period  = 1000/freq;           // [ms] Length of each period
+  int relTime = millis() % period;   // Relative time within each period
+
+  // Turn muscle on or off based on relative time:
+  if (relTime <= dtOn) {
+    digitalWrite(muscle, HIGH);
+  } else {
+    digitalWrite(muscle, LOW);
+  }
 }
 
 void resetMuscles() {
