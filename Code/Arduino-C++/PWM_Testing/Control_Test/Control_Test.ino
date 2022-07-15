@@ -3,25 +3,29 @@
  * 
  * Program adjusts pulsing parameters to achieve desired joint angle
  * 
- * TO DO: 
- * 1. Integrate dtOn vs. joint angle equations
- * 2. Redo knee and ankle control (figure out effects of muscles)
- * 3. Simultaneous control of multiple joints (how to not have different muscles counteract each other?)
+ * TO DO:: 
+ * - Redo knee and ankle control
+ * - Simultaneous control of multiple joints (how to not have different muscles counteract each other?)
+ * 
+ * ISSUES:
+ * - Hip gets stuck at low dtOn values
+ * - Hip behaves erratically after first cycle (alternate pulsing?)
+ * - Time slippage
  * 
  * Author: Flora Huang
- * Last Updated: 13 July 2022
+ * Last Updated: 15 July 2022
  */
   
 # include <Arduino.h>
 # include <Encoder.h>
 
 // Define pins for muscles:
-# define Hip1 32     // Moves hip right
-# define Hip2 33     // Moves hip left 
-# define Ankle1 34   // Moves knee left <- only works when hip is pulsing left
-# define Ankle2 36   // Moves knee right
-# define Knee1 35    // Moves ankle left
-# define Knee2 37    // ???
+# define Hip1 32    
+# define Hip2 33      
+# define Knee1 36
+# define Knee2 34    
+# define Ankle1 37
+# define Ankle2 35 
 
 // Create Encoder objects for joints:
 Encoder encoderHip(2,3);
@@ -35,10 +39,11 @@ float angleHip, angleKne, angleAnk;
 float targetHip = 10;
 float targetKne = -20;
 float targetAnk = 10;
+int deviation   = 1;   // Amount of deviation(+/-) allowed from target
 
 // Pulsing paramters:
 int currHip, currKne, currAnk;   // Muscle currently being pulsed
-int dtOnHip, dtOnKne, dtOnAnk;   // [ms] Amount of time muscle is set to HIGH when pulsing
+float dtOnHip, dtOnKne, dtOnAnk;   // [ms] Amount of time muscle is set to HIGH when pulsing
 
 // Other variables:
 bool systemOn                = false;   // Whether muscles are currently being pulsed
@@ -115,9 +120,47 @@ void readJoints() {
 void adjustHip() {
 /*
  * Adjust hip to target angle
- * TO DO: Integrate best fit equations into adaptive logic
  */    
-  // 
+  int adjustAmount;   // [degrees] Amount by which hip angle should be adjusted
+  readJoints();
+
+  // If angleHip is too low adjust up. Otherwise if too large, adjust down:
+  if (angleHip < (targetHip - deviation)) {
+    adjustAmount = 2;
+  } else if (angleHip > (targetHip + deviation)) {
+    adjustAmount = -2;
+  } else {
+    return;   // Don't do anything if within target range
+  }
+  
+  // Select correct muscle to pulse:
+  if (targetHip >= 0) {
+    currHip = Hip2;
+  } else {
+    currHip = Hip1;
+  }
+
+  // Change dtOn based on current position: 
+  if (angleHip <= -44.739) {
+    dtOnHip = exp(((angleHip + adjustAmount) + 15.4466) / -8.26376);
+  } else if (angleHip <= -31.721) {
+    dtOnHip = exp(((angleHip + adjustAmount) - 37.9365) / -23.3237);
+  } else if (angleHip <= 0) {
+    dtOnHip = exp(((angleHip + adjustAmount) - 60.6077) / -30.9148);
+  } else if (angleHip <= 17.049) {
+    dtOnHip = exp(((angleHip + adjustAmount) + 72.8896) / 33.4555);
+  } else if (angleHip <= 29.208) {
+    dtOnHip = exp(((angleHip + adjustAmount) + 22.2) / 14.6);
+  } else {
+    dtOnHip = exp(((angleHip + adjustAmount) - 28.8104) / 0.112872);
+  }
+
+  // Ensure dtOn does not exceed possible range:
+  if (dtOnHip < 0) {
+    dtOnHip = 0;
+  } else if (dtOnHip > 50) {
+    dtOnHip = 50;
+  }
 }
 
 void adjustKne() {
@@ -136,14 +179,14 @@ void adjustAnk() {
   //
 }
 
-void pulseMuscle(int muscle, int dtOn) {
+void pulseMuscle(int muscle, float dtOn) {
 /*
  * Pulses given muscle at given dtOn
  */
   // Variables for pulsing:
-  int freq    = 20;                  // [Hz] Number of periods per 1000 milliseconds
-  int period  = 1000/freq;           // [ms] Length of each period
-  int relTime = millis() % period;   // Relative time within each period
+  int freq    = 20;                       // [Hz] Number of periods per 1000 milliseconds
+  int period  = 1000/freq;                // [ms] Length of each period
+  int relTime = millis() % period;        // Relative time within each period
 
   // Turn muscle on or off based on relative time:
   if (relTime <= dtOn) {
@@ -157,14 +200,17 @@ void displayStatus() {
 /*
  * Print status of joints
  */  
-  if (millis() - previousPrint > 1000) {
+  if (millis() - previousPrint > 200) {
     readJoints();
     
     Serial.print("Hip target = ");
     Serial.print(targetHip);
     Serial.print("\t");
     Serial.print("Hip angle = ");
-    Serial.println(angleHip);
+    Serial.print(angleHip);
+    Serial.print("\t");
+    Serial.print("dtOn = ");
+    Serial.println(dtOnHip);
     /*
     Serial.print("Knee target = ");
     Serial.print(targetKne);

@@ -120,7 +120,7 @@ void pulseMuscle() {
  * Pulses given muscle
  */
   // Variables for pulsing:
-  int dtOn    = 10;                  // [ms] Time on HIGH per period
+  int dtOn    = 30;                  // [ms] Time on HIGH per period
   int freq    = 20;                  // [Hz] Number of periods per 1000 milliseconds
   int period  = 1000/freq;           // [ms] Length of each period
   int relTime = millis() % period;   // Relative time within each period
