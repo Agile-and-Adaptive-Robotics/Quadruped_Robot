@@ -13,7 +13,7 @@
  * - Functions may no longer be accurate (pressure changed?)
  * 
  * Author: Flora Huang
- * Last Updated: 15 July 2022
+ * Last Updated: 21 July 2022
  */
 
 # include <Arduino.h>
@@ -33,17 +33,18 @@ Encoder encoderAnk(4,5);
 Encoder encoderKne(6,7);
 
 // Program control (time, on/off, etc.) variables:
-bool pulsing                = false;   // Whether muscles are currently pulsing
-unsigned long pulseStart    = 0;       // Time pulsing began
-unsigned long previousPrint = 0;       // Time info was previously printed
+bool pulsing                 = false;   // Whether muscles are currently pulsing
+unsigned long pulseStart     = 0;       // Time pulsing began
+unsigned long previousPrint  = 0;       // Time info was previously printed
+unsigned long previousAdjust = 0;       // Time joint angle was previously adjusted
 
 // Motion stages constants:
 // Length of stage x = STAGE_x * STAGE_LENGTH
 const int STAGE_1      = 25;   // Hip + to 0
-const int STAGE_2      = 0;    // Hip 0 to - 
+const int STAGE_2      = 25;   // Hip 0 to - 
 const int STAGE_3      = 25;   // Knee/ankle bend
 const int STAGE_4      = 25;   // Hip - to 0
-const int STAGE_5      = 0;    // Hip 0 to +
+const int STAGE_5      = 25;   // Hip 0 to +
 const int STAGE_6      = 25;   // Knee/ankle straighten
 const int STAGE_TOTAL  = STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6;
 const int STAGE_LENGTH = 200;   // [ms]
@@ -64,6 +65,7 @@ float initHip, initKne, initAnk;      // Joint angles at beginning of current st
 const float HIP_TARGET = 25;
 const float KNE_TARGET = 0;
 const float ANK_TARGET = 0;
+const int DEVIATION    = 1;   // [degrees] Accepted deviation from target angle
 
 // Joint target variables (reference target at current time):
 float refHip, refKne, refAnk;
@@ -107,6 +109,8 @@ void loop() {
     // Relative time within each step:
     int stepTime;   
 
+    readJoints();
+
     // Select leg actions based on current stage in cycle:
     if (cycTime < STAGE_1) {
       if (millis() - stage1_start > STAGE_1 * STAGE_LENGTH) {
@@ -128,7 +132,7 @@ void loop() {
       } 
 
       stepTime = cycTime - STAGE_1;
-      // Hold hip
+      adjustHip(-HIP_TARGET);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3) {
       if (millis() - stage3_start > STAGE_3 * STAGE_LENGTH) {
@@ -161,7 +165,7 @@ void loop() {
       } 
 
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4);
-      // Hold hip
+      adjustHip(HIP_TARGET);
     } 
     else {
       if (millis() - stage6_start > STAGE_6 * STAGE_LENGTH) {
@@ -176,14 +180,13 @@ void loop() {
     }
 
     pulseMuscle(currHip, dtOnHip);
-    readJoints();
     displayInfo();
   }
 }
 
 void extendLeg(char joint, float initAngle, float targetAngle, int totalTime, int currTime) {
 /*
- * Set dtOn to correct value to bring joint to desired angle
+ * Set dtOn to correct value to extend joint to desired angle
  */
   // [degrees] Amount of adjusted from initial angle required:
   float adjustAmount = ((targetAngle - initAngle) / totalTime) * (currTime + 1);
@@ -198,6 +201,60 @@ void extendLeg(char joint, float initAngle, float targetAngle, int totalTime, in
       break;
     case 'a':
       break;
+  }
+}
+
+void adjustHip(float target) {
+/*
+ * Adjust dtOn to tune hip to target angle
+ */
+  if (millis() - previousAdjust >= STAGE_LENGTH) {
+    previousAdjust = millis();
+
+    // Adjust dtOn:
+    if (currHip == Hip1) {
+      if (angleHip < (target - DEVIATION)) {
+        dtOnHip -= 0.5;
+      } else if (angleHip > (target + DEVIATION)) {
+        dtOnHip += 0.5;
+      }
+    } else if (currHip == Hip2) {
+      if (angleHip < (target - DEVIATION)) {
+        dtOnHip += 0.5;
+      } else if (angleHip > (target + DEVIATION)) {
+        dtOnHip -= 0.5;
+      }
+    }
+  }
+}
+
+void adjustLeg(char joint, float angle, float target) {
+/*
+ * Adjust dtOn to tune joint to target angle
+ */
+  int adjustAmount;   // [degrees] Amount by which joint should be adjusted
+  
+  if (millis() - previousAdjust >= STAGE_LENGTH) {
+    previousAdjust = millis();
+
+    // Set adjustment amount: 
+    if (angle < (target - DEVIATION)) {
+      adjustAmount = 1;
+    } else if (angle > (target + DEVIATION)) {
+      adjustAmount = -1;
+    } else {
+      return;
+    }
+
+    switch (joint) {
+      case 'h':
+        calcDtOnHip(angle + adjustAmount);
+        break;
+      case 'k':
+        break;
+      case 'a':
+        break;
+    }
   }
 }
 
@@ -284,7 +341,6 @@ void displayInfo() {
 /*
  * Print information about joints and pulsing
  */
-
   // Print info if enough time has passed since last print:
   if (millis() - previousPrint >= STAGE_LENGTH) {
     Serial.print("Current Hip Target = ");
