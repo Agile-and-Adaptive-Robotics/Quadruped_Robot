@@ -4,16 +4,13 @@
  * Program pulses hip, knee, and ankle simultaneously to sweep leg
  * 
  * TO DO:
- * 1. Sweep hip to desired boundary angles [-25, 25]
- *      -> Sweep to target then adjust adpatively 
- * 2. Sweep knee and angle jointly
- *      -> Pay attention to each other's position
+ * - Implement ankle movement
  * 
  * ISSUES:
- * - Functions may no longer be accurate (pressure changed?)
+ * - Randomly breaks sometimes (hardward overload/time slippage?)
  * 
  * Author: Flora Huang
- * Last Updated: 21 July 2022
+ * Last Updated: 25 July 2022
  */
 
 # include <Arduino.h>
@@ -36,7 +33,9 @@ Encoder encoderKne(6,7);
 bool pulsing                 = false;   // Whether muscles are currently pulsing
 unsigned long pulseStart     = 0;       // Time pulsing began
 unsigned long previousPrint  = 0;       // Time info was previously printed
-unsigned long previousAdjust = 0;       // Time joint angle was previously adjusted
+unsigned long previousAdjHip = 0;       // Time hip was previously adjusted
+unsigned long previousAdjKne = 0;       // Time knee was previously adjusted
+unsigned long previousAdjAnk = 0;       // Time ankle was previously adjusted
 
 // Motion stages constants:
 // Length of stage x = STAGE_x * STAGE_LENGTH
@@ -62,8 +61,8 @@ float angleHip, angleKne, angleAnk;   // Current joint angles
 float initHip, initKne, initAnk;      // Joint angles at beginning of current stage
 
 // Joint target constants:
-const float HIP_TARGET = 25;
-const float KNE_TARGET = 0;
+const float HIP_TARGET = 30;
+const float KNE_TARGET = -30;
 const float ANK_TARGET = 0;
 const int DEVIATION    = 1;   // [degrees] Accepted deviation from target angle
 
@@ -113,82 +112,81 @@ void loop() {
 
     // Select leg actions based on current stage in cycle:
     if (cycTime < STAGE_1) {
-      if (millis() - stage1_start > STAGE_1 * STAGE_LENGTH) {
-        initHip = angleHip;
-        initKne = angleKne;
-        initAnk = angleAnk;
-        stage1_start = millis();
-      } 
-      
+      readInitAngles(&stage1_start, STAGE_1);
       stepTime = cycTime;
+
+      currHip = Hip1;
       extendLeg('h', initHip, -HIP_TARGET, STAGE_1, stepTime);
+      
+      currKne = Knee1;
+      extendLeg('k', initKne, KNE_TARGET, STAGE_1, stepTime);
     } 
     else if (cycTime < STAGE_1 + STAGE_2) {
-      if (millis() - stage2_start > STAGE_2 * STAGE_LENGTH) {
-        initHip = angleHip;
-        initKne = angleKne;
-        initAnk = angleAnk;
-        stage2_start = millis();
-      } 
-
+      readInitAngles(&stage2_start, STAGE_2);
       stepTime = cycTime - STAGE_1;
-      adjustHip(-HIP_TARGET);
+      
+      adjustLeg(angleHip, -HIP_TARGET, &dtOnHip, &previousAdjHip);
+      
+      adjustLeg(angleKne, KNE_TARGET, &dtOnKne, &previousAdjKne);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3) {
-      if (millis() - stage3_start > STAGE_3 * STAGE_LENGTH) {
-        initHip = angleHip;
-        initKne = angleKne;
-        initAnk = angleAnk;
-        stage3_start = millis();
-      } 
-
+      readInitAngles(&stage3_start, STAGE_3);
       stepTime = cycTime - (STAGE_1 + STAGE_2);
+      
       extendLeg('h', initHip, 0, STAGE_3, stepTime);
+      
+      adjustLeg(angleKne, KNE_TARGET, &dtOnKne, &previousAdjKne);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4) {
-      if (millis() - stage4_start > STAGE_4 * STAGE_LENGTH) {
-        initHip = angleHip;
-        initKne = angleKne;
-        initAnk = angleAnk;
-        stage4_start = millis();
-      } 
-      
+      readInitAngles(&stage4_start, STAGE_4);
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3);
+
+      currHip = Hip2;
       extendLeg('h', initHip, HIP_TARGET, STAGE_4, stepTime);
+      
+      extendLeg('k', initKne, 0, STAGE_4, stepTime);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4+ STAGE_5) {
-      if (millis() - stage5_start > STAGE_5 * STAGE_LENGTH) {
-        initHip = angleHip;
-        initKne = angleKne;
-        initAnk = angleAnk;
-        stage5_start = millis();
-      } 
-
+      readInitAngles(&stage5_start, STAGE_5);
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4);
-      adjustHip(HIP_TARGET);
+      
+      adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
+      
+      currKne = Knee2;
+      dtOnKne = 50;
     } 
     else {
-      if (millis() - stage6_start > STAGE_6 * STAGE_LENGTH) {
-        initHip = angleHip;
-        initKne = angleKne;
-        initAnk = angleAnk;
-        stage6_start = millis();
-      } 
-
+      readInitAngles(&stage6_start, STAGE_6);
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5);
+      
       extendLeg('h', initHip, 0, STAGE_6, stepTime);
+      
+      dtOnKne = 50;
     }
 
     pulseMuscle(currHip, dtOnHip);
+    pulseMuscle(currKne, dtOnKne);
     displayInfo();
   }
+}
+
+void readInitAngles(unsigned long *stageStart, int stage) {
+/*
+ * Update initial joint angles at beginning of each step
+ */
+  if (millis() - *stageStart > stage * STAGE_LENGTH) {
+    initHip = angleHip;
+    initKne = angleKne;
+    initAnk = angleAnk;
+    *stageStart = millis();
+  } 
 }
 
 void extendLeg(char joint, float initAngle, float targetAngle, int totalTime, int currTime) {
 /*
  * Set dtOn to correct value to extend joint to desired angle
  */
-  // [degrees] Amount of adjusted from initial angle required:
+  // [degrees] Amount of adjustment from initial angle required:
   float adjustAmount = ((targetAngle - initAngle) / totalTime) * (currTime + 1);
 
   // Update dtOn for correct joint:
@@ -198,63 +196,33 @@ void extendLeg(char joint, float initAngle, float targetAngle, int totalTime, in
       calcDtOnHip(refHip);
       break;
     case 'k':
+      refKne = initAngle + adjustAmount;
+      calcDtOnKne(refKne);
       break;
     case 'a':
       break;
   }
 }
 
-void adjustHip(float target) {
+void adjustLeg(float currAngle, float target, float *dtOn, unsigned long *previousAdj) {
 /*
- * Adjust dtOn to tune hip to target angle
+ * Adjust dtOn to maintain leg at target angle
  */
-  if (millis() - previousAdjust >= STAGE_LENGTH) {
-    previousAdjust = millis();
-
-    // Adjust dtOn:
-    if (currHip == Hip1) {
-      if (angleHip < (target - DEVIATION)) {
-        dtOnHip -= 0.5;
+  if (millis() - *previousAdj >= STAGE_LENGTH) {
+    if (target >= 0) {
+      if (currAngle < (target - DEVIATION)) {
+        *dtOn += 0.5;
       } else if (angleHip > (target + DEVIATION)) {
-        dtOnHip += 0.5;
+        *dtOn -= 0.5;
       }
-    } else if (currHip == Hip2) {
-      if (angleHip < (target - DEVIATION)) {
-        dtOnHip += 0.5;
-      } else if (angleHip > (target + DEVIATION)) {
-        dtOnHip -= 0.5;
-      }
-    }
-  }
-}
-
-void adjustLeg(char joint, float angle, float target) {
-/*
- * Adjust dtOn to tune joint to target angle
- */
-  int adjustAmount;   // [degrees] Amount by which joint should be adjusted
-  
-  if (millis() - previousAdjust >= STAGE_LENGTH) {
-    previousAdjust = millis();
-
-    // Set adjustment amount: 
-    if (angle < (target - DEVIATION)) {
-      adjustAmount = 1;
-    } else if (angle > (target + DEVIATION)) {
-      adjustAmount = -1;
     } else {
-      return;
+      if (currAngle < (target - DEVIATION)) {
+        *dtOn -= 0.5;
+      } else if (currAngle > (target + DEVIATION)) {
+        *dtOn += 0.5;
+      }
     }
-
-    switch (joint) {
-      case 'h':
-        calcDtOnHip(angle + adjustAmount);
-        break;
-      case 'k':
-        break;
-      case 'a':
-        break;
-    }
+    *previousAdj = millis();
   }
 }
 
@@ -263,13 +231,6 @@ void calcDtOnHip(float hip) {
  * Calculate dtOn from hip angle using best fit equations
  * Note: exp(x) = e^x
  */
-  // Select correct hip muscle to pulse:
-  if (hip < 0) {
-    currHip = Hip1;
-  } else {
-    currHip = Hip2;
-  }
-
   // Calculate dtOn:
   if (hip <= -44.739) {
     dtOnHip = exp((hip + 15.4466) / -8.26376);
@@ -286,14 +247,22 @@ void calcDtOnHip(float hip) {
   } else {
     dtOnHip = exp((hip - 28.8104) / 0.112872);
   }
-
-  // Ensure dtOn is within limits:
-  if (dtOnHip < 0) {
-    dtOnHip = 0;
-  } else if (dtOnHip > 50) {
-    dtOnHip = 50;
-  }
 } 
+
+void calcDtOnKne(float knee) {
+ /*
+ * Calculate dtOn from knee angle using best fit equations
+ * Note: exp(x) = e^x
+ */
+  // Calculate dtOn:
+  if (knee <= -51.094) {
+    dtOnKne = exp((knee + 35.7827) / -4.32654);
+  } else if (knee <= -45.623) {
+    dtOnKne = exp((knee - 70.1469) / -34.2596);
+  } else if (knee <= 0) {
+    dtOnKne = exp((knee - 106.384) / -44.9832);
+  } 
+}
 
 void readJoints() {
 /*
@@ -351,7 +320,6 @@ void displayInfo() {
     Serial.print("\t");
     Serial.print("Hip dtOn = ");
     Serial.println(dtOnHip);
-    /*
     Serial.print("Current Knee Target = ");
     Serial.print(refKne);
     Serial.print("\t");
@@ -360,6 +328,7 @@ void displayInfo() {
     Serial.print("\t");
     Serial.print("Knee dtOn = ");
     Serial.println(dtOnKne);
+    /*
     Serial.print("Current Ankle Target = ");
     Serial.print(refAnk);
     Serial.print("\t");
@@ -370,6 +339,7 @@ void displayInfo() {
     Serial.println(dtOnAnk);
     */
 
+    Serial.println();
     previousPrint = millis();
   }  
 }
