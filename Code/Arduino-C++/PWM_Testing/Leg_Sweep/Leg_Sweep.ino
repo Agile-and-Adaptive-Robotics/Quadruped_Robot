@@ -4,11 +4,11 @@
  * Program pulses hip, knee, and ankle simultaneously to sweep leg
  * 
  * TO DO:
- * - Implement ankle movement
+ * - 
  * 
  * ISSUES:
+ * - Hip stays at 0 for a rather long time
  * - Randomly breaks sometimes (no idea why this is happening)
- * - Hip drops by too much when returning to 0 (probably because equations are wrong...)
  * 
  * Author: Flora Huang
  * Last Updated: 26 July 2022
@@ -70,10 +70,11 @@ float angleHip, angleKne, angleAnk;   // Current joint angles
 float initHip, initKne, initAnk;      // Joint angles at beginning of current stage
 
 // Joint target constants:
-const float HIP_TARGET = 25;
-const float KNE_TARGET = -40;
-const float ANK_TARGET = 20;
-const int DEVIATION    = 1;   // [degrees] Accepted deviation from target angle
+const float HIP_TARGET  = 25;
+const float KNE_TARGET  = -40;   // Right/first target
+const float KNE_TARGET2 = 27;    // Left/second target
+const float ANK_TARGET  = 20;    
+const int DEVIATION     = 1;     // [degrees] Accepted deviation from target angle
 
 // Joint target variables (reference target at current time):
 float refHip, refKne, refAnk;
@@ -188,7 +189,7 @@ void loop() {
 
       adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
 
-      // Knee
+      extendLeg('k', initKne, KNE_TARGET2, STAGE_7, stepTime);
 
       // Ankle
     }
@@ -198,7 +199,7 @@ void loop() {
 
       adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
 
-      // Knee
+      adjustLeg(angleKne, KNE_TARGET2, &dtOnKne, &previousAdjKne);
 
       // Ankle
     }
@@ -208,7 +209,7 @@ void loop() {
 
       adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
 
-      // Knee
+      extendLeg('k', initKne, 0, STAGE_9, stepTime);
 
       // Ankle
     }
@@ -354,7 +355,13 @@ void calcDtOnKne(float knee) {
     dtOnKne = exp((knee - 70.1469) / -34.2596);
   } else if (knee <= 0) {
     dtOnKne = exp((knee - 106.384) / -44.9832);
-  } 
+  } else if (knee <= 20.344) {
+    dtOnKne = exp((knee + 117.77) / 40.9058);
+  } else if (knee <= 25.522) {
+    dtOnKne = exp((knee + 59.5613) / 23.6659);
+  } else if (knee <= 27.73) {
+    dtOnKne = exp((knee + 0.173934) / 7.1473);
+  }
 }
 
 float calcAngleKne() {
@@ -363,14 +370,26 @@ float calcAngleKne() {
  */
   float angle;
 
-  if (dtOnKne <= 10.644) {
-    angle = 0;
-  } else if (dtOnKne <= 29.347) {
-    angle = 106.384 - 44.9832 * log(dtOnKne);
-  } else if (dtOnKne <= 34.428) {
-    angle = 70.1469 - 34.2596 * log(dtOnKne);
-  } else {
-    angle = -35.7827 - 4.32654 * log(dtOnKne);
+  if (currKne == Knee1) {
+    if (dtOnKne <= 10.644) {
+      angle = 0;
+    } else if (dtOnKne <= 29.347) {
+      angle = 106.384 - 44.9832 * log(dtOnKne);
+    } else if (dtOnKne <= 34.428) {
+      angle = 70.1469 - 34.2596 * log(dtOnKne);
+    } else {
+      angle = -35.7827 - 4.32654 * log(dtOnKne);
+    }   
+  } else if (currKne == Knee2) {
+    if (dtOnKne <= 17.797) {
+      angle = 0;
+    } else if (dtOnKne <= 29.265) {
+      angle = -117.77 + 40.9058 * log(dtOnKne);
+    } else if (dtOnKne <= 36.422) {
+      angle = -59.5613 + 23.6659 * log(dtOnKne);
+    } else {
+      angle = -0.173934 + 7.1473 * log(dtOnKne);
+    }
   }
 
   return angle;
@@ -507,6 +526,7 @@ void resetVariables() {
   angleHip = angleKne = angleAnk = 0;
   initHip = initKne = initAnk = 0;
   currHip = currKne = currAnk = 0;
+  
   dtOnHip = 0;
   dtOnKne = 5;
   dtOnAnk = 10;
