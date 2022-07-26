@@ -7,10 +7,11 @@
  * - Implement ankle movement
  * 
  * ISSUES:
- * - Randomly breaks sometimes (hardward overload/time slippage?)
+ * - Randomly breaks sometimes (no idea why this is happening)
+ * - Hip drops by too much when returning to 0 (probably because equations are wrong...)
  * 
  * Author: Flora Huang
- * Last Updated: 25 July 2022
+ * Last Updated: 26 July 2022
  */
 
 # include <Arduino.h>
@@ -39,31 +40,39 @@ unsigned long previousAdjAnk = 0;       // Time ankle was previously adjusted
 
 // Motion stages constants:
 // Length of stage x = STAGE_x * STAGE_LENGTH
-const int STAGE_1      = 25;   // Hip + to 0
-const int STAGE_2      = 25;   // Hip 0 to - 
-const int STAGE_3      = 25;   // Knee/ankle bend
-const int STAGE_4      = 25;   // Hip - to 0
-const int STAGE_5      = 25;   // Hip 0 to +
-const int STAGE_6      = 25;   // Knee/ankle straighten
-const int STAGE_TOTAL  = STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6;
+const int STAGE_1      = 25;   // Hip extends right
+const int STAGE_2      = 25;   // Knee/ankle extend
+const int STAGE_3      = 10;   // Hold system
+const int STAGE_4      = 25;   // Knee/ankle retract
+const int STAGE_5      = 25;   // Hip retracts
+const int STAGE_6      = 25;   // Hip extends left
+const int STAGE_7      = 25;   // Knee/ankle extend
+const int STAGE_8      = 10;   // Hold system
+const int STAGE_9      = 25;   // Knee/ankle retract
+const int STAGE_10     = 25;   // Hip retracts
+const int STAGE_TOTAL  = STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8 + STAGE_9 + STAGE_10;
 const int STAGE_LENGTH = 200;   // [ms]
 
 // Motion stages variables:
-unsigned long stage1_start = 0;
-unsigned long stage2_start = 0;
-unsigned long stage3_start = 0;
-unsigned long stage4_start = 0;
-unsigned long stage5_start = 0;
-unsigned long stage6_start = 0; 
+unsigned long stage1_start  = 0;
+unsigned long stage2_start  = 0;
+unsigned long stage3_start  = 0;
+unsigned long stage4_start  = 0;
+unsigned long stage5_start  = 0;
+unsigned long stage6_start  = 0; 
+unsigned long stage7_start  = 0;
+unsigned long stage8_start  = 0;
+unsigned long stage9_start  = 0;
+unsigned long stage10_start = 0;
 
 // Joint angle variables:
 float angleHip, angleKne, angleAnk;   // Current joint angles
 float initHip, initKne, initAnk;      // Joint angles at beginning of current stage
 
 // Joint target constants:
-const float HIP_TARGET = 30;
-const float KNE_TARGET = -30;
-const float ANK_TARGET = 0;
+const float HIP_TARGET = 25;
+const float KNE_TARGET = -40;
+const float ANK_TARGET = 20;
 const int DEVIATION    = 1;   // [degrees] Accepted deviation from target angle
 
 // Joint target variables (reference target at current time):
@@ -119,7 +128,8 @@ void loop() {
       extendLeg('h', initHip, -HIP_TARGET, STAGE_1, stepTime);
       
       currKne = Knee1;
-      extendLeg('k', initKne, KNE_TARGET, STAGE_1, stepTime);
+
+      currAnk = Ankle2;
     } 
     else if (cycTime < STAGE_1 + STAGE_2) {
       readInitAngles(&stage2_start, STAGE_2);
@@ -127,45 +137,95 @@ void loop() {
       
       adjustLeg(angleHip, -HIP_TARGET, &dtOnHip, &previousAdjHip);
       
-      adjustLeg(angleKne, KNE_TARGET, &dtOnKne, &previousAdjKne);
+      extendLeg('k', initKne, KNE_TARGET, STAGE_2, stepTime);
+
+      extendLeg('a', initAnk, ANK_TARGET, STAGE_2, stepTime);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3) {
       readInitAngles(&stage3_start, STAGE_3);
       stepTime = cycTime - (STAGE_1 + STAGE_2);
       
-      extendLeg('h', initHip, 0, STAGE_3, stepTime);
+      adjustLeg(angleHip, -HIP_TARGET, &dtOnHip, &previousAdjHip);
       
       adjustLeg(angleKne, KNE_TARGET, &dtOnKne, &previousAdjKne);
+
+      adjustLeg(angleAnk, ANK_TARGET, &dtOnAnk, &previousAdjAnk);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4) {
       readInitAngles(&stage4_start, STAGE_4);
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3);
 
-      currHip = Hip2;
-      extendLeg('h', initHip, HIP_TARGET, STAGE_4, stepTime);
+      adjustLeg(angleHip, -HIP_TARGET, &dtOnHip, &previousAdjHip);
       
       extendLeg('k', initKne, 0, STAGE_4, stepTime);
+
+      extendLeg('a', initAnk, 0, STAGE_4, stepTime);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4+ STAGE_5) {
       readInitAngles(&stage5_start, STAGE_5);
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4);
       
-      adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
+      extendLeg('h', initHip, 0, STAGE_5, stepTime);
       
-      currKne = Knee2;
-      dtOnKne = 50;
+      // Knee
+
+      // Ankle
     } 
-    else {
+    else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6) {
       readInitAngles(&stage6_start, STAGE_6);
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5);
+
+      currHip = Hip2;
+      extendLeg('h', initHip, HIP_TARGET, STAGE_6, stepTime);
       
-      extendLeg('h', initHip, 0, STAGE_6, stepTime);
-      
-      dtOnKne = 50;
+      currKne = Knee2;
+
+      // Ankle
+    }
+    else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7) {
+      readInitAngles(&stage7_start, STAGE_7);
+      stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6);
+
+      adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
+
+      // Knee
+
+      // Ankle
+    }
+    else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8) {
+      readInitAngles(&stage8_start, STAGE_8);
+      stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7);
+
+      adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
+
+      // Knee
+
+      // Ankle
+    }
+    else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8 + STAGE_9) {
+      readInitAngles(&stage9_start, STAGE_9);
+      stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8);
+
+      adjustLeg(angleHip, HIP_TARGET, &dtOnHip, &previousAdjHip);
+
+      // Knee
+
+      // Ankle
+    }
+    else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8 + STAGE_9 + STAGE_10) {
+      readInitAngles(&stage10_start, STAGE_10);
+      stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8 + STAGE_9);
+
+      extendLeg('h', initHip, 0, STAGE_10, stepTime);
+
+      // Knee
+
+      // Ankle
     }
 
     pulseMuscle(currHip, dtOnHip);
     pulseMuscle(currKne, dtOnKne);
+    pulseMuscle(currAnk, dtOnAnk);
     displayInfo();
   }
 }
@@ -175,9 +235,9 @@ void readInitAngles(unsigned long *stageStart, int stage) {
  * Update initial joint angles at beginning of each step
  */
   if (millis() - *stageStart > stage * STAGE_LENGTH) {
-    initHip = angleHip;
-    initKne = angleKne;
-    initAnk = angleAnk;
+    initHip = calcAngleHip();
+    initKne = calcAngleKne();
+    initAnk = calcAngleAnk();
     *stageStart = millis();
   } 
 }
@@ -200,6 +260,8 @@ void extendLeg(char joint, float initAngle, float targetAngle, int totalTime, in
       calcDtOnKne(refKne);
       break;
     case 'a':
+      refAnk = initAngle + adjustAmount;
+      calcDtOnAnk(refAnk);
       break;
   }
 }
@@ -247,7 +309,38 @@ void calcDtOnHip(float hip) {
   } else {
     dtOnHip = exp((hip - 28.8104) / 0.112872);
   }
-} 
+}
+
+float calcAngleHip() {
+/*
+ * Calculate hip angle from dtOn
+ */
+  float angle; 
+  
+  if (currHip == Hip1) {
+    if (dtOnHip <= 7.103) {
+      angle = 0;
+    } else if (dtOnHip <= 19.817) {
+      angle = 60.6077 - 30.9148 * log(dtOnHip);
+    } else if (dtOnHip <= 34.63) {
+      angle = 37.9365 - 23.3237 * log(dtOnHip);
+    } else {
+      angle = -15.4466 - 8.26376 * log(dtOnHip);
+    }
+  } else if (currHip == Hip2) {
+    if (dtOnHip <= 8.835) {
+      angle = 0;
+    } else if (dtOnHip <= 14.707) {
+      angle = -72.8896 + 33.4555 * log(dtOnHip);
+    } else if (dtOnHip <= 33.821) {
+      angle = -22.2 + 14.6 * log(dtOnHip);
+    } else {
+      angle = 28.8104 + 0.112872 * log(dtOnHip);
+    }
+  }
+
+  return angle;
+}
 
 void calcDtOnKne(float knee) {
  /*
@@ -262,6 +355,59 @@ void calcDtOnKne(float knee) {
   } else if (knee <= 0) {
     dtOnKne = exp((knee - 106.384) / -44.9832);
   } 
+}
+
+float calcAngleKne() {
+/*
+ * Calculate knee angle from dtOn
+ */
+  float angle;
+
+  if (dtOnKne <= 10.644) {
+    angle = 0;
+  } else if (dtOnKne <= 29.347) {
+    angle = 106.384 - 44.9832 * log(dtOnKne);
+  } else if (dtOnKne <= 34.428) {
+    angle = 70.1469 - 34.2596 * log(dtOnKne);
+  } else {
+    angle = -35.7827 - 4.32654 * log(dtOnKne);
+  }
+
+  return angle;
+}
+
+void calcDtOnAnk(float ankle) {
+ /*
+ * Calculate dtOn from ankle angle using best fit equations
+ * Note: exp(x) = e^x
+ */
+  // Calculate dtOn:
+  if (ankle <= 21.213) {
+    dtOnAnk = exp((ankle + 195.195) / 67.295);
+  } else if (ankle <= 29.217) {
+    dtOnAnk = exp((ankle + 40.0957) / 19.3167);
+  } else if (ankle <= 31.29) {
+    dtOnAnk = exp((ankle - 2.90771) / 7.24748);
+  }   
+}
+
+float calcAngleAnk() {
+/*
+ * Calculate ankle angle from dtOn
+ */
+  float angle;
+
+  if (dtOnAnk <= 18.185) {
+    angle = 0;
+  } else if (dtOnAnk <= 24.923) {
+    angle = -195.195 + 67.295 * log(dtOnAnk);
+  } else if (dtOnAnk <= 37.719) {
+    angle = -40.9057 + 19.3167 * log(dtOnAnk);
+  } else {
+    angle = 2.90771 + 7.24748 * log(dtOnAnk);
+  }
+
+  return angle;
 }
 
 void readJoints() {
@@ -328,7 +474,6 @@ void displayInfo() {
     Serial.print("\t");
     Serial.print("Knee dtOn = ");
     Serial.println(dtOnKne);
-    /*
     Serial.print("Current Ankle Target = ");
     Serial.print(refAnk);
     Serial.print("\t");
@@ -337,7 +482,6 @@ void displayInfo() {
     Serial.print("\t");
     Serial.print("Ankle dtOn = ");
     Serial.println(dtOnAnk);
-    */
 
     Serial.println();
     previousPrint = millis();
@@ -363,5 +507,7 @@ void resetVariables() {
   angleHip = angleKne = angleAnk = 0;
   initHip = initKne = initAnk = 0;
   currHip = currKne = currAnk = 0;
-  dtOnHip = dtOnKne = dtOnAnk = 0;
+  dtOnHip = 0;
+  dtOnKne = 5;
+  dtOnAnk = 10;
 }
