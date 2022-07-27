@@ -75,6 +75,7 @@ void loop() {
 
   // If system is on, pulse muscles:
   if (systemOn) {
+    /*
     // Adjust pulsing parameters every 200 ms:
     if (millis() - previousAdjust > 200) {
       adjustHip();
@@ -82,11 +83,20 @@ void loop() {
       adjustAnk();
       previousAdjust = millis();
     }
+    */
+
+    currHip = Hip2;
+    currKne = Knee2;
+    currAnk = Ankle2;
+
+    dtOnHip = 30;
+    dtOnKne = 50;
+    dtOnAnk = 0;
 
     // Pulse according to current paramters: 
     pulseMuscle(currHip, dtOnHip);
-    // pulseMuscle(currKne, dtOnKne);
-    // pulseMuscle(currAnk, dtOnAnk);
+    pulseMuscle(currKne, dtOnKne);
+    pulseMuscle(currAnk, dtOnAnk);
 
     displayStatus();
   } 
@@ -202,7 +212,14 @@ void displayStatus() {
  */  
   if (millis() - previousPrint > 200) {
     readJoints();
-    
+
+    Serial.print(angleHip);
+    Serial.print("\t");
+    Serial.print(angleKne);
+    Serial.print("\t");
+    Serial.println(angleAnk);
+
+    /*
     Serial.print("Hip target = ");
     Serial.print(targetHip);
     Serial.print("\t");
@@ -211,7 +228,6 @@ void displayStatus() {
     Serial.print("\t");
     Serial.print("dtOn = ");
     Serial.println(dtOnHip);
-    /*
     Serial.print("Knee target = ");
     Serial.print(targetKne);
     Serial.print("\t");

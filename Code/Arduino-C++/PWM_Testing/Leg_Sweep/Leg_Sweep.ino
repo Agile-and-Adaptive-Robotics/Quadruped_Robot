@@ -7,11 +7,10 @@
  * - 
  * 
  * ISSUES:
- * - Randomly breaks sometimes (no idea why this is happening)
- * - Hip stays at 0 for a rather long time
+ * - Leg shakes when a muscle turns fully on/off
  * 
  * Author: Flora Huang
- * Last Updated: 26 July 2022
+ * Last Updated: 27 July 2022
  */
 
 # include <Arduino.h>
@@ -37,17 +36,18 @@ unsigned long previousPrint  = 0;       // Time info was previously printed
 unsigned long previousAdjHip = 0;       // Time hip was previously adjusted
 unsigned long previousAdjKne = 0;       // Time knee was previously adjusted
 unsigned long previousAdjAnk = 0;       // Time ankle was previously adjusted
+int cycCounter               = 0;       // Number of times cycle has run
 
 // Motion stages constants:
 // Length of stage x = STAGE_x * STAGE_LENGTH
-const int STAGE_1      = 5;   //
-const int STAGE_2      = 25;   // 
-const int STAGE_3      = 25;   // 
-const int STAGE_4      = 25;   // 
-const int STAGE_5      = 12;   // 
-const int STAGE_6      = 12;   // 
-const int STAGE_7      = 25;   // 
-const int STAGE_8      = 25;   // 
+const int STAGE_1      = 2;    // Set leg to initial position
+const int STAGE_2      = 10;   // Knee/ankle extends
+const int STAGE_3      = 10;   // Hip returns to 0
+const int STAGE_4      = 10;   // Hip extends left
+const int STAGE_5      = 5;    // Knee/ankle straightens 
+const int STAGE_6      = 5;    // Knee/ankle straightens
+const int STAGE_7      = 10;   // Hip returns to 0
+const int STAGE_8      = 10;   // Hip extends right
 const int STAGE_9      = 0;    // 
 const int STAGE_10     = 0;    // 
 const int STAGE_TOTAL  = STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8 + STAGE_9 + STAGE_10;
@@ -108,6 +108,7 @@ void loop() {
       } else {
         resetVariables();
         pulseStart = millis();
+        cycCounter = 0;
       }
       pulsing = !pulsing;
     }
@@ -200,7 +201,14 @@ void loop() {
       // Ankle
     }
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8) {
-      readInitAngles(&stage8_start, STAGE_8);
+      if (millis() - stage8_start > STAGE_8 * STAGE_LENGTH) {
+        initHip = calcAngleHip();
+        initKne = calcAngleKne();
+        initAnk = calcAngleAnk();
+        stage8_start = millis();
+        cycCounter += 1;
+      }
+      
       stepTime = cycTime - (STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7);
 
       digitalWrite(Hip2, LOW);
@@ -240,6 +248,11 @@ void loop() {
     pulseMuscle(currKne, dtOnKne);
     pulseMuscle(currAnk, dtOnAnk);
     displayInfo();
+
+    if (cycCounter == 3) {
+      pulsing = !pulsing;
+      resetMuscles();
+    }
   }
 }
 
