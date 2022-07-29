@@ -34,14 +34,14 @@ int cycCounter               = 0;       // Number of times cycle has run
 
 // Motion stages constants:
 // Length of stage x = STAGE_x * STAGE_LENGTH
-const int STAGE_1      = 2;    // Set leg to initial position
-const int STAGE_2      = 10;   // Knee/ankle extends
-const int STAGE_3      = 10;   // Hip returns to 0
-const int STAGE_4      = 10;   // Hip extends left
-const int STAGE_5      = 5;    // Knee/ankle straightens 
-const int STAGE_6      = 5;    // Knee/ankle straightens
-const int STAGE_7      = 10;   // Hip returns to 0
-const int STAGE_8      = 10;   // Hip extends right
+const int STAGE_1      = 5;    // Set leg to initial position
+const int STAGE_2      = 20;   // Knee/ankle extends
+const int STAGE_3      = 20;   // Hip returns to 0
+const int STAGE_4      = 20;   // Hip extends left
+const int STAGE_5      = 10;   // Knee/ankle straightens 
+const int STAGE_6      = 10;   // Knee/ankle straightens
+const int STAGE_7      = 20;   // Hip returns to 0
+const int STAGE_8      = 20;   // Hip extends right
 const int STAGE_TOTAL  = STAGE_1 + STAGE_2 + STAGE_3 + STAGE_4 + STAGE_5 + STAGE_6 + STAGE_7 + STAGE_8;
 const int STAGE_LENGTH = 200;   // [ms]
 
@@ -61,11 +61,11 @@ float initHip, initKne, initAnk;      // Joint angles at beginning of current st
 
 // Joint target constants:
 const float HIP_TARGET_R = -40;
-const float HIP_TARGET_L = 40;
-const float KNE_TARGET_R = -40;   
-const float KNE_TARGET_L = 30;    
-const float ANK_TARGET_R = 36;
-const float ANK_TARGET_L = 32;    
+const float HIP_TARGET_L = 30;
+const float KNE_TARGET_R = -60;   
+const float KNE_TARGET_L = 35;    
+const float ANK_TARGET_R = -35;
+const float ANK_TARGET_L = 25;    
 const int DEVIATION      = 1;   // [degrees] Accepted deviation from target angle
 
 // Joint target variables (reference target at current time):
@@ -125,7 +125,7 @@ void loop() {
 
       // Knee
 
-      calcDtOffAnk(0);
+      calcDtOffAnk(ANK_TARGET_R);
     } 
     else if (cycTime < STAGE_1 + STAGE_2) {
       readInitAngles(&stage2_start, STAGE_2);
@@ -135,7 +135,7 @@ void loop() {
       
       extendLeg('k', initKne, KNE_TARGET_R, STAGE_2, stepTime);
 
-      extendLeg('a', initAnk, ANK_TARGET_R, STAGE_2, stepTime);
+      extendLeg('a', initAnk, 0, STAGE_2, stepTime);
     } 
     else if (cycTime < STAGE_1 + STAGE_2 + STAGE_3) {
       readInitAngles(&stage3_start, STAGE_3);
@@ -210,10 +210,11 @@ void loop() {
 
       digitalWrite(Knee2, LOW);
       currKne = Knee1;
+      dtOffKne = 30;
 
       digitalWrite(Ankle2, LOW);
       currAnk = Ankle1;
-      extendLeg('a', initAnk, 0, STAGE_8, stepTime);
+      extendLeg('a', initAnk, ANK_TARGET_R, STAGE_8, stepTime);
     }
 
     pulseMuscle(currHip, dtOffHip);
@@ -271,15 +272,15 @@ void adjustLeg(float currAngle, float target, float *dtOff, unsigned long *previ
   if (millis() - *previousAdj >= STAGE_LENGTH) {
     if (target > 0) {
       if (currAngle < (target - DEVIATION)) {
-        *dtOff -= 0.5;
+        *dtOff -= 0.25;
       } else if (currAngle > (target + DEVIATION)) {
-        *dtOff += 0.5;
+        *dtOff += 0.25;
       }
     } else {
       if (currAngle < (target - DEVIATION)) {
-        *dtOff += 0.5;
+        *dtOff += 0.25;
       } else if (currAngle > (target + DEVIATION)) {
-        *dtOff -= 0.5;
+        *dtOff -= 0.25;
       }
     }
     *previousAdj = millis();
@@ -290,8 +291,9 @@ void calcDtOffHip(float hip) {
 /*
  * Calculate dtOff from hip angle using best fit equations
  */
-  //
-  if (hip <= -33.666) {
+  if (hip <= -43.25) {
+    dtOffHip = 0;
+  } else if (hip <= -33.666) {
     dtOffHip = exp((hip + 211.278) / 60.6412);
   } else if (hip <= -8.053) {
     dtOffHip = exp((hip + 286.298) / 86.2552);
@@ -299,9 +301,11 @@ void calcDtOffHip(float hip) {
     dtOffHip = exp((hip + 122.12) / 35.3606);
   } else if (hip <= 27.609) {
     dtOffHip = exp((hip - 189.133) / -54.5478);
-  } else {
+  } else if (hip <= 32.44) {
     dtOffHip = exp((hip - 136.878) / -36.901);
-  } 
+  } else {
+    dtOffHip = 0;
+  }
 }
 
 float calcAngleHip() {
@@ -341,7 +345,9 @@ void calcDtOffKne(float knee) {
 /*
  * Calculate dtOff from knee angle using best fit equations
  */
-  if (knee <= -20.634) {
+  if (knee <= -64.83) {
+    dtOffKne = 0;
+  } else if (knee <= -20.634) {
     dtOffKne = exp((knee + 298.684) / 83.511);
   } else if (knee <= 0) {
     dtOffKne = exp((knee + 140.077) / 35.8739);
@@ -349,8 +355,10 @@ void calcDtOffKne(float knee) {
     dtOffKne = exp((knee - 231.422) / -71.7939);
   } else if (knee <= 32.737) {
     dtOffKne = exp((knee - 90.636) / -21.7272);
-  } else {
+  } else if (knee <= 33.67) {
     dtOffKne = exp((knee - 40.5086) / -2.91636);
+  } else {
+    dtOffKne = 0;
   }
 }
 
@@ -391,7 +399,9 @@ void calcDtOffAnk(float ankle) {
 /*
  * Calculate dtOff from ankle angle using best fit equations
  */
-  if (ankle <= -21.017) {
+  if (ankle <= -29.31){
+    dtOffAnk = 0;
+  } else if (ankle <= -21.017) {
     dtOffAnk = exp((ankle + 96.799) / 27.1634);
   } else if (ankle <= -17.341) {
     dtOffAnk = exp((ankle + 59.1653) / 13.6739);
@@ -399,7 +409,7 @@ void calcDtOffAnk(float ankle) {
     dtOffAnk = exp((ankle + 122.328) / 34.3242);
   } else if (ankle <= 17.429) {
     dtOffAnk = exp((ankle - 171.661) / -61.1219);
-  } else {
+  } else if (ankle <= 20.57) {
     dtOffAnk = exp((ankle - 56.0971) / -15.3242);
   }
 }
@@ -538,5 +548,5 @@ void resetVariables() {
   currKne = Knee1;
   currAnk = Ankle1;
   
-  // dtOffHip = dtOffKne = dtOffAnk = ?
+  dtOffHip = dtOffKne = dtOffAnk = 30;
 }
