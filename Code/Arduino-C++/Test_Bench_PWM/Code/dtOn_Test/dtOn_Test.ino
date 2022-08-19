@@ -1,39 +1,44 @@
 /*
- * Angle_Test
+ * dtOn_Test
  * 
- * Tests control of test bench leg through pulse width modulation (PWM)
- * Program outputs angle of hip, knee, and ankle joint during pulsing
+ * Adjusts the amount of time signal is on HIGH per period (dtOn) to produce different duty cycles.
+ * Program automatically increments through different dtOn values and prints joint angles to serial monitor.
+ * Enter '1' to turn program on/off.
  * 
  * Author: Flora Huang
- * Last Updated: 7 July 2022
+ * Last Updated: 17 August 2022 
  */
  
 # include <Arduino.h>
 # include <Encoder.h>
 
-// Define pins for muscles:
+// Pins for muscles:
 # define Hip1 32
 # define Hip2 33
-# define Ankle1 34
-# define Ankle2 36
-# define Knee1 35
-# define Knee2 37
+# define Knee1 36
+# define Knee2 34
+# define Ankle1 37
+# define Ankle2 35
 
-// Create Encoder objects for joints:
+// Encoder objects for joints:
 Encoder encoderHip(2,3);
 Encoder encoderAnk(4,5);
 Encoder encoderKne(6,7);
 
-// Variables for joints:
-float angleHip, angleKne, angleAnk;         // Averaged joint angle
+// Joint angle variables:
+float angleHip, angleKne, angleAnk; 
 
-// Variables for muscles:
-int currMuscle;   // Muscle currently being pulsed
+// Muscle variables:
+int currMuscle = Hip1;   // Muscle currently being pulsed (edit this to change active muscle)
 
-// Variables for controlling program flow (time, on/off, etc.):
+// Program control (time, on/off, etc.) variables:
 unsigned long pulseStart    = 0;          // Time pulsing began
 bool pulsing                = false;      // Whether a muscle is currently being pulsed
 unsigned long previousPrint = millis();   // Previous time data was printed
+unsigned long timeInterval  = 1000;       // Time between each print
+
+// Pulsing variables:
+int dtOn;   // Time signal is on HIGH per period
 
 void setup() {
   Serial.begin(115200);
@@ -48,71 +53,40 @@ void setup() {
 }
 
 void loop() {
-  // Monitor for inputs if no muscle is pulsing:
-  if (!pulsing) {
-    if (Serial.available()) {   
-      selectMuscle(Serial.read());   // Translate user input into corresponding muscle
-
-      // Begin pulsing if valid input is received: 
-      if (currMuscle != -1) {
+  // Turn pulsing on/off if 1 is entered:
+  if (Serial.available()) {
+    if (Serial.read() == '1') {
+      if (pulsing) {
+        resetMuscles();
+      } else {
+        resetVariables();
         pulseStart = millis();
-        pulsing = true;
-        setupPulse();
       }
+      pulsing = !pulsing;
+    }
+    Serial.flush();
+  }
 
-      Serial.flush();
-    } 
-  } 
-  // Pulse muscle for 10 seconds, then reset muscles
-  else {
-    if (millis() - pulseStart <= 10000) {
+  // Increment dtOn from 1 to 50, then turn off pulsing:
+  if (pulsing) {
+    int relTime = ((millis() - pulseStart) / 10000) + 50;
+    if (relTime <= 50) {
+      dtOn = relTime;
       pulseMuscle();
       updateJointInfo();
       displayJointInfo();
-    } 
-    else {
+    } else {
       pulsing = false;
       resetMuscles();
     }
   }
 }
 
-void selectMuscle(char userInput) {
+void resetVariables() {
 /*
- * Selects muscle that corresponds with userNum
- */  
-  switch (userInput) {
-    case '1':
-      currMuscle = Hip1;
-      break;
-    case '2':
-      currMuscle = Hip2;
-      break;
-    case '3':
-      currMuscle = Ankle1;
-      break;
-    case '4':
-      currMuscle = Ankle2;
-      break;
-    case '5':
-      currMuscle = Knee1;
-      break;
-    case '6':
-      currMuscle = Knee2;
-      break;
-    default:
-      currMuscle = -1;   // -1 indicates invalid input was entered
-      break;
-  }
-}
-
-void setupPulse() {
-/*
- * Reset variables to prepare for pulsing
+ * Reset variables to prepare for new pulse
  */
-  angleHip = encoderHip.read()*0.04395;
-  angleKne = encoderKne.read()*0.04395;
-  angleAnk = encoderAnk.read()*0.04395;
+  angleHip = angleKne = angleAnk = 0;
 }
 
 void pulseMuscle() {
@@ -120,7 +94,6 @@ void pulseMuscle() {
  * Pulses given muscle
  */
   // Variables for pulsing:
-  int dtOn    = 50;                  // [ms] Time on HIGH per period
   int freq    = 20;                  // [Hz] Number of periods per 1000 milliseconds
   int period  = 1000/freq;           // [ms] Length of each period
   int relTime = millis() % period;   // Relative time within each period
@@ -162,17 +135,18 @@ void displayJointInfo() {
 /*
  * Display information about joints
  */
-  unsigned long timeInterval = 1000;   // Time between each print
-
   // Print info if enough time has passed since last print: 
   if (millis() - previousPrint >= timeInterval) {
-    // Serial.print("Hip angle = ");
+    Serial.print("dtOn = ");
+    Serial.print(dtOn);
+    Serial.print("\t");
+    Serial.print("Hip angle = ");
     Serial.print(angleHip);
     Serial.print("\t");
-    // Serial.print("Knee angle = ");
+    Serial.print("Knee angle = ");
     Serial.print(angleKne);
     Serial.print("\t");
-    // Serial.print("Ankle angle = ");
+    Serial.print("Ankle angle = ");
     Serial.println(angleAnk);
     previousPrint = millis();
   }
@@ -182,10 +156,10 @@ void resetMuscles() {
 /*
  * Sets all muscles to LOW
  */
- digitalWrite(Hip1, LOW);
- digitalWrite(Hip2, LOW);
- digitalWrite(Ankle1, LOW);
- digitalWrite(Ankle2, LOW);
- digitalWrite(Knee1, LOW);
- digitalWrite(Knee2, LOW);
+  digitalWrite(Hip1, LOW);
+  digitalWrite(Hip2, LOW);
+  digitalWrite(Ankle1, LOW);
+  digitalWrite(Ankle2, LOW);
+  digitalWrite(Knee1, LOW);
+  digitalWrite(Knee2, LOW);
 }
