@@ -22,8 +22,8 @@ Er = -60e-3;                                                                    
 R = 20e-3;                                                                                          % [V] Biphasic Equilibrium Voltage Range.
 Am = 1;                                                                                             % [-] Sodium Channel Activation Parameter A.
 Sm = -50;                                                                                           % [-] Sodium Channel Activation Parametter S.
-dEm = 2*R;                                                                                            % [V] Sodium Channel Activation Reversal Potential w.r.t. Equilibrium Potential.
-Ah = 0.5;                                                                                             % [-] Sodium Channel Deactivation Parameter A.
+dEm = 2*R;                                                                                          % [V] Sodium Channel Activation Reversal Potential w.r.t. Equilibrium Potential.
+Ah = 0.5;                                                                                           % [-] Sodium Channel Deactivation Parameter A.
 Sh = 50;                                                                                            % [-] Sodium Channel Deactivation Parameter S.
 dEh = 0;                                                                                            % [V] Sodium Channel Deactivation Reversal Potential  w.r.t. Equilibrium Potential.
 dEna = 110e-3;                                                                                      % [V] Sodium Channel Reversal Potential With Respect to the Resting Potential.
@@ -141,9 +141,8 @@ end
 subplot(2, 1, 1), legend(legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal')
 subplot(2, 1, 2), legend(legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal')
 
-% Save this figure.
-SaveFigureAtSize(fig_CPGStatesVsTime, 'C:\Users\USER\Documents\Graduate_School\Coursework\Year3\Spring2020\ME610_NeuromechanicalModeling\Project\Paper\MultistateCPG_State_vs_Time.jpg', 0.5)
-
+% % Save this figure.
+% SaveFigureAtSize(fig_CPGStatesVsTime, 'C:\Users\USER\Documents\Graduate_School\Coursework\Year3\Spring2020\ME610_NeuromechanicalModeling\Project\Paper\MultistateCPG_State_vs_Time.jpg', 0.5)
 
 %% Animate the CPG's State Space Trajectory.
 

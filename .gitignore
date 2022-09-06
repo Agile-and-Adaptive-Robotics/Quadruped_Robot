@@ -1,0 +1,9 @@
+~$*.SLDASM
+~$*.SLDPRT
+_$*.SLDASM
+_$*.SLDPRT
+*.asv
+~*.xlsx
+.venv/
+*.ini
+*.swj
