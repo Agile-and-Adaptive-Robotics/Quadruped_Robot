@@ -145,6 +145,15 @@ classdef synapse_utilities_class
         end 
         
         
+        % Implement a function to compute the synaptic reversal potential for an inversion subnetwork.
+        function dE_syn = compute_inversion_dEsyn( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn = -1e-3;
+            
+        end
+        
+        
         % Implement a function to compute the synaptic reversal potential for a division subnetwork.
         function dE_syn1 = compute_division_dEsyn1( ~ )
             

@@ -173,6 +173,15 @@ classdef applied_current_class
         end
         
         
+        % Implement a function to compute the magnitude of inversion subnetwork applied currents.
+        function I_apps = compute_inversion_Iapps( self, Gm, R )
+        
+            % Compute the magnitude of the inversion subnetwork applied currents.
+            I_apps = self.applied_current_utilities.compute_inversion_Iapps( Gm, R ); 
+            
+        end
+        
+        
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function I_apps = compute_multiplication_Iapps( self, Gm, R )
         
@@ -290,6 +299,15 @@ classdef applied_current_class
         
             % Compute and set the magnitude of centering subnetwork applied currents.
             self.I_apps = self.compute_centering_Iapps( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of inversion subnetwork applied currents.
+        function self = compute_set_inversion_Iapps( self, Gm, R )
+            
+            % Compute and set the magnitude of inversion subnetwork applied currents.
+            self.I_apps = self.compute_inversion_Iapps( Gm, R );
             
         end
         

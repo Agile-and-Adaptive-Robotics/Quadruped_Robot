@@ -23,6 +23,7 @@ classdef applied_current_manager_class
         NUM_MULTISTATE_CPG_APPLIED_CURRENTS = 1;                     % [#] Number of Multistate CPG Applied Currents.
         NUM_CENTERING_APPLIED_CURRENTS = 1;                          % [#] Number of Centering Applied Currents.
         NUM_DOUBLE_CENTERING_APPLIED_CURRENTS = 1;                   % [#] Number of Double Centering Applied Currents.
+        NUM_INVERSION_APPLIED_CURRENTS = 1;                          % [#] Number of Inversion Applied Currents.
         NUM_MULTIPLICATION_APPLIED_CURRENTS = 1;                     % [#] Number of Multiplication Applied Currents.
         NUM_INTEGRATION_APPLIED_CURRENTS = 2;                        % [#] Number of Integration Applied Currents.
         NUM_VB_INTEGRATION_APPLIED_CURRENTS = 2;                     % [#] Number of Voltage Based Integration Applied Currents.
@@ -1133,6 +1134,31 @@ classdef applied_current_manager_class
                 
             end
             
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the inversion subentwork applied current.
+        function self = compute_set_inversion_Iapps( self, applied_current_IDs, Gm, R )
+        
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_inversion_Iapps( Gm, R );
+                
+            end
             
         end
         
@@ -1428,7 +1454,22 @@ classdef applied_current_manager_class
             
         end
         
+        
+        % Implement a function to create the applied currents for an inversion subnetwork.
+        function [ self, applied_current_ID ] = create_inversion_applied_current( self, neuron_IDs )
+        
+            % Create the applied current associated with an inversion subnetwork.
+            [ self, applied_current_ID ] = self.create_applied_currents( self.NUM_INVERSION_APPLIED_CURRENTS );
             
+            % Set the name of the applied current.
+            self = self.set_applied_current_property( applied_current_ID, { 'Inv Out' }, 'name' );
+            
+            % Connect the inversion subnetwork applied current to the inversion subnetwork output neuron.
+            self = self.set_applied_current_property( applied_current_ID, { neuron_IDs( 2 ) }, 'neuron_ID' );
+            
+        end
+           
+        
         % Implement a function to create the applied currents for a multiplication subnetwork.
         function [ self, applied_current_IDs ] = create_multiplication_applied_currents( self, neuron_IDs )
             
@@ -1556,6 +1597,18 @@ classdef applied_current_manager_class
             
             % Compute and set the applied current magnitude.
             self = self.compute_set_centering_Iapps( applied_current_ID, Gm2, R2 );
+            
+        end
+        
+        
+        % Implement a function to design the applied current for an inversion subentwork.
+        function self = design_inversion_applied_current( self, neuron_IDs, Gm2, R2 )
+        
+            % Get the applied current ID of interest.
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), 'ignore' );
+            
+            % Compute and set the applied current magnitude.
+            self = self.compute_set_inversion_Iapps( applied_current_ID, Gm2, R2 );
             
         end
         

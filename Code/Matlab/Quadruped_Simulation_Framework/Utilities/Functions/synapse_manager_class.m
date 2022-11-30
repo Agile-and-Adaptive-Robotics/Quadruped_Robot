@@ -28,6 +28,7 @@ classdef synapse_manager_class
         NUM_CENTERING_SYNAPSES = 4;                             % [#] Number of Centering Synapses.
         NUM_DOUBLE_CENTERING_SYNAPSES = 8;                      % [#] Number of Double Centering Synapses.
         NUM_MULTIPLICATION_SYNAPSES = 3;                        % [#] Number of Multiplication Synapses.
+        NUM_INVERSION_SYNAPSES = 1;                             % [#] Number of Inversion Synapses.
         NUM_DIVISION_SYNAPSES = 2;                              % [#] Number of Division Synapses.
         NUM_DERIVATION_SYNAPSES = 2;                            % [#] Number of Derivation Synapses.
         NUM_INTEGRATION_SYNAPSES = 2;                           % [#] Number of Integration Synapses.
@@ -1130,6 +1131,32 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute and set the synaptic reversal potential of an inversion subnetwork.
+        function self = compute_set_inversion_dEsyn( self, synapse_IDs )
+        
+            % Set the default input arguments.
+            if nargin < 2, synapse_IDs = 'all'; end
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                
+                % Compute and set the required parameter for this synapse.
+                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_inversion_dEsyn(  );
+                                
+            end
+            
+        end
+        
+        
         % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
         function self = compute_set_division_dEsyn1( self, synapse_IDs )
                     
@@ -2089,6 +2116,21 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to create the synapse for an inversion subnetwork.
+        function [ self, synapse_ID ] = create_inversion_synapse( self, neuron_IDs )
+        
+            % Create the inversion subnetwork synapses.
+            [ self, synapse_ID ] = self.create_synapse( self.NUM_INVERSION_SYNAPSES );
+            
+            % Set the name of the inversion subnetwork synapse.
+            self = self.set_synapse_property( synapse_ID, { 'Inv 12' }, 'name' );
+            
+            % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
+            self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            
+        end
+            
+        
         % Implement a function to create the synpases for a division subnetwork.
         function [ self, synapse_IDs ] = create_division_synapses( self, neuron_IDs )
             
@@ -2344,6 +2386,18 @@ classdef synapse_manager_class
             self = self.compute_set_multiplication_dEsyn2( synapse_IDs( 2 ) );
             self = self.compute_set_multiplication_dEsyn3( synapse_IDs( 3 ) );
 
+        end
+        
+        
+        % Implement a function to design the synapses for an inversion subnetwork.
+        function [ self, synapse_ID ] = design_inversion_synapse( self, neuron_IDs )
+        
+            % Get the synapse ID that connects the first neuron to the second neuron.
+            synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            
+            % Compute and set the synapse reversal potential.
+            self = self.compute_set_inversion_dEsyn( synapse_ID );
+            
         end
         
         

@@ -74,7 +74,16 @@ classdef applied_current_utilities_class
             
         end
         
+        
+        % Implement a function to compute the magnitude of inversion subnetwork applied currents.
+        function I_apps = compute_inversion_Iapps( ~, Gm, R )
             
+            % Compute the magnitude of the inversion subentwork applied currents.
+            I_apps = Gm.*R;
+            
+        end
+        
+        
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function I_apps = compute_multiplication_Iapps( ~, Gm, R )
            

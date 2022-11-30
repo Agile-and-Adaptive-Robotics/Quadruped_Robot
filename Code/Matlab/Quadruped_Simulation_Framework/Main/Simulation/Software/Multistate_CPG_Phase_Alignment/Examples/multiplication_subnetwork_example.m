@@ -22,11 +22,18 @@ network = network_class( network_dt, network_tf );
 % Create a multiplication subnetwork.
 [ network, neuron_IDs_mult, synapse_IDs_mult, applied_current_ID_mult ] = network.create_multiplication_subnetwork(  );
 
+% % Create applied currents for the multiplication subnetwork.
+% [ network.applied_current_manager, applied_current_IDs_mult ] = network.applied_current_manager.create_applied_currents( 2 );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(1), 10e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(2), 30e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult, neuron_IDs_mult(1:2), 'neuron_ID' );
+
 % Create applied currents for the multiplication subnetwork.
 [ network.applied_current_manager, applied_current_IDs_mult ] = network.applied_current_manager.create_applied_currents( 2 );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(1), 10e-9, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(2), 30e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(1), 5e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult(2), 2e-9, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mult, neuron_IDs_mult(1:2), 'neuron_ID' );
+
 
 % % Disable the multiplication subnetwork.
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_mult );

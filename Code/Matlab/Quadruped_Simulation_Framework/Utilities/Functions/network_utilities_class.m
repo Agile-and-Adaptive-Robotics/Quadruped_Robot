@@ -370,6 +370,20 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductance for an inversion subnetwork.
+        function g_syn_max = compute_inversion_gsynmax( self, Gm2, R1, I_app2, k, epsilon )
+            
+            % Set the default input arguments.
+            if nargin < 6, epsilon = self.EPSILON_INVERSION; end
+            if nargin < 5, k = self.K_INVERSION; end
+            if nargin < 4, I_app2 = self.I_APP; end
+            
+            % Compute the maximum synaptic conductance for the inversion subnetwork.
+            g_syn_max = ( ( ( R1 + epsilon )*R1*I_app2 - k*R1*Gm2 )./( k*R1 ) );
+                
+        end
+        
+        
         % Implement a function to compute the maximum synaptic conductances for a division subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_division_gsynmax( self, Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c )
         

@@ -26,7 +26,8 @@ network = network_class( network_dt, network_tf );
 [ network.applied_current_manager, applied_current_IDs_mod ] = network.applied_current_manager.create_applied_currents( 2 );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 5e-9, 0 }, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 0, 5e-9 }, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 1e-9, 20e-9 }, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 1e-9, 20e-9 }, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, { 10e-9, 20e-9 }, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_mod, neuron_IDs_mod, 'neuron_ID' );
 
 % % Disable the modulation subnetwork.

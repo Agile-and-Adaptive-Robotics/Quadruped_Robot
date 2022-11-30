@@ -24,10 +24,10 @@ network = network_class( network_dt, network_tf );
 [ network, neuron_IDs_sub, synapse_IDs_sub ] = network.create_subtraction_subnetwork(  );
 
 % Create applied currents.
-% [ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 15e-9, 'I_apps' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 10e-9, 'I_apps' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
+[ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 15e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 10e-9, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
 
 % [ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 10e-9, 'I_apps' );
@@ -39,10 +39,10 @@ network = network_class( network_dt, network_tf );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 11e-9, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
 
-[ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 11e-9, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 0e-9, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
+% [ network.applied_current_manager, applied_current_IDs_sub ] = network.applied_current_manager.create_applied_currents( 2 );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(1), 11e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub(2), 0e-9, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs_sub, neuron_IDs_sub(1:2), 'neuron_ID' );
 
 
 
