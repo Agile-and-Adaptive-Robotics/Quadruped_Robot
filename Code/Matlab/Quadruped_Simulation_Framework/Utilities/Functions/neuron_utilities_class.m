@@ -14,7 +14,16 @@ classdef neuron_utilities_class
     
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
-                
+        
+        R_FREE = 20e-3;
+        CM_FREE = 5e-9;
+        
+        GM_FREE = 1e-6;
+        GM_MINIMUM = 0.1e-6;
+        
+        GNA_NO_IONCHANNELS = 0;
+        GNA_IONCHANNELS = 1e-6;
+        
         K_DERIVATION = 1e6;
         W_DERIVATION = 1;
         SF_DERIVATION = 0.05;
@@ -177,308 +186,450 @@ classdef neuron_utilities_class
         end
         
         
-        %% Neuron Design Functions
-        
-        % ---------------------------------------------------------------- Sodium Channel Conductance Functions ----------------------------------------------------------------
-        
+        %% Sodium Channel Conductance Functions
+                
         % Implement a function to compute the sodium channel conductance of a driven multistate cpg subnetwork neuron.
-        function Gna = compute_driven_multistate_cpg_Gna( ~ )
+        function Gna = compute_driven_multistate_cpg_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a transmission subnetwork neuron.
-        function Gna = compute_transmission_Gna( ~ )
+        function Gna = compute_transmission_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a modulation subnetwork neuron.
-        function Gna = compute_modulation_Gna( ~ )
+        function Gna = compute_modulation_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an addition subnetwork neuron.
-        function Gna = compute_addition_Gna( ~ )
+        function Gna = compute_addition_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute addition subnetwork neuron.
-        function Gna = compute_absolute_addition_Gna( ~ )
+        function Gna = compute_absolute_addition_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative addition subnetwork neuron.
-        function Gna = compute_relative_addition_Gna( ~ )
+        function Gna = compute_relative_addition_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a subtraction subnetwork neuron.
-        function Gna = compute_subtraction_Gna( ~ )
+        function Gna = compute_subtraction_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute subtraction subnetwork neuron.
-        function Gna = compute_absolute_subtraction_Gna( ~ )
+        function Gna = compute_absolute_subtraction_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to comptue the sodium channel conductance of a relative subtraction subnetwork neuron.
-        function Gna = compute_relative_subtraction_Gna( ~ )
+        function Gna = compute_relative_subtraction_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a double subtraction subnetwork neuron.
-        function Gna = compute_double_subtraction_Gna( ~ )
+        function Gna = compute_double_subtraction_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute double subtraction subnetwork neuron.
-        function Gna = compute_absolute_double_subtraction_Gna( ~ )
+        function Gna = compute_absolute_double_subtraction_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative double subtraction subnetwork neuron.
-        function Gna = compute_relative_double_subtraction_Gna( ~ )
+        function Gna = compute_relative_double_subtraction_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a multiplication subnetwork neuron.
-        function Gna = compute_multiplication_Gna( ~ )
+        function Gna = compute_multiplication_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute multiplication subnetwork neuron.
-        function Gna = compute_absolute_multiplication_Gna( ~ )
+        function Gna = compute_absolute_multiplication_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative multiplication subnetwork neuron.
-        function Gna = compute_relative_multiplication_Gna( ~ )
+        function Gna = compute_relative_multiplication_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an inversion subnetwork neuron.
-        function Gna = compute_inversion_Gna( ~ )
+        function Gna = compute_inversion_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute inversion subnetwork neuron.
-        function Gna = compute_absolute_inversion_Gna( ~ )
+        function Gna = compute_absolute_inversion_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative inversino subnetwork neuron.
-        function Gna = compute_relative_inversion_Gna( ~ )
-        
+        function Gna = compute_relative_inversion_Gna( self )
+            
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
-            
+        
         
         % Implement a function to compute the sodium channel conductance of a division subnetwork neuron.
-        function Gna = compute_division_Gna( ~ )
+        function Gna = compute_division_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute division subnetwork neuron.
-        function Gna = compute_absolute_division_Gna( ~ )
+        function Gna = compute_absolute_division_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative division subnetwork neuron.
-        function Gna = compute_relative_division_Gna( ~ )
+        function Gna = compute_relative_division_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a derivation subnetwork neuron.
-        function Gna = compute_derivation_Gna( ~ )
+        function Gna = compute_derivation_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute derivation subnetwork neuron.
-        function Gna = compute_absolute_derivation_Gna( ~ )
+        function Gna = compute_absolute_derivation_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative derivation subnetwork neuron.
-        function Gna = compute_relative_derivation_Gna( ~ )
-        
+        function Gna = compute_relative_derivation_Gna( self )
+            
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an integration subnetwork neuron.
-        function Gna = compute_integration_Gna( ~ )
+        function Gna = compute_integration_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute integration subnetwork neuron.
-        function Gna = compute_absolute_integration_Gna( ~ )
+        function Gna = compute_absolute_integration_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative integration subnetwork neuron.
-        function Gna = compute_relative_integration_Gna( ~ )
+        function Gna = compute_relative_integration_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a voltage based integration subnetwork neuron.
-        function Gna = compute_vb_integration_Gna( ~ )
+        function Gna = compute_vb_integration_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute voltage based integration subnetwork neuron.
-        function Gna = compute_absolute_vb_integration_Gna( ~ )
+        function Gna = compute_absolute_vb_integration_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative voltage based integration subnetwork neuron.
-        function Gna = compute_relative_vb_integration_Gna( ~ )
+        function Gna = compute_relative_vb_integration_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a split voltage based integration subnetwork neuron.
-        function Gna = compute_split_vb_integration_Gna( ~ )
+        function Gna = compute_split_vb_integration_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute split voltage based integration subnetwork neuron.
-        function Gna = compute_absolute_split_vb_integration_Gna( ~ )
+        function Gna = compute_absolute_split_vb_integration_Gna( self )
             
             % Compute the sodium channel conductance.
-            Gna = 0;
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative split voltage based integration subnetwork neuron.
-        function Gna = compute_relative_split_vb_integration_Gna( ~ )
+        function Gna = compute_relative_split_vb_integration_Gna( self )
             
-           % Compute the sodium channel conductance.
-           Gna = 0;
+            % Compute the sodium channel conductance.
+            Gna = self.GNA_NO_IONCHANNELS;
             
         end
         
         
-        % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------
+        %% Membrane Conductance Functions
+        
+        % Implement a function to compute the membrane conductance for absolute addition subnetwork input neurons.
+        function Gm = compute_absolute_addition_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for absolute addition subnetwork output neurons.
+        function Gm = compute_absolute_addition_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative addition subnetwork input neurons.
+        function Gm = compute_relative_addition_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for relative addition subnetwork output neurons.
+        function Gm = compute_relative_addition_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork input neurons.
+        function Gm = compute_absolute_subtraction_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for absolute subtraction subnetwork output neurons.
+        function Gm = compute_absolute_subtraction_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative subtraction subnetwork input neurons.
+        function Gm = compute_relative_subtraction_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for relative subtraction subnetwork output neurons.
+        function Gm = compute_relative_subtraction_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute inversion subnetwork input neurons.
+        function Gm = compute_absolute_inversion_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for absolute inversion subnetwork output neurons.
+        function Gm = compute_absolute_inversion_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative inversion subnetwork input neurons.
+        function Gm = compute_relative_inversion_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for relative inversion subnetwork output neurons.
+        function Gm = compute_relative_inversion_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute division subnetwork input neurons.
+        function Gm = compute_absolute_division_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for absolute division subnetwork output neurons.
+        function Gm = compute_absolute_division_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative division subnetwork input neurons.
+        function Gm = compute_relative_division_Gm_input( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_FREE;
+            
+        end
+        
+        
+        % Implement a function to compute the memebrane conductance for relative division subnetwork output neurons.
+        function Gm = compute_relative_division_Gm_output( self )
+            
+            % Set the membrane conductance.
+            Gm = self.GM_MINIMUM;
+            
+        end
+        
         
         % Implement a function to compute membrane conductance for a derivative subnetwork.
         function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
@@ -493,15 +644,15 @@ classdef neuron_utilities_class
             
         end
         
-        
-        % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------
+        %% Membrane Capacitance Functions
         
         % Implement a function to compute the membrane capacitance of transmission subnetwork neurons.
         function Cm = compute_transmission_Cm( ~ )
             
             % Compute the membrane capacitance.
             %             Cm = 1e-9;
-            Cm = 0.5e-9;
+            %             Cm = 0.5e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -516,37 +667,37 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the memebrane capacitance of modulation subnetwork neurons.
-        function Cm = compute_modulation_Cm( ~ )
-        
+        function Cm = compute_modulation_Cm( self )
+            
             % Compute the membrane capacitance.
-            Cm = 5e-9;
+            Cm = self.CM_FREE;
             
         end
         
         
         % Implement a function to compute the membrane capacitance of addition subnetwork neurons.
-        function Cm = compute_addition_Cm( ~ )
+        function Cm = compute_addition_Cm( self )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
         
         % Implement a function to compute the membrane capacitance of absolute addition subnetwork neurons.
-        function Cm = compute_absolute_addition_Cm( ~ )
+        function Cm = compute_absolute_addition_Cm( self )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
         
         % Implement a function to compute the membrane capacitance of relative addition subnetwork neurons.
-        function Cm = compute_relative_addition_Cm( ~ )
+        function Cm = compute_relative_addition_Cm( self )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
@@ -556,7 +707,8 @@ classdef neuron_utilities_class
             
             % Compute the membrane capacitance.
             %             Cm = 1e-9;
-            Cm = 0.5e-9;
+            %             Cm = 0.5e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -565,7 +717,8 @@ classdef neuron_utilities_class
         function Cm = compute_absolute_subtraction_Cm( ~ )
             
             % Compute the membrane capacitance.
-            Cm = 0.5e-9;
+            %             Cm = 0.5e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -573,8 +726,9 @@ classdef neuron_utilities_class
         % Implement a function to compute the mebrane capacitance of relative subtraction subnetwork neurons.
         function Cm = compute_relative_subtraction_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 0.5e-9;
+            % Compute the membrane capacitance.
+            %            Cm = 0.5e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -583,7 +737,8 @@ classdef neuron_utilities_class
         function Cm = compute_double_subtraction_Cm( ~ )
             
             % Compute the membrane capacitance.
-            Cm = 1e-9;
+            %             Cm = 1e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -592,16 +747,18 @@ classdef neuron_utilities_class
         function Cm = compute_absolute_double_subtraction_Cm( ~ )
             
             % Compute the membrane capacitance.
-            Cm = 1e-9;
+            %             Cm = 1e-9;
+            Cm = self.CM_FREE;
             
         end
         
         
         % Implement a function to compute the membrane capacitance of relative double subtraction subnetwork neurons.
         function Cm = compute_relative_double_subtraction_Cm( ~ )
-           
+            
             % Compute the membrane capacitance.
-            Cm = 1e-9;
+            %             Cm = 1e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -609,8 +766,8 @@ classdef neuron_utilities_class
         % Implement a function to compute the membrane capacitance of inversion subnetwork neurons.
         function Cm = compute_inversion_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
@@ -618,17 +775,17 @@ classdef neuron_utilities_class
         % Implement a function to compute the membrane capacitance of absolute inversion subnetwork neurons.
         function Cm = compute_absolute_inversion_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
         
         % Implement a function to compute the membrane capacitance of relative inversion subnetwork neurons.
         function Cm = compute_relative_inversion_Cm( ~ )
-        
+            
             % Compute the membrane capacitance.
-            Cm = 5e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -636,17 +793,17 @@ classdef neuron_utilities_class
         % Implement a function to compute the membrane capacitance of division subnetwork neurons.
         function Cm = compute_division_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
-                
+        
         % Implement a function to compute the membrane capacitance of asbolute division subnetwork neurons.
         function Cm = compute_asbolute_division_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
@@ -655,7 +812,7 @@ classdef neuron_utilities_class
         function Cm = compute_relative_division_Cm( ~ )
             
             % Compute the membrane capacitance.
-            Cm = 5e-9;
+            Cm = self.CM_FREE;
             
         end
         
@@ -663,8 +820,8 @@ classdef neuron_utilities_class
         % Implement a function to compute the membrane capacitance of multiplication subnetwork neurons.
         function Cm = compute_multiplication_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
@@ -672,8 +829,8 @@ classdef neuron_utilities_class
         % Implement a function to compute the membrane capacitance of absolute multiplication subnetwork neurons.
         function Cm = compute_absolute_multiplication_Cm( ~ )
             
-           % Compute the membrane capacitance.
-           Cm = 5e-9;
+            % Compute the membrane capacitance.
+            Cm = self.CM_FREE;
             
         end
         
@@ -682,8 +839,8 @@ classdef neuron_utilities_class
         function Cm = compute_relative_multipliction_Cm( ~ )
             
             % Compute the membrane capacitance.
-            Cm = 5e-9;
-        
+            Cm = self.CM_FREE;
+            
         end
         
         
@@ -761,16 +918,169 @@ classdef neuron_utilities_class
             
         end
         
+        %% Activation Domain Functions
         
-        % ---------------------------------------------------------------- Activation Domain Functions ----------------------------------------------------------------
-
+        % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
+        function R = compute_absolute_addition_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute addition subnetwork output neurons.
+        function R = compute_absolute_addition_R_output( ~, Rs )
+            
+            % Compute the operational domain.
+            R = sum( Rs ); 
+            
+        end
+                
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
+        function R = compute_relative_addition_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
+        function R = compute_relative_addition_R_output( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
+        function R = compute_absolute_subtraction_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork output neurons.
+        function R = compute_absolute_subtraction_R_output( ~, Rs, ss )
+           
+            % Compute the operational domain.
+           R = sum( ss.*Rs ); 
+            
+        end
+                
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
+        function R = compute_relative_subtraction_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
+        function R = compute_relative_subtraction_R_output( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the second inversion subnetwork neuron.
         function R2 = compute_absolute_inversion_R2( ~, epsilon, k )
-        
+            
             % Compute the operational domain of the second inversion subnetwork neuron.
             R2 = k/epsilon;
+            
+        end
         
-        end     
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
+        function R = compute_absolute_inversion_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
+        function R = compute_absolute_inversion_R_output( ~, c, epsilon )
+           
+            % Compute the operational domain.
+           R = c/epsilon; 
+            
+        end
+                
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
+        function R = compute_relative_inversion_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
+        function R = compute_relative_inversion_R_output( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+                
+        % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
+        function R = compute_absolute_division_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
+        function R_out = compute_absolute_division_R_output( ~, c, epsilon, R_numerator )
+            
+            % Compute the operational domain.
+            R_out = ( c/epsilon )*R_numerator;
+            
+        end
+                
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
+        function R = compute_relative_division_R_input( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
+        function R = compute_relative_division_R_output( self )
+           
+            % Compute the operational domain.
+           R = self.R_FREE; 
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
+        function R = compute_relative_multiplication_R_output( ~, c, c1, c2, epsilon1, epsilon2 )
+            
+            % Compute the operational domain.
+            R = ( c*epsilon2 )./( c2 + c2*epsilon1 - c*c1*epsilon1*epsilon2 );
+            
+        end
         
         
     end

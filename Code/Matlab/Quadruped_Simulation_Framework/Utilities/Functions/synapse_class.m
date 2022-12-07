@@ -50,22 +50,13 @@ classdef synapse_class
         end
         
         
-        %% Compute Functions
+        %% Synaptic Reversal Potential Compute Functions
         
         % Implement a function to compute the synaptic reversal potential of a driven multistate cpg subnetwork.
         function dE_syn = compute_driven_multistate_cpg_dEsyn( self )
             
            % Compute the synaptic reversal potential.
            dE_syn = self.synapse_utilities.compute_driven_multistate_cpg_dEsyn(  );
-            
-        end
-        
-
-        % Implement a function to compute the maximum synaptic conductance of a driven multistate cpg subnetwork.
-        function g_syn_max = compute_driven_multistate_cpg_gsynmax( self, delta_oscillatory, I_drive_max )
-            
-           % Compute the maximum synaptic conductance.
-           g_syn_max = self.synapse_utilities.compute_driven_multistate_cpg_gsynmax( self.dE_syn, delta_oscillatory, I_drive_max );
             
         end
         
@@ -97,16 +88,6 @@ classdef synapse_class
         end
         
         
-        % Implement a function to compute the synaptic reversal potential of a relative addition subnetwork.
-        function dE_syn1 = compute_relative_addition_dEsyn1( self )
-            
-           % Compute the synaptic reversal potential.
-           dE_syn1 = self.synapse_utilities.compute_relative_addition_dEsyn1(  );
-            
-        end
-        
-        
-        
         % Implement a function to compute the synaptic reversal potential of an addition subnetwork.
         function dE_syn2 = compute_addition_dEsyn2( self )
             
@@ -115,16 +96,25 @@ classdef synapse_class
             
         end
         
+
+        % Implement a function to compute the synaptic reversal potential of absolute addition subnetwork synapses.
+        function dE_syn = compute_absolute_addition_dEsyn( self )
         
-        % Implement a function to compute the synaptic reversal potential of a relative addition subnetwork.
-        function dE_syn2 = compute_relative_addition_dEsyn2( self )
-            
            % Compute the synaptic reversal potential.
-           dE_syn2 = self.synapse_utilities.compute_relative_addition_dEsyn2(  );
+           dE_syn = self.synapse_utilities.compute_absolute_addition_dEsyn(  );
             
         end
         
-
+        
+        % Implement a function to compute the synaptic reversal potential of relative addition subnetwork synapses.
+        function dE_syn = compute_relative_addition_dEsyn( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn = self.synapse_utilities.compute_relative_addition_dEsyn(  );
+            
+        end
+        
+        
         % Implement a function to compute the synaptic reversal potential of a subtraction subnetwork.
         function dE_syn1 = compute_subtraction_dEsyn1( self )
             
@@ -143,6 +133,42 @@ classdef synapse_class
         end
         
         
+        % Implement a function to compute the synaptic reversal potential of absolute subtraction subnetwork excitatory synapses.
+        function dE_syn = compute_absolute_subtraction_dEsyn_excitatory( self )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn = self.synapse_utilities.compute_absolute_subtraction_dEsyn_excitatory(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of absolute subtraction subnetwork inhibitory synapses.
+        function dE_syn = compute_absolute_subtraction_dEsyn_inhibitory( self )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn = self.synapse_utilities.compute_absolute_subtraction_dEsyn_inhibitory(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of relative subtraction subnetwork excitatory synapses.
+        function dE_syn = compute_relative_subtraction_dEsyn_excitatory( self )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn = self.synapse_utilities.compute_relative_subtraction_dEsyn_excitatory(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of relative subtraction subnetwork inhibitory synapses.
+        function dE_syn = compute_relative_subtraction_dEsyn_inhibitory( self )
+            
+            % Compute the synaptic reversal potential.
+            dE_syn = self.synapse_utilities.compute_relative_subtraction_dEsyn_inhibitory(  );
+            
+        end
+        
+   
         % Implement a function to compute the synaptic reversal potential of a multiplication subnetwork.
         function dE_syn1 = compute_multiplication_dEsyn1( self )
             
@@ -179,6 +205,25 @@ classdef synapse_class
         end
         
         
+        % Implement a function to compute the synaptic reversal potential of absolute inversion subnetwork synapses.
+        function dE_syn = compute_absolute_inversion_dEsyn( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn = self.synapse_utilities.compute_absolute_inversion_dEsyn(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of relative inversion subnetwork synapses.
+        function dE_syn = compute_relative_inversion_dEsyn( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn = self.synapse_utilities.compute_relative_inversion_dEsyn(  );
+            
+        end
+        
+        
+        
         % Implement a function to compute the synaptic reversal potential of a division subnetwork.
         function dE_syn1 = compute_division_dEsyn1( self )
             
@@ -193,6 +238,42 @@ classdef synapse_class
             
            % Compute the synaptic reversal potential.
            dE_syn2 = self.synapse_utilities.compute_division_dEsyn2(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of absolute division subnetwork numerator synapses.
+        function dE_syn1 = compute_absolute_division_dEsyn1( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn1 = self.synapse_utilities.compute_absolute_division_dEsyn1(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of absolute division subnetwork denominator neurons.
+        function dE_syn1 = compute_absolute_division_dEsyn2( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn1 = self.synapse_utilities.compute_absolute_division_dEsyn2(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of relative division subnetwork numerator synapses.
+        function dE_syn1 = compute_relative_division_dEsyn1( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn1 = self.synapse_utilities.compute_relative_division_dEsyn1(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of relative division subnetwork denominator neurons.
+        function dE_syn1 = compute_relative_division_dEsyn2( self )
+            
+           % Compute the synaptic reversal potential.
+           dE_syn1 = self.synapse_utilities.compute_relative_division_dEsyn2(  );
             
         end
         
@@ -251,7 +332,108 @@ classdef synapse_class
         end
         
         
-        %% Compute & Set Functions
+        %% Maximum Synaptic Conductance Compute Functions
+                
+        % Implement a function to compute the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function g_syn_max = compute_driven_multistate_cpg_gsynmax( self, delta_oscillatory, I_drive_max )
+            
+           % Compute the maximum synaptic conductance.
+           g_syn_max = self.synapse_utilities.compute_driven_multistate_cpg_gsynmax( self.dE_syn, delta_oscillatory, I_drive_max );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute addition synapses.
+        function gsyn_nk = compute_absolute_addition_gsyn( self, c, R_k, Gm_n, dEsyn_nk, Iapp_n )
+            
+            % Compute the maximum synaptic conductance.
+            gsyn_nk = self.synapse_utilities.compute_absolute_addition_gsyn( c, R_k, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of relative addition synapses.
+        function gsyn_nk = compute_relative_addition_gsyn( self, c, n, R_n, Gm_n, dEsyn_nk, Iapp_n )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_nk = self.synapse_utilities.compute_relative_addition_gsyn( c, n, R_n, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute subtraction synapses.
+        function gsyn_nk = compute_absolute_subtraction_gsyn( self, c, s_k, R_k, Gm_n, dEsyn_nk, Iapp_n )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_nk = self.synapse_utilities.compute_absolute_subtraction_gsyn( c, s_k, R_k, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of relative subtraction synapses.
+        function gsyn_nk = compute_relative_subtraction_gsyn( self, c, npm_k, s_k, R_n, Gm_n, dEsyn_nk, Iapp_n )
+            
+            % Compute the maximum synaptic conductance.
+            gsyn_nk = self.synapse_utilities.compute_relative_subtraction_gsyn( c, npm_k, s_k, R_n, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute inversion synapses.
+        function gsyn_21 = compute_absolute_inversion_gsyn( self, c, epsilon, R_1, Gm_2, Iapp_2 )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_21 = self.synapse_utilities.compute_absolute_inversion_gsyn( c, epsilon, R_1, Gm_2, Iapp_2 );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of relative inversion synapses.
+        function gsyn_21 = compute_relative_inversion_gsyn( self, c, epsilon, R_2, Gm_2, Iapp_2 )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_21 = self.synapse_utilities.compute_relative_inversion_gsyn( c, epsilon, R_2, Gm_2, Iapp_2 );
+        
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute division numerator synapses.
+        function gsyn_31 = compute_absolute_division_gsyn31( self, c, epsilon, R_1, Gm_3, dEsyn_31 )
+            
+            % Compute the maximum synaptic conductance.
+            gsyn_31 = self.synapse_utilities.compute_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute division denominator synapses.
+        function gsyn_32 = compute_absolute_division_gsyn32( self, c, epsilon, R_1, R_2, Gm_3, dEsyn_31 )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_32 = self.synapse_utilities.compute_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of relative division numerator synapses.
+        function gsyn_31 = compute_relative_division_gsyn31( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_31 = self.synapse_utilities.compute_relative_division_gsyn31( c, epsilon, R_3, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of relative division denominator synapses.
+        function gsyn_32 = compute_relative_division_gsyn32( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        
+            % Compute the maximum synaptic conductance.
+            gsyn_32 = self.synapse_utilities.compute_relative_division_gsyn32( c, epsilon, R_3, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        %% Synaptic Reversal Potential Compute & Set Functions
 
         % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
         function self = compute_set_driven_multistate_cpg_dEsyn( self )
@@ -261,15 +443,6 @@ classdef synapse_class
             
         end
         
-        
-        % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
-        function self = compute_set_driven_multistate_cpg_gsynmax( self, delta_oscillatory, I_drive_max )
-            
-            % Compute and set the maximum synaptic conductance.
-            self.g_syn_max = self.compute_driven_multistate_cpg_gsynmax( delta_oscillatory, I_drive_max );
-            
-        end
-
         
         % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
         function self = compute_set_transmission_dEsyn( self )
@@ -298,15 +471,6 @@ classdef synapse_class
         end
         
         
-        % Implement a function to compute and set the synaptic reversal potential of a relative addition subnetwork.
-        function self = compute_set_relative_addition_dEsyn1( self )
-            
-            % Compute and set the synaptic reversal potential.
-            self.dE_syn = self.compute_relative_addition_dEsyn1(  );
-            
-        end
-        
-        
         % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
         function self = compute_set_addition_dEsyn2( self )
             
@@ -316,11 +480,20 @@ classdef synapse_class
         end
         
         
-        % Implement a function to compute and set the synaptic reversal potential of a relative addition subnetwork.
-        function self = compute_set_relative_addition_dEsyn2( self )
+        % Implement a function to compute and set the synaptic reversal potential of absolute addition subnetwork synapses.
+        function self = compute_set_absolute_addition_dEsyn( self )
             
             % Compute and set the synaptic reversal potential.
-            self.dE_syn = self.compute_relative_addition_dEsyn2(  );
+            self.dE_syn = self.compute_absolute_addition_dEsyn(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of relative addition subnetwork synapses.
+        function self = compute_set_relative_addition_dEsyn( self )
+            
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_relative_addition_dEsyn(  );
             
         end
         
@@ -339,6 +512,42 @@ classdef synapse_class
             
             % Compute and set the synaptic reversal potential.
             self.dE_syn = self.compute_subtraction_dEsyn2(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of absolute subtraction excitatory synapses.
+        function self = compute_set_absolute_subtraction_dEsyn_excitatory( self )
+        
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_absolute_subtraction_dEsyn_excitatory(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of absolute subtraction inhibitory synapses.
+        function self = compute_set_absolute_subtraction_dEsyn_inhibitory( self )
+        
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_absolute_subtraction_dEsyn_inhibitory(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of relative subtraction excitatory synapses.
+        function self = compute_set_relative_subtraction_dEsyn_excitatory( self )
+        
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_relative_subtraction_dEsyn_excitatory(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of relative subtraction inhibitory synapses.
+        function self = compute_set_relative_subtraction_dEsyn_inhibitory( self )
+        
+            % Compute and set the synaptic reversal potential.
+            self.dE_syn = self.compute_relative_subtraction_dEsyn_inhibitory(  );
             
         end
         
@@ -379,6 +588,24 @@ classdef synapse_class
         end
         
         
+        % Implement a function to compute and set the synaptic reversal potential of absolute inversion subentwork synapses.
+        function self = compute_set_absolute_inversion_dEsyn( self )
+            
+           % Compute and set the synaptic reversal potential.
+           self.dE_syn = self.compute_absolute_inversion_dEsyn(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of relative inversion subentwork synapses.
+        function self = compute_set_relative_inversion_dEsyn( self )
+            
+           % Compute and set the synaptic reversal potential.
+           self.dE_syn = self.compute_relative_inversion_dEsyn(  );
+            
+        end
+        
+        
         % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
         function self = compute_set_division_dEsyn1( self )
             
@@ -396,6 +623,42 @@ classdef synapse_class
             
         end
         
+        
+        % Implement a function to compute and set the synaptic reversal potential of absolute division numerator synapses.
+        function self = compute_set_absolute_division_dEsyn1( self )
+            
+           % Compute and set the synaptic reversal potential.
+           self.dE_syn = self.compute_absolute_division_dEsyn1(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of absolute division denominator synapses.
+        function self = compute_set_absolute_division_dEsyn2( self )
+            
+           % Compute and set the synaptic reversal potential.
+           self.dE_syn = self.compute_absolute_division_dEsyn2(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of relative division numerator synapses.
+        function self = compute_set_relative_division_dEsyn1( self )
+            
+           % Compute and set the synaptic reversal potential.
+           self.dE_syn = self.compute_relative_division_dEsyn1(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of relative division denominator synapses.
+        function self = compute_set_relative_division_dEsyn2( self )
+            
+           % Compute and set the synaptic reversal potential.
+           self.dE_syn = self.compute_relative_division_dEsyn2(  );
+            
+        end
+
         
         % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
         function self = compute_set_derivation_dEsyn1( self )
@@ -448,6 +711,107 @@ classdef synapse_class
             % Compute and set the synaptic reversal potential.
             self.dE_syn = self.compute_vb_integration_dEsyn2(  );
             
+        end
+        
+        
+        %% Maximum Synaptic Conductance Compute & Set Functions
+
+        % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function self = compute_set_driven_multistate_cpg_gsynmax( self, delta_oscillatory, I_drive_max )
+            
+            % Compute and set the maximum synaptic conductance.
+            self.g_syn_max = self.compute_driven_multistate_cpg_gsynmax( delta_oscillatory, I_drive_max );
+            
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of absolute addition synapses.
+        function self = compute_set_absolute_addition_gsyn( self, c, R_k, Gm_n, dEsyn_nk, Iapp_n )
+            
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_absolute_addition_gsyn( c, R_k, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of relative addition synapses.
+        function self = compute_set_relative_addition_gsyn( self, c, n, R_n, Gm_n, dEsyn_nk, Iapp_n )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_relative_addition_gsyn( c, n, R_n, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of absolute subtraction synapses.
+        function self = compute_set_absolute_subtraction_gsyn( self, c, s_k, R_k, Gm_n, dEsyn_nk, Iapp_n )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_absolute_subtraction_gsyn( c, s_k, R_k, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of relative subtraction synapses.
+        function self = compute_set_relative_subtraction_gsyn( self, c, npm_k, s_k, R_n, Gm_n, dEsyn_nk, Iapp_n )
+            
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_relative_subtraction_gsyn( c, npm_k, s_k, R_n, Gm_n, dEsyn_nk, Iapp_n );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of absolute inversion synapses.
+        function self = compute_set_absolute_inversion_gsyn( self, c, epsilon, R_1, Gm_2, Iapp_2 )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_absolute_inversion_gsyn( c, epsilon, R_1, Gm_2, Iapp_2 );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of relative inversion synapses.
+        function self = compute_set_relative_inversion_gsyn( self, c, epsilon, R_2, Gm_2, Iapp_2 )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_relative_inversion_gsyn( c, epsilon, R_2, Gm_2, Iapp_2 );
+        
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of absolute division numerator synapses.
+        function self = compute_set_absolute_division_gsyn31( self, c, epsilon, R_1, Gm_3, dEsyn_31 )
+            
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of absolute division denominator synapses.
+        function self = compute_set_absolute_division_gsyn32( self, c, epsilon, R_1, R_2, Gm_3, dEsyn_31 )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of relative division numerator synapses.
+        function self = compute_set_relative_division_gsyn31( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_relative_division_gsyn31( c, epsilon, R_3, Gm_3, dEsyn_31 );
+
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of relative division denominator synapses.
+        function self = compute_set_relative_division_gsyn32( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        
+            % Compute the maximum synaptic conductance.
+            self.g_syn_max = self.compute_relative_division_gsyn32( c, epsilon, R_3, Gm_3, dEsyn_31 );
+
         end
         
         

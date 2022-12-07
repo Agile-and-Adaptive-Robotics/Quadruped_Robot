@@ -112,9 +112,7 @@ classdef neuron_class
         end
          
         
-        %% Neuron Compute Functions
-        
-        % -------------------------------------------------- Sodium Channel Activation & Deactivation Functions --------------------------------------------------
+        %% Sodium Channel Activation & Deactivation Compute Functions
         
         % Implement a function to compute the steady state sodium channel activation parameter.
         function m_inf = compute_minf( self )
@@ -143,8 +141,8 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Sodium Channel Conductance Functions ----------------------------------------------------------------
-        
+        %% Sodium Channel Conductance Compute Functions
+                
         % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
         function Gna = compute_cpg_Gna( self )
             
@@ -379,7 +377,151 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------
+        %% Membrane Conductance Compute Functions
+                
+        % Implement a function to compute the membrance conductance for absolute addition subnetwork input neurons.
+        function Gm = compute_absolute_addition_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_addition_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrance conductance for absolute addition subnetwork output neurons.
+        function Gm = compute_absolute_addition_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_addition_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrance conductance for relative addition subnetwork input neurons.
+        function Gm = compute_relative_addition_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_addition_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrance conductance for relative addition subnetwork output neurons.
+        function Gm = compute_relative_addition_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_addition_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork input neurons.
+        function Gm = compute_absolute_subtraction_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_subtraction_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork output neurons.
+        function Gm = compute_absolute_subtraction_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_subtraction_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative subtraction subnetwork input neurons.
+        function Gm = compute_relative_subtraction_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_subtraction_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative subtraction subnetwork output neurons.
+        function Gm = compute_relative_subtraction_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_subtraction_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute inversion subnetwork input neurons.
+        function Gm = compute_absolute_inversion_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_inversion_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute inversion subnetwork output neurons.
+        function Gm = compute_absolute_inversion_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_inversion_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative inversion subnetwork input neurons.
+        function Gm = compute_relative_inversion_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_inversion_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative inversion subnetwork output neurons.
+        function Gm = compute_relative_inversion_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_inversion_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute division subnetwork input neurons.
+        function Gm = compute_absolute_division_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_division_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute division subnetwork output neurons.
+        function Gm = compute_absolute_division_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_absolute_division_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative division subnetwork input neurons.
+        function Gm = compute_relative_division_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_division_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative division subnetwork output neurons.
+        function Gm = compute_relative_division_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            Gm = self.neuron_utilities.compute_relative_division_Gm_output(  );
+            
+        end
+        
         
         % Implement a function to compute the required membrane conductance for a derivation neuron.
         function Gm = compute_derivation_Gm( self, k, w, safety_factor )
@@ -395,8 +537,8 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------
-        
+        %% Membrane Capacitance Compute Functions
+                
         % Implement a function to compute the membrane capacitance for a transmission subnetwork neuron.
         function Cm = compute_transmission_Cm( self )
         
@@ -508,34 +650,7 @@ classdef neuron_class
             Cm = self.neuron_utilities.compute_relative_double_subtraction_Cm(  );
             
         end
-        
-        
-        % Implement a function to compute the membrane capacitance for a multiplication subnetwork neuron.
-        function Cm = compute_multiplication_Cm( self )
-        
-            % Compute the membrane capacitance for a multiplication subnetwork neuron.
-            Cm = self.neuron_utilities.compute_multiplication_Cm(  );
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for an absolute multiplication subnetwork neuron.
-        function Cm = compute_absolute_multiplication_Cm( self )
-        
-            % Compute the membrane capacitance for an absolute multiplication subnetwork neuron.
-            Cm = self.neuron_utilities.compute_absolute_multiplication_Cm(  );
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for a relative multiplication subnetwork neuron.
-        function Cm = compute_relative_multiplication_Cm( self )
-            
-            % Compute the membrane capacitance for a relative multiplication subnetwork neuron.
-            Cm = self.neuron_utilities.compute_relative_multiplication_Cm(  );
-            
-        end
-        
+
         
         % Implement a function to compute the membrane capacitance for an inversion subnetwork neuron.
         function Cm = compute_inversion_Cm( self )
@@ -587,6 +702,33 @@ classdef neuron_class
             
             % Compute the membrane capacitance for a relative division subnetwork.
             Cm = self.neuron_utilities.compute_relative_division_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance for a multiplication subnetwork neuron.
+        function Cm = compute_multiplication_Cm( self )
+        
+            % Compute the membrane capacitance for a multiplication subnetwork neuron.
+            Cm = self.neuron_utilities.compute_multiplication_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance for an absolute multiplication subnetwork neuron.
+        function Cm = compute_absolute_multiplication_Cm( self )
+        
+            % Compute the membrane capacitance for an absolute multiplication subnetwork neuron.
+            Cm = self.neuron_utilities.compute_absolute_multiplication_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance for a relative multiplication subnetwork neuron.
+        function Cm = compute_relative_multiplication_Cm( self )
+            
+            % Compute the membrane capacitance for a relative multiplication subnetwork neuron.
+            Cm = self.neuron_utilities.compute_relative_multiplication_Cm(  );
             
         end
         
@@ -661,8 +803,80 @@ classdef neuron_class
         end
         
         
-        % ------------------------------------------------------------------ Activation Domain Functions ------------------------------------------------------------------
+        %% Activation Domain Compute Functions
 
+        % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
+        function R = compute_absolute_addition_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_addition_R_input(  );
+            
+        end
+            
+        
+        % Implement a function to compute the operational domain of the absolute addition subnetwork output neurons.
+        function R = compute_absolute_addition_R_output( self, Rs )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_addition_R_output( Rs );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
+        function R = compute_relative_addition_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_addition_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
+        function R = compute_relative_addition_R_output( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_addition_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
+        function R = compute_absolute_subtraction_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_subtraction_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork output neurons.
+        function R = compute_absolute_subtraction_R_output( self, Rs, ss )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_subtraction_R_output( Rs, ss );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
+        function R = compute_relative_subtraction_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_subtraction_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
+        function R = compute_relative_subtraction_R_output( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_subtraction_R_output(  );
+            
+        end
+        
+        
         % Implement a function to compute the required operation domain for the second neuron of an inversion subnetwork.
         function R2 = compute_absolute_inversion_R2( self, epsilon, k )
             
@@ -672,7 +886,88 @@ classdef neuron_class
         end
         
         
-        % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
+        function R = compute_absolute_inversion_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_inversion_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
+        function R = compute_absolute_inversion_R_output( self, c, epsilon )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_inversion_R_output( c, epsilon );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
+        function R = compute_relative_inversion_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_inversion_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
+        function R = compute_relative_inversion_R_output( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_inversion_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
+        function R = compute_absolute_division_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_division_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
+        function R = compute_absolute_division_R_output( self, c, epsilon, R_numerator )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_absolute_division_R_output( c, epsilon, R_numerator );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
+        function R = compute_relative_division_R_input( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_division_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
+        function R = compute_relative_division_R_output( self )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_division_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
+        function R = compute_relative_multiplication_R_output( self, c, c1, c2, epsilon1, epsilon2 )
+            
+            % Compute the operational domain.
+            R = self.neuron_utilities.compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2 );
+            
+        end
+        
+        
+        %% Current Compute Functions
         
         % Implement a function to compute the leak current associated with this neuron.
         function I_leak = compute_Ileak( self )
@@ -701,10 +996,8 @@ classdef neuron_class
         end
         
         
-        %% Neuron Compute & Set Functions
-        
-        % -------------------------------------------------- Sodium Channel Activation & Deactivation Functions --------------------------------------------------
-        
+        %% Sodium Channel Activation & Deactivation Compute & Set Functions
+                
         % Implement a function to set the steady state sodium channel activation parameter.
         function self = compute_set_minf( self )
 
@@ -731,9 +1024,9 @@ classdef neuron_class
             
         end
         
-                
-        % ---------------------------------------------------------------- Sodium Channel Conductance Functions ----------------------------------------------------------------
         
+        %% Sodium Channel Conductance Compute & Set Functions
+                        
         % Implement a function to set the sodium channel conductance for a two neuron CPG subnetwork.
         function self = compute_set_cpg_Gna( self )
             
@@ -891,7 +1184,7 @@ classdef neuron_class
         function self = compute_set_absolute_inversion_Gna( self )
         
             % Compute and set the sodium channel conductance for inversion subnetwork neurons.
-            self.Gna = self.compute_inversion_Gna(  );
+            self.Gna = self.compute_absolute_inversion_Gna(  );
             
         end
         
@@ -967,8 +1260,151 @@ classdef neuron_class
             
         end
         
+        %% Membrane Conductance Compute & Set Functions
         
-        % ---------------------------------------------------------------- Membrane Conductance Functions ----------------------------------------------------------------        
+        % Implement a function to compute the membrance conductance for absolute addition subnetwork input neurons.
+        function self = compute_set_absolute_addition_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_addition_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrance conductance for absolute addition subnetwork output neurons.
+        function self = compute_set_absolute_addition_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_addition_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrance conductance for relative addition subnetwork input neurons.
+        function self = compute_set_relative_addition_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_addition_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrance conductance for relative addition subnetwork output neurons.
+        function self = compute_set_relative_addition_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_addition_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork input neurons.
+        function self = compute_set_absolute_subtraction_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_subtraction_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork output neurons.
+        function self = compute_set_absolute_subtraction_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_subtraction_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative subtraction subnetwork input neurons.
+        function self = compute_set_relative_subtraction_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_subtraction_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative subtraction subnetwork output neurons.
+        function self = compute_set_relative_subtraction_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_subtraction_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute inversion subnetwork input neurons.
+        function self = compute_set_absolute_inversion_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_inversion_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute inversion subnetwork output neurons.
+        function self = compute_set_absolute_inversion_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_inversion_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative inversion subnetwork input neurons.
+        function self = compute_set_relative_inversion_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_inversion_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative inversion subnetwork output neurons.
+        function self = compute_set_relative_inversion_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_inversion_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute division subnetwork input neurons.
+        function self = compute_set_absolute_division_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_division_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for absolute division subnetwork output neurons.
+        function self = compute_set_absolute_division_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_absolute_division_Gm_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative division subnetwork input neurons.
+        function self = compute_set_relative_division_Gm_input( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_division_Gm_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance for relative division subnetwork output neurons.
+        function self = compute_set_relative_division_Gm_output( self )
+        
+            % Compute the membrane conductance.
+            self.Gm = self.compute_relative_division_Gm_output(  );      
+            
+        end
+        
         
         % Implement a function to compute and set the membrane conductance for a derivation neuron.
         function self = compute_set_derivation_Gm( self, k, w, safety_factor )
@@ -984,7 +1420,7 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Membrane Capacitance Functions ----------------------------------------------------------------        
+        %% Membrane Capacitance Compute & Set Functions
         
         % Implement a function to compute and set the membrane capacitance for a transmission subnetwork neuron.
         function self = compute_set_transmission_Cm( self )
@@ -1016,13 +1452,22 @@ classdef neuron_class
             self.Cm = self.compute_slow_transmission_Cm( num_cpg_neurons, T, r );
             
         end
-                
+
         
         % Implement a function to compute and set the membrane capacitance for an addition subnetwork neuron.
         function self = compute_set_addition_Cm( self )
             
            % Compute and set the membrane capacitance for an addition subnetwork neuron.
            self.Cm = self.compute_addition_Cm(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the membrane capacitance for an absolute addition subnetwork neuron.
+        function self = compute_set_absolute_addition_Cm( self )
+            
+           % Compute and set the membrane capacitance for a absolute addition subnetwork neuron.
+           self.Cm = self.compute_absolute_addition_Cm(  );
             
         end
         
@@ -1241,19 +1686,172 @@ classdef neuron_class
         end
         
         
-        % ---------------------------------------------------------------- Activation Domain Functions ----------------------------------------------------------------        
-
-        % Implement a function to compute and set the operational domain for the second inversion subnetwork neuron.
-        function self = compute_set_absolute_inversion_R2( self, epsilon, k )
+        %% Activation Domain Compute & Set Functions
+        
+        % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
+        function self = compute_set_absolute_addition_R_input( self )
             
-            % Compute and set the operational domain for the second inversion subnetwork neuron.
-            self.R = self.compute_absolute_inversion_R2( epsilon, k );
+            % Compute the operational domain.
+            self.R = self.compute_absolute_addition_R_input(  );
+            
+        end
+            
+        
+        % Implement a function to compute the operational domain of the absolute addition subnetwork output neurons.
+        function self = compute_set_absolute_addition_R_output( self, Rs )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_addition_R_output( Rs );
             
         end
         
         
-        % ------------------------------------------------------------------ Current Functions ------------------------------------------------------------------
+        % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
+        function self = compute_set_relative_addition_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_addition_R_input(  );
+            
+        end
         
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
+        function self = compute_set_relative_addition_R_output( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_addition_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
+        function self = compute_set_absolute_subtraction_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_subtraction_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork output neurons.
+        function self = compute_set_absolute_subtraction_R_output( self, Rs, ss )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_subtraction_R_output( Rs, ss );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
+        function self = compute_set_relative_subtraction_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_subtraction_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
+        function self = compute_set_relative_subtraction_R_output( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_subtraction_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the required operation domain for the second neuron of an inversion subnetwork.
+        function self = compute_set_absolute_inversion_R2( self, epsilon, k )
+            
+           % Compute the operational domain for the second inversion subnetwork neuron. 
+           self.R = self.compute_absolute_inversion_R2( epsilon, k ); 
+           
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
+        function self = compute_set_absolute_inversion_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_inversion_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
+        function self = compute_set_absolute_inversion_R_output( self, c, epsilon )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_inversion_R_output( c, epsilon );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
+        function self = compute_set_relative_inversion_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_inversion_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
+        function self = compute_set_relative_inversion_R_output( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_inversion_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
+        function self = compute_set_absolute_division_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_division_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
+        function self = compute_set_absolute_division_R_output( self, c, epsilon, R_numerator )
+            
+            % Compute the operational domain.
+            self.R = self.compute_absolute_division_R_output( c, epsilon, R_numerator );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
+        function self = compute_set_relative_division_R_input( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_division_R_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
+        function self = compute_set_relative_division_R_output( self )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_division_R_output(  );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
+        function self = compute_set_relative_multiplication_R_output( self, c, c1, c2, epsilon1, epsilon2 )
+            
+            % Compute the operational domain.
+            self.R = self.compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2 );
+            
+        end
+        
+        
+        %% Current Compute & Set Functions
+                
         % Implement a function to compute and set the leak current associated with this neuron.
         function self = compute_set_Ileak( self )
             
