@@ -18,23 +18,24 @@ classdef network_utilities_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
     
-        K_TRANSMISSION = 1;
-        C_MODULATION = 0.05;
+        c_transmission_DEFAULT = 1;
+        c_modulation_DEFAULT = 0.05;
         
-        K_ADDITION = 1;
-        K_SUBTRACTION = 1;
+        c_addition_DEFAULT = 1;
+        c_subtraction_DEFAULT = 1;
         
-        K_MULTIPLICATION = 1;
-        K_DIVISION = 1;
+        c_multiplication_DEFAULT = 1;
+        c_inversion_DEFAULT = 1;
+        c_division_DEFAULT = 1;
         
-        K_DERIVATION = 1e6;
-        W_DERIVATION = 1;
-        SF_DERIVATION = 0.05;
+        c_derivation_DEFAULT = 1e6;
+        w_derivation_DEFAULT = 1;
+        sf_derivation_DEFAULT = 0.05;
         
-        K_INTEGRATION_MEAN = 0.01e9;
-        K_INTEGRATION_RANGE = 0.01e9;
+        c_integration_mean_DEFAULT = 0.01e9;
+        c_integration_range_DEFAULT = 0.01e9;
 
-        I_APP = 0;
+        Iapp_DEFAULT = 0;
         
     end
     
@@ -278,8 +279,8 @@ classdef network_utilities_class
         function g_syn_max12 = compute_transmission_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, k )
             
             % Set the default input arguments.
-            if nargin < 6, k = self.K_TRANSMISSION; end
-            if nargin < 5, I_app2 = self.I_APP; end
+            if nargin < 6, k = self.c_transmission_DEFAULT; end
+            if nargin < 5, I_app2 = self.Iapp_DEFAULT; end
                       
             % Determine how to compute the transmission maximum synaptic conductance.
             if k > 0                % If the specified gain is positive...
@@ -309,8 +310,8 @@ classdef network_utilities_class
         function g_syn_max12 = compute_modulation_gsynmax( ~, Gm2, R1, R2, dE_syn12, I_app2, c )
             
             % Set the default input arguments.
-            if nargin < 7, c = self.C_MODULATION*( R2/R1 ); end
-            if nargin < 6, I_app2 = self.I_APP; end
+            if nargin < 7, c = self.c_modulation_DEFAULT*( R2/R1 ); end
+            if nargin < 6, I_app2 = self.Iapp_DEFAULT; end
 
             % Compute the maximum synaptic condcutance for a signal modulation pathway.
             g_syn_max12 = ( I_app2 + ( R2 - c.*R1 ).*Gm2 )./( c.*R1 - dE_syn12 );
@@ -327,8 +328,8 @@ classdef network_utilities_class
         function [ g_syn_max13, g_syn_max23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
-            if nargin < 6, k = self.K_ADDITION; end
-            if nargin < 5, I_app3 = self.I_APP; end
+            if nargin < 6, k = self.c_addition_DEFAULT; end
+            if nargin < 5, I_app3 = self.Iapp_DEFAULT; end
             
             % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
@@ -341,8 +342,8 @@ classdef network_utilities_class
         function [ g_syn_max13, g_syn_max23 ] = compute_relative_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
-            if nargin < 6, k = self.K_ADDITION; end
-            if nargin < 5, I_app3 = self.I_APP; end
+            if nargin < 6, k = self.c_addition_DEFAULT; end
+            if nargin < 5, I_app3 = self.Iapp_DEFAULT; end
             
             % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
@@ -355,8 +356,8 @@ classdef network_utilities_class
         function [ g_syn_max13, g_syn_max23 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
             
             % Set the default input arguments.
-            if nargin < 7, k = self.K_SUBTRACTION; end
-            if nargin < 6, I_app3 = self.I_APP; end
+            if nargin < 7, k = self.c_subtraction_DEFAULT; end
+            if nargin < 6, I_app3 = self.Iapp_DEFAULT; end
             
             % Compute the maximum synaptic conductances for the first neuron of the substraction subnetwork.            
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
@@ -376,7 +377,7 @@ classdef network_utilities_class
             % Set the default input arguments.
             if nargin < 6, epsilon = self.EPSILON_INVERSION; end
             if nargin < 5, k = self.K_INVERSION; end
-            if nargin < 4, I_app2 = self.I_APP; end
+            if nargin < 4, I_app2 = self.Iapp_DEFAULT; end
             
             % Compute the maximum synaptic conductance for the inversion subnetwork.
             g_syn_max = ( ( ( R1 + epsilon )*R1*I_app2 - k*R1*Gm2 )./( k*R1 ) );
@@ -384,13 +385,37 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the input offset for a relative inversion subnetwork.
+        function epsilon = compute_relative_inversion_epsilon( self, c )
+            
+           % Define the default input arguments.
+           if nargin < 2, c = self.c_inversion_DEFAULT; end                 % [-] Inversion Subnetwork Gain
+            
+           % Compute the input offset.
+           epsilon = ( -1 + sqrt( 1 + 4*c ) )/2;
+           
+        end
+        
+        
+        % Implement a function compute the output offset for a relative inversion subnetwork.
+        function delta = compute_relative_inversion_delta( self, c )
+           
+            % Define the default input arguments.
+            if nargin < 2, c = self.c_inversion_DEFAULT; end                % [-] Inversion Subnetwork Gain
+            
+            % Compute the output offset.
+            delta = 2./( -1 + sqrt( 1 + 4*c ) ) - ( 1./c );
+            
+        end
+        
+        
         % Implement a function to compute the maximum synaptic conductances for a division subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_division_gsynmax( self, Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c )
         
             % Set the default input arguments.
-            if ( nargin < 10 ) || ( isempty( c ) ), c = self.C_MODULATION*( R3/R2 ); end
-            if nargin < 9, k = self.K_DIVISION; end
-            if nargin < 8, I_app3 = self.I_APP; end
+            if ( nargin < 10 ) || ( isempty( c ) ), c = self.c_modulation_DEFAULT*( R3/R2 ); end
+            if nargin < 9, k = self.c_division_DEFAULT; end
+            if nargin < 8, I_app3 = self.Iapp_DEFAULT; end
             
             % Compute the maximum synaptic conductance for the first synapse.
             g_syn_max13 = self.compute_transmission_gsynmax( Gm3, R1, dE_syn13, I_app3, k );
@@ -405,9 +430,9 @@ classdef network_utilities_class
         function [ g_syn_max14, g_syn_max23, g_syn_max34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4, k )
         
             % Set the default input arguments.
-            if nargin < 13, k = self.K_MULTIPLICATION; end
-            if nargin < 12, I_app4 = self.I_APP; end
-            if nargin < 11, I_app3 = self.I_APP; end
+            if nargin < 13, k = self.c_multiplication_DEFAULT; end
+            if nargin < 12, I_app4 = self.Iapp_DEFAULT; end
+            if nargin < 11, I_app3 = self.Iapp_DEFAULT; end
             
             % Compute the maximum synaptic conductance for the first synapse.
             g_syn_max14 = self.compute_transmission_gsynmax( Gm4, R1, dE_syn14, I_app4, k );
@@ -439,9 +464,9 @@ classdef network_utilities_class
         function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
             
             % Set the default input arugments.
-            if nargin < 4, safety_factor = self.SF_DERIVATION; end
-            if nargin < 3, w = self.W_DERIVATION; end
-            if nargin < 2, k = self.K_DERIVATION; end
+            if nargin < 4, safety_factor = self.sf_derivation_DEFAULT; end
+            if nargin < 3, w = self.w_derivation_DEFAULT; end
+            if nargin < 2, k = self.c_derivation_DEFAULT; end
             
             % Compute the required membrance conductance.
             Gm = ( 1 - safety_factor )./( k.*w );    
@@ -453,8 +478,8 @@ classdef network_utilities_class
         function [ Cm1, Cm2 ] = compute_derivation_Cms( ~, Gm, k, w )
             
             % Set the default input arugments.
-            if nargin < 4, w = self.W_DERIVATION; end
-            if nargin < 3, k = self.K_DERIVATION; end
+            if nargin < 4, w = self.w_derivation_DEFAULT; end
+            if nargin < 3, k = self.c_derivation_DEFAULT; end
             if nargin < 2, Gm = 1e-6; end
             
            % Compute the required time constant.
@@ -475,7 +500,7 @@ classdef network_utilities_class
         function Cm = compute_integration_Cm( ~, ki_mean )
         
             % Set the default input arguments.
-            if nargin < 2, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Compute the integration subnetwork membrane capacitance.
             Cm = 1./( 2*ki_mean );
@@ -487,7 +512,7 @@ classdef network_utilities_class
         function gs = compute_integration_gsynmax( ~, Gm, Cm, ki_range )
         
             % Set the default input arguments.
-            if nargin < 4, ki_range = self.K_INTEGRATION_RANGE; end
+            if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
             
             % Compute the integration subnetwork maximum synaptic conductances.
             gs = ( -2*Gm.*Cm.*ki_range )./( Cm.*ki_range - 1 );
@@ -520,7 +545,7 @@ classdef network_utilities_class
 
             % Set the default input arguments.
             if nargin < 5, b_inhibition = false; end
-            if nargin < 4, ki_mean = self.K_INTEGRATION_MEAN; end
+            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Compute the intermediate synaptic current.
             I_syn12 = R2./( 2*Ta.*ki_mean );    

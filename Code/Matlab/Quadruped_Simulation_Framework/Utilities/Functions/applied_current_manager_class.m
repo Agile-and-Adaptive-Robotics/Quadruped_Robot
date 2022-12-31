@@ -20,14 +20,23 @@ classdef applied_current_manager_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
-        NUM_MULTISTATE_CPG_APPLIED_CURRENTS = 1;                     % [#] Number of Multistate CPG Applied Currents.
-        NUM_CENTERING_APPLIED_CURRENTS = 1;                          % [#] Number of Centering Applied Currents.
-        NUM_DOUBLE_CENTERING_APPLIED_CURRENTS = 1;                   % [#] Number of Double Centering Applied Currents.
-        NUM_INVERSION_APPLIED_CURRENTS = 1;                          % [#] Number of Inversion Applied Currents.
-        NUM_MULTIPLICATION_APPLIED_CURRENTS = 1;                     % [#] Number of Multiplication Applied Currents.
-        NUM_INTEGRATION_APPLIED_CURRENTS = 2;                        % [#] Number of Integration Applied Currents.
-        NUM_VB_INTEGRATION_APPLIED_CURRENTS = 2;                     % [#] Number of Voltage Based Integration Applied Currents.
-        NUM_SPLIT_VB_INTEGRATION_APPLIED_CURRENTS = 3;               % [#] Number of Split Voltage Based Integration Applied Currents.
+        % Define the neuron parameters.
+        R_DEFAULT = 20e-3;                                                                                                      % [V] Activation Domain
+        Gm_DEFAULT = 1e-6;                                                                                                      % [S] Membrane Conductance
+        
+        % Define subnetwork neuron quantities.
+        num_multistate_cpg_applied_currents_DEFAULT = 1;                                                                        % [#] Number of Multistate CPG Applied Currents.
+        num_centering_applied_currents_DEFAULT = 1;                                                                             % [#] Number of Centering Applied Currents.
+        num_double_centering_applied_currents_DEFAULT = 1;                                                                      % [#] Number of Double Centering Applied Currents.
+        num_inversion_applied_currents_DEFAULT = 1;                                                                             % [#] Number of Inversion Applied Currents.
+        num_multiplication_applied_currents_DEFAULT = 1;                                                                        % [#] Number of Multiplication Applied Currents.
+        num_integration_applied_currents_DEFAULT = 2;                                                                           % [#] Number of Integration Applied Currents.
+        num_vb_integration_applied_currents = 2;                                                                                % [#] Number of Voltage Based Integration Applied Currents.
+        num_split_vb_integration_applied_currents_DEFAULT = 3;                                                                  % [#] Number of Split Voltage Based Integration Applied Currents.
+        
+        % Define the simulation parameters.
+        dt_DEFAULT = 1e-3;                                                                                                      % [s] Simulation Time Step
+        tf_DEFAULT = 1;                                                                                                         % [s] Simulation Duration
         
     end
     
@@ -880,6 +889,548 @@ classdef applied_current_manager_class
         end
         
         
+        %% Compute-Set Functions
+        
+        % Implement a function to compute and set the time vector of multistate cpg applied currents.
+        function self = compute_set_multistate_cpg_ts( self, applied_current_IDs, dt, tf )
+            
+            % Set the default input arguments.
+            if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
+            if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the time vector for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multistate_cpg_ts( dt, tf );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of multistate cpg applied currents.
+        function self = compute_set_multistate_cpg_Iapps( self, applied_current_IDs, dt, tf )
+            
+            % Set the default input arguments.
+            if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
+            if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the time vector for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multistate_cpg_Iapps( dt, tf );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of driven multistate cpg applied currents.
+        function self = compute_set_driven_multistate_cpg_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the time vector for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_driven_multistate_cpg_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the applied currents that connect the driven multistate cpg double centered lead lag and centered doube subtraction subnetworks.
+        function self = compute_set_dmcpgdcll2cds_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the time vector for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_dmcpgdcll2cds_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
+        function self = compute_set_centering_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_centering_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of absolute addition subnetwork applied currents.
+        function self = compute_set_absolute_addition_Iapps( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_addition_Iapps(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of relative addition subnetwork applied currents.
+        function self = compute_set_relative_addition_Iapps( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_addition_Iapps(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of absolute subtraction subnetwork applied currents.
+        function self = compute_set_absolute_subtraction_Iapps( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_subtraction_Iapps(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of relative subtraction subnetwork applied currents.
+        function self = compute_set_relative_subtraction_Iapps( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_subtraction_Iapps(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the inversion subentwork applied current.
+        function self = compute_set_inversion_Iapps( self, applied_current_IDs, Gm, R )
+        
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+                        
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_inversion_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the absolute inversion subnetwork input applied currents.
+        function self = compute_set_absolute_inversion_Iapps_input( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Retrieve the index associated with the input applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ) );
+
+            % Compute and set the magnitude for the input applied current.
+            self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_inversion_Iapps_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the absolute inversion subnetwork output applied currents.
+        function self = compute_set_absolute_inversion_Iapps_output( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Retrieve the index associated with the output applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ) );
+
+            % Compute and set the magnitude for the output applied current.
+            self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_inversion_Iapps_output( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the relative inversion subnetwork input applied currents.
+        function self = compute_set_relative_inversion_Iapps_input( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+
+            % Retrieve the index associated with the input applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ) );
+
+            % Compute and set the magnitude for the input applied current.
+            self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_inversion_Iapps_input(  );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the relative inversion subnetwork output applied currents.
+        function self = compute_set_relative_inversion_Iapps_output( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+
+            % Retrieve the index associated with this applied current ID.
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ) );
+
+            % Compute and set the magnitude for this applied current.
+            self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_inversion_Iapps_output( Gm, R );
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the absolute division subnetwork applied currents.
+        function self = compute_set_absolute_division_Iapps( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_division_Iapps(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of the relative division subnetwork applied currents.
+        function self = compute_set_relative_division_Iapps( self, applied_current_IDs )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_division_Iapps(  );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
+        function self = compute_set_multiplication_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multiplication_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of integration subnetwork applied currents.
+        function self = compute_set_integration_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_integration_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the magnitude of voltage based integration subnetwork applied currents.
+        function self = compute_set_vb_integration_Iapps( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_vb_integration_Iapps( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the first magnitude of split voltage based integration subnetwork applied currents.
+        function self = compute_set_split_vb_integration_Iapps1( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_split_vb_integration_Iapps1( Gm, R );
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute and set the second magnitude of split voltage based integration subnetwork applied currents.
+        function self = compute_set_split_vb_integration_Iapps2( self, applied_current_IDs, Gm, R )
+            
+            % Set the default input arguments.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                
+                % Compute and set the magnitude for this applied current.
+                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_split_vb_integration_Iapps2( Gm, R );
+                
+            end
+            
+        end
+        
+        
         %% Applied Current Creation Functions
         
         % Implement a function to create a new applied current.
@@ -1002,304 +1553,13 @@ classdef applied_current_manager_class
         end
         
         
-        %% Compute-Set Functions
-        
-        % Implement a function to compute and set the time vector of multistate cpg applied currents.
-        function self = compute_set_multistate_cpg_ts( self, applied_current_IDs, dt, tf )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the time vector for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multistate_cpg_ts( dt, tf );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of multistate cpg applied currents.
-        function self = compute_set_multistate_cpg_Iapps( self, applied_current_IDs, dt, tf )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the time vector for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multistate_cpg_Iapps( dt, tf );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of driven multistate cpg applied currents.
-        function self = compute_set_driven_multistate_cpg_Iapps( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the time vector for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_driven_multistate_cpg_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of the applied currents that connect the driven multistate cpg double centered lead lag and centered doube subtraction subnetworks.
-        function self = compute_set_dmcpgdcll2cds_Iapps( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the time vector for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_dmcpgdcll2cds_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        
-        
-        
-        % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
-        function self = compute_set_centering_Iapps( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_centering_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of the inversion subentwork applied current.
-        function self = compute_set_inversion_Iapps( self, applied_current_IDs, Gm, R )
-        
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_inversion_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
-        function self = compute_set_multiplication_Iapps( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multiplication_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of integration subnetwork applied currents.
-        function self = compute_set_integration_Iapps( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_integration_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of voltage based integration subnetwork applied currents.
-        function self = compute_set_vb_integration_Iapps( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_vb_integration_Iapps( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the first magnitude of split voltage based integration subnetwork applied currents.
-        function self = compute_set_split_vb_integration_Iapps1( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_split_vb_integration_Iapps1( Gm, R );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the second magnitude of split voltage based integration subnetwork applied currents.
-        function self = compute_set_split_vb_integration_Iapps2( self, applied_current_IDs, Gm, R )
-            
-            % Set the default input arguments.
-            if nargin < 2, applied_current_IDs = 'all'; end
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
-                
-                % Compute and set the magnitude for this applied current.
-                self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_split_vb_integration_Iapps2( Gm, R );
-                
-            end
-            
-        end
-        
-        
         %% Subnetwork Applied Current Creation Functions
         
         % Implement a function to create the applied currents for a multistate CPG subnetwork.
         function [ self, applied_current_ID ] = create_multistate_cpg_applied_currents( self, neuron_IDs )
             
             % Create an applied current for the third neuron.
-            [ self, applied_current_ID ] = self.create_applied_currents( self.NUM_MULTISTATE_CPG_APPLIED_CURRENTS );
+            [ self, applied_current_ID ] = self.create_applied_currents( self.num_multistate_cpg_applied_currents_DEFAULT );
             
             % Set the applied current name.
             self = self.set_applied_current_property( applied_current_ID, { sprintf( 'CPG %0.0f', applied_current_ID ) }, 'name' );
@@ -1413,11 +1673,103 @@ classdef applied_current_manager_class
         end
             
         
+        % Implement a function to create the applied currents for an absolute addition subnetwork.
+        function [ self, applied_current_IDs ] = create_absolute_addition_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Addition Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a relative addition subnetwork.
+        function [ self, applied_current_IDs ] = create_relative_addition_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Addition Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for an absolute subtraction subnetwork.
+        function [ self, applied_current_IDs ] = create_absolute_subtraction_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Subtraction Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a relative subtraction subnetwork.
+        function [ self, applied_current_IDs ] = create_relative_subtraction_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Subtraction Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
         % Implement a function to create the applied currents for a centering subnetwork.
         function [ self, applied_current_IDs ] = create_centering_applied_currents( self, neuron_IDs )
        
             % Create the centering applied current.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_CENTERING_APPLIED_CURRENTS );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_centering_applied_currents_DEFAULT );
 
             % Set the name of this applied current.
             self = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name' );
@@ -1432,7 +1784,7 @@ classdef applied_current_manager_class
         function [ self, applied_current_IDs ] = create_double_centering_applied_currents( self, neuron_IDs )
        
             % Create the centering applied current.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_DOUBLE_CENTERING_APPLIED_CURRENTS );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_double_centering_applied_currents_DEFAULT );
 
             % Set the name of this applied current.
             self = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name' );
@@ -1459,7 +1811,7 @@ classdef applied_current_manager_class
         function [ self, applied_current_ID ] = create_inversion_applied_current( self, neuron_IDs )
         
             % Create the applied current associated with an inversion subnetwork.
-            [ self, applied_current_ID ] = self.create_applied_currents( self.NUM_INVERSION_APPLIED_CURRENTS );
+            [ self, applied_current_ID ] = self.create_applied_currents( self.num_inversion_applied_currents_DEFAULT );
             
             % Set the name of the applied current.
             self = self.set_applied_current_property( applied_current_ID, { 'Inv Out' }, 'name' );
@@ -1470,11 +1822,103 @@ classdef applied_current_manager_class
         end
            
         
+        % Implement a function to create the applied currents for an absolute inversion subnetwork.
+        function [ self, applied_current_IDs ] = create_absolute_inversion_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Inversion Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a relative inversion subnetwork.
+        function [ self, applied_current_IDs ] = create_relative_inversion_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Inversion Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for an absolute division subnetwork.
+        function [ self, applied_current_IDs ] = create_absolute_division_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Division Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a relative division subnetwork.
+        function [ self, applied_current_IDs ] = create_relative_division_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Division Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
         % Implement a function to create the applied currents for a multiplication subnetwork.
         function [ self, applied_current_IDs ] = create_multiplication_applied_currents( self, neuron_IDs )
             
             % Create an applied current for the third neuron.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_MULTIPLICATION_APPLIED_CURRENTS );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_multiplication_applied_currents_DEFAULT );
             
             % Set the name of the applied current.
             self = self.set_applied_current_property( applied_current_IDs, { 'Inter' }, 'name' );
@@ -1485,11 +1929,57 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to create the applied currents for an absolute multiplication subnetwork.
+        function [ self, applied_current_IDs ] = create_absolute_multiplication_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Multiplication Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a relative multiplication subnetwork.
+        function [ self, applied_current_IDs ] = create_relative_multiplication_applied_currents( self, neuron_IDs )
+            
+            % Compute the number of applied currents.
+            num_applied_currents_to_create = length( neuron_IDs );
+            
+            % Create the applied currents.
+            [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
+
+            % Setup each of the applied currents.
+            for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
+            
+                % Set the names of the applied currents.
+                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Multiplication Applied Current %0.0f', k ) }, 'name' );
+
+                % Connect the applied currents to their associated neurons.
+                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+
+            end
+            
+        end
+        
+        
         % Implement a function to create the applied currents for an integration subnetwork.
         function [ self, applied_current_IDs ] = create_integration_applied_currents( self, neuron_IDs )
             
             % Create an applied current for each neuron.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_INTEGRATION_APPLIED_CURRENTS );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_integration_applied_currents_DEFAULT );
             
             % Set the name of the applied currents.
             self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
@@ -1504,7 +1994,7 @@ classdef applied_current_manager_class
         function [ self, applied_current_IDs ] = create_vb_integration_applied_currents( self, neuron_IDs )
             
             % Create applied currents for the two integration neurons.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_VB_INTEGRATION_APPLIED_CURRENTS );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_vb_integration_applied_currents );
             
             % Set the name of the applied currents.
             self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
@@ -1519,7 +2009,7 @@ classdef applied_current_manager_class
         function [ self, applied_current_IDs ] = create_split_vb_integration_applied_currents( self, neuron_IDs )
             
             % Create applied currents for the two integration neurons.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.NUM_SPLIT_VB_INTEGRATION_APPLIED_CURRENTS );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_split_vb_integration_applied_currents_DEFAULT );
             
             % Set the name of the applied currents.
             self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2', 'Eq 1' }, 'name' );
@@ -1589,6 +2079,54 @@ classdef applied_current_manager_class
         end
         
         
+        % Implement a function to design the applied currents for an absolute addition subnetwork.
+        function self = design_absolute_addition_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the absolute addition applied currents
+            self = self.compute_set_absolute_addition_Iapps( applied_current_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for a relative addition subnetwork.
+        function self = design_relative_addition_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the relative addition applied currents
+            self = self.compute_set_relative_addition_Iapps( applied_current_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for an absolute subtraction subnetwork.
+        function self = design_absolute_subtraction_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the absolute subtraction applied currents
+            self = self.compute_set_absolute_subtraction_Iapps( applied_current_IDs );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for a relative subtraction subnetwork.
+        function self = design_relative_subtraction_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the relative subtraction applied currents
+            self = self.compute_set_relative_subtraction_Iapps( applied_current_IDs );
+            
+        end
+        
+        
         % Implement a function to design the applied currents for a centering subnetwork.
         function self = design_centering_applied_current( self, neuron_IDs, Gm2, R2 )
             
@@ -1601,15 +2139,73 @@ classdef applied_current_manager_class
         end
         
         
-        % Implement a function to design the applied current for an inversion subentwork.
-        function self = design_inversion_applied_current( self, neuron_IDs, Gm2, R2 )
+        % Implement a function to design the applied current for an inversion subnetwork.
+        function self = design_inversion_applied_current( self, neuron_IDs, Gm_2, R_2 )
         
             % Get the applied current ID of interest.
             applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), 'ignore' );
             
             % Compute and set the applied current magnitude.
-            self = self.compute_set_inversion_Iapps( applied_current_ID, Gm2, R2 );
+            self = self.compute_set_inversion_Iapps( applied_current_ID, Gm_2, R_2 );
             
+        end
+        
+        
+        % Implement a function to design the applied currents for an absolute inversion subnetwork.
+        function self = design_absolute_inversion_applied_currents( self, neuron_IDs, Gm_2, R_2 )
+            
+            % Define the default input arugments.
+            if nargin < 4, R_2 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
+            if nargin < 3, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the absolute inversion applied currents
+            self = self.compute_set_absolute_inversion_Iapps_input( applied_current_IDs( 1 ) );
+            self = self.compute_set_absolute_inversion_Iapps_output( applied_current_IDs( 2 ), Gm_2, R_2 );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for a relative inversion subnetwork.
+        function self = design_relative_inversion_applied_currents( self, neuron_IDs, Gm_2, R_2 )
+            
+            % Define the default input arugments.
+            if nargin < 4, R_2 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
+            if nargin < 3, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the relative inversion applied currents
+            self = self.compute_set_relative_inversion_Iapps_input( applied_current_IDs( 1 ) );
+            self = self.compute_set_relative_inversion_Iapps_output( applied_current_IDs( 2 ), Gm_2, R_2 );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for an absolute division subnetwork.
+        function self = design_absolute_division_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the absolute division applied currents
+            self = self.compute_set_absolute_division_Iapps( applied_current_IDs );
+        
+        end
+        
+        
+        % Implement a function to design the applied currents for a relative division subnetwork.
+        function self = design_relative_division_applied_currents( self, neuron_IDs )
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            
+            % Compute and set the relative division applied currents
+            self = self.compute_set_relative_division_Iapps( applied_current_IDs );
+        
         end
         
         
@@ -1624,6 +2220,38 @@ classdef applied_current_manager_class
             
         end
                 
+        
+        % Implement a function to design the applied currents for an absolute multiplication subnetwork.
+        function self = design_absolute_multiplication_applied_currents( self, neuron_IDs, Gm_3, R_3 )
+            
+            % Define the default input arguments.
+            if nargin < 4, R_3 = self.R_DEFAULT; end                                                                    % [V] Inversion Output Activation Domain
+            if nargin < 3, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Inversion Output Membrane Conductance
+            
+            % Design the absolute inversion applied currents.
+            self = self.design_absolute_inversion_applied_currents( neuron_IDs( 2:3 ), Gm_3, R_3 );
+            
+            % Design the absolute division applied currents.
+            self = self.design_absolute_division_applied_currents( neuron_IDs( [ 1, 3, 4 ] ) );
+            
+        end
+        
+        
+        % Implement a function to design the applied currents for a relative multiplication subnetwork.
+        function self = design_relative_multiplication_applied_currents( self, neuron_IDs, Gm_3, R_3 )
+            
+            % Define the default input arguments.
+            if nargin < 4, R_3 = self.R_DEFAULT; end                                                                    % [V] Inversion Output Activation Domain
+            if nargin < 3, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Inversion Output Membrane Conductance
+            
+            % Design the relative inversion applied currents.
+            self = self.design_relative_inversion_applied_currents( neuron_IDs( 2:3 ), Gm_3, R_3 );
+            
+            % Design the relative division applied currents.
+            self = self.design_relative_division_applied_currents( neuron_IDs( [ 1, 3, 4 ] ) );
+            
+        end
+        
         
         % Implement a function to design the applied currents for an integration subnetwork.
         function self = design_integration_applied_currents( self, neuron_IDs, Gm, R )
