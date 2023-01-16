@@ -83,6 +83,8 @@ classdef synapse_class
         from_neuron_ID_DEFAULT = 0;                                                                                     % [#] From Neuron ID
         ID_DEFAULT = 0;                                                                                                 % [#] Synapse ID
 
+        alpha_DEFAULT = 1e-6;                                                                                           % [-] Division Subnetwork Denominator Offset
+        
     end
     
     
@@ -311,28 +313,36 @@ classdef synapse_class
         
         
         % Implement a function to compute the synaptic reversal potential of absolute division subnetwork numerator synapses.
-        function dE_syn1 = compute_absolute_division_dEsyn1( self )
+        function dE_syn1 = compute_absolute_division_dEsyn1( self, c, alpha )
+            
+            % Define the default input arguments.
+            if nargin < 3, alpha = self.alpha_DEFAULT; end                                      % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 2, c = self.c_absolute_division_DEFAULT; end                            % [-] Absolute Division Subnetwork Gain
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.synapse_utilities.compute_absolute_division_dEsyn1(  );
+            dE_syn1 = self.synapse_utilities.compute_absolute_division_dEsyn1( c, alpha );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential of absolute division subnetwork denominator neurons.
-        function dE_syn1 = compute_absolute_division_dEsyn2( self )
+        function dE_syn2 = compute_absolute_division_dEsyn2( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.synapse_utilities.compute_absolute_division_dEsyn2(  );
+            dE_syn2 = self.synapse_utilities.compute_absolute_division_dEsyn2(  );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential of relative division subnetwork numerator synapses.
-        function dE_syn1 = compute_relative_division_dEsyn1( self )
+        function dE_syn1 = compute_relative_division_dEsyn1( self, c, alpha )
+            
+            % Define the default input arguments.
+            if nargin < 3, alpha = self.alpha_DEFAULT; end
+            if nargin < 2, c = self.c_absolute_division_DEFAULT; end
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.synapse_utilities.compute_relative_division_dEsyn1(  );
+            dE_syn1 = self.synapse_utilities.compute_relative_division_dEsyn1( c, alpha );
             
         end
         
@@ -542,67 +552,95 @@ classdef synapse_class
         end
 
 
+%         % Implement a function to compute the maximum synaptic conductance of absolute division numerator synapses.
+%         function gsyn_31 = compute_absolute_division_gsyn31( self, c, epsilon, R_1, Gm_3, dEsyn_31 )
+%             
+%             % Define the default input arugments.
+%             if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+%             if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+%             if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+%             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
+%             if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+%             
+%             % Compute the maximum synaptic conductance.
+%             gsyn_31 = self.synapse_utilities.compute_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, dEsyn_31 );                             	% [S] Maximum Synaptic Conductance
+%             
+%         end
+        
+
         % Implement a function to compute the maximum synaptic conductance of absolute division numerator synapses.
-        function gsyn_31 = compute_absolute_division_gsyn31( self, c, epsilon, R_1, Gm_3, dEsyn_31 )
+        function gsyn_31 = compute_absolute_division_gsyn31( self, alpha, epsilon, R_1, Gm_3 )
             
             % Define the default input arugments.
-            if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
-            if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
+            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
+            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Absolute Division Subnetwork Offset
+            if nargin < 2, alpha = self.alpha_DEFAULT; end                                                              % [-] Absolute Division Subnetwork Denominator Adjustment
             
             % Compute the maximum synaptic conductance.
-            gsyn_31 = self.synapse_utilities.compute_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, dEsyn_31 );                             	% [S] Maximum Synaptic Conductance
+            gsyn_31 = self.synapse_utilities.compute_absolute_division_gsyn31( alpha, epsilon, R_1, Gm_3 );                             	% [S] Maximum Synaptic Conductance
             
         end
+
         
+%         % Implement a function to compute the maximum synaptic conductance of absolute division denominator synapses.
+%         function gsyn_32 = compute_absolute_division_gsyn32( self, c, epsilon, R_1, R_2, Gm_3, dEsyn_31 )
+%             
+%             % Define the default input arugments.
+%             if nargin < 7, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+%             if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+%             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+%             if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+%             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
+%             if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+%             
+%             % Compute the maximum synaptic conductance.
+%             gsyn_32 = self.synapse_utilities.compute_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, dEsyn_31 );                        	% [S] Maximum Synaptic Conductance
+%             
+%         end
         
+
         % Implement a function to compute the maximum synaptic conductance of absolute division denominator synapses.
-        function gsyn_32 = compute_absolute_division_gsyn32( self, c, epsilon, R_1, R_2, Gm_3, dEsyn_31 )
+        function gsyn_32 = compute_absolute_division_gsyn32( self, epsilon, R_2, Gm_3 )
             
             % Define the default input arugments.
-            if nargin < 7, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 5, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
-            if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+            if nargin < 4, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+            if nargin < 3, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+            if nargin < 2, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
             
             % Compute the maximum synaptic conductance.
-            gsyn_32 = self.synapse_utilities.compute_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, dEsyn_31 );                        	% [S] Maximum Synaptic Conductance
-            
+            gsyn_32 = self.synapse_utilities.compute_absolute_division_gsyn32( epsilon, R_2, Gm_3 );                                      % [S] Maximum Synaptic Conductance
+                        
         end
-        
+
         
         % Implement a function to compute the maximum synaptic conductance of relative division numerator synapses.
-        function gsyn_31 = compute_relative_division_gsyn31( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        function gsyn_31 = compute_relative_division_gsyn31( self, R_3, Gm_3, dEsyn_31 )
             
             % Define the default input arguments.
-            if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 4, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Relative Division Subnetwork Offset
-            if nargin < 2, c = self.c_relative_division_DEFAULT; end                                                                            % [-] Relative Dvision Subnetwork Gain
-            
+            if nargin < 4, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+            if nargin < 3, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+            if nargin < 2, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+
             % Compute the maximum synaptic conductance.
-            gsyn_31 = self.synapse_utilities.compute_relative_division_gsyn31( c, epsilon, R_3, Gm_3, dEsyn_31 );                               % [S] Maximum Synaptic Conductance
+            gsyn_31 = self.synapse_utilities.compute_relative_division_gsyn31( R_3, Gm_3, dEsyn_31 );                               % [S] Maximum Synaptic Conductance
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of relative division denominator synapses.
-        function gsyn_32 = compute_relative_division_gsyn32( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        function gsyn_32 = compute_relative_division_gsyn32( self, c, alpha, epsilon, R_3, Gm_3, dEsyn_31 )
             
             % Define the default input arguments.
-            if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 4, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Relative Division Subnetwork Offset
+            if nargin < 7, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+            if nargin < 5, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Relative Division Subnetwork Offset
+            if nargin < 3, alpha = self.alpha_DEFAULT; end
             if nargin < 2, c = self.c_relative_division_DEFAULT; end                                                                            % [-] Relative Division Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
-            gsyn_32 = self.synapse_utilities.compute_relative_division_gsyn32( c, epsilon, R_3, Gm_3, dEsyn_31 );                               % [S] Maximum Synaptic Conductance
+            gsyn_32 = self.synapse_utilities.compute_relative_division_gsyn32( c, alpha, epsilon, R_3, Gm_3, dEsyn_31 );                               % [S] Maximum Synaptic Conductance
             
         end
         
@@ -808,10 +846,14 @@ classdef synapse_class
         
         
         % Implement a function to compute and set the synaptic reversal potential of absolute division numerator synapses.
-        function self = compute_set_absolute_division_dEsyn1( self )
+        function self = compute_set_absolute_division_dEsyn1( self, c, alpha )
+            
+            % Define the default input arguments.
+            if nargin < 3, alpha = self.alpha_DEFAULT; end                                      % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 2, c = self.c_absolute_division_DEFAULT; end                            % [-] Absolute Division Subnetwork Gain
             
             % Compute and set the synaptic reversal potential.
-            self.dE_syn = self.compute_absolute_division_dEsyn1(  );                                                                            % [V] Synaptic Reversal Potential
+            self.dE_syn = self.compute_absolute_division_dEsyn1( c, alpha );                                                                            % [V] Synaptic Reversal Potential
             
         end
         
@@ -826,10 +868,14 @@ classdef synapse_class
         
         
         % Implement a function to compute and set the synaptic reversal potential of relative division numerator synapses.
-        function self = compute_set_relative_division_dEsyn1( self )
+        function self = compute_set_relative_division_dEsyn1( self, c, alpha )
+            
+            % Define the default input arguments.
+            if nargin < 3, alpha = self.alpha_DEFAULT; end
+            if nargin < 2, c = self.c_absolute_division_DEFAULT; end
             
             % Compute and set the synaptic reversal potential.
-            self.dE_syn = self.compute_relative_division_dEsyn1(  );                                                                            % [V] Synaptic Reversal Potential
+            self.dE_syn = self.compute_relative_division_dEsyn1( c, alpha );                                                                            % [V] Synaptic Reversal Potential
             
         end
         
@@ -1039,67 +1085,95 @@ classdef synapse_class
         end
 
         
+%         % Implement a function to compute and set the maximum synaptic conductance of absolute division numerator synapses.
+%         function self = compute_set_absolute_division_gsyn31( self, c, epsilon, R_1, Gm_3, dEsyn_31 )
+%             
+%             % Define the default input arugments.
+%             if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+%             if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+%             if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+%             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
+%             if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+%             
+%             % Compute the maximum synaptic conductance.
+%             self.g_syn_max = self.compute_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, dEsyn_31 );                                          % [S] Maximum Synaptic Conductance
+%             
+%         end
+
+
         % Implement a function to compute and set the maximum synaptic conductance of absolute division numerator synapses.
-        function self = compute_set_absolute_division_gsyn31( self, c, epsilon, R_1, Gm_3, dEsyn_31 )
+        function self = compute_set_absolute_division_gsyn31( self, alpha, epsilon, R_1, Gm_3 )
             
             % Define the default input arugments.
-            if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
-            if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
+            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
+            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Absolute Division Subnetwork Offset
+            if nargin < 2, alpha = self.alpha_DEFAULT; end                                                              % [-] Absolute Division Subnetwork Denominator Adjustment
             
             % Compute the maximum synaptic conductance.
-            self.g_syn_max = self.compute_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, dEsyn_31 );                                          % [S] Maximum Synaptic Conductance
+            self.g_syn_max = self.compute_absolute_division_gsyn31( alpha, epsilon, R_1, Gm_3 );                                          % [S] Maximum Synaptic Conductance
             
         end
         
         
+%         % Implement a function to compute and set the maximum synaptic conductance of absolute division denominator synapses.
+%         function self = compute_set_absolute_division_gsyn32( self, c, epsilon, R_1, R_2, Gm_3, dEsyn_31 )
+%             
+%             % Define the default input arugments.
+%             if nargin < 7, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+%             if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+%             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+%             if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+%             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
+%             if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+%             
+%             % Compute the maximum synaptic conductance.
+%             self.g_syn_max = self.compute_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, dEsyn_31 );                                     % [S] Maximum Synaptic Conductance
+%             
+%         end
+        
+
         % Implement a function to compute and set the maximum synaptic conductance of absolute division denominator synapses.
-        function self = compute_set_absolute_division_gsyn32( self, c, epsilon, R_1, R_2, Gm_3, dEsyn_31 )
+        function self = compute_set_absolute_division_gsyn32( self, epsilon, R_2, Gm_3 )
             
             % Define the default input arugments.
-            if nargin < 7, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 5, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
-            if nargin < 2, c = self.c_absolute_division_DEFAULT; end                                                                            % [-] Absolute Division Subnetwork Gain
+            if nargin < 4, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+            if nargin < 3, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+            if nargin < 2, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Absolute Division Subnetwork Offset
             
             % Compute the maximum synaptic conductance.
-            self.g_syn_max = self.compute_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, dEsyn_31 );                                     % [S] Maximum Synaptic Conductance
+            self.g_syn_max = self.compute_absolute_division_gsyn32( epsilon, R_2, Gm_3 );                                     % [S] Maximum Synaptic Conductance
             
-        end
-        
-        
+        end        
+
+
         % Implement a function to compute and set the maximum synaptic conductance of relative division numerator synapses.
-        function self = compute_set_relative_division_gsyn31( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        function self = compute_set_relative_division_gsyn31( self, R_3, Gm_3, dEsyn_31 )
             
             % Define the default input arguments.
-            if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 4, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Relative Division Subnetwork Offset
-            if nargin < 2, c = self.c_relative_division_DEFAULT; end                                                                            % [-] Relative Dvision Subnetwork Gain
+            if nargin < 4, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+            if nargin < 3, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+            if nargin < 2, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
             
             % Compute the maximum synaptic conductance.
-            self.g_syn_max = self.compute_relative_division_gsyn31( c, epsilon, R_3, Gm_3, dEsyn_31 );                                          % [S] Maximum Synaptic Conductance
+            self.g_syn_max = self.compute_relative_division_gsyn31( R_3, Gm_3, dEsyn_31 );                                          % [S] Maximum Synaptic Conductance
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductance of relative division denominator synapses.
-        function self = compute_set_relative_division_gsyn32( self, c, epsilon, R_3, Gm_3, dEsyn_31 )
+        function self = compute_set_relative_division_gsyn32( self, c, alpha, epsilon, R_3, Gm_3, dEsyn_31 )
             
             % Define the default input arguments.
-            if nargin < 6, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
-            if nargin < 4, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Relative Division Subnetwork Offset
+            if nargin < 7, dEsyn_31 = self.dE_syn; end                                                                                          % [V] Synaptic Reversal Potential
+            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                          % [S] Membrane Conductance
+            if nargin < 5, R_3 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
+            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                                  % [-] Relative Division Subnetwork Offset
+            if nargin < 3, alpha = self.alpha_DEFAULT; end
             if nargin < 2, c = self.c_relative_division_DEFAULT; end                                                                            % [-] Relative Division Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
-            self.g_syn_max = self.compute_relative_division_gsyn32( c, epsilon, R_3, Gm_3, dEsyn_31 );                                          % [S] Maximum Synaptic Conductance
+            self.g_syn_max = self.compute_relative_division_gsyn32( c, alpha, epsilon, R_3, Gm_3, dEsyn_31 );                                          % [S] Maximum Synaptic Conductance
             
         end
         

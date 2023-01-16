@@ -67,6 +67,8 @@ classdef neuron_manager_class
 
         c_division_DEFAULT = 1;                                                                                                 % [-] Division Subnetwork Gain.
         epsilon_division_DEFAULT = 1e-6;                                                                                        % [-] Division Subnetwork Offset.
+        alpha_DEFAULT = 1e-6;                                                                                                   % [-] Subnetwork Denominator Adjustment
+
         
         c_multiplication_DEFAULT = 1;                                                                                           % [-] Multiplication Subnetwork Gain.
         
@@ -2814,11 +2816,12 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the operational domain for absolute division output neurons.
-        function self = compute_set_absolute_division_R_output( self, neuron_IDs, c, epsilon )
+        function self = compute_set_absolute_division_R_output( self, neuron_IDs, c, alpha, epsilon )
                     
             % Set the default input arguments.
-            if nargin < 4, epsilon = self.epsilon_division_DEFAULT; end                                 % [-] Division Subnetwork Offset
-            if nargin < 3, c = self.c_division_DEFAULT; end                                             % [-] Division Subnetwork Gain
+            if nargin < 5, epsilon = self.epsilon_division_DEFAULT; end                        	% [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                                     	% [-] Division Subnetwork Denominator Adjustment
+            if nargin < 3, c = self.c_division_DEFAULT; end                                   	% [-] Division Subnetwork Gain
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -2831,7 +2834,7 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ) );
 
             % Compute and set the action domain for the output neuron.
-            self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_R_output( c, epsilon, R_numerator );
+            self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_R_output( c, alpha, epsilon, R_numerator );
                        
         end
         
@@ -3948,11 +3951,12 @@ classdef neuron_manager_class
         
         
         % Implement a function to design the neurons for an absolute multiplication subnetwork.
-        function self = design_absolute_multiplication_neurons( self, neuron_IDs, c, c1, epsilon1, epsilon2 )
+        function self = design_absolute_multiplication_neurons( self, neuron_IDs, c, c1, alpha, epsilon1, epsilon2 )
            
             % Define the default input arguments.
-            if nargin < 6, epsilon2 = self.epsilon_DEFAULT; end                                                 % [-] Division Subnetwork Offset
-            if nargin < 5, epsilon1 = self.epsilon_DEFAULT; end                                                 % [-] Inversion Subnetwork Offset
+            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                 % [-] Division Subnetwork Offset
+            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                 % [-] Inversion Subnetwork Offset
+            if nargin < 5, alpha = self.alpha_DEFAULT; end                                                      % [-] Division Subnetwork Denominator Adjustment
             if nargin < 4, c1 = self.c_DEFAULT; end                                                             % [-] Division Subnetwork Gain
             if nargin < 3, c = self.c_DEFAULT; end                                                              % [-] Inversion Subnetwork Gain
             if nargin < 2, neuron_IDs = 'all'; end                                                              % [-] Neuron IDs
@@ -3967,7 +3971,7 @@ classdef neuron_manager_class
             c2 = self.compute_absolute_multiplication_c2( c, c1, epsilon1, epsilon2, R2 );
 
             % Design the absolute division subnetwork neurons.
-            self = self.design_absolute_division_neurons( neuron_IDs( [ 1, 3, 4 ] ), c2, epsilon2 );
+            self = self.design_absolute_division_neurons( neuron_IDs( [ 1, 3, 4 ] ), c2, alpha, epsilon2 );
             
         end
         
@@ -4053,11 +4057,12 @@ classdef neuron_manager_class
         
         
         % Implement a function to design the neurons for a absolute division subnetwork.
-        function self = design_absolute_division_neurons( self, neuron_IDs, k, epsilon )
+        function self = design_absolute_division_neurons( self, neuron_IDs, c, alpha, epsilon )
            
             % Set the default input arguments.
-            if nargin < 4, epsilon = self.epsilon_division_DEFAULT; end                                             % [-] Division Subnetwork Offset
-            if nargin < 3, k = self.C_DIVISION; end                                                         % [-] Division Subnetwork Gain
+            if nargin < 5, epsilon = self.epsilon_division_DEFAULT; end                                     % [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                                                  % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 3, c = self.C_DIVISION; end                                                         % [-] Division Subnetwork Gain
             
             % Compute and set the sodium channel conductance of the absolute division subnetwork neurons.
             self = self.compute_set_absolute_division_Gna( neuron_IDs );
@@ -4071,8 +4076,8 @@ classdef neuron_manager_class
             
             % Compute and set the activation domain of the absolute division subnetwork neurons.
             self = self.compute_set_absolute_division_R_input( neuron_IDs );
-            self = self.compute_set_absolute_division_R_output( neuron_IDs, k, epsilon );
-            
+            self = self.compute_set_absolute_division_R_output( neuron_IDs, c, alpha, epsilon );
+
         end
         
         

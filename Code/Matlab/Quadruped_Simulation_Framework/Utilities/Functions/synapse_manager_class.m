@@ -19,11 +19,11 @@ classdef synapse_manager_class
     
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
-    
+        
         % Define the neuron parameters.
         R_DEFAULT = 20e-3;                                                                                                      % [V] Activation Domain
         Gm_DEFAULT = 1e-6;                                                                                                      % [S] Membrane Conductance
-       
+        
         % Define the maximum synaptic conductance.
         gsyn_max_DEFAULT = 1e-6;                                                                                                % [S] Maximum Synaptic Conductance
         
@@ -48,16 +48,17 @@ classdef synapse_manager_class
         c_relative_division_DEFAULT = 1;                                                                                        % [-] Relative Division Subnetwork Gain
         c_absolute_multiplication_DEFAULT = 1;                                                                                  % [-] Absolute Multiplication Subnetwork Gain
         c_relative_multiplication_DEFAULT = 1;                                                                                  % [-] Relative Multiplication Subnetwork Gain
-
+        
         % Define the subnetwork offset parameters.
         epsilon_DEFAULT = 1e-6;                                                                                                 % [-] Subnetwork Input Offset
         delta_DEFAULT = 1e-6;                                                                                                   % [-] Subnetwork Output Offset
-
+        alpha_DEFAULT = 1e-6;                                                                                                   % [-] Division Subnetwork Denominator Offset
+        
         % Define the number of subnetwork neurons.
         num_addition_neurons_DEFAULT = 2;                                                                                       % [#] Number of Addition Neurons.
         num_absolute_addition_neurons_DEFAULT = 3;                                                                              % [#] Number of Absolute Addition Neurons.
         num_relative_addition_neurons_DEFAULT = 3;                                                                              % [#] Number of Relative Addition Neurons.
-
+        
         % Define the number of subnetwork synapses.
         num_transmission_synapses_DEFAULT = 1;                                                                                  % [#] Number of Transmission Synapses.
         num_modulation_synapses_DEFAULT = 1;                                                                                    % [#] Number of Modulation Synapses.
@@ -75,11 +76,11 @@ classdef synapse_manager_class
         num_split_vb_integration_synapses =  10;                                                                                % [#] Number of Split Voltage Based Integration Synapses.
         num_mod_split_vb_integration_synapses = 6;                                                                              % [#] Number of Modulated Split Voltage Based Integration Synapses.
         num_mod_split_sub_vb_integratino_synapses = 2;                                                                          % [#] Number fo Modulated Split Difference Voltage Based Integration Synapses.
-                
+        
         % Define the CPG parameters.
         delta_bistable_DEFAULT = -10e-3;                                                                                        % [V] Bistable CPG Equilibrium Offset
         delta_oscillatory_DEFAULT = 0.01e-3;                                                                                    % [V] Oscillatory CPG Equilibrium Offset
-        delta_noncpg_DEFAULT = 0;                                                                                                      % [V] Generic CPG Equilibrium Offset        
+        delta_noncpg_DEFAULT = 0;                                                                                                      % [V] Generic CPG Equilibrium Offset
         
         % Define the applied current parameters.
         Idrive_max_DEFAULT = 1.25e-9;                                                                                           % [A] Maximum Drive Current
@@ -116,7 +117,7 @@ classdef synapse_manager_class
             
             % Set the default synapse properties.
             if nargin < 1, self.synapses = [  ]; else, self.synapses = synapses; end
-
+            
             % Compute the number of synapses.
             self.num_synapses = length( self.synapses );
             
@@ -168,7 +169,7 @@ classdef synapse_manager_class
             
             % Ensure that the provided synapse property values have the same length as the provided synapse IDs.
             if ( num_synapse_IDs ~= num_synapse_property_values )                                     % If the number of provided synapse IDs does not match the number of provided property values...
-               
+                
                 % Determine whether to agument the property values.
                 if num_synapse_property_values == 1                                                  % If there is only one provided property value...
                     
@@ -273,7 +274,7 @@ classdef synapse_manager_class
             
             % Determine whether to adjust the synapse index.
             if ~b_match_found                                                       % If a match was not found...
-            
+                
                 % Determine how to handle when a match is not found.
                 if strcmpi( undetected_option, 'error' )                            % If the undetected option is set to 'error'...
                     
@@ -291,7 +292,7 @@ classdef synapse_manager_class
                 elseif strcmpi( undetected_option, 'ignore' )                       % If the undetected option is set to 'ignore'...
                     
                     % Set the synapse index to negative one.
-                    synapse_index = -1;                    
+                    synapse_index = -1;
                     
                 else                                                                % Otherwise...
                     
@@ -299,7 +300,7 @@ classdef synapse_manager_class
                     error( 'Undetected option %s not recognized.', undetected_option )
                     
                 end
-            
+                
             end
             
         end
@@ -322,13 +323,13 @@ classdef synapse_manager_class
             
             % Retrieve the synapse index of each synapse ID.
             for k = 1:num_synapse_IDs                           % Iterate through each synapse ID...
-            
+                
                 % Determine how to compute the synapse index.
                 if synapse_IDs(k) >= 0                           % If the synapse ID is positive... (this means that the synapse ID exists...)
-                
+                    
                     % Retrieve the synapse index associated with this synapse ID.
                     synapse_indexes(k) = self.get_synapse_index( synapse_IDs(k) );
-            
+                    
                 elseif synapse_IDs(k) == -1                     % If the synapse ID is -1... (this means that the synapse ID does not exist...)
                     
                     % Set the synapse index to negative one (to indicate that it doesn't exist).
@@ -340,7 +341,7 @@ classdef synapse_manager_class
                     error( 'Synapse ID %0.2f not recognized.', synapse_IDs(k) )
                     
                 end
-                    
+                
             end
             
         end
@@ -350,15 +351,15 @@ classdef synapse_manager_class
         function synapse_IDs = get_all_synapse_IDs( self )
             
             % Preallocate an array to store the synapse IDs.
-           synapse_IDs = zeros( 1,  self.num_synapses );
-           
-           % Retrieve each synapse ID.
-           for k = 1:self.num_synapses                  % Iterate through each synapse...
-              
-               % Retrieve the ID of this synapse.
-               synapse_IDs(k) = self.synapses(k).ID;
-               
-           end
+            synapse_IDs = zeros( 1,  self.num_synapses );
+            
+            % Retrieve each synapse ID.
+            for k = 1:self.num_synapses                  % Iterate through each synapse...
+                
+                % Retrieve the ID of this synapse.
+                synapse_IDs(k) = self.synapses(k).ID;
+                
+            end
             
         end
         
@@ -374,10 +375,10 @@ classdef synapse_manager_class
             
             % Retrieve all self-connecting synapse IDs.
             for k = 1:self.num_synapses                         % Iterate through each synapse...
-            
+                
                 % Determine whether this synapse is a self-connection.
                 if ( self.synapses(k).from_neuron_ID == self.synapses(k).to_neuron_ID )             % If this synapse is a self-connection...
-
+                    
                     % Advance the synapse ID index.
                     index = index + 1;
                     
@@ -385,14 +386,14 @@ classdef synapse_manager_class
                     synapse_IDs(index) = self.synapses(k).ID;
                     
                 end
-                    
+                
             end
             
             % Keep only the relevant synapse IDs.
             synapse_IDs = synapse_IDs( 1:index );
-                
+            
         end
-                
+        
         
         %% Synapse ID Functions
         
@@ -442,7 +443,7 @@ classdef synapse_manager_class
         
         % Implement a function to generate multiple unique synapse IDs.
         function synapse_IDs = generate_unique_synapse_IDs( self, num_IDs )
-
+            
             % Retrieve the existing synapse IDs.
             existing_synapse_IDs = self.get_all_synapse_IDs(  );
             
@@ -451,12 +452,12 @@ classdef synapse_manager_class
             
             % Generate each of the new IDs.
             for k = 1:num_IDs                           % Iterate through each of the new IDs...
-            
+                
                 % Generate a unique synapse ID.
                 synapse_IDs(k) = self.array_utilities.get_lowest_natural_number( [ existing_synapse_IDs, synapse_IDs( 1:(k - 1) ) ] );
-            
-            end
                 
+            end
+            
         end
         
         
@@ -477,7 +478,7 @@ classdef synapse_manager_class
         
         % Implement a function to check whether a proposed synapse ID is a unique natural.
         function b_unique_natural = unique_natural_synapse_ID( self, synapse_ID )
-
+            
             % Initialize the unique natural to false.
             b_unique_natural = false;
             
@@ -532,7 +533,7 @@ classdef synapse_manager_class
                         
                         % Determine whether this synapse is a match.
                         if self.synapses(k2).ID == synapse_IDs(k1)                              % If this synapse ID is a match...
-
+                            
                             % Set this match logical to true.
                             match_logicals(k1) = true;
                             
@@ -543,7 +544,7 @@ classdef synapse_manager_class
                 end
                 
             end
-                        
+            
         end
         
         
@@ -643,7 +644,7 @@ classdef synapse_manager_class
             
         end
         
-
+        
         % Implement a function to convert a specific neuron ID order to oscillatory from-to neuron ID pairs.
         function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2oscillatory_from_to_neuron_IDs( ~, neuron_ID_order )
             
@@ -718,16 +719,16 @@ classdef synapse_manager_class
                 % Retrieve the from and to neuron IDs for each neuron pair.
                 for k1 = 1:num_neurons                         % Iterate through each pair of neurons...
                     for k2 = 1:num_neurons                         % Iterate through each pair of neurons...
-
+                        
                         % Advance the counter variable.
                         k3 = k3 + 1;
                         
                         % Retrieve the from neuron ID.
                         from_neuron_IDs(k3) = neuron_ID_order(k1);
-
+                        
                         % Retrieve the to neuron ID.
                         to_neuron_IDs(k3) = neuron_ID_order(k2);
-                    
+                        
                     end
                 end
                 
@@ -752,13 +753,13 @@ classdef synapse_manager_class
             
             % Retrieve the synapse IDs associated with the given neuron IDs.
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs, undetected_option );
-        
+            
         end
         
         
         % Implement a function to determine whether only a single synapse connects each pair of neurons.
         function b_one_to_one = one_to_one_synapses( self )
-           
+            
             % Set the one-to-one flag.
             b_one_to_one = true;
             
@@ -771,7 +772,7 @@ classdef synapse_manager_class
             
             % Determine whether there is only one synapse between each neuron.
             while ( b_one_to_one ) && ( k < self.num_synapses )                             % While we haven't found a synapse repetition and we haven't checked all of the synpases...
-               
+                
                 % Advance the loop counter.
                 k = k + 1;
                 
@@ -782,19 +783,19 @@ classdef synapse_manager_class
                 
                 % Determine whether we need to check this synapse for repetition.
                 if k ~= 1                               % If this is not the first iteration...
-
+                    
                     % Determine whether the from and to neuron IDs are unique.
                     [ from_neuron_ID_match, from_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( from_neuron_IDs(k), from_neuron_IDs( 1:( k  - 1 ) ) );
                     [ to_neuron_ID_match, to_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( to_neuron_IDs(k), to_neuron_IDs( 1:( k  - 1) ) );
-
+                    
                     % Determine whether this synapse is a duplicate.
                     if from_neuron_ID_match && to_neuron_ID_match && b_enableds(k) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
-
+                        
                         % Set the one-to-one flag to false (this synapse is duplicate).
                         b_one_to_one = false;
-
+                        
                     end
-                
+                    
                 end
                 
             end
@@ -844,12 +845,12 @@ classdef synapse_manager_class
             
         end
         
-                
+        
         %% Synaptic Reversal Potential Compute & Set Functions
         
         % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
         function self = compute_set_driven_multistate_cpg_dEsyn( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -867,7 +868,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_dEsyn(  );
-                                
+                
             end
             
         end
@@ -875,7 +876,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
         function self = compute_set_transmission_dEsyn( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -893,7 +894,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_transmission_dEsyn(  );
-                                
+                
             end
             
         end
@@ -901,7 +902,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a modulation subnetwork.
         function self = compute_set_modulation_dEsyn( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -919,7 +920,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_modulation_dEsyn(  );
-                                
+                
             end
             
         end
@@ -927,7 +928,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
         function self = compute_set_addition_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -945,15 +946,15 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_addition_dEsyn1(  );
-                                
+                
             end
             
         end
         
         
-       % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
+        % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
         function self = compute_set_addition_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -971,7 +972,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_addition_dEsyn2(  );
-                                
+                
             end
             
         end
@@ -979,7 +980,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of absolute addition subnetwork synapses.
         function self = compute_set_absolute_addition_dEsyn( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -997,7 +998,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_addition_dEsyn(  );
-                                
+                
             end
             
         end
@@ -1005,7 +1006,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of relative addition subnetwork synapses.
         function self = compute_set_relative_addition_dEsyn( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1023,15 +1024,15 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_dEsyn(  );
-                                
+                
             end
             
         end
         
- 
+        
         % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
         function self = compute_set_subtraction_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1049,7 +1050,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_subtraction_dEsyn1(  );
-                                
+                
             end
             
         end
@@ -1057,7 +1058,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
         function self = compute_set_subtraction_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1075,7 +1076,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_subtraction_dEsyn2(  );
-                                
+                
             end
             
         end
@@ -1101,7 +1102,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_dEsyn_excitatory(  );
-                                
+                
             end
             
         end
@@ -1127,7 +1128,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_dEsyn_inhibitory(  );
-                                
+                
             end
             
         end
@@ -1153,7 +1154,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_dEsyn_excitatory(  );
-                                
+                
             end
             
         end
@@ -1179,7 +1180,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_dEsyn_inhibitory(  );
-                                
+                
             end
             
         end
@@ -1187,7 +1188,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
         function self = compute_set_multiplication_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1205,7 +1206,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn1(  );
-                                
+                
             end
             
         end
@@ -1213,7 +1214,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
         function self = compute_set_multiplication_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1231,7 +1232,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn2(  );
-                                
+                
             end
             
         end
@@ -1239,7 +1240,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
         function self = compute_set_multiplication_dEsyn3( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1257,7 +1258,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn3(  );
-                                
+                
             end
             
         end
@@ -1265,7 +1266,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of an inversion subnetwork.
         function self = compute_set_inversion_dEsyn( self, synapse_IDs )
-        
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1283,7 +1284,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_inversion_dEsyn(  );
-                                
+                
             end
             
         end
@@ -1291,7 +1292,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of absolute inversion subnetwork synapses.
         function self = compute_set_absolute_inversion_dEsyn( self, synapse_IDs, c, delta )
-        
+            
             % Set the default input arguments.
             if nargin < 4, delta = self.delta_DEFAULT; end                                                                                          % [-] Subnetwork Output Offset
             if nargin < 3, c = self.c_absolute_inversion_DEFAULT; end                                                                              	% [-] Subnetwork Gain
@@ -1311,7 +1312,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_dEsyn( c, delta );
-                                
+                
             end
             
         end
@@ -1319,7 +1320,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of relative inversion subnetwork synapses.
         function self = compute_set_relative_inversion_dEsyn( self, synapse_IDs, epsilon, delta, R_2 )
-        
+            
             % Set the default input arguments.
             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                                            % [V] Activation Domain
             if nargin < 4, delta = self.delta_DEFAULT; end                                                                                      % [V] Subnetwork Output Offset
@@ -1340,7 +1341,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_inversion_dEsyn( epsilon, delta, R_2 );
-                                
+                
             end
             
         end
@@ -1348,7 +1349,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
         function self = compute_set_division_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1366,7 +1367,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_division_dEsyn1(  );
-                                
+                
             end
             
         end
@@ -1374,7 +1375,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
         function self = compute_set_division_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1392,33 +1393,35 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_division_dEsyn2(  );
-                                
+                
             end
             
         end
         
         
         % Implement a function to compute and set the synaptic reversal potential of absolute division numerator synapses.
-        function self = compute_set_absolute_division_dEsyn1( self, synapse_IDs )
-                    
+        function self = compute_set_absolute_division_dEsyn1( self, synapse_IDs, c, alpha )
+            
             % Set the default input arguments.
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                          	% [-] Synapse IDs
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                                      % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 3, c = self.c_absolute_division_DEFAULT; end                            % [-] Absolute Division Subnetwork Gain
+            if nargin < 2, synapse_IDs = 'all'; end                                            	% [-] Synapse IDs
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the index associated with the numerator synapse ID.
             synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
-
+            
             % Compute and set the required parameter for the numerator synapse.
-            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_dEsyn1(  );
-                        
+            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_dEsyn1( c, alpha );
+            
         end
         
         
         % Implement a function to compute and set the synaptic reversal potential of absolute division denominator synapses.
         function self = compute_set_absolute_division_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1426,8 +1429,8 @@ classdef synapse_manager_class
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the index associated with the denominator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( -1 ) );
-
+            synapse_index = self.get_synapse_index( synapse_IDs( end ) );
+            
             % Compute and set the required parameter for the denominator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_dEsyn2(  );
             
@@ -1435,9 +1438,11 @@ classdef synapse_manager_class
         
         
         % Implement a function to compute and set the synaptic reversal potential of relative division numerator synapses.
-        function self = compute_set_relative_division_dEsyn1( self, synapse_IDs )
-                    
+        function self = compute_set_relative_division_dEsyn1( self, synapse_IDs, c, alpha )
+            
             % Set the default input arguments.
+            if nargin < 4, alpha = self.alpha_DEFAULT; end
+            if nargin < 3, c = self.c_absolute_division_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
@@ -1445,16 +1450,16 @@ classdef synapse_manager_class
             
             % Retrieve the index associated with the numerator synapse.
             synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
-
+            
             % Compute and set the required parameter for the numerator synapse.
-            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_dEsyn1(  );
+            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_dEsyn1( c, alpha );
             
         end
         
         
         % Implement a function to compute and set the synaptic reversal potential of relative division denominator synapses.
         function self = compute_set_relative_division_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1462,8 +1467,8 @@ classdef synapse_manager_class
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the index associated with the denominator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( -1 ) );
-
+            synapse_index = self.get_synapse_index( synapse_IDs( end ) );
+            
             % Compute and set the required parameter for the denominator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_dEsyn2(  );
             
@@ -1472,7 +1477,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
         function self = compute_set_derivation_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1490,7 +1495,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_derivation_dEsyn1(  );
-                                
+                
             end
             
         end
@@ -1498,7 +1503,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
         function self = compute_set_derivation_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
@@ -1516,7 +1521,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_derivation_dEsyn2(  );
-                                
+                
             end
             
         end
@@ -1524,7 +1529,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
         function self = compute_set_integration_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
@@ -1542,7 +1547,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_integration_dEsyn1(  );
-                                
+                
             end
             
         end
@@ -1550,7 +1555,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
         function self = compute_set_integration_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
@@ -1568,7 +1573,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_integration_dEsyn2(  );
-                                
+                
             end
             
         end
@@ -1576,7 +1581,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
         function self = compute_set_vb_integration_dEsyn1( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
@@ -1594,7 +1599,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_vb_integration_dEsyn1(  );
-                                
+                
             end
             
         end
@@ -1602,7 +1607,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
         function self = compute_set_vb_integration_dEsyn2( self, synapse_IDs )
-                    
+            
             % Set the default input arguments.
             if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
             
@@ -1620,7 +1625,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_vb_integration_dEsyn2(  );
-                                
+                
             end
             
         end
@@ -1630,7 +1635,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
         function self = compute_set_driven_multistate_cpg_gsynmax( self, synapse_IDs, delta_oscillatory, I_drive_max )
-                    
+            
             % Set the default input arguments.
             if nargin < 4, I_drive_max = self.Idrive_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                                                      % [V] Oscillatory CPG Equilibrium Offset
@@ -1650,7 +1655,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_gsynmax( self.synapses( synapse_index ).dE_syn, delta_oscillatory, I_drive_max );
-                                
+                
             end
             
         end
@@ -1658,7 +1663,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the maximum synaptic conductance of absolute addition subnetwork synapses.
         function self = compute_set_absolute_addition_gsyn( self, synapse_IDs, c, R_k, Gm_n, Iapp_n )
-
+            
             % Set the default input arguments.
             if nargin < 6, Iapp_n = self.Iapp_absolute_addition_DEFAULT; end                                                            % [A] Applied Current
             if nargin < 5, Gm_n = self.Gm_DEFAULT; end                                                                                  % [S] Membrane Conductance
@@ -1680,15 +1685,15 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_addition_gsyn( c, R_k, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                                
+                
             end
             
         end
         
-            
+        
         % Implement a function to compute and set the maximum synaptic conductance of relative addition subnetwork synapses.
         function self = compute_set_relative_addition_gsyn( self, synapse_IDs, c, n, R_n, Gm_n, Iapp_n )
-
+            
             % Set the default input arguments.
             if nargin < 7, Iapp_n = self.Iapp_relative_addition_DEFAULT; end                                                                % [A] Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
@@ -1711,7 +1716,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_gsyn( c, n, R_n, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                                
+                
             end
             
         end
@@ -1719,7 +1724,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the maximum synaptic conductance of absolute subtraction subnetwork synapses.
         function self = compute_set_absolute_subtraction_gsyn( self, synapse_IDs, c, s_k, R_k, Gm_n, Iapp_n )
-
+            
             % Set the default input arguments.
             if nargin < 7, Iapp_n = self.Iapp_absolute_subtraction_DEFAULT; end                                                             % [A] Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
@@ -1742,7 +1747,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_gsyn( c, s_k( k ), R_k( k ), Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                                
+                
             end
             
         end
@@ -1750,7 +1755,7 @@ classdef synapse_manager_class
         
         % Implement a function to compute and set the maximum synaptic conductance of relative subtraction subnetwork synapses.
         function self = compute_set_relative_subtraction_gsyn( self, synapse_IDs, c, npm_k, s_k, R_n, Gm_n, Iapp_n )
-
+            
             % Set the default input arguments.
             if nargin < 8, Iapp_n = self.Iapp_relative_subtraction_DEFAULT; end                                                             % [A] Applied Current
             if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
@@ -1774,46 +1779,46 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_gsyn( c, npm_k( k ), s_k( k ), R_n, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                                
+                
             end
             
         end
         
         
-%         % Implement a function to compute and set the maximum synaptic conductance of absolute inversion subnetwork synapses.
-%         function self = compute_set_absolute_inversion_gsyn( self, synapse_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
-% 
-%             % Set the default input arguments.
-%             if nargin < 7, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
-%             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-%             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-%             if nargin < 3, c = self.c_absolute_inversion_DEFAULT; end                                                                       % [-] Subnetwork Gain
-%             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-%             
-%             % Validate the synapse IDs.
-%             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
-%             
-%             % Determine how many synapses to which we are going to apply the given method.
-%             num_synapses_to_evaluate = length( synapse_IDs );
-%             
-%             % Evaluate the given synapse method for each neuron.
-%             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-%                 
-%                 % Retrieve the index associated with this synapse ID.
-%                 synapse_index = self.get_synapse_index( synapse_IDs( k ) );
-%                 
-%                 % Compute and set the required parameter for this synapse.
-%                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_gsyn( c, epsilon, R_1, Gm_2, Iapp_2 );
-%                                 
-%             end
-%             
-%         end
+        %         % Implement a function to compute and set the maximum synaptic conductance of absolute inversion subnetwork synapses.
+        %         function self = compute_set_absolute_inversion_gsyn( self, synapse_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
+        %
+        %             % Set the default input arguments.
+        %             if nargin < 7, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
+        %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
+        %             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
+        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
+        %             if nargin < 3, c = self.c_absolute_inversion_DEFAULT; end                                                                       % [-] Subnetwork Gain
+        %             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
+        %
+        %             % Validate the synapse IDs.
+        %             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+        %
+        %             % Determine how many synapses to which we are going to apply the given method.
+        %             num_synapses_to_evaluate = length( synapse_IDs );
+        %
+        %             % Evaluate the given synapse method for each neuron.
+        %             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+        %
+        %                 % Retrieve the index associated with this synapse ID.
+        %                 synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+        %
+        %                 % Compute and set the required parameter for this synapse.
+        %                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_gsyn( c, epsilon, R_1, Gm_2, Iapp_2 );
+        %
+        %             end
+        %
+        %         end
         
-
+        
         % Implement a function to compute and set the maximum synaptic conductance of absolute inversion subnetwork synapses.
         function self = compute_set_absolute_inversion_gsyn( self, synapse_IDs, Iapp_2 )
-
+            
             % Set the default input arguments.
             if nargin < 3, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
@@ -1832,46 +1837,15 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_gsyn( self.synapses( synapse_index ).dE_syn, Iapp_2 );
-                                
+                
             end
             
         end
         
-
-%         % Implement a function to compute and set the maximum synaptic conductance of relative inversion subnetwork synapses.
-%         function self = compute_set_relative_inversion_gsyn( self, synapse_IDs, c, epsilon, R_2, Gm_2, Iapp_2 )
-% 
-%             % Set the default input arguments.
-%             if nargin < 7, Iapp_2 = self.Iapp_DEFAULT; end                                                                                  % [A] Applied Current
-%             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-%             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-%             if nargin < 3, c = self.c_relative_inversion_DEFAULT; end                                                                       % [-] Subnetwork Gain
-%             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-%             
-%             % Validate the synapse IDs.
-%             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
-%             
-%             % Determine how many synapses to which we are going to apply the given method.
-%             num_synapses_to_evaluate = length( synapse_IDs );
-%             
-%             % Evaluate the given synapse method for each neuron.
-%             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-%                 
-%                 % Retrieve the index associated with this synapse ID.
-%                 synapse_index = self.get_synapse_index( synapse_IDs( k ) );
-%                 
-%                 % Compute and set the required parameter for this synapse.
-%                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_inversion_gsyn( c, epsilon, R_2, Gm_2, Iapp_2 );
-%                                 
-%             end
-%             
-%         end
         
-
         % Implement a function to compute and set the maximum synaptic conductance of relative inversion subnetwork synapses.
         function self = compute_set_relative_inversion_gsyn( self, synapse_IDs, Iapp_2 )
-
+            
             % Set the default input arguments.
             if nargin < 3, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
@@ -1890,20 +1864,20 @@ classdef synapse_manager_class
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_inversion_gsyn( self.synapses( synapse_index ).dE_syn, Iapp_2 );
-                                
+                
             end
             
         end
-
+        
         
         % Implement a function to compute and set the maximum synaptic conductance of absolute division subnetwork numerator synapses.
-        function self = compute_set_absolute_division_gsyn31( self, synapse_IDs, c, epsilon, R_1, Gm_3 )
-
+        function self = compute_set_absolute_division_gsyn31( self, synapse_IDs, alpha, epsilon, R_1, Gm_3 )
+            
             % Set the default input arguments.
             if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-            if nargin < 3, c = self.c_absolute_division_DEFAULT; end                                                                        % [-] Subnetwork Gain
+            if nargin < 3, alpha = self.alpha_DEFAULT; end                                                                                  % [-] Subnetwork Denominator Adjustment
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
@@ -1911,45 +1885,40 @@ classdef synapse_manager_class
             
             % Retrieve the index associated with the numerator synapse.
             synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
-
+            
             % Compute and set the required parameter for the numerator synapse.
-            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_gsyn31( c, epsilon, R_1, Gm_3, self.synapses( synapse_index ).dE_syn );
+            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_gsyn31( alpha, epsilon, R_1, Gm_3 );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductance of absolute division subnetwork denominator synapses.
-        function self = compute_set_absolute_division_gsyn32( self, synapse_IDs, c, epsilon, R_1, R_2, Gm_3 )
-
+        function self = compute_set_absolute_division_gsyn32( self, synapse_IDs, epsilon, R_2, Gm_3 )
+            
             % Set the default input arguments.
-            if nargin < 7, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 6, R_2 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 5, R_1 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-            if nargin < 3, c = self.c_absolute_division_DEFAULT; end                                                                        % [-] Subnetwork Gain
+            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
+            if nargin < 4, R_2 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
+            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the index associated with the numerator and denominator synapses.
-            synapse_index_numerator = self.get_synapse_index( synapse_IDs( 1 ) );
-            synapse_index_denominator = self.get_synapse_index( synapse_IDs( -1 ) );
-
+            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ) );
+            
             % Compute and set the required parameter for the denominator synapse.
-            self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_absolute_division_gsyn32( c, epsilon, R_1, R_2, Gm_3, self.synapses( synapse_index_numerator ).dE_syn );
+            self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_absolute_division_gsyn32( epsilon, R_2, Gm_3 );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductance of relative division subnetwork numerator synapses.
-        function self = compute_set_relative_division_gsyn31( self, synapse_IDs, c, epsilon, R_3, Gm_3 )
-
+        function self = compute_set_relative_division_gsyn31( self, synapse_IDs, R_3, Gm_3 )
+            
             % Set the default input arguments.
-            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 5, R_3 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-            if nargin < 3, c = self.c_relative_division_DEFAULT; end                                                                        % [-] Subnetwork Gain
+            if nargin < 4, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
+            if nargin < 3, R_3 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
@@ -1957,20 +1926,21 @@ classdef synapse_manager_class
             
             % Retrieve the index associated with the numerator synapse.
             synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
-
+            
             % Compute and set the required parameter for the numerator synapse.
-            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_gsyn31( c, epsilon, R_3, Gm_3, self.synapses( synapse_index ).dE_syn );
+            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_gsyn31( R_3, Gm_3, self.synapses( synapse_index ).dE_syn );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductance of relative division subnetwork denominator synapses.
-        function self = compute_set_relative_division_gsyn32( self, synapse_IDs, c, epsilon, R_3, Gm_3 )
-
+        function self = compute_set_relative_division_gsyn32( self, synapse_IDs, c, alpha, epsilon, R_3, Gm_3 )
+            
             % Set the default input arguments.
-            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 5, R_3 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
+            if nargin < 7, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
+            if nargin < 6, R_3 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end
             if nargin < 3, c = self.c_relative_division_DEFAULT; end                                                                        % [-] Subnetwork Gain
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
@@ -1979,10 +1949,10 @@ classdef synapse_manager_class
             
             % Retrieve the index associated with the numerator and denominator synapses.
             synapse_index_numerator = self.get_synapse_index( synapse_IDs( 1 ) );
-            synapse_index_denominator = self.get_synapse_index( synapse_IDs( -1 ) );
-
+            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ) );
+            
             % Compute and set the required parameter for this synapse.
-            self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_relative_division_gsyn32( c, epsilon, R_3, Gm_3, self.synapses( synapse_index_numerator ).dE_syn );
+            self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_relative_division_gsyn32( c, alpha, epsilon, R_3, Gm_3, self.synapses( synapse_index_numerator ).dE_syn );
             
         end
         
@@ -1994,7 +1964,7 @@ classdef synapse_manager_class
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
-                        
+            
             % Determine the number of synapses to enable.
             num_synapses_to_enable = length( synapse_IDs );
             
@@ -2017,7 +1987,7 @@ classdef synapse_manager_class
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
-                        
+            
             % Determine the number of synapses to disable.
             num_synapses_to_enable = length( synapse_IDs );
             
@@ -2040,7 +2010,7 @@ classdef synapse_manager_class
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
-                        
+            
             % Determine the number of synapses to disable.
             num_synapses_to_enable = length( synapse_IDs );
             
@@ -2062,7 +2032,7 @@ classdef synapse_manager_class
         
         % Implement a function to create a new synapse.
         function [ self, ID ] = create_synapse( self, ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
-
+            
             % Set the default synapse properties.
             if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag
             if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                                  % [V] Generic CPG Equilibrium Offset
@@ -2086,8 +2056,8 @@ classdef synapse_manager_class
             self.num_synapses = self.num_synapses + 1;
             
         end
-            
-            
+        
+        
         % Implement a function to create multiple synapses.
         function [ self, IDs ] = create_synapses( self, IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds )
             
@@ -2137,10 +2107,10 @@ classdef synapse_manager_class
             
             % Create each of the spcified synapses.
             for k = 1:num_synapses_to_create                         % Iterate through each of the synapses we want to create...
-       
+                
                 % Create this synapse.
                 self = self.create_synapse( IDs(k), names{k}, dE_syns(k), g_syn_maxs(k), from_neuron_IDs(k), to_neuron_IDs(k), deltas(k), b_enableds(k) );
-            
+                
             end
             
         end
@@ -2161,7 +2131,7 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to delete multiple synapses. 
+        % Implement a function to delete multiple synapses.
         function self = delete_synapses( self, synapse_IDs )
             
             % Set the default input arguments.
@@ -2187,9 +2157,9 @@ classdef synapse_manager_class
         % Implement a function to connect a synapse to neurons.
         function self = connect_synapse( self, synapse_ID, from_neuron_ID, to_neuron_ID )
             
-           % Retrieve the index associated with this synapse.
+            % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID );
-           
+            
             % Set the from neuron ID property of this synapse.
             self.synapses( synapse_index ).from_neuron_ID = from_neuron_ID;
             
@@ -2229,7 +2199,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a multistate CPG subnetwork.
         function [ self, synapse_IDs ] = create_multistate_cpg_synapses( self, neuron_IDs )
-           
+            
             % Compute the number of CPG neurons.
             num_cpg_neurons = length( neuron_IDs );
             
@@ -2237,21 +2207,21 @@ classdef synapse_manager_class
             synapse_IDs = self.generate_unique_synapse_IDs( num_cpg_neurons^2 );
             
             % Create the multistate cpg subnetwork synapses.
-            self = self.create_synapses( synapse_IDs ); 
-
+            self = self.create_synapses( synapse_IDs );
+            
             % Initialize a counter variable.
             k3 = 0;
             
             % Edit the network properties.
             for k1 = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
                 for k2 = 1:num_cpg_neurons                          % Iterate through each of the CPG neurons (to which the synapses are going)...
-                   
+                    
                     % Advance the counter variable.
                     k3 = k3 + 1;
                     
                     % Get the index associated with this synapse.
                     synapse_index = self.get_synapse_index( synapse_IDs( k3 ) );
-                                        
+                    
                     % Set the from neuron ID and to neuron ID.
                     self.synapses( synapse_index ).from_neuron_ID = neuron_IDs( k1 );
                     self.synapses( synapse_index ).to_neuron_ID = neuron_IDs( k2 );
@@ -2264,13 +2234,13 @@ classdef synapse_manager_class
                     
                 end
             end
-
+            
         end
         
         
         % Implement a function to create the synapses for a multistate CPG subnetwork.
         function [ self, synapse_IDs ] = create_driven_multistate_cpg_synapses( self, neuron_IDs )
-           
+            
             % Create the multistate cpg synapses.
             [ self, synapse_IDs_cpg ] = self.create_multistate_cpg_synapses( neuron_IDs( 1:( end - 1 ) ) );
             
@@ -2295,11 +2265,11 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_IDs_cpg, synapse_IDs_drive ];
             
         end
-            
+        
         
         % Implement a function to create the synapses that connect driven multistate cpg to their respective modulated split subtraction voltage based integration subnetworks.
         function [ self, synapse_IDs ] = create_dmcpg2mssvbi_synapses( self, neuron_IDs_cell )
-           
+            
             % Determine the number of cpg neurons.
             num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
             
@@ -2314,7 +2284,7 @@ classdef synapse_manager_class
                 
                 % Compute the index.
                 index = 2*( k - 1 ) + 1;
-                                
+                
                 % Define the from and to neuron IDs.
                 from_neuron_ID1 = neuron_IDs_cell{ 1 }( k ); to_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 1 );
                 from_neuron_ID2 = neuron_IDs_cell{ 2 }( k ); to_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 2 );
@@ -2322,15 +2292,15 @@ classdef synapse_manager_class
                 % Define the synapse names.
                 synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
                 synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
-
+                
                 % Set the names of these synapses.
                 self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name' );
                 self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name' );
-
+                
                 % Connect this synapse.
                 self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
                 self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
-
+                
             end
             
         end
@@ -2338,7 +2308,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses that connect modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
         function [ self, synapse_IDs ] = create_mssvbi2sll_synapses( self, neuron_IDs_cell )
-           
+            
             % Determine the number of cpg neurons.
             num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
             
@@ -2353,7 +2323,7 @@ classdef synapse_manager_class
                 
                 % Compute the index.
                 index = 2*( k - 1 ) + 1;
-                                
+                
                 % Define the from and to neuron IDs.
                 from_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 15 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 1 );
                 from_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 16 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 2 );
@@ -2361,21 +2331,21 @@ classdef synapse_manager_class
                 % Define the synapse names.
                 synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
                 synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
-
+                
                 % Set the names of these synapses.
                 self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name' );
                 self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name' );
-
+                
                 % Connect this synapse.
                 self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
                 self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
-
+                
             end
             
             % Define the from and to neuron IDs for the slow tranmission synapses.
             from_neuron_ID1 = neuron_IDs_cell{ end }( 1 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 3 );
             from_neuron_ID2 = neuron_IDs_cell{ end }( 2 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 4 );
-
+            
             % Define the synapse names for the slow transmission synapses
             synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
             synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
@@ -2393,7 +2363,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a driven multistate cpg split lead lag subnetwork.
         function [ self, synapse_IDs_cell ] = create_dmcpg_sll_synapses( self, neuron_IDs_cell )
-        
+            
             % Retrieve the number of subnetworks and cpg neurons.
             num_subnetworks = length( neuron_IDs_cell );
             num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
@@ -2410,7 +2380,7 @@ classdef synapse_manager_class
                 
                 % Create the modulated split subtraction voltage based integration synapses for this subnetwork.
                 [ self, synapse_IDs_cell{ k + 2 } ] = self.create_mod_split_sub_vb_integration_synapses( neuron_IDs_cell{ k + 2 } );
-            
+                
             end
             
             % Create the synapses that connect the driven multistate cpg to the modulated split subtraction voltage based integration subnetworks.
@@ -2424,7 +2394,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses that connect a driven multistate cpg double centered lead lag subnetwork to a double centered subnetwork.
         function [ self, synapse_IDs ] = create_dmcpgsll2dc_synapses( self, neuron_IDs_cell )
-        
+            
             % Define the number of unique synapses.
             num_unique_synapses = 2;
             
@@ -2440,7 +2410,7 @@ classdef synapse_manager_class
                 
                 % Set the names of each of the unique synapses.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
-
+                
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
                 
@@ -2448,10 +2418,10 @@ classdef synapse_manager_class
             
         end
         
-            
+        
         % Implement a function to create the synapses for a driven multistate cpg double centered lead lag subnetwork.
         function [ self, synapse_IDs_cell ] = create_dmcpg_dcll_synapses( self, neuron_IDs_cell )
-        
+            
             % Create the double subtraction subnetwork synapses.
             [ self, synapse_IDs_dmcpgsll ] = self.create_dmcpg_sll_synapses( neuron_IDs_cell{ 1 } );
             
@@ -2469,7 +2439,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
         function [ self, synapse_IDs ] = create_dmcpgdcll2cds_synapses( self, neuron_IDs_cell )
-        
+            
             % Define the number of unique synapses.
             num_unique_synapses = 2;
             
@@ -2485,7 +2455,7 @@ classdef synapse_manager_class
                 
                 % Set the names of each of the unique synapses.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
-
+                
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
                 
@@ -2496,7 +2466,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork.
         function [ self, synapse_IDs_cell ] = create_ol_dmcpg_dclle_synapses( self, neuron_IDs_cell )
-        
+            
             % Create the driven multistate cpg double centered lead lag subnetwork synapses.
             [ self, synapse_IDs_dmcpgdcll ] = self.create_dmcpg_dcll_synapses( neuron_IDs_cell{ 1 } );
             
@@ -2514,7 +2484,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses that close the open loop driven multistate cpg double centered lead lag error subnetwork using a proportional controller.
         function [ self, synapse_IDs ] = create_oldmcpgdclle2dmcpg_synapses( self, neuron_IDs_cell )
-        
+            
             % Define the number of unique synapses.
             num_unique_synapses = 2;
             
@@ -2530,7 +2500,7 @@ classdef synapse_manager_class
                 
                 % Set the names of each of the unique synapses.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
-
+                
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
                 
@@ -2538,21 +2508,21 @@ classdef synapse_manager_class
             
         end
         
-    
+        
         % Implement a function to create the synapses for an closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
         function [ self, synapse_IDs_cell ] = create_clpc_dmcpg_dcll_synapses( self, neuron_IDs_cell )
-        
+            
             % Create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork synapses.
             [ self, synapse_IDs_oldmcpgdclle ] = self.create_ol_dmcpg_dclle_synapses( neuron_IDs_cell );
-        
+            
             % Create the synapses that assist in closing the open loop driven multistate cpg double centered lead lag error subnetwork using a proportional controller.
             [ self, synapse_IDs_oldmcpgdclle2dmcpg ] = self.create_oldmcpgdclle2dmcpg_synapses( neuron_IDs_cell );
             
             % Concatenate the synapse IDs.
             synapse_IDs_cell = { synapse_IDs_oldmcpgdclle, synapse_IDs_oldmcpgdclle2dmcpg };
-        
-        end
             
+        end
+        
         
         % Implement a function to create the synapses for a transmission subnetwork.
         function [ self, synapse_ID ] = create_transmission_synapses( self, neuron_IDs )
@@ -2571,7 +2541,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a modulation subnetwork.
         function [ self, synapse_ID ] = create_modulation_synapses( self, neuron_IDs )
-
+            
             % Create the modulation subnetwork synapses.
             [ self, synapse_ID ] = self.create_synapses( self.num_modulation_synapses_DEFAULT );
             
@@ -2586,7 +2556,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for an addition subnetwork.
         function [ self, synapse_IDs ] = create_addition_synapses( self, neuron_IDs )
-
+            
             % Create the addition subnetwork synapses.
             [ self, synapse_IDs ] = self.create_synapses( self.num_addition_synapses_DEFAULT );
             
@@ -2616,7 +2586,7 @@ classdef synapse_manager_class
                 
                 % Connect this synapse to its input and output neurons.
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Set the name of this synapse.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
                 
@@ -2627,7 +2597,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a relative addition subnetwork.
         function [ self, synapse_IDs ] = create_relative_addition_synapses( self, neuron_IDs )
-
+            
             % Compute the number of neurons.
             num_neurons = length( neuron_IDs );
             
@@ -2642,14 +2612,14 @@ classdef synapse_manager_class
                 
                 % Connect this synapse to its input and output neurons.
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Set the name of this synapse.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
                 
             end
             
         end
-                
+        
         
         % Implement a function to create the synapses for a subtraction subnetwork.
         function [ self, synapse_IDs ] = create_subtraction_synapses( self, neuron_IDs )
@@ -2683,7 +2653,7 @@ classdef synapse_manager_class
                 
                 % Connect this synapse to its input and output neurons.
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Set the name of this synapse.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
                 
@@ -2709,7 +2679,7 @@ classdef synapse_manager_class
                 
                 % Connect this synapse to its input and output neurons.
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Set the name of this synapse.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
                 
@@ -2736,34 +2706,34 @@ classdef synapse_manager_class
         % Implement a function to create the synapses for a centering subnetwork.
         function [ self, synapse_IDs ] = create_centering_synapses( self, neuron_IDs )
             
-           % Create the centering subnetwork synapses.
-           [ self, synapse_IDs ] = self.create_synapses( self.num_centering_synapses_DEFAULT );
+            % Create the centering subnetwork synapses.
+            [ self, synapse_IDs ] = self.create_synapses( self.num_centering_synapses_DEFAULT );
             
-           % Set the names of the centering subnetwork synapses.
-           self = self.set_synapse_property( synapse_IDs, { '14', '24', '45', '35' }, 'name' );
-           
-           % Connect the centering subnetwork synapses.
-           self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) ] );
-           
+            % Set the names of the centering subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs, { '14', '24', '45', '35' }, 'name' );
+            
+            % Connect the centering subnetwork synapses.
+            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) ] );
+            
         end
         
         
         % Implement a function to create the synapses for a double centering subnetwork.
         function [ self, synapse_IDs ] = create_double_centering_synapses( self, neuron_IDs )
             
-           % Create the centering subnetwork synapses.
-           [ self, synapse_IDs ] = self.create_synapses( self.num_double_centering_synapses_DEFAULT );
+            % Create the centering subnetwork synapses.
+            [ self, synapse_IDs ] = self.create_synapses( self.num_double_centering_synapses_DEFAULT );
             
-           % Set the names of the centering subnetwork synapses.
-           self = self.set_synapse_property( synapse_IDs, { '14', '24', '25', '35', '46', '36', '57', '17' }, 'name' );
-           
-           % Set the from and to neuron IDs.
-           from_neuron_IDs = [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) neuron_IDs( 1 ) ];
-           to_neuron_IDs = [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) neuron_IDs( 6 ) neuron_IDs( 6 ) neuron_IDs( 7 ) neuron_IDs( 7 ) ];
-           
-           % Connect the centering subnetwork synapses.
-           self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
-           
+            % Set the names of the centering subnetwork synapses.
+            self = self.set_synapse_property( synapse_IDs, { '14', '24', '25', '35', '46', '36', '57', '17' }, 'name' );
+            
+            % Set the from and to neuron IDs.
+            from_neuron_IDs = [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) neuron_IDs( 1 ) ];
+            to_neuron_IDs = [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) neuron_IDs( 6 ) neuron_IDs( 6 ) neuron_IDs( 7 ) neuron_IDs( 7 ) ];
+            
+            % Connect the centering subnetwork synapses.
+            self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
+            
         end
         
         
@@ -2785,7 +2755,7 @@ classdef synapse_manager_class
                 
                 % Set the names of each of the unique synapses.
                 self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
-
+                
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
                 
@@ -2796,7 +2766,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a centered double subtraction subnetwork.
         function [ self, synapse_IDs_cell ] = create_centered_double_subtraction_synapses( self, neuron_IDs_cell )
-        
+            
             % Create the double subtraction subnetwork synapses.
             [ self, synapse_IDs_double_subtraction ] = self.create_double_subtraction_synapses( neuron_IDs_cell{ 1 } );
             
@@ -2859,7 +2829,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapse for an inversion subnetwork.
         function [ self, synapse_ID ] = create_inversion_synapse( self, neuron_IDs )
-        
+            
             % Create the inversion subnetwork synapses.
             [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
             
@@ -2870,11 +2840,11 @@ classdef synapse_manager_class
             self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
         end
-            
+        
         
         % Implement a function to create the synapse for an absolute inversion subnetwork.
         function [ self, synapse_ID ] = create_absolute_inversion_synapses( self, neuron_IDs )
-        
+            
             % Create the inversion subnetwork synapses.
             [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
             
@@ -2889,7 +2859,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapse for a relative inversion subnetwork.
         function [ self, synapse_ID ] = create_relative_inversion_synapses( self, neuron_IDs )
-        
+            
             % Create the inversion subnetwork synapses.
             [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
             
@@ -2979,7 +2949,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a voltage based integration subnetwork.
         function [ self, synapse_IDs ] = create_vb_integration_synapses( self, neuron_IDs )
-        
+            
             % Create the voltage based integetration subnetwork synpases.
             [ self, synapse_IDs ] = self.create_synapses( self.num_vb_integration_synapses_DEFAULT );
             
@@ -2994,7 +2964,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a split voltage based integration subnetwork.
         function [ self, synapse_IDs ] = create_split_vb_integration_synapses( self, neuron_IDs )
-           
+            
             % Create the voltage based integetration subnetwork synpases.
             [ self, synapse_IDs ] = self.create_synapses( self.num_split_vb_integration_synapses );
             
@@ -3013,7 +2983,7 @@ classdef synapse_manager_class
         
         % Implement a function to create the synapses for a modulated split voltage based integration subnetwork.
         function [ self, synapse_IDs ] = create_mod_split_vb_integration_synapses( self, neuron_IDs )
-           
+            
             % Create the split voltage based integration subnetwork synapses.
             [ self, synapse_IDs1 ] = self.create_split_vb_integration_synapses( neuron_IDs( 1:9 ) );
             
@@ -3022,11 +2992,11 @@ classdef synapse_manager_class
             
             % Set the names of the modulated split voltage based integration subnetwork synapses.
             self = self.set_synapse_property( synapse_IDs2, { 'Sub 3 -> Mod 2', 'Sub 4 -> Mod 3', 'Mod 1 -> Mod 2', 'Mod 1 -> Mod 3', 'Int 1 -> Mod 1', 'Int 2 -> Mod 1' }, 'name' );
-
+            
             % Define the from and to neuron IDs. NOTE: Neurons are organized as follows: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1', 'Mod 1', 'Mod 2', 'Mod 3' }
             from_neuron_IDs = [ neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 10 ) neuron_IDs( 10 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ];
             to_neuron_IDs = [ neuron_IDs( 11 ) neuron_IDs( 12 ) neuron_IDs( 11 ) neuron_IDs( 12 ) neuron_IDs( 10 ) neuron_IDs( 10 ) ];
-
+            
             % Connect the modulated split voltage based integration subnetwork synapses.
             self = self.connect_synapses( synapse_IDs2, from_neuron_IDs, to_neuron_IDs );
             
@@ -3034,7 +3004,7 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_IDs1, synapse_IDs2 ];
             
         end
-                
+        
         
         % Implement a function to create the synapses for a modulated split difference voltage based integration subnetwork.
         function [ self, synapse_IDs ] = create_mod_split_sub_vb_integration_synapses( self, neuron_IDs )
@@ -3050,11 +3020,11 @@ classdef synapse_manager_class
             
             % Set the names of the synapses that are unique to this subnetwork.
             self = self.set_synapse_property( synapse_IDs3, { 'Sub 3 -> Int 1', 'Sub 4 -> Int 2' }, 'name' );
-
+            
             % Define the from and to neuron IDs.
             from_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 4 ) ];
             to_neuron_IDs = [ neuron_IDs( 5 ) neuron_IDs( 6 ) ];
-
+            
             % Connect the synapses that are unique to this subnetwork.
             self = self.connect_synapses( synapse_IDs3, from_neuron_IDs, to_neuron_IDs );
             
@@ -3063,12 +3033,12 @@ classdef synapse_manager_class
             
         end
         
-                
+        
         %% Subnetwork Synapse Design Functions
         
         % Implement a function to design the synapses for a multistate cpg subnetwork.
         function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable )
-        
+            
             % Set the default input arguments.
             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
@@ -3078,10 +3048,10 @@ classdef synapse_manager_class
             
         end
         
-       
+        
         % Implement a function to design the synapses for a driven multistate cpg subnetwork.
         function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, I_drive_max )
-        
+            
             % Set the default input arguments.
             if nargin < 4, I_drive_max = self.Idrive_max_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
@@ -3102,7 +3072,7 @@ classdef synapse_manager_class
             
         end
         
-
+        
         % Implement a function to design the synapses for a transmission subnetwork.
         function [ self, synapse_ID ] = design_transmission_synapse( self, neuron_IDs )
             
@@ -3138,7 +3108,7 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_addition_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_addition_dEsyn2( synapse_IDs( 2 ) );
-
+            
         end
         
         
@@ -3162,7 +3132,7 @@ classdef synapse_manager_class
                 
                 % Retrieve the ID associated with this synapse.
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Compute and set the absolute addition synaptic reversal potential.
                 self = self.compute_set_absolute_addition_dEsyn( synapse_IDs( k ) );
                 
@@ -3195,7 +3165,7 @@ classdef synapse_manager_class
                 
                 % Retrieve the ID associated with this synapse.
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Compute and set the relative addition synaptic reversal potential.
                 self = self.compute_set_relative_addition_dEsyn( synapse_IDs( k ) );
                 
@@ -3203,14 +3173,14 @@ classdef synapse_manager_class
                 self = self.compute_set_relative_addition_gsyn( synapse_IDs( k ), c, n, R_n, Gm_n, Iapp_n );
                 
             end
-
+            
         end
         
         
         % Implement a function to design the synapses for a subtraction subnetwork.
         function [ self, synapse_IDs ] = design_subtraction_synapses( self, neuron_IDs )
             
-           % Get the synapse IDs that connect the first two neurons to the third neuron.
+            % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
@@ -3218,7 +3188,7 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_subtraction_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_subtraction_dEsyn2( synapse_IDs( 2 ) );
-
+            
         end
         
         
@@ -3226,7 +3196,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_absolute_subtraction_synapses( self, neuron_IDs, c, s_ks, R_ks, Gm_n, Iapp_n )
             
             % Define the default input arguments.
-            if nargin < 7, Iapp_n = self.Iapp_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current 
+            if nargin < 7, Iapp_n = self.Iapp_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 5, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end                           % [-] Input Activation Domains
             if nargin < 4, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Signs
@@ -3243,13 +3213,13 @@ classdef synapse_manager_class
                 
                 % Retrieve the ID associated with this synapse.
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Determine how to compute the synaptic reversal potential.
                 if s_ks( k ) == 1                                                                                   % If this is an excitatory synapse...
-                   
+                    
                     % Compute and set the absolute subtraction synaptic reversal potential for an excitatory synapse.
                     self = self.compute_set_absolute_subtraction_dEsyn_excitatory( synapse_IDs( k ) );
-
+                    
                 elseif s_ks( k ) == -1                                                                              % If this is an inhibitory synapse...
                     
                     % Compute and set the absolute subtraction synaptic reversal potential for an inhibitory synapse.
@@ -3272,7 +3242,7 @@ classdef synapse_manager_class
         
         % Implement a function to design the synapses for a relative subtraction subnetwork.
         function [ self, synapse_IDs ] = design_relative_subtraction_synapses( self, neuron_IDs, c, npm_k, s_ks, R_n, Gm_n, Iapp_n )
-
+            
             % Define the default input arguments.
             if nargin < 8, Iapp_n = self.Iapp_relative_subtraction_DEFAULT; end                                     % [A] Output Applied Current
             if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
@@ -3292,10 +3262,10 @@ classdef synapse_manager_class
                 
                 % Retrieve the ID associated with this synapse.
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-
+                
                 % Determine how to compute the synaptic reversal potential.
                 if s_ks( k ) == 1                                                                                   % If this is an excitatory synapse...
-                   
+                    
                     % Compute and set the relative subtraction synaptic reversal potential for an excitatory synapse.
                     self = self.compute_set_relative_subtraction_dEsyn_excitatory( synapse_IDs( k ) );
                     
@@ -3319,7 +3289,7 @@ classdef synapse_manager_class
                 
                 % Compute and set the relative subtraction maximum synaptic gain.
                 self = self.compute_set_relative_subtraction_gsyn( synapse_IDs( k ), c, n, s_ks( k ), R_n, Gm_n, Iapp_n );
-
+                
             end
             
         end
@@ -3328,29 +3298,30 @@ classdef synapse_manager_class
         % Implement a function to design the synapses for a multiplication subnetwork.
         function [ self, synapse_IDs ] = design_multiplication_synapses( self, neuron_IDs )
             
-           % Get the synapse IDs that comprise this multiplication subnetwork.
+            % Get the synapse IDs that comprise this multiplication subnetwork.
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
             
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_multiplication_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_multiplication_dEsyn2( synapse_IDs( 2 ) );
             self = self.compute_set_multiplication_dEsyn3( synapse_IDs( 3 ) );
-
+            
         end
         
         
         % Implement a function to design the synapses for an absolute multiplication subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_multiplication_synapses( self, neuron_IDs, c1, c2, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 )
+        function [ self, synapse_IDs ] = design_absolute_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 )
             
             % Define the default input arugments.
-            if nargin < 12, Iapp_3 = self.Iapp2_absolute_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
-            if nargin < 11, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
-            if nargin < 10, Gm_3 = self.Gm_DEFAULT; end                                                             % [S] Inversion Output Membrane Conductance
-            if nargin < 9, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
-            if nargin < 8, R_2 = self.R_DEFAULT; end                                                                % [V] Inversion Input Activation Domain
-            if nargin < 7, R_1 = self.R_DEFAULT; end                                                                % [V] Division Input Activation Domain
-            if nargin < 6, epsilon2 = self.epsilon_DEFAULT; end                                                     % [-] Division Subnetwork Offset
-            if nargin < 5, epsilon1 = self.epsilon_DEFAULT; end                                                     % [-] Inversion Subnetwork Offset
+            if nargin < 13, Iapp_3 = self.Iapp2_absolute_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
+            if nargin < 12, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
+            if nargin < 11, Gm_3 = self.Gm_DEFAULT; end                                                             % [S] Inversion Output Membrane Conductance
+            if nargin < 10, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
+            if nargin < 9, R_2 = self.R_DEFAULT; end                                                                % [V] Inversion Input Activation Domain
+            if nargin < 8, R_1 = self.R_DEFAULT; end                                                                % [V] Division Input Activation Domain
+            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                     % [-] Division Subnetwork Offset
+            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                     % [-] Inversion Subnetwork Offset
+            if nargin < 5, alpha = self.alpha_DEFAULT; end                                                          % [-] Division Subnetwork Denominator Adjustment
             if nargin < 4, c2 = self.c_absolute_division_DEFAULT; end                                               % [-] Division Subnetwork Gain
             if nargin < 3, c1 = self.c_absolute_inversion_DEFAULT; end                                              % [-] Inversion Subnetwork Gain
             
@@ -3358,8 +3329,8 @@ classdef synapse_manager_class
             [ self, synapse_ID_inversion ] = self.design_absolute_inversion_synapse( neuron_IDs( 2:3 ), c1, epsilon1, R_2, Gm_3, Iapp_3 );
             
             % Design the absolute division subnetwork synpases.
-            [ self, synapse_IDs_division ] = self.design_absolute_division_synapses( neuron_IDs( [ 1, 3, 4 ] ), c2, epsilon2, R_1, R_3, Gm_4 );
-           
+            [ self, synapse_IDs_division ] = self.design_absolute_division_synapses( neuron_IDs( [ 1, 3, 4 ] ), c2, alpha, epsilon2, R_1, R_3, Gm_4 );
+            
             % Concatenate the synapse IDs.
             synapse_IDs = [ synapse_ID_inversion, synapse_IDs_division ];
             
@@ -3367,16 +3338,17 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a relative multiplication subnetwork.
-        function [ self, synapse_IDs ] = design_relative_multiplication_synapses( self, neuron_IDs, c1, c2, epsilon1, epsilon2, R_3, R_4, Gm_3, Gm_4, Iapp_3 )
+        function [ self, synapse_IDs ] = design_relative_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_3, R_4, Gm_3, Gm_4, Iapp_3 )
             
             % Define the default input arguments.
-            if nargin < 11, Iapp_3 = self.Iapp2_relative_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
-            if nargin < 10, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
-            if nargin < 9, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Inversion Output Membrane Conductance
-            if nargin < 8, R_4 = self.R_DEFAULT; end                                                                % [V] Division Output Activation Domain
-            if nargin < 7, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
-            if nargin < 6, epsilon2 = self.epsilon_DEFAULT; end                                                     % [-] Division Subnetwork Offset
-            if nargin < 5, epsilon1 = self.epsilon_DEFAULT; end                                                     % [-] Inversion Subnetwork Offset
+            if nargin < 12, Iapp_3 = self.Iapp2_relative_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
+            if nargin < 11, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
+            if nargin < 10, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Inversion Output Membrane Conductance
+            if nargin < 9, R_4 = self.R_DEFAULT; end                                                                % [V] Division Output Activation Domain
+            if nargin < 8, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
+            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                     % [-] Division Subnetwork Offset
+            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                     % [-] Inversion Subnetwork Offset
+            if nargin < 5, alpha = self.alpha_DEFAULT; end
             if nargin < 4, c2 = self.c_relative_division_DEFAULT; end                                               % [-] Division Subnetwork Gain
             if nargin < 3, c1 = self.c_relative_inversion_DEFAULT; end                                              % [-] Inversion Subnetwork Gain
             
@@ -3384,7 +3356,7 @@ classdef synapse_manager_class
             [ self, synapse_ID_inversion ] = self.design_relative_inversion_synapse( neuron_IDs( 2:3 ), c1, epsilon1, R_3, Gm_3, Iapp_3 );
             
             % Design the relative division subnetwork synpases.
-            [ self, synapse_IDs_division ] = self.design_relative_division_synapses( neuron_IDs( [ 1, 3, 4 ] ), c2, epsilon2, R_4, Gm_4 );
+            [ self, synapse_IDs_division ] = self.design_relative_division_synapses( neuron_IDs( [ 1, 3, 4 ] ), c2, alpha, epsilon2, R_4, Gm_4 );
             
             % Concatenate the synapse IDs.
             synapse_IDs = [ synapse_ID_inversion, synapse_IDs_division ];
@@ -3394,7 +3366,7 @@ classdef synapse_manager_class
         
         % Implement a function to design the synapses for an inversion subnetwork.
         function [ self, synapse_ID ] = design_inversion_synapse( self, neuron_IDs )
-        
+            
             % Get the synapse ID that connects the first neuron to the second neuron.
             synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
@@ -3404,30 +3376,30 @@ classdef synapse_manager_class
         end
         
         
-%         % Implement a function to design the synapses for an absolute inversion subnetwork.
-%         function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
-%             
-%             % Define the default input arguments.
-%             if nargin < 7, Iapp_2 = self.Iapp2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
-%             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-%             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                % [V] Input Activation Domain
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
-%             if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Inversion Subnetwork Gain
-%             
-%             % Retrieve the ID associated with this synapse.
-%             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-%             
-%             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-% %             self = self.compute_set_absolute_inversion_dEsyn( synapse_ID );
-%             self = self.compute_set_absolute_inversion_dEsyn( synapse_IDs, epsilon, delta );
-%             
-%             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-% %             self = self.compute_set_absolute_inversion_gsyn( synapse_ID, c, epsilon, R_1, Gm_2, Iapp_2 );
-%             self = self.compute_set_absolute_inversion_gsyn( synapse_IDs, Iapp_2 );
-% 
-%         end
+        %         % Implement a function to design the synapses for an absolute inversion subnetwork.
+        %         function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
+        %
+        %             % Define the default input arguments.
+        %             if nargin < 7, Iapp_2 = self.Iapp2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
+        %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
+        %             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                % [V] Input Activation Domain
+        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
+        %             if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Inversion Subnetwork Gain
+        %
+        %             % Retrieve the ID associated with this synapse.
+        %             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+        %
+        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
+        % %             self = self.compute_set_absolute_inversion_dEsyn( synapse_ID );
+        %             self = self.compute_set_absolute_inversion_dEsyn( synapse_IDs, epsilon, delta );
+        %
+        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
+        % %             self = self.compute_set_absolute_inversion_gsyn( synapse_ID, c, epsilon, R_1, Gm_2, Iapp_2 );
+        %             self = self.compute_set_absolute_inversion_gsyn( synapse_IDs, Iapp_2 );
+        %
+        %         end
         
-
+        
         % Implement a function to design the synapses for an absolute inversion subnetwork.
         function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, delta, Iapp_2 )
             
@@ -3444,32 +3416,32 @@ classdef synapse_manager_class
             
             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
             self = self.compute_set_absolute_inversion_gsyn( synapse_ID, Iapp_2 );
-
+            
         end
-
         
-%         % Implement a function to design the synapses for a relative inversion subnetwork.
-%         function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 )
-%             
-%             % Define the default input arguments.
-%             if nargin < 7, Iapp_2 = self.Iapp2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
-%             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-%             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
-%             if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Inversion Subnetwork Gain
-%             
-%             % Retrieve the ID associated with this synapse.
-%             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-%             
-%             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-%             self = self.compute_set_relative_inversion_dEsyn( synapse_ID );
-%             
-%             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-%             self = self.compute_set_relative_inversion_gsyn( synapse_ID, c, epsilon, R_2, Gm_2, Iapp_2 );
-%             
-%         end
         
-
+        %         % Implement a function to design the synapses for a relative inversion subnetwork.
+        %         function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 )
+        %
+        %             % Define the default input arguments.
+        %             if nargin < 7, Iapp_2 = self.Iapp2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
+        %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
+        %             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
+        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
+        %             if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Inversion Subnetwork Gain
+        %
+        %             % Retrieve the ID associated with this synapse.
+        %             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
+        %
+        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
+        %             self = self.compute_set_relative_inversion_dEsyn( synapse_ID );
+        %
+        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
+        %             self = self.compute_set_relative_inversion_gsyn( synapse_ID, c, epsilon, R_2, Gm_2, Iapp_2 );
+        %
+        %         end
+        
+        
         % Implement a function to design the synapses for a relative inversion subnetwork.
         function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, epsilon, delta, R_2, Iapp_2 )
             
@@ -3493,7 +3465,7 @@ classdef synapse_manager_class
         
         % Implement a function to design the synapses for a division subnetwork.
         function [ self, synapse_IDs ] = design_division_synapses( self, neuron_IDs )
-           
+            
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
@@ -3502,18 +3474,19 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_division_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_division_dEsyn2( synapse_IDs( 2 ) );
-
+            
         end
         
         
         % Implement a function to design the synapses for an absolute division subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_division_synapses( self, neuron_IDs, c, epsilon, R_1, R_2, Gm_3 )
+        function [ self, synapse_IDs ] = design_absolute_division_synapses( self, neuron_IDs, c, alpha, epsilon, R_1, R_2, Gm_3 )
             
             % Define the default input arguments.
-            if nargin < 7, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-            if nargin < 6, R_2 = self.R_DEFAULT; end                                                                % [V] Second Input Activation Domain
-            if nargin < 5, R_1 = self.R_DEFAULT; end                                                                % [V] First Input Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Division Subnetwork Offset
+            if nargin < 8, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
+            if nargin < 7, R_2 = self.R_DEFAULT; end                                                                % [V] Second Input Activation Domain
+            if nargin < 6, R_1 = self.R_DEFAULT; end                                                                % [V] First Input Activation Domain
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                                                          % [-] Division Subnetwork Denominator Adjustment
             if nargin < 3, c = self.c_absolute_division_DEFAULT; end                                                % [-] Division Subnetwork Gain
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -3522,27 +3495,28 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
             
             % Compute and set the synaptic reversal potential of the numerator absolute division synapse.
-            self = self.compute_set_absolute_division_dEsyn1( synapse_IDs );
+            self = self.compute_set_absolute_division_dEsyn1( synapse_IDs, c, alpha );
             
             % Compute and set the synaptic reversal potential of the denominator absolute division synapse.
             self = self.compute_set_absolute_division_dEsyn2( synapse_IDs );
-           
+            
             % Compute and set the maximum synaptic gain of the numerator absolute division synapse.
-            self = self.compute_set_absolute_division_gsyn31( synapse_IDs, c, epsilon, R_1, Gm_3 );
+            self = self.compute_set_absolute_division_gsyn31( synapse_IDs, alpha, epsilon, R_1, Gm_3 );
             
             % Compute and set the maximum synaptic gain of the denominator absolute division synapse.
-            self = self.compute_set_absolute_division_gsyn32( synapse_IDs, c, epsilon, R_1, R_2, Gm_3 );
-
+            self = self.compute_set_absolute_division_gsyn32( synapse_IDs, epsilon, R_2, Gm_3 );
+            
         end
         
         
         % Implement a function to design the synapses for a relative division subnetwork.
-        function [ self, synapse_IDs ] = design_relative_division_synapses( self, neuron_IDs, c, epsilon, R_3, Gm_3 )
+        function [ self, synapse_IDs ] = design_relative_division_synapses( self, neuron_IDs, c, alpha, epsilon, R_3, Gm_3 )
             
             % Define the default input arguments.
             if nargin < 7, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 6, R_3 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end
             if nargin < 3, c = self.c_relative_division_DEFAULT; end                                                % [-] Inversion Subnetwork Gain
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -3551,16 +3525,16 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_ID13 synapse_ID23 ];
             
             % Compute and set the synaptic reversal potential of the numerator relative division synapse.
-            self = self.compute_set_relative_division_dEsyn1( synapse_IDs );
+            self = self.compute_set_relative_division_dEsyn1( synapse_IDs, c, alpha );
             
             % Compute and set the synaptic reversal potential of the denominator relative division synapse.
             self = self.compute_set_relative_division_dEsyn2( synapse_IDs );
-           
+            
             % Compute and set the maximum synaptic gain of the numerator relative division synapse.
-            self = self.compute_set_relative_division_gsyn31( synapse_IDs, c, epsilon, R_3, Gm_3 );
+            self = self.compute_set_relative_division_gsyn31( synapse_IDs, R_3, Gm_3 );
             
             % Compute and set the maximum synaptic gain of the denominator relative division synapse.
-            self = self.compute_set_relative_division_gsyn32( synapse_IDs, c, epsilon, R_3, Gm_3 );
+            self = self.compute_set_relative_division_gsyn32( synapse_IDs, c, alpha, epsilon, R_3, Gm_3 );
             
         end
         
@@ -3576,7 +3550,7 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_derivation_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_derivation_dEsyn2( synapse_IDs( 2 ) );
-
+            
         end
         
         
@@ -3591,7 +3565,7 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_integration_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_integration_dEsyn2( synapse_IDs( 2 ) );
-
+            
         end
         
         
@@ -3606,19 +3580,19 @@ classdef synapse_manager_class
             % Compute and set the synaptic reversal potential.
             self = self.compute_set_vb_integration_dEsyn1( synapse_IDs( 1 ) );
             self = self.compute_set_vb_integration_dEsyn2( synapse_IDs( 2 ) );
-
+            
         end
-                
+        
         
         %% Save & Load Functions
         
         % Implement a function to save synapse manager data as a matlab object.
         function save( self, directory, file_name )
-        
+            
             % Set the default input arguments.
             if nargin < 3, file_name = 'Synapse_Manager.mat'; end
             if nargin < 2, directory = '.'; end
-
+            
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
             
@@ -3630,11 +3604,11 @@ classdef synapse_manager_class
         
         % Implement a function to load synapse manager data as a matlab object.
         function self = load( ~, directory, file_name )
-        
+            
             % Set the default input arguments.
             if nargin < 3, file_name = 'Synapse_Manager.mat'; end
             if nargin < 2, directory = '.'; end
-
+            
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
             
@@ -3649,34 +3623,34 @@ classdef synapse_manager_class
         
         % Implement a function to load synapse from a xlsx data.
         function self = load_xlsx( self, file_name, directory, b_append, b_verbose )
-        
+            
             % Set the default input arguments.
             if nargin < 5, b_verbose = true; end
             if nargin < 4, b_append = false; end
             if nargin < 3, directory = '.'; end
             if nargin < 2, file_name = 'Synapse_Data.xlsx'; end
-        
+            
             % Determine whether to print status messages.
             if b_verbose, fprintf( 'LOADING SYNAPSE DATA. Please Wait...\n' ), end
             
             % Start a timer.
             tic
-
+            
             % Load the synapse data.
             [ synapse_IDs, synapse_names, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = self.data_loader_utilities.load_synapse_data( file_name, directory );
             
             % Define the number of synapses.
             num_synapses_to_load = length( synapse_IDs );
-
+            
             % Preallocate an array of synapses.
             synapses_to_load = repmat( synapse_class(  ), 1, num_synapses_to_load );
-
+            
             % Create each synapse object.
             for k = 1:num_synapses_to_load               % Iterate through each of the synapses...
-
+                
                 % Create this synapse.
                 synapses_to_load(k) = synapse_class( synapse_IDs(k), synapse_names{k}, synapse_dEsyns(k), synapse_gsyn_maxs(k), synapse_from_neuron_IDs(k), synapse_to_neuron_IDs(k) );
-
+                
             end
             
             % Determine whether to append the synapses we just loaded.

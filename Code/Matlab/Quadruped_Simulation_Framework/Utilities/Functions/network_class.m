@@ -33,6 +33,7 @@ classdef network_class
         epsilon_inversion_DEFAULT = 1e-6;                                                                                       % [-] Inversion Subnetwork Offset
         c_multiplication_DEFAULT = 1;                                                                                           % [-] Multiplication Subnetwork Gain
         c_division_DEFAULT = 1;                                                                                                 % [-] Division Subnetwork Gain
+        alpha_DEFAULT = 1e-6;                                                                                                   % [-] Division Subnetwork Denominator Adjustment
         c_derivation_DEFAULT = 1e6;                                                                                             % [-] Derivation Subnetwork Gain
         w_derivation_DEFAULT = 1;                                                                                               % [Hz?] Derivation Subnetwork Cutoff Frequency?
         sf_derivation_DEFAULT = 0.05;                                                                                           % [-] Derivation Subnetwork Safety Factor
@@ -793,7 +794,7 @@ classdef network_class
             
             % Compute the output offset.
             delta = self.network_utilities.compute_relative_inversion_delta( c );
-        
+            
         end
         
         
@@ -965,7 +966,7 @@ classdef network_class
             
         end
         
-                
+        
         
         %% Compute-Set Functions
         
@@ -1919,14 +1920,15 @@ classdef network_class
         
         
         % Implement a function to design the neurons for an absolute division subnetwork.
-        function self = design_absolute_division_neurons( self, neuron_IDs, c, epsilon )
+        function self = design_absolute_division_neurons( self, neuron_IDs, c, alpha, epsilon )
             
             % Define the default input arguments.
-            if nargin < 4, epsilon = self.espilon_DEFAULT; end                                  % [-] Division Subnetwork Offset
-            if naring < 3, c = self.c_division_DEFAULT; end                                             % [-] Division Subnetwork Gain
+            if nargin < 5, epsilon = self.espilon_DEFAULT; end                                      % [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                                          % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 3, c = self.c_division_DEFAULT; end                                        	% [-] Division Subnetwork Gain
             
             % Design the absolute division neurons.
-            self.neuron_manager = self.neuron_manager.design_absolute_division_neurons( neuron_IDs, c, epsilon );
+            self.neuron_manager = self.neuron_manager.design_absolute_division_neurons( neuron_IDs, c, alpha, epsilon );
             
         end
         
@@ -2597,13 +2599,14 @@ classdef network_class
         
         
         % Implement a function to design the synapses for an absolute multiplication subnetwork.
-        function self = design_absolute_multiplication_synapses( self, neuron_IDs, c1, c2, epsilon1, epsilon2 )
+        function self = design_absolute_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2 )
             
             % Define the default input arguments.
-            if nargin < 6, epsilon2 = self.epsilon_DEFAULT; end                         % [-] Division Subnetwork Offset
-            if nargin < 5, epsilon1 = self.epsilon_DEFAULT; end                         % [-] Inversion Subnetwork Offset
-            if nargin < 4, c2 = self.c_division_DEFAULT; end                                    % [-] Division Subnetwork Gain
-            if nargin < 3, c1 = self.c_inversion_DEFAULT; end                                   % [-] Inverison Subentwork Gain
+            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                         % [-] Division Subnetwork Offset
+            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                         % [-] Inversion Subnetwork Offset
+            if nargin < 5, alpha = self.alpha_DEFAULT; end                              % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 4, c2 = self.c_division_DEFAULT; end                           	% [-] Division Subnetwork Gain
+            if nargin < 3, c1 = self.c_inversion_DEFAULT; end                          	% [-] Inverison Subentwork Gain
             
             % Retrieve the magnitude of the current applied to the inversion output neuron.
             Iapp_3 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
@@ -2629,7 +2632,7 @@ classdef network_class
             R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
             
             % Design the absolute multiplication synapses.
-            self.synapse_manager = self.synapse_manager.design_absolute_multiplication_synapses( neuron_IDs, c1, c2, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 );
+            self.synapse_manager = self.synapse_manager.design_absolute_multiplication_synapses( neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 );
             
         end
         
@@ -2696,40 +2699,40 @@ classdef network_class
         end
         
         
-%         % Implement a function to design the synapses for an absolute inversion subnetwork.
-%         function self = design_absolute_inversion_synapses( self, neuron_IDs, c, epsilon )
-%             
-%             % Define the default input arguments.
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                         % [-] Inverison Subnetwork Offset
-%             if nargin < 3, c = self.c_inversion_DEFAULT; end                                   % [-] Inverison Subentwork Gain
-%             
-%             % Retrieve the magnitude of the current applied to the inversion output neuron.
-%             Iapp_2 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
-%             
-%             % Determine whether to use the average applied current.
-%             if ~all( Iapp_2 == Iapp_2( 1 ) )                                        % If the applied current is not constant...
-%                 
-%                 % Throw a warning.
-%                 warning( 'The absolute inversion subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
-%                 
-%                 % Set the applied current to be the average current.
-%                 Iapp_2 = mean( Iapp_2 );
-%                 
-%             end
-%             
-%             % Retrieve the relevant membrane conductances.
-%             Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
-%             
-%             % Retrieve the relevant activation domains.
-%             R_1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
-%             
-%             % Design the absolute inversion synapses.
-%             self.synapse_manager = self.synapse_manager.design_absolute_inversion_synapse( neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 );
-%             
-%             
-%         end
+        %         % Implement a function to design the synapses for an absolute inversion subnetwork.
+        %         function self = design_absolute_inversion_synapses( self, neuron_IDs, c, epsilon )
+        %
+        %             % Define the default input arguments.
+        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                         % [-] Inverison Subnetwork Offset
+        %             if nargin < 3, c = self.c_inversion_DEFAULT; end                                   % [-] Inverison Subentwork Gain
+        %
+        %             % Retrieve the magnitude of the current applied to the inversion output neuron.
+        %             Iapp_2 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+        %
+        %             % Determine whether to use the average applied current.
+        %             if ~all( Iapp_2 == Iapp_2( 1 ) )                                        % If the applied current is not constant...
+        %
+        %                 % Throw a warning.
+        %                 warning( 'The absolute inversion subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
+        %
+        %                 % Set the applied current to be the average current.
+        %                 Iapp_2 = mean( Iapp_2 );
+        %
+        %             end
+        %
+        %             % Retrieve the relevant membrane conductances.
+        %             Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
+        %
+        %             % Retrieve the relevant activation domains.
+        %             R_1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
+        %
+        %             % Design the absolute inversion synapses.
+        %             self.synapse_manager = self.synapse_manager.design_absolute_inversion_synapse( neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 );
+        %
+        %
+        %         end
         
-
+        
         % Implement a function to design the synapses for an absolute inversion subnetwork.
         function self = design_absolute_inversion_synapses( self, neuron_IDs, c, delta )
             
@@ -2757,39 +2760,39 @@ classdef network_class
         end
         
         
-%         % Implement a function to design the synapses for a relative inversion subnetwork.
-%         function self = design_relative_inversion_synapses( self, neuron_IDs, c, epsilon )
-%             
-%             % Define the default input arguments.
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                         % [-] Inverison Subnetwork Offset
-%             if nargin < 3, c = self.c_inversion_DEFAULT; end                                   % [-] Inverison Subentwork Gain
-%             
-%             % Retrieve the magnitude of the current applied to the inversion output neuron.
-%             Iapp_2 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
-%             
-%             % Determine whether to use the average applied current.
-%             if ~all( Iapp_2 == Iapp_2( 1 ) )                                        % If the applied current is not constant...
-%                 
-%                 % Throw a warning.
-%                 warning( 'The relative inversion subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
-%                 
-%                 % Set the applied current to be the average current.
-%                 Iapp_2 = mean( Iapp_2 );
-%                 
-%             end
-%             
-%             % Retrieve the relevant membrane conductances.
-%             Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
-%             
-%             % Retrieve the relevant activation domains.
-%             R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
-%             
-%             % Design the relative inversion synapses.
-%             self.synapse_manager = self.synapse_manager.design_relative_inversion_synapse( neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 );
-%             
-%         end
+        %         % Implement a function to design the synapses for a relative inversion subnetwork.
+        %         function self = design_relative_inversion_synapses( self, neuron_IDs, c, epsilon )
+        %
+        %             % Define the default input arguments.
+        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                         % [-] Inverison Subnetwork Offset
+        %             if nargin < 3, c = self.c_inversion_DEFAULT; end                                   % [-] Inverison Subentwork Gain
+        %
+        %             % Retrieve the magnitude of the current applied to the inversion output neuron.
+        %             Iapp_2 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+        %
+        %             % Determine whether to use the average applied current.
+        %             if ~all( Iapp_2 == Iapp_2( 1 ) )                                        % If the applied current is not constant...
+        %
+        %                 % Throw a warning.
+        %                 warning( 'The relative inversion subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' )
+        %
+        %                 % Set the applied current to be the average current.
+        %                 Iapp_2 = mean( Iapp_2 );
+        %
+        %             end
+        %
+        %             % Retrieve the relevant membrane conductances.
+        %             Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
+        %
+        %             % Retrieve the relevant activation domains.
+        %             R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+        %
+        %             % Design the relative inversion synapses.
+        %             self.synapse_manager = self.synapse_manager.design_relative_inversion_synapse( neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 );
+        %
+        %         end
         
-
+        
         % Implement a function to design the synapses for a relative inversion subnetwork.
         function self = design_relative_inversion_synapses( self, neuron_IDs, epsilon, delta )
             
@@ -2818,8 +2821,8 @@ classdef network_class
             self.synapse_manager = self.synapse_manager.design_relative_inversion_synapse( neuron_IDs, epsilon, delta, R_2, Iapp_2 );
             
         end
-
-
+        
+        
         % Implement a function to design the synapses of a division subnetwork.
         function self = design_division_synapses( self, neuron_IDs, k, c )
             
@@ -2846,11 +2849,12 @@ classdef network_class
         
         
         % Implement a function to design the synapses for an absolute division subnetwork.
-        function self = design_absolute_division_synapses( self, neuron_IDs, c, epsilon )
+        function self = design_absolute_division_synapses( self, neuron_IDs, c, alpha, epsilon )
             
             % Define the default input arguments.
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                          % [-] Division Subnetwork Offset
-            if nargin < 3, c = self.c_division_DEFAULT; end                                     % [-] Division Subentwork Gain
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                          % [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                              % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 3, c = self.c_division_DEFAULT; end                            	% [-] Division Subentwork Gain
             
             % Retrieve the relevant membrane conductances.
             Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
@@ -2860,16 +2864,17 @@ classdef network_class
             R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
             
             % Design the absolute division synapses.
-            self.synapse_manager = self.synapse_manager.design_absolute_division_synapses( neuron_IDs, c, epsilon, R_1, R_2, Gm_3 );
+            self.synapse_manager = self.synapse_manager.design_absolute_division_synapses( neuron_IDs, c, alpha, epsilon, R_1, R_2, Gm_3 );
             
         end
         
         
         % Implement a function to design the synapses for a relative division subnetwork.
-        function self = design_relative_division_synapses( self, neuron_IDs, c, epsilon )
+        function self = design_relative_division_synapses( self, neuron_IDs, c, alpha, epsilon )
             
             % Define the default input arguments.
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                          % [-] Division Subnetwork Offset
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                          % [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end
             if nargin < 3, c = self.c_division_DEFAULT; end                                     % [-] Division Subentwork Gain
             
             % Retrieve the relevant membrane conductances.
@@ -2879,7 +2884,7 @@ classdef network_class
             R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
             
             % Design the relative division synapses.
-            self.synapse_manager = self.synapse_manager.design_relative_division_synapses( neuron_IDs, c, epsilon, R_3, Gm_3 );
+            self.synapse_manager = self.synapse_manager.design_relative_division_synapses( neuron_IDs, c, alpha, epsilon, R_3, Gm_3 );
             
         end
         
@@ -3438,14 +3443,15 @@ classdef network_class
         
         
         % Implement a function to design an absolute multiplication subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_absolute_multiplication_subnetwork( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2 )
+        function self = design_absolute_multiplication_subnetwork( self, neuron_IDs, c, c1, c2, alpha, epsilon1, epsilon2 )
             
             % Define the default input arguments.
-            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                 % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                 % [-] Inversion Subnetwork Offset
-            if nargin < 5, c2 = self.c_division_DEFAULT; end                                                            % [-] Division Subnetwork Gain
-            if nargin < 4, c1 = self.c_inversion_DEFAULT; end                                                           % [-] Inversion Subnetwork Gain
-            if nargin < 3, c = self.c_multiplication_DEFAULT; end                                                       % [-] Multiplication Subnetwork Gain
+            if nargin < 8, epsilon2 = self.epsilon_DEFAULT; end                                                 % [-] Division Subnetwork Offset
+            if nargin < 7, epsilon1 = self.epsilon_DEFAULT; end                                                 % [-] Inversion Subnetwork Offset
+            if nargin < 6, alpha = self.alpha_DEFAULT; end                                                      % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 5, c2 = self.c_division_DEFAULT; end                                                   	% [-] Division Subnetwork Gain
+            if nargin < 4, c1 = self.c_inversion_DEFAULT; end                                                  	% [-] Inversion Subnetwork Gain
+            if nargin < 3, c = self.c_multiplication_DEFAULT; end                                              	% [-] Multiplication Subnetwork Gain
             
             % Design the absolute multiplication neurons.
             self = self.design_absolute_multiplication_neurons( neuron_IDs, c, c1, epsilon1, epsilon2 );
@@ -3454,7 +3460,7 @@ classdef network_class
             self = self.design_absolute_multiplication_applied_currents( neuron_IDs );
             
             % Design the absolute multiplication synapses.
-            self = self.design_absolute_multiplication_synapses( neuron_IDs, c1, c2, epsilon1, epsilon2 );
+            self = self.design_absolute_multiplication_synapses( neuron_IDs, c1, c2, alpha, epsilon1, epsilon2 );
             
         end
         
@@ -3502,25 +3508,25 @@ classdef network_class
         end
         
         
-%         % Implement a function to design an absolute inversion subnetwork ( using the specified neurons, synapses, and applied currents ).
-%         function self = design_absolute_inversion_subnetwork( self, neuron_IDs, c, epsilon )
-%             
-%             % Define the default input arguments.
-%             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                          	% [-] Inversion Subnetwork Offset
-%             if nargin < 3, c = self.c_inversion_DEFAULT; end                                                        % [-] Inversion Subnetwork Gain
-%             
-%             % Design the absolute inversion neurons.
-%             self = self.design_absolute_inversion_neurons( neuron_IDs, c, epsilon );
-%             
-%             % Design the absolute inversion applied currents.
-%             self = self.design_absolute_inversion_applied_currents( neuron_IDs );
-%             
-%             % Design the absolute inversion synapses.
-%             self = self.design_absolute_inversion_synapses( neuron_IDs, c, epsilon );
-%             
-%         end
+        %         % Implement a function to design an absolute inversion subnetwork ( using the specified neurons, synapses, and applied currents ).
+        %         function self = design_absolute_inversion_subnetwork( self, neuron_IDs, c, epsilon )
+        %
+        %             % Define the default input arguments.
+        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                          	% [-] Inversion Subnetwork Offset
+        %             if nargin < 3, c = self.c_inversion_DEFAULT; end                                                        % [-] Inversion Subnetwork Gain
+        %
+        %             % Design the absolute inversion neurons.
+        %             self = self.design_absolute_inversion_neurons( neuron_IDs, c, epsilon );
+        %
+        %             % Design the absolute inversion applied currents.
+        %             self = self.design_absolute_inversion_applied_currents( neuron_IDs );
+        %
+        %             % Design the absolute inversion synapses.
+        %             self = self.design_absolute_inversion_synapses( neuron_IDs, c, epsilon );
+        %
+        %         end
         
-
+        
         % Implement a function to design an absolute inversion subnetwork ( using the specified neurons, synapses, and applied currents ).
         function self = design_absolute_inversion_subnetwork( self, neuron_IDs, c, epsilon, delta )
             
@@ -3539,7 +3545,7 @@ classdef network_class
             self = self.design_absolute_inversion_synapses( neuron_IDs, c, delta );
             
         end
-
+        
         
         % Implement a function to design an relative inversion subnetwork ( using the specified neurons, synapses, and applied currents ).
         function self = design_relative_inversion_subnetwork( self, neuron_IDs, c )
@@ -3582,29 +3588,31 @@ classdef network_class
         
         
         % Implement a function to design an absolute division subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_absolute_division_subnetwork( self, neuron_IDs, c, epsilon )
+        function self = design_absolute_division_subnetwork( self, neuron_IDs, c, alpha, epsilon )
             
             % Define the default input arguments.
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                          	% [-] Division Subnetwork Offset
-            if nargin < 3, c = self.c_division_DEFAULT; end                                                        % [-] Division Subnetwork Gain
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                          	% [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end                                                  % [-] Division Subnetwork Denominator Adjustment
+            if nargin < 3, c = self.c_division_DEFAULT; end                                                 % [-] Division Subnetwork Gain
             
             % Design the absolute division neurons.
-            self = self.design_absolute_division_neurons( neuron_IDs, c, epsilon );
+            self = self.design_absolute_division_neurons( neuron_IDs, c, alpha, epsilon );
             
             % Design the absolute division applied currents.
             self = self.design_absolute_division_applied_currents( neuron_IDs );
             
             % Design the absolute division synapses.
-            self = self.design_absolute_division_synapses( neuron_IDs, c, epsilon );
+            self = self.design_absolute_division_synapses( neuron_IDs, c, alpha, epsilon );
             
         end
         
         
         % Implement a function to design an relative division subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_relative_division_subnetwork( self, neuron_IDs, c, epsilon )
+        function self = design_relative_division_subnetwork( self, neuron_IDs, c, alpha, epsilon )
             
             % Define the default input arguments.
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                              % [-] Division Subnetwork Offset
+            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                              % [-] Division Subnetwork Offset
+            if nargin < 4, alpha = self.alpha_DEFAULT; end
             if nargin < 3, c = self.c_division_DEFAULT; end                                                         % [-] Division Subnetwork Gain
             
             % Design the relative division neurons.
@@ -3614,7 +3622,7 @@ classdef network_class
             self = self.design_relative_division_applied_currents( neuron_IDs );
             
             % Design the relative division synapses.
-            self = self.design_relative_division_synapses( neuron_IDs, c, epsilon );
+            self = self.design_relative_division_synapses( neuron_IDs, c, alpha, epsilon );
             
         end
         
@@ -4447,7 +4455,7 @@ classdef network_class
         
         % Implement a function to create an absolute addition subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_addition_subnetwork( self, num_addition_neurons, c )
-        
+            
             % Set the default input arguments.
             if nargin < 3, c = self.c_addition_DEFAULT; end                                                                 % [-] Addition Subnetwork Gain
             if nargin < 2, num_addition_neurons = self.num_addition_neurons_DEFAULT; end                                    % [#] Numebr of Addition Neurons
@@ -4463,7 +4471,7 @@ classdef network_class
         
         % Implement a function to create a relative addition subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_addition_subnetwork( self, num_addition_neurons, c )
-        
+            
             % Set the default input arguments.
             if nargin < 3, c = self.c_addition_DEFAULT; end                                                                 % [-] Addition Subnetwork Gain
             if nargin < 2, num_addition_neurons = self.num_addition_neurons_DEFAULT; end                                    % [#] Number of Addition Neurons
@@ -4494,7 +4502,7 @@ classdef network_class
         
         % Implement a function to create an absolute subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_subtraction_subnetwork( self, num_subtraction_neurons, c, s_ks )
-        
+            
             % Set the default input arguments.
             if nargin < 4, s_ks = [ 1, -1 ]; end                                                                                    % [-] Excitatory / Inhibitory Input Synapse Code
             if nargin < 3, c = self.c_addition_DEFAULT; end                                                                         % [-] Addition Subnetwork Gain
@@ -4511,7 +4519,7 @@ classdef network_class
         
         % Implement a function to create a relative subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_subtraction_subnetwork( self, num_subtraction_neurons, c, npm_k, s_ks )
-        
+            
             % Set the default input arguments.
             if nargin < 5, s_ks = [ 1, -1 ]; end                                                                                    % [-] Excitatory / Inhibitory Input Synapse Code
             if nargin < 4, npm_k = [ 1, 1 ]; end                                                                                    % [-] Number of Excitatory / Inhibitory Inputs
@@ -4608,25 +4616,25 @@ classdef network_class
         end
         
         
-%         % Implement a function to create an absolute inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
-%         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_inversion_subnetwork( self, c, epsilon )
-%         
-%             % Set the default input arguments.
-%             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Inversion Subnetwork Offset
-%             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Inversion Subnetwork Gain
-%             
-%             % Create the absolute inversion subnetwork components.
-%             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_absolute_inversion_subnetwork_components(  );
-%             
-%             % Design the absolute inversion subnetwork.
-%             self = self.design_absolute_inversion_subnetwork( neuron_IDs, c, epsilon );
-%             
-%         end
-
-
+        %         % Implement a function to create an absolute inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
+        %         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_inversion_subnetwork( self, c, epsilon )
+        %
+        %             % Set the default input arguments.
+        %             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Inversion Subnetwork Offset
+        %             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Inversion Subnetwork Gain
+        %
+        %             % Create the absolute inversion subnetwork components.
+        %             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_absolute_inversion_subnetwork_components(  );
+        %
+        %             % Design the absolute inversion subnetwork.
+        %             self = self.design_absolute_inversion_subnetwork( neuron_IDs, c, epsilon );
+        %
+        %         end
+        
+        
         % Implement a function to create an absolute inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_inversion_subnetwork( self, c, epsilon, delta )
-        
+            
             % Set the default input arguments.
             if nargin < 4, delta = self.delta_DEFAULT; end                                                                          % [V] Inversion Subnetwork Output Offset
             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [V] Inversion Subnetwork Input Offset
@@ -4641,25 +4649,25 @@ classdef network_class
         end
         
         
-%         % Implement a function to create a relative inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
-%         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_inversion_subnetwork( self, c, epsilon )
-%         
-%             % Set the default input arguments.
-%             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Inversion Subnetwork Offset
-%             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Inversion Subnetwork Gain
-%             
-%             % Create the relative inversion subnetwork components.
-%             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_relative_inversion_subnetwork_components(  );
-%             
-%             % Design the relative inversion subnetwork.
-%             self = self.design_relative_inversion_subnetwork( neuron_IDs, c, epsilon );
-%             
-%         end
+        %         % Implement a function to create a relative inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
+        %         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_inversion_subnetwork( self, c, epsilon )
+        %
+        %             % Set the default input arguments.
+        %             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Inversion Subnetwork Offset
+        %             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Inversion Subnetwork Gain
+        %
+        %             % Create the relative inversion subnetwork components.
+        %             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_relative_inversion_subnetwork_components(  );
+        %
+        %             % Design the relative inversion subnetwork.
+        %             self = self.design_relative_inversion_subnetwork( neuron_IDs, c, epsilon );
+        %
+        %         end
         
-
+        
         % Implement a function to create a relative inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_inversion_subnetwork( self, c )
-        
+            
             % Set the default input arguments.
             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Inversion Subnetwork Gain
             
@@ -4670,7 +4678,7 @@ classdef network_class
             self = self.design_relative_inversion_subnetwork( neuron_IDs, c );
             
         end
-
+        
         
         % Implement a function to create a division subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs ] = create_division_subnetwork( self, k, c )
@@ -4689,33 +4697,35 @@ classdef network_class
         
         
         % Implement a function to create an absolute division subnetwork ( generatin neurons, synapses, etc. as necessary ).
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_division_subnetwork( self, c, epsilon )
-        
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_division_subnetwork( self, c, alpha, epsilon )
+            
             % Set the default input arguments.
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Division Subnetwork Offset
+            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Division Subnetwork Offset
+            if nargin < 3, alpha = self.alpha_DEFAULT; end                                                                          % [-] Division Subnetwork Denominator Adjustment
             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Division Subnetwork Gain
             
             % Create the absolute division subnetwork components.
             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_absolute_division_subnetwork_components(  );
             
             % Design the absolute division subnetwork.
-            self = self.design_absolute_division_subnetwork( neuron_IDs, c, epsilon );
+            self = self.design_absolute_division_subnetwork( neuron_IDs, c, alpha, epsilon );
             
         end
         
         
         % Implement a function to create a relative division subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_division_subnetwork( self, c, epsilon )
-        
+        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_division_subnetwork( self, c, alpha, epsilon )
+            
             % Set the default input arguments.
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Division Subnetwork Offset
+            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                  	% [-] Division Subnetwork Offset
+            if nargin < 3, alpha = self.alpha_DEFAULT; end
             if nargin < 2, c = self.c_inversion_DEFAULT; end                                                                      	% [-] Division Subnetwork Gain
             
             % Create the relative division subnetwork components.
             [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_relative_division_subnetwork_components(  );
             
             % Design the relative division subnetwork.
-            self = self.design_relative_division_subnetwork( neuron_IDs, c, epsilon );
+            self = self.design_relative_division_subnetwork( neuron_IDs, c, alpha, epsilon );
             
         end
         
@@ -4737,7 +4747,7 @@ classdef network_class
         
         % Implement a function to create an absolute multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_multiplication_subnetwork( self, c, c1, c2, epsilon1, epsilon2 )
-        
+            
             % Set the default input arguments.
             if nargin < 6, epsilon2 = self.epsilon_division_DEFAULT; end                                                                    % [-] Division Subnetwork Offset
             if nargin < 5, epsilon1 = self.epsilon_inversion_DEFAULT; end                                                                   % [-] Inversion Subnetwork Offset
@@ -4756,7 +4766,7 @@ classdef network_class
         
         % Implement a function to create a relative multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_multiplication_subnetwork( self, c, c1, c2, epsilon1, epsilon2 )
-        
+            
             % Set the default input arguments.
             if nargin < 6, epsilon2 = self.epsilon_division_DEFAULT; end                                                                    % [-] Division Subnetwork Offset
             if nargin < 5, epsilon1 = self.epsilon_inversion_DEFAULT; end                                                                   % [-] Inversion Subnetwork Offset

@@ -89,6 +89,7 @@ classdef neuron_class
         c_DEFAULT = 1;                                                                                                 	% [-] General Subnetwork Gain
         epsilon_DEFAULT = 1e-6;                                                                                        	% [-] Subnetwork Input Offset
         delta_DEFAULT = 1e-6;                                                                                          	% [-] Subnetwork Output Offset   
+        alpha_DEFAULT = 1e-6;                                                                                           % [-] Subnetwork Denominator Adjustment
         
     end
     
@@ -1017,16 +1018,17 @@ classdef neuron_class
         
         
         % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
-        function R = compute_absolute_division_R_output( self, c, epsilon, R_numerator )
+        function R = compute_absolute_division_R_output( self, c, alpha, epsilon, R_numerator )
             
             % Define the default input arguments.
-            if nargin < 4, R_numerator = self.R; end                                                                    % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Subnetwork Offset
-            if nargin < 2, c = self.c_DEFAULT; end                                                                         % [-] Subnetwork Gain
+            if nargin < 5, R_numerator = self.R; end                                                                    % [V] Activation Domain
+            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Subnetwork Offset
+            if nargin < 3, alpha = self.alpha_DEFAULT; end                                                              % [-] Subnetwork Denominator Adjustment
+            if nargin < 2, c = self.c_DEFAULT; end                                                                    	% [-] Subnetwork Gain
             
             % Compute the operational domain.
-            R = self.neuron_utilities.compute_absolute_division_R_output( c, epsilon, R_numerator );                    % [V] Activation Domain
-            
+            R = self.neuron_utilities.compute_absolute_division_R_output( c, alpha, epsilon, R_numerator );           	% [V] Activation Domain
+                        
         end
         
         
@@ -1754,7 +1756,7 @@ classdef neuron_class
         function self = compute_set_absolute_division_Cm( self )
             
            % Compute and set the membrane capacitance for an absolute division subnetwork neuron.
-           self.Cm = self.compute_division_Cm(  );                                                                      % [F] Membrane Capacitance
+           self.Cm = self.compute_absolute_division_Cm(  );                                                                      % [F] Membrane Capacitance
             
         end
         
@@ -1989,15 +1991,16 @@ classdef neuron_class
         
         
         % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
-        function self = compute_set_absolute_division_R_output( self, c, epsilon, R_numerator )
+        function self = compute_set_absolute_division_R_output( self, c, alpha, epsilon, R_numerator )
             
             % Define the default input arguments.
             if nargin < 4, R_numerator = self.R; end                                                                    % [V] Activation Domain
             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Subnetwork Offset
-            if nargin < 2, c = self.c_DEFAULT; end                                                                         % [-] Subnetwork Gain
+            if nargin < 3, alpha = self.alpha_DEFAULT; end                                                              % [-] Subnetwork Denominator Adjustment
+            if nargin < 2, c = self.c_DEFAULT; end                                                                     	% [-] Subnetwork Gain
             
             % Compute the operational domain.
-            self.R = self.compute_absolute_division_R_output( c, epsilon, R_numerator );                                % [V] Activation Domain
+            self.R = compute_absolute_division_R_output( self, c, alpha, epsilon, R_numerator );                      	% [V] Activation Domain
             
         end
         
