@@ -48,6 +48,7 @@ function [thetalist, success] ...
 thetalist = thetalist0;
 i = 0;
 maxiterations = 20;
+% maxiterations = 1000;
 Tsb = FKinSpace(M, Slist, thetalist);
 Vs = Adjoint(Tsb) * se3ToVec(MatrixLog6(TransInv(Tsb) * T));
 err = norm(Vs(1: 3)) > eomg || norm(Vs(4: 6)) > ev;
