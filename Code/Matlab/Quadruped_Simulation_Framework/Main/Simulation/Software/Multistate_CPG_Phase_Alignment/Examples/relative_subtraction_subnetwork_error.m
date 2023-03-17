@@ -11,8 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;
+% b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -24,6 +24,7 @@ network_tf = 3;
 % Set the subtraction subnetwork properties.
 num_subtraction_neurons = 4;
 c = 1;
+npm_k = [ 2, 1 ];
 s_ks = [ 1, -1, 1 ];
 
 
@@ -33,7 +34,7 @@ s_ks = [ 1, -1, 1 ];
 network = network_class( network_dt, network_tf );
 
 % Create a subtraction subnetwork.
-[ network, neuron_IDs, synapse_IDs, applied_current_IDs ] = network.create_absolute_subtraction_subnetwork( num_subtraction_neurons, c, s_ks );
+[ network, neuron_IDs, synapse_IDs, applied_current_IDs ] = network.create_relative_subtraction_subnetwork( num_subtraction_neurons, c, npm_k, s_ks );
 
 
 %% Simulate the Network.
@@ -74,12 +75,12 @@ if b_simulate               % If we want to simulate the network....
     end
 
     % Save the simulation results.
-    save( [ save_directory, '\', 'absolute_subtraction_subnetwork_error' ], 'Applied_Currents1', 'Applied_Currents2', 'Us_achieved' )
+    save( [ save_directory, '\', 'relative_subtraction_subnetwork_error' ], 'Applied_Currents1', 'Applied_Currents2', 'Us_achieved' )
     
 else                % Otherwise... (We must want to load data from an existing simulation...)
     
     % Load the simulation results.
-    data = load( [ load_directory, '\', 'absolute_subtraction_subnetwork_error' ] );
+    data = load( [ load_directory, '\', 'relative_subtraction_subnetwork_error' ] );
     
     % Store the simulation results in separate variables.
     Applied_Currents1 = data.Applied_Currents1;
@@ -91,10 +92,16 @@ end
 
 %% Plot the Network Results.
 
-% Compute the desired membrane voltage output.
-Us_desired_output =  Us_achieved( :, :, 1 ) - Us_achieved( :, :, 2 ) + Us_achieved( :, :, 3 );
+% Get the activation domains of the neurons.
+R1 = network.neuron_manager.get_neuron_property( 1, 'R' ); R1 = R1{ 1 };
+R2 = network.neuron_manager.get_neuron_property( 2, 'R' ); R2 = R2{ 1 };
+R3 = network.neuron_manager.get_neuron_property( 3, 'R' ); R3 = R3{ 1 };
+R4 = network.neuron_manager.get_neuron_property( 4, 'R' ); R4 = R4{ 1 };
 
 % Compute the desired membrane voltage output.
+Us_desired_output = c*R4*( ( 1/npm_k( 1 ) )*( Us_achieved( :, :, 1 )/R1 + Us_achieved( :, :, 3 )/R3 ) - ( 1/npm_k( 2 ) )*( Us_achieved( :, :, 2 )/R2 ) );
+
+% Store the desired membrane voltage in a matrix.
 Us_desired = Us_achieved; Us_desired( :, :, end ) = Us_desired_output;
 
 % Compute the error between the achieved and desired results.
@@ -104,21 +111,21 @@ error = Us_achieved( :, :, end ) - Us_desired( :, :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 % Create a surface that shows the desired membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Desired)' )
+figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Subtraction Subnetwork Steady State Response (Desired)' )
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None' )
 
 % Create a surface that shows the achieved membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Achieved)' )
+figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Subtraction Subnetwork Steady State Response (Achieved)' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None' )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' )
+figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Subtraction Subnetwork Steady State Response (Comparison)' )
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'b' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'r' )
 legend( 'Desired', 'Achieved' )
 
 % Create a surface that shows the membrane voltage error.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Error' )
+figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Relative Subtraction Subnetwork Steady State Error' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), error, 'Edgecolor', 'None' )
 
 

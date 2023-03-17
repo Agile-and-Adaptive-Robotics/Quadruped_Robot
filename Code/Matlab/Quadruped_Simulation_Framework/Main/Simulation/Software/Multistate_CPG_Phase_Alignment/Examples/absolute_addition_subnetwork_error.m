@@ -69,7 +69,7 @@ if b_simulate               % If we want to simulate the network....
     % Save the simulation results.
     save( [ save_directory, '\', 'absolute_addition_subnetwork_error' ], 'Applied_Currents1', 'Applied_Currents2', 'Us_achieved' )
     
-else                % Otherwise... (We must want to load data from an existing simulation...
+else                % Otherwise... (We must want to load data from an existing simulation...)
     
     % Load the simulation results.
     data = load( [ load_directory, '\', 'absolute_addition_subnetwork_error' ] );
@@ -110,14 +110,4 @@ legend( 'Desired', 'Achieved' )
 % Create a surface that shows the membrane voltage error.
 figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Addition Subnetwork Steady State Error' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), error, 'Edgecolor', 'None' )
-
-
-% % Plot the network currents over time.
-% fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
-%
-% % Plot the network states over time.
-% fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
-%
-% % Animate the network states over time.
-% fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
 

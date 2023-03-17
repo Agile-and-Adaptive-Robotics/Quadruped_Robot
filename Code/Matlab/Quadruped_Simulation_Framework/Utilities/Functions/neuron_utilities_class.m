@@ -1086,8 +1086,9 @@ classdef neuron_utilities_class
             
             % Compute the operational domain.
 %             R = sum( s_ks.*Rs );                                           % [V] Activation Domain
-            R = max( Rs );                                           % [V] Activation Domain
-
+%             R = max( Rs );                                           % [V] Activation Domain
+            R = sum( Rs( s_ks == 1 ) );
+            
         end
         
         
