@@ -113,9 +113,16 @@ error_relative_range_percent = 100*( error_relative_range/R3_relative );
 error_difference = abs( error_relative ) - abs( error_absolute );
 error_difference_percent = abs( error_relative_percent ) - abs( error_absolute_percent );
 
+% error_difference = error_relative - error_absolute;
+% error_difference_percent = error_relative_percent - error_absolute_percent;
+
 % Compute the mean squared error difference.
 error_difference_mse = abs( mse_relative ) - abs( mse_absolute );
 error_difference_mse_percent = abs( mse_relative_percent ) - abs( mse_absolute_percent );
+
+% Compute the standard deviation difference.
+error_difference_std = abs( std_relative ) - abs( std_absolute );
+error_difference_std_percent = abs( std_relative_percent ) - abs( std_absolute_percent );
 
 % Compute the maximum error difference.
 error_difference_max = abs( error_relative_max ) - abs( error_absolute_max );
@@ -133,7 +140,7 @@ Us1_achieved_relative = Us_achieved_relative( :, :, 1 );
 Us2_achieved_relative = Us_achieved_relative( :, :, 2 );
 
 % Print out the absolute addition summary statistics.
-fprintf( 'Absolute Addition Summary Statistics\n' )
+fprintf( 'Absolute Addition Error Summary Statistics\n' )
 fprintf( 'MSE: \t\t%9.3e [V] (%6.2f [%%])\n', mse_absolute, mse_absolute_percent )
 fprintf( 'STD: \t\t%9.3e [V] (%6.2f [%%])\n', std_absolute, std_absolute_percent )
 fprintf( 'Max Error:\t%9.3e [V] (%6.2f [%%]) @ (%9.3e [V], %9.3e [V], %9.3e [V])\n', error_absolute_max, error_absolute_max_percent, Us1_achieved_absolute( index_absolute_max ), Us2_achieved_absolute( index_absolute_max ), 20e-3 )
@@ -141,7 +148,7 @@ fprintf( 'Min Error: \t%9.3e [V] (%6.2f [%%]) @ (%9.3e [V], %9.3e [V], %9.3e [V]
 fprintf( 'Range Error: %0.3e [V] (%6.2f [%%])\n', error_absolute_range, error_absolute_range_percent )
 
 fprintf( '\n' )
-fprintf( 'Relative Addition Summary Statistics\n' )
+fprintf( 'Relative Addition Error Summary Statistics\n' )
 fprintf( 'MSE: \t\t%9.3e [V] (%6.2f [%%])\n', mse_relative, mse_relative_percent )
 fprintf( 'STD: \t\t%9.3e [V] (%6.2f [%%])\n', std_relative, std_relative_percent )
 fprintf( 'Max Error:\t%9.3e [V] (%6.2f [%%]) @ (%9.3e [V], %9.3e [V], %9.3e [V])\n', error_relative_max, error_relative_max_percent, Us1_achieved_relative( index_relative_max ), Us2_achieved_relative( index_relative_max ), 20e-3 )
@@ -151,43 +158,87 @@ fprintf( 'Range Error: %0.3e [V] (%6.2f [%%])\n', error_relative_range, error_re
 fprintf( '\n' )
 fprintf( 'Absolute vs Relative Addition Summary Statistics:\n' )
 fprintf( 'delta MSE: \t\t\t%9.3e [V] (%6.2f [%%])\n', error_difference_mse, error_difference_mse_percent )
-fprintf( 'delta Max Error:\t%9.3e [V] (%6.2f [%%])\n', error_difference_max, error_difference_max_percent )
-
+fprintf( 'delta STD:\t%9.3e [V] (%6.2f [%%])\n', error_difference_std, error_difference_std_percent )
+fprintf( 'delta MAX:\t%9.3e [V] (%6.2f [%%])\n', error_difference_max, error_difference_max_percent )
 
 
 %% Plot the Steady State Addition Error Surfaces
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute addition subnetwork.
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Addition Subnetwork Steady State Response (Comparison)' )
-surf( Us_desired_absolute( :, :, 1 ), Us_desired_absolute( :, :, 2 ), Us_desired_absolute( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b' )
-surf( Us_achieved_absolute( :, :, 1 ), Us_achieved_absolute( :, :, 2 ), Us_achieved_absolute( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r' )
-legend( 'Desired', 'Achieved' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Steady State Response (Absolute)' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
+surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+% legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+view( 45, 15 )
+colormap( get_bichromatic_colormap(  ) )
+saveas( fig, [ save_directory, '\', 'Absolute_Addition_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative addition subnetwork.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Addition Subnetwork Steady State Response (Comparison)' )
-surf( Us_desired_relative( :, :, 1 ), Us_desired_relative( :, :, 2 ), Us_desired_relative( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b' )
-surf( Us_achieved_relative( :, :, 1 ), Us_achieved_relative( :, :, 2 ), Us_achieved_relative( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r' )
-legend( 'Desired', 'Achieved' )
+% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Steady State Response (Relative)' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
+surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+% legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+view( 45, 15 )
+colormap( get_bichromatic_colormap(  ) )
+saveas( fig, [ save_directory, '\', 'Relative_Addition_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a surface that shows the membrane voltage error.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Addition Subnetwork Steady State Error' )
-surf( Us_achieved_absolute( :, :, 1 ), Us_achieved_absolute( :, :, 2 ), error_absolute, 'Edgecolor', 'None', 'Facecolor', 'b' )
-surf( Us_achieved_relative( :, :, 1 ), Us_achieved_relative( :, :, 2 ), error_relative, 'Edgecolor', 'None', 'Facecolor', 'r' )
-legend( 'Absolute', 'Relative' )
+% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Absolute vs Relative Error' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute*(10^3), 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
+surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
+% legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+view( 45, 15 )
+saveas( fig, [ save_directory, '\', 'Addition_Subnetwork_Approximation_Error_Comparison.png' ] )
 
 % Create a surface that shows the membrane voltage error percentage.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error Percentage, E [%]' ), title( 'Addition Subnetwork Steady State Error Percentage' )
-surf( Us_achieved_absolute( :, :, 1 ), Us_achieved_absolute( :, :, 2 ), error_absolute_percent, 'Edgecolor', 'None', 'Facecolor', 'b' )
-surf( Us_achieved_relative( :, :, 1 ), Us_achieved_relative( :, :, 2 ), error_relative_percent, 'Edgecolor', 'None', 'Facecolor', 'r' )
-legend( 'Absolute', 'Relative' )
+% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error Percentage, E [%]' ), title( 'Addition Subnetwork: Absolute vs Relative Error' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute_percent, 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
+surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative_percent, 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute_percent, 'Edgecolor', 'None', 'Facecolor', 'g', 'FaceAlpha', 0.75 )
+% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative_percent, 'Edgecolor', 'None', 'Facecolor', 'y', 'FaceAlpha', 0.75 )
+% legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+% legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+view( 45, 15 )
+saveas( fig, [ save_directory, '\', 'Addition_Subnetwork_Approximation_Error_Percentage_Comparison.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative addition subnetworks.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error Difference, dE [V]' ), title( 'Addition Subnetwork Steady State Error Difference' )
-surf( Us_achieved_absolute( :, :, 1 ), Us_achieved_absolute( :, :, 2 ), error_difference, 'Edgecolor', 'None' )
+% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Error Difference, dE [mV]' ), title( 'Addition Subnetwork: Absolute vs Relative Error Difference' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference*(10^3), 'Edgecolor', 'interp', 'Facecolor', 'interp' )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference*(10^3), 'Edgecolor', 'interp', 'Facecolor', 'interp' )
+% view( 0, 90 )
+view( 45, 15 )
+% colorbar( 'Location', 'Eastoutside' )
+colormap( get_bichromatic_colormap(  ) )
+saveas( fig, [ save_directory, '\', 'Addition_Subnetwork_Approximation_Error_Difference.png' ] )
 
 % Create a surface that shows the difference in percentage error between the absolute and relative addition subnetworks.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error Difference, dE [%]' ), title( 'Addition Subnetwork Steady State Error Difference Percentage' )
-surf( Us_achieved_absolute( :, :, 1 ), Us_achieved_absolute( :, :, 2 ), error_difference_percent, 'Edgecolor', 'None' )
+% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Error Percent Difference, dE [%]' ), title( 'Addition Subnetwork: Absolute vs Relative Error Percent Difference' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'interp', 'Facecolor', 'interp' )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'interp', 'Facecolor', 'interp' )
+% view( 0, 90 )
+view( 45, 15 )
+% colorbar( 'Location', 'Eastoutside' )
+colormap( get_bichromatic_colormap(  ) )
+saveas( fig, [ save_directory, '\', 'Addition_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+
+
+fig = figure( 'color', 'w' ); hold on, grid on
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'interp', 'Facecolor', 'interp' )
+colormap( get_bichromatic_colormap(  ) )
 
 
 
