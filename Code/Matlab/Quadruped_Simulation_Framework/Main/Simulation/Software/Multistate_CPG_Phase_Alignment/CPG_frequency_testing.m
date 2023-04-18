@@ -158,6 +158,35 @@ fig_network_currents = network.network_utilities.plot_network_currents( ts, I_le
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
 % fig_network_states = network.network_utilities.plot_network_states( ts, Us(1:2, :), hs(1:2, :), neuron_IDs );
 
+
+fig1 = figure( 'Color', 'w', 'Name', 'Membrane Voltage vs Time' ); hold on, grid on, xlabel( 'Time, $t$ [s]', 'Interpreter', 'Latex' ), ylabel( 'Membrane Voltage, $U$ [V]', 'Interpreter', 'Latex' ), title( 'CPG Membrane Voltage vs Time' ), xlim( [ 0, 2.5 ] )
+fig2 = figure( 'Color', 'w', 'Name', 'Sodiucm Channel Deactivation vs Time' ); hold on, grid on, xlabel( 'Time, $t$ [s]', 'Interpreter', 'Latex' ), ylabel( 'Sodium Channel Deactivation Parameter, $h$ [-]', 'Interpreter', 'Latex' ), title( 'CPG Sodium Channel Deactivation Parameter vs Time' ), xlim( [ 0, 2.5 ] )
+
+% Retrieve the number of neurons.
+num_neurons = size( Us, 1 );
+
+% Prellocate an array to store the legend entries.
+legstr = cell( 1, num_neurons );
+
+% Plot the states of each neuron over time.
+for k = 1:num_neurons           % Iterate through each of the neurons.
+
+    % Plot the states associated with this neuron.
+    figure( fig1 ), plot( ts, Us( k, : ), '-', 'Linewidth', 3 )
+    figure( fig2 ), plot( ts, hs( k, : ), '-', 'Linewidth', 3 )
+
+    % Add an entry to our legend string.
+    legstr{ k } = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
+
+end
+
+% Add a legend to the plots.
+% figure( fig1 ), legend( legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+% figure( fig2 ), legend( legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
+
+figure( fig1 ), legend( legstr, 'Location', 'Best', 'Orientation', 'Horizontal' )
+figure( fig2 ), legend( legstr, 'Location', 'Best', 'Orientation', 'Horizontal' )
+
 % dUs = Us( 1, : ) - Us( 2, : );
 % figure( 'Color', 'w' ), plot( ts, dUs, '-m', 'Linewidth', 3 )
 
@@ -166,5 +195,4 @@ fig_network_animation = network.network_utilities.animate_network_states( Us, hs
 % fig_network_animation = network.network_utilities.animate_network_states( Us(1:2, :), hs(1:2, :), neuron_IDs );
 
 
-x = 1;
 

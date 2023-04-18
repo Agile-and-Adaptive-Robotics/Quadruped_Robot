@@ -2,6 +2,7 @@
 ~$*.SLDPRT
 _$*.SLDASM
 _$*.SLDPRT
+_$*.SLDPRT
 *.asv
 ~*.xlsx
 .venv/
