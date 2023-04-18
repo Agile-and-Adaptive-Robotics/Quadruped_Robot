@@ -51,7 +51,7 @@ classdef applied_current_utilities_class
         
                 
         % Implement a function to compute the magnitude of multistate cpg subnetwork applied currents.
-        function I_apps = compute_multistate_cpg_Iapps( ~, dt, tf )
+        function I_apps = compute_multistate_cpg_Iapps( self, dt, tf )
         
             % Compute the number of applied currents.
             num_applied_currents = floor( tf/dt ) + 1;
