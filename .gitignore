@@ -2,4 +2,12 @@
 ~$*.SLDPRT
 _$*.SLDASM
 _$*.SLDPRT
+_$*.SLDPRT
 *.asv
+~*.xlsx
+*.venv
+*.ini
+*.swj
+*.vscode
+*.zip
+*.DS_Store
