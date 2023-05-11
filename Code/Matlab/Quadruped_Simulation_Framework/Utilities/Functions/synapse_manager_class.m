@@ -835,15 +835,15 @@ classdef synapse_manager_class
             synapse_IDs_bistable = self.array_utilities.remove_entries( synapse_IDs_bistable, synapse_IDs_self_connections );
             
             % Set the delta value of each of the oscillatory synapses.
-%             self = self.set_synapse_property( synapse_IDs_oscillatory, delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta' );
+            self = self.set_synapse_property( synapse_IDs_oscillatory, delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta' );
 
 %             deltas_temp = [ 0.01e-3, 0.01e-3, 0.01e-3, 0.01e-3 ];                       % No syncopation.
-            deltas_temp = [ 0.01e-3, 0.05e-3, 0.01e-3, 0.05e-3 ];                       % Low level of syncopation.
+%             deltas_temp = [ 0.01e-3, 0.05e-3, 0.01e-3, 0.05e-3 ];                       % Low level of syncopation.
 %             deltas_temp = [ 0.01e-3, 0.15e-3, 0.01e-3, 0.15e-3 ];                       % Medium level of syncopation.
 %             deltas_temp = [ 0.01e-3, 0.30e-3, 0.01e-3, 0.30e-3 ];                       % High level of syncopation.
 %             deltas_temp = [ 0.01e-3, 0.45e-3, 0.01e-3, 0.45e-3 ];                       % High level of syncopation.
 
-            self = self.set_synapse_property( synapse_IDs_oscillatory, deltas_temp, 'delta' );
+%             self = self.set_synapse_property( synapse_IDs_oscillatory, deltas_temp, 'delta' );
 
             % Set the delta value of each of the bistable synapses.
             self = self.set_synapse_property( synapse_IDs_bistable, delta_bistable*ones( 1, length( synapse_IDs_bistable ) ), 'delta' );

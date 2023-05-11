@@ -11,7 +11,7 @@ b_verbose = true;
 
 % Define the network integration step size.
 network_dt = 1e-3;
-network_tf = 3;
+network_tf = 5;
 
 
 %% Create Multistate CPG Subnetworks.
@@ -24,7 +24,7 @@ delta_oscillatory = 0.01e-3;                    % [-] Relative Inhibition Parame
 delta_bistable = -10e-3;                        % [-] Relative Inhibition Parameter for Bistable Connections
 
 % Define the number of CPG neurons.
-num_cpg_neurons = 4;
+num_cpg_neurons = 2;
 
 % Create the first multistate cpg subnetwork.
 [ network, neuron_IDs_cpg1, synapse_IDs_cpg1, applied_current_ID_cpg1 ] = network.create_multistate_cpg_subnetwork( num_cpg_neurons, delta_oscillatory, delta_bistable );

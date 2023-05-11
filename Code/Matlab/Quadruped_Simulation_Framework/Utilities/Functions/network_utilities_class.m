@@ -924,12 +924,25 @@ classdef network_utilities_class
             % Prellocate an array to store the legend entries.
             legstr = cell( 1, num_neurons );
             
+            % Compute the number of frames.
+            num_frames = floor( ( num_timesteps - 1 )/playback_speed ) + 1;
+            
+            % Define the percentage of the total number of frames that should persist during the animation.
+            frame_persist_percentage = 0.125;       % Works for two neurons CPGs.
+%             frame_persist_percentage = 0.10;         % Works for multistate CPGs.
+
+            
+            % Compute the number of frames that should persist during the animation.
+            num_frames_persist = floor( frame_persist_percentage*num_frames );
+            
             % Create the figure elements associated with each of the neurons.
             for k = 1:num_neurons               % Iterate through each of the neurons...
                 
                 % Create data source strings for the path figure element.
-                xdatastr_path = sprintf( 'Us(%0.0f, 1:k)', k );
-                ydatastr_path = sprintf( 'hs(%0.0f, 1:k)', k );
+%                 xdatastr_path = sprintf( 'Us(%0.0f, 1:k)', k );
+%                 ydatastr_path = sprintf( 'hs(%0.0f, 1:k)', k );
+                xdatastr_path = sprintf( 'Us(%0.0f, max( k - num_frames_persist, 1 ):k)', k );
+                ydatastr_path = sprintf( 'hs(%0.0f, max( k - num_frames_persist, 1 ):k)', k );
                 
                 % Add this path figure element to the array of path figure elements.
                 line_paths(k) = plot( 0, 0, '-', 'Linewidth', 2, 'XDataSource', xdatastr_path, 'YDataSource', ydatastr_path );
