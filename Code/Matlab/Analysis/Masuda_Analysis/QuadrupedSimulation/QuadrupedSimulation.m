@@ -8,69 +8,50 @@ clear, close('all'), clc
 
 %% Define the Robot Geometry & Mechanical Properties.
 
-%{
-Modify parameters to match Biarticulating Design
-Add Total Body Weight Component for calculating normal force during
-standing
-%}
-
-% Define the mechanical properties of link 1 - Femur.
-m1 = .320188;                                                                                                   % [kg] Link Mass.
+% Define the mechanical properties of link 1.
+m1 = 1;                                                                                                         % [kg] Link Mass.
 ct1 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt1 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx1 = 1; Ly1 = 0.1; Lz1 = 0.1; Ls1 = [Lx1; Ly1; Lz1];                                                         % [m] Link Length in each direction of the local link frame.
-% Original Lx1 = 0.331795; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];                               % [m] Link Length in each direction of the local link frame.
-Lx1 = 0.344495; Ly1 = 0.036894; Lz1 = 0.033084; Ls1 = [Lx1; Ly1; Lz1];
-% Lx1 = 0.1524; Ly1 = 0.0254; Lz1 = 0.0254; Ls1 = [Lx1; Ly1; Lz1];                                              % [m] Link Length in each direction of the local link frame.
-% Phome_cm1 = [Lx1/2; 0; 0];                                                                                    % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm1 = [0.065365; -0.000337 ;0.049341];                                                                    % [m] Link Center of Mass Location in the Global Frame.
+Lx1 = 0.254; Ly1 = 0.019; Lz1 = 0.019; Ls1 = [Lx1; Ly1; Lz1];                                                 % [m] Link Length in each direction of the local link frame.
+% Lx1 = 0.1524; Ly1 = 0.0254; Lz1 = 0.0254; Ls1 = [Lx1; Ly1; Lz1];                                                % [m] Link Length in each direction of the local link frame.
+% Phome_cm1 = [Lx1/2; 0; 0];                                                                                      % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm1 = [46e-3; 0; 0];                                                                                      % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm1 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm1 = [0.000115	-0.000022	0.000015
-		-0.000022	0.003254	0.000000
-		0.000015	0.000000	0.003180];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm1 = [(1/12)*m1*(Ly1^2 + Lz1^2) 0 0; 0 (1/12)*m1*(Lx1^2 + Lz1^2) 0; 0 0 (1/12)*m1*(Lx1^2 + Ly1^2)];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G1 = [Ihome_cm1, zeros(3, 3); zeros(3, 3), m1*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body1 = GetCuboidPoints(Ls1(1), Ls1(2), Ls1(3), Phome_cm1(1), Phome_cm1(2), Phome_cm1(3), 0, 0, 0);       % [m] Link Points
 Rhome_body1 = Rhome_cm1;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
-% Define the mechanical properties of link 2 - Tibia.
-m2 = .170503;                                                                                                   % [kg] Link Mass.
+% Define the mechanical properties of link 2.
+m2 = 1;                                                                                                         % [kg] Link Mass.
 ct2 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt2 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx2 = 1; Ly2 = 0.1; Lz2 = 0.1; Ls2 = [Lx2; Ly2; Lz2];                                                         % [m] Link Length in each direction of the local link frame.
-% Original Lx2 = 0.275273; Ly2 = 0.02856; Lz2 = 0.032385; Ls2 = [Lx2; Ly2; Lz2];                                % [m] Link Length in each direction of the local link frame.
-Lx2 = 0.237173; Ly2 = 0.02856; Lz2 = 0.032385; Ls2 = [Lx2; Ly2; Lz2];
-% Lx2 = 0.20955; Ly2 = 0.0254; Lz2 = 0.0254; Ls2 = [Lx2; Ly2; Lz2];                                             % [m] Link Length in each direction of the local link frame.
-% Phome_cm2 = [Lx1 + Lx2/2; 0; 0];                                                                              % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm2 = [0.366555; -.000297; 0.053825];                                                                     % [m] Link Center of Mass Location in the Global Frame.
+Lx2 = 0.21; Ly2 = 0.019; Lz2 = 0.019; Ls2 = [Lx2; Ly2; Lz2];                                                  % [m] Link Length in each direction of the local link frame.
+% Lx2 = 0.20955; Ly2 = 0.0254; Lz2 = 0.0254; Ls2 = [Lx2; Ly2; Lz2];                                               % [m] Link Length in each direction of the local link frame.
+% Phome_cm2 = [Lx1 + Lx2/2; 0; 0];                                                                                % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm2 = [Phome_cm1(1) + Lx1/2 + Lx2/2; 0; 0];                                                                                % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm2 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm2 = [0.000033		0.000005		0.000010
-		0.000005		0.001383		0.000000
-		0.000010		0.000000		0.001372];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm2 = [(1/12)*m2*(Ly2^2 + Lz2^2) 0 0; 0 (1/12)*m2*(Lx2^2 + Lz2^2) 0; 0 0 (1/12)*m2*(Lx2^2 + Ly2^2)];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G2 = [Ihome_cm2, zeros(3, 3); zeros(3, 3), m2*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body2 = GetCuboidPoints(Ls2(1), Ls2(2), Ls2(3), Phome_cm2(1), Phome_cm2(2), Phome_cm2(3), 0, 0, 0);       % [m] Link Points
 Rhome_body2 = Rhome_cm2;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
-% Define the mechanical properties of link 3 - Foot.
-m3 = 0.087102;                                                                                                  % [kg] Link Mass.
+% Define the mechanical properties of link 3.
+m3 = 1;                                                                                                         % [kg] Link Mass.
 ct3 = 1;                                                                                                        % [Nms/rad] Link Angular Viscous Friction.
 kt3 = 1;                                                                                                        % [Nm/rad] Link Angular Stiffness.
 % Lx3 = 1; Ly3 = 0.1; Lz3 = 0.1; Ls3 = [Lx3; Ly3; Lz3];                                                         % [m] Link Length in each direction of the local link frame.
-Lx3 = 0.14845; Ly3 = 0.078967; Lz3 = 0.032385; Ls3 = [Lx3; Ly3; Lz3];                                           % [m] Link Length in each direction of the local link frame.
-% Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                              % [m] Link Length in each direction of the local link frame.
-% Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                        % [m] Link Center of Mass Location in the Global Frame.
-Phome_cm3 = [.539952; .014351 ; 0.049821];                                                                     % [m] Link Center of Mass Location in the Global Frame.
+Lx3 = 0.148; Ly3 = 0.019; Lz3 = 0.019; Ls3 = [Lx3; Ly3; Lz3];                                                 % [m] Link Length in each direction of the local link frame.
+% Lx3 = 0.1143; Ly3 = 0.0254; Lz3 = 0.0254; Ls3 = [Lx3; Ly3; Lz3];                                                % [m] Link Length in each direction of the local link frame.
+% Phome_cm3 = [Lx1 + Lx2 + Lx3/2; 0; 0];                                                                          % [m] Link Center of Mass Location in the Global Frame.
+Phome_cm3 = [Phome_cm2(1) + Lx2/2 + Lx3/2; 0; 0];                                                                          % [m] Link Center of Mass Location in the Global Frame.
 Rhome_cm3 = eye(3);                                                                                             % [-] Link Center of Mass Orientation in the Global Frame.
-Ihome_cm3 = [0.000038		-0.000042		0.000001
-		-0.000042		0.000277		0.000000
-		0.000001		0.000000		0.000306];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
+Ihome_cm3 = [(1/12)*m3*(Ly3^2 + Lz3^2) 0 0; 0 (1/12)*m3*(Lx3^2 + Lz3^2) 0; 0 0 (1/12)*m3*(Lx3^2 + Ly3^2)];      % [m^2/kg] Link Moment of Inertia at COM in the Local Frame.
 G3 = [Ihome_cm3, zeros(3, 3); zeros(3, 3), m3*eye(3, 3)];                                                       % [-] Spatial Inertia Matrix for This Link.
 Phome_body3 = GetCuboidPoints(Ls3(1), Ls3(2), Ls3(3), Phome_cm3(1), Phome_cm3(2), Phome_cm3(3), 0, 0, 0);       % [m] Link Points
-Rhome_body3 = Rhome_cm3;                                                                                        % [-] Orientation of the Link in the Global Frame.                                                                                      % [-] Orientation of the Link in the Global Frame.
-
-%{
-Add information to incorporate Ad/Abduction Joint at hip
-Needs new joint location, orientation, axis of rotation
-%}
+Rhome_body3 = Rhome_cm3;                                                                                        % [-] Orientation of the Link in the Global Frame.
 
 % Compile information about each link into arrays.
 ms = [m1; m2; m3];                                                                                              % [kg] Mass of Each Link.
@@ -82,15 +63,15 @@ Ihome_cms = cat(3, Ihome_cm1, Ihome_cm2, Ihome_cm3);                            
 Gs = cat(3, G1, G2, G3);                                                                                        % [-] Spatial Inertia Matrix for Each Link in the Global Frame.
 Phome_bodies = cat(3, Phome_body1, Phome_body2, Phome_body3);                                                   % [m] Body Points for Each Link in the Global Frame.
 Rhome_bodies = cat(3, Rhome_body1, Rhome_body2, Rhome_body3);                                                   % [m] Orientation of Each Link in the Global Frame.
-% Ltotal = Lx1 + Lx2 + Lx3;                                                                                     % [m] Total Length.
-Ltotal = Phome_cm3(1) + Lx3/2;                                                                                  % [m] Total Length.
+% Ltotal = Lx1 + Lx2 + Lx3;                                                                                       % [m] Total Length.
+Ltotal = Phome_cm3(1) + Lx3/2;                                                                                       % [m] Total Length.
 
 % Define the home joint locations.
 Phome_joint1 = [0; 0; 0];                                                                                       % [m] Joint Location in the Global Frame.
-% Phome_joint2 = [Lx1; 0; 0];                                                                                   % [m] Joint Location in the Global Frame.
-Phome_joint2 = [Phome_cm1(1) + Lx1/2; 0; 0];                                                                    % [m] Joint Location in the Global Frame.
-% Phome_joint3 = [Lx1 + Lx2; 0; 0];                                                                             % [m] Joint Location in the Global Frame.
-Phome_joint3 = [Phome_cm2(1) + Lx2/2; 0; 0];                                                                    % [m] Joint Location in the Global Frame.
+% Phome_joint2 = [Lx1; 0; 0];                                                                                     % [m] Joint Location in the Global Frame.
+Phome_joint2 = [Phome_cm1(1) + Lx1/2; 0; 0];                                                                                     % [m] Joint Location in the Global Frame.
+% Phome_joint3 = [Lx1 + Lx2; 0; 0];                                                                               % [m] Joint Location in the Global Frame.
+Phome_joint3 = [Phome_cm2(1) + Lx2/2; 0; 0];                                                                               % [m] Joint Location in the Global Frame.
 Phome_joints = [Phome_joint1 Phome_joint2 Phome_joint3];                                                        % [m] Joint Locations in the Global Frame.
 
 % Define the home joint orientations.
@@ -99,12 +80,7 @@ Rhome_joint2 = Rhome_body2;                                                     
 Rhome_joint3 = Rhome_body3;                                                                                     % [-] Joint Orientation in the Global Frame.
 Rhome_joints = cat(3, Rhome_joint1, Rhome_joint2, Rhome_joint3);                                                % [-] Joint Orientations in the Global Frame.
 
-% Define the joint axes of rotation.
-
-%{
-Add Adduction and Abduction by adding hip joint with w = {0,0,1}
-%}
-
+% Define the joint axes of ration.
 w1_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 w2_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
 w3_local = [0; 0; 1];                                                                                           % [rad/s] Axis of Rotation of This Link in its Local Frame (Note that, since the local frames are in this case aligned with the global frame in the home position), these are the same rotational axes used in the screw axes).
@@ -160,11 +136,6 @@ end
 muscle_joint_orientations = {'Ext', 'Flx', 'Ext'};
 
 % Read in the muscle location data.
-
-%{
-Adjust text files to reflect BiArticular Design
-%}
-
 Ps_hipext = dlmread('Ps_hipext.txt');
 Ps_hipflx = dlmread('Ps_hipflx.txt');
 Ps_kneeext = dlmread('Ps_kneeext.txt');
@@ -240,16 +211,10 @@ for k1 = 1:num_muscles                      % Iterate through each of the muscle
 end
 
 % Define the home matrix for the end effector.
-
 Mend = [Rhome_end, Phome_end; zeros(1, 3), 1];
 Jend = num_joints;
 
 % Define the screw axes.
-
-%{
-Add Screw Axis for the Hip Adduction and Abduction S2 = {1,0,0,0,0,0}';
-%}
-
 % S1 = [0; 0; 1; 0; 0; 0];
 % S2 = [0; 0; 1; 0; -Lx1; 0];
 % S3 = [0; 0; 1; 0; -(Lx1 + Lx2); 0];
@@ -258,22 +223,12 @@ S2 = [0; 0; 1; 0; -Phome_joint2(1); 0];
 S3 = [0; 0; 1; 0; -Phome_joint3(1); 0];
 Ss = [S1 S2 S3];
 
-% With lateral hip axis
-%S1 = [0; 0; 1; 0; -Phome_joint1(1); 0];
-%S2 = [1;0,0;0;-Phome_joint2(1); 0];
-%S3 = [0; 0; 1; 0; -Phome_joint2(1); 0];
-%S4 = [0; 0; 1; 0; -Phome_joint3(1); 0];
-%Ss = [S1 S2 S3 S4];
-
 
 %% Define the Simulation Properties.
 
 % Create a time vector.
-  dt = 0.001;                    % [s] Simulation Step Size
-% dt = 0.0001;                   % [s] Simulation Step Size
-% dt = 0.00005;                  % [s] Simulation Step Size
-% dt = 0.00001;                  % [s] Simulation Step Size
-
+dt = 0.001;                  % [s] Simulation Step Size.
+% dt = 0.0001;                  % [s] Simulation Step Size.
 tfinal = 1;                 % [s] Simulation Duration.
 ts = 0:dt:tfinal;           % [s] Simulation Time Vector.
 
@@ -286,8 +241,8 @@ g = [0; -9.81; 0];
 
 %% Define the Trajectory Properties.
 
-% Define the stance duty cycle. - Unused?
-stance_duty = 0.4;
+% Define the stance duty cycle.
+stance_duty = 0.5;
 % stance_duty = 0.25;
 
 % Retrieve the time indexes associated with stance and swing.
@@ -298,45 +253,17 @@ ns_swing = num_timesteps - ns_stance;
 ts_stance = ts(ns_swing + 1:num_timesteps);
 ts_swing = ts(1:ns_swing);
 
-% Define reaction forces during the stance cycle
-smoothing_step =  round(ns_stance * 0.4);
-Fsmoothing = ones(ns_stance, 1);
-
-for i = 1:smoothing_step
-    Fsmoothing(i) = Fsmoothing(i) * (i/smoothing_step);
-end
-
-for i = ns_stance - smoothing_step : ns_stance
-    Fsmoothing(i) = Fsmoothing(i) * ((ns_stance-i)/smoothing_step);
-end
-
-Ftip_norm = 38 * [zeros(ns_swing, 1); ones(ns_stance , 1) .* Fsmoothing];
-Ftip_stride = 5 * [zeros(ns_swing, 1); ones(ns_stance , 1)];
-
-% Ftip_norm = zeros(num_timesteps, 1);
-% Ftip_stride = zeros(num_timesteps, 1);
-
 % Define the ground height.
-
-%{
-Adjust to fit current model
-%}
-
-ground_height = 0.52;   % [m] Ground Height Relative to Body.
+% ground_height = 0.5;
+ground_height = 0.46;               % [m] Ground Height Relative to Body.
 % ground_height = 0.381;
 
 % Define the horizontal step shift.
 horizontal_shift = 0.075;           % [m] Horizontal Shift to Apply to Step Trajectory.
 
 % Define the step height and stride length.
-
-%{
-Verify this matches the step trajectory and check where in code thse vars
-are used
-%}
-
-step_height = 0.04;         % [m] Step Heigth.
-step_length = 0.15;          % [m] Step Length.
+step_height = 0.05;         % [m] Step Heigth.
+step_length = 0.1;          % [m] Step Length.
 
 
 %% Generate Desired End Effector Trajectory.
@@ -345,25 +272,11 @@ step_length = 0.15;          % [m] Step Length.
 fprintf('GENERATING DESIRED END EFFECTOR TRAJECTORY... Please Wait...\n')
 
 % Define the swing end effector path.
-
-%{
-First - adjust swing to reflect top half of circle
-Second - adjust swing to reflect oval dimensions <- cut
-Third - Add stability factors for account for stance to swing and swing to
-stance deformations. - Define Stance to Swing and swing to stance segments
-and create smoothing profile in position and force elements
-%}
-
-xs_swing = step_length*cos((pi/(1-stance_duty))*ts_swing) + horizontal_shift;
-ys_swing = step_height*sin((pi/(1-stance_duty))*ts_swing) - ground_height;
+xs_swing = step_length*cos(2*pi*ts_swing);
+ys_swing = step_height*sin(2*pi*ts_swing) - ground_height;
 zs_swing = zeros(1, ns_swing);
 
 % Define the stance end effector path.
-
-%{
-Verify that stance segment of path is added to model
-%}
-
 xs_stance = linspace(xs_swing(end), xs_swing(1), ns_stance);
 ys_stance = -ground_height*ones(1, ns_stance);
 zs_stance = zeros(1, ns_stance);
@@ -374,21 +287,15 @@ zs_stance = zeros(1, ns_stance);
 % zs_desired = zeros(1, num_timesteps);
 
 % Define the desired end effector path. (Use for circular swing and stance.)
-
-%{
-Adjust to reflect stance and swing end effector paths
-%}
-
-%xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
-%ys_desired = step_height*sin(2*pi*ts) - ground_height;
-%zs_desired = zeros(1, num_timesteps);
+xs_desired = step_length*cos(2*pi*ts) + horizontal_shift;
+ys_desired = step_height*sin(2*pi*ts) - ground_height;
+zs_desired = zeros(1, num_timesteps);
 
 % % Define the desired end effector path. (Use for circular swing and horizontal stance.)
-xs_desired = [xs_swing xs_stance];
-ys_desired = [ys_swing ys_stance];
-zs_desired = [zs_swing zs_stance];
+% xs_desired = [xs_swing xs_stance];
+% ys_desired = [ys_swing ys_stance];
+% zs_desired = [zs_swing zs_stance];
 
-% Define the End Effector Forces 
 % Store the desired end effector path into an array.
 Ps_desired = [xs_desired; ys_desired; zs_desired];
 dPs_desired = diff(Ps_desired, 1, 2)./diff(ts);
@@ -501,14 +408,7 @@ end
 fprintf('COMPUTING INVERSE DYNAMICS SOLUTION (i.e., Required Joint Torques)... Please Wait...\n')
 
 % Define any external forces & moments applied to the end effector.
-
-%{
-Add any ground forces during stance timesteps
-%}
-
-% Ftipmat = zeros(num_timesteps, 6);
-Ftipmat = [zeros(num_timesteps,4), -Ftip_norm, zeros(num_timesteps,1)];
-%Ftipmat = [zeros(num_timesteps,3), Ftip_stride, -Ftip_norm, zeros(num_timesteps,1)];
+Ftipmat = zeros(num_timesteps, 6);
 
 % Configure the relevant home matrices to have the shape required by the inverse dynamics function.  Note that the inverse dynamics function requires relative home matrices.
 Mlist = cat(4, Mcms(:, :, 1, 1), reshape(TSpace2TRelative(reshape(cat(4, Mcms, Mend), [4, 4, num_joints + 1, 1])), [4, 4, 1, num_joints]));
@@ -564,8 +464,7 @@ intRes = 10;
 [thetas_achieved, dthetas_achieved] = ForwardDynamicsTrajectory(theta0, dtheta0, taus_desired', g, Ftipmat, Mlist, Gs, Ss, dt, intRes);
 
 % Transpose the achieved joint angles and velocities to have shapes consistent with our convention.
-thetas_achieved = thetas_achieved'; 
-dthetas_achieved = dthetas_achieved';
+thetas_achieved = thetas_achieved'; dthetas_achieved = dthetas_achieved';
 
 % Compute the achieved joint angular accelerations.
 ddthetas_achieved = diff(dthetas_achieved, 1, 2)./repmat(diff(ts), [num_joints 1]);
@@ -986,8 +885,8 @@ SaveFigureAtSize(fig_muscleforces, filename, figure_size)
 
 % Create a figure to store the animation.
 fig_animation = figure('Color', 'w', 'Name', 'Robot Animation'); hold on, rotate3d on, view(0, 90), xlabel('x'), ylabel('y'), zlabel('z')
-axis([-Ltotal Ltotal, -Ltotal Ltotal -Ltotal Ltotal])
-%axis equal
+axis([-Ltotal Ltotal -Ltotal Ltotal -Ltotal Ltotal])
+axis equal
 
 % Preallocate an array to store the legend entries.
 legstr = cell(num_bodies + 6, 1);
@@ -1107,7 +1006,7 @@ legindex = legindex + 1;
 legend(legstr, 'Location', 'Eastoutside', 'Orientation', 'Vertical')
 
 % Set the number of animation playbacks.
-num_playbacks = 3;
+num_playbacks = 5;
 
 % % Initialize a video object.
 % myVideo = VideoWriter('RobotAnimation'); %open video file
