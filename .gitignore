@@ -5,6 +5,9 @@ _$*.SLDPRT
 _$*.SLDPRT
 *.asv
 ~*.xlsx
-.venv/
+*.venv
 *.ini
 *.swj
+*.vscode
+*.zip
+*.DS_Store
