@@ -165,27 +165,45 @@ fprintf( 'delta MAX:\t%9.3e [V] (%6.2f [%%])\n', error_difference_max, error_dif
 %% Plot the Steady State Addition Error Surfaces
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute addition subnetwork.
+% % fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Steady State Response (Absolute)' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% % fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
+% surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+% % legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+% legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+% view( 45, 15 )
+% colormap( get_bichromatic_colormap(  ) )
+% saveas( fig, [ save_directory, '\', 'Absolute_Addition_Subnetwork_Steady_State_Response.png' ] )
+
 % fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Steady State Response (Absolute)' )
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
 surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
-surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'Interp' )
-% legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( 45, 15 )
-colormap( get_bichromatic_colormap(  ) )
 saveas( fig, [ save_directory, '\', 'Absolute_Addition_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative addition subnetwork.
+% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Steady State Response (Relative)' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% % fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
+% surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+% % legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+% legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+% view( 45, 15 )
+% colormap( get_bichromatic_colormap(  ) )
+% saveas( fig, [ save_directory, '\', 'Relative_Addition_Subnetwork_Steady_State_Response.png' ] )
+
 % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Input 1 Voltage, U1 [mV]' ), ylabel( 'Input 2 Voltage, U2 [mV]' ), zlabel( 'Output Voltage Error, E [mV]' ), title( 'Addition Subnetwork: Steady State Response (Relative)' )
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
 % fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, colormap( 'turbo' )
 surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
-surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, 3 )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 % legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( 45, 15 )
-colormap( get_bichromatic_colormap(  ) )
 saveas( fig, [ save_directory, '\', 'Relative_Addition_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a surface that shows the membrane voltage error.

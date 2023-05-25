@@ -430,23 +430,43 @@ fprintf( 'delta Max Error:\t%9.3e [mV] (%6.2f [%%])\n', error_difference_max, er
 %% Plot the Steady State Subtraction Error Surfaces
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute subtraction subnetwork.
+% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
+% legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+% view( -45, 15 )
+% colormap( get_bichromatic_colormap(  ) )
+% saveas( fig, [ save_directory, '\', 'Absolute_Subtraction_Subnetwork_Steady_State_Response.png' ] )
+
 % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' )
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
 surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
-surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( -45, 15 )
-colormap( get_bichromatic_colormap(  ) )
+% colormap( get_bichromatic_colormap(  ) )
 saveas( fig, [ save_directory, '\', 'Absolute_Subtraction_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative subtraction subnetwork.
+% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Subtraction Subnetwork Steady State Response (Comparison)' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
+% legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+% view( -45, 30 )
+% colormap( get_bichromatic_colormap(  ) )
+% % colorbar(  )
+% saveas( fig, [ save_directory, '\', 'Relative_Subtraction_Subnetwork_Steady_State_Response.png' ] )
+
 % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Subtraction Subnetwork Steady State Response (Comparison)' )
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
 surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
-surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
+surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( -45, 30 )
-colormap( get_bichromatic_colormap(  ) )
+% colormap( get_bichromatic_colormap(  ) )
+% colorbar(  )
 saveas( fig, [ save_directory, '\', 'Relative_Subtraction_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a surface that shows the membrane voltage error.
@@ -480,11 +500,16 @@ colormap( get_bichromatic_colormap(  ) )
 saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Difference.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative percent subtraction subnetworks.
+% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Subtraction Subnetwork Steady State Error Percentage Difference' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
+% view( 45, 15 )
+% colormap( get_bichromatic_colormap(  ) )
+% saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+
 % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Subtraction Subnetwork Steady State Error Percentage Difference' )
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
 view( 45, 15 )
-colormap( get_bichromatic_colormap(  ) )
+% colormap( get_bichromatic_colormap(  ) )
 saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
-
-
