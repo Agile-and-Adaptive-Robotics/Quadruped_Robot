@@ -60,7 +60,6 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), Iapp2, 'I_apps' );
 
-
 % % Create applied currents.
 % % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0e-9, 'I_apps' );
 % % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0.25*network.neuron_manager.neurons(1).R*network.neuron_manager.neurons(1).Gm, 'I_apps' );
@@ -68,8 +67,8 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), network.neuron_manager.neurons(1).R*network.neuron_manager.neurons(1).Gm, 'I_apps' );
 % % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 5e-9, 'I_apps' );
 % % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 20e-9, 'I_apps' );
-% 
-% 
+
+
 %% Simulate the Network.
 
 % Simulate the network.

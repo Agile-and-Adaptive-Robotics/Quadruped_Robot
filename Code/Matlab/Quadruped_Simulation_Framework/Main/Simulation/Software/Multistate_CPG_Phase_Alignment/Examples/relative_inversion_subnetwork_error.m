@@ -1,4 +1,4 @@
-%% Absolute Inversion Subnetwork Error
+%% Relative Inversion Subnetwork Error
 
 % Clear Everything.
 clear, close('all'), clc
@@ -25,22 +25,22 @@ network_tf = 3;
 % Define the number of neurons.
 num_neurons = 2;
 
-% Set the subnetwork parameters.
+% Set the network parameters.
 R1 = 20e-3;
-c1 = 0.40e-9;
-c3 = 20e-9;
+R2 = 20e-3;
+c3 = 1e-6;
 delta = 1e-3;
 
 
-%% Create Absolute Subtraction Subnetwork.
+%% Create Relative Subtraction Subnetwork.
 
 % Compute the network properties.
-R2 = c1/c3;
-c2 = ( c1 - delta*c3 )/( delta*R1 );
+c1 = c3;
+c2 = ( ( R2 - delta )*c3 )/( delta );
+Gm2 = c3;
+Iapp2 = R2*c3;
 dEs21 = 0;
-Gm2 = c3/R1;
-Iapp2 = c1/R1;
-gs21 = ( c1 - delta*c3 )/( delta*R1 );
+gs21 = ( ( R2 - delta )*c3 )/( delta );
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -98,12 +98,12 @@ if b_simulate               % If we want to simulate the network....
     end
 
     % Save the simulation results.
-    save( [ save_directory, '\', 'absolute_inversion_subnetwork_error' ], 'applied_currents', 'Us_achieved' )
+    save( [ save_directory, '\', 'relative_inversion_subnetwork_error' ], 'applied_currents', 'Us_achieved' )
     
 else                % Otherwise... ( We must want to load data from an existing simulation... )
     
     % Load the simulation results.
-    data = load( [ load_directory, '\', 'absolute_inversion_subnetwork_error' ] );
+    data = load( [ load_directory, '\', 'relative_inversion_subnetwork_error' ] );
     
     % Store the simulation results in separate variables.
     applied_currents = data.applied_currents;
@@ -115,7 +115,7 @@ end
 %% Plot the Network Results.
 
 % Compute the desired membrane voltage output.
-Us_desired_output =  c1./( c2*Us_achieved( :, 1 ) + c3 );
+Us_desired_output =  c1*R1*R2./( c2*Us_achieved( :, 1 ) + c3*R1 );
 
 % Compute the desired membrane voltage output.
 Us_desired = Us_achieved; Us_desired( :, end ) = Us_desired_output;
@@ -127,21 +127,21 @@ error = Us_achieved( :, end ) - Us_desired( :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 % Create a plot of the desired membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Desired)' )
+figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Inversion Subnetwork Steady State Response (Desired)' )
 plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 )
 
 % Create a plot of the achieved membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Achieved)' )
+figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Inversion Subnetwork Steady State Response (Achieved)' )
 plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 )
 
 % Create a plot of the desired and achieved membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response' )
+figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Inversion Subnetwork Steady State Response' )
 h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
 h2 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 );
 legend( [ h1, h2 ], { 'Desired', 'Achieved' }, 'Location', 'Best' )
 
 % Create a surface that shows the membrane voltage error.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Error' )
+figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Inversion Subnetwork Steady State Error' )
 plot( Us_achieved( :, 1 ), error, '-', 'Linewidth', 3 )
 
 
