@@ -11,8 +11,8 @@ b_verbose = true;
 
 % Define the network integration step size.
 % network_dt = 1e-3;
-% network_dt = 1e-4;
-network_dt = 1e-5;
+network_dt = 1e-4;
+% network_dt = 1e-5;
 network_tf = 3;
 
 % Set the necessary parameters.
@@ -20,6 +20,8 @@ R1 = 20e-3;
 R2 = 20e-3;
 c1 = 0.40e-9;
 c3 = 0.40e-9;
+% c1 = 1e-6;
+% c3 = 1e-6;
 delta = 1e-3;
 dEs31 = 194e-3;
 
@@ -62,7 +64,7 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0.25*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 1*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-
+% 
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
 
 

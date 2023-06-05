@@ -49,16 +49,23 @@ fprintf( 'Architecture 4A:\n' )
 fprintf( 'U4a = \n' )
 pretty( U4 )
 
-eq1 = c == U4_num_coeffs( 1 )/U4_den_coeffs( end );
-eq2 = P1( 3 ) == subs( U4, [ U1, U2 ], [ P1( 1 ), P1( 2 ) ] );
+% eq1 = c == U4_num_coeffs( 1 )/U4_den_coeffs( end );
+% eq2 = P1( 3 ) == subs( U4, [ U1, U2 ], [ P1( 1 ), P1( 2 ) ] );
+% eq3 = P3( 3 ) == subs( U4, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
+
+eq1 = P1( 3 ) == subs( U4, [ U1, U2 ], [ P1( 1 ), P1( 2 ) ] );
+eq2 = P2( 3 ) == subs( U4, [ U1, U2 ], [ P2( 1 ), P2( 2 ) ] );
 eq3 = P3( 3 ) == subs( U4, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
+eq4 = P4( 3 ) == subs( U4, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
 
-sol = solve( [ eq1, eq2, eq3 ], [ gs32, gs41, gs43 ] );
-% [ sol1, sol2, sol3, parameters, conditions ] = solve( [ eq1, eq2, eq3 ], [ gs32, gs41, gs43 ], 'ReturnConditions', true );
+% sol = solve( [ eq1, eq2, eq3 ], [ gs32, gs41, gs43 ] );
+% % [ sol1, sol2, sol3, parameters, conditions ] = solve( [ eq1, eq2, eq3 ], [ gs32, gs41, gs43 ], 'ReturnConditions', true );
+% 
+% gs32 = simplify( sol.gs32 );
+% gs41 = simplify( sol.gs41 );
+% gs43 = simplify( sol.gs43 );
 
-gs32 = simplify( sol.gs32 );
-gs41 = simplify( sol.gs41 );
-gs43 = simplify( sol.gs43 );
+
 
 % %% Multiplication Architecture 4b
 % 
