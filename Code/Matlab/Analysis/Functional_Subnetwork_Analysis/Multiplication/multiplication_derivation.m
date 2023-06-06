@@ -51,6 +51,12 @@ eq2 = P2( 3 ) == subs( U4, [ U1, U2 ], [ P2( 1 ), P2( 2 ) ] );
 eq3 = P3( 3 ) == subs( U4, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
 eq4 = P4( 3 ) == subs( U4, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
 
-eq3 = subs( eq3, c4, c3 );
 eq3 = subs( eq3, 'R4', R4 );
+eq3 = subs( eq3, c4, c3 );
+
+eq1 = simplify( eq1 );
+eq2 = simplify( eq2 );
+eq3 = simplify( eq3 );
+eq4 = simplify( eq4 );
+
 
