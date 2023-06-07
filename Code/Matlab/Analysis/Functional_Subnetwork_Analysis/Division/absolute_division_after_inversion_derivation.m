@@ -32,14 +32,21 @@ eq2 = P2( 3 ) == subs( U3, [ U1, U2 ], [ P2( 1 ), P2( 2 ) ] );
 eq3 = P3( 3 ) == subs( U3, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
 eq4 = P4( 3 ) == subs( U3, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
 
-% Solve equation 3 for c2.
-c2 = solve( eq3, c2 ); c2 = collect( c2, [ c1, c3 ] );
+% % Solve equation 3 for c2.
+% c2 = solve( eq3, c2 ); c2 = collect( c2, [ c1, c3 ] );
+% 
+% % Substitute c2 into equation 1.
+% eq1 = subs( eq1, 'c2', c2 );
+% 
+% % Solve equation 1 for R3.
+% R3 = solve( eq1, R3 );
 
-% Substitute c2 into equation 1.
-eq1 = subs( eq1, 'c2', c2 );
+% Solve equations 1 and 3 for R3 and c2.
+sol = solve( [ eq1, eq3 ], [ c2, R3 ], 'ReturnConditions', true );
 
-% Solve equation 1 for R3.
-R3 = solve( eq1, R3 );
+% Retrieve R3 and c2.
+R3 = sol.R3;
+c2 = sol.c2;
 
 
 %% Absolute Division Derivation Similarity Constraints
@@ -62,7 +69,7 @@ eq3 = P3( 3 ) == subs( U3, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
 eq4 = P4( 3 ) == subs( U3, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
 
 % Solve equations 1 and 2 for gs31 and gs32.
-sol = solve( [ eq1, eq3 ], [ gs31, gs32 ] );
+sol = solve( [ eq1, eq3 ], [ gs31, gs32 ], 'ReturnConditions', true );
 
 % Retrieve gs31 and gs32.
 gs31 = collect( subs( sol.gs31, 'R3', R3 ), [ delta1, delta2 ] );

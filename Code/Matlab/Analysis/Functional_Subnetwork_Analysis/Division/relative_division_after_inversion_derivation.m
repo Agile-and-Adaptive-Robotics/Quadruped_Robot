@@ -11,8 +11,11 @@ syms R1 R2 R3 c1 c2 c3 delta1 delta2 Gm3 Iapp3 gs31 gs32 dEs31 dEs32 U1 U2 U3
 % Set the variable assumptions.
 assume( [ R1, R2, R3 ], 'positive' ) 
 assume( Gm3, 'positive' ) 
+assume( Iapp3, 'real' ) 
 assume( [ gs31 gs32 ], 'positive' ) 
 assume( [ c1, c2, c3, delta1, delta2 ], 'positive' )
+assume( dEs31, 'positive' ) 
+assume( dEs32, 'real' ) 
 
 
 %% Relative Division Derivation Desired Formulation
@@ -32,14 +35,22 @@ eq2 = P2( 3 ) == subs( U3, [ U1, U2 ], [ P2( 1 ), P2( 2 ) ] );
 eq3 = P3( 3 ) == subs( U3, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
 eq4 = P4( 3 ) == subs( U3, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
 
-% Solve equation 3 for c2.
-c2 = solve( eq3, c2 ); c2 = collect( c2, [ c1, c3 ] );
+% % Solve equations 1 and 3 for c2 and R3.
+% sol = solve( [ eq1, eq3 ], [ c2, R3 ], 'ReturnConditions', true );
+% 
+% % Retrieve c2 and R3 from the solution.
+% c2 = sol.c2;
+% R3 = sol.R3;
 
-% Substitute c2 into equation 1.
-eq1 = subs( eq1, 'c2', c2 );
+% Solve equations 1 and 3 for c1 and c2.
+sol = solve( [ eq1, eq3 ], [ c1, c2 ], 'ReturnConditions', true );
 
-% Solve equation 1 for R3.
-R3 = solve( eq1, R3 );
+% Retrieve c1 and c2 from the solution.
+c1 = sol.c1;
+c2 = sol.c2;
+
+% % Solve equation 1 for c1.
+% c1 = solve( eq1, c1 );
 
 
 %% Relative Division Derivation Similarity Constraints
@@ -62,7 +73,7 @@ eq3 = P3( 3 ) == subs( U3, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
 eq4 = P4( 3 ) == subs( U3, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
 
 % Solve equations 1 and 2 for gs31 and gs32.
-sol = solve( [ eq1, eq3 ], [ gs31, gs32 ] );
+sol = solve( [ eq1, eq3 ], [ gs31, gs32 ], 'ReturnConditions', true );
 
 % Retrieve gs31 and gs32.
 gs31 = collect( subs( sol.gs31, 'R3', R3 ), [ delta1, delta2 ] );

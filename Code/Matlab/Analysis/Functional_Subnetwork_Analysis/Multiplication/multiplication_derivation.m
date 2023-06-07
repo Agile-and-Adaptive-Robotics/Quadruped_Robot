@@ -34,7 +34,8 @@ Gm3 = c3/R2;
 
 % Define the absolute division subnetwork constaints.
 R4 = ( c4*R1*R3*delta2 )/( c4*R1*delta1 + c6*R3*delta2 - c6*delta1*delta2 );
-c5 = ( c3*R1 - c6*delta2 )/( delta2*R3 );
+% c5 = ( c3*R1 - c6*delta2 )/( delta2*R3 );
+c5 = ( c4*R1 - c6*delta2 )/( delta2*R3 );
 gs41 = ( c4*c6 )/( ( c6*dEs41 - R1*c4 )*R3 );
 gs43 = ( ( delta2*c6 - R1*c4 )*dEs41*c6 )/( ( R1*c4 - dEs41*c6 )*R1*R3*delta2 );
 dEs43 = 0;
