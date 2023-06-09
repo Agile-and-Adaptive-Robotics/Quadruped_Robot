@@ -16,6 +16,7 @@ network_dt = 1e-5;
 network_tf = 3;
 
 
+<<<<<<< Updated upstream
 %% Create Absolute Division Subnetwork.
 
 % Set the necessary parameters.
@@ -57,6 +58,90 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
+=======
+%% Create Absolute Division Subnetwork
+
+% Set the necessary parameters.
+R1_absolute = 20e-3;
+R2_absolute = 20e-3;
+c1_absolute = 0.40e-9;
+c3_absolute = 0.40e-9;
+delta_absolute = 1e-3;
+dEs31_absolute = 194e-3;
+
+% Compute the network properties.
+R3_absolute = c1_absolute*R1_absolute/c3_absolute;
+c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );
+dEs32_absolute = 0;
+Iapp3_absolute = 0;
+Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );
+gs31_absolute = ( R3_absolute*Gm3_absolute - Iapp3_absolute )/( dEs31_absolute - R3_absolute );
+gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Iapp3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );
+
+% Create an instance of the network class.
+network_absolute = network_class( network_dt, network_tf );
+
+% Create the network components.
+[ network_absolute.neuron_manager, neuron_IDs_absolute ] = network_absolute.neuron_manager.create_neurons( 3 );
+[ network_absolute.synapse_manager, synapse_IDs_absolute ] = network_absolute.synapse_manager.create_synapses( 2 );
+[ network_absolute.applied_current_manager, applied_current_IDs_absolute ] = network_absolute.applied_current_manager.create_applied_currents( 3 );
+
+% Set the network parameters.
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, zeros( size( neuron_IDs_absolute ) ), 'Gna' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ R1_absolute, R2_absolute, R3_absolute ], 'R' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 3 ), Gm3_absolute, 'Gm' );
+
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ 1, 2 ], 'from_neuron_ID' );
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ 3, 3 ], 'to_neuron_ID' );
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ gs31_absolute, gs32_absolute ], 'g_syn_max' );
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ dEs31_absolute, dEs32_absolute ], 'dE_syn' );
+
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute, [ 1, 2, 3 ], 'neuron_ID' );
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 1 ), 0*network_absolute.neuron_manager.neurons( 1 ).R*network_absolute.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 2 ), 0*network_absolute.neuron_manager.neurons( 2 ).R*network_absolute.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 3 ), Iapp3_absolute, 'I_apps' );
+
+
+%% Create Relative Division Subnetwork
+
+% Set the necesary parameters.
+R1_relative = 20e-3;
+R2_relative = 20e-3;
+R3_relative = 20e-3;
+c3_relative = 1e-6;
+delta_relative = 1e-3;
+dEs31_relative = 194e-3;
+
+% Compute the necessary parameters.
+c1_relative = c3_relative;
+c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;
+dEs32_relative = 0;
+Iapp3_relative = 0;
+Gm3_relative = c3_relative;
+gs31_relative = ( R3_relative*Gm3_relative - Iapp3_relative )/( dEs31_relative - R3_relative );
+gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Iapp3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );
+
+% Create an instance of the network class.
+network_relative = network_class( network_dt, network_tf );
+
+% Create the network components.
+[ network_relative.neuron_manager, neuron_IDs_relative ] = network_relative.neuron_manager.create_neurons( 3 );
+[ network_relative.synapse_manager, synapse_IDs_relative ] = network_relative.synapse_manager.create_synapses( 2 );
+[ network_relative.applied_current_manager, applied_current_IDs_relative ] = network_relative.applied_current_manager.create_applied_currents( 3 );
+
+% Set the network parameters.
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, zeros( size( neuron_IDs_relative ) ), 'Gna' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ R1_relative, R2_relative, R3_relative ], 'R' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 3 ), Gm3_relative, 'Gm' );
+
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ 1, 2 ], 'from_neuron_ID' );
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ 3, 3 ], 'to_neuron_ID' );
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ gs31_relative, gs32_relative ], 'g_syn_max' );
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ dEs31_relative, dEs32_relative ], 'dE_syn' );
+
+network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative, [ 1, 2, 3 ], 'neuron_ID' );
+network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 3 ), Iapp3_relative, 'I_apps' );
+>>>>>>> Stashed changes
 
 
 %% Load the Absolute & Relative Division Subnetworks

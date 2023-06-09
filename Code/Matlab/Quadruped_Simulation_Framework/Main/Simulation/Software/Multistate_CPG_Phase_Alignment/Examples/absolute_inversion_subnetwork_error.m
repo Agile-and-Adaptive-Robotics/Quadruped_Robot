@@ -27,10 +27,17 @@ network_tf = 3;
 num_neurons = 2;
 
 % Set the subnetwork parameters.
+<<<<<<< Updated upstream
 R1 = 20e-3;
 c1 = 0.40e-9;
 c3 = 20e-9;
 delta = 1e-3;
+=======
+R1 = 20e-3;                                 % [V] Activation Domain
+c1 = 0.40e-9;                               % [W] Absolute Inversion Parameter 1
+c3 = 20e-9;                                 % [A] Absolute Inversion Parameter 3
+delta = 1e-3;                               % [V] Minimum Output Membrane Voltage
+>>>>>>> Stashed changes
 
 % R1 = 20e-3;
 % c1 = 0.80e-9;
@@ -46,6 +53,7 @@ delta = 1e-3;
 %% Create Absolute Subtraction Subnetwork.
 
 % Compute the network properties.
+<<<<<<< Updated upstream
 R2 = c1/c3;
 c2 = ( c1 - delta*c3 )/( delta*R1 );
 dEs21 = 0;
@@ -55,6 +63,17 @@ gs21 = ( c1 - delta*c3 )/( delta*R1 );
 
 % Print a summary of the relevant network parameters.
 fprintf( 'NETWORK PARAMETERS:\n' )
+=======
+R2 = c1/c3;                                 % [V] Activation Domain
+c2 = ( c1 - delta*c3 )/( delta*R1 );        % [muS] Absolute Inversion Parameter 2
+dEs21 = 0;                                  % [V] Synaptic Reversal Potential
+Gm2 = c3/R1;                                % [S] Membrane Conductance
+Iapp2 = c1/R1;                              % [A] Applied Current
+gs21 = ( c1 - delta*c3 )/( delta*R1 );      % [S] Maximum Synaptic Conductance
+
+% Print a summary of the relevant network parameters.
+fprintf( 'ABSOLUTE INVERSION SUBNETWORK PARAMETERS:\n' )
+>>>>>>> Stashed changes
 fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
 fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
 fprintf( 'c1 = %0.2f [nW]\n', c1*( 10^9 ) )
