@@ -11,8 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;
+% b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -26,8 +26,13 @@ network_tf = 3;
 num_neurons = 2;
 
 % Set the subnetwork parameters.
+% R1 = 20e-3;
+% c1 = 0.40e-9;
+% c3 = 20e-9;
+% delta = 1e-3;
+
 R1 = 20e-3;
-c1 = 0.40e-9;
+c1 = 0.80e-9;
 c3 = 20e-9;
 delta = 1e-3;
 
