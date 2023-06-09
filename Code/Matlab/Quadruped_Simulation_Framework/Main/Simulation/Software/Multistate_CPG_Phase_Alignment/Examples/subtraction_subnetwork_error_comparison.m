@@ -513,3 +513,4 @@ surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(1
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+
