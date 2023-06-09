@@ -61,9 +61,14 @@ network_absolute.applied_current_manager = network_absolute.applied_current_mana
 %% Create a Relative Inversion Subnetwork.
 
 % Set the user specified parameters.
+% R1_relative = 20e-3;
+% R2_relative = 20e-3;
+% c3_relative = 1e-6;
+% delta_relative = 1e-3;
+
 R1_relative = 20e-3;
 R2_relative = 20e-3;
-c3_relative = 1e-6;
+c3_relative = 20e-9;
 delta_relative = 1e-3;
 
 % Compute the network_absolute properties.

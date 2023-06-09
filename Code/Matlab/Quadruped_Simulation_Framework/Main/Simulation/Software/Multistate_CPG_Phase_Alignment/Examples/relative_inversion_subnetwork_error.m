@@ -11,15 +11,16 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;
+% b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
 
 % Define the network integration step size.
 % network_dt = 1e-3;
-network_dt = 1e-5;
+network_dt = 1e-4;
+% network_dt = 1e-5;
 network_tf = 3;
 
 % Define the number of neurons.
@@ -31,6 +32,11 @@ R2 = 20e-3;
 c3 = 1e-6;
 delta = 1e-3;
 
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c3 = 20e-9;
+% delta = 1e-3;
+
 
 %% Create Relative Subtraction Subnetwork.
 
@@ -41,6 +47,19 @@ Gm2 = c3;
 Iapp2 = R2*c3;
 dEs21 = 0;
 gs21 = ( ( R2 - delta )*c3 )/( delta );
+
+% Print a summary of the relevant network parameters.
+fprintf( 'NETWORK PARAMETERS:\n' )
+fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
+fprintf( 'c1 = %0.2f [muS]\n', c1*( 10^6 ) )
+fprintf( 'c2 = %0.2f [muS]\n', c2*( 10^6 ) )
+fprintf( 'c3 = %0.2f [muS]\n', c3*( 10^6 ) )
+fprintf( 'delta = %0.2f [mV]\n', delta*( 10^3 ) )
+fprintf( 'dEs21 = %0.2f [mV]\n', dEs21*( 10^3 ) )
+fprintf( 'gs21 = %0.2f [muS]\n', gs21*( 10^6 ) )
+fprintf( 'Gm2 = %0.2f [muS]\n', Gm2*( 10^6 ) )
+fprintf( 'Iapp2 = %0.2f [nA]\n', Iapp2*( 10^9 ) )
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -75,10 +94,10 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 if b_simulate               % If we want to simulate the network....
     
     % Define the number of applied currents to use.
-    n_applied_currents = 10;
+    n_applied_currents = 20;
     
     % Create the applied currents.
-    applied_currents = linspace( 0, 20e-9, n_applied_currents );
+    applied_currents = linspace( 0, network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents );
         
     % Create a matrix to store the membrane voltages.
     Us_achieved = zeros( n_applied_currents, num_neurons );
