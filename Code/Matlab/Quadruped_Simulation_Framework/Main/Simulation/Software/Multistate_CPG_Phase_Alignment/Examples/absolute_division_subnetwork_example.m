@@ -16,14 +16,19 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necessary parameters.
-R1 = 20e-3;
-R2 = 20e-3;
-c1 = 0.40e-9;
-c3 = 0.40e-9;
+R1 = 20e-3;                                         % [V] Activation Domain
+R2 = 20e-3;                                         % [V] Activation Domain
+c1 = 0.40e-9;                                       % [W] Absolute Division Parameter 1
+c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+delta = 1e-3;                                       % [V] Minimum Membrane Voltage of Neuron 2
+dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
+% R1 = 20e-3;
+% R2 = 20e-3;
 % c1 = 1e-6;
 % c3 = 1e-6;
-delta = 1e-3;
-dEs31 = 194e-3;
+% delta = 1e-3;
+% dEs31 = 194e-3;
 
 
 %% Create Absolute Division Subnetwork.
@@ -32,13 +37,29 @@ dEs31 = 194e-3;
 network = network_class( network_dt, network_tf );
 
 % Compute the network properties.
-R3 = c1*R1/c3;
-c2 = ( R1*c1 - delta*c3 )/( delta*R2 );
-dEs32 = 0;
-Iapp3 = 0;
-Gm3 = c3/( R1*R2 );
-gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );
-gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );
+R3 = c1*R1/c3;                                                                  % [V] Activation Domain
+c2 = ( R1*c1 - delta*c3 )/( delta*R2 );                                         % [A] Absolute Division Parameter 2
+dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential
+Iapp3 = 0;                                                                      % [A] Applied Current
+Gm3 = c3/( R1*R2 );                                                             % [S] Membrane Conductance
+gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );                                       % [S] Maximum Synaptic Conductance
+gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );        % [S] Maximum Synaptic Conductance
+
+% Print a summary of the relevant network parameters.
+fprintf( 'ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
+fprintf( 'R3 = %0.2f [mV]\n', R3*( 10^3 ) )
+fprintf( 'c1 = %0.2f [nW]\n', c1*( 10^9 ) )
+fprintf( 'c2 = %0.2f [nA]\n', c2*( 10^9 ) )
+fprintf( 'c3 = %0.2f [nW]\n', c3*( 10^9 ) )
+fprintf( 'delta = %0.2f [mV]\n', delta*( 10^3 ) )
+fprintf( 'dEs31 = %0.2f [mV]\n', dEs31*( 10^3 ) )
+fprintf( 'dEs32 = %0.2f [mV]\n', dEs32*( 10^3 ) )
+fprintf( 'gs31 = %0.2f [muS]\n', gs31*( 10^6 ) )
+fprintf( 'gs32 = %0.2f [muS]\n', gs32*( 10^6 ) )
+fprintf( 'Gm3 = %0.2f [muS]\n', Gm3*( 10^6 ) )
+fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3*( 10^9 ) )
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );

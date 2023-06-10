@@ -11,8 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;
+% b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -24,12 +24,12 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necesary parameters.
-R1 = 20e-3;
-R2 = 20e-3;
-R3 = 20e-3;
-c3 = 1e-6;
-delta = 1e-3;
-dEs31 = 194e-3;
+R1 = 20e-3;                                             % [V] Activation Domain
+R2 = 20e-3;                                             % [V] Activation Domain
+R3 = 20e-3;                                             % [V] Activation Domain
+c3 = 1e-6;                                              % [S] Relative Division Parameter 3
+delta = 1e-3;                                           % [V] Minimum Membrane Voltage of Neuron 2
+dEs31 = 194e-3;                                         % [V] Synaptic Reversal Potential
 
 % Set the number of division neurons.
 num_division_neurons = 3;
@@ -41,13 +41,29 @@ num_division_neurons = 3;
 network = network_class( network_dt, network_tf );
 
 % Compute the necessary parameters.
-c1 = c3;
-c2 = ( R2*c1 - delta*c3 )/delta;
-dEs32 = 0;
-Iapp3 = 0;
-Gm3 = c3;
-gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );
-gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );
+c1 = c3;                                                                            % [S] Relative Division Parameter 1
+c2 = ( R2*c1 - delta*c3 )/delta;                                                    % [S] Relative Division Parameter 2
+dEs32 = 0;                                                                          % [V] Synaptic Reversal Potential
+Iapp3 = 0;                                                                          % [A] Applied Current
+Gm3 = c3;                                                                           % [S] Membrane Conductance
+gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );                                           % [S] Maximum Synaptic Conductance
+gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );            % [S] Maximum Synaptic Conductance
+
+% Print a summary of the relevant network parameters.
+fprintf( 'RELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
+fprintf( 'R3 = %0.2f [mV]\n', R3*( 10^3 ) )
+fprintf( 'c1 = %0.2f [muS]\n', c1*( 10^6 ) )
+fprintf( 'c2 = %0.2f [muS]\n', c2*( 10^6 ) )
+fprintf( 'c3 = %0.2f [muS]\n', c3*( 10^6 ) )
+fprintf( 'delta = %0.2f [mV]\n', delta*( 10^3 ) )
+fprintf( 'dEs31 = %0.2f [mV]\n', dEs31*( 10^3 ) )
+fprintf( 'dEs32 = %0.2f [mV]\n', dEs32*( 10^3 ) )
+fprintf( 'gs31 = %0.2f [muS]\n', gs31*( 10^6 ) )
+fprintf( 'gs32 = %0.2f [muS]\n', gs32*( 10^6 ) )
+fprintf( 'Gm3 = %0.2f [muS]\n', Gm3*( 10^6 ) )
+fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3*( 10^9 ) )
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );

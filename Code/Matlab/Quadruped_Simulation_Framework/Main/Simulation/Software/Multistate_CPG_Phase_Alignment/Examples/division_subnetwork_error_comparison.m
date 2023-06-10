@@ -16,67 +16,40 @@ network_dt = 1e-5;
 network_tf = 3;
 
 
-<<<<<<< Updated upstream
-%% Create Absolute Division Subnetwork.
-
-% Set the necessary parameters.
-R1 = 20e-3;
-R2 = 20e-3;
-c1 = 0.40e-9;
-c3 = 0.40e-9;
-delta = 1e-3;
-dEs31 = 194e-3;
-
-% Compute the network properties.
-R3 = c1*R1/c3;
-c2 = ( R1*c1 - delta*c3 )/( delta*R2 );
-dEs32 = 0;
-Iapp3 = 0;
-Gm3 = c3/( R1*R2 );
-gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );
-gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );
-
-% Create an instance of the network class.
-network = network_class( network_dt, network_tf );
-
-% Create the network components.
-[ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );
-[ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 2 );
-[ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 3 );
-
-% Set the network parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, zeros( size( neuron_IDs ) ), 'Gna' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3 ], 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), Gm3, 'Gm' );
-
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2 ], 'from_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 3, 3 ], 'to_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ gs31, gs32 ], 'g_syn_max' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ dEs31, dEs32 ], 'dE_syn' );
-
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2, 3 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
-=======
 %% Create Absolute Division Subnetwork
 
 % Set the necessary parameters.
-R1_absolute = 20e-3;
-R2_absolute = 20e-3;
-c1_absolute = 0.40e-9;
-c3_absolute = 0.40e-9;
-delta_absolute = 1e-3;
-dEs31_absolute = 194e-3;
+R1_absolute = 20e-3;            % [V] Activation Domain
+R2_absolute = 20e-3;            % [V] Activation Domain
+c1_absolute = 0.40e-9;          % [W] Absolute Division Parameter 1
+c3_absolute = 0.40e-9;          % [W] Absolute Division Parameter 3
+delta_absolute = 1e-3;          % [V] Modulated Output Membrane Voltage
+dEs31_absolute = 194e-3;        % [V] Synaptic Reversal Potential
 
 % Compute the network properties.
-R3_absolute = c1_absolute*R1_absolute/c3_absolute;
-c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );
-dEs32_absolute = 0;
-Iapp3_absolute = 0;
-Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );
-gs31_absolute = ( R3_absolute*Gm3_absolute - Iapp3_absolute )/( dEs31_absolute - R3_absolute );
-gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Iapp3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );
+R3_absolute = c1_absolute*R1_absolute/c3_absolute;                                                                                                                  % [V] Activation Domain
+c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );                                                              % [A] Absolute Division Parameter 2
+dEs32_absolute = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
+Iapp3_absolute = 0;                                                                                                                                                 % [A] Applied Current
+Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                                                             % [S] Membrane Conductance
+gs31_absolute = ( R3_absolute*Gm3_absolute - Iapp3_absolute )/( dEs31_absolute - R3_absolute );                                                                     % [S] Maximum Synaptic Conductance
+gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Iapp3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );           % [S] Maximum Synaptic Conductance
+
+% Print a summary of the relevant network parameters.
+fprintf( 'ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'R1 = %0.2f [mV]\n', R1_absolute*( 10^3 ) )
+fprintf( 'R2 = %0.2f [mV]\n', R2_absolute*( 10^3 ) )
+fprintf( 'R3 = %0.2f [mV]\n', R3_absolute*( 10^3 ) )
+fprintf( 'c1 = %0.2f [nW]\n', c1_absolute*( 10^9 ) )
+fprintf( 'c2 = %0.2f [nA]\n', c2_absolute*( 10^9 ) )
+fprintf( 'c3 = %0.2f [nW]\n', c3_absolute*( 10^9 ) )
+fprintf( 'delta = %0.2f [mV]\n', delta_absolute*( 10^3 ) )
+fprintf( 'dEs31 = %0.2f [mV]\n', dEs31_absolute*( 10^3 ) )
+fprintf( 'dEs32 = %0.2f [mV]\n', dEs32_absolute*( 10^3 ) )
+fprintf( 'gs31 = %0.2f [muS]\n', gs31_absolute*( 10^6 ) )
+fprintf( 'gs32 = %0.2f [muS]\n', gs32_absolute*( 10^6 ) )
+fprintf( 'Gm3 = %0.2f [muS]\n', Gm3_absolute*( 10^6 ) )
+fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3_absolute*( 10^9 ) )
 
 % Create an instance of the network class.
 network_absolute = network_class( network_dt, network_tf );
@@ -105,21 +78,37 @@ network_absolute.applied_current_manager = network_absolute.applied_current_mana
 %% Create Relative Division Subnetwork
 
 % Set the necesary parameters.
-R1_relative = 20e-3;
-R2_relative = 20e-3;
-R3_relative = 20e-3;
-c3_relative = 1e-6;
-delta_relative = 1e-3;
-dEs31_relative = 194e-3;
+R1_relative = 20e-3;                        % [V] Activation Domain
+R2_relative = 20e-3;                        % [V] Activation Domain
+R3_relative = 20e-3;                        % [V] Activation Domain
+c3_relative = 1e-6;                         % [W] Relative Division Parameter 3
+delta_relative = 1e-3;                      % [V] Modulated Output Membrane Voltage
+dEs31_relative = 194e-3;                    % [V] Synaptic Reversal Potential
 
 % Compute the necessary parameters.
-c1_relative = c3_relative;
-c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;
-dEs32_relative = 0;
-Iapp3_relative = 0;
-Gm3_relative = c3_relative;
-gs31_relative = ( R3_relative*Gm3_relative - Iapp3_relative )/( dEs31_relative - R3_relative );
-gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Iapp3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );
+c1_relative = c3_relative;                                                                                                                                          % [V] Relative Division Parameter 1
+c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                              % [V] Relative Division Parameter 2
+dEs32_relative = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
+Iapp3_relative = 0;                                                                                                                                                 % [A] Applied Current
+Gm3_relative = c3_relative;                                                                                                                                         % [S] Membrane Conductance
+gs31_relative = ( R3_relative*Gm3_relative - Iapp3_relative )/( dEs31_relative - R3_relative );                                                                     % [S] Maximum Synaptic Conductance
+gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Iapp3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );           % [S] Maximum Synaptic Conductance
+
+% Print a summary of the relevant network parameters.
+fprintf( '\nRELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'R1 = %0.2f [mV]\n', R1_relative*( 10^3 ) )
+fprintf( 'R2 = %0.2f [mV]\n', R2_relative*( 10^3 ) )
+fprintf( 'R3 = %0.2f [mV]\n', R3_relative*( 10^3 ) )
+fprintf( 'c1 = %0.2f [muS]\n', c1_relative*( 10^6 ) )
+fprintf( 'c2 = %0.2f [muS]\n', c2_relative*( 10^6 ) )
+fprintf( 'c3 = %0.2f [muS]\n', c3_relative*( 10^6 ) )
+fprintf( 'delta = %0.2f [mV]\n', delta_relative*( 10^3 ) )
+fprintf( 'dEs31 = %0.2f [mV]\n', dEs31_relative*( 10^3 ) )
+fprintf( 'dEs32 = %0.2f [mV]\n', dEs32_relative*( 10^3 ) )
+fprintf( 'gs31 = %0.2f [muS]\n', gs31_relative*( 10^6 ) )
+fprintf( 'gs32 = %0.2f [muS]\n', gs32_relative*( 10^6 ) )
+fprintf( 'Gm3 = %0.2f [muS]\n', Gm3_relative*( 10^6 ) )
+fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3_relative*( 10^9 ) )
 
 % Create an instance of the network class.
 network_relative = network_class( network_dt, network_tf );
@@ -141,7 +130,6 @@ network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_
 
 network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative, [ 1, 2, 3 ], 'neuron_ID' );
 network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 3 ), Iapp3_relative, 'I_apps' );
->>>>>>> Stashed changes
 
 
 %% Load the Absolute & Relative Division Subnetworks
@@ -163,18 +151,9 @@ Us_achieved_relative = relative_division_simulation_data.Us_achieved;
 
 %% Compute the Error in the Steady State Division Subnetwork Responses
 
-% Get the absolute activation domains of the neurons.
-R4_absolute = network_absolute.neuron_manager.get_neuron_property( 4, 'R' ); R4_absolute = R4_absolute{ 1 };
-
-% Get the relative activation domains of the neurons.
-R1_relative = network_relative.neuron_manager.get_neuron_property( 1, 'R' ); R1_relative = R1_relative{ 1 };
-R2_relative = network_relative.neuron_manager.get_neuron_property( 2, 'R' ); R2_relative = R2_relative{ 1 };
-R3_relative = network_relative.neuron_manager.get_neuron_property( 3, 'R' ); R3_relative = R3_relative{ 1 };
-R4_relative = network_relative.neuron_manager.get_neuron_property( 4, 'R' ); R4_relative = R4_relative{ 1 };
-
 % Compute the desired steady state output membrane voltage.
-Us_desired_absolute_output = Us_achieved_absolute( :, :, 1 ) - Us_achieved_absolute( :, :, 2 ) + Us_achieved_absolute( :, :, 3 );
-Us_desired_relative_output = c*R4_relative*( ( 1/npm_k( 1 ) )*( Us_achieved_relative( :, :, 1 )/R1_relative + Us_achieved_relative( :, :, 3 )/R3_relative ) - ( 1/npm_k( 2 ) )*( Us_achieved_relative( :, :, 2 )/R2_relative ) );
+Us_desired_absolute_output = ( c1_absolute*Us_achieved_absolute( :, :, 1 ) )./( c2_absolute*Us_achieved_absolute( :, :, 2 ) + c3_absolute );
+Us_desired_relative_output = ( c1_relative*R2_relative*R3_relative*Us_achieved_relative( :, :, 1 ) )./( c2_relative*R1_relative*Us_achieved_relative( :, :, 2 ) + R1_relative*R2_relative*c3_relative );
 
 % Generate desired steady state membrane voltage matrices.
 Us_desired_absolute = Us_achieved_absolute; Us_desired_absolute( :, :, end ) = Us_desired_absolute_output;
@@ -185,58 +164,48 @@ error_absolute = Us_achieved_absolute( :, :, end ) - Us_desired_absolute( :, :, 
 error_relative = Us_achieved_relative( :, :, end ) - Us_desired_relative( :, :, end );
 
 % Compute the percent error between the achieve and desired results.
-error_absolute_percent = 100*( error_absolute/R4_absolute );
-error_relative_percent = 100*( error_relative/R4_relative );
+error_absolute_percent = 100*( error_absolute/R3_absolute );
+error_relative_percent = 100*( error_relative/R3_relative );
 
 % Compute the mean error.
 mse_absolute = ( 1/numel( error_absolute ) )*sqrt( sum( error_absolute.^2, 'all' ) );
 mse_relative = ( 1/numel( error_relative ) )*sqrt( sum( error_relative.^2, 'all' ) );
 
 % Compute the mean error percentage.
-mse_absolute_percent = 100*( mse_absolute/R4_absolute );
-mse_relative_percent = 100*( mse_relative/R4_relative );
-% mse_absolute_percent = ( 1/numel( error_absolute_percent ) )*sqrt( sum( error_absolute_percent.^2, 'all' ) );
-% mse_relative_percent = ( 1/numel( error_relative_percent ) )*sqrt( sum( error_relative_percent.^2, 'all' ) );
+mse_absolute_percent = 100*( mse_absolute/R3_absolute );
+mse_relative_percent = 100*( mse_relative/R3_relative );
 
 % Compute the standard deviation of the error.
 std_absolute = std( error_absolute, 0, 'all' );
 std_relative = std( error_relative, 0, 'all' );
 
 % Compute the standard deviation of the error percentage.
-std_absolute_percent = 100*( std_absolute/R4_absolute );
-std_relative_percent = 100*( std_relative/R4_relative );
-% std_absolute_percent = std( error_absolute_percent, 0, 'all' );
-% std_relative_percent = std( error_relative_percent, 0, 'all' );
+std_absolute_percent = 100*( std_absolute/R3_absolute );
+std_relative_percent = 100*( std_relative/R3_relative );
 
 % Compute the maximum errors.
 [ error_absolute_max, index_absolute_max ] = max( abs( error_absolute ), [  ], 'all', 'linear' );
 [ error_relative_max, index_relative_max ] = max( abs( error_relative ), [  ], 'all', 'linear' );
 
 % Compute the maximum error percentages.
-error_absolute_max_percent = 100*( error_absolute_max/R4_absolute );
-error_relative_max_percent = 100*( error_relative_max/R4_relative );
-% error_absolute_max_percent = max( abs( error_absolute_percent ), [  ], 'all' );
-% error_relative_max_percent = max( abs( error_relative_percent ), [  ], 'all' );
+error_absolute_max_percent = 100*( error_absolute_max/R3_absolute );
+error_relative_max_percent = 100*( error_relative_max/R3_relative );
 
 % Compute the minimum errors.
 [ error_absolute_min, index_absolute_min ] = min( abs( error_absolute ), [  ], 'all', 'linear' );
 [ error_relative_min, index_relative_min ] = min( abs( error_relative ), [  ], 'all', 'linear' );
 
 % Compute the minimum error percentages.
-error_absolute_min_percent = 100*( error_absolute_min/R4_absolute );
-error_relative_min_percent = 100*( error_relative_min/R4_relative );
-% error_absolute_min_percent = min( abs( error_absolute_percent ), [  ], 'all' );
-% error_relative_min_percent = min( abs( error_relative_percent ), [  ], 'all' );
+error_absolute_min_percent = 100*( error_absolute_min/R3_absolute );
+error_relative_min_percent = 100*( error_relative_min/R3_relative );
 
 % Compute the range of the error.
 error_absolute_range = error_absolute_max - error_absolute_min;
 error_relative_range = error_relative_max - error_relative_min;
 
 % Compute the range of the error percentages.
-error_absolute_range_percent = 100*( error_absolute_range/R4_absolute );
-error_relative_range_percent = 100*( error_relative_range/R4_relative );
-% error_absolute_range_percent = error_absolute_max_percent - error_absolute_min_percent;
-% error_relative_range_percent = error_relative_max_percent - error_relative_min_percent;
+error_absolute_range_percent = 100*( error_absolute_range/R3_absolute );
+error_relative_range_percent = 100*( error_relative_range/R3_relative );
 
 % Compute the difference in error between the absolute and relative encoding schemes.
 error_difference = abs( error_relative ) - abs( error_absolute );
@@ -245,8 +214,6 @@ error_difference_percent = abs( error_relative_percent ) - abs( error_absolute_p
 % Compute the mean squared error difference.
 error_difference_mse = abs( mse_relative ) - abs( mse_absolute );
 error_difference_mse_percent = abs( mse_relative_percent ) - abs( mse_absolute_percent );
-% error_difference_mse = ( 1/numel( error_difference ) )*sqrt( sum( error_difference.^2, 'all' ) );
-% error_difference_mse_percent = ( 1/numel( error_difference_percent ) )*sqrt( sum( error_difference_percent.^2, 'all' ) );
 
 % Compute the standard deviation difference.
 error_difference_std = abs( std_relative ) - abs( std_absolute );
@@ -255,8 +222,6 @@ error_difference_std_percent = abs( std_relative_percent ) - abs( std_absolute_p
 % Compute the maximum error difference.
 error_difference_max = abs( error_relative_max ) - abs( error_absolute_max );
 error_difference_max_percent = abs( error_relative_max_percent ) - abs( error_absolute_max_percent );
-% error_difference_max = max( abs( error_difference ), [  ], 'all' );
-% error_difference_max_percent = max( abs( error_difference_percent ), [  ], 'all' );
 
 
 %% Print Out the Summary Information
@@ -295,87 +260,58 @@ fprintf( 'delta Max Error:\t%9.3e [mV] (%6.2f [%%])\n', error_difference_max, er
 %% Plot the Steady State Division Error Surfaces
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute subtraction subnetwork.
-% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Division Subnetwork Steady State Response (Comparison)' )
-% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-% surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
-% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
-% legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% view( -45, 15 )
-% colormap( get_bichromatic_colormap(  ) )
-% saveas( fig, [ save_directory, '\', 'Absolute_Subtraction_Subnetwork_Steady_State_Response.png' ] )
-
-% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Division Subnetwork Steady State Response (Comparison)' )
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Division Subnetwork Steady State Response (Comparison)' )
 surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( -45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
-saveas( fig, [ save_directory, '\', 'Absolute_Subtraction_Subnetwork_Steady_State_Response.png' ] )
+% colorbar(  )
+saveas( fig, [ save_directory, '\', 'Absolute_Division_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative subtraction subnetwork.
-% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Division Subnetwork Steady State Response (Comparison)' )
-% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-% surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
-% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
-% legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% view( -45, 30 )
-% colormap( get_bichromatic_colormap(  ) )
-% % colorbar(  )
-% saveas( fig, [ save_directory, '\', 'Relative_Subtraction_Subnetwork_Steady_State_Response.png' ] )
-
-% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Division Subnetwork Steady State Response (Comparison)' )
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Division Subnetwork Steady State Response (Comparison)' )
 surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
 surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( -45, 30 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Relative_Subtraction_Subnetwork_Steady_State_Response.png' ] )
+saveas( fig, [ save_directory, '\', 'Relative_Division_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a surface that shows the membrane voltage error.
-% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error, E [mV]' ), title( 'Division Subnetwork Steady State Error' )
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute*(10^3), 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
-% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error, E [mV]' ), title( 'Division Subnetwork Steady State Error' )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative*(10^3), 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( 45, 15 )
-saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Comparison.png' ] )
+% colormap( get_bichromatic_colormap(  ) )
+% colorbar(  )
+saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Comparison.png' ] )
 
 % Create a surface that shows the membrane voltage error percentage.
-% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Percentage, E [%]' ), title( 'Division Subnetwork Steady State Error Percentage' )
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute_percent, 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
-% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative_percent, 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Percentage, E [%]' ), title( 'Division Subnetwork Steady State Error Percentage' )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute_percent, 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative_percent, 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( 45, 15 )
-saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Percentage_Comparison.png' ] )
+% colormap( get_bichromatic_colormap(  ) )
+% colorbar(  )
+saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Percentage_Comparison.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative subtraction subnetworks.
-% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference, dE [mV]' ), title( 'Division Subnetwork Steady State Error Difference' )
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference, dE [mV]' ), title( 'Division Subnetwork Steady State Error Difference' )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference*(10^3), 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
 view( 45, 15 )
-colormap( get_bichromatic_colormap(  ) )
-saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Difference.png' ] )
+% colormap( get_bichromatic_colormap(  ) )
+% colorbar(  )
+saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Difference.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative percent subtraction subnetworks.
-% % figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
-% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
-% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'Interp', 'Facecolor', 'Interp' )
-% view( 45, 15 )
-% colormap( get_bichromatic_colormap(  ) )
-% saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
-
-% figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
-saveas( fig, [ save_directory, '\', 'Subtraction_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+% colorbar(  )
+saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
 

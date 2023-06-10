@@ -11,13 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-<<<<<<< Updated upstream
-% b_simulate = true;
-b_simulate = false;
-=======
 b_simulate = true;
 % b_simulate = false;
->>>>>>> Stashed changes
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -29,21 +24,20 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necessary parameters.
-<<<<<<< Updated upstream
-R1 = 20e-3;
-R2 = 20e-3;
-c1 = 0.40e-9;
-c3 = 0.40e-9;
-delta = 1e-3;
-dEs31 = 194e-3;
-=======
+% R1 = 20e-3;                                         % [V] Activation Domain
+% R2 = 20e-3;                                         % [V] Activation Domain
+% c1 = 0.40e-9;                                       % [W] Absolute Division Parameter 1
+% c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+% delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
+% dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
 R1 = 20e-3;                                         % [V] Activation Domain
 R2 = 20e-3;                                         % [V] Activation Domain
-c1 = 0.40e-9;                                       % [W] Absolute Division Parameter 1
+c1 = 0.80e-9;                                       % [W] Absolute Division Parameter 1
 c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
 delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
 dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
->>>>>>> Stashed changes
+
 
 % Set the number of division neurons.
 num_division_neurons = 3;
@@ -55,15 +49,6 @@ num_division_neurons = 3;
 network = network_class( network_dt, network_tf );
 
 % Compute the network properties.
-<<<<<<< Updated upstream
-R3 = c1*R1/c3;
-c2 = ( R1*c1 - delta*c3 )/( delta*R2 );
-dEs32 = 0;
-Iapp3 = 0;
-Gm3 = c3/( R1*R2 );
-gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );
-gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );
-=======
 R3 = c1*R1/c3;                                                                  % [V] Activation Domain
 c2 = ( R1*c1 - delta*c3 )/( delta*R2 );                                         % [A] Absolute Division Parameter 2
 dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential
@@ -76,7 +61,7 @@ gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );        
 fprintf( 'ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
 fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
 fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
-fprintf( 'R3 = %0.2f [mV]\n', R2*( 10^3 ) )
+fprintf( 'R3 = %0.2f [mV]\n', R3*( 10^3 ) )
 fprintf( 'c1 = %0.2f [nW]\n', c1*( 10^9 ) )
 fprintf( 'c2 = %0.2f [nA]\n', c2*( 10^9 ) )
 fprintf( 'c3 = %0.2f [nW]\n', c3*( 10^9 ) )
@@ -87,7 +72,6 @@ fprintf( 'gs31 = %0.2f [muS]\n', gs31*( 10^6 ) )
 fprintf( 'gs32 = %0.2f [muS]\n', gs32*( 10^6 ) )
 fprintf( 'Gm3 = %0.2f [muS]\n', Gm3*( 10^6 ) )
 fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3*( 10^9 ) )
->>>>>>> Stashed changes
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );
@@ -118,13 +102,8 @@ if b_simulate               % If we want to simulate the network....
     n_applied_currents2 = 10;
     
     % Create the applied currents.
-<<<<<<< Updated upstream
-    applied_currents1 = linspace( 0, 20e-9, n_applied_currents1 );
-    applied_currents2 = linspace( 0, 20e-9, n_applied_currents2 );
-=======
     applied_currents1 = linspace( 0, network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, n_applied_currents1 );
     applied_currents2 = linspace( 0, network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents2 );
->>>>>>> Stashed changes
     
     % Create a grid of the applied currents.
     [ Applied_Currents1, Applied_Currents2 ] = meshgrid( applied_currents1, applied_currents2 );
