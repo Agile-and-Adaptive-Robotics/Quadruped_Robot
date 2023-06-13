@@ -31,19 +31,25 @@ network_tf = 3;
 % delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
 % dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
 
+% R1 = 20e-3;                                         % [V] Activation Domain
+% R2 = 20e-3;                                         % [V] Activation Domain
+% c1 = 0.80e-9;                                       % [W] Absolute Division Parameter 1
+% c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+% delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
+% dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
 R1 = 20e-3;                                         % [V] Activation Domain
 R2 = 20e-3;                                         % [V] Activation Domain
-c1 = 0.80e-9;                                       % [W] Absolute Division Parameter 1
+c1 = 1.20e-9;                                       % [W] Absolute Division Parameter 1
 c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
 delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
 dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
-
 
 % Set the number of division neurons.
 num_division_neurons = 3;
 
 
-%% Create Absolute Subtraction Subnetwork.
+%% Create Absolute Division Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );

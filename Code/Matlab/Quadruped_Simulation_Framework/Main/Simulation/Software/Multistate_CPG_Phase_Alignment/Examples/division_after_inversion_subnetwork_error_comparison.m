@@ -1,4 +1,4 @@
-%% Division Subnetwork Encoding Comparison
+%% Division After Inversion Subnetwork Encoding Comparison
 
 % Clear Everything.
 clear, close( 'all' ), clc
@@ -19,36 +19,22 @@ network_tf = 3;
 %% Create Absolute Division Subnetwork
 
 % Set the necessary parameters.
-% R1_absolute = 20e-3;            % [V] Activation Domain
-% R2_absolute = 20e-3;            % [V] Activation Domain
-% c1_absolute = 0.40e-9;          % [W] Absolute Division Parameter 1
-% c3_absolute = 0.40e-9;          % [W] Absolute Division Parameter 3
-% delta_absolute = 1e-3;          % [V] Modulated Output Membrane Voltage
-% dEs31_absolute = 194e-3;        % [V] Synaptic Reversal Potential
-
-% R1_absolute = 20e-3;                                         % [V] Activation Domain
-% R2_absolute = 20e-3;                                         % [V] Activation Domain
-% c1_absolute = 0.80e-9;                                       % [W] Absolute Division Parameter 1
-% c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
-% delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
-% dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
-
-R1_absolute = 20e-3;                                         % [V] Activation Domain
-R2_absolute = 20e-3;                                         % [V] Activation Domain
-c1_absolute = 1.20e-9;                                       % [W] Absolute Division Parameter 1
-c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
-delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
-dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
-
+R1_absolute = 20e-3;                               	% [V] Activation Domain
+R2_absolute = 20e-3;                                 % [V] Activation Domain
+c1_absolute = 0.76e-9;                               % [W] Division Parameter 1
+c3_absolute = 0.40e-9;                               % [W] Division Parameter 3
+delta1_absolute = 1e-3;                              % [V] Inversion Offset
+delta2_absolute = 2e-3;                              % [V] Division Offset
+dEs31_absolute = 194e-3;                             % [V] Synaptic Reversal Potential
 
 % Compute the network properties.
-R3_absolute = c1_absolute*R1_absolute/c3_absolute;                                                                                                                  % [V] Activation Domain
-c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );                                                              % [A] Absolute Division Parameter 2
-dEs32_absolute = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
-Iapp3_absolute = 0;                                                                                                                                                 % [A] Applied Current
-Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                                                             % [S] Membrane Conductance
-gs31_absolute = ( R3_absolute*Gm3_absolute - Iapp3_absolute )/( dEs31_absolute - R3_absolute );                                                                     % [S] Maximum Synaptic Conductance
-gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Iapp3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );           % [S] Maximum Synaptic Conductance
+R3_absolute = ( c1_absolute*R1_absolute*R2_absolute*delta2_absolute )/( c1_absolute*R1_absolute*delta1_absolute + c3_absolute*R2_absolute*delta2_absolute - c3_absolute*delta1_absolute*delta2_absolute );                % [V] Activation Domain
+c2_absolute = ( c1_absolute*R1_absolute - c3_absolute*delta2_absolute )/( delta2_absolute*R2_absolute );                                                   % [A] Division Parameter 2
+gs31_absolute = ( c1_absolute*c3_absolute )/( ( c3_absolute*dEs31_absolute - R1_absolute*c1_absolute )*R2_absolute );                                               % [S] Maximum Synaptic Conductance
+gs32_absolute = ( ( delta2_absolute*c3_absolute - R1_absolute*c1_absolute )*dEs31_absolute*c3_absolute )/( ( R1_absolute*c1_absolute - dEs31_absolute*c3_absolute )*R1_absolute*R2_absolute*delta2_absolute );            % [S] Maximum Synaptic Conductance
+dEs32_absolute = 0;                                                                                  % [V] Synaptic Reversal Potential
+Iapp3_absolute = 0;                                                                                  % [A] Applied Current
+Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                         % [S] Membrane Conductance
 
 % Print a summary of the relevant network parameters.
 fprintf( 'ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
@@ -58,7 +44,8 @@ fprintf( 'R3 = %0.2f [mV]\n', R3_absolute*( 10^3 ) )
 fprintf( 'c1 = %0.2f [nW]\n', c1_absolute*( 10^9 ) )
 fprintf( 'c2 = %0.2f [nA]\n', c2_absolute*( 10^9 ) )
 fprintf( 'c3 = %0.2f [nW]\n', c3_absolute*( 10^9 ) )
-fprintf( 'delta = %0.2f [mV]\n', delta_absolute*( 10^3 ) )
+fprintf( 'delta1 = %0.2f [mV]\n', delta1_absolute*( 10^3 ) )
+fprintf( 'delta2 = %0.2f [mV]\n', delta2_absolute*( 10^3 ) )
 fprintf( 'dEs31 = %0.2f [mV]\n', dEs31_absolute*( 10^3 ) )
 fprintf( 'dEs32 = %0.2f [mV]\n', dEs32_absolute*( 10^3 ) )
 fprintf( 'gs31 = %0.2f [muS]\n', gs31_absolute*( 10^6 ) )
@@ -93,21 +80,22 @@ network_absolute.applied_current_manager = network_absolute.applied_current_mana
 %% Create Relative Division Subnetwork
 
 % Set the necesary parameters.
-R1_relative = 20e-3;                        % [V] Activation Domain
-R2_relative = 20e-3;                        % [V] Activation Domain
-R3_relative = 20e-3;                        % [V] Activation Domain
-c3_relative = 1e-6;                         % [W] Relative Division Parameter 3
-delta_relative = 1e-3;                      % [V] Modulated Output Membrane Voltage
-dEs31_relative = 194e-3;                    % [V] Synaptic Reversal Potential
+R1_relative = 20e-3;                                 % [V] Activation Domain
+R2_relative = 20e-3;                                 % [V] Activation Domain
+R3_relative = 20e-3;                                 % [V] Activation Domain
+c3_relative = 1e-6;                                  % [S] Division Parameter 3
+delta1_relative = 1e-3;                              % [V] Inversion Offset
+delta2_relative = 2e-3;                              % [V] division Offset
+dEs31_relative = 194e-3;                             % [V] Synaptic Reversal Potential
 
 % Compute the necessary parameters.
-c1_relative = c3_relative;                                                                                                                                          % [V] Relative Division Parameter 1
-c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                              % [V] Relative Division Parameter 2
-dEs32_relative = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
-Iapp3_relative = 0;                                                                                                                                                 % [A] Applied Current
-Gm3_relative = c3_relative;                                                                                                                                         % [S] Membrane Conductance
-gs31_relative = ( R3_relative*Gm3_relative - Iapp3_relative )/( dEs31_relative - R3_relative );                                                                     % [S] Maximum Synaptic Conductance
-gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Iapp3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );           % [S] Maximum Synaptic Conductance
+c1_relative = ( ( delta1_relative - R2_relative )*delta2_relative*c3_relative )/( delta1_relative*R3_relative - delta2_relative*R2_relative );                                                                           % [S] Division Parameter 1
+c2_relative = ( ( R3_relative - delta2_relative )*R2_relative*c3_relative )/( R2_relative*delta2_relative - R3_relative*delta1_relative );                                                                               % [S] Division Parameter 2
+gs31_relative = ( ( c3_relative^2 )*delta1_relative*delta2_relative + ( c1_relative - c3_relative )*c3_relative*R2_relative*delta2_relative )/( -c3_relative*delta1_relative*delta2_relative + c3_relative*dEs31_relative*delta1_relative + ( c3_relative - c1_relative )*R2_relative*delta2_relative );           % [S] Maximum Synaptic Conductance
+gs32_relative = ( ( c1_relative - c3_relative )*c3_relative*R2_relative*dEs31_relative )/( -c3_relative*delta1_relative*delta2_relative + c3_relative*dEs31_relative*delta1_relative + ( c3_relative - c1_relative )*R2_relative*delta2_relative );                                     % [S] Maximum Synaptic Conductance
+dEs32_relative = 0;                                                                                                                              % [V] Synaptic Reversal Potential
+Iapp3_relative = 0;                                                                                                                              % [A] Applied Current
+Gm3_relative = c3_relative;                                                                                                                               % [S] Membrane Conductance
 
 % Print a summary of the relevant network parameters.
 fprintf( '\nRELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
@@ -117,7 +105,8 @@ fprintf( 'R3 = %0.2f [mV]\n', R3_relative*( 10^3 ) )
 fprintf( 'c1 = %0.2f [muS]\n', c1_relative*( 10^6 ) )
 fprintf( 'c2 = %0.2f [muS]\n', c2_relative*( 10^6 ) )
 fprintf( 'c3 = %0.2f [muS]\n', c3_relative*( 10^6 ) )
-fprintf( 'delta = %0.2f [mV]\n', delta_relative*( 10^3 ) )
+fprintf( 'delta1 = %0.2f [mV]\n', delta1_relative*( 10^3 ) )
+fprintf( 'delta2 = %0.2f [mV]\n', delta2_relative*( 10^3 ) )
 fprintf( 'dEs31 = %0.2f [mV]\n', dEs31_relative*( 10^3 ) )
 fprintf( 'dEs32 = %0.2f [mV]\n', dEs32_relative*( 10^3 ) )
 fprintf( 'gs31 = %0.2f [muS]\n', gs31_relative*( 10^6 ) )

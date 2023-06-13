@@ -24,13 +24,21 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necessary parameters.
-R1 = 20e-3;
-R2 = 20e-3;
-c1 = 0.40e-9;
-c3 = 0.40e-9;
-delta1 = 1e-3;
-delta2 = 1e-3;
-dEs31 = 194e-3;
+% R1 = 20e-3;                                 % [V] Activation Domain
+% R2 = 20e-3;                                 % [V] Activation Domain
+% c1 = 0.40e-9;                               % [W] Division Parameter 1
+% c3 = 0.40e-9;                               % [W] Division Parameter 3
+% delta1 = 1e-3;                              % [V] Inversion Offset
+% delta2 = 2e-3;                              % [V] Division Offset
+% dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
+
+R1 = 20e-3;                               	% [V] Activation Domain
+R2 = 20e-3;                                 % [V] Activation Domain
+c1 = 0.76e-9;                               % [W] Division Parameter 1
+c3 = 0.40e-9;                               % [W] Division Parameter 3
+delta1 = 1e-3;                              % [V] Inversion Offset
+delta2 = 2e-3;                              % [V] Division Offset
+dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
 
 % Set the number of division neurons.
 num_division_neurons = 3;
@@ -42,13 +50,13 @@ num_division_neurons = 3;
 network = network_class( network_dt, network_tf );
 
 % Compute the network properties.
-R3 = ( c1*R1*R2*delta2 )/( c1*R1*delta1 + c3*R2*delta2 - c3*delta1*delta2 );
-c2 = ( c1*R1 - c3*delta2 )/( delta2*R2 );
-gs31 = ( c1*c3 )/( ( c3*dEs31 - R1*c1 )*R2 );
-gs32 = ( ( delta2*c3 - R1*c1 )*dEs31*c3 )/( ( R1*c1 - dEs31*c3 )*R1*R2*delta2 );
-dEs32 = 0;
-Iapp3 = 0;
-Gm3 = c3/( R1*R2 );
+R3 = ( c1*R1*R2*delta2 )/( c1*R1*delta1 + c3*R2*delta2 - c3*delta1*delta2 );                % [V] Activation Domain
+c2 = ( c1*R1 - c3*delta2 )/( delta2*R2 );                                                   % [A] Division Parameter 2
+gs31 = ( c1*c3 )/( ( c3*dEs31 - R1*c1 )*R2 );                                               % [S] Maximum Synaptic Conductance
+gs32 = ( ( delta2*c3 - R1*c1 )*dEs31*c3 )/( ( R1*c1 - dEs31*c3 )*R1*R2*delta2 );            % [S] Maximum Synaptic Conductance
+dEs32 = 0;                                                                                  % [V] Synaptic Reversal Potential
+Iapp3 = 0;                                                                                  % [A] Applied Current
+Gm3 = c3/( R1*R2 );                                                                         % [S] Membrane Conductance
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );

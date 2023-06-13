@@ -35,7 +35,7 @@ dEs31 = 194e-3;                                         % [V] Synaptic Reversal 
 num_division_neurons = 3;
 
 
-%% Create Absolute Subtraction Subnetwork.
+%% Create Absolute Division Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -94,8 +94,8 @@ if b_simulate               % If we want to simulate the network....
     n_applied_currents2 = 10;
     
     % Create the applied currents.
-    applied_currents1 = linspace( 0, 20e-9, n_applied_currents1 );
-    applied_currents2 = linspace( 0, 20e-9, n_applied_currents2 );
+    applied_currents1 = linspace( 0, network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, n_applied_currents1 );
+    applied_currents2 = linspace( 0, network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents2 );
     
     % Create a grid of the applied currents.
     [ Applied_Currents1, Applied_Currents2 ] = meshgrid( applied_currents1, applied_currents2 );
