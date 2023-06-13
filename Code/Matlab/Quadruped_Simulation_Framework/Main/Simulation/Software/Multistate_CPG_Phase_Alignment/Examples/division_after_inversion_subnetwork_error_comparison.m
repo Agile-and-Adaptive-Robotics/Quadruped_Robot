@@ -19,9 +19,17 @@ network_tf = 3;
 %% Create Absolute Division Subnetwork
 
 % Set the necessary parameters.
-R1_absolute = 20e-3;                               	% [V] Activation Domain
+% R1_absolute = 20e-3;                                 % [V] Activation Domain
+% R2_absolute = 20e-3;                                 % [V] Activation Domain
+% c1_absolute = 0.76e-9;                               % [W] Division Parameter 1
+% c3_absolute = 0.40e-9;                               % [W] Division Parameter 3
+% delta1_absolute = 1e-3;                              % [V] Inversion Offset
+% delta2_absolute = 2e-3;                              % [V] Division Offset
+% dEs31_absolute = 194e-3;                             % [V] Synaptic Reversal Potential
+
+R1_absolute = 20e-3;                                 % [V] Activation Domain
 R2_absolute = 20e-3;                                 % [V] Activation Domain
-c1_absolute = 0.76e-9;                               % [W] Division Parameter 1
+c1_absolute = 2.28e-9;                               % [W] Division Parameter 1
 c3_absolute = 0.40e-9;                               % [W] Division Parameter 3
 delta1_absolute = 1e-3;                              % [V] Inversion Offset
 delta2_absolute = 2e-3;                              % [V] Division Offset
@@ -37,7 +45,7 @@ Iapp3_absolute = 0;                                                             
 Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                         % [S] Membrane Conductance
 
 % Print a summary of the relevant network parameters.
-fprintf( 'ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'ABSOLUTE DIVISION AFTER INVERSION SUBNETWORK PARAMETERS:\n' )
 fprintf( 'R1 = %0.2f [mV]\n', R1_absolute*( 10^3 ) )
 fprintf( 'R2 = %0.2f [mV]\n', R2_absolute*( 10^3 ) )
 fprintf( 'R3 = %0.2f [mV]\n', R3_absolute*( 10^3 ) )
@@ -98,7 +106,7 @@ Iapp3_relative = 0;                                                             
 Gm3_relative = c3_relative;                                                                                                                               % [S] Membrane Conductance
 
 % Print a summary of the relevant network parameters.
-fprintf( '\nRELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( '\nRELATIVE DIVISION AFTER INVERSION SUBNETWORK PARAMETERS:\n' )
 fprintf( 'R1 = %0.2f [mV]\n', R1_relative*( 10^3 ) )
 fprintf( 'R2 = %0.2f [mV]\n', R2_relative*( 10^3 ) )
 fprintf( 'R3 = %0.2f [mV]\n', R3_relative*( 10^3 ) )
@@ -139,8 +147,8 @@ network_relative.applied_current_manager = network_relative.applied_current_mana
 %% Load the Absolute & Relative Division Subnetworks
 
 % Load the simulation results.
-absolute_division_simulation_data = load( [ load_directory, '\', 'absolute_division_subnetwork_error' ] );
-relative_division_simulation_data = load( [ load_directory, '\', 'relative_division_subnetwork_error' ] );
+absolute_division_simulation_data = load( [ load_directory, '\', 'absolute_division_after_inversion_subnetwork_error' ] );
+relative_division_simulation_data = load( [ load_directory, '\', 'relative_division_after_inversion_subnetwork_error' ] );
 
 % Store the absolute simulation results in separate variables.
 Absolute_Applied_Currents1 = absolute_division_simulation_data.Applied_Currents1;
@@ -239,7 +247,7 @@ Us1_achieved_relative = Us_achieved_relative( :, :, 1 );
 Us2_achieved_relative = Us_achieved_relative( :, :, 2 );
 
 % Print out the absolute division summary statistics.
-fprintf( 'Absolute Division Summary Statistics\n' )
+fprintf( 'Absolute Division After Inversion Summary Statistics\n' )
 fprintf( 'MSE: \t\t\t%9.3e [mV] (%6.2f [%%])\n', mse_absolute, mse_absolute_percent )
 fprintf( 'STD: \t\t\t%9.3e [mV] (%6.2f [%%])\n', std_absolute, std_absolute_percent )
 fprintf( 'Max Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV], %9.3e [mV])\n', error_absolute_max, error_absolute_max_percent, Us1_achieved_absolute( index_absolute_max ), Us2_achieved_absolute( index_absolute_max ), 20e-3 )
@@ -247,7 +255,7 @@ fprintf( 'Min Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV], %9.3
 fprintf( 'Range Error: \t%0.3e [mV] (%6.2f [%%])\n', error_absolute_range, error_absolute_range_percent )
 
 fprintf( '\n' )
-fprintf( 'Relative Division Summary Statistics\n' )
+fprintf( 'Relative Division After Inversion Summary Statistics\n' )
 fprintf( 'MSE: \t\t\t%9.3e [mV] (%6.2f [%%])\n', mse_relative, mse_relative_percent )
 fprintf( 'STD: \t\t\t%9.3e [mV] (%6.2f [%%])\n', std_relative, std_relative_percent )
 fprintf( 'Max Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV], %9.3e [mV])\n', error_relative_max, error_relative_max_percent, Us1_achieved_relative( index_relative_max ), Us2_achieved_relative( index_relative_max ), 20e-3 )
@@ -255,7 +263,7 @@ fprintf( 'Min Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV], %9.3
 fprintf( 'Range Error: \t%0.3e [mV] (%6.2f [%%])\n', error_relative_range, error_relative_range_percent )
 
 fprintf( '\n' )
-fprintf( 'Absolute vs Relative Division Summary Statistics:\n' )
+fprintf( 'Absolute vs Relative Division After Inversion Summary Statistics:\n' )
 fprintf( 'delta MSE: \t\t\t%9.3e [mV] (%6.2f [%%])\n', error_difference_mse, error_difference_mse_percent )
 fprintf( 'delta STD:\t%9.3e [V] (%6.2f [%%])\n', error_difference_std, error_difference_std_percent )
 fprintf( 'delta Max Error:\t%9.3e [mV] (%6.2f [%%])\n', error_difference_max, error_difference_max_percent )
@@ -271,7 +279,7 @@ legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Ho
 view( -45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Absolute_Division_Subnetwork_Steady_State_Response.png' ] )
+saveas( fig, [ save_directory, '\', 'Absolute_Division_After_Inversion_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative division subnetwork.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Division Subnetwork Steady State Response (Comparison)' )
@@ -281,7 +289,7 @@ legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Ho
 view( -45, 30 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Relative_Division_Subnetwork_Steady_State_Response.png' ] )
+saveas( fig, [ save_directory, '\', 'Relative_Division_After_Inversion_Subnetwork_Steady_State_Response.png' ] )
 
 % Create a surface that shows the membrane voltage error.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error, E [mV]' ), title( 'Division Subnetwork Steady State Error' )
@@ -291,7 +299,7 @@ legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'H
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Comparison.png' ] )
+saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Comparison.png' ] )
 
 % Create a surface that shows the membrane voltage error percentage.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Percentage, E [%]' ), title( 'Division Subnetwork Steady State Error Percentage' )
@@ -301,7 +309,7 @@ legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'H
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Percentage_Comparison.png' ] )
+saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Percentage_Comparison.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative division subnetworks.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference, dE [mV]' ), title( 'Division Subnetwork Steady State Error Difference' )
@@ -309,7 +317,7 @@ surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(1
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Difference.png' ] )
+saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Difference.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative percent division subnetworks.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
@@ -317,5 +325,5 @@ surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(1
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
 

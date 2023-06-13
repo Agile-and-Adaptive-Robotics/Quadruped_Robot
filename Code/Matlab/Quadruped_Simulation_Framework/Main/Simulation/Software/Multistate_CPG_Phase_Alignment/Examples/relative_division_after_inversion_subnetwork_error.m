@@ -24,9 +24,17 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necessary parameters.
+% R1 = 20e-3;                                 % [V] Activation Domain
+% R2 = 20e-3;                                 % [V] Activation Domain
+% R3 = 20e-3;                                 % [V] Activation Domain
+% c3 = 1e-6;                                  % [S] Division Parameter 3
+% delta1 = 1e-3;                              % [V] Inversion Offset
+% delta2 = 2e-3;                              % [V] division Offset
+% dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
+
 R1 = 20e-3;                                 % [V] Activation Domain
 R2 = 20e-3;                                 % [V] Activation Domain
-R3 = 20e-3;                                 % [V] Activation Domain
+R3 = 30e-3;                                 % [V] Activation Domain
 c3 = 1e-6;                                  % [S] Division Parameter 3
 delta1 = 1e-3;                              % [V] Inversion Offset
 delta2 = 2e-3;                              % [V] division Offset

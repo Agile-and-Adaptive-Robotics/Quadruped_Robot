@@ -32,9 +32,18 @@ network_tf = 3;
 % delta2 = 2e-3;
 % dEs31 = 194e-3;
 
+% These parameters make the absolute response make the relative response.
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 0.76e-9;
+% c3 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 2e-3;
+% dEs31 = 194e-3;
+
 R1 = 20e-3;
 R2 = 20e-3;
-c1 = 0.76e-9;
+c1 = 2.28e-9;
 c3 = 0.40e-9;
 delta1 = 1e-3;
 delta2 = 2e-3;

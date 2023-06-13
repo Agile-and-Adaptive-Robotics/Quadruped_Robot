@@ -32,13 +32,31 @@ network_tf = 3;
 % delta2 = 2e-3;                              % [V] Division Offset
 % dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
 
+% These parameters make the absolute and relative inversion cases the same.
+% R1 = 20e-3;                               	% [V] Activation Domain
+% R2 = 20e-3;                                 % [V] Activation Domain
+% c1 = 0.76e-9;                               % [W] Division Parameter 1
+% c3 = 0.40e-9;                               % [W] Division Parameter 3
+% delta1 = 1e-3;                              % [V] Inversion Offset
+% delta2 = 2e-3;                              % [V] Division Offset
+% dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
+
 R1 = 20e-3;                               	% [V] Activation Domain
 R2 = 20e-3;                                 % [V] Activation Domain
-c1 = 0.76e-9;                               % [W] Division Parameter 1
+c1 = 2.28e-9;                               % [W] Division Parameter 1
 c3 = 0.40e-9;                               % [W] Division Parameter 3
 delta1 = 1e-3;                              % [V] Inversion Offset
 delta2 = 2e-3;                              % [V] Division Offset
 dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
+
+% Absolute division without inversion parameters.
+% R1 = 20e-3;                                         % [V] Activation Domain
+% R2 = 20e-3;                                         % [V] Activation Domain
+% c1 = 1.20e-9;                                       % [W] Absolute Division Parameter 1
+% c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+% delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
+% dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
 
 % Set the number of division neurons.
 num_division_neurons = 3;
