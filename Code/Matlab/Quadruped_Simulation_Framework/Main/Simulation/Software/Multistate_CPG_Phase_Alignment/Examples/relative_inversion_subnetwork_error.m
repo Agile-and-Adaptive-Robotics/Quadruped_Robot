@@ -27,17 +27,10 @@ network_tf = 3;
 num_neurons = 2;
 
 % Set the network parameters.
-<<<<<<< Updated upstream
-R1 = 20e-3;
-R2 = 20e-3;
-c3 = 1e-6;
-delta = 1e-3;
-=======
 R1 = 20e-3;                                         % [V] Activation Domain 1
 R2 = 20e-3;                                         % [V] Activation Domain 2
 c3 = 1e-6;                                          % [S] Relative Inversion Parameter 3
 delta = 1e-3;                                       % [V] Minimum Output Membrane Voltage
->>>>>>> Stashed changes
 
 % R1 = 20e-3;
 % R2 = 20e-3;
@@ -48,17 +41,6 @@ delta = 1e-3;                                       % [V] Minimum Output Membran
 %% Create Relative Subtraction Subnetwork.
 
 % Compute the network properties.
-<<<<<<< Updated upstream
-c1 = c3;
-c2 = ( ( R2 - delta )*c3 )/( delta );
-Gm2 = c3;
-Iapp2 = R2*c3;
-dEs21 = 0;
-gs21 = ( ( R2 - delta )*c3 )/( delta );
-
-% Print a summary of the relevant network parameters.
-fprintf( 'NETWORK PARAMETERS:\n' )
-=======
 c1 = c3;                                            % [S] Relative Inversion Parameter 1
 c2 = ( ( R2 - delta )*c3 )/( delta );               % [S] Relative Inversion Parameter 2
 Gm2 = c3;                                           % [S] Membrane Conductance

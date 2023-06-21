@@ -11,8 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;
+% b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -24,14 +24,26 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necessary parameters.
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 8.00e-12;
+% c3 = 0.40e-9;
+% c6 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 1e-3;
+% dEs41 = 194e-3;
+
 R1 = 20e-3;
 R2 = 20e-3;
-c1 = 8.00e-12;
-c3 = 0.40e-9;
-c6 = 0.40e-9;
+R3 = 20e-3;
+R4 = 20e-3;
+c3 = 1e-6;
+c6 = 1e-6;
 delta1 = 1e-3;
-delta2 = 1e-3;
+delta2 = 2e-3;
 dEs41 = 194e-3;
+
+
 
 % Set the number of multiplication neurons.
 num_multiplication_neurons = 4;
@@ -43,25 +55,23 @@ num_multiplication_neurons = 4;
 network = network_class( network_dt, network_tf );
 
 % Compute the network properties.
-R3 = c1/c3;
-R4 = ( c1*c3*R1*delta2 )/( ( c3^2 )*R1*delta1 + c1*c6*delta2 - c3*c6*delta1*delta2 );
+c1 = c3;
+c2 = ( ( R3 - delta1 )*c3 )/delta1;
+c4 = ( ( R3 - delta1 )*delta2*c6 )/( R3*delta2 - R4*delta1 );
+c5 = ( ( R4 - delta2 )*R3*c6 )/( R3*delta2 - R4*delta1 );
 
-c2 = ( c1 - delta1*c3 )/( delta1*R2 );
-c4 = c3;
-c5 = ( ( c3*R1 - c6*delta2 )*c3 )/( delta2*c1 );
-
-Iapp3 = c1/R2;
-Iapp4 = 0;
-
-Gm3 = c3/R2;
-Gm4 = ( c3*c6 )/( R1*c1 );
+gs32 = ( ( R3 - delta1 )*c3 )/delta1;
+gs41 = ( ( c6^2 )*delta1*delta2 + ( c4 - c6 )*c6*R3*delta2 )/( -c6*delta1*delta2 + c6*dEs41*delta1 + ( c6 - c4 )*R3*delta2 );
+gs43 = ( ( c4 - c6 )*c6*R3*dEs41 )/( -c6*delta1*delta2 + c6*dEs41*delta1 + ( c6 - c4 )*R3*delta2 );
 
 dEs32 = 0;
 dEs43 = 0;
 
-gs32 = ( c1 - delta1*c3 )/( delta1*R2 );
-gs41 = ( ( c3^2 )*c6 )/( ( dEs41*c6 - R1*c3 )*c1 );
-gs43 = ( ( delta2*c6 - R1*c3 )*dEs41*c3*c6 )/( ( R1*c3 - dEs41*c6 )*R1*c1*delta2 );
+Gm3 = c3;
+Gm4 = c6;
+
+Iapp3 = R3*c3;
+Iapp4 = 0;
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 4 );

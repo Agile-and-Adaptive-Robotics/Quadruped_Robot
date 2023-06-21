@@ -13,35 +13,113 @@ b_verbose = true;
 % network_dt = 1e-3;
 % network_dt = 1e-4;
 network_dt = 1e-5;
+% network_dt = 1e-6;
 network_tf = 3;
 
-% Set the necessary parameters.
-R1 = 20e-3;
-R2 = 20e-3;
 
 % % Doesn't work, produces negative conductances.
+% R1 = 20e-3;
+% R2 = 20e-3;
 % c1 = 0.40e-9;
 % c3 = 20.0e-9;
 % c6 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 1e-3;
+% dEs41 = 194e-3;
 
 % % Doesn't work, everything correct sign, maybe numerical problems.
+% R1 = 20e-3;
+% R2 = 20e-3;
 % c1 = 0.40e-9;
 % c3 = 20.0e-9;
 % c6 = 2.1e-9;
+% delta1 = 1e-3;
+% delta2 = 1e-3;
+% dEs41 = 194e-3;
 
 % % Inversion doesn't work.
+% R1 = 20e-3;
+% R2 = 20e-3;
 % c1 = 0.40e-9;
 % c3 = 0.40e-9;
 % c6 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 1e-3;
+% dEs41 = 194e-3;
 
+% This set of parameters appears to work.
+R1 = 20e-3;
+R2 = 20e-3;
 c1 = 8.00e-12;
 c3 = 0.40e-9;
 c6 = 0.40e-9;
-
 delta1 = 1e-3;
-delta2 = 1e-3;
-
+delta2 = 2e-3;
 dEs41 = 194e-3;
+
+% % This set of parameters is obtained by using a naive conversion from the relative version and doesn't appear to correctly replicate those results.
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 0.40e-9;
+% c3 = 20.00e-9;
+% c6 = 0.40e-9;
+% delta1 = 1e-3;
+% % delta2 = 1e-3;
+% delta2 = 2e-3;
+% dEs41 = 194e-3;
+
+% % This set of parameters was choosen to make R3 = 20e-3 and R4 = 20e-3.
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 3.80000000e-08;
+% c3 = 1.90000000e-06;
+% c6 = 1e-6;
+% delta1 = 1e-3;
+% delta2 = 2e-3;
+% dEs41 = 194e-3;
+
+% % This set of parameters was choosen to make R3 = 20e-3 and R4 = 4e-4.
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 4.02020202e-10;
+% c3 = 2.01010101e-08;
+% c6 = 1e-6;
+% delta1 = 1e-4;
+% delta2 = 2e-4;
+% dEs41 = 194e-3;
+
+
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 5.20000000e-08;
+% c3 = 1.30000000e-06;
+% c6 = 1e-6;
+% delta1 = 1e-3;
+% delta2 = 2e-3;
+% dEs41 = 194e-3;
+
+
+
+% This set comes from combining the current absolute inversion and absolute division after inversion (prefering the inversion stats).
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 0.40e-9;
+% c3 = 20e-9;
+% c6 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 2e-3;
+% dEs41 = 194e-3;
+
+% This set comes from combining the current absolute inversion and absolute division after inversion (prefering the division stats).
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 0.40e-9;
+% c3 = 2.28e-9;
+% c6 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 2e-3;
+% dEs41 = 194e-3;
+
 
 
 %% Create Absolute Division Subnetwork.

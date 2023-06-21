@@ -11,8 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;
+% b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -24,14 +24,14 @@ network_dt = 1e-4;
 network_tf = 3;
 
 % Set the necessary parameters.
-R1 = 20e-3;
-R2 = 20e-3;
-c1 = 8.00e-12;
-c3 = 0.40e-9;
-c6 = 0.40e-9;
-delta1 = 1e-3;
-delta2 = 1e-3;
-dEs41 = 194e-3;
+R1 = 20e-3;                                 % [V] Activation Domain
+R2 = 20e-3;                                 % [V] Activation Domain
+c1 = 8.00e-12;                              % [W] Absolute Inversion Parameter 1
+c3 = 0.40e-9;                               % [A] Absolute Inversion Parameter 3
+c6 = 0.40e-9;                               % [W] Absolute Division Parameter 3 
+delta1 = 1e-3;                              % [V] Inversion Offset Voltage
+delta2 = 2e-3;                              % [V] Division Offset Voltage
+dEs41 = 194e-3;                             % [V] Synaptic Reversal Potential
 
 % Set the number of multiplication neurons.
 num_multiplication_neurons = 4;
