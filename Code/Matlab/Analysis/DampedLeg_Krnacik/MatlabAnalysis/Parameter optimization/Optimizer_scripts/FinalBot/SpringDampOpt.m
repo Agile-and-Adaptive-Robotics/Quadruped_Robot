@@ -4,19 +4,21 @@
 clear; clc; close('all');
 
 % Add paths needed for loading data and using functions
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Optimizer functions and data')
- addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\IC_check')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Optimizer functions and data')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\IC_check')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Optimizer_scripts\ParticleSwarmOpt')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Results')
 
 % Create folder to save results to and add file path
-folder_title = 'Robot_results';
-mkdir(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title))
-addpath(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title)) 
-clc;
+% folder_title = 'Robot_results';
+% mkdir(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title))
+% addpath(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title)) 
+% clc;
 
 
 %% Load and format data to be used
 
-% Choose mechnical system to optimize
+% Choose mechanical system to optimize
 sysName = 'MechPropDog3';
 sysProp = load('-mat', sysName);
 
@@ -24,8 +26,8 @@ sysProp = load('-mat', sysName);
 Data = load('-mat', 'SpringDampData');
 
 % Load solved b values and k values to use as inital conditions
-load('-mat', 'C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\Robot_damping_calcs\Results.mat', 'b_sols');
-load('-mat', 'C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\Robot_spring_calcs\SpringOpt.mat', 'k_1', 'k_2', 'k_3');
+load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Results\Robot_damping_calcs\Results.mat', 'b_sols');
+load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Results\Robot_spring_calcs\SpringOpt.mat', 'k_1', 'k_2', 'k_3');
 
 
 % Set start time step
