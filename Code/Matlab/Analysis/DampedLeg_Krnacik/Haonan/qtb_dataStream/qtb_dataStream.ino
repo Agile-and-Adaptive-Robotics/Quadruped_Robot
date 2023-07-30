@@ -44,14 +44,14 @@
 unsigned int timeInterval = 10; // [ms] time between readings printed
 
 //--averaging controls
-int avg_strategy  = 2   ;//0: none (noisy); 1: standard averaging; 2: exponential (ie weighted) averaging (most stable)
+int avg_strategy  = 1   ;//0: none (noisy); 1: standard averaging; 2: exponential (ie weighted) averaging (most stable)
 
 float beta        = 0.15;//gain variable representing weight of new reading. (must be 0 < beta < 1)
 int n             = 20  ;//[#] number of readings across which to average
 
 //--display settings
 bool displayMsg   = true;//determines whether to print angles to serial window
-bool verboseMsg   = true;//determines whether context is printed with joint angles
+bool verboseMsg   = false;//determines whether context is printed with joint angles
 
 // **********************************************************************
 
@@ -84,7 +84,7 @@ unsigned long previousTime = millis();
 // ******************** setup() ****************************************
 void setup(){
   // initialize serial communications
-  Serial.begin(115200);
+  Serial.begin(57600);
 }
 
 // ******************** loop() *****************************************
@@ -217,11 +217,7 @@ void printMsg(){
     Serial.println(millis() % 1000);
   } else {
     Serial.print(angleHip);
-    Serial.print("\t");
-    Serial.print(angleKne);
-    Serial.print("\t");
-    Serial.print(angleAnk);
-    Serial.print("\t");
+    Serial.print(",");
     Serial.println(millis() % 1000);
   }
 }
