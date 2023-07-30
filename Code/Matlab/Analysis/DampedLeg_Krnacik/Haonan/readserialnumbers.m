@@ -1,17 +1,17 @@
-
 %This is an introductory function for reading in serial data
 
 function data = readserialnumbers()
 
 %Initialize the serial port on the correct port, with a baud rate
-s = serialport('COM5', 115200);
+s = serialport('COM3', 57600);
 
 %Determine how many lines of data to collect, and initialize a cell array
 %to store in the data from the serial port
-length_to_collect = 50;
+length_to_collect = 2000;
 stext = cell(length_to_collect,1);
+i = 1;
 
-%% Read the data and store in a matrix
+% Read the data and store in a matrix
 %Read all the data (ASCII) into a cell array
 for i = 1:length_to_collect+1  %First read almost always starts in the middle of a number (Or is 'arduino is ready'), so it is likely not useable, so add 1
     stext{i} = readline(s);
@@ -28,6 +28,7 @@ while a<=length_to_collect+1 %While a is less than or equal to the amount of dat
     a = a+1;   %Increment read variable
 end
 
+clear s
 %%
 %close the port before ending the function
 clear s
