@@ -34,48 +34,60 @@ hip_dat = hip_dat(1:data_N(1), :);
 knee_dat =  knee_dat(1:data_N(2), :);
 ankle_dat = ankle_dat(1:data_N(3), :);
 
-% Set hip to 90 deg for all ankle trials, and set knee to 180 for first
-% four trials, and to 90 for second four trials
+% Ankle :: Set hip and knee angles for ankle trials
 % Ankle data is copied from Emma's trials
 ankle_dat(:,(1:3:24)) = 90;     % set hip to 90º for all trials
 ankle_dat(:,(2:3:12)) = 180;    % set knee to 180° for first 4 trials
 ankle_dat(:,(14:3:24)) = 90;    % set knee to 90° for first 4 trials
 
-% Set hip to 90 deg and ankle to 180 for all knee trials
-knee_dat(:,(1:3:7)) = 90;      % set hip to 90º for all trials
-knee_dat(:,(3:3:9)) = 180;      % set ankle to 180° for all trials
+% Knee :: Set hip and ankle angles for knee trials
+knee_dat(:,(1:3:24)) = 90;      % set hip to 90º for all trials
+knee_dat(:,(3:3:24)) = 180;      % set ankle to 180° for all trials
 
-% Set knee and set ankle to 180 for all hip trials
-hip_dat(:,(2:3:8)) = 180;  % set knee to 180° for all trials
-hip_dat(:,(3:3:9)) = 180;   % set ankle to 180° for all trials
+% Hip :: Set knee and ankle for hip trials
+hip_dat(:,(2:3:24)) = 180;       % set knee to 180° for all trials
+hip_dat(:,(3:3:12)) = 180;      % set ankle to 180° for trials 1 - 4
+hip_dat(:,(15:3:24)) = 90;      % set ankle to 90° for trials 5 - 8
 
 % Convert encoder angles to my angle convention
-hip_dat(:, (1:3:7)) = 180 - hip_dat(:, (1:3:7));
-knee_dat(:, (2:3:8)) = knee_dat(:, (2:3:8)) + 90;
+hip_dat(:, (1:3:12)) = 180 - hip_dat(:, (1:3:12));
+knee_dat(:, (2:3:24)) = knee_dat(:, (2:3:24)) + 90;
 ankle_dat(:, (3:3:24)) = 180 - ankle_dat(:, (3:3:24));
 
 %% Plot data
 fig = figure( 'Color', 'w');
 
-subplot(2, 2, 1)
-plot(time.hip, hip_dat(:,(1:3:7)))
+subplot(2, 3, 1)
+plot(time.hip, hip_dat(:,(1:3:12)))
 xlabel('Time (s)'); ylabel('Position (deg)')
 xlim([0 time_L(1)]); ylim([90 190])
 title({'Hip Damper K119 Drops:', 'Knee @180, Ankle @180'})
 
-subplot(2, 2, 2)
-plot(time.knee, knee_dat(:,(2:3:8)))
+subplot(2, 3, 4)
+plot(time.hip, hip_dat(:,(13:3:24)))
+xlabel('Time (s)'); ylabel('Position (deg)')
+xlim([0 time_L(1)]); ylim([0 100])
+title({'Hip Damper K119 Drops:', 'Knee @180, Ankle @180'})
+
+subplot(2, 3, 2)
+plot(time.knee, knee_dat(:,(2:3:13)))
 xlabel('Time (s)'); ylabel('Position (deg)')
 xlim([0 time_L(2)]); ylim([90 190])
 title({'Knee Damper Drops:', 'Hip @90, Ankle @180'})
 
-subplot(2, 2, 3)
+subplot(2, 3, 5)
+plot(time.knee, knee_dat(:,(14:3:24)))
+xlabel('Time (s)'); ylabel('Position (deg)')
+xlim([0 time_L(2)]); ylim([90 190])
+title({'Knee Damper Drops:', 'Hip @90, Ankle @90'})
+
+subplot(2, 3, 3)
 plot(time.ankle, ankle_dat(:,(3:3:12)))
 xlabel('Time (s)'); ylabel('Position (deg)')
 xlim([0 time_L(3)]); ylim([90 190])
 title({'Ankle Damper Drops:', 'Hip @90, Knee @180'})
 
-subplot(2, 2, 4)
+subplot(2, 3, 6)
 plot(time.ankle, ankle_dat(:,(15:3:24)))
 xlabel('Time (s)'); ylabel('Position (deg)')
 xlim([0 time_L(3)]); ylim([90 190])

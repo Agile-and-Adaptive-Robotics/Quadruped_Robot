@@ -1,10 +1,10 @@
 clear
 clc
 
-load dampers_hip2_trial3;
+load dampers_hip2_trial_rev4;
 
 %%
-temp = data(44:254,1:2);
+temp = data(16:165,1);
 
 count = 2;
 x = 1;
@@ -21,6 +21,9 @@ end
 for jj = 1:(length(temp)/2)
     dat(jj,:) = temp(jj*2,:);
 end
+
+%%
+dat = -dat;
 
 
         
