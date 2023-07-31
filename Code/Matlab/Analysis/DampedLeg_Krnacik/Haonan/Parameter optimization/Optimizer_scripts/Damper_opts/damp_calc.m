@@ -6,18 +6,19 @@
 clear; clc; close('all');
 
 % Add paths needed for loading data and using functions
-addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer functions and data')
-addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results')
+addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Optimizer functions and data')
+addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results')
 
 % Create folder to save results to and add file path
-folder_title = 'Robot_damping_calcs_Haonan';
-mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results', folder_title))
-addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results', folder_title)) 
+folder_title = 'Robot_damping_calcs';
+mkdir(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title))
+addpath(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title)) 
+clc
 
 %% Load and format data to be used
 
 % Choose mechnical system to optimize
-sysName = 'MechPropBigRat';
+sysName = 'MechPropDog2';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
@@ -51,6 +52,8 @@ fprintf('\nEOM loaded.\n')
 
 % Compile EOM into single variable
 dui = [du1, du2, du3, du4, du5, du6];
+
+
 
 %% OPTIMIZATION 
 

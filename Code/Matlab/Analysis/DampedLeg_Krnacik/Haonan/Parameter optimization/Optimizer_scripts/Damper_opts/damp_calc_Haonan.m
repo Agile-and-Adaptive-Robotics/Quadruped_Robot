@@ -1,4 +1,4 @@
-%% Parameter optimization for dog leg
+%% Parameter optimization for big rat leg
 
 % Optimizing repsonse b value of each robot joint only based on gathered
 % response data.
@@ -6,23 +6,22 @@
 clear; clc; close('all');
 
 % Add paths needed for loading data and using functions
-addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Optimizer functions and data')
-addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Results')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer functions and data')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results')
 
 % Create folder to save results to and add file path
-folder_title = 'Robot_damping_calcs';
-mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Results\', folder_title))
-addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\MatlabAnalysis\Parameter optimization\Results\', folder_title)) 
-clc
+folder_title = 'Robot_damping_calcs_Haonan';
+mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results', folder_title))
+addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results', folder_title)) 
 
 %% Load and format data to be used
 
-% Choose mechnical system to optimize
-sysName = 'MechPropDog2';
+% Choose mechanical system to optimize
+sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-DampData = load('-mat', 'DampData');
+DampData = load('-mat', 'DampDataHaonanK119');
 
 % Set start time step
 time_step = 0.001;                                                  % [ s ]
@@ -52,8 +51,6 @@ fprintf('\nEOM loaded.\n')
 
 % Compile EOM into single variable
 dui = [du1, du2, du3, du4, du5, du6];
-
-
 
 %% OPTIMIZATION 
 
@@ -204,9 +201,9 @@ legend('Actual response', 'ODE response')
 %% Save results
 
 % save results - optimized parameters and figure
-save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\Results.mat'), 'b_sols', 'rt_ode', 'rt_data')
-saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\Results.fig'))
-fprintf('Data saved.\n')
+% save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\Results.mat'), 'b_sols', 'rt_ode', 'rt_data')
+% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\Results.fig'))
+% fprintf('Data saved.\n')
 
 
 
