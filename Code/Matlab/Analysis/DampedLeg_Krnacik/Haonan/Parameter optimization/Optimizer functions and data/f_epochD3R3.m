@@ -32,7 +32,7 @@ trials                 = data.trials;
 start_indices          = data.start_indices;
 end_indices            = data.end_indices;
 time_step              = data.time_step;
-jdataProp              = data.jdataProp;
+sysProp                = data.sysProp;
 trial_value            = data.trial_value;              % indicator for which trials to place higher cost
 set_vals               = data.set_vals; 
 

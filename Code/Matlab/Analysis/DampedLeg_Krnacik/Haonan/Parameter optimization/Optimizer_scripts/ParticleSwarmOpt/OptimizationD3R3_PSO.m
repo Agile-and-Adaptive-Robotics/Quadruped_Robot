@@ -8,14 +8,14 @@
 clear; clc; close('all');
 
 % Add paths needed for loading data and using functions
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Optimizer functions and data')
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\IC_check')
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\dyn_prop_calc')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer functions and data')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\IC_check')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\dyn_prop_calc')
 
 % Create folder to save results to and add file path
 folder_title = 'PSOD3R3_results';
-mkdir(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title))
-addpath(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title)) 
+mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title))
+addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title)) 
 clc;
 
 
@@ -231,9 +231,9 @@ end
 legend('Scaled rat hip', 'D3 hip', 'Scaled rat knee', 'D3 knee', 'Scaled rat ankle', 'D3 ankle')
     
 % save results - optimized parameters and figure
-save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOResults.mat'), 'PSO_results', 'thetabias_val', 'risetime_sim', 'omega_sim', 'zeta_sim', 'JAdiff_sim')
-saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOresults.fig'))
-fprintf('Data saved.\n')
+% save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOResults.mat'), 'PSO_results', 'thetabias_val', 'risetime_sim', 'omega_sim', 'zeta_sim', 'JAdiff_sim')
+% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOresults.fig'))
+% fprintf('Data saved.\n')
 
 
 

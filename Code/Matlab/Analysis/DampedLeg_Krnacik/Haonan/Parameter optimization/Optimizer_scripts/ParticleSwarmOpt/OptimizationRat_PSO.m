@@ -149,7 +149,7 @@ for m = 1:length(muscles)
     risetime_simact(m, :) = [risetime_x risetime_thetas];
     
     
-        % Calculate damping ratio land natural frequency
+    % Calculate damping ratio land natural frequency
     % Find peaks and location of sim response and actual response for knee
     [pks_x, loc_x]              = findpeaks(thetas_ode(:,3)); [pks_xneg, loc_xneg] = findpeaks(-thetas_ode(:,3));    
     [pks_thetas, loc_thetas]    = findpeaks(thetas(:,2)); [pks_thetasneg, loc_thetasneg] = findpeaks(-thetas(:,2));

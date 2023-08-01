@@ -24,14 +24,14 @@ syms tau1 tau2 tau3
 syms theta1rest theta2rest theta3rest
 
 % De-compile non-optimized variables from single structure
-dui = data.dui;
-jdata = data.jdata;
-thetabias_sym = data.thetabias_sym;
-muscles = data.muscles;
-trials = data.trials;
-start_indices = data.start_indices;
-end_indices = data.end_indices;
-time_step = data.time_step;
+dui             = data.dui;
+jdata           = data.jdata;
+thetabias_sym   = data.thetabias_sym;
+muscles         = data.muscles;
+trials          = data.trials;
+start_indices   = data.start_indices;
+end_indices     = data.end_indices;
+time_step       = data.time_step;
 
 m1_value = data.sysProp.m1_value; m2_value = data.sysProp.m2_value; m3_value = data.sysProp.m3_value;
 R1_value = data.sysProp.R1_value; R2_value = data.sysProp.R2_value; R3_value = data.sysProp.R3_value;
@@ -39,7 +39,7 @@ L1_value = data.sysProp.L1_value; L2_value = data.sysProp.L2_value; L3_value = d
 
 % Create pbest_err array to save error between simulation and actual data
 pbest_err = zeros(length(X), 1);
-
+%%
 % Start looping through particles
 for m = 1:length(X)
     

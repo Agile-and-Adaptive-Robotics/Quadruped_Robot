@@ -18,7 +18,7 @@ addpath('C:\Users\Haonan\Documents\GitHub\Quadruped_Robot\Code\Matlab\Analysis\D
 %% Load and format data to be used
 
 % Choose mechanical system to optimize
-sysName = 'MechPropDog2';
+sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load calculated dynamic properties of each joint
