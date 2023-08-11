@@ -18,7 +18,7 @@ clc;
 %% Load and format data to be used
 
 % Choose mechnical system to optimize
-sysName = 'MechPropDog';
+sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
@@ -91,8 +91,8 @@ data.trials         = trials;               % Trials to be used
 data.start_indices  = start_indices;        % Start indices for data
 data.end_indices    = end_indices;          % End indices for data
 data.time_step      = time_step;            % Time step for interpolation
-data.upscal         = upscal;               % Upper boundary conditions for param
-data.lowscal        = lowscal;              % Lower boundary conditions for param
+data.UB             = upscal;               % Upper boundary conditions for param
+data.LB             = lowscal;              % Lower boundary conditions for param
 data.sysProp        = sysProp;              % Mechanical system properties
 
 % Run fminsearch on cost function
@@ -105,7 +105,7 @@ fprintf('\nSaving results and creating graphs.\n')
 
 fig = figure(1);
 % Save convergence graph
-% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\PSOconvergence.fig'))
+saveas(fig, strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title, '\PSO_BigRat_convergence.fig'))
 
 % Create variable to save cost calculation parameters for the hip, knee,
 % and ankle
