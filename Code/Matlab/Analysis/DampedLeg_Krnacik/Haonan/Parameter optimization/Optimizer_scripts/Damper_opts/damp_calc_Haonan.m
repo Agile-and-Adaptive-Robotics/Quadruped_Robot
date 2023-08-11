@@ -21,7 +21,7 @@ sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-DampData = load('-mat', 'DampDataHaonanK119');
+DampData = load('-mat', 'DampDataTest2');
 
 % Set start time step
 time_step = 0.001;                                                  % [ s ]
@@ -29,7 +29,7 @@ time_step = 0.001;                                                  % [ s ]
 %% Set optimization specifications (IC, BC, options)
 
 % Set initial conditions based on expected damper values
-IC_data = [1.29 0.105 0.063];
+IC_data = [0.7 0.105 0.063];
 
 % Set options for the search function
 options = optimset('PlotFcns','optimplotfval', 'MaxIter', 500);

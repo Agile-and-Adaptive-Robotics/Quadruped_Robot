@@ -43,7 +43,7 @@ ankle_dat(:,(2:3:12)) = 180; ankle_dat(:,(14:3:24)) = 90;
 knee_dat(:,(1:3:24)) = 90;
 knee_dat(:,(3:3:12)) = 180; knee_dat(:,(15:3:24)) = 90;
 
-% Set knee to 180 for all hip trials, and set ankle to 120
+% Set knee to 180 for all hip trials, and set ankle to 129
 hip_dat(:,(2:3:24)) = 180;
 hip_dat(:,(3:3:24)) = 129;
 

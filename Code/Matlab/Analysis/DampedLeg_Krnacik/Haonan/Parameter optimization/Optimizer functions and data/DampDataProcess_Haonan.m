@@ -42,12 +42,12 @@ ankle_dat(:,(14:3:24)) = 90;    % set knee to 90° for first 4 trials
 
 % Knee :: Set hip and ankle angles for knee trials
 knee_dat(:,(1:3:24)) = 90;      % set hip to 90º for all trials
-knee_dat(:,(3:3:24)) = 180;      % set ankle to 180° for all trials
+knee_dat(:,(3:3:12)) = 180;     % set ankle to 180° for trials 1 - 4
+knee_dat(:,(15:3:24)) = 90;     % set ankle to 90° for trials 5 - 8
 
 % Hip :: Set knee and ankle for hip trials
 hip_dat(:,(2:3:24)) = 180;       % set knee to 180° for all trials
-hip_dat(:,(3:3:12)) = 180;      % set ankle to 180° for trials 1 - 4
-hip_dat(:,(15:3:24)) = 90;      % set ankle to 90° for trials 5 - 8
+hip_dat(:,(3:3:24)) = 180;      % set ankle to 180° for all trials
 
 % Convert encoder angles to my angle convention
 hip_dat(:, (1:3:12)) = 180 - hip_dat(:, (1:3:12));
