@@ -8,7 +8,7 @@
 clear; clc;
 
 % Add paths needed for loading data and using functions
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Optimizer functions and data')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer functions and data')
 
 %% Load data
 
@@ -62,7 +62,7 @@ for n = 1:length(muscles)
     
     % KNEE PARAMETERS
 
-    % Find peaks and location ofactual response for knee
+    % Find peaks and location of actual response for knee
     [pks_thetas, loc_thetas] = findpeaks(thetas(:,2)); [pks_thetasneg, loc_thetasneg] = findpeaks(-thetas(:,2));
 
     % Consolidate into single array
