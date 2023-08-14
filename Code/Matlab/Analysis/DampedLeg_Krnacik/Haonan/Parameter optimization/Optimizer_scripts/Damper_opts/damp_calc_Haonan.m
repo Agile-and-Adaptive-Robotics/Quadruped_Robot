@@ -11,8 +11,8 @@ addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan
 
 % Create folder to save results to and add file path
 folder_title = 'Robot_damping_calcs_Haonan';
-mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results', folder_title))
-addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results', folder_title)) 
+mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title))
+addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title)) 
 
 %% Load and format data to be used
 
@@ -21,7 +21,7 @@ sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-DampData = load('-mat', 'DampDataTest2');
+DampData = load('-mat', 'DampDataHaonanK118');
 
 % Set start time step
 time_step = 0.001;                                                  % [ s ]
@@ -114,7 +114,7 @@ R1_value = data.sysProp.R1_value; R2_value = data.sysProp.R2_value; R3_value = d
 L1_value = data.sysProp.L1_value; L2_value = data.sysProp.L2_value; L3_value = data.sysProp.L3_value;
 
 % Define x limits for each trial
-lim = [0 10; 0 2; 0 5];
+lim = [0 2; 0 2; 0 5];
 
 for n = 1:3
     
@@ -201,8 +201,8 @@ legend('Actual response', 'ODE response')
 %% Save results
 
 % save results - optimized parameters and figure
-% save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\Results.mat'), 'b_sols', 'rt_ode', 'rt_data')
-% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\Results.fig'))
+save(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title, '\Results_HaonanK118_adjusted.mat'), 'b_sols', 'rt_ode', 'rt_data')
+saveas(fig, strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title, '\Results_HaonanK118_adjusted.fig'))
 % fprintf('Data saved.\n')
 
 
