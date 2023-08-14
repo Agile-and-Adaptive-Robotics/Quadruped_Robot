@@ -10,7 +10,7 @@ clear; close('all'); clc
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results')
 
 % Specify length to track response for in seconds, and interval time
-time_L = [5 0.87 2];               % [s] 5 for K119, 1 for K118
+time_L = [1 0.87 2];               % [s] 5 for K119, 1 for K118
 time_I = 0.01;                     % [s]
 
 % Create time array
@@ -24,7 +24,7 @@ data_N(3) = length(time.ankle);
 %% Load data from excel file
 % hip_dat can be chosen from '6597K119 Damper Data' or '6597K118 Damper Data'
 
-hip_dat = readmatrix('damping_data_Haonan.xlsx', 'UseExcel', 1, 'Sheet', '6597K119 Damper Data');
+hip_dat = readmatrix('damping_data_Haonan.xlsx', 'UseExcel', 1, 'Sheet', '6597K118 Damper Data');
 knee_dat = readmatrix('damping_data_Haonan.xlsx', 'UseExcel', 1, 'Sheet', 'Knee Damper Data');
 ankle_dat = readmatrix('damping_data_Haonan.xlsx', 'UseExcel', 1, 'Sheet', 'Ankle Damper Data');
 
@@ -42,12 +42,12 @@ ankle_dat(:,(14:3:24)) = 90;    % set knee to 90° for first 4 trials
 
 % Knee :: Set hip and ankle angles for knee trials
 knee_dat(:,(1:3:24)) = 90;      % set hip to 90º for all trials
-knee_dat(:,(3:3:24)) = 180;      % set ankle to 180° for all trials
+knee_dat(:,(3:3:12)) = 181.62;     % set ankle to 181.62° for trials 1 - 4
+knee_dat(:,(15:3:24)) = 88.11;     % set ankle to 88.11° for trials 5 - 8
 
 % Hip :: Set knee and ankle for hip trials
-hip_dat(:,(2:3:24)) = 180;       % set knee to 180° for all trials
-hip_dat(:,(3:3:12)) = 180;      % set ankle to 180° for trials 1 - 4
-hip_dat(:,(15:3:24)) = 90;      % set ankle to 90° for trials 5 - 8
+hip_dat(:,(2:3:24)) = 162.25;       % set knee to 162.25° for all trials
+hip_dat(:,(3:3:24)) = 181.62;      % set ankle to 181.62° for all trials
 
 % Convert encoder angles to my angle convention
 hip_dat(:, (1:3:12)) = 180 - hip_dat(:, (1:3:12));
@@ -100,4 +100,4 @@ ankle_dat = deg2rad(ankle_dat);
 knee_dat = deg2rad(knee_dat);
 hip_dat = deg2rad(hip_dat);
 
-save(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\DampDataHaonanK119.mat'), 'ankle_dat', 'knee_dat', 'hip_dat', 'time')
+save(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\DampDataHaonanK118.mat'), 'ankle_dat', 'knee_dat', 'hip_dat', 'time')
