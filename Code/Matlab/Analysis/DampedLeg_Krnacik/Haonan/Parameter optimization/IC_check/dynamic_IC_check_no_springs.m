@@ -4,10 +4,11 @@
 % itself is not run
 
 clear, clc;
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Optimizer functions and data')
-
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer functions and data')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\IC_check')
 % Define what system properties to use
-systemProp = 'MechPropDog2';
+systemProp = 'MechPropBigRat';
 
 % Ask user if data (parameters and graph) should be saved. If yes, save
 % parameters used and resulting graph
@@ -31,7 +32,7 @@ U = [dthetas_i, b_i, k_i, u_i];
 
 
 % Load the data file for all joint data
-DampData = load('-mat', 'DampData');
+DampData = load('-mat', 'DampDataHaonanK118');
 
 %% Define symbolic equations of motion from saved EOM file
 
@@ -45,7 +46,7 @@ dui = [du1, du2, du3, du4, du5, du6];
 time_ode = 0:0.001:5;
 
 fprintf('\nRunning ODE...\n')
-[ time_ode, thetas_ode, time, thetas ] = dynamics_func_no_springs(U, dui, joint, trial, systemProp, DampData);
+[time_ode, thetas_ode, time, thetas] = dynamics_func_no_springs(U, dui, joint, trial, systemProp, DampData);
 
 
 %% Comparing joint angles from actual and theoretical values

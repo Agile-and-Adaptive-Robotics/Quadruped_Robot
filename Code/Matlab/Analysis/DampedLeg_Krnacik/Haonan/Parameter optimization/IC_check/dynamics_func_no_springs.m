@@ -41,12 +41,13 @@ g_value = 9.81;                             % [m/s^2]
 
 if joint == 1
     thetas = DampData.hip_dat;
-    
+    time = DampData.time.hip;
 elseif joint == 2
     thetas = DampData.knee_dat;
-    
+    time = DampData.time.knee;
 elseif joint == 3
     thetas = DampData.ankle_dat;
+    time = DampData.time.ankle;
 end
 
 % Define time

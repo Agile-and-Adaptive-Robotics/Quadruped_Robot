@@ -204,8 +204,6 @@ for m = 1:length(muscles)
     % Calculate average joint angle difference for the ankle
 	JAdiff_sim(m) = sum( thetas_ode(:,5) - thetas(:,3) ) / length(time);
     
-    
-    
     % Create plot of simulated vs optimized response
     subplot(2,4,m); hold on
     

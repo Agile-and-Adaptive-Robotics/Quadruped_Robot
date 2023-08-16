@@ -109,7 +109,7 @@ data.trial_value            = trial_value;          % indicator for which trials
 fprintf('Beginning particle swarm optimization...\n')
 [ PSO_results ] = pso_fsn_start(data, IC_data, n_particles, n_iterations);
 fprintf('\nSaving results and creating graphs.\n')
-
+ 
 
 %% DISPLAY AND SAVE RESULTS 
 

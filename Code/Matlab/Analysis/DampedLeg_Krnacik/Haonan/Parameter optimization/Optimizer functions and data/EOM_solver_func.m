@@ -165,7 +165,7 @@ du4 = Sol.du4; %du4 = simplify( du4 );
 du5 = u6;
 du6 = Sol.du6; %du6 = simplify( du6 );
 
-save('EOM.mat', 'du1', 'du2', 'du3', 'du4', 'du5', 'du6', 'thetabias_sym')
+%save('EOM.mat', 'du1', 'du2', 'du3', 'du4', 'du5', 'du6', 'thetabias_sym')
 
 
 end
