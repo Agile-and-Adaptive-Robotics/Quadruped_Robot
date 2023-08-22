@@ -32,7 +32,7 @@ time_step = 0.001;
 % Iniate array to save calculated values in
 omegas          = zeros(length(muscles), 1);
 zetas           = zeros(length(muscles), 1);
-settlingtime   = zeros(length(muscles), 1);
+settlingtime    = zeros(length(muscles), 1);
 risetime        = zeros(length(muscles), 1);
 
 for n = 1:length(muscles)

@@ -72,7 +72,7 @@ knee_var = b_sols(2);
 %% Load EOM
 
 % Define equations of motion from saved EOM file
-load('EOM.mat')
+clear
 fprintf('\nEOM loaded.\n')
 
 % Compile EOM into single variable

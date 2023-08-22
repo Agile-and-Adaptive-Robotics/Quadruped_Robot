@@ -7,15 +7,15 @@
 clear; clc; close('all');
 
 % Add paths needed for loading data and using functions
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Optimizer functions and data')
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\IC_check')
-addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\dyn_prop_calc')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer functions and data')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\IC_check')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\dyn_prop_calc')
 
 % Create folder to save results to and add file path
-folder_title = 'PSOD3_results';
-mkdir(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title))
-addpath(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title)) 
-clc;
+% folder_title = 'PSOD3_results';
+% mkdir(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title))
+% addpath(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\', folder_title)) 
+% clc;
 
 
 %% Load and format data to be used
@@ -63,7 +63,7 @@ time_step = 0.001;                                                  % [ s ]
 %% Set optimization specifications (IC, BC, options)
 
 % Load results from hand optimized starting conditions
-load('-mat', 'HandOPTD3_IC');
+load('-mat', 'Haonan_random_IC');
 IC_data     = [b_i(1) k_i(1) b_i(2) k_i(2) b_i(3) k_i(3)];
 
 % Set options for the particle swarm optimization
@@ -115,7 +115,7 @@ fprintf('\nSaving results and creating graphs.\n')
 
 fig = figure(1);
 % Save convergence graph
-saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\PSOconvergence.fig'))
+% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\PSOconvergence.fig'))
 
 % Create variable to save cost calculation parameters for the hip, knee,
 % and ankle
@@ -229,9 +229,9 @@ end
 legend('Scaled rat hip', 'D3 hip', 'Scaled rat knee', 'D3 knee', 'Scaled rat ankle', 'D3 ankle')
     
 % save results - optimized parameters and figure
-save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOResults.mat'), 'PSO_results', 'thetabias_val', 'risetime_sim', 'omega_sim', 'zeta_sim', 'JAdiff_sim')
-saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOresults.fig'))
-fprintf('Data saved.\n')
+% save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOResults.mat'), 'PSO_results', 'thetabias_val', 'risetime_sim', 'omega_sim', 'zeta_sim', 'JAdiff_sim')
+% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOresults.fig'))
+% fprintf('Data saved.\n')
 
 
 

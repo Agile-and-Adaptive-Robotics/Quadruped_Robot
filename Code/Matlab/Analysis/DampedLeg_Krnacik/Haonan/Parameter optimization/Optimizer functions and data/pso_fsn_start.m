@@ -3,8 +3,8 @@ function PSO_results = pso_fsn_start(data, IC_data, n_particles, n_iterations)
 %% Implements a particle storm optimization algorithm using parameter values obtained from the Functional Sub Network approach described in <> as a starting point. Randomized values are added to the parameter values to arrive at the initial particle configurations.
 
 % Unpack data to be used
-UB             = data.upscal;                    % [ Upper boundary conditions for param ]
-LB             = data.lowscal;                   % [ Lower boundary conditions for param ]
+UB             = data.UB;                    % [ Upper boundary conditions for param ]
+LB             = data.LB;                   % [ Lower boundary conditions for param ]
 
 
 % Particle swarm hyperparameters

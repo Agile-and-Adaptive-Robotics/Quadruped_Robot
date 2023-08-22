@@ -64,7 +64,7 @@ time_step = 0.001;                                                  % [ s ]
 %% Set optimization specifications (IC, BC, options)
 
 % Load results from hand optimized starting conditions
-load('-mat', 'HandOPTD3R2_IC');
+load('-mat', 'Haonan_random_IC');
 IC_data     = [k_i(1) b_i(2) k_i(2) b_i(3) k_i(3)];
 set_vals = b_i(1);
 
@@ -99,8 +99,8 @@ data.trials                 = trials;               % Trials to be used
 data.start_indices          = start_indices;        % Start indices for data
 data.end_indices            = end_indices;          % End indices for data
 data.time_step              = time_step;            % Time step for interpolation
-data.UB                     = UB;                   % Upper boundary conditions for param
-data.LB                     = LB;                   % Lower boundary conditions for param
+data.upscal                 = UB;                   % Upper boundary conditions for param
+data.lowscal                = LB;                   % Lower boundary conditions for param
 data.sysProp                = sysProp;              % Mechanical system properties
 data.jdataProp              = jdataProp;            % Dynamic properties for system
 data.trial_value            = trial_value;          % indicator for which trials to place higher cost
