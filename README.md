@@ -1,4 +1,4 @@
-# AARL QUADRUPED ROBOT: MUSCLE MUTT
+# AARL Quadruped Robot - Muscle Mutt
 
 ## Summary
 This repository contains files relevant to the design, analysis, and testing of AARL's canine-inspired quadruped robot named Muscle Mutt.  Our goal in developing Muscle Mutt is for it to serve as a biologically relevant platform for testing embodied synthetic nervous systems pertaining to legged locomotion.  Toward this end, Muscle Mutt features body proportions similar to that of a Whippet, antagonistic pairs of braided pneumatic actuators (BPAs) that serve as proxies for muscles, and a CPG based neural control scheme.  All aspects of Muscle Mutt's design are under active development, including adjusting passive limb dynamics to be congruent with animal models, updating the electrical subsystem to incorporate a wider array of biologically relevant sensory feedback, and designing neural algorithms to generate stable and robust locomotion.
