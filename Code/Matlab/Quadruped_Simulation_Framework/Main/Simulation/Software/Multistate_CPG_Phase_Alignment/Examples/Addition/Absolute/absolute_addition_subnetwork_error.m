@@ -11,6 +11,7 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
+% b_simulate = true;
 b_simulate = false;
 
 % Set the level of verbosity.

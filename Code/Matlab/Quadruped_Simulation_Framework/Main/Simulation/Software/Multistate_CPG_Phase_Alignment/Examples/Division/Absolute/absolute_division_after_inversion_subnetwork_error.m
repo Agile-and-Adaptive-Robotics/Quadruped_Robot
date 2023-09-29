@@ -57,7 +57,6 @@ dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
 % delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
 % dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
 
-
 % Set the number of division neurons.
 num_division_neurons = 3;
 

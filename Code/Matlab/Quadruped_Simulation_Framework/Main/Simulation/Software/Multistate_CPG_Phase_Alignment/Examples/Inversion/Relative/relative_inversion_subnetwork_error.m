@@ -50,7 +50,6 @@ gs21 = ( ( R2 - delta )*c3 )/( delta );             % [S] Maximum Synaptic Condu
 
 % Print a summary of the relevant network parameters.
 fprintf( 'RELATIVE INVERSION SUBNETWORK PARAMETERS:\n' )
->>>>>>> Stashed changes
 fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
 fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
 fprintf( 'c1 = %0.2f [muS]\n', c1*( 10^6 ) )
@@ -163,5 +162,4 @@ legend( [ h1, h2 ], { 'Desired', 'Achieved' }, 'Location', 'Best' )
 % Create a surface that shows the membrane voltage error.
 figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Inversion Subnetwork Steady State Error' )
 plot( Us_achieved( :, 1 ), error, '-', 'Linewidth', 3 )
-
 

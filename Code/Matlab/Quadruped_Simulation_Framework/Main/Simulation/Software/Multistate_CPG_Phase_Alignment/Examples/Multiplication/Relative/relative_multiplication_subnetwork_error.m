@@ -43,8 +43,6 @@ delta1 = 1e-3;
 delta2 = 2e-3;
 dEs41 = 194e-3;
 
-
-
 % Set the number of multiplication neurons.
 num_multiplication_neurons = 4;
 
