@@ -378,4 +378,4 @@ for ii = 4:4:12
     xlim([0 500])
     hold off
 end
-save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\ST.mat','VL')
+save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\VL.mat','VL')
