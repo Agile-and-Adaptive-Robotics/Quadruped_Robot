@@ -9,7 +9,4 @@ stext = readline(s);
         angles_current = str2num(stext);  % If it is a number, store it
         fprintf('%d\n',angles_current);
     end
-    x = s.NumBytesAvailable;
-
-data = read(s,4,"double");
 clear s
