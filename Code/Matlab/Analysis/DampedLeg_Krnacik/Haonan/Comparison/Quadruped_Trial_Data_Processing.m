@@ -40,6 +40,7 @@ for ii = 4:4:12
     BFa_offset(3) = 246;             %
    
     BFa(:,ii) = BFa(:,ii) - BFa_offset(ii/4);
+    BFa(:,ii) = BFa(:,ii)/1000;      %   convert to seconds
         
     figure
     hold on
@@ -94,7 +95,8 @@ for ii = 4:4:12
     IP_offset(3) = 136;            %
    
     IP(:,ii) = IP(:,ii) - IP_offset(ii/4);
-        
+    IP(:,ii) = IP(:,ii)/1000;      %   convert to seconds
+    
     figure
     hold on
     plot(IP(:,ii),IP(:,ii-3),'.',"color","k")
@@ -148,7 +150,8 @@ for ii = 4:4:12
     ST2_offset(3) = 236;             %
    
     ST2(:,ii) = ST2(:,ii) - ST2_offset(ii/4);   
-        
+    ST2(:,ii) = ST2(:,ii)/1000;      %   convert to seconds    
+    
     figure
     hold on
     plot(ST2(:,ii),ST2(:,ii-3),'.',"color","k")
@@ -202,7 +205,8 @@ for ii = 4:4:12
     BFp_offset(3) = 206;             %
    
     BFp(:,ii) = BFp(:,ii) - BFp_offset(ii/4);
-        
+    BFp(:,ii) = BFp(:,ii)/1000;      %   convert to seconds 
+    
     figure
     hold on
     plot(BFp(:,ii),BFp(:,ii-3),'.',"color","k")
@@ -256,7 +260,8 @@ for ii = 4:4:12
     GS_offset(3) = 66;              %
    
     GS(:,ii) = GS(:,ii) - GS_offset(ii/4);
-        
+    GS(:,ii) = GS(:,ii)/1000;       %   convert to seconds 
+    
     figure
     hold on
     plot(GS(:,ii),GS(:,ii-3),'.',"color","k")
@@ -310,6 +315,7 @@ for ii = 4:4:12
     ST_offset(3) = 256;             %
    
     ST(:,ii) = ST(:,ii) - ST_offset(ii/4);
+    ST(:,ii) = ST(:,ii)/1000;       %   convert to seconds
         
     figure
     hold on
@@ -364,7 +370,8 @@ for ii = 4:4:12
     VL_offset(3) = 166;             %
    
     VL(:,ii) = VL(:,ii) - VL_offset(ii/4);
-        
+    VL(:,ii) = VL(:,ii)/1000;       %   convert to seconds 
+    
     figure
     hold on
     plot(VL(:,ii),VL(:,ii-3),'.',"color","k")
@@ -372,10 +379,25 @@ for ii = 4:4:12
     plot(VL(:,ii),VL(:,ii-1),'.',"color","r")
     legend('hip','knee','ankle')
     title("VL Trial " + ii/4)
-    xlabel("time (milliseconds)")
+    xlabel("time (seconds)")
     ylabel("angle (degrees)")
     ylim([80 180])
-    xlim([0 500])
+    xlim([0 0.5])
     hold off
 end
+<<<<<<< Updated upstream
 save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\VL.mat','VL')
+=======
+save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\ST.mat','VL')
+
+%% Save as an array
+Quadruped{1} = IP;
+Quadruped{2} = GS;
+Quadruped{3} = ST;
+Quadruped{4} = ST2;
+Quadruped{5} = VL;
+Quadruped{6} = BFp;
+Quadruped{7} = BFa;
+
+save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\Quadruped.mat','Quadruped')
+>>>>>>> Stashed changes
