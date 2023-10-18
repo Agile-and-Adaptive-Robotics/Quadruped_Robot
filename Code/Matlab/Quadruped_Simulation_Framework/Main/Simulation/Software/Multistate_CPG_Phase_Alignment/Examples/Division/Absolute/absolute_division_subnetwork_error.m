@@ -40,10 +40,30 @@ network_tf = 3;
 
 R1 = 20e-3;                                         % [V] Activation Domain
 R2 = 20e-3;                                         % [V] Activation Domain
-c1 = 1.20e-9;                                       % [W] Absolute Division Parameter 1
+c1 = 0.80e-9;                                       % [W] Absolute Division Parameter 1
 c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
 delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
 dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
+
+% R1 = 20e-3;                                         % [V] Activation Domain
+% R2 = 20e-3;                                         % [V] Activation Domain
+% c1 = 1.20e-9;                                       % [W] Absolute Division Parameter 1
+% c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+% delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
+% dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
+
+
+
+
+% R1 = 20e-3;                                         % [V] Activation Domain
+% R2 = 20e-3;                                         % [V] Activation Domain
+% c1 = 2.40e-9;                                       % [W] Absolute Division Parameter 1
+% c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+% delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
+% dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
+
 
 % Set the number of division neurons.
 num_division_neurons = 3;
@@ -55,11 +75,13 @@ num_division_neurons = 3;
 network = network_class( network_dt, network_tf );
 
 % Compute the network properties.
+Gm3 = 1e-6;                                                             % [S] Membrane Conductance
+% Gm3 = 0.1e-6;                                                             % [S] Membrane Conductance
+% Gm3 = c3/( R1*R2 );                                                             % [S] Membrane Conductance
 R3 = c1*R1/c3;                                                                  % [V] Activation Domain
 c2 = ( R1*c1 - delta*c3 )/( delta*R2 );                                         % [A] Absolute Division Parameter 2
 dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential
 Iapp3 = 0;                                                                      % [A] Applied Current
-Gm3 = c3/( R1*R2 );                                                             % [S] Membrane Conductance
 gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );                                       % [S] Maximum Synaptic Conductance
 gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );        % [S] Maximum Synaptic Conductance
 

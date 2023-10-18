@@ -567,6 +567,99 @@ classdef network_utilities_class
         
         %% Network Functions
         
+        % Implement a function to compute the linearized system matrix for a neural network about a given operating point.
+        function A = compute_linearized_system_matrix( ~, Cms, Gms, Rs, gs, dEs, Us0 )
+        
+            % Set the default input arguments.
+            if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
+            
+            % Compute the number of neurons.
+            num_neurons = length( Us0 );
+            
+            % Preallocate the system matrix.
+            A = zeros( num_neurons, num_neurons );
+            
+            % Compute the linearized system matrix.
+            for k1 = 1:num_neurons              % Iterate through each of the neurons...
+                for k2 = 1:num_neurons          % Iterate through each of the neurons...
+                    
+                   % Determine how to compute this system matrix entry.
+                   if k1 == k2                  % If the row and column indexes are equal...
+                      
+                       % Compute the first term of the system matrix entry.
+                       A( k1, k2 ) = ( ( gs( k1, k2 )*dEs( k1, k2 ) - Gms( k1 )*Rs( k2 ) )/( Cms( k1 )*Rs( k2 ) ) );
+                       
+                       % Compute the additional system matrix terms. 
+                       for k3 = 1:num_neurons               % Iterate through each of the neurons...
+                          
+                           % Compute this additional system matrix term.
+                           A( k1, k2 ) = A( k1, k2 ) - ( gs( k1, k3 )/( Cms( k1 )*Rs( k3 ) ) )*Us0( k3 );
+                           
+                       end
+                       
+                       % Compute the final system matrix term.
+                       A( k1, k2 ) = A( k1, k2 ) - ( gs( k1, k2 )/( Cms( k1 )*Rs( k2 ) ) )*Us0( k2 );
+                       
+                   else                         % Otherwise...
+                       
+                       % Compute this system matrix entry.
+                       A( k1, k2 ) = ( gs( k1, k2 )/( Cms( k1 )*Rs( k2 ) ) )*( dEs( k1, k2 ) - Us0( k1 ) );
+                       
+                   end
+                    
+                end 
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the linearized input matrix for a neural network.
+        function B = compute_linearized_input_matrix( ~, Cms, Ias )
+            
+            % Compute the number of neurons.
+            num_neurons = length( Cms );
+            
+            % Preallocate the input matrix.
+            B = zeros( num_neurons, 1 );
+            
+            % Compute the linearized input matrix.
+            for k1 = 1:num_neurons
+                for k2 = 1:num_neurons
+                    
+                    % Determine how to compute this input matrix entry.
+                    if k1 == k2                 % If the row and column indexes as equal...
+                        
+                       % Compute this input matrix entry.
+                       B( k1, k2 ) = Ias( k1 )/Cms( k1 );
+                        
+                    else                        % Otherwise...
+                       
+                        % Compute this input matrix entry.
+                        B( k1, k2 ) = 0;
+                        
+                    end
+                    
+                end
+            end
+            
+        end
+            
+        
+        % Implement a function to compute the linearized system for a neural network about a given operating point.
+        function [ A, B ] = get_linearized_system( ~, Cms, Gms, Rs, gs, dEs, Ias, Us0 )
+        
+            % Compute the linearized system matrix.
+            A = self.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
+            
+            % Compute the linearized input matrix.
+            B = compute_linearized_input_matrix( Cms, Ias );
+            
+        end
+        
+        
+        %% Stability Functions
+        
+        
         
         
         %% Simulation Functions

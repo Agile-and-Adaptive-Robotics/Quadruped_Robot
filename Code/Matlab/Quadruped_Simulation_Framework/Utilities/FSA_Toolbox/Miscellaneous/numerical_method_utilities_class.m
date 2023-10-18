@@ -27,6 +27,75 @@ classdef numerical_method_utilities_class
         end
  
         
+        %% Numerical Stability Methods
+                
+        % Implement a function to determine whether a stability metric is stable.
+        function b_stable = is_metric_stable( R )
+        
+            % Determine whether this metric is stable.
+            if any( abs( R ) >= 1 )      	% If the absolute value of the stability metric is greater than or equal to one...
+               
+                % Set the stable flag to false.
+                b_stable = false;
+                
+            else                            % Otherwise...
+                
+                % Set the stable flag to true.
+                b_stable = true;
+                
+            end
+            
+        end
+        
+            
+        % Implement a function to compute the RK4 stability metric.
+        function R = compute_RK4_stability( mu )
+        
+            % Compute the RK4 stability.
+            R = 1 + mu + ( 1/2 )*mu.^2 + ( 1/6 )*mu.^3 + ( 1/24 )*mu.^4;
+            
+        end
+        
+        
+        % Implement a function to compute the RK4 stability metric associated with a given eigenvalue and step size.
+        function R = eigenvalues2RK4_stability( lambdas, dt )
+           
+            % Compute the stability metric input.
+            mu = dt*lambdas;
+            
+            % Compute the RK4 stability metric.
+            R = compute_RK4_stability( mu );
+            
+        end
+        
+        
+        % Implement a function to compute the compute the RK4 stability metric associated with a given system and step size.
+        function R = system_matrix2RK4_stability( A, dt )
+            
+            % Compute the eigenvalues associated with this matrix.
+            lambdas = eig( A );
+            
+            % Compute the RK4 stability metric associated with these eigenvalues.
+            R = eigenvalues2RK4_stability( lambdas, dt );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum step size for RK4 given a system matrix.
+        function dt = compute_max_RK4_step_size( A, dt0 )
+        
+            % Define the default input arguments.
+            if nargin < 2, dt0 = 1; end
+            
+            % Create the stability function.
+            f_stability = @( dt ) max( abs( system_matrix2RK4_stability( A, dt ) ) );
+            
+            % Compute the maximum timestep.
+            dt = fzero( f_stability, dt0 );
+            
+        end
+            
+        
         %% Numerical Integration Methods
         
         % Implement a function to perform a single forward Euler step.

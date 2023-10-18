@@ -4939,6 +4939,11 @@ classdef network_class
         end
         
         
+        %% Network Linearization Functions
+        
+        % Implement a function to 
+        
+        
         %% Simulation Functions
         
         % Implement a function to compute a single network simulation step.

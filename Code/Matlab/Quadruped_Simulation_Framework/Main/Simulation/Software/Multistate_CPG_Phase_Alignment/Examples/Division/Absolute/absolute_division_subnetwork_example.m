@@ -37,11 +37,12 @@ dEs31 = 194e-3;                                     % [V] Synaptic Reversal Pote
 network = network_class( network_dt, network_tf );
 
 % Compute the network properties.
+Gm3 = 1e-6;
+% Gm3 = c3/( R1*R2 );                                                             % [S] Membrane Conductance
 R3 = c1*R1/c3;                                                                  % [V] Activation Domain
 c2 = ( R1*c1 - delta*c3 )/( delta*R2 );                                         % [A] Absolute Division Parameter 2
 dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential
 Iapp3 = 0;                                                                      % [A] Applied Current
-Gm3 = c3/( R1*R2 );                                                             % [S] Membrane Conductance
 gs31 = ( R3*Gm3 - Iapp3 )/( dEs31 - R3 );                                       % [S] Maximum Synaptic Conductance
 gs32 = ( ( dEs31 - delta )*gs31 + Iapp3 - delta*Gm3 )/( delta - dEs32 );        % [S] Maximum Synaptic Conductance
 
@@ -84,9 +85,9 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0.25*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0.50*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 1*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-% 
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0.50*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 1*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
+
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
 
 
