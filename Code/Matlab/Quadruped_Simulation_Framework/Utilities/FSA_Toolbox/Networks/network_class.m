@@ -4941,7 +4941,70 @@ classdef network_class
         
         %% Network Linearization Functions
         
-        % Implement a function to 
+        % Implement a function to compute the linearized system matrix for this neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
+        function A = compute_linearized_system_matrix( self, Cms, Gms, Rs, gs, dEs, Us0 )
+            
+            % Set the default input arguments.
+            if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
+            if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+
+            % Compute the linearized system matrix.
+            A = self.network_utilities.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
+            
+        end
+        
+        
+        % Implement a function to compute the linearized input matrix for this neural network.  (This method is only valid for neural networks WITHOUT sodium channels.)
+        function B = compute_linearized_input_matrix( self, Cms, Ias )
+        
+            % Set the default input arguments.
+            if nargin < 3, Ias = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+            
+            % Compute the linearized input matrix.
+            B = self.network_utilitities.compute_linearized_input_matrix( Cms, Ias );
+            
+        end
+        
+        
+        % Implement a function to compute the linearized system for this neural network.  (This method is only valid for neural networks WITHOUT sodium channels.)
+        function [ A, B ] = get_linearized_system( self, Cms, Gms, Rs, gs, dEs, Ias, Us0 )
+        
+            % Set the default input arguments.
+            if nargin < 8, Us0 = zeros( self.neuron_manager.num_neurons, 1 ); end
+            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) ); end
+            if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+
+            % Compute the linearized system.
+            [ A, B ] = self.network_utilities.get_linearized_system( Cms, Gms, Rs, gs, dEs, Ias, Us0 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum RK4 step size.
+        function [ dt, A, condition_number ] = compute_max_RK4_step_size( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
+        
+            % Set the default input arguments.
+            if nargin < 8, dt0 = 1; end
+            if nargin < 7, Us0 = zeros( self.neuron_manager.num_neurons, 1 ); end
+            if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+            
+            % Compute the maximum RK4 step size.
+            [ dt, A, condition_number ] = self.network_utilities.compute_max_RK4_step_size( Cms, Gms, Rs, gs, dEs, Us0, dt0 );
+            
+        end
         
         
         %% Simulation Functions

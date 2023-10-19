@@ -567,7 +567,7 @@ classdef network_utilities_class
         
         %% Network Functions
         
-        % Implement a function to compute the linearized system matrix for a neural network about a given operating point.
+        % Implement a function to compute the linearized system matrix for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
         function A = compute_linearized_system_matrix( ~, Cms, Gms, Rs, gs, dEs, Us0 )
         
             % Set the default input arguments.
@@ -613,7 +613,7 @@ classdef network_utilities_class
         end
         
         
-        % Implement a function to compute the linearized input matrix for a neural network.
+        % Implement a function to compute the linearized input matrix for a neural network.  (This method is only valid for neural networks WITHOUT sodium channels.) 
         function B = compute_linearized_input_matrix( ~, Cms, Ias )
             
             % Compute the number of neurons.
@@ -623,8 +623,8 @@ classdef network_utilities_class
             B = zeros( num_neurons, 1 );
             
             % Compute the linearized input matrix.
-            for k1 = 1:num_neurons
-                for k2 = 1:num_neurons
+            for k1 = 1:num_neurons              % Iterate through each of the neurons...
+                for k2 = 1:num_neurons          % Iterate through each of the neurons...
                     
                     % Determine how to compute this input matrix entry.
                     if k1 == k2                 % If the row and column indexes as equal...
@@ -645,21 +645,40 @@ classdef network_utilities_class
         end
             
         
-        % Implement a function to compute the linearized system for a neural network about a given operating point.
-        function [ A, B ] = get_linearized_system( ~, Cms, Gms, Rs, gs, dEs, Ias, Us0 )
+        % Implement a function to compute the linearized system for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
+        function [ A, B ] = get_linearized_system( self, Cms, Gms, Rs, gs, dEs, Ias, Us0 )
         
+            % Set the default input arguments.
+            if nargin < 8, Us0 = zeros( length( Cm2 ), 1 ); end
+            
             % Compute the linearized system matrix.
             A = self.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
             
             % Compute the linearized input matrix.
-            B = compute_linearized_input_matrix( Cms, Ias );
+            B = self.compute_linearized_input_matrix( Cms, Ias );
             
         end
         
         
         %% Stability Functions
         
+        % Implement a function to compute the maximum RK4 step size.
+        function [ dt, A, condition_number ] = compute_max_RK4_step_size( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
         
+            % Set the default input arguments.
+            if nargin < 8, dt0 = 1; end
+            if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
+            
+            % Compute the linearized system matrix.
+            A = self.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
+        
+            % Compute the condition number of the system matrix.
+            condition_number = cond( A );
+            
+            % Compute the maximum RK4 step size.
+            dt = self.numerical_method_utilities.compute_max_RK4_step_size( A, dt0 );
+            
+        end      
         
         
         %% Simulation Functions
