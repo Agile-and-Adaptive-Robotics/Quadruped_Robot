@@ -22,13 +22,81 @@ network_dt = 1e-3;
 network_tf = 3;
 
 
-%% Create Absolute Addition Subnetwork.
+%% Create Relative Addition Subnetwork.
+
+% Define the network parameters.
+num_neurons = 3;                                            % [#] Number of Neurons.
+c = 1;                                                      % [-] Subnetwork Gain.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
 % Create an addition subnetwork.
-[ network, neuron_IDs_add, synapse_IDs_add, applied_current_IDs_add ] = network.create_relative_addition_subnetwork(  );
+[ network, neuron_IDs_add, synapse_IDs_add, applied_current_IDs_add ] = network.create_relative_addition_subnetwork( num_neurons, c );
+
+
+%% Compute Desired & Achieved Relative Addition Formulations.
+
+% Retrieve network information.
+Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );
+Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );
+Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );
+Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );
+gs = network.get_gsynmaxs( 'all' );
+dEs = network.get_dEsyns( 'all' );
+dt0 = 1e-6;
+
+% Define the addition subnetwork inputs.
+U1s = linspace( 0, Rs( 1 ), 20  );
+U2s = linspace( 0, Rs( 2 ), 20  );
+
+% Create an input grid.
+[ U1s_grid, U2s_grid ] = meshgrid( U1s, U2s );
+
+% Create the input points.
+U1s_flat = reshape( U1s_grid, [ numel( U1s_grid ), 1 ] );
+U2s_flat = reshape( U2s_grid, [ numel( U2s_grid ), 1 ] );
+
+% Compute the desired and achieved relative addition steady state output.
+U3s_flat_desired_relative = network.compute_desired_relative_addition_steady_state_output( [ U1s_flat, U2s_flat ], Rs, c );
+[ U3s_flat_achieved_relative, As, dts, condition_numbers ] = network.achieved_addition_RK4_stability_analysis( U1s_flat, U2s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
+
+% Convert the flat steady state output results to grids.
+dts_grid = reshape( dts, size( U1s_grid ) );
+condition_numbers_grid = reshape( condition_numbers, size( U1s_grid ) );
+U3s_grid_desired_relative = reshape( U3s_flat_desired_relative, size( U1s_grid ) );
+U3s_grid_achieved_relative = reshape( U3s_flat_achieved_relative, size( U1s_grid ) );
+
+% Retrieve the maximum RK4 step size and condition number.
+[ dt_max, indexes_dt ] = max( dts );
+[ condition_number_max, indexes_condition_number ] = max( condition_numbers );
+
+
+%% Print the Desired and Achieved Relative Addition Formulation Results.
+
+% Print out the stability information.
+fprintf( 'STABILITY SUMMARY:\n' )
+fprintf( 'Linearized System Matrix: A =\n\n' ), disp( As( :, :, indexes_condition_number ) )
+fprintf( 'Max RK4 Step Size: \t\tdt_max = %0.3e [s] @ ( %0.2f [mV], %0.2f [mV] )\n', dt_max, U1s_flat( indexes_dt )*( 10^3 ), U2s_flat( indexes_dt )*( 10^3 ) )
+fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
+fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ ( %0.2f [mV], %0.2f [mV] )\n', condition_number_max, U1s_flat( indexes_condition_number )*( 10^3 ), U2s_flat( indexes_condition_number )*( 10^3 ) )
+
+
+%% Plot the Desired and Achieved Relative Addition Formulation Results.
+
+% Plot the desired and achieved relative addition formulation results.
+figure( 'Color', 'w', 'Name', 'Relative Addition Theory' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Relative Addition Theory' )
+surf( U1s_grid, U2s_grid, U3s_grid_desired_relative, 'Facecolor', 'b', 'Edgecolor', 'None' )
+surf( U1s_grid, U2s_grid, U3s_grid_achieved_relative, 'Facecolor', 'r', 'Edgecolor', 'None' )
+legend( 'Desired', 'Achieved' )
+
+% Plot the RK4 maximum timestep.
+figure( 'Color', 'w', 'Name', 'Relative Addition RK4 Maximum Timestep' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Rk4 Maximum Timestep, dt [s]' ), title( 'Relative Addition RK4 Maximum Timestep' )
+surf( U1s_grid, U2s_grid, dts_grid, 'Edgecolor', 'None' )
+
+% Plot the linearized system condition numbers.
+figure( 'Color', 'w', 'Name', 'Relative Addition Condition Numbers' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Relative Addition Condition Number' )
+surf( U1s_grid, U2s_grid, condition_numbers_grid, 'Edgecolor', 'None' )
 
 
 %% Simulate the Network.
@@ -112,6 +180,13 @@ figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r' )
 legend( 'Desired', 'Achieved' )
+
+% Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
+figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Addition Subnetwork Steady State Response (Comparison)' )
+surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b' )
+surf( U1s_grid, U2s_grid, U3s_grid_achieved_relative, 'Edgecolor', 'None', 'Facecolor', 'g' )
+surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r' )
+legend( 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' )
 
 % Create a surface that shows the membrane voltage error.
 figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Relative Addition Subnetwork Steady State Error' )

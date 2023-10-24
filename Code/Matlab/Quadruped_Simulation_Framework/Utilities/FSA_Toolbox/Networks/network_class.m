@@ -4948,9 +4948,9 @@ classdef network_class
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
 
             % Compute the linearized system matrix.
             A = self.network_utilities.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
@@ -4962,8 +4962,8 @@ classdef network_class
         function B = compute_linearized_input_matrix( self, Cms, Ias )
         
             % Set the default input arguments.
-            if nargin < 3, Ias = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+            if nargin < 3, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
             
             % Compute the linearized input matrix.
             B = self.network_utilitities.compute_linearized_input_matrix( Cms, Ias );
@@ -4979,9 +4979,9 @@ classdef network_class
             if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
 
             % Compute the linearized system.
             [ A, B ] = self.network_utilities.get_linearized_system( Cms, Gms, Rs, gs, dEs, Ias, Us0 );
@@ -4989,23 +4989,438 @@ classdef network_class
         end
         
         
-        % Implement a function to compute the maximum RK4 step size.
-        function [ dt, A, condition_number ] = compute_max_RK4_step_size( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
+        % Implement a function to perform RK4 stability analysis at a specific operating point.
+        function [ A, dt, condition_number ] = RK4_stability_analysis_at_point( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
         
             % Set the default input arguments.
-            if nargin < 8, dt0 = 1; end
+            if nargin < 8, dt0 = 1e-6; end
             if nargin < 7, Us0 = zeros( self.neuron_manager.num_neurons, 1 ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
             
-            % Compute the maximum RK4 step size.
-            [ dt, A, condition_number ] = self.network_utilities.compute_max_RK4_step_size( Cms, Gms, Rs, gs, dEs, Us0, dt0 );
+            % Compute the maximum RK4 step size and condition number.            
+            [ A, dt, condition_number ] = self.network_utilities.RK4_stability_analysis_at_point( Cms, Gms, Rs, gs, dEs, Us0, dt0 );
             
         end
         
+        
+        % Implement a function to perform RK4 stability analysis at multiple operating points.
+        function [ As, dts, condition_numbers ] = RK_stability_analysis( self, Cms, Gms, Rs, gs, dEs, Us, dt0 )
+        
+           % Set the default input arguments.
+            if nargin < 8, dt0 = 1e-6; end
+            if nargin < 7, Us = zeros( 1, self.neuron_manager.num_neurons ); end
+            if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            
+            % Retrieve the number of operating points.
+            num_points = size( Us, 1 );
+            
+            % Retrieve the number of neurons.
+            num_neurons = size( Us, 2 );
+            
+            % Preallocate an array to store the condition numbers.
+            condition_numbers = zeros( num_points, 1 );
+            
+            % Preallocate an array to store the maximum step sizes.
+            dts = zeros( num_points, 1 );
+            
+            % Preallocate an array to store the linearized system matrices.
+            As = zeros( [ num_neurons, num_neurons, num_points ] );
+            
+            % Perform RK4 stability analysis at each of the operating points.
+            for k = 1:num_points                    % Iterate through each of the operating points...
+
+                % Perform RK4 stability analysis at this operating point.
+                [ As( :, :, k ), dts( k ), condition_numbers( k ) ] = self.RK4_stability_analysis_at_point( Cms, Gms, Rs, gs, dEs, Us( k, : ) , dt0 );
+            
+            end
+            
+        end
+            
+        
+        % Implement a function to perform RK4 stability analysis on an addition subnetwork.
+        function [ U3s, As, dts, condition_numbers ] = achieved_addition_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+            
+           % Set the default input arguments.
+            if nargin < 10, dt0 = 1e-6; end
+            if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved addition steady state output at each of the provided inputs.
+            U3s = self.compute_achieved_addition_steady_state_output( [ U1s, U2s ], Rs, Gms, Ias, gs, dEs );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            
+        end
+        
+        
+        % Implement a function to perform RK4 stability analysis on a subtraction subnetwork.
+        function [ U3s, As, dts, condition_numbers ] = achieved_subtraction_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+            
+            % Set the default input arguments.
+            if nargin < 10, dt0 = 1e-6; end
+            if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved subtraction steady state output at each of the provided inputs.
+            U3s = self.compute_achieved_subtraction_steady_state_output( [ U1s, U2s ], Rs, Gms, Ias, gs, dEs );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            
+        end
+        
+        
+        % Implement a function to perform RK4 stability analysis on an inversion subnetwork.
+        function [ U2s, As, dts, condition_numbers ] = achieved_inversion_RK4_stability_analysis( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+        
+            % Set the default input arguments.
+            if nargin < 9, dt0 = 1e-6; end
+            if nargin < 8, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 7, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 6, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 5, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 3, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved inversion steady state output at each of the provided inputs.
+            U2s = self.compute_achieved_inversion_steady_state_output( U1s, Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ) );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );  
+            
+        end
+        
+            
+        % Implement a function to perform RK4 stability analysis on a division subnetwork.
+        function [ U3s, As, dts, condition_numbers ] = achieved_division_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+            
+            % Set the default input arguments.
+            if nargin < 10, dt0 = 1e-6; end
+            if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved division steady state output at each of the provided inputs.
+            U3s = self.compute_achieved_division_steady_state_output( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Gms( 3 ), Ias( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ) );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            
+        end
+        
+        
+        % Implement a function to perform RK4 stability analysis on a multiplication subnetwork.
+        function [ U4s, As, dts, condition_numbers ] = achieved_multiplication_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+           
+            % Set the default input arguments.
+            if nargin < 10, dt0 = 1e-6; end
+            if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved multiplication steady state output at each of the provided inputs.
+            U4s = self.compute_achieved_multiplication_steady_state_output( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Rs( 3 ), Gms( 3 ), Gms( 4 ), Ias( 3 ), Ias( 4 ), gs( 3, 2 ), gs( 4, 1 ), gs( 4, 3 ), dEs( 3, 2 ), dEs( 4, 1 ), dEs( 4, 3 ) );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s, U4s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            
+        end
+        
+        
+        %% Steady State Functions
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
+        function U_outputs = compute_desired_absolute_addition_steady_state_output( self, U_inputs, c )
+        
+            % Set the default input arguments.
+            if nargin < 3, c = 1; end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = self.network_utilities.compute_desired_absolute_addition_steady_state_output( U_inputs, c );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative addition subnetwork.
+        function U_outputs = compute_desired_relative_addition_steady_state_output( self, U_inputs, Rs, c )
+           
+            % Set the default input arguments.
+            if nargin < 4, c = 1; end
+            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 2, U_inputs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'U' ) ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = self.network_utilities.compute_desired_relative_addition_steady_state_output( U_inputs, Rs, c );
+        
+        end
+            
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of an addition subnetwork.
+        function U_outputs = compute_achieved_addition_steady_state_output( self, U_inputs, Rs, Gms, Ias, gs, dEs )
+            
+            % Set the default input arguments.
+            if nargin < 7, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 6, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 5, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+
+            % Compute the steady state network outputs.
+            U_outputs = self.network_utilities.compute_achieved_addition_steady_state_output( U_inputs, Rs, Gms, Ias, gs, dEs );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute subtraction subnetwork.
+        function U_outputs = compute_desired_absolute_subtraction_steady_state_output( self, U_inputs, c, ss )
+            
+            % Set the default input arguments.
+            if nargin < 4, ss = [ 1, -1 ]; end
+            if nargin < 3, c = 1; end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = self.network_utilities.compute_desired_absolute_subtraction_steady_state_output( U_inputs, c, ss );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative subtraction subnetwork.
+        function U_outputs = compute_desired_relative_subtraction_steady_state_output( self, U_inputs, Rs, c, ss )
+           
+            % Set the default input arguments.
+            if nargin < 5, ss = [ 1, -1 ]; end
+            if nargin < 4, c = 1; end
+            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = self.network_utilities.compute_desired_relative_subtraction_steady_state_output( U_inputs, Rs, c, ss );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a subtraction subnetwork.
+        function U_outputs = compute_achieved_subtraction_steady_state_output( self, U_inputs, Rs, Gms, Ias, gs, dEs )
+            
+            % Set the default input arguments.
+            if nargin < 7, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 6, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 5, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = self.network_utilities.compute_achieved_subtraction_steady_state_output( U_inputs, Rs, Gms, Ias, gs, dEs );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute inversion subnetwork.
+        function U2s = compute_desired_absolute_inversion_steady_state_output( self, U1s, c1, c2, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 5, c3 = 20e-9; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 0.40e-9; end
+            
+            % Compute the steady state output.
+            U2s = self.network_utilities.compute_desired_absolute_inversion_steady_state_output( U1s, c1, c2, c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative inversion subnetwork.
+        function U2s = compute_desired_relative_inversion_steady_state_output( self, Us1, c1, c2, c3, R1, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
+            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 5, c3 = 1e-6; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 1e-6; end
+            
+            % Compute the steady state output.
+            U2s = self.network_utilities.compute_desired_relative_inversion_steady_state_output( Us1, c1, c2, c3, R1, R2 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
+        function U2s = compute_achieved_inversion_steady_state_output( self, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+            
+            % Set the default input arguments.
+            if nargin < 7, dEs21 = self.get_dEsyns( [ 1, 2 ] ); end
+            if nargin < 6, gs21 = self.get_gsynmaxs( [ 1, 2 ] ); end
+            if nargin < 5, Ia2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'I_tonic' ) ); end
+            if nargin < 4, Gm2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'Gm' ) ); end
+            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+
+            % Compute the steady state output.
+            U2s = self.network_utilities.compute_achieved_inversion_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
+        function U3s = compute_desired_absolute_division_steady_state_output( self, U_inputs, c1, c2, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 5, c3 = 0.40e-9; end
+            if nargin < 4, c2 = 380e-9; end
+            if nargin < 3, c1 = 0.40e-9; end
+            
+            % Compute the steady state output.
+            U3s = self.network_utilities.compute_desired_absolute_division_steady_state_output( U_inputs, c1, c2, c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative division subnetwork.
+        function U3s = compute_desired_relative_division_steady_state_output( self, U_inputs, c1, c2, c3, R1, R2, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 8, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
+            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
+            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 5, c3 = 1e-6; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 1e-6; end
+            
+            % Compute the steady state output.
+            U3s = self.network_utilities.compute_desired_relative_division_steady_state_output( U_inputs, c1, c2, c3, R1, R2, R3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
+        function U3s = compute_achieved_division_steady_state_output( self, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
+            
+            % Set the default input arguments.
+            if nargin < 10, dEs32 = self.get_dEsyns( [ 2, 3 ] ); end
+            if nargin < 9, dEs31 = self.get_dEsyns( [ 1, 3 ] ); end
+            if nargin < 8, gs32 = self.get_gsynmaxs( [ 2, 3 ] ); end
+            if nargin < 7, gs31 = self.get_gsynmaxs( [ 1, 3 ] ); end
+            if nargin < 6, Ia3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'I_tonic' ) ); end
+            if nargin < 5, Gm3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'Gm' ) ); end
+            if nargin < 4, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
+            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            
+            % Compute the steady state output.
+            U3s = self.network_utilities.compute_achieved_division_steady_state_output( U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
+        function U4s = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
+            
+            % Set the default input arguments.
+            if nargin < 8, c6 = 0.40e-9; end
+            if nargin < 7, c5 = 380e-9; end
+            if nargin < 6, c4 = 0.40e-9; end
+            if nargin < 5, c3 = 20e-9; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 0.40e-9; end
+            
+            % Compute the steady state output.
+            U4s = self.network_utilities.compute_desired_absolute_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6 );
+            
+        end
+            
+            
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
+        function U4s = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
+            
+            % Set the default input arguments.
+            if nargin < 12, R4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'R' ) ); end
+            if nargin < 11, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
+            if nargin < 10, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
+            if nargin < 9, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 8, c6 = 1e-6; end
+            if nargin < 7, c5 = 19e-6; end
+            if nargin < 6, c4 = 1e-6; end
+            if nargin < 5, c3 = 1e-6; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 1e-6; end
+            
+            % Compute the steady state output.
+            U4s = self.network_utilities.compute_desired_relative_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
+        function U4s = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
+        
+            % Set the default input arguments.
+            if nargin < 15, dEs43 = self.get_dEsyns( [ 3, 4 ] ); end
+            if nargin < 14, dEs41 = self.get_dEsyns( [ 1, 4 ] ); end
+            if nargin < 13, dEs32 = self.get_dEsyns( [ 2, 3 ] ); end
+            if nargin < 12, gs43 = self.get_gsynmaxs( [ 3, 4 ] ); end
+            if nargin < 11, gs41 = self.get_gsynmaxs( [ 1, 4 ] ); end
+            if nargin < 10, gs32 = self.get_gsynmaxs( [ 2, 3 ] ); end
+            if nargin < 9, Ia4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'I_tonic' ) ); end
+            if nargin < 8, Ia3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'I_tonic' ) ); end
+            if nargin < 7, Gm4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'G' ) ); end
+            if nargin < 6, Gm3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'G' ) ); end
+            if nargin < 5, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
+            if nargin < 4, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
+            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+
+            % Compute the steady state output.
+            U4s = self.network_utilities.compute_achieved_multiplication_steady_state_output( U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 );
+            
+        end
+           
         
         %% Simulation Functions
         

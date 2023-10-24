@@ -30,7 +30,7 @@ classdef numerical_method_utilities_class
         %% Numerical Stability Methods
                 
         % Implement a function to determine whether a stability metric is stable.
-        function b_stable = is_metric_stable( R )
+        function b_stable = is_metric_stable( ~, R )
         
             % Determine whether this metric is stable.
             if any( abs( R ) >= 1 )      	% If the absolute value of the stability metric is greater than or equal to one...
@@ -49,7 +49,7 @@ classdef numerical_method_utilities_class
         
             
         % Implement a function to compute the RK4 stability metric.
-        function R = compute_RK4_stability( mu )
+        function R = compute_RK4_stability( ~, mu )
         
             % Compute the RK4 stability.
             R = 1 + mu + ( 1/2 )*mu.^2 + ( 1/6 )*mu.^3 + ( 1/24 )*mu.^4;
@@ -58,40 +58,63 @@ classdef numerical_method_utilities_class
         
         
         % Implement a function to compute the RK4 stability metric associated with a given eigenvalue and step size.
-        function R = eigenvalues2RK4_stability( lambdas, dt )
+        function R = eigenvalues2RK4_stability( self, lambdas, dt )
            
+            % Determine whether to reshape the time input.
+            dt = reshape( dt, [ numel( dt ), 1 ] );
+            
             % Compute the stability metric input.
-            mu = dt*lambdas;
+            mu = dt*lambdas';
             
             % Compute the RK4 stability metric.
-            R = compute_RK4_stability( mu );
+            R = self.compute_RK4_stability( mu );
             
         end
         
         
         % Implement a function to compute the compute the RK4 stability metric associated with a given system and step size.
-        function R = system_matrix2RK4_stability( A, dt )
+        function R = system_matrix2RK4_stability( self, A, dt )
             
             % Compute the eigenvalues associated with this matrix.
             lambdas = eig( A );
             
             % Compute the RK4 stability metric associated with these eigenvalues.
-            R = eigenvalues2RK4_stability( lambdas, dt );
+            R = self.eigenvalues2RK4_stability( lambdas, dt );
             
         end
         
         
         % Implement a function to compute the maximum step size for RK4 given a system matrix.
-        function dt = compute_max_RK4_step_size( A, dt0 )
+        function dt = compute_max_RK4_step_size( self, A, dt0 )
         
             % Define the default input arguments.
-            if nargin < 2, dt0 = 1; end
+            if nargin < 3, dt0 = 1e-6; end
             
             % Create the stability function.
-            f_stability = @( dt ) max( abs( system_matrix2RK4_stability( A, dt ) ) );
+            f_stability = @( dt ) reshape( max( abs( self.system_matrix2RK4_stability( A, dt ) ), [  ], 2 ), size( dt ) ) - 1;
+
+            % Define the number of timesteps.
+            num_dts = 7;
+            
+            % Compute the numerical method seeds.
+            dt0s = logspace( log10( dt0 ), 0, num_dts );
+            
+            % Initialize the step size.
+            dt = 0;
+            
+            % Initialize a counter variable.
+            k = 0;
             
             % Compute the maximum timestep.
-            dt = fzero( f_stability, dt0 );
+            while ( round( dt, 12 ) == 0 ) && ( k < num_dts )                           % While we have not yet found a valid step size and we haven't exhausted all of our numerical seeds...
+            
+                % Advance the loop counter.
+                k = k + 1;
+                
+                % Compute the resulting step size.
+                dt = fzero( f_stability, dt0s( k ) );
+            
+            end
             
         end
             

@@ -41,6 +41,19 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % network.neuron_manager = network.neuron_manager.disable_neurons( neuron_IDs_add );
 
 
+%% Numerical Stability Analysis.
+
+% Compute the maximum RK4 step size and condition number.
+[ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), zeros( network.neuron_manager.num_neurons, 1 ), 1e-6 );
+
+% Print out the stability information.
+fprintf( 'STABILITY SUMMARY:\n' )
+fprintf( 'Linearized System Matrix: A =\n\n' ), disp( A )
+fprintf( 'Max RK4 Step Size: \tdt_max = %0.3e [s]\n', dt_max )
+fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
+fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
+
+
 %% Simulate the Network.
 
 % Simulate the network.

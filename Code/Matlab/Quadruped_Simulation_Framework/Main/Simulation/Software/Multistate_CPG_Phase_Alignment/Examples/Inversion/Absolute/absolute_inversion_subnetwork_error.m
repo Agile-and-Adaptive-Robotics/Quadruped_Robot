@@ -43,7 +43,7 @@ delta = 1e-3;                               % [V] Minimum Output Membrane Voltag
 % delta = 1e-3;
 
 
-%% Create Absolute Subtraction Subnetwork.
+%% Create Absolute Inversion Subnetwork.
 
 % Compute the network properties.
 R2 = c1/c3;                                 % [V] Activation Domain
@@ -65,6 +65,7 @@ fprintf( 'dEs21 = %0.2f [mV]\n', dEs21*( 10^3 ) )
 fprintf( 'gs21 = %0.2f [muS]\n', gs21*( 10^6 ) )
 fprintf( 'Gm2 = %0.2f [muS]\n', Gm2*( 10^6 ) )
 fprintf( 'Iapp2 = %0.2f [nA]\n', Iapp2*( 10^9 ) )
+fprintf( '\n' )
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -91,6 +92,60 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), Iapp2, 'I_apps' );
+
+
+%% Compute Desired & Achieved Inversion Formulations.
+
+% Retrieve network information.
+Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );
+Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );
+Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );
+% Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );
+Ias = [ 0, Iapp2 ];
+gs = network.get_gsynmaxs( 'all' );
+dEs = network.get_dEsyns( 'all' );
+dt0 = 1e-6;
+
+% Define the inversion subnetwork inputs.
+U1s = linspace( 0, Rs( 1 ), 20  );
+
+% Create the input points.
+U1s_flat = reshape( U1s, [ numel( U1s ), 1 ] );
+
+% Compute the desired and achieved absolute inversion steady state output.
+U2s_flat_desired_relative = network.compute_desired_absolute_inversion_steady_state_output( U1s_flat, c1, c2, c3 );
+[ U2s_flat_achieved_relative, As, dts, condition_numbers ] = network.achieved_inversion_RK4_stability_analysis( U1s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
+
+% Retrieve the maximum RK4 step size and condition number.
+[ dt_max, indexes_dt ] = max( dts );
+[ condition_number_max, indexes_condition_number ] = max( condition_numbers );
+
+
+%% Print the Desired and Achieved Inversion Formulation Results.
+
+% Print out the stability information.
+fprintf( 'STABILITY SUMMARY:\n' )
+fprintf( 'Linearized System Matrix: A =\n\n' ), disp( As( :, :, indexes_condition_number ) )
+fprintf( 'Max RK4 Step Size: \t\tdt_max = %0.3e [s] @ %0.2f [mV]\n', dt_max, U1s_flat( indexes_dt )*( 10^3 ) )
+fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
+fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ %0.2f [mV]\n', condition_number_max, U1s_flat( indexes_condition_number )*( 10^3 ) )
+
+
+%% Plot the Desired and Achieved Inversion Formulation Results.
+
+% Plot the desired and achieved relative inversion formulation results.
+figure( 'Color', 'w', 'Name', 'Absolute Inversion Theory' ), hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Absolute Inversion Theory' )
+plot( U1s_flat, U2s_flat_desired_relative, '-', 'Linewidth', 3 )
+plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 )
+legend( 'Desired', 'Achieved' )
+
+% Plot the RK4 maximum timestep.
+figure( 'Color', 'w', 'Name', 'Absolute Inversion RK4 Maximum Timestep' ), hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Inversion RK4 Maximum Timestep' )
+plot( U1s_flat, dts, '-', 'Linewidth', 3 )
+
+% Plot the linearized system condition numbers.
+figure( 'Color', 'w', 'Name', 'Absolute Inversion Condition Numbers' ), hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Absolute Inversion Condition Number' )
+plot( U1s_flat, condition_numbers, '-', 'Linewidth', 3 )
 
 
 %% Simulate the Network.
@@ -163,6 +218,13 @@ figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neu
 h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
 h2 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 );
 legend( [ h1, h2 ], { 'Desired', 'Achieved' }, 'Location', 'Best' )
+
+% Create a plot of the desired and achieved membrane voltage outputs.
+figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response' )
+h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
+h2 = plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 );
+h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 );
+legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 
 % Create a surface that shows the membrane voltage error.
 figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Error' )

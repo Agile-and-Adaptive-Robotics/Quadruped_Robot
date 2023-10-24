@@ -10,8 +10,10 @@ clear, close('all'), clc
 b_verbose = true;
 
 % Define the network integration step size.
+% network_dt = 1e-2;
 % network_dt = 1e-3;
-network_dt = 1e-4;
+network_dt = 6.5e-4;
+% network_dt = 1e-4;
 % network_dt = 1e-5;
 network_tf = 3;
 
@@ -72,9 +74,9 @@ network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_
 
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1, 'neuron_ID' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 2, 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0.25*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), Iapp2, 'I_apps' );
 
 % % Create applied currents.
@@ -86,10 +88,31 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 20e-9, 'I_apps' );
 
 
+%% Numerical Stability Analysis.
+
+% Compute the maximum RK4 step size and condition number.
+% [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), zeros( network.neuron_manager.num_neurons, 1 ), 1e-6 );
+% [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ 0; Iapp2/Gm2 ], 1e-6 );
+[ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ ( ( delta*Gm2 - Iapp2 )*R1 )/( ( dEs21 - delta )*gs21 ); delta ], 1e-6 );
+
+% Print out the stability information.
+fprintf( '\nSTABILITY SUMMARY:\n' )
+fprintf( 'Linearized System Matrix: A =\n\n' ), disp( A )
+fprintf( 'Max RK4 Step Size: \tdt_max = %0.3e [s]\n', dt_max )
+fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
+fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
+
+
 %% Simulate the Network.
+
+% Start the timer.
+tic
 
 % Simulate the network.
 [ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
+
+% End the timer.
+toc
 
 
 %% Plot the Network Results.

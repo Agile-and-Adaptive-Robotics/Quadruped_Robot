@@ -565,6 +565,240 @@ classdef network_utilities_class
         end
             
         
+        %% Steady State Formulations
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
+        function U_outputs = compute_desired_absolute_addition_steady_state_output( ~, U_inputs, c )
+            
+            % Set the default input arguments.
+            if nargin < 3, c = 1; end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = c*sum( U_inputs, 2 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative addition subnetwork.
+        function U_outputs = compute_desired_relative_addition_steady_state_output( ~, U_inputs, Rs, c )
+            
+            % Set the default input arguments.
+            if nargin < 4, c = 1; end
+            if nargin < 3, Rs = ( 20e-3 )*ones( 1, 2 ); end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Compute the number of inputs.
+            num_inputs = size( U_inputs, 2 );
+            
+            % Compute the steady state network outputs.
+            U_outputs = ( ( c*Rs( end ) )/num_inputs )*sum( U_inputs./Rs( 1:( end - 1 ) ), 2 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of an addition subnetwork.
+        function U_outputs = compute_achieved_addition_steady_state_output( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
+            
+            % Compute the steady state network outputs.
+%             U_outputs = ( sum( ( gs( end, : ).*dEs( end, : ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Ias( end ) )./( sum( ( gs( end, : ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Gms( end ) );
+            U_outputs = ( sum( ( gs( end, 1:( end - 1 ) ).*dEs( end, 1:( end - 1 ) ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Ias( end ) )./( sum( ( gs( end, 1:( end - 1 ) ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Gms( end ) );
+
+        end
+            
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute subtraction subnetwork.
+        function U_outputs = compute_desired_absolute_subtraction_steady_state_output( ~, U_inputs, c, ss )
+            
+            % Set the default input arguments.
+            if nargin < 4, ss = [ 1, -1 ]; end
+            if nargin < 3, c = 1; end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            U_outputs = c*sum( ss.*U_inputs, 2 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative subtraction subnetwork.
+        function U_outputs = compute_desired_relative_subtraction_steady_state_output( ~, U_inputs, Rs, c, ss )
+            
+            % Set the default input arguments.
+            if nargin < 5, ss = [ 1, -1 ]; end
+            if nargin < 4, c = 1; end
+            if nargin < 3, Rs = ( 20e-3 )*ones( 1, 2 ); end
+            if nargin < 2, U_inputs = zeros( 1, 2 ); end
+            
+            % Retrieve the indexes associated with the excitatory and inhibitory synapses.
+            i_plus = ss == 1;
+            i_negative = ss == -1;
+            
+            % Compute the number of excitatory and inhibitory synapses.
+            n_plus = length( i_plus );
+            n_negative = length( i_negative );
+            
+            % Compute the steady state network outputs.
+            U_outputs = ( c*Rs( end ) )*( ( 1/n_plus )*sum( U_inputs( :, i_plus )./Rs( i_plus ), 2 ) - ( 1/n_negative )*sum( U_inputs( :, i_negative )./Rs( i_negative ), 2 ) );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a subtraction subnetwork.
+        function U_outputs = compute_achieved_subtraction_steady_state_output( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
+            
+            % Compute the steady state network outputs.
+            U_outputs = ( sum( ( gs( end, 1:( end - 1 ) ).*dEs( end, 1:( end - 1 ) ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Ias( end ) )./( sum( ( gs( end, 1:( end - 1 ) ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Gms( end ) );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute inversion subnetwork.
+        function U2s = compute_desired_absolute_inversion_steady_state_output( ~, U1s, c1, c2, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 5, c3 = 20e-9; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 0.40e-9; end
+            
+            % Compute the steady state network outputs.
+            U2s = c1./( c2*U1s + c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative inversion subnetwork.
+        function U2s = compute_desired_relative_inversion_steady_state_output( ~, Us1, c1, c2, c3, R1, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 7, R2 = 20e-3; end
+            if nargin < 6, R1 = 20e-3; end
+            if nargin < 5, c3 = 1e-6; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 1e-6; end
+
+            % Compute the steady state network outputs.
+            U2s = ( c1*R1*R2 )./( c2*Us1 + c3*R1 );
+            
+        end
+           
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
+        function U2s = compute_achieved_inversion_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        
+            % Set the default input arguments.
+            if nargin < 7, dEs21 = 0; end
+            if nargin < 6, gs21 = 19e-6; end
+            if nargin < 5, Ia2 = 20e-9; end
+            if nargin < 4, Gm2 = 1e-6; end
+            if nargin < 3, R1 = 20e-3; end
+            
+            % Compute the steady state network outputs.
+            U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
+        function U3s = compute_desired_absolute_division_steady_state_output( ~, U_inputs, c1, c2, c3 )
+        
+            % Set the default input arguments.
+            if nargin < 5, c3 = 0.40e-9; end
+            if nargin < 4, c2 = 380e-9; end
+            if nargin < 3, c1 = 0.40e-9; end
+            
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the steady state network outputs.
+            U3s = ( c1*U1s )./( c2*U2s + c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative division subnetwork.
+        function U3s = compute_desired_relative_division_steady_state_output( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
+        
+            % Set the default input arguments.
+            if nargin < 8, R3 = 20e-3; end
+            if nargin < 7, R2 = 20e-3; end
+            if nargin < 6, R1 = 20e-3; end
+            if nargin < 5, c3 = 1e-6; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 1e-6; end
+            
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the steady state network outputs.
+            U3s = ( c1*R2*R3*U1s )./( c2*R1*U2s + R1*R2*c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
+        function U3s = compute_achieved_division_steady_state_output( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
+        
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+           % Compute the steady state network outputs.
+           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
+        function U4s = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
+        
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the desired absolute inversion steady state output.
+            U3s = self.compute_desired_absolute_inversion_steady_state_output( U2s, c1, c2, c3 );
+            
+            % Compute the desired absolute division steady state output.
+            U4s = self.compute_desired_absolute_division_steady_state_output( [ U1s, U3s ], c4, c5, c6 );
+            
+        end
+           
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
+        function U4s = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
+           
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the desired relative inversion steady state output.
+            U3s = self.compute_desired_relative_inversion_steady_state_output( U2s, c1, c2, c3, R2, R3 );
+
+            % Compute the desired relative division steady state output.
+            U4s = self.compute_desired_relative_division_steady_state_output( [ U1s, U3s ], c4, c5, c6, R1, R3, R4 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
+        function U4s = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
+        
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the achieved inversion steady state output.
+            U3s = self.compute_achieved_inversion_steady_state_output( U2s, R2, Gm3, Ia3, gs32, dEs32 );            
+                        
+            % Compute the achieved division steady state output.
+            U4s = self.compute_achieved_division_steady_state_output( [ U1s, U3s ], R1, R3, Gm4, Ia4, gs41, gs43, dEs41, dEs43 );
+            
+        end
+        
+        
         %% Network Functions
         
         % Implement a function to compute the linearized system matrix for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
@@ -663,20 +897,20 @@ classdef network_utilities_class
         %% Stability Functions
         
         % Implement a function to compute the maximum RK4 step size.
-        function [ dt, A, condition_number ] = compute_max_RK4_step_size( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
+        function [ A, dt, condition_number ] = RK4_stability_analysis_at_point( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
         
             % Set the default input arguments.
-            if nargin < 8, dt0 = 1; end
+            if nargin < 8, dt0 = 1e-6; end
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
             
             % Compute the linearized system matrix.
             A = self.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
-        
-            % Compute the condition number of the system matrix.
-            condition_number = cond( A );
             
             % Compute the maximum RK4 step size.
             dt = self.numerical_method_utilities.compute_max_RK4_step_size( A, dt0 );
+            
+            % Compute the condition number of the system matrix.
+            condition_number = cond( A );
             
         end      
         
