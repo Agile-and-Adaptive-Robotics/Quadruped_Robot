@@ -11,8 +11,8 @@ save_directory = '.\Save';
 load_directory = '.\Load';
 
 % Set a flag to determine whether to simulate.
-b_simulate = true;
-% b_simulate = false;
+% b_simulate = true;
+b_simulate = false;
 
 % Set the level of verbosity.
 b_verbose = true;
@@ -90,6 +90,122 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3:4 ), [ Iapp3, Iapp4 ], 'I_apps' );
 
 
+%% Compute Desired & Achieved Multiplication Formulations.
+
+% Retrieve network information.
+Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );
+Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );
+Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );
+Ias = [ 0, 0, Iapp3, Iapp4 ];
+gs = network.get_gsynmaxs( 'all' );
+dEs = network.get_dEsyns( 'all' );
+dt0 = 1e-6;
+
+% Define the multiplication subnetwork inputs.
+U1s = linspace( 0, Rs( 1 ), 20  );
+U2s = linspace( 0, Rs( 2 ), 20  );
+
+% Create an input grid.
+[ U1s_grid, U2s_grid ] = meshgrid( U1s, U2s );
+
+% Create the input points.
+U1s_flat = reshape( U1s_grid, [ numel( U1s_grid ), 1 ] );
+U2s_flat = reshape( U2s_grid, [ numel( U2s_grid ), 1 ] );
+
+% Compute the desired and achieved relative multiplication steady state output.
+[ U4s_flat_desired_relative, U3s_flat_desired_relative ] = network.compute_desired_relative_multiplication_steady_state_output( [ U1s_flat, U2s_flat ], c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
+[ U4s_flat_achieved_relative, U3s_flat_achieved_relative, As, dts, condition_numbers ] = network.achieved_multiplication_RK4_stability_analysis( U1s_flat, U2s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
+
+% Convert the flat steady state output results to grids.
+dts_grid = reshape( dts, size( U1s_grid ) );
+condition_numbers_grid = reshape( condition_numbers, size( U1s_grid ) );
+
+U3s_grid_desired_relative = reshape( U3s_flat_desired_relative, size( U1s_grid ) );
+U3s_grid_achieved_relative = reshape( U3s_flat_achieved_relative, size( U1s_grid ) );
+
+U4s_grid_desired_relative = reshape( U4s_flat_desired_relative, size( U1s_grid ) );
+U4s_grid_achieved_relative = reshape( U4s_flat_achieved_relative, size( U1s_grid ) );
+
+% Retrieve the maximum RK4 step size and condition number.
+[ dt_max, indexes_dt ] = min( dts );
+[ condition_number_max, indexes_condition_number ] = max( condition_numbers );
+
+% Print a summary of the relevant network parameters.
+fprintf( 'NETWORK PARAMETERS:\n' )
+
+fprintf( 'R1 = %0.2f [mV]\n', Rs( 1 )*( 10^3 ) )
+fprintf( 'R2 = %0.2f [mV]\n', Rs( 2 )*( 10^3 ) )
+fprintf( 'R3 = %0.2f [mV]\n', Rs( 3 )*( 10^3 ) )
+fprintf( 'R4 = %0.2f [mV]\n', Rs( 4 )*( 10^3 ) )
+
+fprintf( 'c1 = %0.2f [-]\n', c1 )
+fprintf( 'c2 = %0.2f [-]\n', c2 )
+fprintf( 'c3 = %0.2f [-]\n', c3 )
+fprintf( 'c4 = %0.2f [-]\n', c4 )
+fprintf( 'c5 = %0.2f [-]\n', c5 )
+fprintf( 'c6 = %0.2f [-]\n', c6 )
+
+fprintf( 'dEs41 = %0.2f [mV]\n', dEs( 4, 1 )*( 10^3 ) )
+fprintf( 'dEs32 = %0.2f [mV]\n', dEs( 3, 2 )*( 10^3 ) )
+fprintf( 'dEs43 = %0.2f [mV]\n', dEs( 4, 3 )*( 10^3 ) )
+
+fprintf( 'gs41 = %0.2f [muS]\n', gs( 4, 1 )*( 10^6 ) )
+fprintf( 'gs32 = %0.2f [muS]\n', gs( 3, 2 )*( 10^6 ) )
+fprintf( 'gs43 = %0.2f [muS]\n', gs( 4, 3 )*( 10^6 ) )
+
+fprintf( 'Gm3 = %0.2f [muS]\n', Gms( 3 )*( 10^6 ) )
+fprintf( 'Gm4 = %0.2f [muS]\n', Gms( 4 )*( 10^6 ) )
+
+fprintf( 'Ia3 = %0.2f [nA]\n', Ias( 3 )*( 10^9 ) )
+fprintf( 'Ia4 = %0.2f [nA]\n', Ias( 4 )*( 10^9 ) )
+
+fprintf( '\n\n' )
+
+
+%% Print the Desired Relative, Desired Relative, and Achieved Multiplication Formulation Results.
+
+% Print out the stability information.
+fprintf( 'STABILITY SUMMARY:\n' )
+fprintf( 'Linearized System Matrix: A =\n\n' ), disp( As( :, :, indexes_condition_number ) )
+fprintf( 'Max RK4 Step Size: \t\tdt_max = %0.3e [s] @ ( %0.2f [mV], %0.2f [mV] )\n', dt_max, U1s_flat( indexes_dt )*( 10^3 ), U2s_flat( indexes_dt )*( 10^3 ) )
+fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
+fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ ( %0.2f [mV], %0.2f [mV] )\n', condition_number_max, U1s_flat( indexes_condition_number )*( 10^3 ), U2s_flat( indexes_condition_number )*( 10^3 ) )
+
+
+%% Plot the Desired Relative, Desired Relative, and Achieved Multiplication Formulation Results.
+
+% Plot the desired and achieved relative inversion formulation results.
+fig = figure( 'Color', 'w', 'Name', 'Relative Inversion Theory' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Relative Inversion Theory' )
+surf( U1s_grid, U2s_grid, U3s_grid_desired_relative, 'Facecolor', 'b', 'Edgecolor', 'None' )
+surf( U1s_grid, U2s_grid, U3s_grid_achieved_relative, 'Facecolor', 'r', 'Edgecolor', 'None' )
+legend( 'Desired', 'Achieved' )
+saveas( fig, [ save_directory, '\', 'relative_inversion_theory' ] )
+
+% Plot the desired and achieved relative division formulation results.
+fig = figure( 'Color', 'w', 'Name', 'Relative Division Theory' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Relative Division Theory' )
+surf( U1s_grid, U3s_grid_desired_relative, U4s_grid_desired_relative, 'Facecolor', 'b', 'Edgecolor', 'None' )
+surf( U1s_grid, U3s_grid_achieved_relative, U4s_grid_achieved_relative, 'Facecolor', 'r', 'Edgecolor', 'None' )
+legend( 'Desired', 'Achieved' )
+saveas( fig, [ save_directory, '\', 'relative_division_theory' ] )
+
+% Plot the desired and achieved relative multiplication formulation results.
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication Theory' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Relative Multiplication Theory' )
+surf( U1s_grid, U2s_grid, U4s_grid_desired_relative, 'Facecolor', 'b', 'Edgecolor', 'None' )
+surf( U1s_grid, U2s_grid, U4s_grid_achieved_relative, 'Facecolor', 'r', 'Edgecolor', 'None' )
+legend( 'Desired', 'Achieved' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_theory' ] )
+
+% Plot the RK4 maximum timestep.
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication RK4 Maximum Timestep' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Rk4 Maximum Timestep, dt [s]' ), title( 'Relative Multiplication RK4 Maximum Timestep' )
+surf( U1s_grid, U2s_grid, dts_grid, 'Edgecolor', 'None' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_rk4_maximum_timestep' ] )
+
+% Plot the linearized system condition numbers.
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication Condition Numbers' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Relative Multiplication Condition Number' )
+surf( U1s_grid, U2s_grid, condition_numbers_grid, 'Edgecolor', 'None' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_condition_numbers' ] )
+
+
 %% Simulate the Network.
 
 % Determine whether to simulate the network.
@@ -158,20 +274,25 @@ error = Us_achieved( :, :, end ) - Us_desired( :, :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 % Create a surface that shows the desired membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Multiplication Subnetwork Steady State Response (Desired)' )
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication Steady State Response (Desired)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Multiplication Subnetwork Steady State Response (Desired)' )
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_ss_response_desired' ] )
 
 % Create a surface that shows the achieved membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Multiplication Subnetwork Steady State Response (Achieved)' )
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Multiplication Subnetwork Steady State Response (Achieved)' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_ss_response_achieved' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Multiplication Subnetwork Steady State Response (Comparison)' )
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication Subnetwork Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Multiplication Subnetwork Steady State Response (Comparison)' )
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'b' )
+surf( U1s_grid, U2s_grid, U4s_grid_achieved_relative, 'Edgecolor', 'None', 'Facecolor', 'g' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'r' )
-legend( 'Desired', 'Achieved' )
+legend( 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_ss_response_comparison' ] )
 
 % Create a surface that shows the membrane voltage error.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Relative Multiplication Subnetwork Steady State Error' )
+fig = figure( 'Color', 'w', 'Name', 'Relative Multiplication Subnetwork Steady State Error' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Relative Multiplication Subnetwork Steady State Error' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), error, 'Edgecolor', 'None' )
+saveas( fig, [ save_directory, '\', 'relative_multiplication_ss_response_error' ] )
 

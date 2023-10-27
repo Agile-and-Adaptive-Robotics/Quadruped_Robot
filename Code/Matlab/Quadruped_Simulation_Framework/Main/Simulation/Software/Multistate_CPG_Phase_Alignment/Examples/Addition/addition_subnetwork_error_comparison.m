@@ -45,6 +45,10 @@ Us_achieved_relative = relative_addition_simulation_data.Us_achieved;
 
 %% Compute the Error in the Steady State Addition Subnetwork Responses
 
+% Define the absolute and relative addition subnetwork parameters.
+c_absolute = 1;
+c_relative = 1;
+
 % Get the absolute activation domains of the neurons.
 R3_absolute = network_absolute.neuron_manager.get_neuron_property( 3, 'R' ); R3_absolute = R3_absolute{ 1 };
 
@@ -54,8 +58,8 @@ R2_relative = network_relative.neuron_manager.get_neuron_property( 2, 'R' ); R2_
 R3_relative = network_relative.neuron_manager.get_neuron_property( 3, 'R' ); R3_relative = R3_relative{ 1 };
 
 % Compute the desired steady state output membrane voltage.
-Us3_desired_absolute = Us_achieved_absolute( :, :, 1 ) + Us_achieved_absolute( :, :, 2 );
-Us3_desired_relative = ( R3_relative/2 )*( Us_achieved_relative( :, :, 1 )/R1_relative + Us_achieved_relative( :, :, 2 )/R2_relative );
+Us3_desired_absolute = c_absolute*( Us_achieved_absolute( :, :, 1 ) + Us_achieved_absolute( :, :, 2 ) );
+Us3_desired_relative = ( c_relative*R3_relative/2 )*( Us_achieved_relative( :, :, 1 )/R1_relative + Us_achieved_relative( :, :, 2 )/R2_relative );
 
 % Generate desired steady state membrane voltage matrices.
 Us_desired_absolute = cat( 3, Us_achieved_absolute( :, :, 1 ), Us_achieved_absolute( :, :, 2 ), Us3_desired_absolute );

@@ -27,13 +27,18 @@ network_tf = 3;
 num_neurons = 2;
 
 % Set the subnetwork parameters.
-R1 = 20e-3;                                 % [V] Activation Domain
-c1 = 0.40e-9;                               % [W] Absolute Inversion Parameter 1
-c3 = 20e-9;                                 % [A] Absolute Inversion Parameter 3
-delta = 1e-3;                               % [V] Minimum Output Membrane Voltage
+% R1 = 20e-3;                                 % [V] Activation Domain
+% c1 = 0.40e-9;                               % [W] Absolute Inversion Parameter 1
+% c3 = 20e-9;                                 % [A] Absolute Inversion Parameter 3
+% delta = 1e-3;                               % [V] Minimum Output Membrane Voltage
+
+R1 = 20e-3;
+c1 = 0.80e-9;
+c3 = 20e-9;
+delta = 1e-3;
 
 % R1 = 20e-3;
-% c1 = 0.80e-9;
+% c1 = 0.60e-9;
 % c3 = 20e-9;
 % delta = 1e-3;
 
@@ -134,18 +139,21 @@ fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ %0.2f [mV]\n', condition
 %% Plot the Desired and Achieved Inversion Formulation Results.
 
 % Plot the desired and achieved relative inversion formulation results.
-figure( 'Color', 'w', 'Name', 'Absolute Inversion Theory' ), hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Absolute Inversion Theory' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Absolute Inversion Theory' )
 plot( U1s_flat, U2s_flat_desired_relative, '-', 'Linewidth', 3 )
 plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved' )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_theory' ] )
 
 % Plot the RK4 maximum timestep.
-figure( 'Color', 'w', 'Name', 'Absolute Inversion RK4 Maximum Timestep' ), hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Inversion RK4 Maximum Timestep' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion RK4 Maximum Timestep' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Inversion RK4 Maximum Timestep' )
 plot( U1s_flat, dts, '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_rk4_maximum_timestep' ] )
 
 % Plot the linearized system condition numbers.
-figure( 'Color', 'w', 'Name', 'Absolute Inversion Condition Numbers' ), hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Absolute Inversion Condition Number' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Condition Numbers' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Absolute Inversion Condition Number' )
 plot( U1s_flat, condition_numbers, '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_condition_numbers' ] )
 
 
 %% Simulate the Network.
@@ -157,8 +165,9 @@ if b_simulate               % If we want to simulate the network....
     n_applied_currents = 20;
     
     % Create the applied currents.
-    applied_currents = linspace( 0, network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents );
-        
+%     applied_currents = linspace( 0, network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents );
+    applied_currents = linspace( 0, network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, n_applied_currents );
+
     % Create a matrix to store the membrane voltages.
     Us_achieved = zeros( n_applied_currents, num_neurons );
     
@@ -206,28 +215,25 @@ error = Us_achieved( :, end ) - Us_desired( :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 % Create a plot of the desired membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Desired)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Desired)' )
 plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_desired' ] )
 
 % Create a plot of the achieved membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Achieved)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Achieved)' )
 plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_achieved' ] )
 
 % Create a plot of the desired and achieved membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response' )
-h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
-h2 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 );
-legend( [ h1, h2 ], { 'Desired', 'Achieved' }, 'Location', 'Best' )
-
-% Create a plot of the desired and achieved membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Comparison)' )
 h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
 h2 = plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 );
 h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_comparison' ] )
 
 % Create a surface that shows the membrane voltage error.
-figure( 'color', 'w' ), hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Error' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Error' )
 plot( Us_achieved( :, 1 ), error, '-', 'Linewidth', 3 )
-
+saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_error' ] )
 

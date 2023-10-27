@@ -18,11 +18,16 @@ network_tf = 3;
 %% Create an Absolute Inversion Subnetwork.
 
 % Set the user specified parameters.
+% R1_absolute = 20e-3;
+% c1_absolute = 0.40e-9;
+% c3_absolute = 20e-9;
+% delta_absolute = 1e-3;
+% % delta_absolute = 1e-4;
+
 R1_absolute = 20e-3;
-c1_absolute = 0.40e-9;
+c1_absolute = 0.80e-9;
 c3_absolute = 20e-9;
 delta_absolute = 1e-3;
-% delta_absolute = 1e-4;
 
 % Compute the network_absolute properties.
 R2_absolute = c1_absolute/c3_absolute;
@@ -258,6 +263,16 @@ plot( Us_achieved_relative( :, 1 )*(10^3), Us_achieved_relative( :, end )*(10^3)
 legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'Relative_Inversion_Subnetwork_Steady_State_Response.png' ] )
 
+% Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative inversion subnetwork.
+% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [mV]' ), title( 'Inversion Subnetwork Steady State Response (Comparison)' )
+fig = figure( 'color', 'w' ); hold on, grid on
+plot( Us_desired_relative( :, 1 )*(10^3), Us_desired_absolute( :, end )*(10^3), 'r-', 'Linewidth', 3 )
+plot( Us_achieved_relative( :, 1 )*(10^3), Us_achieved_absolute( :, end )*(10^3), 'b--', 'Linewidth', 3 )
+plot( Us_desired_relative( :, 1 )*(10^3), Us_desired_relative( :, end )*(10^3), 'r-', 'Linewidth', 3 )
+plot( Us_achieved_relative( :, 1 )*(10^3), Us_achieved_relative( :, end )*(10^3), 'b--', 'Linewidth', 3 )
+legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
+saveas( fig, [ save_directory, '\', 'Relative_Inversion_Subnetwork_Steady_State_Response.png' ] )
+
 % Create a surface that shows the membrane voltage error.
 fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error, E [mV]' ), title( 'Inversion Subnetwork Steady State Error' )
 plot( Us_achieved_absolute( :, 1 )*(10^3), error_absolute*(10^3), '-', 'Linewidth', 3 )
@@ -277,8 +292,13 @@ fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Inp
 plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference*(10^3), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Difference.png' ] )
 
-% Create a surface that shows the difference in error between the absolute and relative percent inversion subnetworks.
-fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Inversion Subnetwork Steady State Error Difference Percentage' )
-plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference_percent, '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+% % Create a surface that shows the difference in error between the absolute and relative percent inversion subnetworks.
+% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Inversion Subnetwork Steady State Error Difference Percentage' )
+% plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference_percent, '-', 'Linewidth', 3 )
+% saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
 
+% Create a surface that shows the difference in error between the absolute and relative percent inversion subnetworks.
+% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Inversion Subnetwork Steady State Error Difference Percentage' )
+fig = figure( 'color', 'w' ); hold on, grid on
+plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference_percent, 'b-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )

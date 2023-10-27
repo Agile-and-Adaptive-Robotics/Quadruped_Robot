@@ -752,7 +752,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
-        function U4s = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
+        function [ U4s, U3s ] = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
         
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
@@ -768,7 +768,7 @@ classdef network_utilities_class
            
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
-        function U4s = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
+        function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
@@ -784,7 +784,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
-        function U4s = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
+        function [ U4s, U3s ] = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
         
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );

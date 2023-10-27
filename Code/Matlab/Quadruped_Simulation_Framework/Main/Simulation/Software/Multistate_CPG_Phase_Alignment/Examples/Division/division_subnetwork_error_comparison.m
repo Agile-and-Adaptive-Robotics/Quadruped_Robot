@@ -26,27 +26,27 @@ network_tf = 3;
 % delta_absolute = 1e-3;          % [V] Modulated Output Membrane Voltage
 % dEs31_absolute = 194e-3;        % [V] Synaptic Reversal Potential
 
-% R1_absolute = 20e-3;                                         % [V] Activation Domain
-% R2_absolute = 20e-3;                                         % [V] Activation Domain
-% c1_absolute = 0.80e-9;                                       % [W] Absolute Division Parameter 1
-% c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
-% delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
-% dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
-
 R1_absolute = 20e-3;                                         % [V] Activation Domain
 R2_absolute = 20e-3;                                         % [V] Activation Domain
-c1_absolute = 1.20e-9;                                       % [W] Absolute Division Parameter 1
+c1_absolute = 0.80e-9;                                       % [W] Absolute Division Parameter 1
 c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
 delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
 dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
 
+% R1_absolute = 20e-3;                                         % [V] Activation Domain
+% R2_absolute = 20e-3;                                         % [V] Activation Domain
+% c1_absolute = 1.20e-9;                                       % [W] Absolute Division Parameter 1
+% c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
+% delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
+% dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
 
 % Compute the network properties.
 R3_absolute = c1_absolute*R1_absolute/c3_absolute;                                                                                                                  % [V] Activation Domain
 c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );                                                              % [A] Absolute Division Parameter 2
 dEs32_absolute = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
 Iapp3_absolute = 0;                                                                                                                                                 % [A] Applied Current
-Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                                                             % [S] Membrane Conductance
+% Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                                                             % [S] Membrane Conductance
+Gm3_absolute = 1e-6;                                                             % [S] Membrane Conductance
 gs31_absolute = ( R3_absolute*Gm3_absolute - Iapp3_absolute )/( dEs31_absolute - R3_absolute );                                                                     % [S] Maximum Synaptic Conductance
 gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Iapp3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );           % [S] Maximum Synaptic Conductance
 
@@ -105,7 +105,8 @@ c1_relative = c3_relative;                                                      
 c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                              % [V] Relative Division Parameter 2
 dEs32_relative = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
 Iapp3_relative = 0;                                                                                                                                                 % [A] Applied Current
-Gm3_relative = c3_relative;                                                                                                                                         % [S] Membrane Conductance
+% Gm3_relative = c3_relative;                                                                                                                                         % [S] Membrane Conductance
+Gm3_relative = 1e-6;
 gs31_relative = ( R3_relative*Gm3_relative - Iapp3_relative )/( dEs31_relative - R3_relative );                                                                     % [S] Maximum Synaptic Conductance
 gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Iapp3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );           % [S] Maximum Synaptic Conductance
 
@@ -294,6 +295,29 @@ view( -45, 30 )
 % colorbar(  )
 saveas( fig, [ save_directory, '\', 'Relative_Division_Subnetwork_Steady_State_Response.png' ] )
 
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Subtraction Subnetwork Steady State Response (Comparison)' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
+% surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
+% surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'k', 'FaceAlpha', 0.25 )
+% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
+
+% surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'FaceColor', [ 1, 0.5, 0 ], 'Edgecolor', 'None', 'FaceAlpha', 0.75 )
+% surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'FaceColor', [ 1, 0.2, 0.2 ], 'Edgecolor', 'None', 'FaceAlpha', 0.75 )
+% surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'FaceColor', [ 0, 1, 0 ], 'Edgecolor', 'None', 'FaceAlpha', 0.75 )
+% surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'FaceColor', [ 0.2, 0.2, 1 ], 'Edgecolor', 'None', 'FaceAlpha', 0.75 )
+
+surf( Us_desired_absolute( :, :, 1 )*(10^3), Us_desired_absolute( :, :, 2 )*(10^3), Us_desired_absolute( :, :, end )*(10^3), 'FaceColor', 'r', 'Edgecolor', 'None', 'FaceAlpha', 0.50 )
+surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), Us_achieved_absolute( :, :, end )*(10^3), 'FaceColor', 'b', 'Edgecolor', 'None', 'FaceAlpha', 0.50 )
+surf( Us_desired_relative( :, :, 1 )*(10^3), Us_desired_relative( :, :, 2 )*(10^3), Us_desired_relative( :, :, end )*(10^3), 'FaceColor', 'r', 'Edgecolor', 'None', 'FaceAlpha', 0.50 )
+surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), Us_achieved_relative( :, :, end )*(10^3), 'FaceColor', 'b', 'Edgecolor', 'None', 'FaceAlpha', 0.50 )
+
+% legend( { 'Absolute Desired', 'Absolute Achieved', 'Relative Desired', 'Relative Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+view( -45, 15 )
+% colormap( get_bichromatic_colormap(  ) )
+saveas( fig, [ save_directory, '\', 'division_ss_response_comparison.png' ] )
+
 % Create a surface that shows the membrane voltage error.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error, E [mV]' ), title( 'Division Subnetwork Steady State Error' )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
@@ -323,7 +347,8 @@ view( 45, 15 )
 saveas( fig, [ save_directory, '\', 'Division_Subnetwork_Approximation_Error_Difference.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative percent division subnetworks.
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
+% fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_difference_percent, 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )

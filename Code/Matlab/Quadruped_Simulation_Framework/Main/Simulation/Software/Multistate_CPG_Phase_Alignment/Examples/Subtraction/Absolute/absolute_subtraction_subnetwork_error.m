@@ -98,7 +98,8 @@ network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs(
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), R3, 'R' );
 
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), Gm3, 'Gm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), Ia3, 'I_tonic' );
+% network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), Ia3, 'I_tonic' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), 0, 'I_tonic' );
 
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs( 1 ), 1, 'from_neuron_ID' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs( 1 ), 3, 'to_neuron_ID' );
@@ -178,18 +179,21 @@ fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ ( %0.2f [mV], %0.2f [mV]
 %% Plot the Desired Absolute, Desired Relative, and Achieved Subtraction Formulation Results.
 
 % Plot the desired and achieved absolute subtraction formulation results.
-figure( 'Color', 'w', 'Name', 'Absolute Subtraction Theory' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Absolute Subtraction Theory' )
-surf( U1s_grid, U2s_grid, U3s_grid_desired_absolute, 'Facecolor', 'b', 'Edgecolor', 'None' )
-surf( U1s_grid, U2s_grid, U3s_grid_achieved_absolute, 'Facecolor', 'r', 'Edgecolor', 'None' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction Theory' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Absolute Subtraction Theory' )
+surf( U1s_grid, U2s_grid, U3s_grid_desired_absolute, 'FaceColor', 'b', 'EdgeColor', 'None' )
+surf( U1s_grid, U2s_grid, U3s_grid_achieved_absolute, 'FaceColor', 'r', 'EdgeColor', 'None' )
 legend( 'Desired', 'Achieved' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_theory' ] )
 
 % Plot the RK4 maximum timestep.
-figure( 'Color', 'w', 'Name', 'Absolute Subtraction RK4 Maximum Timestep' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Rk4 Maximum Timestep, dt [s]' ), title( 'Absolute Subtraction RK4 Maximum Timestep' )
-surf( U1s_grid, U2s_grid, dts_grid, 'Edgecolor', 'None' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction RK4 Maximum Timestep' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Rk4 Maximum Timestep, dt [s]' ), title( 'Absolute Subtraction RK4 Maximum Timestep' )
+surf( U1s_grid, U2s_grid, dts_grid, 'EdgeColor', 'None' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_rk4_maximum_timestep' ] )
 
 % Plot the linearized system condition numbers.
-figure( 'Color', 'w', 'Name', 'Absolute Subtraction Condition Numbers' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Absolute Subtraction Condition Number' )
-surf( U1s_grid, U2s_grid, condition_numbers_grid, 'Edgecolor', 'None' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction Condition Numbers' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Absolute Subtraction Condition Number' )
+surf( U1s_grid, U2s_grid, condition_numbers_grid, 'EdgeColor', 'None' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_condition_numbers' ] )
 
 
 %% Simulate the Network.
@@ -261,28 +265,25 @@ error = Us_achieved( :, :, end ) - Us_desired( :, :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 % Create a surface that shows the desired membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Desired)' )
-surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction Subnetwork Steady State Response (Desired)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Desired)' )
+surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'EdgeColor', 'None' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_ss_response_desired' ] )
 
 % Create a surface that shows the achieved membrane voltage output.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Achieved)' )
-surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction Subnetwork Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Achieved)' )
+surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'EdgeColor', 'None' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_ss_response_achieved' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' )
-surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'b' )
-surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'r' )
-legend( 'Desired', 'Achieved' )
-
-% Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' )
-surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'b' )
-surf( U1s_grid, U2s_grid, U3s_grid_achieved_absolute, 'Edgecolor', 'None', 'Facecolor', 'g' )
-surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'r' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Response (Comparison)' )
+surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'EdgeColor', 'None', 'FaceColor', 'b' )
+surf( U1s_grid, U2s_grid, U3s_grid_achieved_absolute, 'EdgeColor', 'None', 'FaceColor', 'g' )
+surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'EdgeColor', 'None', 'FaceColor', 'r' )
 legend( 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_ss_response_comparison' ] )
 
 % Create a surface that shows the membrane voltage error.
-figure( 'color', 'w' ), hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Error' )
-surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), error, 'Edgecolor', 'None' )
-
+fig = figure( 'Color', 'w', 'Name', 'Absolute Subtraction Subnetwork Steady State Error' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Subtraction Subnetwork Steady State Error' )
+surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), error, 'EdgeColor', 'None' )
+saveas( fig, [ save_directory, '\', 'absolute_subtraction_ss_response_error' ] )
 

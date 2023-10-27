@@ -5149,7 +5149,7 @@ classdef network_class
         
         
         % Implement a function to perform RK4 stability analysis on a multiplication subnetwork.
-        function [ U4s, As, dts, condition_numbers ] = achieved_multiplication_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+        function [ U4s, U3s, As, dts, condition_numbers ] = achieved_multiplication_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
            
             % Set the default input arguments.
             if nargin < 10, dt0 = 1e-6; end
@@ -5163,7 +5163,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved multiplication steady state output at each of the provided inputs.
-            U4s = self.compute_achieved_multiplication_steady_state_output( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Rs( 3 ), Gms( 3 ), Gms( 4 ), Ias( 3 ), Ias( 4 ), gs( 3, 2 ), gs( 4, 1 ), gs( 4, 3 ), dEs( 3, 2 ), dEs( 4, 1 ), dEs( 4, 3 ) );
+            [ U4s, U3s ] = self.compute_achieved_multiplication_steady_state_output( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Rs( 3 ), Gms( 3 ), Gms( 4 ), Ias( 3 ), Ias( 4 ), gs( 3, 2 ), gs( 4, 1 ), gs( 4, 3 ), dEs( 3, 2 ), dEs( 4, 1 ), dEs( 4, 3 ) );
             
             % Create the operating points array.
             Us = [ U1s, U2s, U3s, U4s ];
@@ -5361,7 +5361,7 @@ classdef network_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
-        function U4s = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
+        function [ U4s, U3s ] = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
             
             % Set the default input arguments.
             if nargin < 8, c6 = 0.40e-9; end
@@ -5372,13 +5372,13 @@ classdef network_class
             if nargin < 3, c1 = 0.40e-9; end
             
             % Compute the steady state output.
-            U4s = self.network_utilities.compute_desired_absolute_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6 );
+            [ U4s, U3s ] = self.network_utilities.compute_desired_absolute_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6 );
             
         end
             
             
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
-        function U4s = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
+        function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
             
             % Set the default input arguments.
             if nargin < 12, R4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'R' ) ); end
@@ -5393,13 +5393,13 @@ classdef network_class
             if nargin < 3, c1 = 1e-6; end
             
             % Compute the steady state output.
-            U4s = self.network_utilities.compute_desired_relative_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
+            [ U4s, U3s ] = self.network_utilities.compute_desired_relative_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
-        function U4s = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
+        function [ U4s, U3s ] = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
         
             % Set the default input arguments.
             if nargin < 15, dEs43 = self.get_dEsyns( [ 3, 4 ] ); end
@@ -5417,7 +5417,7 @@ classdef network_class
             if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
 
             % Compute the steady state output.
-            U4s = self.network_utilities.compute_achieved_multiplication_steady_state_output( U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 );
+            [ U4s, U3s ] = self.network_utilities.compute_achieved_multiplication_steady_state_output( U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 );
             
         end
            
