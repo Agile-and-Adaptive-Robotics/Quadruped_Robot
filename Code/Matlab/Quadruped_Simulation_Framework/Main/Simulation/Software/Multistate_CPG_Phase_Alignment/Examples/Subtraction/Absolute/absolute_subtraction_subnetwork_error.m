@@ -56,7 +56,8 @@ c = 1;
 s1 = 1;
 s2 = -1;
 Ia3 = 0;
-Gm3 = 1e-7;
+Gm3 = 1e-6;
+% Gm3 = 1e-7;
 dEs31 = 194e-3;
 dEs32 = -194e-3;
 s_ks = [ s1, s2 ];
@@ -85,7 +86,8 @@ network = network_class( network_dt, network_tf );
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );
-[ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 3 );
+% [ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 3 );
+[ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 2 );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 3 );
 
 % Set the network parameters.

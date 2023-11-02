@@ -5008,7 +5008,7 @@ classdef network_class
         
         
         % Implement a function to perform RK4 stability analysis at multiple operating points.
-        function [ As, dts, condition_numbers ] = RK_stability_analysis( self, Cms, Gms, Rs, gs, dEs, Us, dt0 )
+        function [ As, dts, condition_numbers ] = RK4_stability_analysis( self, Cms, Gms, Rs, gs, dEs, Us, dt0 )
         
            % Set the default input arguments.
             if nargin < 8, dt0 = 1e-6; end
@@ -5066,7 +5066,7 @@ classdef network_class
             Us = [ U1s, U2s, U3s ];
             
             % Compute the RK4 stability metrics.
-            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
             
         end
         
@@ -5092,7 +5092,7 @@ classdef network_class
             Us = [ U1s, U2s, U3s ];
             
             % Compute the RK4 stability metrics.
-            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
             
         end
         
@@ -5117,7 +5117,7 @@ classdef network_class
             Us = [ U1s, U2s ];
             
             % Compute the RK4 stability metrics.
-            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );  
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );  
             
         end
         
@@ -5143,7 +5143,7 @@ classdef network_class
             Us = [ U1s, U2s, U3s ];
             
             % Compute the RK4 stability metrics.
-            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
             
         end
         
@@ -5169,7 +5169,7 @@ classdef network_class
             Us = [ U1s, U2s, U3s, U4s ];
             
             % Compute the RK4 stability metrics.
-            [ As, dts, condition_numbers ] = self.RK_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
             
         end
         

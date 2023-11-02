@@ -54,7 +54,8 @@ delta = 1e-3;
 R2 = c1/c3;                                 % [V] Activation Domain
 c2 = ( c1 - delta*c3 )/( delta*R1 );        % [muS] Absolute Inversion Parameter 2
 dEs21 = 0;                                  % [V] Synaptic Reversal Potential
-Gm2 = c3/R1;                                % [S] Membrane Conductance
+% Gm2 = c3/R1;                                % [S] Membrane Conductance
+Gm2 = 1e-6;                                % [S] Membrane Conductance
 Iapp2 = c1/R1;                              % [A] Applied Current
 gs21 = ( c1 - delta*c3 )/( delta*R1 );      % [S] Maximum Synaptic Conductance
 
@@ -112,7 +113,7 @@ dEs = network.get_dEsyns( 'all' );
 dt0 = 1e-6;
 
 % Define the inversion subnetwork inputs.
-U1s = linspace( 0, Rs( 1 ), 20  );
+U1s = linspace( 0, Rs( 1 ), 100  );
 
 % Create the input points.
 U1s_flat = reshape( U1s, [ numel( U1s ), 1 ] );
@@ -141,7 +142,7 @@ fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ %0.2f [mV]\n', condition
 % Plot the desired and achieved relative inversion formulation results.
 fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Absolute Inversion Theory' )
 plot( U1s_flat, U2s_flat_desired_relative, '-', 'Linewidth', 3 )
-plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 )
+plot( U1s_flat, U2s_flat_achieved_relative, '--', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved' )
 saveas( fig, [ save_directory, '\', 'absolute_inversion_theory' ] )
 
@@ -227,8 +228,8 @@ saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_achieved' ] 
 % Create a plot of the desired and achieved membrane voltage outputs.
 fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Comparison)' )
 h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
-h2 = plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 );
-h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 );
+h2 = plot( U1s_flat, U2s_flat_achieved_relative, '--', 'Linewidth', 3 );
+h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '.', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_comparison' ] )
 

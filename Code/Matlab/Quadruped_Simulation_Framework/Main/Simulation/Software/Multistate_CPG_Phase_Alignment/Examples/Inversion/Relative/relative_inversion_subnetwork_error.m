@@ -44,7 +44,8 @@ delta = 1e-3;                                       % [V] Minimum Output Membran
 % Compute the network properties.
 c1 = c3;                                            % [S] Relative Inversion Parameter 1
 c2 = ( ( R2 - delta )*c3 )/( delta );               % [S] Relative Inversion Parameter 2
-Gm2 = c3;                                           % [S] Membrane Conductance
+% Gm2 = c3;                                           % [S] Membrane Conductance
+Gm2 = 1e-6;                                           % [S] Membrane Conductance
 Iapp2 = R2*c3;                                      % [A] Applied Current
 dEs21 = 0;                                          % [V] Synaptic Reversal Potential
 gs21 = ( ( R2 - delta )*c3 )/( delta );             % [S] Maximum Synaptic Conductance
@@ -102,7 +103,7 @@ dEs = network.get_dEsyns( 'all' );
 dt0 = 1e-6;
 
 % Define the inversion subnetwork inputs.
-U1s = linspace( 0, Rs( 1 ), 20  );
+U1s = linspace( 0, Rs( 1 ), 100  );
 
 % Create the input points.
 U1s_flat = reshape( U1s, [ numel( U1s ), 1 ] );
@@ -131,7 +132,7 @@ fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ %0.2f [mV]\n', condition
 % Plot the desired and achieved relative inversion formulation results.
 fig = figure( 'Color', 'w', 'Name', 'Relative Inversion Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Relative Inversion Theory' )
 plot( U1s_flat, U2s_flat_desired_relative, '-', 'Linewidth', 3 )
-plot( U1s_flat, U2s_flat_achieved_relative, '-', 'Linewidth', 3 )
+plot( U1s_flat, U2s_flat_achieved_relative, '--', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved' )
 saveas( fig, [ save_directory, '\', 'relative_inversion_theory' ] )
 
