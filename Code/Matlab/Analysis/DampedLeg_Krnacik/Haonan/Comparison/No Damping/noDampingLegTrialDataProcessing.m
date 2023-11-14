@@ -529,7 +529,7 @@ for ii = 4:4:16
     xlabel("time (seconds)")
     ylabel("angle (degrees)")
     ylim([80 180])
-    xlim([0 1])
+    xlim([0 1.7])
     hold off
 
     % crop trial matrices to start at t = 0
@@ -558,8 +558,8 @@ for jj = 1:3
     GSAvg(:,jj) = (GSCropped(:,jj)+GSCropped(:,jj+4)+GSCropped(:,jj+8)+GSCropped(:,jj+12))./4;
 end
 
-save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\No Damping\GSNoDamping.mat','GS')
-save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\No Damping\GSAvg.mat','GSAvg')
+%save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\No Damping\GSNoDamping.mat','GS')
+%save('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\No Damping\GSAvg.mat','GSAvg')
 
 %% Save as an array
 QuadrupedNoDamping{1} = IP;
