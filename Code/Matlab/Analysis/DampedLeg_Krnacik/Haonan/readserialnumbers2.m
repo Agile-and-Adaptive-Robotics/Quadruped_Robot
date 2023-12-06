@@ -3,11 +3,11 @@
 function data = readserialnumbers2()
 
 %Initialize the serial port on the correct port, with a baud rate
-s = serialport('COM5', 115200);
+s = serialport('COM10', 115200);
 
 %Determine how many lines of data to collect, and initialize a cell array
 %to store in the data from the serial port
-length_to_collect = 10;
+length_to_collect = 300;
 stext = cell(length_to_collect,1);
 
 %% Read the data and store in a matrix
