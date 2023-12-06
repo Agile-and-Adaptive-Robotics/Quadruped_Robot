@@ -84,7 +84,7 @@ unsigned long previousTime = millis();
 // ******************** setup() ****************************************
 void setup(){
   // initialize serial communications
-  Serial.begin(115200);
+  Serial.begin(57600);
 }
 
 // ******************** loop() *****************************************
