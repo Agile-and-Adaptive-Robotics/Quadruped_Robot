@@ -89,8 +89,8 @@ n = 2; % Plotting GS muscle stimulation only
         plot(data2(:,4),data2(:,3),'--r','LineWidth',2);
 
 hold off
-legend('Hip (scaled rat)', 'Knee (scaled rat)', 'Ankle (scaled rat)','Hip (quadruped with passive dynamics)','Knee (quadruped with passive dynamics)','Ankle (quadruped with passive dynamics)','Hip (quadruped without passive dynamics)','Knee (quadruped no springs or dampers)','Ankle (quadruped no springs or dampers)')
-
+legend('Hip (scaled rat)', 'Knee (scaled rat)', 'Ankle (scaled rat)','Hip (novel leg)','Knee (novel leg)','Ankle (novel leg)','Hip (original leg)','Knee (original leg)','Ankle (original leg)')
+title('Muscle stimulated: GS, Trial chosen:1','FontSize',15)
 % save figure
 % addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Trial plotting')
 % saveas(fig, 'C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Trial plotting\Plotted_trials.fig')
