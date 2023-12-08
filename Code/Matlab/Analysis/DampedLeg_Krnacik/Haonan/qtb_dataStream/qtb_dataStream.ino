@@ -218,6 +218,10 @@ void printMsg(){
   } else {
     Serial.print(angleHip);
     Serial.print(",");
+    Serial.print(angleKne);
+    Serial.print(",");
+    Serial.print(angleAnk);
+    Serial.print(",");
     Serial.println(millis() % 1000);
   }
 }

@@ -8,6 +8,7 @@ addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\IC_check')
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer_scripts\ParticleSwarmOpt')
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\Trial 3')
 % addpath('C:\Users\Haonan\Documents\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs')
 % addpath('C:\Users\Haonan\Documents\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_spring_calcs')
 
@@ -25,11 +26,11 @@ sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-Data = load('-mat', 'SpringDampData');
+Data = load('-mat', 'SpringDampDataHaonanv4');
 
 % Load solved b values and k values to use as inital conditions
-load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs\Results.mat', 'b_sols');
-load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_spring_calcs\SpringOpt.mat', 'k_1', 'k_2', 'k_3');
+load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs_Haonan\Results_HaonanK119.mat', 'b_sols');
+load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_spring_calcs_Haonan\SpringOptK119.mat', 'k_1', 'k_2', 'k_3');
 
 
 % Set start time step
