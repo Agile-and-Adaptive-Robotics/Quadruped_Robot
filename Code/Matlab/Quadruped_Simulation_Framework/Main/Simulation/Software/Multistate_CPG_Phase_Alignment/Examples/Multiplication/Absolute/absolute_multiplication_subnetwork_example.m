@@ -47,15 +47,15 @@ network_tf = 3;
 % delta2 = 1e-3;
 % dEs41 = 194e-3;
 
-% This set of parameters appears to work.
-R1 = 20e-3;
-R2 = 20e-3;
-c1 = 8.00e-12;
-c3 = 0.40e-9;
-c6 = 0.40e-9;
-delta1 = 1e-3;
-delta2 = 2e-3;
-dEs41 = 194e-3;
+% % This set of parameters appears to work.
+% R1 = 20e-3;
+% R2 = 20e-3;
+% c1 = 8.00e-12;
+% c3 = 0.40e-9;
+% c6 = 0.40e-9;
+% delta1 = 1e-3;
+% delta2 = 2e-3;
+% dEs41 = 194e-3;
 
 % % This set of parameters is obtained by using a naive conversion from the relative version and doesn't appear to correctly replicate those results.
 % R1 = 20e-3;
@@ -88,7 +88,6 @@ dEs41 = 194e-3;
 % delta2 = 2e-4;
 % dEs41 = 194e-3;
 
-
 % R1 = 20e-3;
 % R2 = 20e-3;
 % c1 = 5.20000000e-08;
@@ -97,8 +96,6 @@ dEs41 = 194e-3;
 % delta1 = 1e-3;
 % delta2 = 2e-3;
 % dEs41 = 194e-3;
-
-
 
 % This set comes from combining the current absolute inversion and absolute division after inversion (prefering the inversion stats).
 % R1 = 20e-3;
@@ -120,6 +117,12 @@ dEs41 = 194e-3;
 % delta2 = 2e-3;
 % dEs41 = 194e-3;
 
+% Set the known network parameters.
+R1 = 20e-3;
+R2 = 20e-3;
+R4 = 20e-3;
+delta = 1e-3;
+
 
 
 %% Create Absolute Division Subnetwork.
@@ -127,27 +130,33 @@ dEs41 = 194e-3;
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
-% Compute the network properties.
-R3 = c1/c3;
-R4 = ( c1*c3*R1*delta2 )/( ( c3^2 )*R1*delta1 + c1*c6*delta2 - c3*c6*delta1*delta2 );
+% % Compute the network properties.
+% R3 = c1/c3;
+% R4 = ( c1*c3*R1*delta2 )/( ( c3^2 )*R1*delta1 + c1*c6*delta2 - c3*c6*delta1*delta2 );
+% 
+% c2 = ( c1 - delta1*c3 )/( delta1*R2 );
+% c4 = c3;
+% c5 = ( ( c3*R1 - c6*delta2 )*c3 )/( delta2*c1 );
+% 
+% Iapp3 = c1/R2;
+% Iapp4 = 0;
+% 
+% Gm3 = c3/R2;
+% Gm4 = ( c3*c6 )/( R1*c1 );
+% 
+% dEs32 = 0;
+% dEs43 = 0;
+% 
+% gs32 = ( c1 - delta1*c3 )/( delta1*R2 );
+% gs41 = ( ( c3^2 )*c6 )/( ( dEs41*c6 - R1*c3 )*c1 );
+% gs43 = ( ( delta2*c6 - R1*c3 )*dEs41*c3*c6 )/( ( R1*c3 - dEs41*c6 )*R1*c1*delta2 );
 
-c2 = ( c1 - delta1*c3 )/( delta1*R2 );
-c4 = c3;
-c5 = ( ( c3*R1 - c6*delta2 )*c3 )/( delta2*c1 );
+% Compute the network parameters.
+k1 = ( R4 - delta )/( R1*R2 );
+k2 = delta/R1;
 
-Iapp3 = c1/R2;
-Iapp4 = 0;
-
-Gm3 = c3/R2;
-Gm4 = ( c3*c6 )/( R1*c1 );
-
-dEs32 = 0;
 dEs43 = 0;
-
-gs32 = ( c1 - delta1*c3 )/( delta1*R2 );
-gs41 = ( ( c3^2 )*c6 )/( ( dEs41*c6 - R1*c3 )*c1 );
-gs43 = ( ( delta2*c6 - R1*c3 )*dEs41*c3*c6 )/( ( R1*c3 - dEs41*c6 )*R1*c1*delta2 );
-
+Ia4 = 0;
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 4 );
@@ -170,9 +179,9 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0.25*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
 
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
 % network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0.25*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 1*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
+% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 1*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
 
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 4 ), Iapp4, 'I_apps' );

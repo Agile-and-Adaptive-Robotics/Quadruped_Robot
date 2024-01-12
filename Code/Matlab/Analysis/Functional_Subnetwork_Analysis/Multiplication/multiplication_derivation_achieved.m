@@ -34,8 +34,8 @@ U4 = ( R3*gs41*dEs41*U1 + R1*gs43*dEs43*U3 + R1*R3*Iapp4 )/( R3*gs41*U1 + R1*gs4
 % Collect the relevant terms of the fourth neuron's steady state behavior.
 U4 = collect( U4, [ U1, U2 ] );
 
-% Substitute in some values.
-U4 = subs( U4, [ dEs32, dEs43, Iapp4 ], [ 0, 0, 0 ] );
+% % Substitute in some values.
+% U4 = subs( U4, [ dEs32, dEs43, Iapp4 ], [ 0, 0, 0 ] );
 
 % Retrieve the numerator and denominator of the fourth neuron's steady state behavior.
 [ U4_num, U4_den ] = numden( U4 );
