@@ -26,7 +26,7 @@ sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-Data = load('-mat', 'SpringDampDataHaonanv4');
+Data = load('-mat', 'SpringDampDataHaonanv5');
 
 % Load solved b values and k values to use as inital conditions
 load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs_Haonan\Results_HaonanK119.mat', 'b_sols');
@@ -163,14 +163,15 @@ for n = 1:3
 end
     legend('Experimental response', 'ODE response')
 
-% %% SAVE RESULTS 
+%% %% SAVE RESULTS 
 % 
 % 
 % 
 %     
 % % save results - optimized parameters and figure
-% save(strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOResults.mat'), 'PSO_results', 'thetabias_val', 'risetime_sim', 'omega_sim', 'zeta_sim', 'JAdiff_sim')
-% saveas(fig, strcat('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Results\', folder_title, '\AllTrialsPSOresults.fig'))
+% 
+% save(strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_results_Haonan','\AllTrialsPSOResultsHaonan.mat'), 'PSO_results', 'thetabias_val', 'risetime_sim', 'omega_sim', 'zeta_sim', 'JAdiff_sim')
+% saveas(fig, strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_results_Haonan'\AllTrialsPSOresultsHaonan.fig'))
 % fprintf('Data saved.\n')
 
 
