@@ -25,13 +25,13 @@ network_tf = 3;
 % % delta_absolute = 1e-4;
 
 R1_absolute = 20e-3;
-c1_absolute = 0.80e-9;
-c3_absolute = 20e-9;
+c1_absolute = 0.80e-9;          % [W]
+c3_absolute = 20e-9;            % [A]
 delta_absolute = 1e-3;
 
 % Compute the network_absolute properties.
 R2_absolute = c1_absolute/c3_absolute;
-c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );
+c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );      % [S]
 dEs21_absolute = 0;
 Gm2_absolute = c3_absolute/R1_absolute;
 Iapp2_absolute = c1_absolute/R1_absolute;
@@ -73,12 +73,12 @@ network_absolute.applied_current_manager = network_absolute.applied_current_mana
 
 R1_relative = 20e-3;
 R2_relative = 20e-3;
-c3_relative = 20e-9;
+c3_relative = 20e-9;                                                                        % [S]
 delta_relative = 1e-3;
 
 % Compute the network_absolute properties.
-c1_relative = c3_relative;
-c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );
+c1_relative = c3_relative;                                                                  % [S]
+c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );          % [S]
 Gm2_relative = c3_relative;
 Iapp2_relative = R2_relative*c3_relative;
 dEs21_relative = 0;

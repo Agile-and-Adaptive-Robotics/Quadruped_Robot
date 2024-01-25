@@ -96,13 +96,13 @@ network_absolute.applied_current_manager = network_absolute.applied_current_mana
 R1_relative = 20e-3;                        % [V] Activation Domain
 R2_relative = 20e-3;                        % [V] Activation Domain
 R3_relative = 20e-3;                        % [V] Activation Domain
-c3_relative = 1e-6;                         % [W] Relative Division Parameter 3
+c3_relative = 1e-6;                         % [S] Relative Division Parameter 3
 delta_relative = 1e-3;                      % [V] Modulated Output Membrane Voltage
 dEs31_relative = 194e-3;                    % [V] Synaptic Reversal Potential
 
 % Compute the necessary parameters.
-c1_relative = c3_relative;                                                                                                                                          % [V] Relative Division Parameter 1
-c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                              % [V] Relative Division Parameter 2
+c1_relative = c3_relative;                                                                                                                                          % [S] Relative Division Parameter 1
+c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                              % [S] Relative Division Parameter 2
 dEs32_relative = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
 Iapp3_relative = 0;                                                                                                                                                 % [A] Applied Current
 % Gm3_relative = c3_relative;                                                                                                                                         % [S] Membrane Conductance
