@@ -18,7 +18,7 @@ network_dt = 6.5e-4;
 network_tf = 3;
 
 % Set the user specified parameters.
-R1 = 40e-3;
+R1 = 20e-3;
 R2 = 20e-3;
 c3 = 1e-6;
 delta = 1e-3;

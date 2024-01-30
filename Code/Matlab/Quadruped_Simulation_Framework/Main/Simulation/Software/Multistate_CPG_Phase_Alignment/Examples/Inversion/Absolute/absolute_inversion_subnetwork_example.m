@@ -51,9 +51,17 @@ network = network_class( network_dt, network_tf );
 % Iapp2 = c1/R1;
 % gs21 = ( c1 - delta*c3 )/( delta*R1 );
 
-% Gm2 = c3/R1;
-% Gm2 = 0.01e-6;
-Gm2 = 5e-6;
+% % Gm2 = c3/R1;
+% % Gm2 = 0.01e-6;
+% Gm2 = 1e-6;
+% % Gm2 = 5e-6;
+% R2 = c1/c3;
+% c2 = ( c1 - delta*c3 )/( delta*R1 );
+% dEs21 = 0;
+% Iapp2 = R2*Gm2;
+% gs21 = ( delta*Gm2 - Iapp2 )/( dEs21 - delta );
+
+Gm2 = 1e-6;
 R2 = c1/c3;
 c2 = ( c1 - delta*c3 )/( delta*R1 );
 dEs21 = 0;
