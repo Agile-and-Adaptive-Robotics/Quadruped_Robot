@@ -7,13 +7,13 @@ clear, close('all'), clc
 %% Define Simulation Parameters.
 
 % Set the level of verbosity.
-b_verbose = true;                   % [T/F] Printing flag.
+b_verbose = true;                                                       % [T/F] Printing flag.
 
 % Define the network integration step size.
-network_dt = 1.3e-4;                % [s] Simulation timestep.
+network_dt = 1.3e-4;                                                    % [s] Simulation timestep.
 
 % Define the simulation duration.
-network_tf = 3;                     % [s] Simulation duration.
+network_tf = 3;                                                         % [s] Simulation duration.
 
 
 %% Define Basic Network Parameters.
