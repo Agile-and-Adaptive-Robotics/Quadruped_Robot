@@ -26,16 +26,16 @@ Ra2 = Rr2;                                                      % [V] Maximum Vo
 deltaa = deltar;                                                % [V] Membrane Voltage Offset (a = Absolute Formulation, r = Relative Formulation)
 
 % Define the absolute inversion design constants.
-ca1 = Rr2*ca3;                                          % [?] Absolute Inversion Design Constant 1
-ca2 = ( ca1 - deltaa*ca3 )/( deltaa*Ra1 );                  % [?] Absolute Inversion Design Constant 2
+ca1 = Rr2*ca3;                                                  % [?] Absolute Inversion Design Constant 1
+ca2 = ( ca1 - deltaa*ca3 )/( deltaa*Ra1 );                      % [?] Absolute Inversion Design Constant 2
 
 % Define the relative inversion design constants.
 cr1 = cr3;                                                      % [?] Relative Inversion Design Constant 1
-cr2 = ( Rr2 - deltar )*cr3/deltar;                          % [?] Relative Inversion Design Constant 2
+cr2 = ( Rr2 - deltar )*cr3/deltar;                              % [?] Relative Inversion Design Constant 2
 
 % Define the absolute & relative inversion steady state membrane voltages.
-Ua2 = ( ca1 )/( ca2*U1 + ca3 );                              % [V] Absolute Steady State Membrane Voltage
-Ur2 = ( cr1*Rr1*Rr2 )/( cr2*U1 + cr3*Rr1 );          % [V] Relative Steady State Membrane Voltage
+Ua2 = ( ca1 )/( ca2*U1 + ca3 );                                 % [V] Absolute Steady State Membrane Voltage
+Ur2 = ( cr1*Rr1*Rr2 )/( cr2*U1 + cr3*Rr1 );                     % [V] Relative Steady State Membrane Voltage
 
 
 %% Compute Additional Conversion Constraints.
