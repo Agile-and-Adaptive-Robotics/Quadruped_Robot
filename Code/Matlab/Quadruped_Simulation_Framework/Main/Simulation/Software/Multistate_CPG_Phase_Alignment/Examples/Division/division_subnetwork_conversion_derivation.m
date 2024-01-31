@@ -19,9 +19,9 @@ assume( [ ca1 ca2 ca3 cr1 cr2 cr3 Ra1 Ra2 Ra3 Rr1 Rr2 Rr3 deltaa deltar ] > 0 ) 
 %% Setup Absolute & Relative Division Constraints. 
 
 % Define maximum voltage constraints.
-Ra1 = Rr1;                          % [V] Maximum Voltage (Neuron 1) (a = Absolute Formulation, r = Relative Formulation)
-Ra2 = Rr2;                          % [V] Maximum Voltage (Neuron 2) (a = Absolute Formulation, r = Relative Formulation)
-Ra3 = Rr3;                          % [V] Maximum Voltage (Neuron 3) (a = Absolute Formulation, r = Relative Formulation)
+Ra1 = Rr1;                                                      % [V] Maximum Voltage (Neuron 1) (a = Absolute Formulation, r = Relative Formulation)
+Ra2 = Rr2;                                                      % [V] Maximum Voltage (Neuron 2) (a = Absolute Formulation, r = Relative Formulation)
+Ra3 = Rr3;                                                      % [V] Maximum Voltage (Neuron 3) (a = Absolute Formulation, r = Relative Formulation)
 
 % Define the steady state membrane voltage offset.
 deltaa = deltar;                                                % [V] Membrane Voltage Offset (a = Absolute Formulation, r = Relative Formulation)
