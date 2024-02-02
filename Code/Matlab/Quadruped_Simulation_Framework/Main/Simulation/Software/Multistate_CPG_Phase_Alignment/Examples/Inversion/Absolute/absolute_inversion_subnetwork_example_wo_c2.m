@@ -1,4 +1,4 @@
-%% Absolute Inversion Subnetwork Example
+%% Absolute Inversion Subnetwork Example Without c2
 
 % Clear Everything.
 clear, close('all'), clc

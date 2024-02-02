@@ -10,11 +10,10 @@ clear, close('all'), clc
 b_verbose = true;
 
 % Define the network integration step size.
-% network_dt = 1e-3;
-network_dt = 1.3e-4;
-% network_dt = 1e-4;
-% network_dt = 1e-5;
-network_tf = 3;
+network_dt = 1.3e-4;                                % [s] Simulation timestep.
+
+% Define the network simulation duration.
+network_tf = 3;                                     % [s] Simulation duration.
 
 % Set the user specified parameters.
 R1 = 20e-3;
