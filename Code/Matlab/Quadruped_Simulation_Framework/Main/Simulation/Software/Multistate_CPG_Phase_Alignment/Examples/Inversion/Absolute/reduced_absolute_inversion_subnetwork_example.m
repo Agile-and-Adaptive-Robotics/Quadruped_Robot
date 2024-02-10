@@ -1,4 +1,4 @@
-%% Absolute Inversion Subnetwork Example Without c2
+%% Reduced Absolute Inversion Subnetwork Example
 
 % Clear Everything.
 clear, close('all'), clc
@@ -10,16 +10,16 @@ clear, close('all'), clc
 b_verbose = true;                                                       % [T/F] Printing flag.
 
 % Define the network integration step size.
-network_dt = 1.3e-4;                                                    % [s] Simulation timestep.
+network_dt = 1.3e-4;                                                    % [s] Simulation Timestep.
 
 % Define the simulation duration.
-network_tf = 3;                                                         % [s] Simulation duration.
+network_tf = 3;                                                         % [s] Simulation Duration.
 
 
 %% Define Basic Network Parameters.
 
-% Set the maximum voltages.
-R1 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 1)
+% Set the maximum membrane voltages.
+R1 = 20e-3;                                                             % [V] Maximum Membrane Voltage (Neuron 1)
 
 % Set the membrane conductances.
 Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1)
@@ -33,6 +33,10 @@ Cm2 = 5e-9;                                                             % [F] Me
 % Ia1 = 0;                                                              % [A] Applied Current (Neuron 1)
 Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1)
 
+% Set the sodium channel conductance.
+Gna1 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 1).
+Gna2 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 2).
+
 % Set the network design parameters.
 R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
 delta = 1e-3;                                                           % [V] Membrane Voltage Offset
@@ -43,7 +47,7 @@ c1 = ( delta*R1*R2_target )/( R2_target - delta );                     	% [W] De
 
 % Compute the network properties.
 c2 = ( c1 - delta*R1 )/delta;                                           % [A] Design Constant 2.
-R2 = c1/c2;                                                             % [V] Maximum Voltage (Neuron 2).
+R2 = c1/c2;                                                             % [V] Maximum Membrane Voltage (Neuron 2).
 Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
 dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21)
 gs21 = ( R1*Ia2 )/( c1 - c2*dEs21 );                                    % [S] Synaptic Conductance (Synapse 21)
@@ -78,25 +82,21 @@ network = network_class( network_dt, network_tf );
 [ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 1 );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 2 );
 
-% Set the network parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 1 ), 0, 'Gna' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 2 ), 0, 'Gna' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 1 ), R1, 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 2 ), R2, 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 1 ), Gm1, 'Gm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 2 ), Gm2, 'Gm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 1 ), Cm1, 'Cm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 2 ), Cm2, 'Cm' );
+% Set neuron parameters.
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2 ], 'Gna' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2 ], 'R' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2 ], 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2 ], 'Cm' );
 
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs( 1 ), 1, 'from_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs( 1 ), 2, 'to_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs( 1 ), gs21, 'g_syn_max' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs( 1 ), dEs21, 'dE_syn' );
+% Set synapse parameters.
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, 1, 'from_neuron_ID' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, 2, 'to_neuron_ID' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, gs21, 'g_syn_max' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, dEs21, 'dE_syn' );
 
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1, 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 2, 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), Ia1, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), Ia2, 'I_apps' );
+% Set the applied current parameters.
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2 ], 'neuron_ID' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ Ia1, Ia2 ], 'I_apps' );
 
 
 %% Numerical Stability Analysis.

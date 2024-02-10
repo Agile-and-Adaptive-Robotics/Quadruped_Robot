@@ -7,86 +7,118 @@ clear, close( 'all' ), clc
 %% Set the Simulation Parameters.
 
 % Define the network integration step size.
-% network_dt = 1e-3;
-network_dt = 1.3e-4;
-network_tf = 3;
+network_dt = 1.3e-4;                                                                                    % [s] Simulation Step Size.
+
+% Define the network simulation duration.
+network_tf = 3;                                                                                         % [s] Simulation Duration.
 
 % Define the applied current state.
-% current_state = 0;
-current_state = 0.25;
-% current_state = 1;
+% current_state = 0;                                                                                    % [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
+% current_state = 0.25;                                                                              	% [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
+current_state = 1;                                                                                      % [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
 
 
-%% Create a Relative Inversion Subnetwork.
+%% Define the Fundamental Parameters of a Relative Inversion Subnetwork.
 
-% Set the user specified parameters.
-R1_relative = 20e-3;
-R2_relative = 20e-3;
-c3_relative = 20e-9;                                                                        % [S]
-delta_relative = 1e-3;
-Gm2_relative = 1e-6;
+% Set the maximum membrane voltages.
+R1_relative = 20e-3;                                                                                    % [V] Maximum Membrane Voltage (Neuron 1).
+R2_relative = 20e-3;                                                                                    % [V] Maximum Membrane Voltage (Neuron 2).
 
-% Compute the network_absolute properties.
-c1_relative = c3_relative;                                                                  % [S]
-c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );          % [S]
-Ia2_relative = R2_relative*Gm2_relative;
-dEs21_relative = 0;
-gs21_relative = ( delta_relative*Gm2_relative - Ia2_relative )/( dEs21_relative - delta_relative );
+% Set the membrane conductances.
+Gm1_relative = 1e-6;                                                                                    % [S] Membrane Conductance (Neuron 1).
+Gm2_relative = 1e-6;                                                                                    % [S] Membrane Conductance (Neuron 2).
+
+% Set the membrane capacitances.
+Cm1_relative = 5e-9;                                                                                    % [F] Membrane Conductance (Neuron 1).
+Cm2_relative = 5e-9;                                                                                    % [F] Membrane Conductance (Neuron 2).
+
+% Set the applied currents.
+Ia1_relative = R1_relative*Gm1_relative;                                                            	% [A] Applied Current (Neuron 1).
+
+% Set the sodium channel conductances.
+Gna1_relative = 0;                                                                                    	% [S] Sodium Channel Conductance (Neuron 1).
+Gna2_relative = 0;                                                                                   	% [S] Sodium Channel Conductance (Neuron 2).
+
+% Set network design parameters.
+c3_relative = 20e-9;                                                                                    % [?] Design Constant 3.
+delta_relative = 1e-3;                                                                                  % [V] Membrane Voltage Offset.
+
+
+%% Compute the Derived Parameters of a Relative Inversion Subnetwork.
+
+% Compute the absolute network properties.
+c1_relative = c3_relative;                                                                              % [S] Design Constant 1. 
+c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );                      % [S] Design Constant 2.
+Ia2_relative = R2_relative*Gm2_relative;                                                                % [A] Applied Current (Neuron 2).
+dEs21_relative = 0;                                                                                     % [V] Synaptic Reversal Potential (Synapse 21).
+gs21_relative = ( delta_relative*Gm2_relative - Ia2_relative )/( dEs21_relative - delta_relative );     % [S] Synaptic Conductance (Synapse 21).
+
+
+%% Create the Relative Inversion Subnetwork.
 
 % Create an instance of the network class.
 network_relative = network_class( network_dt, network_tf );
 
-% Create the network_relative components.
+% Create the relative network components.
 [ network_relative.neuron_manager, neuron_IDs_relative ] = network_relative.neuron_manager.create_neurons( 2 );
 [ network_relative.synapse_manager, synapse_IDs_relative ] = network_relative.synapse_manager.create_synapses( 1 );
 [ network_relative.applied_current_manager, applied_current_IDs_relative ] = network_relative.applied_current_manager.create_applied_currents( 2 );
 
-% Set the network_relative parameters.
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 1 ), 0, 'Gna' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 2 ), 0, 'Gna' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 1 ), R1_relative, 'R' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 2 ), R2_relative, 'R' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 2 ), Gm2_relative, 'Gm' );
+% Set the relative network neuron parameters.
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ Gna1_relative, Gna2_relative ], 'Gna' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ R1_relative, R2_relative ], 'R' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ Gm1_relative, Gm2_relative ], 'Gm' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ Cm1_relative, Cm2_relative ], 'Cm' );
 
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative( 1 ), 1, 'from_neuron_ID' );
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative( 1 ), 2, 'to_neuron_ID' );
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative( 1 ), gs21_relative, 'g_syn_max' );
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative( 1 ), dEs21_relative, 'dE_syn' );
+% Set the relative network synapse parameters.
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, 1, 'from_neuron_ID' );
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, 2, 'to_neuron_ID' );
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, gs21_relative, 'g_syn_max' );
+network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, dEs21_relative, 'dE_syn' );
 
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 1 ), 1, 'neuron_ID' );
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 2 ), 2, 'neuron_ID' );
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 1 ), current_state*network_relative.neuron_manager.neurons( 1 ).R*network_relative.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 2 ), Ia2_relative, 'I_apps' );
+% Set the relative network applied current parameters.
+network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative, [ 1, 2 ], 'neuron_ID' );
+network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative, [ current_state*Ia1_relative, Ia2_relative ], 'I_apps' );
 
 
-%% Create an Absolute Inversion Subnetwork.
+%% Convert the Relative Inversion Parameters to Fundamental Absolute Inversion Parameters.
 
-% Set the user specified parameters.
-% R1_absolute = 20e-3;
-% c1_absolute = 0.40e-9;          % [W]
-% c3_absolute = 20e-9;            % [A]
-% delta_absolute = 1e-3;
-% Gm2_absolute = 1e-6;
+% Convert the maximum membrane voltages.
+R1_absolute = R1_relative;                                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
 
-% R1_absolute = R1_relative;
-% delta_absolute = delta_relative;
-% c3_absolute = c3_relative;
-% c1_absolute = R2_relative*c3_absolute;
-% Gm2_absolute = 1e-6;
+% Convert the membrane conductances.
+Gm1_absolute = Gm1_relative;                                                                                    % [S] Membrane Conductance (Neuron 1).
+Gm2_absolute = Gm2_relative;                                                                                    % [S] Membrane Conductance (Neuron 2).
 
-R1_absolute = R1_relative;
-delta_absolute = delta_relative;
-c2_absolute = 10*c2_relative;
-c1_absolute =( delta_absolute*R1_absolute*R2_relative*c2_absolute )/( R2_relative - delta_absolute );
-c3_absolute = ( delta_absolute*R1_absolute*c2_absolute )/( R2_relative - delta_absolute );
-Gm2_absolute = 1e-6;
+% Convert the membrane capacitances.
+Cm1_absolute = Cm1_relative;                                                                                    % [F] Membrane Capacitance (Neuron 1).
+Cm2_absolute = Cm2_relative;                                                                                    % [F] Membrane Capacitance (Neuron 2).
+
+% Convert the applied currents.
+Ia1_absolute = Ia1_relative;                                                                                    % [A] Applied Current (Neuron 1).
+
+% Convert the sodium channel conductances.
+Gna1_absolute = Gna1_relative;                                                                                  % [S] Sodium Channel Conductance (Neuron 1).
+Gna2_absolute = Gna2_relative;                                                                                  % [S] Sodium Channel Conductance (Neuron 2).
+
+% Convert design constants.
+delta_absolute = delta_relative;                                                                                % [V] Membrane Voltage Offset.
+c2_absolute = 10*c2_relative;                                                                                   % [?] Design Constant 2.
+c1_absolute =( delta_absolute*R1_absolute*R2_relative*c2_absolute )/( R2_relative - delta_absolute );           % [?] Design Constant 1.
+c3_absolute = ( delta_absolute*R1_absolute*c2_absolute )/( R2_relative - delta_absolute );                      % [?] Design Constant 3.
+
+
+%% Compute the Derived Parameters of the Absolute Inversion Subnetwork.
 
 % Compute the network_absolute properties.
-R2_absolute = c1_absolute/c3_absolute;
-c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );      % [S]
-Ia2_absolute = R2_absolute*Gm2_absolute;
-dEs21_absolute = 0;
-gs21_absolute = ( delta_absolute*Gm2_absolute - Ia2_absolute )/( dEs21_absolute - delta_absolute );
+R2_absolute = c1_absolute/c3_absolute;                                                                          % [V] Maximum Membrane Voltage
+c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );                      % [?] Design Constant 2.
+Ia2_absolute = R2_absolute*Gm2_absolute;                                                                        % [A] Applied Current (Neuron 2).
+dEs21_absolute = 0;                                                                                             % [V] Synaptic Reversal Potential (Synapse 21).
+gs21_absolute = ( delta_absolute*Gm2_absolute - Ia2_absolute )/( dEs21_absolute - delta_absolute );             % [S] Synaptic Conductance (Synapse 21).
+
+
+%% Create the Absolute Inversion Subnetwork.
 
 % Create an instance of the network_absolute class.
 network_absolute = network_class( network_dt, network_tf );
@@ -96,22 +128,20 @@ network_absolute = network_class( network_dt, network_tf );
 [ network_absolute.synapse_manager, synapse_IDs_absolute ] = network_absolute.synapse_manager.create_synapses( 1 );
 [ network_absolute.applied_current_manager, applied_current_IDs_absolute ] = network_absolute.applied_current_manager.create_applied_currents( 2 );
 
-% Set the network_absolute parameters.
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 1 ), 0, 'Gna' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 2 ), 0, 'Gna' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 1 ), R1_absolute, 'R' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 2 ), R2_absolute, 'R' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 2 ), Gm2_absolute, 'Gm' );
+% Set the absolute network neuron parameters.
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ Gna1_absolute, Gna2_absolute ], 'Gna' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ R1_absolute, R2_absolute ], 'R' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ Gm1_absolute, Gm2_absolute ], 'Gm' );
 
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute( 1 ), 1, 'from_neuron_ID' );
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute( 1 ), 2, 'to_neuron_ID' );
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute( 1 ), gs21_absolute, 'g_syn_max' );
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute( 1 ), dEs21_absolute, 'dE_syn' );
+% Set the absolute network synapse parameters.
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, 1, 'from_neuron_ID' );
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, 2, 'to_neuron_ID' );
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, gs21_absolute, 'g_syn_max' );
+network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, dEs21_absolute, 'dE_syn' );
 
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 1 ), 1, 'neuron_ID' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 2 ), 2, 'neuron_ID' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 1 ), current_state*network_absolute.neuron_manager.neurons( 1 ).R*network_absolute.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 2 ), Ia2_absolute, 'I_apps' );
+% Set the absolute network applied current parameters.
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute, [ 1, 2 ], 'neuron_ID' );
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute, [ current_state*Ia1_absolute, Ia2_absolute ], 'I_apps' );
 
 
 %% Simulate the relative inversion subnetwork.
@@ -151,8 +181,4 @@ fig_absolute_network_states = network_absolute.network_utilities.plot_network_st
 % Animate the network states over time.
 fig_relative_network_animation = network_relative.network_utilities.animate_network_states( Us_relative, hs_relative, neuron_IDs_relative );
 fig_absolute_network_animation = network_absolute.network_utilities.animate_network_states( Us_absolute, hs_absolute, neuron_IDs_absolute );
-
-
-
-
 
