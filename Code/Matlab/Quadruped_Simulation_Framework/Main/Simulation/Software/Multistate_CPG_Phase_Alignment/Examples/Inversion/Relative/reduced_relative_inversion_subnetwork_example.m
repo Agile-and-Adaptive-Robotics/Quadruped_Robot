@@ -56,19 +56,19 @@ gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                          	% [S] Sy
 
 % Print a summary of the relevant network parameters.
 fprintf( 'NETWORK PARAMETERS:\n' )
-fprintf( 'c1 = %0.2f [nW]\n', c1*( 10^9 ) )
-fprintf( 'c2 = %0.2f [nA]\n', c2*( 10^9 ) )
-fprintf( 'delta = %0.2f [mV]\n', delta*( 10^3 ) )
-fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
-fprintf( 'Gm1 = %0.2f [muS]\n', Gm1*( 10^6 ) )
-fprintf( 'Gm2 = %0.2f [muS]\n', Gm2*( 10^6 ) )
-fprintf( 'Cm1 = %0.2f [nF]\n', Cm1*( 10^9 ) )
-fprintf( 'Cm2 = %0.2f [nF]\n', Cm2*( 10^9 ) )
-fprintf( 'Ia1 = %0.2f [nA]\n', Ia1*( 10^9 ) )
-fprintf( 'Ia2 = %0.2f [nA]\n', Ia2*( 10^9 ) )
-fprintf( 'dEs21 = %0.2f [mV]\n', dEs21*( 10^3 ) )
-fprintf( 'gs21 = %0.2f [muS]\n', gs21*( 10^6 ) )
+fprintf( 'c1 \t\t= \t%0.2f \t[-]\n', c1 )
+fprintf( 'c2 \t\t= \t%0.2f \t[-]\n', c2 )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2*( 10^9 ) )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21*( 10^6 ) )
 
 
 %% Create Reduced Relative Inversion Subnetwork.

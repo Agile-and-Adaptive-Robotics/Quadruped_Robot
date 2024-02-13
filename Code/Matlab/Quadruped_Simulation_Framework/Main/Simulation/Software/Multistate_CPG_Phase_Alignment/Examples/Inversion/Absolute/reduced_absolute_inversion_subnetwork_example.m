@@ -40,13 +40,13 @@ Gna2 = 0;                                                               % [S] So
 % Set the network design parameters.
 R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
 delta = 1e-3;                                                           % [V] Membrane Voltage Offset
-c1 = ( delta*R1*R2_target )/( R2_target - delta );                     	% [W] Design Constant 1
+c1 = ( delta*R1*R2_target )/( R2_target - delta );                     	% [V^2] Design Constant 1
 
 
 %% Compute Derived Network Parameters.
 
 % Compute the network properties.
-c2 = ( c1 - delta*R1 )/delta;                                           % [A] Design Constant 2.
+c2 = ( c1 - delta*R1 )/delta;                                           % [V] Design Constant 2.
 R2 = c1/c2;                                                             % [V] Maximum Membrane Voltage (Neuron 2).
 Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
 dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21)
@@ -57,19 +57,19 @@ gs21 = ( R1*Ia2 )/( c1 - c2*dEs21 );                                    % [S] Sy
 
 % Print a summary of the relevant network parameters.
 fprintf( 'NETWORK PARAMETERS:\n' )
-fprintf( 'c1 = %0.2f [nW]\n', c1*( 10^9 ) )
-fprintf( 'c2 = %0.2f [nA]\n', c2*( 10^9 ) )
-fprintf( 'delta = %0.2f [mV]\n', delta*( 10^3 ) )
-fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
-fprintf( 'Gm1 = %0.2f [muS]\n', Gm1*( 10^6 ) )
-fprintf( 'Gm2 = %0.2f [muS]\n', Gm2*( 10^6 ) )
-fprintf( 'Cm1 = %0.2f [nF]\n', Cm1*( 10^9 ) )
-fprintf( 'Cm2 = %0.2f [nF]\n', Cm2*( 10^9 ) )
-fprintf( 'Ia1 = %0.2f [nA]\n', Ia1*( 10^9 ) )
-fprintf( 'Ia2 = %0.2f [nA]\n', Ia2*( 10^9 ) )
-fprintf( 'dEs21 = %0.2f [mV]\n', dEs21*( 10^3 ) )
-fprintf( 'gs21 = %0.2f [muS]\n', gs21*( 10^6 ) )
+fprintf( 'c1 \t\t= \t%0.2f \t[mV^2]\n', c1*( 10^6 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[mV]\n', c2*( 10^3 ) )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2*( 10^9 ) )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21*( 10^6 ) )
 
 
 %% Create Absolute Inversion Subnetwork.

@@ -21,45 +21,57 @@ current_state = 1;                                                              
 %% Define the Fundamental Parameters of a Relative Inversion Subnetwork.
 
 % Set the maximum membrane voltages.
-R1_relative = 20e-3;                                                          	% [V] Maximum Voltage (Neuron 1).
-R2_relative = 20e-3;                                                          	% [V] Maximum Voltage (Neuron 2).
+R1_relative = 20e-3;                                                                                    % [V] Maximum Voltage (Neuron 1).
+R2_relative = 20e-3;                                                                                    % [V] Maximum Voltage (Neuron 2).
 
 % Set the membrane conductances.
-Gm1_relative = 1e-6;                                                          	% [S] Membrane Conductance (Neuron 1).
-Gm2_relative = 1e-6;                                                          	% [S] Membrane Conductance (Neuron 2).
+Gm1_relative = 1e-6;                                                                                    % [S] Membrane Conductance (Neuron 1).
+Gm2_relative = 1e-6;                                                                                    % [S] Membrane Conductance (Neuron 2).
 
 % Set the membrane capacitance.
-Cm1_relative = 5e-9;                                                          	% [F] Membrane Capacitance (Neuron 1).
-Cm2_relative = 5e-9;                                                            % [F] Membrane Capacitance (Neuron 2).
+Cm1_relative = 5e-9;                                                                                    % [F] Membrane Capacitance (Neuron 1).
+Cm2_relative = 5e-9;                                                                                    % [F] Membrane Capacitance (Neuron 2).
 
 % Set the applied currents.
-% Ia1_relative = 0;                                                          	% [A] Applied Current (Neuron 1).
-Ia1_relative = R1*Gm1_relative;                                                 % [A] Applied Current (Neuron 1).
+% Ia1_relative = 0;                                                                                     % [A] Applied Current (Neuron 1).
+Ia1_relative = R1_relative*Gm1_relative;                                                                % [A] Applied Current (Neuron 1).
 
 % Set the sodium channel conductance.
-Gna1_relative = 0;                                                            	% [S] Sodium Channel Conductance (Neuron 1).
-Gna2_relative = 0;                                                            	% [S] Sodium Channel Conductance (Neuron 2).
+Gna1_relative = 0;                                                                                      % [S] Sodium Channel Conductance (Neuron 1).
+Gna2_relative = 0;                                                                                      % [S] Sodium Channel Conductance (Neuron 2).
 
 % Set the network design parameters.
-delta_relative = 1e-3;                                                         	% [V] Membrane Voltage Offset.
+delta_relative = 1e-3;                                                                                  % [V] Membrane Voltage Offset.
 
 
 %% Compute the Derived Parameters of a Relative Inversion Subnetwork.
 
-% Compute the absolute network properties.
-c1_relative = c3_relative;                                                                              % [S] Design Constant 1. 
-c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );                      % [S] Design Constant 2.
-Ia2_relative = R2_relative*Gm2_relative;                                                                % [A] Applied Current (Neuron 2).
-dEs21_relative = 0;                                                                                     % [V] Synaptic Reversal Potential (Synapse 21).
-gs21_relative = ( delta_relative*Gm2_relative - Ia2_relative )/( dEs21_relative - delta_relative );     % [S] Synaptic Conductance (Synapse 21).
-
 % Compute the network properties.
-c1 = delta/( R2 - delta );                                              % [-] Design Constant 1.
-c2 = c1;                                                                % [-] Design Constant 2.
-Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
-dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21).
-gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                          	% [S] Synaptic Conductance (Synapse 21).
+c1_relative = delta_relative/( R2_relative - delta_relative );                                          % [-] Design Constant 1.
+c2_relative = c1_relative;                                                                           	% [-] Design Constant 2.
+Ia2_relative = R2_relative*Gm2_relative;                                                               	% [A] Applied Current (Neuron 2).
+dEs21_relative = 0;                                                                                    	% [V] Synaptic Reversal Potential (Synapse 21).
+gs21_relative = ( Ia2_relative - delta_relative*Gm2_relative )/( delta_relative - dEs21_relative );    	% [S] Synaptic Conductance (Synapse 21).
 
+
+%% Print the Relative Inversion Subnetwork Parameters.
+
+% Print a summary of the relevant network parameters.
+fprintf( 'REDUCED RELATIVE INVERSION NETWORK PARAMETERS:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[-]\n', c1_relative )
+fprintf( 'c2 \t\t= \t%0.2f \t[-]\n', c2_relative )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_relative*( 10^3 ) )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_relative*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_relative*( 10^3 ) )
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_relative*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_relative*( 10^6 ) )
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_relative*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_relative*( 10^9 ) )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1_relative*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_relative*( 10^9 ) )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_relative*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_relative*( 10^6 ) )
+fprintf( '\n' )
 
 
 %% Create the Relative Inversion Subnetwork.
@@ -111,19 +123,36 @@ Gna2_absolute = Gna2_relative;                                                  
 
 % Convert design constants.
 delta_absolute = delta_relative;                                                                                % [V] Membrane Voltage Offset.
-c2_absolute = 10*c2_relative;                                                                                   % [?] Design Constant 2.
-c1_absolute =( delta_absolute*R1_absolute*R2_relative*c2_absolute )/( R2_relative - delta_absolute );           % [?] Design Constant 1.
-c3_absolute = ( delta_absolute*R1_absolute*c2_absolute )/( R2_relative - delta_absolute );                      % [?] Design Constant 3.
+c1_absolute = ( R1_relative*R2_relative*delta_relative )/( R2_relative - delta_relative );                      % [V^2] Design Constant 1.
 
 
 %% Compute the Derived Parameters of the Absolute Inversion Subnetwork.
 
 % Compute the network_absolute properties.
-R2_absolute = c1_absolute/c3_absolute;                                                                          % [V] Maximum Membrane Voltage
-c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );                      % [?] Design Constant 2.
+c2_absolute = ( c1_absolute - delta_absolute*R1_absolute )/delta_absolute;                                      % [V] Design Constant 2.
+R2_absolute = c1_absolute/c2_absolute;                                                                          % [V] Maximum Membrane Voltage
 Ia2_absolute = R2_absolute*Gm2_absolute;                                                                        % [A] Applied Current (Neuron 2).
 dEs21_absolute = 0;                                                                                             % [V] Synaptic Reversal Potential (Synapse 21).
-gs21_absolute = ( delta_absolute*Gm2_absolute - Ia2_absolute )/( dEs21_absolute - delta_absolute );             % [S] Synaptic Conductance (Synapse 21).
+gs21_absolute = ( R1_absolute*Ia2_absolute )/( c1_absolute - c2_absolute*dEs21_absolute );                      % [S] Synaptic Conductance (Synapse 21).
+
+
+%% Print the Absolute Inversion Subnetwork Parameters.
+
+% Print the absolute inversion subnetwork parameters.
+fprintf( 'REDUCED ABSOLUTE INVERSION NETWORK PARAMETERS:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[mV^2]\n', c1_absolute*( 10^6 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[mV]\n', c2_absolute*( 10^3 ) )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_absolute*( 10^3 ) )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_absolute*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_absolute*( 10^3 ) )
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_absolute*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_absolute*( 10^6 ) )
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_absolute*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_absolute*( 10^9 ) )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1_absolute*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_absolute*( 10^9 ) )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_absolute*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_absolute*( 10^6 ) )
 
 
 %% Create the Absolute Inversion Subnetwork.
