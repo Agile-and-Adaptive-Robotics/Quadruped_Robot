@@ -1,4 +1,4 @@
-%% Reduced Inversion Subnetwork Conversion Example
+%% Reduced Inversion Subnetwork Conversion Example.
 
 % Clear everything.
 clear, close( 'all' ), clc
@@ -20,27 +20,27 @@ current_state = 1;                                                              
 
 %% Define the Fundamental Parameters of a Relative Inversion Subnetwork.
 
-% Set the maximum membrane voltages.
+% Define the maximum membrane voltages.
 R1_relative = 20e-3;                                                                                    % [V] Maximum Voltage (Neuron 1).
 R2_relative = 20e-3;                                                                                    % [V] Maximum Voltage (Neuron 2).
 
-% Set the membrane conductances.
+% Define the membrane conductances.
 Gm1_relative = 1e-6;                                                                                    % [S] Membrane Conductance (Neuron 1).
 Gm2_relative = 1e-6;                                                                                    % [S] Membrane Conductance (Neuron 2).
 
-% Set the membrane capacitance.
+% Define the membrane capacitance.
 Cm1_relative = 5e-9;                                                                                    % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                                                                    % [F] Membrane Capacitance (Neuron 2).
 
-% Set the applied currents.
+% Define the applied currents.
 % Ia1_relative = 0;                                                                                     % [A] Applied Current (Neuron 1).
 Ia1_relative = R1_relative*Gm1_relative;                                                                % [A] Applied Current (Neuron 1).
 
-% Set the sodium channel conductance.
+% Define the sodium channel conductance.
 Gna1_relative = 0;                                                                                      % [S] Sodium Channel Conductance (Neuron 1).
 Gna2_relative = 0;                                                                                      % [S] Sodium Channel Conductance (Neuron 2).
 
-% Set the network design parameters.
+% Define the network design parameters.
 delta_relative = 1e-3;                                                                                  % [V] Membrane Voltage Offset.
 
 
@@ -54,24 +54,50 @@ dEs21_relative = 0;                                                             
 gs21_relative = ( Ia2_relative - delta_relative*Gm2_relative )/( delta_relative - dEs21_relative );    	% [S] Synaptic Conductance (Synapse 21).
 
 
-%% Print the Relative Inversion Subnetwork Parameters.
+%% Print Reduced Relative Subnetwork Parameters.
 
-% Print a summary of the relevant network parameters.
-fprintf( 'REDUCED RELATIVE INVERSION NETWORK PARAMETERS:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[-]\n', c1_relative )
-fprintf( 'c2 \t\t= \t%0.2f \t[-]\n', c2_relative )
-fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_relative*( 10^3 ) )
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'REDUCED RELATIVE INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
 fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_relative*( 10^3 ) )
 fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_relative*( 10^3 ) )
+
 fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_relative*( 10^6 ) )
 fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_relative*( 10^6 ) )
+
 fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_relative*( 10^9 ) )
 fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_relative*( 10^9 ) )
-fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1_relative*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_relative*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_relative*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_relative*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
 fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_relative*( 10^3 ) )
 fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_relative*( 10^6 ) )
 fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state*Ia1_relative*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_relative*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2e \t[-]\n', c1_relative )
+fprintf( 'c2 \t\t= \t%0.2e \t[-]\n', c2_relative )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_relative*( 10^3 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
 
 
 %% Create the Relative Inversion Subnetwork.
@@ -136,26 +162,53 @@ dEs21_absolute = 0;                                                             
 gs21_absolute = ( R1_absolute*Ia2_absolute )/( c1_absolute - c2_absolute*dEs21_absolute );                      % [S] Synaptic Conductance (Synapse 21).
 
 
-%% Print the Absolute Inversion Subnetwork Parameters.
+%% Print the Reduced Absolute Inversion Subnetwork Parameters.
 
-% Print the absolute inversion subnetwork parameters.
-fprintf( 'REDUCED ABSOLUTE INVERSION NETWORK PARAMETERS:\n' )
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'REDUCED ABSOLUTE INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_absolute*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_absolute*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_absolute*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_absolute*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_absolute*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_absolute*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_absolute*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_absolute*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_absolute*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_absolute*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state*Ia1_absolute*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_absolute*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
 fprintf( 'c1 \t\t= \t%0.2f \t[mV^2]\n', c1_absolute*( 10^6 ) )
 fprintf( 'c2 \t\t= \t%0.2f \t[mV]\n', c2_absolute*( 10^3 ) )
 fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_absolute*( 10^3 ) )
-fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_absolute*( 10^3 ) )
-fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_absolute*( 10^3 ) )
-fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_absolute*( 10^6 ) )
-fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_absolute*( 10^6 ) )
-fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_absolute*( 10^9 ) )
-fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_absolute*( 10^9 ) )
-fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1_absolute*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_absolute*( 10^9 ) )
-fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_absolute*( 10^3 ) )
-fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_absolute*( 10^6 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
 
 
-%% Create the Absolute Inversion Subnetwork.
+%% Create the Reduced Absolute Inversion Subnetwork.
 
 % Create an instance of the network_absolute class.
 network_absolute = network_class( network_dt, network_tf );
@@ -181,7 +234,7 @@ network_absolute.applied_current_manager = network_absolute.applied_current_mana
 network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute, [ current_state*Ia1_absolute, Ia2_absolute ], 'I_apps' );
 
 
-%% Simulate the relative inversion subnetwork.
+%% Simulate the Reduced Relative Inversion Subnetwork.
 
 % Start the timer.
 tic
@@ -193,7 +246,7 @@ tic
 relative_simulation_duration = toc;
 
 
-%% Simulate the absolute inversion subnetwork.
+%% Simulate the Reduced Absolute Inversion Subnetwork.
 
 % Start the timer.
 tic
@@ -205,7 +258,7 @@ tic
 absolute_simulation_duration = toc;
 
 
-%% Plot the Inversion Subnetwork Results.
+%% Plot the Reduced Inversion Subnetwork Results.
 
 % Plot the network currents over time.
 fig_relative_network_currents = network_relative.network_utilities.plot_network_currents( ts_relative, I_leaks_relative, I_syns_relative, I_nas_relative, I_apps_relative, I_totals_relative, neuron_IDs_relative );

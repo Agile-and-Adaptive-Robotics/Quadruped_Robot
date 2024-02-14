@@ -1,4 +1,4 @@
-%% Inversion Subnetwork Conversion Example
+%% Inversion Subnetwork Conversion Example.
 
 % Clear everything.
 clear, close( 'all' ), clc
@@ -40,7 +40,7 @@ Gna1_relative = 0;                                                              
 Gna2_relative = 0;                                                                                   	% [S] Sodium Channel Conductance (Neuron 2).
 
 % Set network design parameters.
-c3_relative = 20e-9;                                                                                    % [?] Design Constant 3.
+c3_relative = 0.02e-6;                                                                                  % [S] Design Constant 3.
 delta_relative = 1e-3;                                                                                  % [V] Membrane Voltage Offset.
 
 
@@ -52,6 +52,49 @@ c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative 
 Ia2_relative = R2_relative*Gm2_relative;                                                                % [A] Applied Current (Neuron 2).
 dEs21_relative = 0;                                                                                     % [V] Synaptic Reversal Potential (Synapse 21).
 gs21_relative = ( delta_relative*Gm2_relative - Ia2_relative )/( dEs21_relative - delta_relative );     % [S] Synaptic Conductance (Synapse 21).
+
+
+%% Print Relative Inversion Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'RELATIVE INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_relative*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_relative*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_relative*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_relative*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_relative*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_relative*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_relative*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_relative*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_relative*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_relative*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state*Ia1_relative*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_relative*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[muS]\n', c1_relative*( 10^6 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2_relative*( 10^6 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[muS]\n', c3_relative*( 10^6 ) )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_relative*( 10^3 ) )
 
 
 %% Create the Relative Inversion Subnetwork.
@@ -103,19 +146,66 @@ Gna2_absolute = Gna2_relative;                                                  
 
 % Convert design constants.
 delta_absolute = delta_relative;                                                                                % [V] Membrane Voltage Offset.
-c2_absolute = 10*c2_relative;                                                                                   % [?] Design Constant 2.
-c1_absolute =( delta_absolute*R1_absolute*R2_relative*c2_absolute )/( R2_relative - delta_absolute );           % [?] Design Constant 1.
-c3_absolute = ( delta_absolute*R1_absolute*c2_absolute )/( R2_relative - delta_absolute );                      % [?] Design Constant 3.
+c2_absolute = 10*c2_relative;                                                                                   % [S] Design Constant 2.
+c1_absolute =( delta_absolute*R1_absolute*R2_relative*c2_absolute )/( R2_relative - delta_absolute );           % [W] Design Constant 1.
+c3_absolute = ( delta_absolute*R1_absolute*c2_absolute )/( R2_relative - delta_absolute );                      % [A] Design Constant 3.
 
 
 %% Compute the Derived Parameters of the Absolute Inversion Subnetwork.
 
 % Compute the network_absolute properties.
 R2_absolute = c1_absolute/c3_absolute;                                                                          % [V] Maximum Membrane Voltage
-c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );                      % [?] Design Constant 2.
+c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );                      % [S] Design Constant 2.
 Ia2_absolute = R2_absolute*Gm2_absolute;                                                                        % [A] Applied Current (Neuron 2).
 dEs21_absolute = 0;                                                                                             % [V] Synaptic Reversal Potential (Synapse 21).
 gs21_absolute = ( delta_absolute*Gm2_absolute - Ia2_absolute )/( dEs21_absolute - delta_absolute );             % [S] Synaptic Conductance (Synapse 21).
+
+
+%% Print Absolute Inversion Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'ABSOLUTE INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_absolute*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_absolute*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_absolute*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_absolute*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_absolute*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_absolute*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_absolute*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_absolute*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_absolute*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_absolute*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state*Ia1_absolute*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_absolute*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[nW]\n', c1_absolute*( 10^9 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2_absolute*( 10^6 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[nA]\n', c3_absolute*( 10^9 ) )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_absolute*( 10^3 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
 
 
 %% Create the Absolute Inversion Subnetwork.

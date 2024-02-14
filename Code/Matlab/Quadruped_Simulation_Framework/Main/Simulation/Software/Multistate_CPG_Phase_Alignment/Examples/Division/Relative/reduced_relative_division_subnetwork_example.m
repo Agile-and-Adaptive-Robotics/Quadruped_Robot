@@ -1,4 +1,4 @@
-%% Relative Division Subnetwork Example Without c2
+%% Reduced Relative Division Subnetwork Example.
 
 % Clear Everything.
 clear, close('all'), clc
@@ -6,90 +6,112 @@ clear, close('all'), clc
 
 %% Define Simulation Parameters.
 
-% Set the level of verbosity.
-b_verbose = true;                                                       % [T/F] Printing flag.
+% Define the level of verbosity.
+b_verbose = true;                                                               % [T/F] Printing flag.
 
 % Define the network integration step size.
-network_dt = 1e-4;                                                      % [s] Simulation timestep.
+network_dt = 1e-4;                                                              % [s] Simulation Timestep.
 
 % Define the simulation duration.
-network_tf = 3;                                                         % [s] Simulation duration.
+network_tf = 3;                                                                 % [s] Simulation Duration.
 
 
-%% Define Basic Network Parameters.
+%% Define Basic Reduced Relative Division Subnetwork Parameters.
 
-% Set the maximum voltages.
-R1 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 1)
-R2 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 2)
-R3 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 3)
+% Define the maximum voltages.
+R1 = 20e-3;                                                                     % [V] Maximum Voltage (Neuron 1)
+R2 = 20e-3;                                                                     % [V] Maximum Voltage (Neuron 2)
+R3 = 20e-3;                                                                     % [V] Maximum Voltage (Neuron 3)
 
-% Set the membrane conductances.
-Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1)
-Gm2 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 2) 
-Gm3 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 3) 
+% Define the membrane conductances.
+Gm1 = 1e-6;                                                                     % [S] Membrane Conductance (Neuron 1)
+Gm2 = 1e-6;                                                                     % [S] Membrane Conductance (Neuron 2) 
+Gm3 = 1e-6;                                                                     % [S] Membrane Conductance (Neuron 3) 
 
-% Set the membrane capacitance.
-Cm1 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 1)
-Cm2 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 2)
-Cm3 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 3)
+% Define the membrane capacitance.
+Cm1 = 5e-9;                                                                     % [F] Membrane Capacitance (Neuron 1)
+Cm2 = 5e-9;                                                                     % [F] Membrane Capacitance (Neuron 2)
+Cm3 = 5e-9;                                                                     % [F] Membrane Capacitance (Neuron 3)
 
-% Set the applied currents.
-% Ia1 = 0;                                                              % [A] Applied Current (Neuron 1)
-Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1)
-% Ia2 = 0;                                                              % [A] Applied Current (Neuron 2)
-Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2)
+% Define the applied currents.
+Ia1 = R1*Gm1;                                                                   % [A] Applied Current (Neuron 1)
+Ia2 = R2*Gm2;                                                                   % [A] Applied Current (Neuron 2)
+Ia3 = 0;                                                                        % [A] Applied Current (Neuron 3)
 
-% Set the synaptic reversal potentials.
-dEs31 = 194e-3;                                                         % [V] Synaptic Reversal Potential Synapse 31.
+% Define the current state.
+current_state1 = 1;                                                             % [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
+current_state2 = 1;                                                             % [-] Current State (Neuron 2). (Specified as a ratio of the maximum applied current.)
 
-% Set the network design parameters.
-delta = 1e-3;                                                           % [V] Membrane Voltage Offset
+% Define the synaptic reversal potentials.
+dEs31 = 194e-3;                                                                 % [V] Synaptic Reversal Potential (Synapse 31).
+dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential (Synapse 32).
 
-
-%% Create Absolute Division Subnetwork.
-
-% Compute the network properties.
-c1 = delta/( R3 - delta );                                                      % [?] Relative Division Parameter 1
-c2 = c1;                                                                        % [?] Relative Division Parameter 2
-dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential
-Ia3 = 0;                                                                        % [A] Applied Current
-gs31 = ( R3*Gm3 - Ia3 )/( dEs31 - R3 );                                         % [S] Maximum Synaptic Conductance
-gs32 = ( ( dEs31 - delta )*gs31 + Ia3 - delta*Gm3 )/( delta - dEs32 );          % [S] Maximum Synaptic Conductance
+% Define the network design parameters.
+delta = 1e-3;                                                                   % [V] Membrane Voltage Offset.
 
 
-%% Print Network Parameters.
+%% Create Reduced Relative Division Subnetwork.
 
-% Print a summary of the relevant network parameters.
-fprintf( 'RELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
-fprintf( 'c1 = %0.2f [?]\n', c1*( 10^9 ) )
-fprintf( 'c2 = %0.2f [?]\n', c2*( 10^9 ) )
+% Compute the design parameters.
+c1 = delta/( R3 - delta );                                                      % [-] Relative Division Parameter 1.
+c2 = c1;                                                                        % [-] Relative Division Parameter 2.
 
-fprintf( 'delta = %0.2f [mV]\n', delta*( 10^3 ) )
-
-fprintf( 'R1 = %0.2f [mV]\n', R1*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', R2*( 10^3 ) )
-fprintf( 'R3 = %0.2f [mV]\n', R3*( 10^3 ) )
-
-fprintf( 'Gm1 = %0.2f [muS]\n', Gm1*( 10^6 ) )
-fprintf( 'Gm2 = %0.2f [muS]\n', Gm2*( 10^6 ) )
-fprintf( 'Gm3 = %0.2f [muS]\n', Gm3*( 10^6 ) )
-
-fprintf( 'Cm1 = %0.2f [muS]\n', Cm1*( 10^9 ) )
-fprintf( 'Cm2 = %0.2f [muS]\n', Cm2*( 10^9 ) )
-fprintf( 'Cm3 = %0.2f [muS]\n', Cm3*( 10^9 ) )
-
-fprintf( 'Ia1 = %0.2f [nA]\n', Ia1*( 10^9 ) )
-fprintf( 'Ia2 = %0.2f [nA]\n', Ia2*( 10^9 ) )
-fprintf( 'Ia3 = %0.2f [nA]\n', Ia3*( 10^9 ) )
-
-fprintf( 'dEs31 = %0.2f [mV]\n', dEs31*( 10^3 ) )
-fprintf( 'dEs32 = %0.2f [mV]\n', dEs32*( 10^3 ) )
-
-fprintf( 'gs31 = %0.2f [muS]\n', gs31*( 10^6 ) )
-fprintf( 'gs32 = %0.2f [muS]\n', gs32*( 10^6 ) )
+% Compute the maximum synaptic conductances.
+gs31 = ( R3*Gm3 - Ia3 )/( dEs31 - R3 );                                         % [S] Maximum Synaptic Conductance (Synapse 31).
+gs32 = ( ( dEs31 - delta )*gs31 + Ia3 - delta*Gm3 )/( delta - dEs32 );          % [S] Maximum Synaptic Conductance (Synapse 32).
 
 
-%% Create Absolute Inversion Subnetwork.
+%% Print Reduced Absolute Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'REDUCED ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+fprintf( 'R3 \t\t= \t%0.2f \t[mV]\n', R3*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
+fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs31 \t= \t%0.2f \t[mV]\n', dEs31*( 10^3 ) )
+fprintf( 'dEs32 \t= \t%0.2f \t[mV]\n', dEs32*( 10^3 ) )
+
+fprintf( 'gs31 \t= \t%0.2f \t[muS]\n', gs31*( 10^6 ) )
+fprintf( 'gs32 \t= \t%0.2f \t[muS]\n', gs32*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Current Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1*Ia1*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', current_state2*Ia2*( 10^9 ) )
+fprintf( 'Ia3 \t= \t%0.2f \t[nA]\n', Ia3*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out design parameters.
+fprintf( 'Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[-]\n', c1 )
+fprintf( 'c2 \t\t= \t%0.2f \t[-]\n', c2 )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+
+%% Create Reduced Relative Inversion Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -116,13 +138,13 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ Ia1, Ia2, Ia3 ], 'I_apps' );
 
 
-%% Numerical Stability Analysis.
+%% Compute the Reduced Relative Division Numerical Stability Analysis Parameters.
 
 % Compute the maximum RK4 step size and condition number.
-% [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), zeros( network.neuron_manager.num_neurons, 1 ), 1e-6 );
+[ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), zeros( network.neuron_manager.num_neurons, 1 ), 1e-6 );
 % [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ 0; Ia2/Gm2 ], 1e-6 );
 % [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ ( ( delta*Gm2 - Ia2 )*R1 )/( ( dEs21 - delta )*gs21 ); delta ], 1e-6 );
-[ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ R1; R2; delta ], 1e-6 );
+% [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ R1; R2; delta ], 1e-6 );
 
 % Print out the stability information.
 fprintf( '\nSTABILITY SUMMARY:\n' )
@@ -132,13 +154,13 @@ fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
 fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
 
 
-%% Simulate the Network.
+%% Simulate the Reduced Relative Division Subnetwork.
 
 % Simulate the network.
 [ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
 
 
-%% Plot the Network Results.
+%% Plot the Reduced Relative Division Subnetwork Results.
 
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );

@@ -1,4 +1,4 @@
-%% Reduced Relative Inversion Subnetwork Example
+%% Reduced Relative Inversion Subnetwork Example.
 
 % Clear Everything.
 clear, close('all'), clc
@@ -6,7 +6,7 @@ clear, close('all'), clc
 
 %% Define Simulation Parameters.
 
-% Set the level of verbosity.
+% Define the level of verbosity.
 b_verbose = true;                                                       % [T/F] Printing Flag.
 
 % Define the network integration step size.
@@ -16,33 +16,35 @@ network_dt = 1.3e-4;                                                    % [s] Si
 network_tf = 3;                                                         % [s] Simulation Duration.
 
 
-%% Define Fundamental Network Parameters.
+%% Define Basic Reduced Relative Inversion Subnetwork Parameters.
 
-% Set the maximum membrane voltages.
+% Define the maximum membrane voltages.
 R1 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 1).
 R2 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 2).
 
-% Set the membrane conductances.
+% Define the membrane conductances.
 Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1).
 Gm2 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 2).
 
-% Set the membrane capacitance.
+% Define the membrane capacitance.
 Cm1 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 2).
 
-% Set the applied currents.
-% Ia1 = 0;                                                              % [A] Applied Current (Neuron 1).
+% Define the applied currents.
 Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1).
 
-% Set the sodium channel conductance.
+% Define the current state.
+current_state1 = 0;                                                     % [-] Current State (Neuron 1).  (Specified as a ratio of the maximum current.)
+
+% Define the sodium channel conductance.
 Gna1 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 1).
 Gna2 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 2).
 
-% Set the network design parameters.
+% Define the network design parameters.
 delta = 1e-3;                                                           % [V] Membrane Voltage Offset.
 
 
-%% Compute Derived Network Parameters.
+%% Compute Derived Reduced Relative Inversion Network Parameters.
 
 % Compute the network properties.
 c1 = delta/( R2 - delta );                                              % [-] Design Constant 1.
@@ -52,23 +54,50 @@ dEs21 = 0;                                                              % [V] Sy
 gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                          	% [S] Synaptic Conductance (Synapse 21).
 
 
-%% Print Network Parameters.
+%% Print Reduced Relative Subnetwork Parameters.
 
-% Print a summary of the relevant network parameters.
-fprintf( 'NETWORK PARAMETERS:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[-]\n', c1 )
-fprintf( 'c2 \t\t= \t%0.2f \t[-]\n', c2 )
-fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'REDUCED RELATIVE INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
 fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
 fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+
 fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
 fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+
 fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
 fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
-fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
 fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21*( 10^3 ) )
 fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1*Ia1*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2e \t[-]\n', c1 )
+fprintf( 'c2 \t\t= \t%0.2e \t[-]\n', c2 )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
 
 
 %% Create Reduced Relative Inversion Subnetwork.
@@ -98,7 +127,7 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ Ia1, Ia2 ], 'I_apps' );
 
 
-%% Numerical Stability Analysis.
+%% Compute the Reduced Rlative Inversion Numerical Stability Analysis Parameters.
 
 % Compute the maximum RK4 step size and condition number.
 [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), [ ( ( delta*Gm2 - Ia2 )*R1 )/( ( dEs21 - delta )*gs21 ); delta ], 1e-6 );
@@ -111,7 +140,7 @@ fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
 fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
 
 
-%% Simulate the Network.
+%% Simulate the Reduced Relative Inversion Subnetwork.
 
 % Start the timer.
 tic
@@ -123,7 +152,7 @@ tic
 toc
 
 
-%% Plot the Network Results.
+%% Plot the Reduced Relative Inversion Subnetwork Results.
 
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
