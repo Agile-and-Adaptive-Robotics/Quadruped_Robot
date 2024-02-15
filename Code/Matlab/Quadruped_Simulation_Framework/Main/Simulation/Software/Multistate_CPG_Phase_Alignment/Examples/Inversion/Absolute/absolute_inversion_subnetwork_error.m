@@ -1,30 +1,47 @@
-%% Absolute Inversion Subnetwork Error
+%% Absolute Inversion Subnetwork Error.
 
 % Clear Everything.
 clear, close('all'), clc
 
 
-%% Initialize Project Options.
+%% Define Simulation Parameters.
 
 % Define the save and load directories.
-save_directory = '.\Save';
-load_directory = '.\Load';
+save_directory = '.\Save';                              % [str] Save Directory.
+load_directory = '.\Load';                              % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-b_simulate = true;
-% b_simulate = false;
+b_simulate = true;                                      % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = false;                                   % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
-b_verbose = true;
+b_verbose = true;                                       % [T/F] Printing Flag. (Determines whether to print out information.)
 
-% Define the network integration step size.
-% network_dt = 1e-3;
-network_dt = 1e-4;
-% network_dt = 1e-5;
-network_tf = 3;
+% Define the network simulation timestep.
+% network_dt = 1e-3;                                    % [s] Simulation Timestep.
+network_dt = 1e-4;                                      % [s] Simulation Timestep.
+% network_dt = 1e-5;                                    % [s] Simulation Timestep.
+
+% Define the network simulation duration.
+network_tf = 3;                                         % [s] Simulation Duration.
 
 % Define the number of neurons.
-num_neurons = 2;
+num_neurons = 2;                                        % [#] Number of Neurons.
+
+
+%% Define Absolute Inversion Subnetwork Parameters.
+
+% Define the maximum membrane voltages.
+
+
+% Define the membrane conductances.
+
+
+% Define the membrane capacitances.
+
+
+% Define the sod
+
 
 % Set the subnetwork parameters.
 % R1 = 20e-3;                                 % [V] Activation Domain

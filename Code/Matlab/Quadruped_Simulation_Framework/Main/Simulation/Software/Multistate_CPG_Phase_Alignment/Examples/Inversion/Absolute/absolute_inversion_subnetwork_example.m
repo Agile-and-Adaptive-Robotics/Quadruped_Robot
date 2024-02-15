@@ -16,7 +16,7 @@ network_dt = 1.3e-4;                                % [s] Simulation Timestep.
 network_tf = 3;                                     % [s] Simulation Duration.
 
 
-%% Define Basic Absolute Inversion Subnetwork Parameters.
+%% Define Absolute Inversion Subnetwork Parameters.
 
 % Define the maximum membrane voltages.
 R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
@@ -29,29 +29,35 @@ Gm2 = 1e-6;                                      	% [S] Membrane Conductance (Ne
 Cm1 = 5e-9;                                     	% [F] Membrane Capacitance (Neuron 1)
 Cm2 = 5e-9;                                      	% [F] Membrane Capacitance (Neuron 2)
 
-% Define the applied currents.
-Ia1 = R1*Gm1;                                     	% [A] Applied Current (Neuron 1)
-
-% Define the current state.
-current_state1 = 0;                                 % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
-
 % Define the sodium channel conductance.
 Gna1 = 0;                                           % [S] Sodium Channel Conductance (Neuron 1).
 Gna2 = 0;                                           % [S] Sodium Channel Conductance (Neuron 2).
 
+% Define the synaptic conductances.
+dEs21 = 0;                                          % [V] Synaptic Reversal Potential (Synapse 21).
+
+% Define the applied currents.
+Ia1 = R1*Gm1;                                     	% [A] Applied Current (Neuron 1)
+Ia2 = R2*Gm2;                                       % [A] Applied Current (Neuron 2).
+
+% Define the current state.
+current_state1 = 0;                                 % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
+
 % Define the network design parameters.
-c1 = 0.40e-9;                                       % [W] Design Constant 1
-c3 = 20e-9;                                         % [A] Design Constant 2
-delta = 1e-3;                                       % [V] Membrane Voltage Offset
+c1 = 0.40e-9;                                       % [W] Design Constant 1.
+c3 = 20e-9;                                         % [A] Design Constant 2.
+delta = 1e-3;                                       % [V] Membrane Voltage Offset.
 
 
 %% Compute Derived Absolute Inversion Subnetwork Constraints.
 
-% Compute the network parameters.
+% Compute the maximum membrane voltages.
 R2 = c1/c3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+
+% Compute the network design parameters.
 c2 = ( c1 - delta*c3 )/( delta*R1 );                % [S] Design Constant 2.
-dEs21 = 0;                                          % [V] Synaptic Reversal Potential (Synapse 21).
-Ia2 = R2*Gm2;                                       % [A] Applied Current (Neuron 2).
+
+% Compute the synaptic conductances.
 gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );       % [S]Synaptic Conductance (Synapse 21).
 
 
