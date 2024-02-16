@@ -8,9 +8,9 @@ classdef network_utilities_class
     % Define the class properties.
     properties
         
-        array_utilities
-        neuron_utilities
-        numerical_method_utilities
+        array_utilities                                     % [class] Performs common array operations.
+        neuron_utilities                                    % [class] Performs neuron specific operations.
+        numerical_method_utilities                          % [class] Performs common numerical method operations.
         
     end
     
@@ -18,24 +18,24 @@ classdef network_utilities_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
     
-        c_transmission_DEFAULT = 1;
-        c_modulation_DEFAULT = 0.05;
+        c_transmission_DEFAULT = 1;                         % [-] Transmission Subnetwork Default Gain.
+        c_modulation_DEFAULT = 0.05;                        % [-] Modulation Subnetwork Default Gain.
         
-        c_addition_DEFAULT = 1;
-        c_subtraction_DEFAULT = 1;
+        c_addition_DEFAULT = 1;                             % [-] Addition Subnetwork Default Gain.
+        c_subtraction_DEFAULT = 1;                          % [-] Subtraction Subnetwork Default Gain.
         
-        c_multiplication_DEFAULT = 1;
-        c_inversion_DEFAULT = 1;
-        c_division_DEFAULT = 1;
+        c_multiplication_DEFAULT = 1;                       % [-] Multiplication Subnetwork Default Gain.
+        c_inversion_DEFAULT = 1;                            % [-] Inversion Subnetwork Default Gain.
+        c_division_DEFAULT = 1;                             % [-] Division Subnetwork Default Gain.
         
-        c_derivation_DEFAULT = 1e6;
-        w_derivation_DEFAULT = 1;
-        sf_derivation_DEFAULT = 0.05;
+        c_derivation_DEFAULT = 1e6;                         % [-] Derivation Subnetwork Default Gain.
+        w_derivation_DEFAULT = 1;                           % [-] Derivation Subnetwork Default Cut Off.
+        sf_derivation_DEFAULT = 0.05;                       % [-] Derivation Subnetwork Default Safety Factor.
         
-        c_integration_mean_DEFAULT = 0.01e9;
-        c_integration_range_DEFAULT = 0.01e9;
+        c_integration_mean_DEFAULT = 0.01e9;                % [-] Integration Subnetwork Default Average Gain.
+        c_integration_range_DEFAULT = 0.01e9;               % [-] Integration Subnetwork Default Gain Range.
 
-        Iapp_DEFAULT = 0;
+        Iapp_DEFAULT = 0;                                   % [-] Default Applied Current.
         
     end
     
@@ -64,7 +64,7 @@ classdef network_utilities_class
         
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
-            
+                        
             % Compute the synaptic conductance associated with this neuron.
             G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );                   % CPG SUBNETWORK SEEMS TO REQUIR SATURATION...
 %             G_syn = g_syn_max.*( U'./R );                                     % MULTIPLICATION SUBNETWORK SEEMS TO REQUIRE NO SATURATION...
@@ -1309,7 +1309,7 @@ classdef network_utilities_class
             legend( line_ends, legstr, 'Location', 'Southoutside', 'Orientation', 'Horizontal' )
             
             % Animate the figure.
-            for j = 1:num_playbacks                     % Iterate through each play back...
+            for j = 1:num_playbacks                                 % Iterate through each play back...
                 for k = 1:playback_speed:num_timesteps              % Iterate through each of the angles...
                     
                     % Refresh the plot data.

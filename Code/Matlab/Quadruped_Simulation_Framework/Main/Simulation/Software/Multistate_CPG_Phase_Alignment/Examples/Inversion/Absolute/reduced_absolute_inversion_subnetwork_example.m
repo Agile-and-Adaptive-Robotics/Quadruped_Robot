@@ -19,23 +19,29 @@ network_tf = 3;                                                         % [s] Si
 %% Define Basic Reduced Absolute Inversion Subnetwork Parameters.
 
 % Define the maximum membrane voltages.
-R1 = 20e-3;                                                             % [V] Maximum Membrane Voltage (Neuron 1)
+R1 = 20e-3;                                                             % [V] Maximum Membrane Voltage (Neuron 1).
 
 % Define the membrane conductances.
-Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1)
-Gm2 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 2) 
+Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1).
+Gm2 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 2).
 
 % Define the membrane capacitance.
-Cm1 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 1)
-Cm2 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 2)
-
-% Define the applied currents.
-% Ia1 = 0;                                                              % [A] Applied Current (Neuron 1)
-Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1)
+Cm1 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 1).
+Cm2 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 2).
 
 % Define the sodium channel conductance.
 Gna1 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 1).
 Gna2 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 2).
+
+% Define the synaptic reversal potentials.
+dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21).
+
+% Define the applied currents.
+% Ia1 = 0;                                                              % [A] Applied Current (Neuron 1).
+Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1).
+
+% Define the current states.
+current_state1 = 0;                                                     % [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
 
 % Define the network design parameters.
 R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
@@ -45,11 +51,16 @@ c1 = ( delta*R1*R2_target )/( R2_target - delta );                     	% [V^2] 
 
 %% Compute Derived Reduced Absolute Inversion Subnetwork Parameters.
 
-% Compute the network properties.
+% Compute the network design parameters.
 c2 = ( c1 - delta*R1 )/delta;                                           % [V] Design Constant 2.
+
+% Compute the maximum membrane voltages.
 R2 = c1/c2;                                                             % [V] Maximum Membrane Voltage (Neuron 2).
+
+% Compute the applied currents.
 Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
-dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21)
+
+% Compute the synaptic conductances
 gs21 = ( R1*Ia2 )/( c1 - c2*dEs21 );                                    % [S] Synaptic Conductance (Synapse 21)
 
 
@@ -123,7 +134,7 @@ network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_
 
 % Set the applied current parameters.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ Ia1, Ia2 ], 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, Ia2 ], 'I_apps' );
 
 
 %% Compute the Numerical Stability Parameters of the Reduced Absolute Inversion Subnetwork.
