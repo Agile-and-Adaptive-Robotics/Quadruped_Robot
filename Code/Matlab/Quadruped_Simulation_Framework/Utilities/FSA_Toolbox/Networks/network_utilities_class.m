@@ -49,13 +49,13 @@ classdef network_utilities_class
         function self = network_utilities_class(  )
             
             % Create an instance of the array utilities class.
-            self.array_utilities = array_utilities_class(  );
+            self.array_utilities = array_utilities_class(  );                               % [class] Collection of Array Operations.
             
             % Create an instance of the neuron utilities class.
-            self.neuron_utilities = neuron_utilities_class(  );
+            self.neuron_utilities = neuron_utilities_class(  );                             % [class] Collection of Neuron Operations.
             
             % Create an instance of the numerical methods utilities class.
-            self.numerical_method_utilities = numerical_method_utilities_class(  );
+            self.numerical_method_utilities = numerical_method_utilities_class(  );         % [class] Collection of Numerical Method Operations.
             
         end
         
@@ -64,14 +64,16 @@ classdef network_utilities_class
         
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
-                        
-            % Inputs:
-                % U             =   [V] Membrane Voltage.
-                % R             =   [V] Maximum Membrane Voltage.
-                % g_syn_max     =   [S] Maximum Synaptic Conductance.
-                
-            % Outputs:
-                % G_syn         =   [S] Synaptic Conductance.
+                    
+            %{
+            Input(s):
+                U           =   [V] Membrane Voltage.
+                R           =   [V] Maximum Membrane Voltage.
+                g_syn_max   =   [S] Maximum Synaptic Conductance.
+            
+            Output(s):
+                G_syn       =   [S] Synaptic Conductance.
+            %}
                 
             % Compute the synaptic conductance associated with this neuron. % CPG SUBNETWORK SEEMS TO REQUIRE SATURATION... % MULTIPLICATION SUBNETWORK SEEMS TO REQUIRE NO SATURATION...
             G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );                           % [S] Synaptic Conductance.
@@ -83,14 +85,36 @@ classdef network_utilities_class
         % Implement a function to compute synaptic current.
         function I_syn = compute_Isyn( ~, U, G_syn, dE_syn )
             
+            %{
+            Input(s):
+                U       =   [V] Membrane Voltage.
+                G_syn   =   [S] Synaptic Conductance.
+                dE_syn  =   [V] Synaptic Reversal Potential.
+            
+            Output(s):
+                I_syn   =   [A] Synaptic Current.
+            %}
+            
             % Compute the synaptic current.
-            I_syn = sum( G_syn.*( dE_syn - U ), 2 );
+            I_syn = sum( G_syn.*( dE_syn - U ), 2 );                % [A] Synaptic Current.
             
         end
         
         
         % Implement a function to perform a synaptic current step.
         function [ I_syn, G_syn ] = Isyn_step( self, U, R, g_syn_max, dE_syn )
+            
+            %{
+            Input(s):
+                U           =   [V] Membrane Voltage.
+                R           =   [V] Maximum Membrane Voltage.
+                g_syn_max	=   [S] Maximum Synaptic Conductance.
+                dE_syn      =   [V] Synaptic Reversal Potential.
+            
+            Output(s):
+                I_syn       =   [A] Synaptic Current.
+                G_syn       =   [S] Synaptic Conductance.
+            %}
             
             % Compute the synaptic conductance of this synapse leaving this neuron.
             G_syn = self.compute_Gsyn( U, R, g_syn_max );
@@ -134,19 +158,19 @@ classdef network_utilities_class
                     if i ~= k                   % If this synapse is not a self-connection...
                         
                         % Compute the leak current.
-                        I_leak = self.neuron_utilities.compute_Ileak( deltas(i, k), Gms(i) );
+                        I_leak = self.neuron_utilities.compute_Ileak( deltas( i, k ), Gms( i ) );
                         
                         % Compute the sodium channel steady state activation and deactivation parameters.
-                        m_inf = self.neuron_utilities.compute_mhinf( deltas(i, k), Ams(i), Sms(i), dEms(i) );
-                        h_inf = self.neuron_utilities.compute_mhinf( deltas(i, k), Ahs(i), Shs(i), dEhs(i) );
+                        m_inf = self.neuron_utilities.compute_mhinf( deltas( i, k ), Ams( i ), Sms( i ), dEms( i ) );
+                        h_inf = self.neuron_utilities.compute_mhinf( deltas( i, k ), Ahs( i ), Shs( i ), dEhs( i ) );
                         
                         % Compute the sodium channel current.
-                        I_na = self.neuron_utilities.compute_Ina( deltas(i, k), h_inf, m_inf, Gnas(i), dEnas(i) );
+                        I_na = self.neuron_utilities.compute_Ina( deltas( i, k ), h_inf, m_inf, Gnas( i ), dEnas( i ) );
                         
                         % Compute the system and right-hand side coefficients.
                         aik1 = deltas( i, k ) - dEsyns( i, k );
                         aik2 = neq( p, k ).*( deltas( p, k )./Rs( p, k ) ).*( deltas( i, k ) - dEsyns( p, k ) );
-                        bik = I_leak + I_na + Iapps_tonic(i);
+                        bik = I_leak + I_na + Iapps_tonic( i );
                         
                         % Determine the row index at which to store these coefficients.
                         r = ( num_neurons - 1 ).*( k - 1 ) + i;
@@ -244,7 +268,7 @@ classdef network_utilities_class
                 end
                 
                 % Store the current synaptic conductance vector entry into the correct synaptic conductance matrix location.
-                g_syn_max_matrix( row, col ) = g_syn_max_vector(k);
+                g_syn_max_matrix( row, col ) = g_syn_max_vector( k );
                 
                 % Store the current row as the previous row for the next iteration.
                 row_prev = row;
