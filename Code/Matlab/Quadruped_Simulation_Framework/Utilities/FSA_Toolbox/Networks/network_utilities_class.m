@@ -65,9 +65,17 @@ classdef network_utilities_class
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
                         
-            % Compute the synaptic conductance associated with this neuron.
-            G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );                   % CPG SUBNETWORK SEEMS TO REQUIR SATURATION...
-%             G_syn = g_syn_max.*( U'./R );                                     % MULTIPLICATION SUBNETWORK SEEMS TO REQUIRE NO SATURATION...
+            % Inputs:
+                % U             =   [V] Membrane Voltage.
+                % R             =   [V] Maximum Membrane Voltage.
+                % g_syn_max     =   [S] Maximum Synaptic Conductance.
+                
+            % Outputs:
+                % G_syn         =   [S] Synaptic Conductance.
+                
+            % Compute the synaptic conductance associated with this neuron. % CPG SUBNETWORK SEEMS TO REQUIRE SATURATION... % MULTIPLICATION SUBNETWORK SEEMS TO REQUIRE NO SATURATION...
+            G_syn = g_syn_max.*( min( max( U'./R, 0 ), 1 ) );                           % [S] Synaptic Conductance.
+%             G_syn = g_syn_max.*( U'./R );                                     
             
         end
         
@@ -657,12 +665,25 @@ classdef network_utilities_class
         function U2s = compute_desired_absolute_inversion_steady_state_output( ~, U1s, c1, c2, c3 )
             
             % Set the default input arguments.
-            if nargin < 5, c3 = 20e-9; end
-            if nargin < 4, c2 = 19e-6; end
-            if nargin < 3, c1 = 0.40e-9; end
+            if nargin < 5, c3 = 20e-9; end                          % [A] Design Constant 3.
+            if nargin < 4, c2 = 19e-6; end                          % [S] Design Constant 2.
+            if nargin < 3, c1 = 0.40e-9; end                        % [W] Design Constant 1.
             
             % Compute the steady state network outputs.
-            U2s = c1./( c2*U1s + c3 );
+            U2s = c1./( c2*U1s + c3 );                              % [V] Membrane Voltage.
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
+        function U2s = compute_desired_reduced_absolute_inversion_steady_state_output( ~, U1s, c1, c2 )
+           
+            % Set the default input arguments.
+            if nargin < 4, c2 = 21.05e-6; end                       % [mV] Design Constant 2.
+            if nargin < 3, c1 = 1.05e-3; end                        % [mV^2] Design Constant 1.
+           
+            % Compute the steady state network outputs.
+            U2s = c1./( U1s + c2 );                                 % [V] Membrane Voltage (Neuron 2).
             
         end
         
@@ -671,17 +692,32 @@ classdef network_utilities_class
         function U2s = compute_desired_relative_inversion_steady_state_output( ~, Us1, c1, c2, c3, R1, R2 )
         
             % Set the default input arguments.
-            if nargin < 7, R2 = 20e-3; end
-            if nargin < 6, R1 = 20e-3; end
-            if nargin < 5, c3 = 1e-6; end
-            if nargin < 4, c2 = 19e-6; end
-            if nargin < 3, c1 = 1e-6; end
+            if nargin < 7, R2 = 20e-3; end                          % [V] Maxmimum Membrane Voltage (Neuron 2).
+            if nargin < 6, R1 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 5, c3 = 1e-6; end                           % [-] Design Constant 3.
+            if nargin < 4, c2 = 19e-6; end                          % [-] Design Constant 2.
+            if nargin < 3, c1 = 1e-6; end                           % [-] Design Constant 1.
 
             % Compute the steady state network outputs.
-            U2s = ( c1*R1*R2 )./( c2*Us1 + c3*R1 );
+            U2s = ( c1*R1*R2 )./( c2*Us1 + c3*R1 );                 % [V] Membrane Voltage (Neuron 2).
             
         end
            
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
+        function U2s = compute_desired_reduced_relative_inversion_steady_state_output( ~, Us1, c1, c2, R1, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 6, R2 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 5, R1 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 4, c2 = 52.6e-3; end                       	% [-] Design Constant 2.
+            if nargin < 3, c1 = 52.6e-3; end                       	% [-] Design Constant 1.
+
+            % Compute the steady state network outputs.
+            U2s = ( c1*R1*R2 )./( Us1 + c2*R1 );                    % [V] Membrane Voltage (Neuron 2).
+            
+        end
+        
         
         % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
         function U2s = compute_achieved_inversion_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )

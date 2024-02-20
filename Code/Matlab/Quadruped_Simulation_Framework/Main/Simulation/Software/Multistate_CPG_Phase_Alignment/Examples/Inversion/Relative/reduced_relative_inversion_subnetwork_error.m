@@ -1,4 +1,4 @@
-%% Reduced Absolute Inversion Subnetwork Error.
+%% Reduced Relative Inversion Subnetwork Error.
 
 % Clear Everything.
 clear, close('all'), clc
@@ -29,10 +29,11 @@ network_tf = 3;                                                         % [s] Si
 num_neurons = 2;                                                        % [#] Number of Neurons.
 
 
-%% Define Reduced Absolute Inversion Subnetwork Parameters.
+%% Define Reduced Relative Inversion Subnetwork Parameters.
 
 % Define the maximum membrane voltages.
-R1 = 20e-3;                                                             % [V] Maximum Membrane Voltage (Neuron 1).
+R1 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 1).
+R2 = 20e-3;                                                             % [V] Maximum Voltage (Neuron 2).
 
 % Define the membrane conductances.
 Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1).
@@ -46,43 +47,37 @@ Cm2 = 5e-9;                                                             % [F] Me
 Gna1 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 1).
 Gna2 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 2).
 
-% Define the synaptic reversal potentials.
+% Define the synaptic reversal potential.
 dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21).
 
 % Define the applied currents.
-% Ia1 = 0;                                                              % [A] Applied Current (Neuron 1).
 Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1).
-
-% Define the current states.
-current_state1 = 0;                                                     % [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
-
-% Define the network design parameters.
-R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
-delta = 1e-3;                                                           % [V] Membrane Voltage Offset
-c1 = ( delta*R1*R2_target )/( R2_target - delta );                     	% [V^2] Design Constant 1
-
-
-%% Compute the Derived Reduced Absolute Inversion Subnetwork Parameters.
-
-% Compute the network design parameters.
-c2 = ( c1 - delta*R1 )/delta;                                           % [V] Design Constant 2.
-
-% Compute the maximum membrane voltages.
-R2 = c1/c2;                                                             % [V] Maximum Membrane Voltage (Neuron 2).
-
-% Compute the applied currents.
 Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
 
-% Compute the synaptic conductances
-gs21 = ( R1*Ia2 )/( c1 - c2*dEs21 );                                    % [S] Synaptic Conductance (Synapse 21)
+% Define the current state.
+current_state1 = 0;                                                     % [-] Current State (Neuron 1).  (Specified as a ratio of the maximum current.)
+% current_state1 = 1;                                                   % [-] Current State (Neuron 1).  (Specified as a ratio of the maximum current.)
+
+% Define the network design parameters.
+delta = 1e-3;                                                           % [V] Membrane Voltage Offset.
 
 
-%% Print Reduced Absolute Inversion Subnetwork Parameters.
+%% Compute the Derived Reduced Relative Inversion Subnetwork Parameters.
+
+% Compute the design parameters.
+c1 = delta/( R2 - delta );                                              % [-] Design Constant 1.
+c2 = c1;                                                                % [-] Design Constant 2.
+
+% Compute the synpatic conductance.
+gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                          	% [S] Synaptic Conductance (Synapse 21).
+
+
+%% Print Reduced Relative Inversion Subnetwork Parameters.
 
 % Print out a header.
 fprintf( '\n------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
-fprintf( 'REDUCED ABSOLUTE INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'REDUCED RELATIVE INVERSION SUBNETWORK PARAMETERS:\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 % Print out neuron information.
@@ -114,8 +109,8 @@ fprintf( '\n' )
 
 % Print out the network design parameters.
 fprintf( 'Network Design Parameters:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[mV^2]\n', c1*( 10^6 ) )
-fprintf( 'c2 \t\t= \t%0.2f \t[mV]\n', c2*( 10^3 ) )
+fprintf( 'c1 \t\t= \t%0.2e \t[-]\n', c1 )
+fprintf( 'c2 \t\t= \t%0.2e \t[-]\n', c2 )
 fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
 
 % Print out ending information.
@@ -123,7 +118,7 @@ fprintf( '------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 
-%% Create the Reduced Absolute Inversion Subnetwork.
+%% Create the Reduced Relative Inversion Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -147,10 +142,10 @@ network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_
 
 % Set the applied current parameters.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, Ia2 ], 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ Ia1, Ia2 ], 'I_apps' );
 
 
-%% Compute Desired & Achieved Reduced Absolute Inversion Formulations.
+%% Compute Desired & Achieved Reduced Relative Inversion Formulations.
 
 % Retrieve the maximum membrane voltages.
 Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );                      % [V] Maximum Membrane Voltages.
@@ -180,16 +175,16 @@ U1s = linspace( 0, Rs( 1 ), 100  );
 % Create the input points.
 U1s_flat = reshape( U1s, [ numel( U1s ), 1 ] );
 
-% Compute the desired and achieved reduced absolute inversion steady state output.
-U2s_flat_desired_absolute = network.compute_desired_reduced_absolute_inversion_steady_state_output( U1s_flat, c1, c2 );
-[ U2s_flat_achieved_absolute, As, dts, condition_numbers ] = network.achieved_inversion_RK4_stability_analysis( U1s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
+% Compute the desired and achieved reduced relative inversion steady state output.
+U2s_flat_desired_relative = network.compute_desired_reduced_relative_inversion_steady_state_output( U1s_flat, c1, c2, R1, R2 );
+[ U2s_flat_achieved_relative, As, dts, condition_numbers ] = network.achieved_inversion_RK4_stability_analysis( U1s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
 
 % Retrieve the maximum RK4 step size and condition number.
 [ dt_max, indexes_dt ] = max( dts );
 [ condition_number_max, indexes_condition_number ] = max( condition_numbers );
 
 
-%% Print the Desired and Achieved Reduced Absolute Inversion Formulation Results.
+%% Print the Desired and Achieved Reduced Relative Inversion Formulation Results.
 
 % Print out the stability information.
 fprintf( 'STABILITY SUMMARY:\n' )
@@ -199,27 +194,27 @@ fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
 fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ %0.2f [mV]\n', condition_number_max, U1s_flat( indexes_condition_number )*( 10^3 ) )
 
 
-%% Plot the Desired and Achieved Reduced Absolute Inversion Formulation Results.
+%% Plot the Desired and Achieved Reduced Relative Inversion Formulation Results.
 
 % Plot the desired and achieved relative inversion formulation results.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Reduced Absolute Inversion Theory' )
-plot( U1s_flat, U2s_flat_desired_absolute, '-', 'Linewidth', 3 )
-plot( U1s_flat, U2s_flat_achieved_absolute, '--', 'Linewidth', 3 )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Reduced Relative Inversion Theory' )
+plot( U1s_flat, U2s_flat_desired_relative, '-', 'Linewidth', 3 )
+plot( U1s_flat, U2s_flat_achieved_relative, '--', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved' )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_theory' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_theory' ] )
 
 % Plot the RK4 maximum timestep.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion RK4 Maximum Timestep' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Reduced Absolute Inversion RK4 Maximum Timestep' )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion RK4 Maximum Timestep' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Reduced Relative Inversion RK4 Maximum Timestep' )
 plot( U1s_flat, dts, '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_rk4_maximum_timestep' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_rk4_maximum_timestep' ] )
 
 % Plot the linearized system condition numbers.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion Condition Numbers' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Reduced Absolute Inversion Condition Number' )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion Condition Numbers' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Reduced Relative Inversion Condition Number' )
 plot( U1s_flat, condition_numbers, '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_condition_numbers' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_condition_numbers' ] )
 
 
-%% Simulate the Reduced Absolute Inversion Network.
+%% Simulate the Reduced Relative Inversion Network.
 
 % Determine whether to simulate the network.
 if b_simulate                                                   % If we want to simulate the network....
@@ -249,12 +244,12 @@ if b_simulate                                                   % If we want to 
     end
 
     % Save the simulation results.
-    save( [ save_directory, '\', 'reduced_absolute_inversion_subnetwork_error' ], 'applied_currents', 'Us_achieved' )
+    save( [ save_directory, '\', 'reduced_relative_inversion_subnetwork_error' ], 'applied_currents', 'Us_achieved' )
     
 else                                                            % Otherwise... ( We must want to load data from an existing simulation... )
     
     % Load the simulation results.
-    data = load( [ load_directory, '\', 'reduced_absolute_inversion_subnetwork_error' ] );
+    data = load( [ load_directory, '\', 'reduced_relative_inversion_subnetwork_error' ] );
     
     % Store the simulation results in separate variables.
     applied_currents = data.applied_currents;
@@ -263,10 +258,10 @@ else                                                            % Otherwise... (
 end
 
 
-%% Compute the Absolute Inversion Network Error.
+%% Compute the Relative Inversion Network Error.
 
 % Compute the desired membrane voltage output.
-Us_desired_output =  c1./( Us_achieved( :, 1 ) + c2 );
+Us_desired_output =  c1*R1*R2./( Us_achieved( :, 1 ) + c2*R1 );
 
 % Compute the desired membrane voltage output.
 Us_desired = Us_achieved; Us_desired( :, end ) = Us_desired_output;
@@ -278,28 +273,28 @@ error = Us_achieved( :, end ) - Us_desired( :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 
-%% Plot the Absolute Inversion Network Results.
+%% Plot the Relative Inversion Network Results.
 
 % Create a plot of the desired membrane voltage output.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Absolute Inversion Subnetwork Steady State Response (Desired)' )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Relative Inversion Subnetwork Steady State Response (Desired)' )
 plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_ss_response_desired' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_ss_response_desired' ] )
 
 % Create a plot of the achieved membrane voltage output.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Absolute Inversion Subnetwork Steady State Response (Achieved)' )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Relative Inversion Subnetwork Steady State Response (Achieved)' )
 plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_ss_response_achieved' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_ss_response_achieved' ] )
 
 % Create a plot of the desired and achieved membrane voltage outputs.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Absolute Inversion Subnetwork Steady State Response (Comparison)' )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Relative Inversion Subnetwork Steady State Response (Comparison)' )
 h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
-h2 = plot( U1s_flat, U2s_flat_achieved_absolute, '--', 'Linewidth', 3 );
+h2 = plot( U1s_flat, U2s_flat_achieved_relative, '--', 'Linewidth', 3 );
 h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '.', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_ss_response_comparison' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_ss_response_comparison' ] )
 
 % Create a surface that shows the membrane voltage error.
-fig = figure( 'Color', 'w', 'Name', 'Reduced Absolute Inversion Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Absolute Inversion Subnetwork Steady State Error' )
+fig = figure( 'Color', 'w', 'Name', 'Reduced Relative Inversion Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Reduced Relative Inversion Subnetwork Steady State Error' )
 plot( Us_achieved( :, 1 ), error, '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'reduced_absolute_inversion_ss_response_error' ] )
+saveas( fig, [ save_directory, '\', 'reduced_relative_inversion_ss_response_error' ] )
 

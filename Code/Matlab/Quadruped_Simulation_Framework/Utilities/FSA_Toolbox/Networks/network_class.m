@@ -5268,12 +5268,25 @@ classdef network_class
         function U2s = compute_desired_absolute_inversion_steady_state_output( self, U1s, c1, c2, c3 )
             
             % Set the default input arguments.
-            if nargin < 5, c3 = 20e-9; end
-            if nargin < 4, c2 = 19e-6; end
-            if nargin < 3, c1 = 0.40e-9; end
+            if nargin < 5, c3 = 20e-9; end                          % [A] Design Constant 3.
+            if nargin < 4, c2 = 19e-6; end                          % [S] Design Constant 2.
+            if nargin < 3, c1 = 0.40e-9; end                        % [W] Design Constant 1.
             
             % Compute the steady state output.
             U2s = self.network_utilities.compute_desired_absolute_inversion_steady_state_output( U1s, c1, c2, c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
+        function U2s = compute_desired_reduced_absolute_inversion_steady_state_output( self, U1s, c1, c2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, c2 = 21.05e-6; end                       % [mV] Design Constant 2.
+            if nargin < 3, c1 = 1.05e-3; end                        % [mV^2] Design Constant 1.
+            
+            % Compute the steady state output.
+            U2s = self.network_utilities.compute_desired_reduced_absolute_inversion_steady_state_output( U1s, c1, c2 );
             
         end
         
@@ -5282,14 +5295,29 @@ classdef network_class
         function U2s = compute_desired_relative_inversion_steady_state_output( self, Us1, c1, c2, c3, R1, R2 )
         
             % Set the default input arguments.
-            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
-            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
-            if nargin < 5, c3 = 1e-6; end
-            if nargin < 4, c2 = 19e-6; end
-            if nargin < 3, c1 = 1e-6; end
+            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
+            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 5, c3 = 1e-6; end                                                                                               % [-] Design Constant 3.
+            if nargin < 4, c2 = 19e-6; end                                                                                              % [-] Design Constant 2.
+            if nargin < 3, c1 = 1e-6; end                                                                                               % [-] Design Constant 1.
             
             % Compute the steady state output.
-            U2s = self.network_utilities.compute_desired_relative_inversion_steady_state_output( Us1, c1, c2, c3, R1, R2 );
+            U2s = self.network_utilities.compute_desired_relative_inversion_steady_state_output( Us1, c1, c2, c3, R1, R2 );             % [V] Membrane Voltage (Neuron 2).
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
+        function U2s = compute_desired_reduced_relative_inversion_steady_state_output( self, Us1, c1, c2, R1, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 6, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
+            if nargin < 5, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 4, c2 = 52.6e-3; end                                                                                            % [-] Design Constant 2.
+            if nargin < 3, c1 = 52.6e-3; end                                                                                            % [-] Design Constant 1.
+            
+            % Compute the steady state output.
+            U2s = self.network_utilities.compute_desired_reduced_relative_inversion_steady_state_output( Us1, c1, c2, R1, R2 );         % [V] Membrane Voltage (Neuron 2).
             
         end
         

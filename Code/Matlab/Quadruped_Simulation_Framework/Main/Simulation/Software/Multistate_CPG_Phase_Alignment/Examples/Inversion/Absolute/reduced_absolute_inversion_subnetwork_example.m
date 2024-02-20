@@ -41,7 +41,8 @@ dEs21 = 0;                                                              % [V] Sy
 Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1).
 
 % Define the current states.
-current_state1 = 0;                                                     % [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
+% current_state1 = 0;                                                  	% [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
+current_state1 = 1;                                                     % [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
 
 % Define the network design parameters.
 R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
@@ -121,10 +122,10 @@ network = network_class( network_dt, network_tf );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 2 );
 
 % Set neuron parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2 ], 'Gna' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2 ], 'R' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2 ], 'Gm' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2 ], 'Cm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2 ], 'Gna' );
 
 % Set synapse parameters.
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, 1, 'from_neuron_ID' );

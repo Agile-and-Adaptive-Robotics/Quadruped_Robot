@@ -30,15 +30,20 @@ Gm2 = 1e-6;                                                             % [S] Me
 Cm1 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                                             % [F] Membrane Capacitance (Neuron 2).
 
-% Define the applied currents.
-Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1).
-
-% Define the current state.
-current_state1 = 0;                                                     % [-] Current State (Neuron 1).  (Specified as a ratio of the maximum current.)
-
 % Define the sodium channel conductance.
 Gna1 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 1).
 Gna2 = 0;                                                               % [S] Sodium Channel Conductance (Neuron 2).
+
+% Define the synaptic reversal potential.
+dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21).
+
+% Define the applied currents.
+Ia1 = R1*Gm1;                                                           % [A] Applied Current (Neuron 1).
+Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
+
+% Define the current state.
+current_state1 = 0;                                                     % [-] Current State (Neuron 1).  (Specified as a ratio of the maximum current.)
+% current_state1 = 1;                                                   % [-] Current State (Neuron 1).  (Specified as a ratio of the maximum current.)
 
 % Define the network design parameters.
 delta = 1e-3;                                                           % [V] Membrane Voltage Offset.
@@ -46,11 +51,11 @@ delta = 1e-3;                                                           % [V] Me
 
 %% Compute Derived Reduced Relative Inversion Network Parameters.
 
-% Compute the network properties.
+% Compute the design parameters.
 c1 = delta/( R2 - delta );                                              % [-] Design Constant 1.
 c2 = c1;                                                                % [-] Design Constant 2.
-Ia2 = R2*Gm2;                                                           % [A] Applied Current (Neuron 2).
-dEs21 = 0;                                                              % [V] Synaptic Reversal Potential (Synapse 21).
+
+% Compute the synpatic conductance.
 gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                          	% [S] Synaptic Conductance (Synapse 21).
 
 
@@ -111,10 +116,10 @@ network = network_class( network_dt, network_tf );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 2 );
 
 % Set neuron parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna1 ], 'Gna' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2 ], 'R' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2 ], 'Gm' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2 ], 'Cm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2 ], 'Gna' );
 
 % Set synapse parameters.
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, 1, 'from_neuron_ID' );
