@@ -32,6 +32,11 @@ Cm1 = 5e-9;                                                                     
 Cm2 = 5e-9;                                                                     % [F] Membrance Conductance (Neuron 2).
 Cm3 = 5e-9;                                                                     % [F] Membrance Conductance (Neuron 3).
 
+% Define the sodium channel conductances.
+Gna1 = 0;                                                                       % [S] Sodium Channel Conductance (Neuron 1).
+Gna2 = 0;                                                                       % [S] Sodium Channel Conductance (Neuron 2).
+Gna3 = 0;                                                                       % [S] Sodium Channel Conductance (Neuron3).
+
 % Define the synaptic reversal potential.
 dEs31 = 194e-3;                                                                 % [V] Synaptic Reversal Potential (Synapse 31).
 dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential (Synapse 32).
@@ -87,6 +92,10 @@ fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3*( 10^6 ) )
 fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
 fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
 fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
+fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3*( 10^6 ) )
 fprintf( '\n' )
 
 % Print out synapse information.
@@ -132,7 +141,7 @@ network = network_class( network_dt, network_tf );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3 ], 'R' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2, Gm3 ], 'Gm' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2, Cm3 ], 'Cm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, zeros( size( neuron_IDs ) ), 'Gna' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2, Gna3 ], 'Gna' );
 
 % Set the synapse parameters.
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2 ], 'from_neuron_ID' );

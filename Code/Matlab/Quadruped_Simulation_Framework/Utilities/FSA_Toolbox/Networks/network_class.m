@@ -5326,14 +5326,14 @@ classdef network_class
         function U2s = compute_achieved_inversion_steady_state_output( self, U1s, R1, Gm2, Ia2, gs21, dEs21 )
             
             % Set the default input arguments.
-            if nargin < 7, dEs21 = self.get_dEsyns( [ 1, 2 ] ); end
-            if nargin < 6, gs21 = self.get_gsynmaxs( [ 1, 2 ] ); end
-            if nargin < 5, Ia2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'I_tonic' ) ); end
-            if nargin < 4, Gm2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'Gm' ) ); end
-            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 7, dEs21 = self.get_dEsyns( [ 1, 2 ] ); end                                                                     % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 6, gs21 = self.get_gsynmaxs( [ 1, 2 ] ); end                                                                    % [S] Maximum Synaptic Conductance (Synapse 21).
+            if nargin < 5, Ia2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'I_tonic' ) ); end                               % [A] Applied Currents (Neuron 2).
+            if nargin < 4, Gm2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'Gm' ) ); end                                    % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
 
             % Compute the steady state output.
-            U2s = self.network_utilities.compute_achieved_inversion_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );
+            U2s = self.network_utilities.compute_achieved_inversion_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );              % [V] Membrane Voltage (Neuron 2).
             
         end
         
@@ -5342,12 +5342,25 @@ classdef network_class
         function U3s = compute_desired_absolute_division_steady_state_output( self, U_inputs, c1, c2, c3 )
             
             % Set the default input arguments.
-            if nargin < 5, c3 = 0.40e-9; end
-            if nargin < 4, c2 = 380e-9; end
-            if nargin < 3, c1 = 0.40e-9; end
+            if nargin < 5, c3 = 0.40e-9; end                                                                                            % [W] Design Constant 3.
+            if nargin < 4, c2 = 380e-9; end                                                                                             % [A] Design Constant 2.
+            if nargin < 3, c1 = 0.40e-9; end                                                                                            % [W] Design Constant 1.
             
             % Compute the steady state output.
-            U3s = self.network_utilities.compute_desired_absolute_division_steady_state_output( U_inputs, c1, c2, c3 );
+            U3s = self.network_utilities.compute_desired_absolute_division_steady_state_output( U_inputs, c1, c2, c3 );                 % [V] Membrane Voltage (Neuron 3).
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
+        function U3s = compute_desired_reduced_absolute_division_steady_state_output( self, U_inputs, c1, c2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, c2 = 1.05e-3; end                                                                                            % [V] Design Constant 2.
+            if nargin < 3, c1 = 1.05e-3; end                                                                                            % [V] Design Constant 1.
+            
+            % Compute the steady state output.
+            U3s = self.network_utilities.compute_desired_reduced_absolute_division_steady_state_output( U_inputs, c1, c2 );           	% [V] Membrane Voltage (Neuron 3).
             
         end
         
@@ -5356,34 +5369,51 @@ classdef network_class
         function U3s = compute_desired_relative_division_steady_state_output( self, U_inputs, c1, c2, c3, R1, R2, R3 )
             
             % Set the default input arguments.
-            if nargin < 8, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
-            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
-            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
-            if nargin < 5, c3 = 1e-6; end
-            if nargin < 4, c2 = 19e-6; end
-            if nargin < 3, c1 = 1e-6; end
+            if nargin < 8, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
+            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 5, c3 = 1e-6; end                                                                                                   % [S] Design Constant 3.
+            if nargin < 4, c2 = 19e-6; end                                                                                                  % [S] Design Constant 2.
+            if nargin < 3, c1 = 1e-6; end                                                                                                   % [S] Design Constant 1.
             
             % Compute the steady state output.
-            U3s = self.network_utilities.compute_desired_relative_division_steady_state_output( U_inputs, c1, c2, c3, R1, R2, R3 );
+            U3s = self.network_utilities.compute_desired_relative_division_steady_state_output( U_inputs, c1, c2, c3, R1, R2, R3 );         % [V] Membrane Voltage (Neuron 3).
             
         end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division subnetwork.
+        function U3s = compute_desired_reduced_relative_division_steady_state_output( self, U_inputs, c1, c2, R1, R2, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 7, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
+            if nargin < 6, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 5, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 4, c2 = 0.0526; end                                                                                                 % [-] Design Constant 2.
+            if nargin < 3, c1 = 0.0526; end                                                                                                 % [-] Design Constant 1.
+            
+            % Compute the steady state output.
+            U3s = self.network_utilities.compute_desired_reduced_relative_division_steady_state_output( U_inputs, c1, c2, R1, R2, R3 );     % [V] Membrane Voltage (Neuron 3).
+            
+        end
+        
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
         function U3s = compute_achieved_division_steady_state_output( self, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
             
             % Set the default input arguments.
-            if nargin < 10, dEs32 = self.get_dEsyns( [ 2, 3 ] ); end
-            if nargin < 9, dEs31 = self.get_dEsyns( [ 1, 3 ] ); end
-            if nargin < 8, gs32 = self.get_gsynmaxs( [ 2, 3 ] ); end
-            if nargin < 7, gs31 = self.get_gsynmaxs( [ 1, 3 ] ); end
-            if nargin < 6, Ia3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'I_tonic' ) ); end
-            if nargin < 5, Gm3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'Gm' ) ); end
-            if nargin < 4, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
-            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 10, dEs32 = self.get_dEsyns( [ 2, 3 ] ); end                                                                                    % [V] Synaptic Reversal Potential (Synapse 32).
+            if nargin < 9, dEs31 = self.get_dEsyns( [ 1, 3 ] ); end                                                                                     % [V] Synaptic Revesal Potential (Synapse 31).
+            if nargin < 8, gs32 = self.get_gsynmaxs( [ 2, 3 ] ); end                                                                                    % [S] Synaptic Conductance (Synapse 32).
+            if nargin < 7, gs31 = self.get_gsynmaxs( [ 1, 3 ] ); end                                                                                    % [S] Synaptic Conductance (Synapse 31).
+            if nargin < 6, Ia3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'I_tonic' ) ); end                                               % [A] Applied Current (Neuron 3).
+            if nargin < 5, Gm3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'Gm' ) ); end                                                    % [S] Membrane Conductance (Neuron 3).
+            if nargin < 4, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                                      % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                                      % [V] Maximum Membrane Voltage (Neuron 1).
             
             % Compute the steady state output.
-            U3s = self.network_utilities.compute_achieved_division_steady_state_output( U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 );
+            U3s = self.network_utilities.compute_achieved_division_steady_state_output( U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 );         % [V] Membrane Voltage (Neuron 3).
             
         end
         
@@ -5627,7 +5657,7 @@ classdef network_class
         end
         
         
-        %% Save & Load Functions
+        %% Save & Load Functions.
         
         % Implement a function to save network data as a matlab object.
         function save( self, directory, file_name )

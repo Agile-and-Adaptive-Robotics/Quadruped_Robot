@@ -59,27 +59,6 @@ current_state1 = 0;                                 % [-] Current State (Neuron 
 c1 = 0.40e-9;                                       % [W] Design Constant 1.
 c3 = 20e-9;                                         % [A] Design Constant 2.
 delta = 1e-3;                                       % [V] Membrane Voltage Offset.
- 
-% % Set the subnetwork parameters.
-% % R1 = 20e-3;                                 % [V] Activation Domain
-% % c1 = 0.40e-9;                               % [W] Absolute Inversion Parameter 1
-% % c3 = 20e-9;                                 % [A] Absolute Inversion Parameter 3
-% % delta = 1e-3;                               % [V] Minimum Output Membrane Voltage
-% 
-% R1 = 20e-3;
-% c1 = 0.80e-9;
-% c3 = 20e-9;
-% delta = 1e-3;
-% 
-% % R1 = 20e-3;
-% % c1 = 0.60e-9;
-% % c3 = 20e-9;
-% % delta = 1e-3;
-% 
-% % R1 = 20e-3;
-% % c1 = 2e-11;
-% % c3 = 1e-9;
-% % delta = 1e-3;
 
 
 %% Compute the Derived Absolute Inversion Subnetwork Parameters.

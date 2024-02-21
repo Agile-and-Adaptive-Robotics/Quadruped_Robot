@@ -747,14 +747,14 @@ classdef network_utilities_class
         function U2s = compute_achieved_inversion_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
         
             % Set the default input arguments.
-            if nargin < 7, dEs21 = 0; end
-            if nargin < 6, gs21 = 19e-6; end
-            if nargin < 5, Ia2 = 20e-9; end
-            if nargin < 4, Gm2 = 1e-6; end
-            if nargin < 3, R1 = 20e-3; end
+            if nargin < 7, dEs21 = 0; end                                       % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 6, gs21 = 19e-6; end                                    % [S] Synaptic Conductance (Synapse 21).
+            if nargin < 5, Ia2 = 20e-9; end                                     % [A] Applied Current (Neuron 2).
+            if nargin < 4, Gm2 = 1e-6; end                                      % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
             
             % Compute the steady state network outputs.
-            U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );
+            U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );           % [V] Membrane Voltage (Neuron 2).
             
         end
         
@@ -763,16 +763,33 @@ classdef network_utilities_class
         function U3s = compute_desired_absolute_division_steady_state_output( ~, U_inputs, c1, c2, c3 )
         
             % Set the default input arguments.
-            if nargin < 5, c3 = 0.40e-9; end
-            if nargin < 4, c2 = 380e-9; end
-            if nargin < 3, c1 = 0.40e-9; end
+            if nargin < 5, c3 = 0.40e-9; end                                    % [W] Design Constant 3.
+            if nargin < 4, c2 = 380e-9; end                                     % [A] Design Constant 2.
+            if nargin < 3, c1 = 0.40e-9; end                                    % [W] Design Constant 1.
             
             % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );
-            U2s = U_inputs( :, 2 );
+            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
+            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
             
             % Compute the steady state network outputs.
-            U3s = ( c1*U1s )./( c2*U2s + c3 );
+            U3s = ( c1*U1s )./( c2*U2s + c3 );                                  % [V] Membrane Voltage (Neuron 3).
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute division subnetwork.
+        function U3s = compute_desired_reduced_absolute_division_steady_state_output( ~, U_inputs, c1, c2 )
+        
+            % Set the default input arguments.
+            if nargin < 4, c2 = 1.05e-3; end                                	% [V] Design Constant 2.
+            if nargin < 3, c1 = 1.05e-3; end                                    % [V] Design Constant 1.
+            
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
+            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
+            
+            % Compute the steady state network outputs.
+            U3s = ( c1*U1s )./( U2s + c2 );                                     % [V] Membrane Voltage (Neuron 3).
             
         end
         
@@ -781,19 +798,39 @@ classdef network_utilities_class
         function U3s = compute_desired_relative_division_steady_state_output( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
         
             % Set the default input arguments.
-            if nargin < 8, R3 = 20e-3; end
-            if nargin < 7, R2 = 20e-3; end
-            if nargin < 6, R1 = 20e-3; end
-            if nargin < 5, c3 = 1e-6; end
-            if nargin < 4, c2 = 19e-6; end
-            if nargin < 3, c1 = 1e-6; end
+            if nargin < 8, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
+            if nargin < 7, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 6, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 5, c3 = 1e-6; end                                       % [S] Design Constant 3.
+            if nargin < 4, c2 = 19e-6; end                                      % [S] Design Constant 2.
+            if nargin < 3, c1 = 1e-6; end                                       % [S] Design Constant 1.
             
             % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );
-            U2s = U_inputs( :, 2 );
+            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
+            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
             
             % Compute the steady state network outputs.
-            U3s = ( c1*R2*R3*U1s )./( c2*R1*U2s + R1*R2*c3 );
+            U3s = ( c1*R2*R3*U1s )./( c2*R1*U2s + R1*R2*c3 );                   % [V] Membrane Voltage (Neuron 3).
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division subnetwork.
+        function U3s = compute_desired_reduced_relative_division_steady_state_output( ~, U_inputs, c1, c2, R1, R2, R3 )
+        
+            % Set the default input arguments.
+            if nargin < 7, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
+            if nargin < 6, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 5, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 4, c2 = 0.0526; end                                   	% [-] Design Constant 2.
+            if nargin < 3, c1 = 0.0526; end                                   	% [-] Design Constant 1.
+            
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
+            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
+            
+            % Compute the steady state network outputs.
+            U3s = ( c1*R2*R3*U1s )./( R1*U2s + R1*R2*c2 );                      % [V] Membrane Voltage (Neuron 3).
             
         end
         

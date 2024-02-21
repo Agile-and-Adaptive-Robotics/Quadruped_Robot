@@ -1,70 +1,135 @@
-%% Division Subnetwork Encoding Comparison
+%% Division Subnetwork Error Comparison.
 
 % Clear Everything.
 clear, close( 'all' ), clc
 
 
-%% Initialize Project Options
+%% Initialize Project Options.
 
 % Define the save and load directories.
-save_directory = '.\Save';
-load_directory = '.\Load';
+save_directory = '.\Save';                                                              % [str] Save Directory.
+load_directory = '.\Load';                                                              % [str] Load Directory.
 
-% Define the network integration step size.
-% network_dt = 1e-3;
-network_dt = 1e-5;
-network_tf = 3;
+% Define the network simulation time step.
+% network_dt = 1e-3;                                                                    % [s] Simulation Time Step.
+network_dt = 1e-5;                                                                      % [s] Simulation Time Step.
+
+% Define the network simulation duration.
+network_tf = 3;                                                                         % [s] Simulation Duration.
 
 
-%% Create Absolute Division Subnetwork
+%% Define Basic Absolute Division Subnetwork Parameters.
 
-% Set the necessary parameters.
-% R1_absolute = 20e-3;            % [V] Activation Domain
-% R2_absolute = 20e-3;            % [V] Activation Domain
-% c1_absolute = 0.40e-9;          % [W] Absolute Division Parameter 1
-% c3_absolute = 0.40e-9;          % [W] Absolute Division Parameter 3
-% delta_absolute = 1e-3;          % [V] Modulated Output Membrane Voltage
-% dEs31_absolute = 194e-3;        % [V] Synaptic Reversal Potential
+% Define neuron maximum membrane voltages.
+R1_absolute = 20e-3;                                                                  	% [V] Maximum Membrane Voltage (Neuron 1).
+R2_absolute = 20e-3;                                                                  	% [V] Maximum Membrane Voltage (Neuron 2).]
 
-R1_absolute = 20e-3;                                         % [V] Activation Domain
-R2_absolute = 20e-3;                                         % [V] Activation Domain
-c1_absolute = 0.80e-9;                                       % [W] Absolute Division Parameter 1
-c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
-delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
-dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
+% Define the membrane conductances.
+Gm1_absolute = 1e-6;                                                                 	% [S] Membrane Conductance (Neuron 1).
+Gm2_absolute = 1e-6;                                                                	% [S] Membrane Conductance (Neuron 2).
+Gm3_absolute = 1e-6;                                                                  	% [S] Membrane Conductance (Neuron 3).
 
-% R1_absolute = 20e-3;                                         % [V] Activation Domain
-% R2_absolute = 20e-3;                                         % [V] Activation Domain
-% c1_absolute = 1.20e-9;                                       % [W] Absolute Division Parameter 1
-% c3_absolute = 0.40e-9;                                       % [W] Absolute Division Parameter 3
-% delta_absolute = 1e-3;                                       % [V] Modulated Output Membrane Voltage
-% dEs31_absolute = 194e-3;                                     % [V] Synaptic Reversal Potential
+% Define the membrane capacitances.
+Cm1_absolute = 5e-9;                                                                	% [F] Membrance Conductance (Neuron 1).
+Cm2_absolute = 5e-9;                                                                  	% [F] Membrance Conductance (Neuron 2).
+Cm3_absolute = 5e-9;                                                                   	% [F] Membrance Conductance (Neuron 3).
 
-% Compute the network properties.
-R3_absolute = c1_absolute*R1_absolute/c3_absolute;                                                                                                                  % [V] Activation Domain
-c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );                                                              % [A] Absolute Division Parameter 2
-dEs32_absolute = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
-Iapp3_absolute = 0;                                                                                                                                                 % [A] Applied Current
-% Gm3_absolute = c3_absolute/( R1_absolute*R2_absolute );                                                                                                             % [S] Membrane Conductance
-Gm3_absolute = 1e-6;                                                             % [S] Membrane Conductance
-gs31_absolute = ( R3_absolute*Gm3_absolute - Iapp3_absolute )/( dEs31_absolute - R3_absolute );                                                                     % [S] Maximum Synaptic Conductance
-gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Iapp3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );           % [S] Maximum Synaptic Conductance
+% Define the sodium channel conductances.
+Gna1_absolute = 0;                                                                    	% [S] Sodium Channel Conductance (Neuron 1).
+Gna2_absolute = 0;                                                                   	% [S] Sodium Channel Conductance (Neuron 2).
+Gna3_absolute = 0;                                                                    	% [S] Sodium Channel Conductance (Neuron3).
 
-% Print a summary of the relevant network parameters.
+% Define the synaptic reversal potential.
+dEs31_absolute = 194e-3;                                                              	% [V] Synaptic Reversal Potential (Synapse 31).
+dEs32_absolute = 0;                                                                 	% [V] Synaptic Reversal Potential (Synapse 32).
+
+% Define the applied currents.
+Ia1_absolute = R1_absolute*Gm1_absolute;                                               	% [A] Applied Current (Neuron 1).
+Ia2_absolute = R2_absolute*Gm2_absolute;                                               	% [A] Applied Current (Neuron 2).
+Ia3_absolute = 0;                                                                      	% [A] Applied Current (Neuron 3).
+
+% Define the input current states.
+current_state1_absolute = 0;                                                           	% [%] Applied Current Activity Percentage (Neuron 1). 
+% current_state1_absolute = 1;                                                         	% [%] Applied Current Activity Percentage (Neuron 1). 
+current_state2_absolute = 0;                                                            % [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2_absolute = 1;                                                         	% [%] Applied Current Activity Percentage (Neuron 2). 
+
+% Define subnetwork design constants.
+c1_absolute = 0.40e-9;                                                                  % [W] Absolute Division Parameter 1.
+c3_absolute = 0.40e-9;                                                              	% [W] Absolute Division Parameter 3.
+delta_absolute = 1e-3;                                                               	% [V] Membrane Voltage Offset.
+
+
+%% Compute Absolute Division Subnetwork Derived Parameters.
+
+% Compute the network design parameters.
+c2_absolute = ( R1_absolute*c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R2_absolute );                                                          % [A] Absolute Division Parameter 2.
+
+% Compute the maximum membrane voltages.
+R3_absolute = c1_absolute*R1_absolute/c3_absolute;                                                                                                              % [V] Maximum Membrane Voltage (Neuron 3).
+
+% Compute the synaptic conductances.
+gs31_absolute = ( R3_absolute*Gm3_absolute - Ia3_absolute )/( dEs31_absolute - R3_absolute );                                                                   % [S] Maximum Synaptic Conductance (Synapse 31).
+gs32_absolute = ( ( dEs31_absolute - delta_absolute )*gs31_absolute + Ia3_absolute - delta_absolute*Gm3_absolute )/( delta_absolute - dEs32_absolute );         % [S] Maximum Synaptic Conductance (Synapse 32).
+
+
+%% Print Absolute Division Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
 fprintf( 'ABSOLUTE DIVISION SUBNETWORK PARAMETERS:\n' )
-fprintf( 'R1 = %0.2f [mV]\n', R1_absolute*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', R2_absolute*( 10^3 ) )
-fprintf( 'R3 = %0.2f [mV]\n', R3_absolute*( 10^3 ) )
-fprintf( 'c1 = %0.2f [nW]\n', c1_absolute*( 10^9 ) )
-fprintf( 'c2 = %0.2f [nA]\n', c2_absolute*( 10^9 ) )
-fprintf( 'c3 = %0.2f [nW]\n', c3_absolute*( 10^9 ) )
-fprintf( 'delta = %0.2f [mV]\n', delta_absolute*( 10^3 ) )
-fprintf( 'dEs31 = %0.2f [mV]\n', dEs31_absolute*( 10^3 ) )
-fprintf( 'dEs32 = %0.2f [mV]\n', dEs32_absolute*( 10^3 ) )
-fprintf( 'gs31 = %0.2f [muS]\n', gs31_absolute*( 10^6 ) )
-fprintf( 'gs32 = %0.2f [muS]\n', gs32_absolute*( 10^6 ) )
-fprintf( 'Gm3 = %0.2f [muS]\n', Gm3_absolute*( 10^6 ) )
-fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3_absolute*( 10^9 ) )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_absolute*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_absolute*( 10^3 ) )
+fprintf( 'R3 \t\t= \t%0.2f \t[mV]\n', R3_absolute*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_absolute*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_absolute*( 10^6 ) )
+fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3_absolute*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_absolute*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_absolute*( 10^9 ) )
+fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3_absolute*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_absolute*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_absolute*( 10^6 ) )
+fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3_absolute*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs31 \t= \t%0.2f \t[mV]\n', dEs31_absolute*( 10^3 ) )
+fprintf( 'dEs32 \t= \t%0.2f \t[mV]\n', dEs32_absolute*( 10^3 ) )
+
+fprintf( 'gs31 \t= \t%0.2f \t[muS]\n', gs31_absolute*( 10^6 ) )
+fprintf( 'gs32 \t= \t%0.2f \t[muS]\n', gs32_absolute*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Current Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1_absolute*Ia1_absolute*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', current_state2_absolute*Ia2_absolute*( 10^9 ) )
+fprintf( 'Ia3 \t= \t%0.2f \t[nA]\n', Ia3_absolute*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out design parameters.
+fprintf( 'Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[nW]\n', c1_absolute*( 10^9 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[nA]\n', c2_absolute*( 10^9 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[nW]\n', c3_absolute*( 10^9 ) )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_absolute*( 10^3 ) )
+fprintf( '\n' )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+
+%% Create an Absolute Division Subnetwork.
 
 % Create an instance of the network class.
 network_absolute = network_class( network_dt, network_tf );
@@ -74,57 +139,132 @@ network_absolute = network_class( network_dt, network_tf );
 [ network_absolute.synapse_manager, synapse_IDs_absolute ] = network_absolute.synapse_manager.create_synapses( 2 );
 [ network_absolute.applied_current_manager, applied_current_IDs_absolute ] = network_absolute.applied_current_manager.create_applied_currents( 3 );
 
-% Set the network parameters.
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, zeros( size( neuron_IDs_absolute ) ), 'Gna' );
+% Set the neuron parameters.
 network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ R1_absolute, R2_absolute, R3_absolute ], 'R' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute( 3 ), Gm3_absolute, 'Gm' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ Gm1_absolute, Gm2_absolute, Gm3_absolute ], 'Gm' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ Cm1_absolute, Cm2_absolute, Cm3_absolute ], 'Cm' );
+network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs_absolute, [ Gna1_absolute, Gna2_absolute, Gna3_absolute ], 'Gna' );
 
+% Set the synapse parameters.
 network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ 1, 2 ], 'from_neuron_ID' );
 network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ 3, 3 ], 'to_neuron_ID' );
 network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ gs31_absolute, gs32_absolute ], 'g_syn_max' );
 network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs_absolute, [ dEs31_absolute, dEs32_absolute ], 'dE_syn' );
 
+% Set the applied current parameters.
 network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute, [ 1, 2, 3 ], 'neuron_ID' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 1 ), 0*network_absolute.neuron_manager.neurons( 1 ).R*network_absolute.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 2 ), 0*network_absolute.neuron_manager.neurons( 2 ).R*network_absolute.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute( 3 ), Iapp3_absolute, 'I_apps' );
+network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs_absolute, [ current_state1_absolute*Ia1_absolute, current_state2_absolute*Ia2_absolute, Ia3_absolute ], 'I_apps' );
 
 
-%% Create Relative Division Subnetwork
+%% Define Basic Relative Division Subnetwork Parameters.
 
-% Set the necesary parameters.
-R1_relative = 20e-3;                        % [V] Activation Domain
-R2_relative = 20e-3;                        % [V] Activation Domain
-R3_relative = 20e-3;                        % [V] Activation Domain
-c3_relative = 1e-6;                         % [S] Relative Division Parameter 3
-delta_relative = 1e-3;                      % [V] Modulated Output Membrane Voltage
-dEs31_relative = 194e-3;                    % [V] Synaptic Reversal Potential
+% Define the maximum membrane voltages.
+R1_relative = 20e-3;                                                                      	% [V] Maximum Membrane Voltage (Neuron 1)
+R2_relative = 20e-3;                                                                      	% [V] Maximum Membrane Voltage (Neuron 2)
+R3_relative = 20e-3;                                                                      	% [V] Maximum Membrane Voltage (Neuron 3)
 
-% Compute the necessary parameters.
-c1_relative = c3_relative;                                                                                                                                          % [S] Relative Division Parameter 1
-c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                              % [S] Relative Division Parameter 2
-dEs32_relative = 0;                                                                                                                                                 % [V] Synaptic Reversal Potential
-Iapp3_relative = 0;                                                                                                                                                 % [A] Applied Current
-% Gm3_relative = c3_relative;                                                                                                                                         % [S] Membrane Conductance
-Gm3_relative = 1e-6;
-gs31_relative = ( R3_relative*Gm3_relative - Iapp3_relative )/( dEs31_relative - R3_relative );                                                                     % [S] Maximum Synaptic Conductance
-gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Iapp3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );           % [S] Maximum Synaptic Conductance
+% Define the membrane conductances.
+Gm1_relative = 1e-6;                                                                      	% [S] Membrane Conductance (Neuron 1).
+Gm2_relative = 1e-6;                                                                      	% [S] Membrane Conductance (Neuron 2).
+Gm3_relative = 1e-6;                                                                      	% [S] Membrane Conductance (Neuron 3).
 
-% Print a summary of the relevant network parameters.
-fprintf( '\nRELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
-fprintf( 'R1 = %0.2f [mV]\n', R1_relative*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', R2_relative*( 10^3 ) )
-fprintf( 'R3 = %0.2f [mV]\n', R3_relative*( 10^3 ) )
-fprintf( 'c1 = %0.2f [muS]\n', c1_relative*( 10^6 ) )
-fprintf( 'c2 = %0.2f [muS]\n', c2_relative*( 10^6 ) )
-fprintf( 'c3 = %0.2f [muS]\n', c3_relative*( 10^6 ) )
-fprintf( 'delta = %0.2f [mV]\n', delta_relative*( 10^3 ) )
-fprintf( 'dEs31 = %0.2f [mV]\n', dEs31_relative*( 10^3 ) )
-fprintf( 'dEs32 = %0.2f [mV]\n', dEs32_relative*( 10^3 ) )
-fprintf( 'gs31 = %0.2f [muS]\n', gs31_relative*( 10^6 ) )
-fprintf( 'gs32 = %0.2f [muS]\n', gs32_relative*( 10^6 ) )
-fprintf( 'Gm3 = %0.2f [muS]\n', Gm3_relative*( 10^6 ) )
-fprintf( 'Iapp3 = %0.2f [nA]\n', Iapp3_relative*( 10^9 ) )
+% Define the membrane capacitances.
+Cm1_relative = 5e-9;                                                                    	% [F] Membrance Conductance (Neuron 1).
+Cm2_relative = 5e-9;                                                                      	% [F] Membrance Conductance (Neuron 2).
+Cm3_relative = 5e-9;                                                                       	% [F] Membrance Conductance (Neuron 3).
+
+% Define the sodium channel conductances.
+Gna1_relative = 0;                                                                       	% [S] Sodium Channel Conductance (Neuron 1).
+Gna2_relative = 0;                                                                        	% [S] Sodium Channel Conductance (Neuron 2).
+Gna3_relative = 0;                                                                         	% [S] Sodium Channel Conductance (Neuron3).
+
+% Define the synaptic reversal potential.
+dEs31_relative = 194e-3;                                                                  	% [V] Synaptic Reversal Potential (Synapse 31).
+dEs32_relative = 0;                                                                        	% [V] Synaptic Reversal Potential (Synapse 32).
+
+% Define the applied currents.
+Ia1_relative = R1_relative*Gm1_relative;                                                   	% [A] Applied Current (Neuron 1).
+Ia2_relative = R2_relative*Gm2_relative;                                                 	% [A] Applied Current (Neuron 2).
+Ia3_relative = 0;                                                                          	% [A] Applied Current (Neuron 3).
+
+% Define the input current states.
+current_state1_relative = 0;                                                                % [%] Applied Current Activity Percentage (Neuron 1). 
+% current_state1_relative = 1;                                                          	% [%] Applied Current Activity Percentage (Neuron 1). 
+current_state2_relative = 0;                                                                % [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2_relative = 1;                                                            	% [%] Applied Current Activity Percentage (Neuron 2). 
+
+% Define network design parameters.
+c3_relative = 1e-6;                                                                        	% [S] Relative Division Parameter 3.
+delta_relative = 1e-3;                                                                   	% [V] Voltage Offset.
+
+
+%% Compute Relative Division Subnetwork Derived Parameters.
+
+% Compute the network design parameters..
+c1_relative = c3_relative;                                                                                                                                      % [S] Relative Division Parameter 1.
+c2_relative = ( R2_relative*c1_relative - delta_relative*c3_relative )/delta_relative;                                                                          % [S] Relative Division Parameter 2.
+
+% Compute the synaptic conductances.
+gs31_relative = ( R3_relative*Gm3_relative - Ia3_relative )/( dEs31_relative - R3_relative );                                                                   % [S] Maximum Synaptic Conductance (Synapse 31).
+gs32_relative = ( ( dEs31_relative - delta_relative )*gs31_relative + Ia3_relative - delta_relative*Gm3_relative )/( delta_relative - dEs32_relative );         % [S] Maximum Synaptic Conductance (Synapse 32).
+
+
+%% Print Relative Division Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'RELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_relative*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_relative*( 10^3 ) )
+fprintf( 'R3 \t\t= \t%0.2f \t[mV]\n', R3_relative*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_relative*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_relative*( 10^6 ) )
+fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3_relative*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_relative*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_relative*( 10^9 ) )
+fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3_relative*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_relative*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_relative*( 10^6 ) )
+fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3_relative*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs31 \t= \t%0.2f \t[mV]\n', dEs31_relative*( 10^3 ) )
+fprintf( 'dEs32 \t= \t%0.2f \t[mV]\n', dEs32_relative*( 10^3 ) )
+
+fprintf( 'gs31 \t= \t%0.2f \t[muS]\n', gs31_relative*( 10^6 ) )
+fprintf( 'gs32 \t= \t%0.2f \t[muS]\n', gs32_relative*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Current Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1_relative*Ia1_relative*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', current_state2_relative*Ia2_relative*( 10^9 ) )
+fprintf( 'Ia3 \t= \t%0.2f \t[nA]\n', Ia3_relative*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out design parameters.
+fprintf( 'Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[muS]\n', c1_relative*( 10^6 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2_relative*( 10^6 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[muS]\n', c3_relative*( 10^6 ) )
+fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_relative*( 10^3 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+
+%% Create Relative Division Subnetwork.
 
 % Create an instance of the network class.
 network_relative = network_class( network_dt, network_tf );
@@ -134,21 +274,24 @@ network_relative = network_class( network_dt, network_tf );
 [ network_relative.synapse_manager, synapse_IDs_relative ] = network_relative.synapse_manager.create_synapses( 2 );
 [ network_relative.applied_current_manager, applied_current_IDs_relative ] = network_relative.applied_current_manager.create_applied_currents( 3 );
 
-% Set the network parameters.
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, zeros( size( neuron_IDs_relative ) ), 'Gna' );
+% Set the neuron parameters.
 network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ R1_relative, R2_relative, R3_relative ], 'R' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative( 3 ), Gm3_relative, 'Gm' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ Gm1_relative, Gm2_relative, Gm3_relative ], 'Gm' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ Cm1_relative, Cm2_relative, Cm3_relative ], 'Cm' );
+network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs_relative, [ Gna1_relative, Gna2_relative, Gna3_relative ], 'Gna' );
 
+% Set the synapse parameters.
 network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ 1, 2 ], 'from_neuron_ID' );
 network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ 3, 3 ], 'to_neuron_ID' );
 network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ gs31_relative, gs32_relative ], 'g_syn_max' );
 network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs_relative, [ dEs31_relative, dEs32_relative ], 'dE_syn' );
 
+% Set the applied current parameters.
 network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative, [ 1, 2, 3 ], 'neuron_ID' );
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative( 3 ), Iapp3_relative, 'I_apps' );
+network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs_relative, [ current_state1_relative*Ia1_relative, current_state2_relative*Ia2_relative, Ia3_relative ], 'I_apps' );
 
 
-%% Load the Absolute & Relative Division Subnetworks
+%% Load the Absolute & Relative Division Subnetworks.
 
 % Load the simulation results.
 absolute_division_simulation_data = load( [ load_directory, '\', 'absolute_division_subnetwork_error' ] );
@@ -165,7 +308,7 @@ Relative_Applied_Currents2 = relative_division_simulation_data.Applied_Currents2
 Us_achieved_relative = relative_division_simulation_data.Us_achieved;
 
 
-%% Compute the Error in the Steady State Division Subnetwork Responses
+%% Compute the Error in the Steady State Division Subnetwork Responses.
 
 % Compute the desired steady state output membrane voltage.
 Us_desired_absolute_output = ( c1_absolute*Us_achieved_absolute( :, :, 1 ) )./( c2_absolute*Us_achieved_absolute( :, :, 2 ) + c3_absolute );
@@ -240,7 +383,7 @@ error_difference_max = abs( error_relative_max ) - abs( error_absolute_max );
 error_difference_max_percent = abs( error_relative_max_percent ) - abs( error_absolute_max_percent );
 
 
-%% Print Out the Summary Information
+%% Print Out the Summary Information.
 
 % Retrieve the absolute input voltage matrices.
 Us1_achieved_absolute = Us_achieved_absolute( :, :, 1 );
@@ -273,7 +416,7 @@ fprintf( 'delta STD:\t%9.3e [V] (%6.2f [%%])\n', error_difference_std, error_dif
 fprintf( 'delta Max Error:\t%9.3e [mV] (%6.2f [%%])\n', error_difference_max, error_difference_max_percent )
 
 
-%% Plot the Steady State Division Error Surfaces
+%% Plot the Steady State Division Error Surfaces.
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute division subnetwork.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Division Subnetwork Steady State Response (Comparison)' )

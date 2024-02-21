@@ -32,6 +32,15 @@ Cm1 = 5e-9;                                                                     
 Cm2 = 5e-9;                                                                     % [F] Membrane Capacitance (Neuron 2)
 Cm3 = 5e-9;                                                                     % [F] Membrane Capacitance (Neuron 3)
 
+% Define the sodium channel conductances.
+Gna1 = 0;                                                                     	% [S] Sodium Channel Conductance (Neuron 1).
+Gna2 = 0;                                                                       % [S] Sodium Channel Conductance (Neuron 2).
+Gna3 = 0;                                                                    	% [S] Sodium Channel Conductance (Neuron 3).
+
+% Set the synaptic reversal potentials.
+dEs31 = 194e-3;                                                                 % [V] Synaptic Reversal Potential (Synapse 31).
+dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential (Synapse 32).
+
 % Set the applied currents.
 Ia1 = R1*Gm1;                                                                   % [A] Applied Current (Neuron 1).
 Ia2 = R2*Gm2;                                                                   % [A] Applied Current (Neuron 2).
@@ -42,10 +51,6 @@ Ia3 = 0;                                                                        
 current_state1 = 1;                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
 % current_state2 = 0;                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
 current_state2 = 1;                                                             % [%] Applied Current Activity Percentage (Neuron 2). 
-
-% Set the synaptic reversal potentials.
-dEs31 = 194e-3;                                                                 % [V] Synaptic Reversal Potential (Synapse 31).
-dEs32 = 0;                                                                      % [V] Synaptic Reversal Potential (Synapse 32).
 
 % Set the network design parameters.
 R3_target = 20e-3;                                                              % [V] Maximum Voltage Target (Neuron 3) (Used to compute c1 such that R3 will be set to the target value.)
@@ -87,6 +92,10 @@ fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3*( 10^6 ) )
 fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
 fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
 fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
+fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3*( 10^6 ) )
 fprintf( '\n' )
 
 % Print out synapse information.
@@ -127,10 +136,10 @@ network = network_class( network_dt, network_tf );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 3 );
 
 % Set the neuron parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, zeros( size( neuron_IDs ) ), 'Gna' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3 ], 'R' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2, Gm3 ], 'Gm' );
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2, Cm3 ], 'Cm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2, Gna3 ], 'Gna' );
 
 % Set the synapse parameters.
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2 ], 'from_neuron_ID' );
