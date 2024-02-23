@@ -30,7 +30,7 @@
 // ----------------------------------------------------------------------
 
 //--time controls
-unsigned int timeInterval = 20; // [ms] time between readings printed
+unsigned int timeInterval = 10; // [ms] time between readings printed
 
 float beta        = 0.15;//gain variable representing weight of new reading. (must be 0 < beta < 1)
 int n             = 20  ;//[#] number of readings across which to average
