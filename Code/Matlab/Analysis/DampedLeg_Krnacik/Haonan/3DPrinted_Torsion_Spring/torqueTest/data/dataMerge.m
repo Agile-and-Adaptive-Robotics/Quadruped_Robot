@@ -5,7 +5,7 @@ clc;
 dataFolder = 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\data';
 
 % list of spring names
-springNames = {'2L3LT4ST_37T'}; % '2L3LT4ST_37T' '2L4LT4ST_37T' '2L5LT2ST_37T'...
+springNames = {'2L2LT4ST_37T' '2L3LT4ST_37T' '2L4LT4ST_37T' '2L5LT4ST_37T'};%...
               %'2L5LT4ST_37T' '2L5LT8ST_37T' '2L5LT12ST_37T'};
 
 % number of different spring configurations
@@ -27,7 +27,10 @@ trials = {'trial1' 'trial2' 'trial3' 'trial4' 'trial5' 'trial6' 'trial7' 'trial8
 % input torque values used to testing each spring
 % torque value must be written here exactly how it is written in the folder
 % name and in the data file name for this script to work
-torques.(saveNames{1}) = {'20Nmm' '40Nmm' '100Nmm' '200Nmm'};
+torques.(saveNames{1}) = {'10Nmm' '20Nmm' '40Nmm' '50Nmm'};
+torques.(saveNames{2}) = {'20Nmm' '40Nmm' '100Nmm' '200Nmm'};
+torques.(saveNames{3}) = {'40Nmm' '100Nmm' '200Nmm' '300Nmm'};
+torques.(saveNames{4}) = {'60Nmm' '100Nmm' '200Nmm' '300Nmm'};
 
 % iterate through each spring/torque/direction/trial and save data in
 % springData structure
@@ -47,8 +50,9 @@ for ii = 1:springCount
             direction = directions{kk};
             path = strcat(dataFolder,'\',springName,'\',torqueName,'\',direction);
             addpath(path);
-%             figure
-%             hold on
+            figure
+            title(strcat(springName,' ',torqueName,' ',direction))
+            hold on
             
             % trial number
             for yy = 1:length(trials)
@@ -58,14 +62,13 @@ for ii = 1:springCount
                 torqueDataName = strcat('T',torqueName);
                 springData.(saveName).(torqueDataName).(direction).(trial) = data;
                 
-%                 t = linspace(0,length(data)/100,length(data));
-%                 plot(t,data);
+                t = linspace(0,length(data)/100,length(data));
+                plot(t,data);
             end % trial number
             
-%             hold off
-%             xlabel('Time (s)')
-%             ylabel('Angular Displacement (º)')
-%             title(strcat(springName,'_',torqueName,'_',direction))       
+            hold off
+            xlabel('Time (s)')
+            ylabel('Angular Displacement (º)')
         end % direction of torque applied
         
         springData.(saveName).(torqueDataName).torque = torque;
