@@ -7,14 +7,14 @@ clear, close('all'), clc
 %% Define Simulation Parameters.
 
 % Set the level of verbosity.
-b_verbose = true;                                                               % [T/F] Verbosity Flag.
+b_verbose = true;                                                                                               % [T/F] Verbosity Flag.
 
 % Define the network integration step size.
-network_dt = 1e-4;                                                              % [s] Network Integration Timestep.
-% network_dt = 1e-5;                                                              % [s] Network Integration Timestep.
+network_dt = 1e-4;                                                                                              % [s] Network Integration Timestep.
+% network_dt = 1e-5;                                                                                            % [s] Network Integration Timestep.
 
 % Define network simulation duration.
-network_tf = 3;                                                                 % [s] Network Simulation Duration.
+network_tf = 3;                                                                                                 % [s] Network Simulation Duration.
 
 
 %% Define Basic Relative Division After Inversion Subnetwork Parameters.
@@ -48,29 +48,31 @@ Ia1 = R1*Gm1;                                                                   
 Ia2 = R2*Gm2;                                                                                                   % [A] Applied Current (Neuron 2).
 Ia3 = 0;                                                                                                        % [A] Applied Current (Neuron 3).
 
-% Define the input current states.
-% current_state1 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 1). 
-current_state1 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
-% current_state2 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
-current_state2 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 2). 
-
 % Define subnetwork design constants.
+c3 = 1e-6;                                                                                                      % [S] Relative Division Design Parameter 3.
 delta1 = 1e-3;                                                                                                  % [V] Inversion Membrane Voltage Offset.
 delta2 = 2e-3;                                                                                                  % [V] Division Membrane Voltage Offset.
 
 
-%% Compute Absolute Division After Inversion Subnetwork Derived Parameters.
+%% Compute Relative Division After Inversion Subnetwork Derived Parameters.
 
 % Compute the network design parameters.
-c1 = ( ( R2 - delta1 )*delta2 )/( ( R3 - delta2 )*R2 );                                                       	% [S] Absolute Division Parameter 1.
-c2 = ( ( delta2*R2 - delta1*R3 ) )/( ( R3 - delta2 )*R2 );                                                   	% [S] Absolute Division Parameter 2.
+c1 = ( ( R2 - delta1 )*c3*delta2 )/( R2*delta2 - R3*delta1 );                                               	% [S] Absolute Division Parameter 1.
+c2 = ( ( R3 - delta2 )*c3*R2 )/( R2*delta2 - R3*delta1 );                                                   	% [S] Absolute Division Parameter 2.
 
 % Compute the synaptic conductances.
 gs31 = ( ( delta1 - R2 )*delta2*R3*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );       % [S] Maximum Synaptic Conductance (Synapse 31).
 gs32 = ( ( delta2 - R3 )*dEs31*R2*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );        % [S] Maximum Synaptic Conductance (Synapse 32).
 
+% Define the input current states.
+% current_state1 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 1). 
+current_state1 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
+% current_state2 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
+current_state2 = delta1/R2;                                                                                     % [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2 = 1;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
 
-%% Print Reduced Relative Subnetwork Parameters.
+
+%% Print Relative Division After Inversion Subnetwork Parameters.
 
 % Print out a header.
 fprintf( '\n------------------------------------------------------------\n' )
@@ -115,17 +117,18 @@ fprintf( '\n' )
 
 % Print out design parameters.
 fprintf( 'Design Parameters:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[S]\n', c1 )
-fprintf( 'c2 \t\t= \t%0.2f \t[S]\n', c2 )
-fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
+fprintf( 'c1 \t\t= \t%0.2f \t[muS]\n', c1*( 10^6 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2*( 10^6 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[muS]\n', c3*( 10^6 ) )
+fprintf( 'delta1 \t= \t%0.2f \t[mV]\n', delta1*( 10^3 ) )
+fprintf( 'delta2 \t= \t%0.2f \t[mV]\n', delta2*( 10^3 ) )
 
 % Print out ending information.
 fprintf( '------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 
-
-%% Create Absolute Division Subnetwork.
+%% Create the Relative Division After Inversion Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -135,37 +138,30 @@ network = network_class( network_dt, network_tf );
 [ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 2 );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 3 );
 
-% Set the network parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, zeros( size( neuron_IDs ) ), 'Gna' );
+% Set the neuron parameters.
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3 ], 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), Gm3, 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2, Gm3 ], 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2, Cm3 ], 'Cm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2, Gna3 ], 'Gna' );
 
+% Set the synapse parameters.
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2 ], 'from_neuron_ID' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 3, 3 ], 'to_neuron_ID' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ gs31, gs32 ], 'g_syn_max' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ dEs31, dEs32 ], 'dE_syn' );
 
+% Set the applied current parameters.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2, 3 ], 'neuron_ID' );
-
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 0.25*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 1 ), 1*network.neuron_manager.neurons( 1 ).R*network.neuron_manager.neurons( 1 ).Gm, 'I_apps' );
-
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 0*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), delta1*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 2 ), 1*network.neuron_manager.neurons( 2 ).R*network.neuron_manager.neurons( 2 ).Gm, 'I_apps' );
-% 
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, current_state2*Ia2, Ia3 ], 'I_apps' );
 
 
-
-%% Simulate the Network.
+%% Simulate the Relative Division After Inversion Subnetwork.
 
 % Simulate the network.
 [ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
 
 
-%% Plot the Network Results.
+%% Plot the Relative Division After Inversion Subnetwork Results.
 
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );

@@ -1,114 +1,203 @@
-%% Absolute Division After Inversion Subnetwork Error
+%% Absolute Division After Inversion Subnetwork Error.
 
 % Clear Everything.
 clear, close('all'), clc
 
 
-%% Initialize Project Options.
+%% Define Simulation Parameters.
 
 % Define the save and load directories.
-save_directory = '.\Save';
-load_directory = '.\Load';
+save_directory = '.\Save';                                                      % [str] Save Directory.
+load_directory = '.\Load';                                                      % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;
-b_simulate = false;
+b_simulate = true;                                                              % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = false;                                                           % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
-b_verbose = true;
+b_verbose = true;                                                               % [T/F] Printing Flag. (Determines whether to print out information.)
 
-% Define the network integration step size.
-% network_dt = 1e-3;
-% network_dt = 2e-4;
-network_dt = 1e-4;
-% network_dt = 1e-5;
-network_tf = 3;
+% Define the network simulation timestep.
+% network_dt = 1e-3;                                                            % [s] Simulation Timestep.
+network_dt = 2e-4;                                                              % [s] Simulation Timestep.
+% network_dt = 1e-5;                                                            % [s] Simulation Timestep.
 
-% Set the necessary parameters.
-% R1 = 20e-3;                                 % [V] Activation Domain
-% R2 = 20e-3;                                 % [V] Activation Domain
-% c1 = 0.40e-9;                               % [W] Division Parameter 1
-% c3 = 0.40e-9;                               % [W] Division Parameter 3
-% delta1 = 1e-3;                              % [V] Inversion Offset
-% delta2 = 2e-3;                              % [V] Division Offset
-% dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
+% Define the network simulation duration.
+network_tf = 3;                                                                 % [s] Simulation Duration.
 
-% These parameters make the absolute and relative inversion cases the same.
-% R1 = 20e-3;                               	% [V] Activation Domain
-% R2 = 20e-3;                                 % [V] Activation Domain
-% c1 = 0.76e-9;                               % [W] Division Parameter 1
-% c3 = 0.40e-9;                               % [W] Division Parameter 3
-% delta1 = 1e-3;                              % [V] Inversion Offset
-% delta2 = 2e-3;                              % [V] Division Offset
-% dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
-
-R1 = 20e-3;                               	% [V] Activation Domain
-R2 = 20e-3;                                 % [V] Activation Domain
-c1 = 2.28e-9;                               % [W] Division Parameter 1
-c3 = 0.40e-9;                               % [W] Division Parameter 3
-delta1 = 1e-3;                              % [V] Inversion Offset
-delta2 = 2e-3;                              % [V] Division Offset
-dEs31 = 194e-3;                             % [V] Synaptic Reversal Potential
-
-% Absolute division without inversion parameters.
-% R1 = 20e-3;                                         % [V] Activation Domain
-% R2 = 20e-3;                                         % [V] Activation Domain
-% c1 = 1.20e-9;                                       % [W] Absolute Division Parameter 1
-% c3 = 0.40e-9;                                       % [W] Absolute Division Parameter 3
-% delta = 1e-3;                                       % [V] Modulated Output Membrane Voltage
-% dEs31 = 194e-3;                                     % [V] Synaptic Reversal Potential
-
-% Set the number of division neurons.
-num_division_neurons = 3;
+% Define the number of neurons.
+num_neurons = 3;                                                                % [#] Number of Neurons.
 
 
-%% Create Absolute Division After Inversion Subnetwork.
+%% Define Basic Absolute Division After Inversion Subnetwork Parameters.
+
+% Define neuron maximum membrane voltages.
+R1 = 20e-3;                                                                                                     % [V] Maximum Membrane Voltage (Neuron 1).
+R2 = 20e-3;                                                                                                     % [V] Maximum Membrane Voltage (Neuron 2).
+R3_target = 20e-3;                                                                                              % [V] Maximum Membrane Voltage Target (Neuron 3).
+
+% Define the membrane conductances.
+Gm1 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 1).
+Gm2 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 2).
+Gm3 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 3).
+
+% Define the membrane capacitances.
+Cm1 = 5e-9;                                                                                                     % [F] Membrance Conductance (Neuron 1).
+Cm2 = 5e-9;                                                                                                     % [F] Membrance Conductance (Neuron 2).
+Cm3 = 5e-9;                                                                                                 	% [F] Membrance Conductance (Neuron 3).
+
+% Define the sodium channel conductances.
+Gna1 = 0;                                                                                                       % [S] Sodium Channel Conductance (Neuron 1).
+Gna2 = 0;                                                                                                   	% [S] Sodium Channel Conductance (Neuron 2).
+Gna3 = 0;                                                                                                       % [S] Sodium Channel Conductance (Neuron3).
+
+% Define the synaptic reversal potential.
+dEs31 = 194e-3;                                                                                                 % [V] Synaptic Reversal Potential (Synapse 31).
+dEs32 = 0;                                                                                                      % [V] Synaptic Reversal Potential (Synapse 32).
+
+% Define the applied currents.
+Ia1 = R1*Gm1;                                                                                                   % [A] Applied Current (Neuron 1).
+Ia2 = R2*Gm2;                                                                                                   % [A] Applied Current (Neuron 2).
+Ia3 = 0;                                                                                                        % [A] Applied Current (Neuron 3).
+
+% Define subnetwork design constants.
+delta1 = 1e-3;                                                                                                  % [V] Inversion Membrane Voltage Offset.
+delta2 = 2e-3;                                                                                                  % [V] Division Membrane Voltage Offset.
+c3 = 1e-9;                                                                                                      % [W] Absolute Division Parameter 3.
+c1 = ( ( R2 - delta1 )*c3*R3_target*delta2 )/( ( R2*delta2 - R3_target*delta1 )*R1 );                           % [W] Absolute Division Parameter 1.
+
+
+%% Compute Absolute Division After Inversion Subnetwork Derived Parameters.
+
+% Compute the network design parameters.
+c2 = ( R1*c1 - delta2*c3 )/( delta2*R2 );                                                                       % [A] Absolute Division Parameter 2.
+
+% Compute the maximum membrane voltages.
+R3 = ( R1*c1 )/( delta1*c2 + c3 );                                                                              % [V] Maximum Membrane Voltage (Neuron 3).
+
+% Compute the synaptic conductances.
+gs31 = ( ( delta1 - R2 )*delta2*R3*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );       % [S] Maximum Synaptic Conductance (Synapse 31).
+gs32 = ( ( delta2 - R3 )*dEs31*R2*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );        % [S] Maximum Synaptic Conductance (Synapse 32).
+
+% Define the input current states.
+current_state1 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 1). 
+% current_state1 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
+
+current_state2 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2 = delta1/R2;                                                                                    	% [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2 = 1;                                                                                          	% [%] Applied Current Activity Percentage (Neuron 2). 
+
+
+%% Print Absolute Division After Inversion Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'ABSOLUTE DIVISION AFTER INVERSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+fprintf( 'R3 \t\t= \t%0.2f \t[mV]\n', R3*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
+fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
+fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs31 \t= \t%0.2f \t[mV]\n', dEs31*( 10^3 ) )
+fprintf( 'dEs32 \t= \t%0.2f \t[mV]\n', dEs32*( 10^3 ) )
+
+fprintf( 'gs31 \t= \t%0.2f \t[muS]\n', gs31*( 10^6 ) )
+fprintf( 'gs32 \t= \t%0.2f \t[muS]\n', gs32*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Current Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1*Ia1*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', current_state2*Ia2*( 10^9 ) )
+fprintf( 'Ia3 \t= \t%0.2f \t[nA]\n', Ia3*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out design parameters.
+fprintf( 'Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[nW]\n', c1*( 10^9 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[nA]\n', c2*( 10^9 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[nW]\n', c3*( 10^9 ) )
+fprintf( 'delta1 \t= \t%0.2f \t[mV]\n', delta1*( 10^3 ) )
+fprintf( 'delta2 \t= \t%0.2f \t[mV]\n', delta2*( 10^3 ) )
+fprintf( '\n' )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+
+%% Create an Absolute Division After Inversion Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
-
-% Compute the network properties.
-R3 = ( c1*R1*R2*delta2 )/( c1*R1*delta1 + c3*R2*delta2 - c3*delta1*delta2 );                % [V] Activation Domain
-c2 = ( c1*R1 - c3*delta2 )/( delta2*R2 );                                                   % [A] Division Parameter 2
-gs31 = ( c1*c3 )/( ( c3*dEs31 - R1*c1 )*R2 );                                               % [S] Maximum Synaptic Conductance
-gs32 = ( ( delta2*c3 - R1*c1 )*dEs31*c3 )/( ( R1*c1 - dEs31*c3 )*R1*R2*delta2 );            % [S] Maximum Synaptic Conductance
-dEs32 = 0;                                                                                  % [V] Synaptic Reversal Potential
-Iapp3 = 0;                                                                                  % [A] Applied Current
-Gm3 = c3/( R1*R2 );                                                                         % [S] Membrane Conductance
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );
 [ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 2 );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 3 );
 
-% Set the network parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, zeros( size( neuron_IDs ) ), 'Gna' );
+% Set the neuron parameters.
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3 ], 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs( 3 ), Gm3, 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2, Gm3 ], 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2, Cm3 ], 'Cm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2, Gna3 ], 'Gna' );
 
+% Set the synapse parameters.
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2 ], 'from_neuron_ID' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 3, 3 ], 'to_neuron_ID' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ gs31, gs32 ], 'g_syn_max' );
 network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ dEs31, dEs32 ], 'dE_syn' );
 
+% Set the applied current parameters.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2, 3 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), Iapp3, 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, current_state2*Ia2, Ia3 ], 'I_apps' );
 
 
-%% Compute Desired & Achieved Division After Inversion Formulations.
+%% Compute Desired & Achieved Absolute Division After Inversion Formulations.
 
-% Retrieve network information.
-Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );
-Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );
-Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );
-Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );
-gs = network.get_gsynmaxs( 'all' );
-dEs = network.get_dEsyns( 'all' );
-dt0 = 1e-6;
+% Retrieve the maximum membrane voltages.
+Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );                      % [V] Maximum Membrane Voltages.
+
+% Retrieve the membrane capacitances.
+Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );                    % [F] Membrane Capacitances.
+
+% Retrieve the membrane conductances.
+Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );                    % [S] Membrane Conductances.
+
+% Retrieve the applied currents.
+Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );               % [A] Applied Currents.
+
+% Retrieve the synaptic conductances.
+gs = network.get_gsynmaxs( 'all' );                                                             % [S] Synaptic Conductances.
+
+% Retrieve the synaptic reversal potentials.
+dEs = network.get_dEsyns( 'all' );                                                              % [V] Synaptic Reversal Potential.
+
+% Define the numerical stability timestep.
+dt0 = 1e-6;                                                                                     % [s] Numerical Stability Time Step.
 
 % Define the division subnetwork inputs.
 U1s = linspace( 0, Rs( 1 ), 20  );
-U2s = linspace( 0, Rs( 2 ), 20  );
+U2s = linspace( delta1, Rs( 2 ), 20  );
 
 % Create an input grid.
 [ U1s_grid, U2s_grid ] = meshgrid( U1s, U2s );
@@ -131,22 +220,6 @@ U3s_grid_achieved_absolute = reshape( U3s_flat_achieved_absolute, size( U1s_grid
 [ dt_max, indexes_dt ] = min( dts );
 [ condition_number_max, indexes_condition_number ] = max( condition_numbers );
 
-% Print a summary of the relevant network parameters.
-fprintf( 'NETWORK PARAMETERS:\n' )
-fprintf( 'R1 = %0.2f [mV]\n', Rs( 1 )*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', Rs( 2 )*( 10^3 ) )
-fprintf( 'R3 = %0.2f [mV]\n', Rs( 3 )*( 10^3 ) )
-fprintf( 'c1 = %0.2f [-]\n', c1 )
-fprintf( 'c2 = %0.2f [-]\n', c2 )
-fprintf( 'c3 = %0.2f [-]\n', c3 )
-fprintf( 'dEs31 = %0.2f [mV]\n', dEs( 3, 1 )*( 10^3 ) )
-fprintf( 'dEs32 = %0.2f [mV]\n', dEs( 3, 2 )*( 10^3 ) )
-fprintf( 'gs31 = %0.2f [muS]\n', gs( 3, 1 )*( 10^6 ) )
-fprintf( 'gs32 = %0.2f [muS]\n', gs( 3, 2 )*( 10^6 ) )
-fprintf( 'Gm3 = %0.2f [muS]\n', Gms( 3 )*( 10^6 ) )
-fprintf( 'Ia3 = %0.2f [nA]\n', Ias( 3 )*( 10^9 ) )
-fprintf( '\n\n' )
-
 
 %% Print the Desired Absolute, Desired Relative, and Achieved Division After Inversion Formulation Results.
 
@@ -158,7 +231,7 @@ fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
 fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ ( %0.2f [mV], %0.2f [mV] )\n', condition_number_max, U1s_flat( indexes_condition_number )*( 10^3 ), U2s_flat( indexes_condition_number )*( 10^3 ) )
 
 
-%% Plot the Desired Absolute, Desired Relative, and Achieved Division Formulation Results.
+%% Plot the Desired Absolute, Desired Relative, and Achieved Division After Inversion Formulation Results.
 
 % Plot the desired and achieved absolute division formulation results.
 fig = figure( 'Color', 'w', 'Name', 'Absolute Division After Inversion Theory' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U3 [mV]' ), title( 'Absolute Division After Inversion Theory' )
@@ -197,7 +270,7 @@ if b_simulate               % If we want to simulate the network....
     [ Applied_Currents1, Applied_Currents2 ] = meshgrid( applied_currents1, applied_currents2 );
     
     % Create a matrix to store the membrane voltages.
-    Us_achieved = zeros( n_applied_currents2, n_applied_currents1, num_division_neurons );
+    Us_achieved = zeros( n_applied_currents2, n_applied_currents1, num_neurons );
     
     % Simulate the network for each of the applied current combinations.
     for k1 = 1:n_applied_currents1                          % Iterate through each of the currents applied to the first neuron...

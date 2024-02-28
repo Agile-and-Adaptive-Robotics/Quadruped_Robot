@@ -7,26 +7,26 @@ clear, close('all'), clc
 %% Define Simulation Parameters.
 
 % Define the save and load directories.
-save_directory = '.\Save';                                                      % [str] Save Directory.
-load_directory = '.\Load';                                                      % [str] Load Directory.
+save_directory = '.\Save';                                                          % [str] Save Directory.
+load_directory = '.\Load';                                                          % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-b_simulate = true;                                                              % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
-% b_simulate = false;                                                           % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+b_simulate = true;                                                                  % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = false;                                                               % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
-b_verbose = true;                                                               % [T/F] Printing Flag. (Determines whether to print out information.)
+b_verbose = true;                                                                   % [T/F] Printing Flag. (Determines whether to print out information.)
 
 % Define the network simulation timestep.
-% network_dt = 1e-3;                                                            % [s] Simulation Timestep.
-network_dt = 2e-4;                                                              % [s] Simulation Timestep.
-% network_dt = 1e-5;                                                            % [s] Simulation Timestep.
+% network_dt = 1e-3;                                                                % [s] Simulation Timestep.
+network_dt = 2e-4;                                                                  % [s] Simulation Timestep.
+% network_dt = 1e-5;                                                                % [s] Simulation Timestep.
 
 % Define the network simulation duration.
-network_tf = 3;                                                                 % [s] Simulation Duration.
+network_tf = 3;                                                                     % [s] Simulation Duration.
 
 % Define the number of neurons.
-num_neurons = 3;                                                                % [#] Number of Neurons.
+num_neurons = 3;                                                                    % [#] Number of Neurons.
 
 
 %% Define Basic Relative Division Subnetwork Parameters.
@@ -73,7 +73,7 @@ delta = 1e-3;                                                                   
 
 %% Compute Relative Division Subnetwork Derived Parameters.
 
-% Compute the network design parameters..
+% Compute the network design parameters.
 c1 = c3;                                                                            % [S] Relative Division Parameter 1.
 c2 = ( R2*c1 - delta*c3 )/delta;                                                    % [S] Relative Division Parameter 2.
 

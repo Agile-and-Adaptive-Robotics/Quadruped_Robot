@@ -7,13 +7,13 @@ clear, close('all'), clc
 %% Define Simulation Parameters.
 
 % Set the level of verbosity.
-b_verbose = true;                                                               % [T/F] Verbosity Flag.
+b_verbose = true;                                                                                               % [T/F] Verbosity Flag.
 
 % Define the network integration step size.
-network_dt = 1e-4;                                                              % [s] Network Integration Timestep.
+network_dt = 1e-4;                                                                                              % [s] Network Integration Timestep.
 
 % Define network simulation duration.
-network_tf = 3;                                                                 % [s] Network Simulation Duration.
+network_tf = 3;                                                                                                 % [s] Network Simulation Duration.
 
 
 %% Define Basic Absolute Division After Inversion Subnetwork Parameters.
@@ -47,12 +47,6 @@ Ia1 = R1*Gm1;                                                                   
 Ia2 = R2*Gm2;                                                                                                   % [A] Applied Current (Neuron 2).
 Ia3 = 0;                                                                                                        % [A] Applied Current (Neuron 3).
 
-% Define the input current states.
-% current_state1 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 1). 
-current_state1 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
-% current_state2 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
-current_state2 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 2). 
-
 % Define subnetwork design constants.
 delta1 = 1e-3;                                                                                                  % [V] Inversion Membrane Voltage Offset.
 delta2 = 2e-3;                                                                                                  % [V] Division Membrane Voltage Offset.
@@ -71,6 +65,14 @@ R3 = ( R1*c1 )/( delta1*c2 + c3 );                                              
 % Compute the synaptic conductances.
 gs31 = ( ( delta1 - R2 )*delta2*R3*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );       % [S] Maximum Synaptic Conductance (Synapse 31).
 gs32 = ( ( delta2 - R3 )*dEs31*R2*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );        % [S] Maximum Synaptic Conductance (Synapse 32).
+
+% Define the input current states.
+% current_state1 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 1). 
+current_state1 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
+
+% current_state2 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
+current_state2 = delta1/R2;                                                                                    	% [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2 = 1;                                                                                          	% [%] Applied Current Activity Percentage (Neuron 2). 
 
 
 %% Print Absolute Division After Inversion Subnetwork Parameters.
@@ -154,8 +156,7 @@ network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_
 
 % Set the applied current parameters.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2, 3 ], 'neuron_ID' );
-% network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, current_state2*Ia2, Ia3 ], 'I_apps' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, ( delta1/R2 )*Ia2, Ia3 ], 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, current_state2*Ia2, Ia3 ], 'I_apps' );
 
 
 %% Compute the Absolute Division After Inversion Numerical Stability Analysis Parameters.
