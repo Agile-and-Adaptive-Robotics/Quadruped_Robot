@@ -5,18 +5,16 @@
  * User-board communications are enabled via the serial window with limited
  * ability to control key variables. Parseable serial inputs are:
  * 'e': tares encoder
- * 's': toggles averaging strategy (3). [1] -> [2] -> [0] -> [1] -> ...
  * 
  * Notes:
  * (1) Effectively serves as a pause function for the displayed data stream
  * 
  * (3) Because the encoders are inherently noisy, averaging strategies are 
- * often useful for data collection efforts. Here the user can choose from 
- * raw values (avg_strategy = 0), a simple averaging strategy (avg_strategy
- * = 1), or an exponentially-weighted average (avg_strategy = 2) with a gain
- * variable (beta, see "user-controlled variables" below) that can be tuned 
- * to balance response speed with signal stability. The number of readings 
- * across which to average is controlled by the variable n below.
+ * often useful for data collection efforts. Here an exponentially-weighted
+ * average (avg_strategy = 2) with a gain variable (beta, see "user-controlled
+ * variables" below) that can be tuned to balance response speed with signal
+ * stability is used. The number of readings across which to average is controlled
+ * by the variable n below.
  * 
  * Written by Stu McNeal
  * 10/5/2022
@@ -83,12 +81,12 @@ void parseMsg(char msg){
    * window and toggles the corresponding control, described below. parseMsg(msg) returns nothing.
    * 
    * parseMsg interprets the following serial inputs:
-   * 'e': tares ankle encoder
+   * 'e': tares encoder
    * 's': toggles averaging strategy. [0] -> [1] -> [2] -> [0] -> [1] -> ...
    */
   // turn on the muscle of interest
   if(msg == 'e'){
-    encoder.write(0);//tare ankle encoder
+    encoder.write(0);//tare encoder
   } else{
     Serial.println("no matches");
   }
@@ -100,10 +98,7 @@ void updateJointAngles(){
   * strategy determined by the avg_strategy variable. If 
   * displayMsg==true, the function calls printEncoders(). Returns 
   * nothing.
-  *
-  * The averaging strategies, based on avg_strategy, are: 
-  * avg_strategy == 0: no averaging applied, raw value printed 
-  * avg_strategy == 1: simple averaging applied
+
   * avg_strategy == 2: exponentially-weighted averaging applied
   */
     // generate vars to hold the current average sensor value
