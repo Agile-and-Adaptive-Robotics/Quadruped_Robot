@@ -1,4 +1,4 @@
-function settling_time = settime(t, x)
+function settling_time = settime(x, t)
 
 % This function is designed to calculate a settling time for a given data
 % set, assuming time is seconds. It assumes x is has reached steady state
