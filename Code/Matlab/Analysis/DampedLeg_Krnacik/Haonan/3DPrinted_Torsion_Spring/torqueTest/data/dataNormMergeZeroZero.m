@@ -1,3 +1,4 @@
+close all;
 clear;
 clc;
 
@@ -5,8 +6,8 @@ clc;
 dataFolder = 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\data';
 
 % list of spring names
-springNames = {'2L2LT4ST_37T' '2L3LT4ST_37T' '2L4LT4ST_37T'};%'2L5LT2ST_37T'...
-              %'2L5LT4ST_37T' '2L5LT8ST_37T' '2L5LT12ST_37T'};
+springNames = {'2L2LT4ST_37T' '2L3LT4ST_37T' '2L4LT4ST_37T' '2L5LT4ST_37T'};%...
+              %'2L5LT2ST_37T' '2L5LT8ST_37T' '2L5LT12ST_37T'};
 
 % number of different spring configurations
 springCount = length(springNames);
@@ -30,7 +31,7 @@ trials = {'trial1' 'trial2' 'trial3' 'trial4' 'trial5' 'trial6' 'trial7' 'trial8
 torques.(saveNames{1}) = {'10Nmm' '20Nmm' '40Nmm' '50Nmm'};
 torques.(saveNames{2}) = {'20Nmm' '40Nmm' '100Nmm' '200Nmm'};
 torques.(saveNames{3}) = {'40Nmm' '100Nmm' '200Nmm' '300Nmm'};
-%torques.(saveNames{4}) = {'60Nmm' '100Nmm' '200Nmm' '300Nmm'};
+torques.(saveNames{4}) = {'60Nmm' '100Nmm' '200Nmm' '300Nmm'};
 
 % iterate through each spring/torque/direction/trial and save data in
 % springData structure
@@ -64,38 +65,77 @@ for ii = 1:springCount
                 end           
             end
                  
-            figure
-            hold on
+%             figure
+%             hold on
+
+            loadingAverage = zeros(12000,1);
+            unloadingAverage = zeros(12000,1);  
+            
+            indexEndLoading = 12000;
+            indexEndUnloading = 12000;
             
             % trial number
             for yy = 1:length(trials)
-
                 trial = trials{yy};
                 file = strcat(springNames{ii},'_',torqueName,'_',direction,'_',trial,'.mat');
                 load (file);       
-           
-                data = data(startIndex(yy):end);             
+                torqueDataName = strcat('T',torqueName);
+                
+                data = data(int32(startIndex(yy)):end);             
                 data = data - data(1); % move data up or down to start at 0
                 
-                torqueDataName = strcat('T',torqueName);
-                springDataZero.(saveName).(torqueDataName).(direction).(trial) = data;
-                springDataZero.(saveName).(torqueDataName).(direction).startIndices = startIndex;
+                % separate loading and unloading trials
+                if mod(yy,2) ~= 0
+                    if length(data) < indexEndLoading
+                        indexEndLoading = length(data);
+                        loadingAverage(1:indexEndLoading) = loadingAverage(1:indexEndLoading) + data;
+                    else
+                        loadingAverage(1:length(data)) = loadingAverage(1:length(data)) + data;
+                    end
+                    springData.data.(saveName).(torqueDataName).(direction).loading.(trial) = data;
+                else
+                    if length(data) < indexEndUnloading
+                        indexEndUnloading = length(data);
+                        unloadingAverage(1:indexEndUnloading) = unloadingAverage(1:indexEndUnloading) + data;
+                    else
+                        unloadingAverage(1:length(data)) = unloadingAverage(1:length(data)) + data;
+                    end
+                    springData.data.(saveName).(torqueDataName).(direction).unloading.(trial) = data;
+                end
                 
-                t = linspace(0,length(data)/100,length(data));
-                plot(t,data);
+%                 t = linspace(0,length(data)/100,length(data));
+%                 plot(t,data);
             end % trial number
             
-            hold off
+            loadingAverage = loadingAverage(1:indexEndLoading);
+            unloadingAverage = unloadingAverage(1:indexEndUnloading);
+            
+            loadingAverage = loadingAverage ./ 4;
+            unloadingAverage = unloadingAverage ./ 4;
+            
+            t_load = linspace(0,(length(loadingAverage)-1)/100,length(loadingAverage));
+            t_unload = linspace(0,(length(unloadingAverage)-1)/100,length(unloadingAverage));            
+            springData.data.(saveName).(torqueDataName).(direction).loading.average = loadingAverage;
+            springData.data.(saveName).(torqueDataName).(direction).unloading.average = unloadingAverage;
+            
+            figure
+            plot(t_load,loadingAverage)
             xlim([0 1.5])
             xlabel('Time (s)')
             ylabel('Angular Displacement (º)')
-            title(strcat(saveName,' ',torqueName,' ',direction)) 
-            legend('trial 1', 'trial 2', 'trial 3', 'trial 4',...
-                   'trial 5', 'trial 6', 'trial 7', 'trial 8')
+            title(strcat(saveName,' ',torqueName,' ',direction,' loading')) 
+            
+            figure
+            plot(t_unload,unloadingAverage)
+            xlim([0 1.5])
+            xlabel('Time (s)')
+            ylabel('Angular Displacement (º)')
+            title(strcat(saveName,' ',torqueName,' ',direction,' unloading')) 
         end % direction of torque applied
         
-        springDataNorm.(saveName).(torqueDataName).torque = torque;
+        springData.data.(saveName).(torqueDataName).torque = torque;
     end % torque applied
     
 end % spring name
 
+close all
