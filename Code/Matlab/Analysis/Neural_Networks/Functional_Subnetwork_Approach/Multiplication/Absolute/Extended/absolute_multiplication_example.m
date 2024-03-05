@@ -64,10 +64,10 @@ delta1 = 1e-3;                                                                  
 delta2 = 2e-3;                                                                                                  % [V] Division Membrane Voltage Offset.
 
 % Define subnetwork design constants.
-c6 = 1e-9;                                                                                                      % [W] Absolute Multiplication Parameter 6 (Absolute Division After Inversion Parameter 3).
-c4 = ( ( R3_target - delta1 )*c6*R4_target*delta2 )/( ( R3_target*delta2 - R4_target*delta1 )*R1 );             % [W] Absolute Multiplication Parameter 4 (Absolute Division After Inversion Parameter 1).
-c3 = 20e-9;                                                                                                     % [A] Absolute Multiplication Parameter 3 (Absolute Inversion Parameter 3).
 c1 = R3_target*c3;                                                                                              % [W] Absolute Multiplication Parameter 1 (Absolute Inversion Parameter 1).
+c3 = 20e-9;                                                                                                     % [A] Absolute Multiplication Parameter 3 (Absolute Inversion Parameter 3).
+c4 = ( ( R3_target - delta1 )*c6*R4_target*delta2 )/( ( R3_target*delta2 - R4_target*delta1 )*R1 );             % [W] Absolute Multiplication Parameter 4 (Absolute Division After Inversion Parameter 1).
+c6 = 1e-9;                                                                                                      % [W] Absolute Multiplication Parameter 6 (Absolute Division After Inversion Parameter 3).
 
 
 %% Compute Derived Absolute Mutliplication Subnetwork Constraints.

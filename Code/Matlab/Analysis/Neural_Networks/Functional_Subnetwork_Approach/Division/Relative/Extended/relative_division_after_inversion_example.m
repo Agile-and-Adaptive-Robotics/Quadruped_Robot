@@ -49,7 +49,7 @@ Ia2 = R2*Gm2;                                                                   
 Ia3 = 0;                                                                                                        % [A] Applied Current (Neuron 3).
 
 % Define subnetwork design constants.
-c3 = 1e-6;                                                                                                      % [S] Relative Division Design Parameter 3.
+c3 = 1e-6;                                                                                                      % [S] Relative Division After Inversion Design Parameter 3.
 delta1 = 1e-3;                                                                                                  % [V] Inversion Membrane Voltage Offset.
 delta2 = 2e-3;                                                                                                  % [V] Division Membrane Voltage Offset.
 
@@ -57,8 +57,8 @@ delta2 = 2e-3;                                                                  
 %% Compute Relative Division After Inversion Subnetwork Derived Parameters.
 
 % Compute the network design parameters.
-c1 = ( ( R2 - delta1 )*c3*delta2 )/( R2*delta2 - R3*delta1 );                                               	% [S] Absolute Division Parameter 1.
-c2 = ( ( R3 - delta2 )*c3*R2 )/( R2*delta2 - R3*delta1 );                                                   	% [S] Absolute Division Parameter 2.
+c1 = ( ( R2 - delta1 )*c3*delta2 )/( R2*delta2 - R3*delta1 );                                               	% [S] Relative Division Parameter 1.
+c2 = ( ( R3 - delta2 )*c3*R2 )/( R2*delta2 - R3*delta1 );                                                   	% [S] Relative Division Parameter 2.
 
 % Compute the synaptic conductances.
 gs31 = ( ( delta1 - R2 )*delta2*R3*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( R3*delta1 - R2*delta2 )*dEs31 );       % [S] Maximum Synaptic Conductance (Synapse 31).
