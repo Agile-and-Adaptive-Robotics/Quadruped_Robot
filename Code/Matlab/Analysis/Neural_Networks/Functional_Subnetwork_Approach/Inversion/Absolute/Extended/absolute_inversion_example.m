@@ -51,14 +51,14 @@ delta = 1e-3;                                       % [V] Membrane Voltage Offse
 
 %% Compute Derived Absolute Inversion Subnetwork Constraints.
 
-% Compute the maximum membrane voltages.
-R2 = c1/c3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
-
 % Compute the network design parameters.
 c2 = ( c1 - delta*c3 )/( delta*R1 );                % [S] Design Constant 2.
 
+% Compute the maximum membrane voltages.
+R2 = c1/c3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+
 % Compute the synaptic conductances.
-gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );       % [S]Synaptic Conductance (Synapse 21).
+gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );       % [S] Synaptic Conductance (Synapse 21).
 
 
 %% Print Absolute Inversion Subnetwork Parameters.

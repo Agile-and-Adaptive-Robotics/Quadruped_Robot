@@ -177,8 +177,14 @@ fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
 
 %% Simulate the Absolute Division After Inversion Subnetwork.
 
+% Start the timer.
+tic
+
 % Simulate the network.
 [ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
+
+% End the timer.
+toc
 
 
 %% Plot the Absolute Division After Inversion Subnetwork Results.
