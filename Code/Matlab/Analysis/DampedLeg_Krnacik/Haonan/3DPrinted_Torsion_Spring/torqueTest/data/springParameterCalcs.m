@@ -74,19 +74,19 @@ for ii = 1:springCount
              
             % loading/unloading
             for yy = 1:2
-                data = springData.data.(saveName).(torqueDataName).(direction).(loading{yy}).average(1:250,1);
+                data = springData.data.(saveName).(torqueDataName).(direction).(loading{yy}).average(1:150,1);
                 t = linspace(0,(length(data)-1)/100,length(data));
                 
                 if (data(end) - data(1)) < 0
                     data = -data;
                 end
                 
-%                 figure
-%                 sgtitle(strcat(torqueDataName,'  ', direction,'  ',loading{yy})) 
-%                 hold on
-%                 subplot(1,3,1)
-%                 plot(t,data)
-%                 xlim([0 2.5])
+                figure
+                sgtitle(strcat(torqueDataName,'  ', direction,'  ',loading{yy})) 
+                hold on
+                subplot(1,2,1)
+                plot(t,data)
+                xlim([0 1.5])
 %                 
 %                 
                 tr = risetime_ek(data,t);
@@ -101,13 +101,13 @@ for ii = 1:springCount
 %                 
                 k = I1*omegan^2;         % [kg*m^2/s^2] spring constant of the spring
 %                 
-                Phi_1 = torque/(I1*s^2 + b*s + k);
+%                 Phi_1 = torque/(I1*s^2 + b*s + k);
+                Phi_1 = 1/(s^2 + 2*zeta*omegan*s + omegan^2);
+                subplot(1,2,2)
+                step(Phi_1)
+                xlim([0 1.5])
 %                 
-%                 subplot(1,3,2)
-%                 step(Phi_1)
-%                 xlim([0 2.5])
-%                 
-                k2 = torque/deg2rad(data(end));
+                k2 = torque/deg2rad(data(150));
 %                 Phi_2 = 1/(I1*s^2 + k);
 %                 subplot(1,3,3)
 %                 step(Phi_2)
@@ -140,54 +140,54 @@ for ii = 1:springCount
     end % torque applied
     
         % plot deflection vs torque applied
-        figure
-        plot(dCWloading,T,'o')
-        title(strcat(springName,torqueName,' CWloading'))
-        ylabel('Torque (N-m)')
-        xlabel('Deflection (rad)')
-        
-        figure
-        plot(dCWunloading,T,'o')
-        title(strcat(springName,torqueName,' CWunloading'))
-        ylabel('Torque (N-m)')
-        xlabel('Deflection (rad)')
-        
-        figure
-        plot(dCCWloading,T,'o')
-        title(strcat(springName,torqueName,' CCWloading'))
-        ylabel('Torque (N-m)')
-        xlabel('Deflection (rad)')
-        
-        figure
-        plot(dCCWunloading,T,'o')
-        title(strcat(springName,torqueName,' CCWunloading'))
-        ylabel('Torque (N-m)')
-        xlabel('Deflection (rad)')
-        
-        % plot spring rate vs torque applied
-        figure
-        plot(T,kCWloading,'o')
-        title(strcat(springName,torqueName,' CWloading'))
-        xlabel('Torque (N-m)')
-        ylabel('Spring Rate')
-        
-        figure
-        plot(T,kCWunloading,'o')
-        title(strcat(springName,torqueName,' CWunloading'))
-        xlabel('Torque (N-m)')
-        ylabel('Spring Rate')
-        
-        figure
-        plot(T,kCCWloading,'o')
-        title(strcat(springName,torqueName,' CCWloading'))
-        xlabel('Torque (N-m)')
-        ylabel('Spring Rate')
-        
-        figure
-        plot(T,kCCWunloading,'o')
-        title(strcat(springName,torqueName,' CCWunloading'))
-        xlabel('Torque (N-m)')
-        ylabel('Spring Rate')
+%         figure
+%         plot(dCWloading,T,'o')
+%         title(strcat(springName,torqueName,' CWloading'))
+%         ylabel('Torque (N-m)')
+%         xlabel('Deflection (rad)')
+%         
+%         figure
+%         plot(dCWunloading,T,'o')
+%         title(strcat(springName,torqueName,' CWunloading'))
+%         ylabel('Torque (N-m)')
+%         xlabel('Deflection (rad)')
+%         
+%         figure
+%         plot(dCCWloading,T,'o')
+%         title(strcat(springName,torqueName,' CCWloading'))
+%         ylabel('Torque (N-m)')
+%         xlabel('Deflection (rad)')
+%         
+%         figure
+%         plot(dCCWunloading,T,'o')
+%         title(strcat(springName,torqueName,' CCWunloading'))
+%         ylabel('Torque (N-m)')
+%         xlabel('Deflection (rad)')
+%         
+%         % plot spring rate vs torque applied
+%         figure
+%         plot(T,kCWloading,'o')
+%         title(strcat(springName,torqueName,' CWloading'))
+%         xlabel('Torque (N-m)')
+%         ylabel('Spring Rate')
+%         
+%         figure
+%         plot(T,kCWunloading,'o')
+%         title(strcat(springName,torqueName,' CWunloading'))
+%         xlabel('Torque (N-m)')
+%         ylabel('Spring Rate')
+%         
+%         figure
+%         plot(T,kCCWloading,'o')
+%         title(strcat(springName,torqueName,' CCWloading'))
+%         xlabel('Torque (N-m)')
+%         ylabel('Spring Rate')
+%         
+%         figure
+%         plot(T,kCCWunloading,'o')
+%         title(strcat(springName,torqueName,' CCWunloading'))
+%         xlabel('Torque (N-m)')
+%         ylabel('Spring Rate')
         
 end % spring name
 % hold off
