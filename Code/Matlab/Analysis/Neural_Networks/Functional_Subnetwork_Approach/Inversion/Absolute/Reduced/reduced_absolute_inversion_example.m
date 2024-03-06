@@ -20,6 +20,7 @@ network_tf = 3;                                                         % [s] Si
 
 % Define the maximum membrane voltages.
 R1 = 20e-3;                                                             % [V] Maximum Membrane Voltage (Neuron 1).
+R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
 
 % Define the membrane conductances.
 Gm1 = 1e-6;                                                             % [S] Membrane Conductance (Neuron 1).
@@ -45,7 +46,6 @@ Ia1 = R1*Gm1;                                                           % [A] Ap
 current_state1 = 1;                                                     % [-] Current State (Neuron 1). (Specified as a ratio of the maximum applied current.)
 
 % Define the network design parameters.
-R2_target = 20e-3;                                                      % [V] Maximum Voltage Target (Neuron 2) (Used to compute c1 such that R2 will be set to the target value.)
 delta = 1e-3;                                                           % [V] Membrane Voltage Offset
 c1 = ( delta*R1*R2_target )/( R2_target - delta );                     	% [V^2] Design Constant 1
 

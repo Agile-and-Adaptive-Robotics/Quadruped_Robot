@@ -66,8 +66,8 @@ c1 = ( ( R2 - delta1 )*delta2 )/( ( R3 - delta2 )*R2 );                         
 c2 = ( delta2*R2 - delta1*R3 )/( ( R3 - delta2 )*R2 );                                                        	% [-] Design Constant 2.
 
 % Compute the synaptic conductances.
-gs31 = ( ( delta1 - R2 )*delta2*R3*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( delta1*R3 - delta2*R2 )*dEs31 );       % [S] Synaptic Conductance 1.
-gs32 = ( ( delta2 - R3 )*R2*Gm3*dEs31 )/( ( R2 - delta1 )*delta2*R3 + ( delta1*R3 - delta2*R2 )*dEs31 );        % [S] Synaptic Conductance 2.
+gs31 = ( ( delta1 - R2 )*delta2*R3*Gm3 )/( ( R2 - delta1 )*delta2*R3 + ( delta1*R3 - delta2*R2 )*dEs31 );       % [S] Synaptic Conductance (Synapse 31).
+gs32 = ( ( delta2 - R3 )*R2*Gm3*dEs31 )/( ( R2 - delta1 )*delta2*R3 + ( delta1*R3 - delta2*R2 )*dEs31 );        % [S] Synaptic Conductance (Synapse 32).
 
 
 %% Print Reduced Relative Division After Inversion Subnetwork Parameters.
