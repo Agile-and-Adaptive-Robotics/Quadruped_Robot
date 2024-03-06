@@ -1,107 +1,229 @@
-%% Absolute Multiplication Subnetwork Error
+%% Absolute Multiplication Subnetwork Error.
 
 % Clear Everything.
 clear, close('all'), clc
 
 
-%% Initialize Project Options.
+%% Define Simulation Parameters.
 
 % Define the save and load directories.
-save_directory = '.\Save';
-load_directory = '.\Load';
+save_directory = '.\Save';                                                      % [str] Save Directory.
+load_directory = '.\Load';                                                      % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-b_simulate = true;
-% b_simulate = false;
+b_simulate = true;                                                              % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = false;                                                           % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
-b_verbose = true;
+b_verbose = true;                                                               % [T/F] Printing Flag. (Determines whether to print out information.)
 
-% Define the network integration step size.
-% network_dt = 1e-3;
-network_dt = 5e-4;
-% network_dt = 1e-4;
-% network_dt = 1e-5;
-network_tf = 3;
+% Define the network simulation timestep.
+% network_dt = 1e-3;                                                            % [s] Simulation Timestep.
+network_dt = 2e-4;                                                           	% [s] Simulation Timestep.
+% network_dt = 1e-5;                                                              % [s] Simulation Timestep.
 
-% Set the necessary parameters.
-R1 = 20e-3;                                 % [V] Activation Domain
-R2 = 20e-3;                                 % [V] Activation Domain
-c1 = 8.00e-12;                              % [W] Absolute Inversion Parameter 1
-c3 = 0.40e-9;                               % [A] Absolute Inversion Parameter 3
-% c6 = 0.40e-9;                               % [W] Absolute Division Parameter 3 
-c6 = 0.070175438596491236e-09;                               % [W] Absolute Division Parameter 3 R4 = 30e-3
-% c6 = 0.12631578947368420e-9;                               % [W] Absolute Division Parameter 3 R4 = 25e-3
-% c6 = 0.19047619047619049e-9;                               % [W] Absolute Division Parameter 3 R4 = 21e-3
-% c6 = 0.21052631578947373e-9;                               % [W] Absolute Division Parameter 3 R4 = 20e-3
-% c6 = 40.040040040040048e-9;                               % [W] Absolute Division Parameter 3
-% c6 = -0.18947368421052636e-9;                               % [W] Absolute Division Parameter 3 
-delta1 = 1e-3;                              % [V] Inversion Offset Voltage
-delta2 = 2e-3;                              % [V] Division Offset Voltage
-dEs41 = 194e-3;                             % [V] Synaptic Reversal Potential
+% Define the network simulation duration.
+network_tf = 3;                                                                 % [s] Simulation Duration.
 
-% Set the number of multiplication neurons.
-num_multiplication_neurons = 4;
+% Define the number of neurons.
+num_neurons = 4;                                                                % [#] Number of Neurons.
 
 
-%% Create Absolute Multiplication Subnetwork.
+%% Define Basic Absolute Multiplication Subnetwork Parameters.
+
+% Define neuron maximum membrane voltages.
+R1 = 20e-3;                                                                                                     % [V] Maximum Membrane Voltage (Neuron 1).
+R2 = 20e-3;                                                                                                     % [V] Maximum Membrane Voltage (Neuron 2).
+R3_target = 20e-3;                                                                                              % [V] Maximum Membrane Voltage Target (Neuron 3).
+R4_target = 20e-3;                                                                                              % [V] Maximum Membrane Voltage Target (Neuron 4).
+
+% Define the membrane conductances.
+Gm1 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 1).
+Gm2 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 2).
+Gm3 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 3).
+Gm4 = 1e-6;                                                                                                     % [S] Membrane Conductance (Neuron 4).
+
+% Define the membrane capacitances.
+Cm1 = 5e-9;                                                                                                     % [F] Membrance Conductance (Neuron 1).
+Cm2 = 5e-9;                                                                                                     % [F] Membrance Conductance (Neuron 2).
+Cm3 = 5e-9;                                                                                                     % [F] Membrance Conductance (Neuron 3).
+Cm4 = 5e-9;                                                                                                     % [F] Membrance Conductance (Neuron 4).
+
+% Define the sodium channel conductances.
+Gna1 = 0;                                                                                                       % [S] Sodium Channel Conductance (Neuron 1).
+Gna2 = 0;                                                                                                       % [S] Sodium Channel Conductance (Neuron 2).
+Gna3 = 0;                                                                                                       % [S] Sodium Channel Conductance (Neuron 3).
+Gna4 = 0;                                                                                                       % [S] Sodium Channel Conductance (Neuron 4).
+
+% Define the synaptic reversal potential.
+dEs32 = 0;                                                                                                      % [V] Synaptic Reversal Potential (Synapse 32).
+dEs41 = 194e-3;                                                                                                 % [V] Synaptic Reversal Potential (Synapse 41).
+dEs43 = 0;                                                                                                      % [V] Synaptic Reversal Potential (Synapse 43).
+
+% Define the applied currents.
+Ia1 = R1*Gm1;                                                                                                   % [A] Applied Current (Neuron 1).
+Ia2 = R2*Gm2;                                                                                                   % [A] Applied Current (Neuron 2).
+Ia3 = R3_target*Gm3;                                                                                         	% [A] Applied Current (Neuron 3).
+Ia4 = 0;                                                                                                        % [A] Applied Current (Neuron 4).
+
+% Define the input current states.
+current_state1 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 1). 
+% current_state1 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 1). 
+current_state2 = 0;                                                                                           % [%] Applied Current Activity Percentage (Neuron 2). 
+% current_state2 = 1;                                                                                             % [%] Applied Current Activity Percentage (Neuron 2). 
+
+% Define the subnetwork voltage offsets.
+delta1 = 1e-3;                                                                                                  % [V] Inversion Membrane Voltage Offset.
+delta2 = 2e-3;                                                                                                  % [V] Division Membrane Voltage Offset.
+
+% Define subnetwork design constants.
+c6 = 1e-9;                                                                                                      % [W] Absolute Multiplication Parameter 6 (Absolute Division After Inversion Parameter 3).
+c4 = ( ( R3_target - delta1 )*c6*R4_target*delta2 )/( ( R3_target*delta2 - R4_target*delta1 )*R1 );             % [W] Absolute Multiplication Parameter 4 (Absolute Division After Inversion Parameter 1).
+c3 = 20e-9;                                                                                                     % [A] Absolute Multiplication Parameter 3 (Absolute Inversion Parameter 3).
+c1 = R3_target*c3;                                                                                              % [W] Absolute Multiplication Parameter 1 (Absolute Inversion Parameter 1).
+
+
+%% Compute Derived Absolute Mutliplication Subnetwork Constraints.
+
+% Compute the network design parameters.
+c2 = ( c1 - delta1*c3 )/( delta1*R1 );                                                                       	% [S] Absolute Multiplication Parameter 2 (Absolute Inversion Parameter 2).
+c5 = ( R1*c4 - delta2*c6 )/( delta2*R3_target );                                                            	% [A] Absolute Multiplication Parameter 5 (Absolute Division After Inversion Parameter 2).
+
+% Compute the maximum membrane voltages.
+R3 = c1/c3;
+R4 = ( R1*c4 )/( delta1*c5 + c6 );                                                                              % [V] Maximum Membrane Voltage (Neuron 4).
+
+% Compute the synaptic conductances.
+gs32 = ( delta1*Gm3 - Ia3 )/( dEs32 - delta1 );                                                                 % [S] Synaptic Conductance (Synapse 32).
+gs41 = ( ( delta1 - R3 )*delta2*R4*Gm4 )/( ( R3 - delta1 )*delta2*R4 + ( R4*delta1 - R3*delta2 )*dEs41 );       % [S] Maximum Synaptic Conductance (Synapse 41).
+gs43 = ( ( delta2 - R4 )*dEs41*R3*Gm4 )/( ( R3 - delta1 )*delta2*R4 + ( R4*delta1 - R3*delta2 )*dEs41 );        % [S] Maximum Synaptic Conductance (Synapse 43).
+
+
+%% Print Absolute Multiplication Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'ABSOLUTE MULTIPLICATION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+fprintf( 'R3 \t\t= \t%0.2f \t[mV]\n', R3*( 10^3 ) )
+fprintf( 'R4 \t\t= \t%0.2f \t[mV]\n', R4*( 10^3 ) )
+fprintf( '\n' )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3*( 10^6 ) )
+fprintf( 'Gm4 \t= \t%0.2f \t[muS]\n', Gm4*( 10^6 ) )
+fprintf( '\n' )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
+fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3*( 10^9 ) )
+fprintf( 'Cm4 \t= \t%0.2f \t[nF]\n', Cm4*( 10^9 ) )
+fprintf( '\n' )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
+fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3*( 10^6 ) )
+fprintf( 'Gna4 \t= \t%0.2f \t[muS]\n', Gna4*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs32 \t= \t%0.2f \t[mV]\n', dEs32*( 10^3 ) )
+fprintf( 'dEs41 \t= \t%0.2f \t[mV]\n', dEs41*( 10^3 ) )
+fprintf( 'dEs43 \t= \t%0.2f \t[mV]\n', dEs43*( 10^3 ) )
+fprintf( '\n' )
+
+fprintf( 'gs32 \t= \t%0.2f \t[muS]\n', gs32*( 10^6 ) )
+fprintf( 'gs41 \t= \t%0.2f \t[muS]\n', gs41*( 10^6 ) )
+fprintf( 'gs43 \t= \t%0.2f \t[muS]\n', gs43*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', Ia1*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2*( 10^9 ) )
+fprintf( 'Ia3 \t= \t%0.2f \t[nA]\n', Ia3*( 10^9 ) )
+fprintf( 'Ia4 \t= \t%0.2f \t[nA]\n', Ia4*( 10^9 ) )
+fprintf( '\n' )
+
+fprintf( 'p1 \t\t= \t%0.0f \t\t[-]\n', current_state1 )
+fprintf( 'p2 \t\t= \t%0.0f \t\t[-]\n', current_state2 )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
+fprintf( 'c1 \t\t= \t%0.2f \t[nW]\n', c1*( 10^9 ) )
+fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2*( 10^6 ) )
+fprintf( 'c3 \t\t= \t%0.2f \t[nA]\n', c3*( 10^9 ) )
+fprintf( 'c4 \t\t= \t%0.2f \t[nW]\n', c4*( 10^9 ) )
+fprintf( 'c5 \t\t= \t%0.2f \t[nA]\n', c5*( 10^9 ) )
+fprintf( 'c6 \t\t= \t%0.2f \t[nW]\n', c6*( 10^9 ) )
+fprintf( '\n' )
+
+fprintf( 'delta1 \t= \t%0.2f \t[mV]\n', delta1*( 10^3 ) )
+fprintf( 'delta2 \t= \t%0.2f \t[mV]\n', delta2*( 10^3 ) )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+
+%% Create an Absolute Multiplication Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
-
-% Compute the network properties.
-R3 = c1/c3;
-R4 = ( c1*c3*R1*delta2 )/( ( c3^2 )*R1*delta1 + c1*c6*delta2 - c3*c6*delta1*delta2 );
-
-c2 = ( c1 - delta1*c3 )/( delta1*R2 );
-c4 = c3;
-c5 = ( ( c3*R1 - c6*delta2 )*c3 )/( delta2*c1 );
-
-Iapp3 = c1/R2;
-Iapp4 = 0;
-
-Gm3 = c3/R2;
-Gm4 = ( c3*c6 )/( R1*c1 );
-
-% Gm3 = 1e-6;
-% Gm4 = 0.1e-6;
-
-dEs32 = 0;
-dEs43 = 0;
-
-gs32 = ( c1 - delta1*c3 )/( delta1*R2 );
-gs41 = ( ( c3^2 )*c6 )/( ( dEs41*c6 - R1*c3 )*c1 );
-gs43 = ( ( delta2*c6 - R1*c3 )*dEs41*c3*c6 )/( ( R1*c3 - dEs41*c6 )*R1*c1*delta2 );
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 4 );
 [ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 3 );
 [ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 4 );
 
-% Set the network parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, zeros( size( neuron_IDs ) ), 'Gna' );
+% Set the neuron parameters.
 network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3, R4 ], 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( [ neuron_IDs( 3 ), neuron_IDs( 4 ) ], [ Gm3, Gm4 ], 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2, Gm3, Gm4 ], 'Gm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2, Cm3, Cm4 ], 'Cm' );
+network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2, Gna3, Gna4 ], 'Gna' );
 
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2, 3 ], 'from_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 4, 3, 4 ], 'to_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ gs41, gs32, gs43 ], 'g_syn_max' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ dEs41, dEs32, dEs43 ], 'dE_syn' );
+% Set the synapse parameters.
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 2, 1, 3 ], 'from_neuron_ID' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 3, 4, 4 ], 'to_neuron_ID' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ gs32, gs41, gs43 ], 'g_syn_max' );
+network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ dEs32, dEs41, dEs43 ], 'dE_syn' );
 
+% Set the applied current parameters.
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2, 3, 4 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs( 3:4 ), [ Iapp3, Iapp4 ], 'I_apps' );
+network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, current_state2*Ia2, Ia3, Ia4 ], 'I_apps' );
 
 
 %% Compute Desired & Achieved Multiplication Formulations.
 
-% Retrieve network information.
-Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );
-Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );
-Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );
-Ias = [ 0, 0, Iapp3, Iapp4 ];
-gs = network.get_gsynmaxs( 'all' );
-dEs = network.get_dEsyns( 'all' );
-dt0 = 1e-6;
+% Retrieve the maximum membrane voltages.
+Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );                      % [V] Maximum Membrane Voltages.
+
+% Retrieve the membrane capacitances.
+Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );                    % [F] Membrane Capacitances.
+
+% Retrieve the membrane conductances.
+Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );                    % [S] Membrane Conductances.
+
+% Retrieve the applied currents.
+Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );               % [A] Applied Currents.
+
+% Retrieve the synaptic conductances.
+gs = network.get_gsynmaxs( 'all' );                                                             % [S] Synaptic Conductances.
+
+% Retrieve the synaptic reversal potentials.
+dEs = network.get_dEsyns( 'all' );                                                              % [V] Synaptic Reversal Potential.
+
+% Define the numerical stability timestep.
+dt0 = 1e-6;                                                                                     % [s] Numerical Stability Time Step.
 
 % Define the multiplication subnetwork inputs.
 U1s = linspace( 0, Rs( 1 ), 20  );
@@ -131,37 +253,6 @@ U4s_grid_achieved_absolute = reshape( U4s_flat_achieved_absolute, size( U1s_grid
 % Retrieve the maximum RK4 step size and condition number.
 [ dt_max, indexes_dt ] = min( dts );
 [ condition_number_max, indexes_condition_number ] = max( condition_numbers );
-
-% Print a summary of the relevant network parameters.
-fprintf( 'NETWORK PARAMETERS:\n' )
-
-fprintf( 'R1 = %0.2f [mV]\n', Rs( 1 )*( 10^3 ) )
-fprintf( 'R2 = %0.2f [mV]\n', Rs( 2 )*( 10^3 ) )
-fprintf( 'R3 = %0.2f [mV]\n', Rs( 3 )*( 10^3 ) )
-fprintf( 'R4 = %0.2f [mV]\n', Rs( 4 )*( 10^3 ) )
-
-fprintf( 'c1 = %0.2e [-]\n', c1 )
-fprintf( 'c2 = %0.2e [-]\n', c2 )
-fprintf( 'c3 = %0.2e [-]\n', c3 )
-fprintf( 'c4 = %0.2e [-]\n', c4 )
-fprintf( 'c5 = %0.2e [-]\n', c5 )
-fprintf( 'c6 = %0.2e [-]\n', c6 )
-
-fprintf( 'dEs41 = %0.2f [mV]\n', dEs( 4, 1 )*( 10^3 ) )
-fprintf( 'dEs32 = %0.2f [mV]\n', dEs( 3, 2 )*( 10^3 ) )
-fprintf( 'dEs43 = %0.2f [mV]\n', dEs( 4, 3 )*( 10^3 ) )
-
-fprintf( 'gs41 = %0.2f [muS]\n', gs( 4, 1 )*( 10^6 ) )
-fprintf( 'gs32 = %0.2f [muS]\n', gs( 3, 2 )*( 10^6 ) )
-fprintf( 'gs43 = %0.2f [muS]\n', gs( 4, 3 )*( 10^6 ) )
-
-fprintf( 'Gm3 = %0.2f [muS]\n', Gms( 3 )*( 10^6 ) )
-fprintf( 'Gm4 = %0.2f [muS]\n', Gms( 4 )*( 10^6 ) )
-
-fprintf( 'Ia3 = %0.2f [nA]\n', Ias( 3 )*( 10^9 ) )
-fprintf( 'Ia4 = %0.2f [nA]\n', Ias( 4 )*( 10^9 ) )
-
-fprintf( '\n\n' )
 
 
 %% Print the Desired Absolute, Desired Relative, and Achieved Multiplication Formulation Results.
@@ -208,24 +299,24 @@ surf( U1s_grid, U2s_grid, condition_numbers_grid, 'Edgecolor', 'None' )
 saveas( fig, [ save_directory, '\', 'absolute_multiplication_condition_numbers' ] )
 
 
-%% Simulate the Network.
+%% Simulate the Absolute Multiplication Subnetwork.
 
 % Determine whether to simulate the network.
 if b_simulate               % If we want to simulate the network....
     
     % Define the number of applied currents to use.
-    n_applied_currents1 = 10;
-    n_applied_currents2 = 10;
+    n_applied_currents1 = 10;                                                                               % [#] Number of Applied Currents (Neuron 1).
+    n_applied_currents2 = 10;                                                                               % [#] Number of Applied Currents (Neuron 2).
     
     % Create the applied currents.
-    applied_currents1 = linspace( 0, R1*network.neuron_manager.neurons( 1 ).Gm, n_applied_currents1 );
-    applied_currents2 = linspace( 0, R2*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents2 );
+    applied_currents1 = linspace( 0, R1*network.neuron_manager.neurons( 1 ).Gm, n_applied_currents1 );      % [A] Applied Currents (Neuron 1).
+    applied_currents2 = linspace( 0, R2*network.neuron_manager.neurons( 2 ).Gm, n_applied_currents2 );      % [A] Applied Currents (Neuron 2).
     
     % Create a grid of the applied currents.
     [ Applied_Currents1, Applied_Currents2 ] = meshgrid( applied_currents1, applied_currents2 );
     
     % Create a matrix to store the membrane voltages.
-    Us_achieved = zeros( n_applied_currents2, n_applied_currents1, num_multiplication_neurons );
+    Us_achieved = zeros( n_applied_currents2, n_applied_currents1, num_neurons );
     
     % Simulate the network for each of the applied current combinations.
     for k1 = 1:n_applied_currents1                          % Iterate through each of the currents applied to the first neuron...
@@ -245,12 +336,12 @@ if b_simulate               % If we want to simulate the network....
     end
 
     % Save the simulation results.
-    save( [ save_directory, '\', 'absolute_multiplication_subnetwork_error' ], 'Applied_Currents1', 'Applied_Currents2', 'Us_achieved' )
+    save( [ save_directory, '\', 'absolute_multiplication_error' ], 'Applied_Currents1', 'Applied_Currents2', 'Us_achieved' )
     
 else                % Otherwise... (We must want to load data from an existing simulation...)
     
     % Load the simulation results.
-    data = load( [ load_directory, '\', 'absolute_multiplication_subnetwork_error' ] );
+    data = load( [ load_directory, '\', 'absolute_multiplication_error' ] );
     
     % Store the simulation results in separate variables.
     Applied_Currents1 = data.Applied_Currents1;
@@ -275,17 +366,17 @@ error = Us_achieved( :, :, end ) - Us_desired( :, :, end );
 mse = sqrt( sum( error.^2, 'all' ) );
 
 % Create a surface that shows the desired membrane voltage output.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Subnetwork Steady State Response (Desired)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Multiplication Subnetwork Steady State Response (Desired)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Steady State Response (Desired)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Multiplication Steady State Response (Desired)' )
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None' )
 saveas( fig, [ save_directory, '\', 'absolute_multiplication_ss_response_desired' ] )
 
 % Create a surface that shows the achieved membrane voltage output.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Subnetwork Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Multiplication Subnetwork Steady State Response (Achieved)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Multiplication Steady State Response (Achieved)' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None' )
 saveas( fig, [ save_directory, '\', 'absolute_multiplication_ss_response_achieved' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Subnetwork Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Multiplication Subnetwork Steady State Response (Comparison)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Multiplication Steady State Response (Comparison)' )
 surf( Us_desired( :, :, 1 ), Us_desired( :, :, 2 ), Us_desired( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'b' )
 surf( U1s_grid, U2s_grid, U4s_grid_achieved_absolute, 'Edgecolor', 'None', 'Facecolor', 'g' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), Us_achieved( :, :, end ), 'Edgecolor', 'None', 'Facecolor', 'r' )
@@ -293,7 +384,7 @@ legend( 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' )
 saveas( fig, [ save_directory, '\', 'absolute_multiplication_ss_response_comparison' ] )
 
 % Create a surface that shows the membrane voltage error.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Subnetwork Steady State Error' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Multiplication Subnetwork Steady State Error' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Multiplication Steady State Error' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Multiplication Steady State Error' )
 surf( Us_achieved( :, :, 1 ), Us_achieved( :, :, 2 ), error, 'Edgecolor', 'None' )
 saveas( fig, [ save_directory, '\', 'absolute_multiplication_ss_response_error' ] )
 
