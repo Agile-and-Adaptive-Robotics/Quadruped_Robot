@@ -130,7 +130,26 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductance.
         function g_syn_max_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic )
             
-            % This function computes the maximum synaptic conductances for a chain of CPGs necessary to achieve the specified deltas with the given network properties.
+            %{
+            Input(s):
+                deltas              =   [V] Bifurcation Parameter
+                Gms                 =   [S] Membrane Conductance
+                Rs                  =   [V] Maximum Membrane Voltage
+                dEsyns              =   [V] Synaptic Reversal Potential
+                Gnas                =   [S] Ion channel Conductance
+                Ams                 =   [-] Ion Channel Activation Amplitude
+                Sms                 =   [-] Ion Channel Activation Slope
+                dEms                =   [-] Ion Channel Activation Offset
+                Ahs                 =   [-] Ion Channel Deactivation Amplitude
+                Shs                 =   [-] Ion Channel Deactivation Slope
+                dEhs                =   [-] Ion Channel Deactivation Offset
+                dEnas               =   [V] Ion Channel Reversal Potential
+                Iapps_tonic         =   [A] Applied Currents
+            
+            Output(s):
+                g_syn_max_vector    =   [S] Maxmimum Synaptic Conductances (Column Vector) 
+            
+            %}
             
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
@@ -226,12 +245,16 @@ classdef network_utilities_class
         % Implement a function to convert a maximum synaptic conductance vector to a maximum synaptic conductance matrix.
         function g_syn_max_matrix = gsynmax_vector2gsynmax_matrix( ~, g_syn_max_vector, num_neurons )
             
-            %             % Compute the number of neurons.
-            %             num_neurons = sqrt( length( g_syn_max_vector ) );
+            %{
+            Input(s):
+                g_syn_max_vector    =   [S] Maximum Synaptic Conductance Vector
+                num_neurons         =   [#] Number of Neurons
             
-            %             % Ensure that the number of neurons is an integer.
-            %             assert( num_neurons == round( num_neurons ), 'Number of maximum synaptic conductances length( g_syn_max ) must be a perfect square.' )
-            %
+            Output(s):
+                g_syn_max_matrix    =   Maximum Synaptic Conductance Matrix
+            
+            %}
+
             % Preallocate the synaptic conductance matrix.
             g_syn_max_matrix = zeros( num_neurons );
             
@@ -862,7 +885,23 @@ classdef network_utilities_class
             U4s = self.compute_desired_absolute_division_steady_state_output( [ U1s, U3s ], c4, c5, c6 );
             
         end
-           
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute multiplication subnetwork.
+        function [ U4s, U3s ] = compute_desired_red_abs_mult_ss_output( self, U_inputs, c1, c2, c3, c4 )
+        
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the desired absolute inversion steady state output.            
+            U3s = self.compute_desired_reduced_absolute_inversion_steady_state_output( U2s, c1, c2 );
+            
+            % Compute the desired absolute division steady state output.
+            U4s = self.compute_desired_reduced_absolute_division_steady_state_output( [ U1s, U3s ], c3, c4 );
+            
+        end
+        
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
         function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
@@ -876,6 +915,22 @@ classdef network_utilities_class
 
             % Compute the desired relative division steady state output.
             U4s = self.compute_desired_relative_division_steady_state_output( [ U1s, U3s ], c4, c5, c6, R1, R3, R4 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
+        function [ U4s, U3s ] = compute_desired_red_rel_mult_ss_output( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 )
+           
+            % Retrieve the steady state inputs.
+            U1s = U_inputs( :, 1 );
+            U2s = U_inputs( :, 2 );
+            
+            % Compute the desired relative inversion steady state output.
+            U3s = self.compute_desired_reduced_relative_inversion_steady_state_output( U2s, c1, c2, R2, R3 );
+
+            % Compute the desired relative division steady state output.
+            U4s = self.compute_desired_reduced_relative_division_steady_state_output( [ U1s, U3s ], c3, c4, R1, R3, R4 );
             
         end
         

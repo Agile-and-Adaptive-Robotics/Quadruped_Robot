@@ -5433,7 +5433,23 @@ classdef network_class
             [ U4s, U3s ] = self.network_utilities.compute_desired_absolute_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6 );
             
         end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute multiplication subnetwork.
+        function [ U4s, U3s ] = compute_desired_red_abs_mult_ss_output( self, U_inputs, c1, c2, c3, c4 )
             
+            % Set the default input arguments.
+            if nargin < 6, c4 = 1.05e-3; end                      	% [V] Reduced Absolute Multiplication Design Constant 4 (Reduced Absolute Division Design Constant 2).
+            if nargin < 5, c3 = 1.05e-3; end                       	% [V] Reduced Absolute Multiplication Design Constant 3 (Reduced Absolute Division Design Constant 1).
+            if nargin < 4, c2 = 21.05e-6; end                       % [mV] Reduced Absolute Multiplication Design Constant 2 (Reduced Absolute Inversion Design Constant 2).
+            if nargin < 3, c1 = 1.05e-3; end                        % [mV^2] Reduced Absolute Multiplication Design Constant 1 (Reduced Absolute Inversion Design Constant 1).
+            
+            % Compute the steady state output.
+            [ U4s, U3s ] = self.network_utilities.compute_desired_red_abs_mult_ss_output( U_inputs, c1, c2, c3, c4 );
+            
+        end
+        
+                    
             
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
         function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
@@ -5452,6 +5468,25 @@ classdef network_class
             
             % Compute the steady state output.
             [ U4s, U3s ] = self.network_utilities.compute_desired_relative_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
+        function [ U4s, U3s ] = compute_desired_red_rel_mult_ss_output( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 )
+            
+            % Set the default input arguments.
+            if nargin < 10, R4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'R' ) ); end
+            if nargin < 9, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
+            if nargin < 8, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
+            if nargin < 7, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 6, c4 = 1e-6; end
+            if nargin < 5, c3 = 1e-6; end
+            if nargin < 4, c2 = 19e-6; end
+            if nargin < 3, c1 = 1e-6; end
+            
+            % Compute the steady state output.
+            [ U4s, U3s ] = self.network_utilities.compute_desired_red_rel_mult_ss_output( U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 );
             
         end
         
