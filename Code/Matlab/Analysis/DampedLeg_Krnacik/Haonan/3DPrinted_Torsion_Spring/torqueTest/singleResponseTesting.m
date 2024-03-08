@@ -29,22 +29,24 @@ b2 = 2*(I1+(m*(r^2)))*zeta2*omegan2;
 
 Tc = 20;
 
-fun1 = (mgr-0.01)/((I1+(m*(r^2)))*s^2 + b1*s + k1);
+fun1 = (mgr)/((I1+(m*(r^2)))*s^2 + b1*s + k1);
 fun2 = mgr/((I1+(m*(r^2)))*s^2 + b2*s + k2);
 
 figure
 plot(tCropped,dataCropped)
 ylabel('Deflection (rad)')
 xlabel('Time (s)')
+title('2L4LT4ST37T 200Nmm Torque CW Loading Average Step Response')
 xlim([0 1.5])
 
 figure
 step(fun1)
-xlabel('Time (s)')
+title('Rise Time & Settling Time Determined Spring and Damping')
 xlim([0 1.5])
+ylim([0 18])
 
 figure
 step(fun2)
-xlabel('Time (s)')
+title('Settling Time Determined Damping')
 xlim([0 1.5])
 
