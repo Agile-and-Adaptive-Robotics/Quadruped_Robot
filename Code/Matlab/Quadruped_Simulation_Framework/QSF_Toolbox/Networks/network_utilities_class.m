@@ -3,7 +3,7 @@ classdef network_utilities_class
     % This class contains properties and methods related to network utilities.
     
     
-    %% NETWORK UTILITIES PROPERTIES
+    %% NETWORK UTILITIES PROPERTIES.
     
     % Define the class properties.
     properties
@@ -40,7 +40,7 @@ classdef network_utilities_class
     end
     
     
-    %% NETWORK UTILITIES METHODS SETUP
+    %% NETWORK UTILITIES METHODS SETUP.
     
     % Define the class methods.
     methods
@@ -60,7 +60,7 @@ classdef network_utilities_class
         end
         
         
-        %% Synapse Functions
+        %% Synapse Functions.
         
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
         function G_syn = compute_Gsyn( ~, U, R, g_syn_max )
@@ -125,7 +125,7 @@ classdef network_utilities_class
         end
         
         
-        %% Multistate CPG Subnetwork Design Functions
+        %% Multistate CPG Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductance.
         function g_syn_max_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Iapps_tonic )
@@ -148,7 +148,6 @@ classdef network_utilities_class
             
             Output(s):
                 g_syn_max_vector    =   [S] Maxmimum Synaptic Conductances (Column Vector) 
-            
             %}
             
             % Retrieve the number of neurons.
@@ -252,7 +251,6 @@ classdef network_utilities_class
             
             Output(s):
                 g_syn_max_matrix    =   Maximum Synaptic Conductance Matrix
-            
             %}
 
             % Preallocate the synaptic conductance matrix.
@@ -304,6 +302,26 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductance matrix.
         function g_syn_max_matrix = compute_cpg_gsynmax_matrix( self, deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics )
             
+            %{
+            Input(s):
+                deltas              =   [V] Bifurcation Parameter
+                Gms                 =   [S] Membrane Conductance
+                Rs                  =   [V] Maximum Membrane Voltage
+                dEsyns              =   [V] Synaptic Reversal Potential
+                Gnas                =   [S] Ion channel Conductance
+                Ams                 =   [-] Ion Channel Activation Amplitude
+                Sms                 =   [-] Ion Channel Activation Slope
+                dEms                =   [-] Ion Channel Activation Offset
+                Ahs                 =   [-] Ion Channel Deactivation Amplitude
+                Shs                 =   [-] Ion Channel Deactivation Slope
+                dEhs                =   [-] Ion Channel Deactivation Offset
+                dEnas               =   [V] Ion Channel Reversal Potential
+                I_tonics            =   [A] Applied Currents
+            
+            Output(s):
+                g_syn_max_matrix    =   [S] Maxmimum Synaptic Conductances (Matrix) 
+            %}
+            
             % Compute the maximum synaptic conductance vector.
             g_syn_max_vector = self.compute_cpg_gsynmax_vector( deltas, Gms, Rs, dEsyns, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, I_tonics );
             
@@ -319,6 +337,16 @@ classdef network_utilities_class
         % Implement a function to compute the activation and deactivation periods.
         function [ Ta, Td ] = compute_activation_period( ~, T, n )
         
+            %{
+            Input(s):
+                T   =   [s] Total Period.
+                n   =   [#] Number of Cycles.
+            
+            Output(s):
+                Ta  =   [s] Activation Period.
+                Td  =   [s] Deactivation Period.
+            %}
+            
             % Compute the activation period.
             Ta = T/n;
             
@@ -328,10 +356,22 @@ classdef network_utilities_class
         end
             
         
-        %% Basic Transmission / Modulation Subnetwork Design Functions
+        %% Basic Transmission / Modulation Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductance for a signal transmission pathway.
         function g_syn_max12 = compute_transmission_gsynmax( ~, Gm2, R1, dE_syn12, I_app2, k )
+            
+            %{
+            Input(s):
+                Gm2             =   [S] Membrane Conductance (Neuron 2).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                dE_syn12        =   [V] Synaptic Reversal Potential (Synapse 12).
+                I_app2          =   [A] Applied Current (Neuron 2).
+                k               =   [-] Transmission Gain.
+            
+            Output(s):
+                g_syn_max12     =   [S] Maximum Synaptic Conductance (Synapce 12).
+            %}
             
             % Set the default input arguments.
             if nargin < 6, k = self.c_transmission_DEFAULT; end
@@ -364,6 +404,19 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductance for a signal modulation pathway.
         function g_syn_max12 = compute_modulation_gsynmax( ~, Gm2, R1, R2, dE_syn12, I_app2, c )
             
+            %{
+            Input(s):
+                Gm2             =   [S] Membrane Conductance (Neuron 2).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2              =   [V] Maximum Membrane Voltage (Neuron 2).
+                dE_syn12        =   [V] Synaptic Reversal Potential (Synapse 12).
+                I_app2          =   [A] Applied Current (Neuron 2).
+                c               =   [-] Modulation Gain.
+            
+            Output(s):
+                g_syn_max12     =   [S] Maximum Synaptic Conductance (Synapce 12).
+            %}
+            
             % Set the default input arguments.
             if nargin < 7, c = self.c_modulation_DEFAULT*( R2/R1 ); end
             if nargin < 6, I_app2 = self.Iapp_DEFAULT; end
@@ -377,10 +430,24 @@ classdef network_utilities_class
         end
 
         
-        %% Arithmetic Subnetwork Design Functions
+        %% Arithmetic Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
+            
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2              =   [V] Maximum Membrane Voltage (Neuron 2).
+                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
+                dE_syn23        =   [V] Synaptic Reversal Potential (Synapse 23).
+                I_app3          =   [A] Applied Current (Neuron 3).
+            
+            Output(s):
+                g_syn_max13     =   [S] Maximum Synaptic Conductance (Syanpse 13).
+                g_syn_max23     =   [S] Maximum Synaptic Conductnace (Synapse 23).
+            %}
             
             % Set the default input arguments.
             if nargin < 6, k = self.c_addition_DEFAULT; end
@@ -396,6 +463,21 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductances for a relative addition subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_relative_addition_gsynmax( self, Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k )
             
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2              =   [V] Maximum Membrane Voltage (Neuron 2).
+                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
+                dE_syn23        =   [V] Synaptic Reversal Potential (Synapse 23).
+                I_app3          =   [A] Applied Current (Neuron 3).
+                k               =   [-] Relative Transmission Gain.
+
+            Output(s):
+                g_syn_max13     =   [S] Maximum Synaptic Conductance (Syanpse 13).
+                g_syn_max23     =   [S] Maximum Synaptic Conductnace (Synapse 23).
+            %}
+            
             % Set the default input arguments.
             if nargin < 6, k = self.c_addition_DEFAULT; end
             if nargin < 5, I_app3 = self.Iapp_DEFAULT; end
@@ -409,6 +491,20 @@ classdef network_utilities_class
 
         % Implement a function to compute the maximum synaptic conductances for a subtraction subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_subtraction_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
+            
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
+                dE_syn23        =   [V] Synaptic Reversal Potential (Synapse 23).
+                I_app3          =   [A] Applied Current.
+                k               =   [-] Subtraction Gain.
+            
+            Output(s):
+                g_syn_max13     =   [S] Maximum Synaptic Conductance (Syanpse 13).
+                g_syn_max23     =   [S] Maximum Synaptic Conductnace (Synapse 23).
+            %}
             
             % Set the default input arguments.
             if nargin < 7, k = self.c_subtraction_DEFAULT; end
@@ -429,6 +525,18 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductance for an inversion subnetwork.
         function g_syn_max = compute_inversion_gsynmax( self, Gm2, R1, I_app2, k, epsilon )
             
+            %{
+            Input(s):
+                Gm2         =   [S] Membrane Conductance (Neuron 2).
+                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
+                I_app2      =   [A] Applied Current (Neuron 2).
+                k           =   [-] Inversion Gain.
+                epsilon     =   [V] Inversion Offset.
+            
+            Output(s):
+                g_syn_max   =   [S] Maximum Synaptic Conductance.
+            %}
+            
             % Set the default input arguments.
             if nargin < 6, epsilon = self.EPSILON_INVERSION; end
             if nargin < 5, k = self.K_INVERSION; end
@@ -443,6 +551,14 @@ classdef network_utilities_class
         % Implement a function to compute the input offset for a relative inversion subnetwork.
         function epsilon = compute_relative_inversion_epsilon( self, c )
             
+            %{
+            Input(s):
+                c           =   [-] Relative Inversion Subnetwork Gain
+            
+            Output(s):
+                epsilon     =   [-] Relative Inversion Subnetwork Input Offset
+            %}
+            
            % Define the default input arguments.
            if nargin < 2, c = self.c_inversion_DEFAULT; end                 % [-] Inversion Subnetwork Gain
             
@@ -455,6 +571,14 @@ classdef network_utilities_class
         % Implement a function compute the output offset for a relative inversion subnetwork.
         function delta = compute_relative_inversion_delta( self, c )
            
+            %{
+            Input(s):
+                c           =   [-] Relative Inversion Subnetwork Gain
+            
+            Output(s):
+                epsilon     =   [-] Relative Inversion Subnetwork Output Offset
+            %}
+            
             % Define the default input arguments.
             if nargin < 2, c = self.c_inversion_DEFAULT; end                % [-] Inversion Subnetwork Gain
             
@@ -467,6 +591,23 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductances for a division subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_division_gsynmax( self, Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c )
         
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2              =   [V] Maximum Membrane Voltage (Neuron 2).
+                R3              =   [V] Maximum Membrane Voltage (Neuron 3).
+                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
+                dE_syn23        =   [V] Synapticv Reversal Potential (Synapse 23).
+                I_app3          =   [A] Applied Current (Neuron 3).
+                k               =   [-] Division Subnetwork Gain.
+                c               =   [-] Modulation Subnetwork Gain.
+            
+            Output(s):
+                g_syn_max13     =   [S] Maximum Synaptic Conductance (Synapse 13).
+                g_syn_max23     =   [S] Maximum Synaptic Conductance (Synapse 23).
+            %}
+            
             % Set the default input arguments.
             if ( nargin < 10 ) || ( isempty( c ) ), c = self.c_modulation_DEFAULT*( R3/R2 ); end
             if nargin < 9, k = self.c_division_DEFAULT; end
@@ -484,6 +625,27 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductances for a multiplication subnetwork.
         function [ g_syn_max14, g_syn_max23, g_syn_max34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4, k )
         
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                Gm4             =   [S] Membrane Conductance (Neuron 4).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2              =   [V] Maximum Membrane Voltage (Neuron 2).
+                R3              =   [V] Maximum Membrane Voltage (Neuron 3).
+                R4              =   [V] Maximum Membrane Voltage (Neuron 4).
+                dE_syn14        =   [V] Synaptic Reversal Potential (Synapse 14).
+                dE_syn23        =   [V] Synapatic Reversal Potential (Synapse 23).
+                dE_syn34        =   [V] Synaptic Reversal Potential (Synapse 34).
+                I_app3          =   [A] Applied Current (Neuron 3).
+                I_app4          =   [A] Applied Current (Neuron 4).
+                k               =   [-] Multiplication Subnetwork Gain.
+            
+            Output(s):
+                g_syn_max14     =   [S] Maximum Synaptic Conductance (Synapse 14).
+                g_syn_max23     =   [S] Maximum Synaptic Conductance (Synapse 23).
+                g_syn_max34     =   [S] Maximum Synaptic Conductance (Synapse 34).
+            %}
+            
             % Set the default input arguments.
             if nargin < 13, k = self.c_multiplication_DEFAULT; end
             if nargin < 12, I_app4 = self.Iapp_DEFAULT; end
@@ -504,10 +666,24 @@ classdef network_utilities_class
         end
         
         
-        %% Derivation Subnetwork Design Functions
+        %% Derivation Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
         function [ g_syn_max13, g_syn_max23 ] = compute_derivation_gsynmax( self, Gm3, R1, dE_syn13, dE_syn23, I_app3, k )
+            
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
+                dE_syn23        =   [V] Synaptic Reversal Potential (Synapse 23).
+                I_app3          =   [A] Applied Current (Neuron 3).
+                k               =   [-] Derivation Subnetwork Gain.
+            
+            Output(s):
+                g_syn_max13     =   [S] Maximum Synaptic Conductance (Synapse 13).
+                g_syn_max23     =   [S] Maximum Synaptic Conductnace (Synapse 23).
+            %}
             
             % Compute the maximum synaptic conductances for a derivative subnetwork in the same way as for a subtraction subnetwork.
             [ g_syn_max13, g_syn_max23 ] = self.compute_subtraction_gsynmax( Gm3, R1, dE_syn13, dE_syn23, I_app3, k );
@@ -517,6 +693,16 @@ classdef network_utilities_class
         
         % Implement a function to compute membrane conductance for a derivative subnetwork.
         function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
+            
+            %{
+            Input(s):
+                k               =   [-] Derivation Subnetwork Gain.
+                w               =   [-] Derivation Subnetwork Cutoff.
+                safety_factor   =   [-] Derivation Subnetwork Safety Factor.
+            
+            Output(s):
+                Gm              =   [S] Membrane Conductance.
+            %}
             
             % Set the default input arugments.
             if nargin < 4, safety_factor = self.sf_derivation_DEFAULT; end
@@ -531,6 +717,17 @@ classdef network_utilities_class
         
         % Implement a function to compute membrane capacitances for a derivative subnetwork.
         function [ Cm1, Cm2 ] = compute_derivation_Cms( ~, Gm, k, w )
+            
+            %{
+            Input(s):
+                Gm = [S] Membrane Conductance.
+                k = [-] Derivation Subnetwork Gain.
+            `   w = [-] Derivation Subnetwork Cutoff.
+            
+            Output(s):
+                Cm1 = [F] Membrane Conductance (Neuron 1).
+                Cm2 = [F] Membrane Conductnace (Neuron 2).
+            %}
             
             % Set the default input arugments.
             if nargin < 4, w = self.w_derivation_DEFAULT; end
@@ -549,11 +746,19 @@ classdef network_utilities_class
         end
         
         
-        %% Integration Subnetwork Design Functions
+        %% Integration Subnetwork Design Functions.
         
         % Implement a function to compute the membrane capacitances for an integration subnetwork.
         function Cm = compute_integration_Cm( ~, ki_mean )
         
+            %{
+            Input(s):
+                ki_mean     =   [-] Intergration Subnetwork Gain.
+            
+            Output(s):
+                Cm          =   [F] Membrane Conductance.
+            %}
+            
             % Set the default input arguments.
             if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end
             
@@ -566,6 +771,16 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
         function gs = compute_integration_gsynmax( ~, Gm, Cm, ki_range )
         
+            %{
+            Input(s):
+                Gm          =   [S] Membrane Conductance.
+                Cm          =   [F] Membrane Capacitance.
+                ki_range    =   [-] Integration Subnetwork Gain.
+            
+            Output(s):
+                gs          =   [S] Maximum Synaptic Conductance.
+            %}
+            
             % Set the default input arguments.
             if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
             
@@ -578,6 +793,16 @@ classdef network_utilities_class
         % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
         function dEsyn = compute_integration_dEsyn( ~, Gm, R, gs )
         
+            %{
+            Input(s):
+                Gm      =   [S] Membrane Conductance.
+                R       =   [V] Maximum Membrane Voltage.
+                gs      =   [S] Maximum Synaptic Conductance.
+            
+            Output(s):
+                dEsyn   =   [S] Synaptic Reversal Potential.
+            %}
+            
            % Compute the synaptic reversal potentials for an integration subnetwork.
            dEsyn = - ( Gm*R )./gs;
             
@@ -587,17 +812,37 @@ classdef network_utilities_class
         % Implement a function to compute the applied current for an integration subnetwork.
         function Iapp = compute_integration_Iapp( ~, Gm, R )
             
+            %{
+            Input(s):
+                Gm      =   [S] Membrane Conductance.
+                R       =   [V] Maximum Membrane Conductance.
+            
+            Output(s):
+                Iapp    =   [A] Applied Current.
+            %}
+            
             % Compute the applied current for an integration subnetwork.
             Iapp = Gm.*R;
             
         end
         
             
-        %% Voltage Based Integration Design Functions
+        %% Voltage Based Integration Design Functions.
         
         % Implement a function to compute the desired intermediate synaptic current for a voltage based integration subnetwork.
         function I_syn12 = compute_vb_integration_Isyn( ~, R2, Ta, ki_mean, b_inhibition )
 
+            %{
+            Input(s):
+                R2              =   [V] Maximum Membrane Voltage.
+                Ta              =   [s] Activation Period.
+                ki_mean         =   [-] Integration Subnetwork Gain.
+                b_inhibition    =   [T/F] Inhibition Flag.
+            
+            Output(s):
+                I_syn12         =   [A] Synaptic Current (Synapse 12).
+            %}
+            
             % Set the default input arguments.
             if nargin < 5, b_inhibition = false; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
@@ -614,16 +859,35 @@ classdef network_utilities_class
         % Implement a function to compute the maximum synaptic conductances for a voltage based integration subnetwork.
         function g_syn_max12 = compute_vb_integration_gsynmax( ~, R2, dE_syn12, I_syn12 )
                     
+            %{
+            Input(s):
+                R2              =   [V] Maximum Membrane Voltage.
+                dE_syn12        =   [V] Synaptic Reversal Potential (Synapse 12).
+                I_syn12         =   [A] Synaptic Current (Synapse 12).
+            
+            Output(s):
+                g_syn_max12     =   [S] Maximum Synaptic Conductance (Synapse 12).
+            %}
+            
             % Compute the maximum synaptic conductance for a voltage based integration subnetwork.
             g_syn_max12 = I_syn12./( dE_syn12 - ( R2/2 ) );
             
         end
             
         
-        %% Steady State Formulations
+        %% Steady State Formulations.
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
         function U_outputs = compute_desired_absolute_addition_steady_state_output( ~, U_inputs, c )
+            
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c           =   [-] Absolute Addition Gain.
+            
+            Output(s):
+                U_outputs   =   [V] Membrane Voltage Outputs.
+            %}
             
             % Set the default input arguments.
             if nargin < 3, c = 1; end
@@ -637,6 +901,16 @@ classdef network_utilities_class
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative addition subnetwork.
         function U_outputs = compute_desired_relative_addition_steady_state_output( ~, U_inputs, Rs, c )
+            
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                Rs          =   [V] Maximum Membrane Voltage.
+                c           =   [-] Relative Addition Gain.
+            
+            Output(s):
+                U_Outputs   =   [V] Membrane Voltage Outputs.
+            %}
             
             % Set the default input arguments.
             if nargin < 4, c = 1; end
@@ -654,6 +928,19 @@ classdef network_utilities_class
         
         % Implement a function to compute the steady state output associated with the achieved formulation of an addition subnetwork.
         function U_outputs = compute_achieved_addition_steady_state_output( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
+            
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                Rs          =   [V] Maximum Membrane Voltage.
+                Gms         =   [s] Membrane Conductance.
+                Ias         =   [A] Applied Current.
+                gs          =   [S] Maximum Synaptic Conductance.
+                dEs         =   [V] Synaptic Reversal Potential.
+            
+            Output(s):
+                U_outputs   =   [V] Membrane Voltage Outputs.
+            %}
             
             % Compute the steady state network outputs.
 %             U_outputs = ( sum( ( gs( end, : ).*dEs( end, : ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Ias( end ) )./( sum( ( gs( end, : ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Gms( end ) );
@@ -1074,37 +1361,39 @@ classdef network_utilities_class
             
             % This function computes a single step of a neural network without sodium channels.
             
-            % Inputs:
-            % Us = num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
-            % hs = num_neurons x 1 vector of neuron sodium channel deactivation parameters.
-            % Gms = num_neurons x 1 vector of neuron membrane conductances.
-            % Cms = num_neurons x 1 vector of neuron membrane capacitances.
-            % Rs = num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
-            % g_syn_maxs = num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
-            % dE_syns = num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
-            % Ams = num_neurons x 1 vector of sodium channel activation A parameter values.
-            % Sms = num_neurons x 1 vector of sodium channel activation S parameter values.
-            % dEms = num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
-            % Ahs = num_neurons x 1 vector of sodium channel deactivation A parameter values.
-            % Shs = num_neurons x 1 vector of sodium channel deactivation S parameter values.
-            % dEhs = num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
-            % tauh_maxs = num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
-            % Gnas = num_neurons x 1 vector of sodium channel conductances for each neuron.
-            % dEnas = num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
-            % I_tonics = num_neurons x 1 vector of applied currents for each neuron.
-            % I_apps = num_neurons x 1 vector of applied currents for each neuron.
+            %{
+            Input(s):
+                Us          =   [V] num_neurons x 1 vector of neuron membrane voltages w.r.t. their resting potentials.
+                hs          =   [-] num_neurons x 1 vector of neuron sodium channel deactivation parameters.
+                Gms         =   [S] num_neurons x 1 vector of neuron membrane conductances.
+                Cms         =   [F] num_neurons x 1 vector of neuron membrane capacitances.
+                Rs          =   [V] num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
+                g_syn_maxs  =   [S] num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
+                dE_syns     =   [V] num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
+                Ams         =   [-] num_neurons x 1 vector of sodium channel activation A parameter values.
+                Sms         =   [-] num_neurons x 1 vector of sodium channel activation S parameter values.
+                dEms        =   [-] num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
+                Ahs         =   [-] num_neurons x 1 vector of sodium channel deactivation A parameter values.
+                Shs         =   [-] num_neurons x 1 vector of sodium channel deactivation S parameter values.
+                dEhs        =   [-] num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
+                tauh_maxs   =   [s] num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
+                Gnas        =   [S] num_neurons x 1 vector of sodium channel conductances for each neuron.
+                dEnas       =   [V] num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
+                I_tonics    =   [A] num_neurons x 1 vector of applied currents for each neuron.
+                I_apps      =   [A] num_neurons x 1 vector of applied currents for each neuron.
             
-            % Outputs:
-            % dUs = num_neurons x 1 vector of neuron membrane voltage derivatives w.r.t their resting potentials.
-            % dhs = num_neurons x 1 vector of neuron sodium channel deactivation parameter derivatives.
-            % Gsyns = num_neurons x num_neurons matrix of synaptic conductances.  Entry ij represents the synaptic conductance from neuron j to neuron i.
-            % Ileaks = num_neurons x 1 vector of leak currents for each neuron.
-            % Isyns = num_neurons x 1 vector of synaptic currents for each neuron.
-            % Inas = num_neurons x 1 vector of sodium channel currents for each neuron.
-            % Itotals = num_neurons x 1 vector of total currents for each neuron.
-            % minfs = num_neurons x 1 vector of neuron steady state sodium channel activation values.
-            % hinfs = num_neurons x 1 vector of neuron steady state sodium channel deactivation values.
-            % tauhs = num_neurons x 1 vector of sodium channel deactivation parameter time constants.
+            Output(s):
+                dUs         =   [V] num_neurons x 1 vector of neuron membrane voltage derivatives w.r.t their resting potentials.
+                dhs         =   [-] num_neurons x 1 vector of neuron sodium channel deactivation parameter derivatives.
+                Gsyns       =   [S] num_neurons x num_neurons matrix of synaptic conductances.  Entry ij represents the synaptic conductance from neuron j to neuron i.
+                Ileaks      =   [A] num_neurons x 1 vector of leak currents for each neuron.
+                Isyns       =   [A] num_neurons x 1 vector of synaptic currents for each neuron.
+                Inas        =   [A] num_neurons x 1 vector of sodium channel currents for each neuron.
+                Itotals   	=   [A] num_neurons x 1 vector of total currents for each neuron.
+                minfs       =   [-] num_neurons x 1 vector of neuron steady state sodium channel activation values.
+                hinfs       =   [-] num_neurons x 1 vector of neuron steady state sodium channel deactivation values.
+                tauhs       =   [s] num_neurons x 1 vector of sodium channel deactivation parameter time constants.
+            %}
             
             % Compute the leak currents.
             I_leaks = self.neuron_utilities.compute_Ileak( Us, Gms );
