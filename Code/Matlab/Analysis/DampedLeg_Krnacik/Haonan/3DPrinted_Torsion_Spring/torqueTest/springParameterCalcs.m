@@ -1,14 +1,15 @@
 %% Torque Step Response
 % Calculate spring stiffness and damping characteristics based on averaged
-% torque step responses gathered about the springs.
+% torque step responses gathered from the springs.
 
 clear
 close all
 clc
 
 %% Set Up
-
-load springData;
+% load data
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\data');
+load springData; 
 
 % list of spring names
 springNames = {'2L2LT4ST_37T' '2L3LT4ST_37T' '2L4LT4ST_37T' '2L5LT4ST_37T'};%...

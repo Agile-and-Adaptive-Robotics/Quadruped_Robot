@@ -13,7 +13,6 @@ tCropped = t(1,1:qq);
 %%
 tr = risetime_ek(dataCropped,tCropped);
 ts = settime(dataCropped,tCropped);
-ts2 = settime(data,t);
 zeta = dampingRatio(tr,ts);
 omegan = (4.5*zeta)/ts;
 
