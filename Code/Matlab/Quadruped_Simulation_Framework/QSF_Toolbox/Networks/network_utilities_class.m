@@ -1040,6 +1040,17 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a relative subtraction subnetwork.
         function U_outputs = compute_desired_relative_subtraction_steady_state_output( ~, U_inputs, Rs, c, ss )
             
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                Rs          =   [V] Maximum Membrane Voltages.
+                c           =   [-] Relative Subtraction Subnetwork Gain.
+                ss          =   [-1/1] Subtraction Signs.
+            
+            Output(s):
+                U_outputs   =   [V] Membrane Voltage Outputs.
+            %}
+            
             % Set the default input arguments.
             if nargin < 5, ss = [ 1, -1 ]; end
             if nargin < 4, c = 1; end
@@ -1063,6 +1074,19 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the achieved formulation of a subtraction subnetwork.
         function U_outputs = compute_achieved_subtraction_steady_state_output( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
             
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                Rs          =   [V] Maximum Membrane Voltages.
+                Gms         =   [S] Membrane Conductances.
+                Ias         =   [A] Applied Currents.
+                gs          =   [S] Maximum Synaptic Conductance.
+                dEs         =   [V] Synaptic Reversal Potential.
+            
+            Output(s):
+                U_outputs   =   [V] Membrane Voltage Outputs.
+            %}
+            
             % Compute the steady state network outputs.
             U_outputs = ( sum( ( gs( end, 1:( end - 1 ) ).*dEs( end, 1:( end - 1 ) ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Ias( end ) )./( sum( ( gs( end, 1:( end - 1 ) ).*U_inputs )./Rs( 1:( end - 1 ) ), 2 ) + Gms( end ) );
             
@@ -1071,6 +1095,17 @@ classdef network_utilities_class
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute inversion subnetwork.
         function U2s = compute_desired_absolute_inversion_steady_state_output( ~, U1s, c1, c2, c3 )
+            
+            %{
+            Input(s):
+                U1s     =   [V] Membrane Voltages (Neuron 1).
+                c1      =   [?] Absolute Inversion Design Constant 1.
+                c2      =   [?] Absolute Inversion Design Constant 2.
+                c3      =   [?] Absolute Inversion Design Constant 3.
+            
+            Output(s):
+                U2s     =   [V] Membrane Voltages (Neuron 2).
+            %}
             
             % Set the default input arguments.
             if nargin < 5, c3 = 20e-9; end                          % [A] Design Constant 3.
@@ -1086,6 +1121,16 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
         function U2s = compute_desired_reduced_absolute_inversion_steady_state_output( ~, U1s, c1, c2 )
            
+            %{
+            Input(s):
+                U1s     =   [V] Membrane Voltages (Neuron 1).
+                c1      =   [-] Reduced Absolute Inversion Design Constant 1.
+                c2      =   [-] Reduced Absolute Inversion Design Constant 2.
+            
+            Output(s):
+                U2s     =   [V] Membrane Voltages (Neuron 2).
+            %}
+            
             % Set the default input arguments.
             if nargin < 4, c2 = 21.05e-6; end                       % [mV] Design Constant 2.
             if nargin < 3, c1 = 1.05e-3; end                        % [mV^2] Design Constant 1.
@@ -1099,6 +1144,19 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a relative inversion subnetwork.
         function U2s = compute_desired_relative_inversion_steady_state_output( ~, Us1, c1, c2, c3, R1, R2 )
         
+            %{
+            Input(s):
+                Us1 = [V] Membrane Voltages (Neuron 1).
+                c1 = [?] Desired Relative Inversion Design Constant 1.
+                c2 = [?] Desired Relative Inversion Design Constant 2.
+                c3 = [?] Desired Relative Inversion Design Constant 3.
+                R1 = [V] Maximum Membrane Voltage (Neuron 1).
+                R2 = [V] Maximum Membrane Voltage (Neuron 2).
+            
+            Output(s):
+                U2s = [V] Membrane Voltages (Neuron 2).
+            %}
+            
             % Set the default input arguments.
             if nargin < 7, R2 = 20e-3; end                          % [V] Maxmimum Membrane Voltage (Neuron 2).
             if nargin < 6, R1 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 1).
@@ -1115,6 +1173,18 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
         function U2s = compute_desired_reduced_relative_inversion_steady_state_output( ~, Us1, c1, c2, R1, R2 )
         
+            %{
+            Input(s):
+                Us1     =   [V] Membrane Voltages (Neuron 1).
+                c1      =   [?] Reduced Relative Inversion Design Constant 1.
+                c2      =   [?] Reduced Relative Inversion Design Constant 2.
+                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2      =   [V] Maximum Membrane Voltage (Neuron 2).
+            
+            Output(s):
+                U2s     =   [V] Membrane Voltages (Neuron 2).
+            %}
+            
             % Set the default input arguments.
             if nargin < 6, R2 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 2).
             if nargin < 5, R1 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 1).
@@ -1130,6 +1200,19 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
         function U2s = compute_achieved_inversion_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
         
+            %{
+            Input(s):
+                U1s     =   [V] Membrane Voltages (Neuron 1).
+                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
+                Gm2     =   [S] Membrane Conductance (Neuron 2).
+                Ia2     =   [A] Applied Current (Neuron 2).
+                gs21    =   [S] Maximum Synaptic Conductance (Synapse 21).
+                dEs21   =   [V] Synaptic Reversal Potential (Synapse 21).
+            
+            Output(s):
+                U2s     =   [V] Membrane Voltages (Neuron 2).
+            %}
+            
             % Set the default input arguments.
             if nargin < 7, dEs21 = 0; end                                       % [V] Synaptic Reversal Potential (Synapse 21).
             if nargin < 6, gs21 = 19e-6; end                                    % [S] Synaptic Conductance (Synapse 21).
@@ -1146,6 +1229,17 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
         function U3s = compute_desired_absolute_division_steady_state_output( ~, U_inputs, c1, c2, c3 )
         
+            %{
+            Input(s):
+                U_inputs = [V] Membrane Voltage Inputs.
+                c1 = [?] Absolute Division Design Constant 1.
+                c2 = [?] Absolute Division Design Constant 2.
+                c3 = [?] Absolute Division Design Constant 3.
+            
+            Output(s):
+                U3s = [V] Membrane Voltage (Neuron 3). 
+            %}
+            
             % Set the default input arguments.
             if nargin < 5, c3 = 0.40e-9; end                                    % [W] Design Constant 3.
             if nargin < 4, c2 = 380e-9; end                                     % [A] Design Constant 2.
@@ -1164,6 +1258,16 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute division subnetwork.
         function U3s = compute_desired_reduced_absolute_division_steady_state_output( ~, U_inputs, c1, c2 )
         
+            %{
+            Input(s):
+                U_inputs = [V] Membrane Voltage Inputs.
+                c1 = [?] Reduced Absolute Division Design Constant 1.
+                c2 = [?] Reduced Absolute Division Design Constant 2.
+            
+            Output(s):
+                U3s = [V] Membrane Voltages (Neuron 3).
+            %}
+            
             % Set the default input arguments.
             if nargin < 4, c2 = 1.05e-3; end                                	% [V] Design Constant 2.
             if nargin < 3, c1 = 1.05e-3; end                                    % [V] Design Constant 1.
@@ -1181,6 +1285,20 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a relative division subnetwork.
         function U3s = compute_desired_relative_division_steady_state_output( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
         
+            %{
+            Input(s):
+                U_inputs = [V] Membrane Voltage Inputs.
+                c1 = [?] Desired Relative Division Design Constant 1.
+                c2 = [?] Desired Relative Division Design Constant 2.
+                c3 = [?] Desired Relative Division Design Constant 3.
+                R1 = [V] Maximum Membrane Voltage (Neuron 1).
+                R2 = [V] Maximum Membrane Voltage (Neuron 2).
+                R3 = [V] Maximum Membrane Voltage (Neuron 3).
+            
+            Output(s):
+                U3s = [V] Membrane Voltages (Neuron 3).
+            %}
+            
             % Set the default input arguments.
             if nargin < 8, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
             if nargin < 7, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
@@ -1202,6 +1320,20 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division subnetwork.
         function U3s = compute_desired_reduced_relative_division_steady_state_output( ~, U_inputs, c1, c2, R1, R2, R3 )
         
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c1          =   [?] Reduced Relative Division Design Constant 1.
+                c2          =   [?] Reduced Relative Division Design Constant 2.
+                c3          =   [?] Reduced Relative Division Design Constant 3.
+                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
+                R3          =   [V] Maximum Membrane Voltage (Neuron 3).
+            
+            Output(s):
+                U3s         =   [V] Membrane Voltages (Neuron 3).
+            %}
+            
             % Set the default input arguments.
             if nargin < 7, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
             if nargin < 6, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
@@ -1222,6 +1354,22 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
         function U3s = compute_achieved_division_steady_state_output( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
         
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
+                Gm3         =   [S] Membrane Conductance (Neuron 3).
+                Ia3         =   [A] Applied Current (Neuron 3).
+                gs31        =   [S] Maximum Synaptic Conductance (Synapse 31).
+                gs32        =   [S] Maximum Synaptic Conductance (Synapse 32).
+                dEs31       =   [V] Synaptic Reversal Potential (Synapse 31).
+                dEs32       =   [V] Synaptic Reversal Potential (Synapse 32).
+            
+            Output(s):
+            `   U3s         =   [V] Membrane Voltages (Neuron 3).
+            %}
+            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
             U2s = U_inputs( :, 2 );
@@ -1235,6 +1383,21 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
         function [ U4s, U3s ] = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
         
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c1          =   [?] Absolute Multiplication Design Constant 1.
+                c2          =   [?] Absolute Multiplication Design Constant 2.
+                c3          =   [?] Absolute Multiplication Design Constant 3.
+                c4          =   [?] Absolute Multiplication Design Constant 4.
+                c5          =   [?] Absolute Multiplication Design Constant 5.
+                c6          =   [?] Absolute Multiplication Design Constant 6.
+            
+            Output(s):
+                U3s         =   [V] Membrane Voltage (Neuron 3).
+                U4s         =   [V] Membrane Voltage (Neuron 4).
+            %}
+            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
             U2s = U_inputs( :, 2 );
@@ -1251,6 +1414,19 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute multiplication subnetwork.
         function [ U4s, U3s ] = compute_desired_red_abs_mult_ss_output( self, U_inputs, c1, c2, c3, c4 )
         
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c1          =   [?] Reduced Absolute Multiplication Design Constant 1.
+                c2          =   [?] Reduced Absolute Multiplication Design Constant 2.
+                c3          =   [?] Reduced Absolute Multiplication Design Constant 3.
+                c4          =   [?] Reduced Absolute Multiplication Design Constant 4.
+
+            Output(s):
+                U3s         =   [V] Membrane Voltage (Neuron 3).
+                U4s         =   [V] Membrane Voltage (Neuron 4).
+            %}
+            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
             U2s = U_inputs( :, 2 );
@@ -1266,7 +1442,26 @@ classdef network_utilities_class
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
         function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
-           
+   
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c1          =   [?] Relative Multiplication Design Constant 1.
+                c2          =   [?] Relative Multiplication Design Constant 2.
+                c3          =   [?] Relative Multiplication Design Constant 3.
+                c4          =   [?] Relative Multiplication Design Constant 4.
+                c5          =   [?] Relative Multiplication Design Constant 5.
+                c6          =   [?] Relative Multiplication Design Constant 6.
+                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
+                R3          =   [V] Maximum Membrane Voltage (Neuron 3).
+                R4          =   [V] Maximum Membrane Voltage (Neuron 4).
+
+            Output(s):
+                U3s         =   [V] Membrane Voltage (Neuron 3).
+                U4s         =   [V] Membrane Voltage (Neuron 4).
+            %}
+            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
             U2s = U_inputs( :, 2 );
@@ -1282,6 +1477,23 @@ classdef network_utilities_class
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
         function [ U4s, U3s ] = compute_desired_red_rel_mult_ss_output( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 )
+           
+           %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c1          =   [?] Reduced Relative Multiplication Design Constant 1.
+                c2          =   [?] Reduced Relative Multiplication Design Constant 2.
+                c3          =   [?] Reduced Relative Multiplication Design Constant 3.
+                c4          =   [?] Reduced Relative Multiplication Design Constant 4.
+                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
+                R3          =   [V] Maximum Membrane Voltage (Neuron 3).
+                R4          =   [V] Maximum Membrane Voltage (Neuron 4).
+
+            Output(s):
+                U3s         =   [V] Membrane Voltage (Neuron 3).
+                U4s         =   [V] Membrane Voltage (Neuron 4).
+            %}
            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
@@ -1299,6 +1511,28 @@ classdef network_utilities_class
         % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
         function [ U4s, U3s ] = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
         
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
+                R3          =   [V] Maximum Membrane Voltage (Neuron 3).
+                Gm3         =   [S] Membrane Conductance (Neuron 3).
+                Gm4         =   [S] Membrane Conductance (Neuron 4).
+                Ia3         =   [A] Applied Current (Neuron 3).
+                Ia4         =   [A] Applied Current (Neuron 4).
+                gs32        =   [S] Synaptic Conductance (Synapse 32).
+                gs41        =   [S] Synaptic Conductance (Synapse 41).
+                gs43        =   [S] Synaptic Conductance (Synapse 43).
+                dEs32       =   [S] Synaptic Reversal Potential (Synapse 32).
+                dEs41       =   [S] Synaptic Reversal Potential (Synapse 41).
+                dEs43       =   [S] Synaptic Reversal Potential (Synapse 43).
+            
+            Output(s):
+                U3s         =   [V] Membrane Voltage (Neuron 3).
+                U4s         =   [V] Membrane Voltage (Neuron 4).
+            %}
+            
             % Retrieve the steady state inputs.
             U1s = U_inputs( :, 1 );
             U2s = U_inputs( :, 2 );
@@ -1312,11 +1546,24 @@ classdef network_utilities_class
         end
         
         
-        %% Network Functions
+        %% Network Functions.
         
         % Implement a function to compute the linearized system matrix for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
         function A = compute_linearized_system_matrix( ~, Cms, Gms, Rs, gs, dEs, Us0 )
         
+            %{
+            Input(s):
+                Cms     =   [F] Membrane Capacitances.
+                Gms    	=   [S] Membrane Conductances.
+                Rs      =   [V] Maximum Membrane Votlages.
+                gs      =   [S] Synaptic Conductances.
+                dEs     =   [V] Synaptic Reversal Potentials.
+                Us0     =   [V] Membrane Voltage Equilibrium Point.  The point at which the system linearization is performed.
+            
+            Output(s):
+                A       =	[variable] Linearized System Matrix.
+            %}
+            
             % Set the default input arguments.
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
             
@@ -1363,6 +1610,15 @@ classdef network_utilities_class
         % Implement a function to compute the linearized input matrix for a neural network.  (This method is only valid for neural networks WITHOUT sodium channels.) 
         function B = compute_linearized_input_matrix( ~, Cms, Ias )
             
+            %{
+            Input(s):
+                Cms     =   [F] Membrane Capacitances.
+                Ias     =   [A] Applied Currents.
+            
+            Output(s):
+                B       =   [variable] Linearized Input Matrix.
+            %}
+            
             % Compute the number of neurons.
             num_neurons = length( Cms );
             
@@ -1395,6 +1651,21 @@ classdef network_utilities_class
         % Implement a function to compute the linearized system for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
         function [ A, B ] = get_linearized_system( self, Cms, Gms, Rs, gs, dEs, Ias, Us0 )
         
+            %{
+            Input(s):
+                Cms     =   [F] Membrane Capacitances.
+                Gms     =   [S] Membrane Conductances.
+                Rs      =   [V] Maximum Membrane Voltages.
+                gs      =   [S] Synaptic Conductances.
+                dEs     =   [V] Synaptic Reversal Potentials.
+                Ias     =   [A] Applied Currents.
+                Us0     =   [V] Membrane Voltage Equilibrium Point.  The point at which the system is linearized.
+            
+            Output(s):
+                A       =   [variable] Linearized System Matrix.
+                B       =   [variable] Linearized Input Matrix.
+            %}
+            
             % Set the default input arguments.
             if nargin < 8, Us0 = zeros( length( Cm2 ), 1 ); end
             
@@ -1407,11 +1678,27 @@ classdef network_utilities_class
         end
         
         
-        %% Stability Functions
+        %% Stability Functions.
         
         % Implement a function to compute the maximum RK4 step size.
         function [ A, dt, condition_number ] = RK4_stability_analysis_at_point( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
         
+            %{
+            Input(s):
+                Cms                 =   [F] Membrane Capacitances.
+                Gms                 =   [S] Membrane Conductances.
+                Rs                  =   [V] Maximum Membrane Voltages.
+                gs                  =   [S] Synaptic Conductances.
+                dEs                 =   [V] Synaptic Reversal Potentials.
+                Us0                 =   [V] Membrane Voltage Equilibrium Point.  The point at which the system is to be linearized.
+                dt0                 =   [s] Maximum RK4 Timestep Guess.
+            
+            Output(s);
+                A                   =   [variable] Linearized System Matrix.
+                dt                  =   [s] Maximum RK4 Timestep.  Simulation timesteps greater than this value are unstable.
+                condition_number    =   [-] Linearized System Condition Number.
+            %}
+            
             % Set the default input arguments.
             if nargin < 8, dt0 = 1e-6; end
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
@@ -1428,7 +1715,7 @@ classdef network_utilities_class
         end      
         
         
-        %% Simulation Functions
+        %% Simulation Functions.
         
         % Implement a function to perform a single simulation step.
         function [ dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = simulation_step( self, Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps )
@@ -1496,6 +1783,31 @@ classdef network_utilities_class
         % Implement a function that defines the network flow.
         function dx = network_flow( self, t, x, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps )
            
+            %{
+            Input(s):
+                t           =   [s] Network Simulation Time.
+                x           =   [variable] Network State.
+                Gms         =   [S] Membrane Conductances.
+                Cms         =   [F] Membrane Capacitances.
+                Rs          =   [V] Maximum Membrane Voltages.
+                g_syn_maxs  =   [S] Maximum Synaptic Conductances.
+                dE_syns     =   [V] Synaptic Reversal Potentials.
+                Ams         =   [?] Ion Channel Activation Parameter 1.
+                Sms         =   [?] Ion Channel Activation Parameter 2.
+                dEms        =   [?] Ion Channel Activation Parameter 3. 
+                Ahs         =   [?] Ion Channel Deactivation Parameter 1.
+                Shs         =   [?] Ion Channel Deactivation Parameter 2.
+                dEhs        =   [?] Ion Channel Deactivation Parameter 3. 
+                tauh_maxs   =   [s] Ion Channel Deactivation Time Constant.
+                Gnas        =   [S] Ion Channel Conductances.
+                dEnas       =   [V] Ion Channel Reversal Potential.
+                I_tonics    =   [V] Tonic Currents.
+                I_apps      =   [V] Applied Currents.
+            
+            Output(s):
+                dx          =   [variable] Network State Flows.
+            %}
+            
             % Retrieve the number of states.
             num_states = length( x );
             
@@ -1518,6 +1830,45 @@ classdef network_utilities_class
         % Implement a function to perform an integration step.
         function [ Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = integration_step( self, Us, hs, Gms, Cms, Rs, g_syn_maxs, dE_syns, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, V_apps_cell, dt, method )
         
+            %{
+            Input(s):
+                Us              =   [V] Membrane Voltages.
+                hs              =   [-] Ion Channel Deactivation Parameter.
+                Gms             =   [S] Membrane Conductances.
+                Cms             =   [F] Membrane Capacitances.
+                Rs              =   [V] Maximum Membrane Voltages.
+                g_syn_maxs      =   [S] Maximum Synaptic Conductances.
+                dE_syns         =   [V] Synaptic Reversal Potentials.
+                Ams             =   [?] Ion Channel Activation Parameter 1.
+                Sms             =   [?] Ion Channel Activation Parameter 2.
+                dEms            =   [?] Ion Channel Activation Parameter 3.
+                Ahs             =   [?] Ion Channel Deactivation Parameter 1.
+                Shs             =   [?] Ion Channel Deactivation Parameter 2.
+                dEhs            =   [?] Ion Channel Deactivation Parameter 3.
+                tauh_maxs       =   [s] Ion Channel Deactivation Time Constant.
+                Gnas            =   [S] Ion Channel Conductances.
+                dEnas           =   [V] Ion Channel Reversal Potential.
+                I_tonics        =   [V] Tonic Currents.
+                I_apps          =   [V] Applied Currents.
+                V_apps_cell     =   [V] Applied Voltages (When used, the associated neurons have the voltages clamped to these values.)
+                dt              =   [s] Simulation Timestep.
+                method          =   [str] Integration Method.
+            
+            Output(s):
+                Us              =   [V] Membrane Voltages.
+                hs              =   [-] Ion Channel Deactivation Parameters.
+                dUs             =   [V/s] Membrane Voltage Time Derivatives.
+                dhs             =   [-/s] Ion Channel Deactivation Parameter Time Derivatives.
+                G_syns          =   [S] Synaptic Conductances.
+                I_leaks         =   [A] Leak Currents.
+                I_syns          =   [A] Synaptic Currents.
+                I_nas           =   [A] Ion Channel Currents.
+                I_totals        =   [A] Total Currents.
+                m_infs          =   [-] Steady State Ion Channel Activation Parameters.
+                h_infs          =   [-] Steady State Ion Channel Deactivation Parameters.
+                tauhs           =   [s] Ion Channel Deactivation Parameter Time Constant.
+            %}
+            
             % Set the default input arguments.
             if nargin < 22, method = 'RK4'; end
             
@@ -1579,41 +1930,43 @@ classdef network_utilities_class
             
             % This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, dEsyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
             
-            % Inputs:
-            % Us0 = num_neurons x 1 vector of initial membrane voltages of each neuron w.r.t their resting potentials.
-            % hs0 = num_neurons x 1 vector of initial sodium channel deactivation parameters for each neuron.
-            % Gms = num_neurons x 1 vector of neuron membrane conductances.
-            % Cms = num_neurons x 1 vector of neuron membrane capacitances.
-            % Rs = num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
-            % gsyn_maxs = num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
-            % dEsyns = num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
-            % Ams = num_neurons x 1 vector of sodium channel activation A parameter values.
-            % Sms = num_neurons x 1 vector of sodium channel activation S parameter values.
-            % dEms = num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
-            % Ahs = num_neurons x 1 vector of sodium channel deactivation A parameter values.
-            % Shs = num_neurons x 1 vector of sodium channel deactivation S parameter values.
-            % dEhs = num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
-            % tauh_maxs = num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
-            % Gnas = num_neurons x 1 vector of sodium channel conductances for each neuron.
-            % dEnas = num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
-            % Iapp = num_neurons x num_timesteps vector of applied currents for each neuron.
-            % tf = Scalar that represents the simulation duration.
-            % dt = Scalar that represents the simulation time step.
+            %{
+            Input(s):
+                Us0         =   [V] num_neurons x 1 vector of initial membrane voltages of each neuron w.r.t their resting potentials.
+                hs0         =   [-] num_neurons x 1 vector of initial sodium channel deactivation parameters for each neuron.
+                Gms         =   [S] num_neurons x 1 vector of neuron membrane conductances.
+                Cms         =   [F] num_neurons x 1 vector of neuron membrane capacitances.
+                Rs        	=   [V] num_neurons x num_neurons matrix of synapse voltage ranges.  Entry ij represents the synapse voltage range from neuron j to neuron i.
+                gsyn_maxs	=   [S] num_neurons x num_neurons matrix of maximum synaptic conductances.  Entry ij represents the maximum synaptic conductance from neuron j to neuron i.
+                dEsyns      =   [V] num_neurons x num_neurons matrix of synaptic reversal potentials.  Entry ij represents the synaptic reversal potential from neuron j to neuron i.
+                Ams         =   [?] num_neurons x 1 vector of sodium channel activation A parameter values.
+                Sms         =   [?] num_neurons x 1 vector of sodium channel activation S parameter values.
+                dEms        =   [?] num_neurons x 1 vector of sodium channel activation parameter reversal potentials.
+                Ahs         =   [?] num_neurons x 1 vector of sodium channel deactivation A parameter values.
+                Shs         =   [?] num_neurons x 1 vector of sodium channel deactivation S parameter values.
+                dEhs        =   [?] num_neurons x 1 vector of sodium channel deactivation parameter reversal potentials.
+                tauh_maxs   =   [s] num_neurons x 1 vector of maximum sodium channel deactivation parameter time constants.
+                Gnas        =   [S] num_neurons x 1 vector of sodium channel conductances for each neuron.
+                dEnas       =   [V] num_neurons x 1 vector of sodium channel reversal potentials for each neuron.
+                Iapp        =   [A] num_neurons x num_timesteps vector of applied currents for each neuron.
+                tf          =   [s] Scalar that represents the simulation duration.
+                dt          =   [s] Scalar that represents the simulation time step.
             
-            % Outputs:
-            % ts = 1 x num_timesteps vector of the time associated with each simulation step.
-            % Us = num_neurons x num_timesteps matrix of the neuron membrane voltages over time w.r.t. their resting potentials.
-            % hs = num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameters.
-            % dUs = num_neurons x num_timesteps matrix of neuron membrane voltage derivatives over time w.r.t their resting potentials.
-            % dhs = num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameter derivatives.
-            % Gsyns = num_neurons x num_neurons x num_timesteps tensor of synapse conductances over time.  The ijk entry represens the synaptic condutance from neuron j to neuron i at time step k.
-            % Ileaks = num_neurons x num_timsteps matrix of neuron leak currents over time.
-            % Isyns = num_neurons x num_timesteps matrix of synaptic currents over time.
-            % Inas = num_neurons x num_timesteps matrix of sodium channel currents for each neuron.
-            % Itotals = num_neurons x num_timesteps matrix of total currents for each neuron.
-            % minfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel activation values.
-            % hinfs = num_neurons x num_timesteps matrix of neuron steady state sodium channel deactivation values.
-            % tauhs = num_neurons x num_timesteps matrix of sodium channel deactivation parameter time constants.
+            Output(s):
+                ts          =   [s] 1 x num_timesteps vector of the time associated with each simulation step.
+                Us          =   [V] num_neurons x num_timesteps matrix of the neuron membrane voltages over time w.r.t. their resting potentials.
+                hs          =   [-] num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameters.
+                dUs         =   [V/s] num_neurons x num_timesteps matrix of neuron membrane voltage derivatives over time w.r.t their resting potentials.
+                dhs         =   [-/s] num_neurons x num_timesteps matrix of neuron sodium channel deactivation parameter derivatives.
+                Gsyns       =   [S] num_neurons x num_neurons x num_timesteps tensor of synapse conductances over time.  The ijk entry represens the synaptic condutance from neuron j to neuron i at time step k.
+                Ileaks      =   [A] num_neurons x num_timsteps matrix of neuron leak currents over time.
+                Isyns       =   [A] num_neurons x num_timesteps matrix of synaptic currents over time.
+                Inas        =   [A] num_neurons x num_timesteps matrix of sodium channel currents for each neuron.
+                Itotals     =   [A] num_neurons x num_timesteps matrix of total currents for each neuron.
+                minfs       =   [-] num_neurons x num_timesteps matrix of neuron steady state sodium channel activation values.
+                hinfs       =   [-] num_neurons x num_timesteps matrix of neuron steady state sodium channel deactivation values.
+                tauhs       =   [s] num_neurons x num_timesteps matrix of sodium channel deactivation parameter time constants.
+            %}
             
             % Set the default input arguments.
             if nargin < 23, method = 'RK4'; end
@@ -1656,11 +2009,25 @@ classdef network_utilities_class
         end
         
         
-        %% Plotting Functions
+        %% Plotting Functions.
         
         % Implement a function to plot the network currents over time.
         function fig = plot_network_currents( ~, ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs )
-        
+            
+            %{
+            Input(s):
+                ts          =   [s] Times.
+                I_leaks     =   [A] Leak Currents.
+                I_syns      =   [A] Synaptic Currents.
+                I_nas       =   [A] Ion Channel Currents.
+                I_apps      =   [A] Applied Currents.
+                I_totals    =   [A] Total Currents.
+                neuron_IDs  =   [#] Neuron IDs.
+            
+            Output(s):
+                fig         =   [-] Network Currents Figure.
+            %}
+            
             % Set the default input arguments.
             if nargin < 8, neuron_IDs = 1:size( I_totals, 1 ); end
             
@@ -1702,6 +2069,17 @@ classdef network_utilities_class
         % Implement a function to plot the network states over time.
         function fig = plot_network_states( ~, ts, Us, hs, neuron_IDs )
             
+            %{
+            Input(s):
+                ts          =   [s] Times.
+                Us          =   [V] Membrane Voltages.
+                hs          =   [-] Ion Channel Deactivation Parameters.
+                neuron_IDs  =   [#] Neuron IDs.
+            
+            Output(s):
+                fig         =   [-] Network States Figure.
+            %}
+            
             % Set the default input arguments.
             if nargin < 5, neuron_IDs = 1:size( Us, 1 ); end
             
@@ -1737,6 +2115,18 @@ classdef network_utilities_class
         
         % Implement a function to animate the network states over time.
         function fig = animate_network_states( self, Us, hs, neuron_IDs, num_playbacks, playback_speed )
+            
+            %{
+            Input(s):
+                Us              =   [V] Membrane Voltages.
+                hs              =   [-] Ion Channel Deactivation.
+                neuron_IDs      =   [#] Neuron IDs.
+                num_playbacks   =   [#] Number of Animation Playbacks.
+                playback_speed  =   [#] Playback Speed. 1 = Use Every Frame, 2 = Use Every Other Frame , 3 = Use Every Third Frame, etc.
+            
+            Output(s):
+                fig             =   [-] Network State Animation Figure.
+            %}
             
             % Set the default input arguments.
             if nargin < 6, playback_speed = 1; end
