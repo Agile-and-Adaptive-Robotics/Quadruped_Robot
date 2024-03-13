@@ -5045,6 +5045,31 @@ classdef network_class
         end
             
         
+        % Implement a function to perform RK4 stability analysis on a transmission subnetwork.
+        function [ U2s, As, dts, condition_numbers ] = achieved_transmission_RK4_stability_analysis( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+        
+            % Set the default input arguments.
+            if nargin < 9, dt0 = 1e-6; end
+            if nargin < 8, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 7, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 6, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 5, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 3, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved transmission steady state output at each of the provided inputs.
+            U2s = self.compute_achieved_transmission_steady_state_output( U1s, Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ) );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );  
+            
+        end
+        
+        
         % Implement a function to perform RK4 stability analysis on an addition subnetwork.
         function [ U3s, As, dts, condition_numbers ] = achieved_addition_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
             
@@ -5174,8 +5199,52 @@ classdef network_class
         end
         
         
-        %% Steady State Functions
+        %% Steady State Functions.
         
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
+        function U2s = compute_desired_absolute_transmission_steady_state_output( self, U1s, c )
+ 
+            % Set the default input arguments.
+            if nargin < 3, c = 1; end
+            if nargin < 2, U1s = 0; end
+            
+            % Compute the steady state network outputs.
+            U2s = self.network_utilities.compute_desired_absolute_transmission_steady_state_output( U1s, c );
+        
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative transmission subnetwork.
+        function U2s = compute_desired_relative_transmission_steady_state_output( self, U1s, c, R1, R2 )
+ 
+            % Set the default input arguments.
+            if nargin < 5, R2 = 20e-3; end
+            if nargin < 4, R1 = 20e-3; end
+            if nargin < 3, c = 1; end
+            if nargin < 2, U1s = 0; end
+            
+            % Compute the steady state network outputs.
+            U2s = self.network_utilities.compute_desired_relative_transmission_steady_state_output( U1s, c, R1, R2 );
+        
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a transmission subnetwork.
+        function U2s = compute_achieved_transmission_steady_state_output( self, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        
+            % Set the default input arguments.
+            if nargin < 7, dEs21 = 194e-3; end                                  % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 6, gs21 = 19e-6; end                                    % [S] Synaptic Conductance (Synapse 21).
+            if nargin < 5, Ia2 = 20e-9; end                                     % [A] Applied Current (Neuron 2).
+            if nargin < 4, Gm2 = 1e-6; end                                      % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            
+            % Compute the steady state network outputs.
+            U2s = self.network_utilities.compute_achieved_transmission_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );
+            
+        end
+        
+            
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
         function U_outputs = compute_desired_absolute_addition_steady_state_output( self, U_inputs, c )
         

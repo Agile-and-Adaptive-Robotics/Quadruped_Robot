@@ -877,6 +877,70 @@ classdef network_utilities_class
         
         %% Steady State Formulations.
         
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
+        function U2s = compute_desired_absolute_transmission_steady_state_output( ~, U1s, c )
+            
+            %{
+            Input(s):
+                U1s     =   [V] Membrane Voltages (Neuron 1).
+                c       =   [-] Absolute Transmission Gain.
+            
+            Output(s):
+                U2s     =   [V] Membrane Voltages (Neuron 2).
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 3, c = 1; end
+            if nargin < 2, U1s = 0; end
+            
+            % Compute the steady state network output.
+            U2s = c*U1s;
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative transmission subnetwork.
+        function U2s = compute_desired_relative_transmission_steady_state_output( ~, U1s, c, R1, R2 )
+            
+            %{
+            Input(s):
+                U1s     =   [V] Membrane Voltages (Neuron 1).
+                c       =   [-] Relative Transmission Gain.
+                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
+                R2      =   [V] Maximum Membrane Voltage (Neuron 2).
+            
+            Output(s):
+                U2s     =   [V] Membrane Voltages (Neuron 2).
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 5, R2 = 20e-3; end
+            if nargin < 4, R1 = 20e-3; end
+            if nargin < 3, c = 1; end
+            if nargin < 2, U1s = 0; end
+            
+            % Compute the steady state network output.
+            U2s = c*( R2/R1 )*U1s;
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a transmission subnetwork.
+        function U2s = compute_achieved_transmission_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        
+            % Set the default input arguments.
+            if nargin < 7, dEs21 = 194e-3; end                                  % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 6, gs21 = 19e-6; end                                    % [S] Synaptic Conductance (Synapse 21).
+            if nargin < 5, Ia2 = 20e-9; end                                     % [A] Applied Current (Neuron 2).
+            if nargin < 4, Gm2 = 1e-6; end                                      % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            
+            % Compute the steady state network outputs.
+            U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );           % [V] Membrane Voltage (Neuron 2).
+            
+        end
+        
+        
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
         function U_outputs = compute_desired_absolute_addition_steady_state_output( ~, U_inputs, c )
             
@@ -951,6 +1015,16 @@ classdef network_utilities_class
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute subtraction subnetwork.
         function U_outputs = compute_desired_absolute_subtraction_steady_state_output( ~, U_inputs, c, ss )
+            
+            %{
+            Input(s):
+                U_inputs = [V] Membrane Voltage Inputs.
+                c = [-] Absolute Subtraction Gain.
+                ss = [-1/1] Subtraction Signs.
+            
+            Output(s):
+                U_outputs = [V] Membrane Voltage Outputs.
+            %}
             
             % Set the default input arguments.
             if nargin < 4, ss = [ 1, -1 ]; end
