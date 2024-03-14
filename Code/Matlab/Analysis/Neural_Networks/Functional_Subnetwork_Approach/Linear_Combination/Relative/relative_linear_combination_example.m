@@ -1,4 +1,4 @@
-%% Absolute Linear Combination Subnetwork Example
+%% Relative Linear Combination Subnetwork Example.
 
 % Clear Everything.
 clear, close('all'), clc
@@ -7,20 +7,21 @@ clear, close('all'), clc
 %% Define Simulation Parameters.
 
 % Define the level of verbosity.
-b_verbose = true;                                   % [T/F] Printing Flag.
+b_verbose = true;                                       % [T/F] Printing Flag.
 
 % Define the network integration step size.
-network_dt = 1.3e-4;                                % [s] Simulation Timestep.
+network_dt = 1.3e-4;                                    % [s] Simulation Timestep.
 
 % Define the network simulation duration.
-network_tf = 3;                                     % [s] Simulation Duration.
+network_tf = 3;                                         % [s] Simulation Duration.
 
 
-%% Define Absolute Linear Combination Subnetwork Parameters.
+%% Define Relative Linear Combination Subnetwork Parameters.
 
 % Define the maximum membrane voltages.
 R1 = 20e-3;                                             % [V] Maximum Membrane Voltages (Neuron 1).
 R2 = 20e-3;                                             % [V] Maximum Membrane Voltage (Neuron 2).
+R3 = 20e-3;                                             % [V] Maximum Membrane Voltage (Neuron 3).
 
 % Define the membrane conductances.
 Gm1 = 1e-6;                                             % [S] Membrane Conductance (Neuron 1).
@@ -59,10 +60,10 @@ s1 = 1;                                                 % [-1/1] Input Signature
 s2 = -1;                                                % [-1/1] Input Signature 2.
 
 
-%% Compute Absolute Linear Combination Subnetwork Parameter Arrays.
+%% Compute Relative Linear Combination Subnetwork Parameter Arrays.
 
 % Construct the maximum membrane voltage array.
-Rs = [ R1; R2; 0 ];                                     % [V] Maximum Membrane Voltages (# neurons x 1).
+Rs = [ R1; R2; R3 ];                                     % [V] Maximum Membrane Voltages (# neurons x 1).
 
 % Construct the membrane conductance array.
 Gms = [ Gm1; Gm2; Gm3 ];                                % [S] Membrane Conductance (# neurons x 1).
@@ -89,28 +90,31 @@ cs = [ c1; c2 ];                                        % [-] Input Gains (# neu
 ss = [ s1; s2 ];                                        % [-1/1] Input Signatures (# neurons - 1 x 1).
 
 
-%% Compute Derived Absolute Linear Combination Subnetwork Constraints.
+%% Compute Derived Relative Linear Combination Subnetwork Constraints.
 
 % Compute network structure information.
 num_neurons = length( Rs );                                         % [#] Number of Neurons.
 num_synapses = length( dEs );                                       % [#] Number of Synapses.
 
-% Retrieve the input maximum membrane voltages.
-Rs_inputs = Rs( 1:end - 1 );                                        % [V] Maximum Membrane Voltages of Input Neurons.
-
 % Retrieve the input indexes associated with excitatory and inhibitory inputs.
 i_excitatory = ss == 1;                                             % [#] Excitatory Input Neuron Indexes.
 i_inhibitory = ss == -1;                                            % [#] Inhibitory Input Neuron Indexes.
 
-% Compute the maximum membrane voltages required for the excitatory and inhibitory inputs.
-Rn_inhibitory = cs( i_inhibitory )'*Rs_inputs( i_inhibitory );     	% [V] Maximum Membrane Voltage To Capture Inhibitory Neuron Inputs.
-Rn_excitatory = cs( i_excitatory )'*Rs_inputs( i_excitatory );     	% [V] Maximum Membrane Voltage To Capture Excitatory Neuron Inputs.
+% Retrieve the excitatory and inhibitory gains.
+cs_excitatory = cs( i_excitatory );                                 % [-] Excitatory Gains.
+cs_inhibitory = cs( i_inhibitory );                                 % [-] Inhibitory Gains.
 
-% Compute the maximum membrane voltage of the output neuron.
-Rn = max( Rn_inhibitory, Rn_excitatory );                           % [V] Maximum Membrane Voltage (Output Neuron).
+% Compute the relevant gain magnitude with respect to the 1-norm.
+cs_magnitude = max( norm( cs_inhibitory, 1 ), norm( cs_excitatory, 1 ) );
 
-% Add the maximum membrane voltage of the output neuron to the maximum membrane voltage array.
-Rs( end ) = Rn;                                                     % [V] Maximum Membrane Voltages (# neurons x 1).
+% Normalize the inhibitory and excitatory gains.
+cs_excitatory_unit = cs_excitatory/cs_magnitude;
+cs_inhibitory_unit = cs_inhibitory/cs_magnitude;
+
+% Construct the normalized input gains vector.
+cs_unit = zeros( size( cs ) );
+cs_unit( i_excitatory ) = cs_excitatory_unit;
+cs_unit( i_inhibitory ) = cs_inhibitory_unit;
 
 % Preallocate an array to store the synaptic conductances.
 gs = zeros( num_synapses, 1 );                                      % [S] Synaptic Conductances (# synapses x 1).
@@ -119,17 +123,17 @@ gs = zeros( num_synapses, 1 );                                      % [S] Synapt
 for k = 1:num_synapses                                              % Iterate through each of the synapses...
     
     % Compute the synaptic conductance associated with this synapse.
-    gs( k ) = ( Ias( end ) - ss( k )*cs( k )*Rs( k )*Gms( end ) )/( ss( k )*cs( k )*Rs( k ) - dEs( k ) );           % [S] Synaptic Conductances (# synapses x 1).
+    gs( k ) = ( Ias( end ) - ss( k )*cs_unit( k )*Rs( k )*Gms( end ) )/( ss( k )*cs_unit( k )*Rs( k ) - dEs( k ) );           % [S] Synaptic Conductances (# synapses x 1).
 
 end
 
 
-%% Print Absolute Linear Combination Subnetwork Parameters.
+%% Print Relative Linear Combination Subnetwork Parameters.
 
 % Print out a header.
 fprintf( '\n------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
-fprintf( 'ABSOLUTE LINEAR COMBINATION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'RELATIVE LINEAR COMBINATION SUBNETWORK PARAMETERS:\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 % Print out neuron information.
@@ -230,7 +234,7 @@ fprintf( '------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 
-%% Create Absolute Linear Combination Subnetwork.
+%% Create Relative Linear Combination Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -257,7 +261,7 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_states; 0 ].*Ias, 'I_apps' );
 
 
-%% Compute Absolute Linear Combination Numerical Stability Analysis Parameters.
+%% Compute Relative Linear Combination Numerical Stability Analysis Parameters.
 
 % Compute the maximum RK4 step size and condition number.
 [ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), zeros( network.neuron_manager.num_neurons, 1 ), 1e-6 );
@@ -270,7 +274,7 @@ fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
 fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
 
 
-%% Simulate the Absolute Linear Combination Subnetwork.
+%% Simulate the Relative Linear Combination Subnetwork.
 
 % Start the timer.
 tic
@@ -282,7 +286,7 @@ tic
 toc
 
 
-%% Plot the Absolute Linear Combination Subnetwork Results.
+%% Plot the Relative Linear Combination Subnetwork Results.
 
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
