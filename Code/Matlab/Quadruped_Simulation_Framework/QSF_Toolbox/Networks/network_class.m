@@ -5584,6 +5584,9 @@ classdef network_class
         end
            
         
+        % Implement a function to compute the steady
+        
+        
         %% Simulation Functions
         
         % Implement a function to compute a single network simulation step.

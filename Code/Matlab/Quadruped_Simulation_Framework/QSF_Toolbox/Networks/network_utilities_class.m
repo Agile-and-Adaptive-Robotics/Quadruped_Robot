@@ -1546,6 +1546,69 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute linear combination subnetwork.
+        function Uns = compute_desired_absolute_linear_combination_steady_state_output( ~, Us_inputs, cs, ss )
+        
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                cs          =   [-] Input Gains.
+                ss          =   [-1/1] Input Signatures.
+            
+            Output(s):
+                Uns         =   [V] Membrane Voltage Outputs.
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 4, ss = [ 1; -1 ]; end
+            if nargin < 3, cs = [ 1; 1 ]; end
+            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            Uns = ( ( ss.*cs )'*Us_inputs' )';
+            
+        end
+        
+            
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative linear combination subnetwork.
+        function Uns = compute_desired_relative_linear_combination_steady_state_output( ~, Us_inputs, Rs, cs, ss )
+        
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                Rs          =   [V] Maximum Membrane Voltages.
+                cs          =   [-] Input Gains.
+                ss          =   [-1/1] Input Signatures.
+            
+            Output(s):
+                Uns         =   [V] Membrane Voltage Outputs.
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 5, ss = [ 1; -1 ]; end
+            if nargin < 4, cs = [ 1; 1 ]; end
+            if nargin < 3, Rs = [ 20e-3; 20e-3; 20e-3 ]; end
+            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            Uns = Rs(end)*( ( ss.*cs./Rs( 1:( end - 1 ) ) )'*Us_inputs' )';
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
+        function Uns = compute_achieved_relative_linear_combination_steady_state_output( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
+        
+            
+            % Compute the 
+            
+           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
+
+           Uns = (  )./(  );
+            
+        end
+        
+        
         %% Network Functions.
         
         % Implement a function to compute the linearized system matrix for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)

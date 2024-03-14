@@ -7,17 +7,17 @@ clear, close('all'), clc
 %% Define Simulation Parameters.
 
 % Define the level of verbosity.
-b_verbose = true;                                       % [T/F] Printing Flag.
+b_verbose = true;                                                       % [T/F] Printing Flag.
 
 % Define the network integration step size.
-network_dt = 1.3e-4;                                    % [s] Simulation Timestep.
+network_dt = 1.3e-4;                                                    % [s] Simulation Timestep.
 
 % Define the network simulation duration.
-network_tf = 3;                                         % [s] Simulation Duration.
+network_tf = 3;                                                         % [s] Simulation Duration.
 
 % Define the number of excitatory and inhibitory inputs.
-num_excitatory_inputs = 3;                              % [#] Number of Excitatory Input Neurons.
-num_inhibitory_inputs = 2;                              % [#] Number of Inhibitory Input Neurons.
+num_excitatory_inputs = 3;                                              % [#] Number of Excitatory Input Neurons.
+num_inhibitory_inputs = 2;                                              % [#] Number of Inhibitory Input Neurons.
 
 
 %% Define Relative Linear Combination Subnetwork Parameters.
@@ -63,12 +63,12 @@ ss = [ ss_excitatory; ss_inhibitory ];                                  % [-1/1]
 %% Compute Derived Relative Linear Combination Subnetwork Constraints.
 
 % Retrieve the input indexes associated with excitatory and inhibitory inputs.
-i_excitatory = ss == 1;                                             % [#] Excitatory Input Neuron Indexes.
-i_inhibitory = ss == -1;                                            % [#] Inhibitory Input Neuron Indexes.
+i_excitatory = ss == 1;                                                 % [#] Excitatory Input Neuron Indexes.
+i_inhibitory = ss == -1;                                                % [#] Inhibitory Input Neuron Indexes.
 
 % Retrieve the excitatory and inhibitory gains.
-cs_excitatory = cs( i_excitatory );                                 % [-] Excitatory Gains.
-cs_inhibitory = cs( i_inhibitory );                                 % [-] Inhibitory Gains.
+cs_excitatory = cs( i_excitatory );                                     % [-] Excitatory Gains.
+cs_inhibitory = cs( i_inhibitory );                                     % [-] Inhibitory Gains.
 
 % Compute the relevant gain magnitude with respect to the 1-norm.
 cs_magnitude = max( norm( cs_inhibitory, 1 ), norm( cs_excitatory, 1 ) );
@@ -83,10 +83,10 @@ cs_unit( i_excitatory ) = cs_excitatory_unit;
 cs_unit( i_inhibitory ) = cs_inhibitory_unit;
 
 % Preallocate an array to store the synaptic conductances.
-gs = zeros( num_synapses, 1 );                                      % [S] Synaptic Conductances (# synapses x 1).
+gs = zeros( num_synapses, 1 );                                          % [S] Synaptic Conductances (# synapses x 1).
 
 % Compute the synaptic conductaances.
-for k = 1:num_synapses                                              % Iterate through each of the synapses...
+for k = 1:num_synapses                                                  % Iterate through each of the synapses...
     
     % Compute the synaptic conductance associated with this synapse.
     gs( k ) = ( Ias( end ) - ss( k )*cs_unit( k )*Rs( k )*Gms( end ) )/( ss( k )*cs_unit( k )*Rs( k ) - dEs( k ) );           % [S] Synaptic Conductances (# synapses x 1).
