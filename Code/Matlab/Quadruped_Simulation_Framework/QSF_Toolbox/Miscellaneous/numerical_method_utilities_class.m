@@ -3,7 +3,7 @@ classdef numerical_method_utilities_class
     % This class contains properties and methods related to numerical methods utilities.
     
     
-    %% NUMERICAL METHODS UTILITIES PROPERTIES
+    %% NUMERICAL METHODS UTILITIES PROPERTIES.
     
     % Define class properties.
     properties
@@ -13,7 +13,7 @@ classdef numerical_method_utilities_class
     end
     
     
-    %% NUMERICAL METHODS UTILITIES METHODS SETUP
+    %% NUMERICAL METHODS UTILITIES METHODS SETUP.
     
     % Define class methods.
     methods
@@ -27,7 +27,7 @@ classdef numerical_method_utilities_class
         end
  
         
-        %% Numerical Stability Methods
+        %% Numerical Stability Methods.
                 
         % Implement a function to determine whether a stability metric is stable.
         function b_stable = is_metric_stable( ~, R )
@@ -119,7 +119,7 @@ classdef numerical_method_utilities_class
         end
             
         
-        %% Numerical Integration Methods
+        %% Numerical Integration Methods.
         
         % Implement a function to perform a single forward Euler step.
         function U = forward_euler_step( ~, U, dU, dt)
@@ -145,6 +145,18 @@ classdef numerical_method_utilities_class
         % Implement a function to perform a single RK4 step.
         function [ x, dx ] = RK4( ~, f, t, x, dt )
             
+            %{
+            Input(s):
+                f = [-] Function.
+                t = [s] Time.
+                x = [variable] Current State.
+                dt = [s] Timestep.
+            
+            Output(s):
+                x = [variable] Next State.
+                dx = [variable] Change in State.
+            %}
+            
             % Compute half the step size.
             dt_half = dt/2;
             
@@ -169,7 +181,7 @@ classdef numerical_method_utilities_class
         end
         
         
-        %% Numerical Differentiation Methods
+        %% Numerical Differentiation Methods.
         
         
         
