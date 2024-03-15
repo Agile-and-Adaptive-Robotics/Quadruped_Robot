@@ -24,7 +24,7 @@ classdef plotting_utilities_class
             
         end
         
-        %% Plotting Functions
+        %% Plotting Functions.
         
         % Implement a function to compute the number of subplot rows and columns necessary to store a certain number of plots.
         function [ nrows, ncols ] = get_subplot_rows_columns( ~, n, bPreferColumns )
@@ -33,31 +33,40 @@ classdef plotting_utilities_class
             if nargin < 3, bPreferColumns = false; end
             
             %Determine whether n is an integer.
-            if n ~= round(n)                                                            %If n is not an integer...
-                n = round(n);                                                           %Round n to the nearest integer.
-                warning('n must be an integer.  Rounding n to the nearest integer.')    %Throw a warning about rounding n.
+            if n ~= round( n )                                                            % If n is not an integer...
+                
+                % Round n to the nearest integer.
+                n = round( n );                                                           
+                
+                % Throw a warning about rounding n.
+                warning( 'n must be an integer.  Rounding n to the nearest integer.' )    
+            
             end
             
-            %Compute the square root of the integer of interest.
-            nsr = sqrt(n);
+            % Compute the square root of the integer of interest.
+            nsr = sqrt( n );
             
-            %Determine how many rows and columns to use in the subplot.
-            if nsr == round(nsr)                    %If n is a perfect square...
-                [nrows, ncols] = deal(nsr);         %Set the number of rows and columns to be the square root.
+            % Determine how many rows and columns to use in the subplot.
+            if nsr == round( nsr )                    % If n is a perfect square...
+            
+                [ nrows, ncols ] = deal( nsr );         % Set the number of rows and columns to be the square root.
+            
             else
-                %Compute all divisors of n.
-                dn = divisors(n);
                 
-                %Set the number of rows and columns to be the central divisors.
-                nrows = dn(length(dn)/2 + 1);
-                ncols = dn(length(dn)/2);
+                % Compute all divisors of n.
+                dn = divisors( n );
+                
+                % Set the number of rows and columns to be the central divisors.
+                nrows = dn( length( dn ) / 2 + 1 );
+                ncols = dn( length( dn ) / 2 );
+                
             end
             
-            %Determine whether to give prefernce to columns or rows.
-            if bPreferColumns                           %If we want to prefer columns...
+            % Determine whether to give prefernce to columns or rows.
+            if bPreferColumns                           % If we want to prefer columns...
                 
-                %Flip the row and column assignments, since we prefer rows by default.
-                [nrows, ncols] = deal(ncols, nrows);
+                % Flip the row and column assignments, since we prefer rows by default.
+                [ nrows, ncols ] = deal( ncols, nrows );
                 
             end
             

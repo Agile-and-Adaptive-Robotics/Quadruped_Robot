@@ -1597,7 +1597,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
-        function Us_output = compute_achieved_rel_lin_comb_ss_output( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
+        function Us_output = compute_achieved_linear_combination_ss_output( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
         
             %{
             Input(s):
@@ -1618,10 +1618,10 @@ classdef network_utilities_class
             if nargin < 5, Ias = [ 0; 0; 0 ]; end
             if nargin < 4, Gms = [ 1e-6; 1e-6; 1e-6 ]; end
             if nargin < 3, Rs = [ 20e-3; 20e-3; 20e-3 ]; end
-            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            if nargin < 2, Us_inputs = zeros( 2, 1 ); end
             
             % Retrieve the number of neurons & synapses.
-            num_neurons = size( Us_inputs, 1 );
+            num_neurons = size( Us_inputs, 1 ) + 1;
             num_timesteps = size( Us_inputs, 2 );
             
             % Preallocate an array to store the maximum membrane voltage products.
@@ -1642,7 +1642,7 @@ classdef network_utilities_class
             Ps( end ) = prod( Rs( 1:( num_neurons - 1 ) ) );
             
             % Compute the membrane voltage outputs.
-            Us_output = ( Ps'*[ gs.*dEs.*Us_inputs'; Ias( end )*ones( 1, num_timesteps ) ] )./( Ps'*[ gs.*Us_inputs'; Gms( end )*ones( 1, num_timesteps ) ] );
+            Us_output = ( Ps'*[ gs.*dEs.*Us_inputs; Ias( end )*ones( 1, num_timesteps ) ] )./( Ps'*[ gs.*Us_inputs; Gms( end )*ones( 1, num_timesteps ) ] );
             
         end
         

@@ -5199,6 +5199,31 @@ classdef network_class
         end
         
         
+        % Implement a function to perform RK4 stability analysis on a linear combination subnetwork.
+        function [ Us_outputs, As, dts, condition_numbers ] = achieved_linear_combination_RK4_stability_analysis( self, Us_inputs, Cms, Gms, Rs, Ias, gs, dEs, dt0 )
+            
+            % Set the default input arguments.
+            if nargin < 9, dt0 = 1e-6; end
+            if nargin < 8, dEs = self.get_dEsyns( 'all' ); end
+            if nargin < 7, gs = self.get_gsynmaxs( 'all' ); end
+            if nargin < 6, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
+            if nargin < 5, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
+            if nargin < 3, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 2, Us_inputs = zeros( 1, length( Rs ) - 1 ); end
+            
+            % Compute the achieved division steady state output at each of the provided inputs.            
+            Us_outputs = self.compute_achieved_linear_combination_ss_output( Us_inputs', Rs', Gms', Ias', gs( end, 1:( end - 1 ) )', dEs( end , 1:( end - 1 ) )' )';
+            
+            % Create the operating points array.
+            Us = [ Us_inputs, Us_outputs ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0 );
+            
+        end
+        
+        
         %% Steady State Functions.
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
@@ -5635,7 +5660,7 @@ classdef network_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
-        function Us_output = compute_achieved_rel_lin_comb_ss_output( self, Us_inputs, Rs, Gms, Ias, gs, dEs )
+        function Us_output = compute_achieved_linear_combination_ss_output( self, Us_inputs, Rs, Gms, Ias, gs, dEs )
         
             %{
             Input(s):
@@ -5656,10 +5681,10 @@ classdef network_class
             if nargin < 5, Ias = [ 0; 0; 0 ]; end
             if nargin < 4, Gms = [ 1e-6; 1e-6; 1e-6 ]; end
             if nargin < 3, Rs = [ 20e-3; 20e-3; 20e-3 ]; end
-            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            if nargin < 2, Us_inputs = zeros( 2, 1 ); end
             
             % Compute the membrane voltage outputs.
-            Us_output = self.network_utilities.compute_achieved_rel_lin_comb_ss_output( Us_inputs, Rs, Gms, Ias, gs, dEs );
+            Us_output = self.network_utilities.compute_achieved_linear_combination_ss_output( Us_inputs, Rs, Gms, Ias, gs, dEs );
             
         end
         

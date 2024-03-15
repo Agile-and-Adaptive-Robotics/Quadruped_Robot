@@ -123,7 +123,7 @@ classdef applied_current_manager_class
                 % Determine whether to agument the property values.
                 if num_applied_current_property_values == 1                                                  % If there is only one provided property value...
                     
-                    % Agument the property value length to match the ID length.
+                    % Augment the property value length to match the ID length.
                     %                     applied_current_property_values = applied_current_property_values*ones( 1, num_applied_current_IDs );
                     applied_current_property_values = repmat( applied_current_property_values, [ 1, num_applied_current_IDs ] );
                     
@@ -141,7 +141,7 @@ classdef applied_current_manager_class
             for k = 1:self.num_applied_currents                   % Iterate through each applied current...
                 
                 % Determine the index of the applied current property value that we want to apply to this applied current (if we want to set a property of this applied current).
-                index = find( self.applied_currents(k).ID == applied_current_IDs, 1 );
+                index = find( self.applied_currents( k ).ID == applied_current_IDs, 1 );
                 
                 % Determine whether to set a property of this applied current.
                 if ~isempty( index )                         % If a matching applied current ID was detected...
