@@ -1,12 +1,12 @@
 %% plot data
 
-LT = 3;
-ST = 4;
+LT = 5;
+ST = 12;
 infill = '100I';
 
 springName = strcat('2L',num2str(LT),'LT',num2str(ST),'ST','_',infill);
 saveName = strcat('S2L',num2str(LT),'LT',num2str(ST),'ST',infill);
-mgrMatrix = {'30Nmm' '50Nmm' '70Nmm' '100Nmm'};
+mgrMatrix = {'245Nmm' '613Nmm' '858Nmm' '1226Nmm'};
 mgrNames = cell(1,4);
 
 for ii = 1:length(mgrMatrix)
@@ -25,7 +25,7 @@ for ii = 1:length(mgrMatrix)
         direction = directions{jj};
         for kk = 1:length(trials)
             trial = trials{kk};
-            data = S2L3LT4ST100I.(mgrName).(direction).(trial);
+            data = S2L5LT12ST100I.(mgrName).(direction).(trial);
             t = linspace(0,(length(data)-1)/100,length(data));
             plot(t,data)
         end
