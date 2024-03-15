@@ -5584,7 +5584,84 @@ classdef network_class
         end
            
         
-        % Implement a function to compute the steady
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute linear combination subnetwork.
+        function Us_output = compute_desired_absolute_linear_combination_steady_state_output( self, Us_inputs, cs, ss )
+        
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                cs          =   [-] Input Gains.
+                ss          =   [-1/1] Input Signatures.
+            
+            Output(s):
+                Us_output  	=   [V] Membrane Voltage Outputs.
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 4, ss = [ 1; -1 ]; end
+            if nargin < 3, cs = [ 1; 1 ]; end
+            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            Us_output = self.network_utilities.compute_desired_absolute_linear_combination_steady_state_output( Us_inputs, cs, ss );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative linear combination subnetwork.
+        function Us_output = compute_desired_relative_linear_combination_steady_state_output( self, Us_inputs, Rs, cs, ss )
+        
+            %{
+            Input(s):
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                Rs          =   [V] Maximum Membrane Voltages.
+                cs          =   [-] Input Gains.
+                ss          =   [-1/1] Input Signatures.
+            
+            Output(s):
+                Us_output 	=   [V] Membrane Voltage Outputs.
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 5, ss = [ 1; -1 ]; end
+            if nargin < 4, cs = [ 1; 1 ]; end
+            if nargin < 3, Rs = [ 20e-3; 20e-3; 20e-3 ]; end
+            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            
+            % Compute the steady state network outputs.
+            Us_output = self.network_utilities.compute_desired_relative_linear_combination_steady_state_output( Us_inputs, Rs, cs, ss );
+            
+        end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
+        function Us_output = compute_achieved_rel_lin_comb_ss_output( self, Us_inputs, Rs, Gms, Ias, gs, dEs )
+        
+            %{
+            Input(s):
+                Us_inputs = [V] Membrane Voltage Inputs (# of timesteps x # of inputs).
+                Rs = [V] Maximum Membrane Voltage (# of inputs).
+                Gms = [S] Membrane Conductances (# of inputs).
+                Ias = [S] Applied Currents (# of neurons).
+                gs = [S] Synaptic Conductances (# of synapses).
+                dEs = [V] Synaptic Reversal Potentials (# of synapses).
+            
+            Output(s):
+                Us_output = [V] Membrane Voltage Outputs (# of timesteps).
+            %}
+ 
+            % Set the default input arguments.
+            if nargin < 7, dEs = [ 194e-3; -194e-3 ]; end
+            if nargin < 6, gs = [ 0.10e-6; 0.10e-6 ]; end
+            if nargin < 5, Ias = [ 0; 0; 0 ]; end
+            if nargin < 4, Gms = [ 1e-6; 1e-6; 1e-6 ]; end
+            if nargin < 3, Rs = [ 20e-3; 20e-3; 20e-3 ]; end
+            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            
+            % Compute the membrane voltage outputs.
+            Us_output = self.network_utilities.compute_achieved_rel_lin_comb_ss_output( Us_inputs, Rs, Gms, Ias, gs, dEs );
+            
+        end
         
         
         %% Simulation Functions

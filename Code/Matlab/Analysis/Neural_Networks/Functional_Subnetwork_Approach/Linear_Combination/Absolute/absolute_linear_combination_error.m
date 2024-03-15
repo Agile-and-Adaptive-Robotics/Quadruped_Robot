@@ -288,18 +288,31 @@ dEs = network.get_dEsyns( 'all' );                                              
 % Define the numerical stability timestep.
 dt0 = 1e-6;                                                                                     % [s] Numerical Stability Time Step.
 
-% Define the inversion subnetwork inputs.
-U1s = linspace( 0, Rs( 1 ), 100  );
+% Define the division subnetwork inputs.
+U1s = linspace( 0, Rs( 1 ), 20  );
+U2s = linspace( 0, Rs( 2 ), 20  );
+
+% Create an input grid.
+[ U1s_grid, U2s_grid ] = meshgrid( U1s, U2s );
 
 % Create the input points.
-U1s_flat = reshape( U1s, [ numel( U1s ), 1 ] );
+U1s_flat = reshape( U1s_grid, [ numel( U1s_grid ), 1 ] );
+U2s_flat = reshape( U2s_grid, [ numel( U2s_grid ), 1 ] );
 
-% Compute the desired and achieved absolute inversion steady state output.
-U2s_flat_desired_absolute = network.compute_desired_absolute_inversion_steady_state_output( U1s_flat, c1, c2, c3 );
-[ U2s_flat_achieved_absolute, As, dts, condition_numbers ] = network.achieved_inversion_RK4_stability_analysis( U1s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
+Us_flat_desired_absolute_output = network.compute_desired_absolute_linear_combination_steady_state_output( Us_inputs, cs, ss );
+
+% Compute the desired and achieved absolute division steady state output.
+U3s_flat_desired_absolute = network.compute_desired_absolute_division_steady_state_output( [ U1s_flat, U2s_flat ], c1, c2, c3 );
+[ U3s_flat_achieved_absolute, As, dts, condition_numbers ] = network.achieved_division_RK4_stability_analysis( U1s_flat, U2s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
+
+% Convert the flat steady state output results to grids.
+dts_grid = reshape( dts, size( U1s_grid ) );
+condition_numbers_grid = reshape( condition_numbers, size( U1s_grid ) );
+U3s_grid_desired_absolute = reshape( U3s_flat_desired_absolute, size( U1s_grid ) );
+U3s_grid_achieved_absolute = reshape( U3s_flat_achieved_absolute, size( U1s_grid ) );
 
 % Retrieve the maximum RK4 step size and condition number.
-[ dt_max, indexes_dt ] = max( dts );
+[ dt_max, indexes_dt ] = min( dts );
 [ condition_number_max, indexes_condition_number ] = max( condition_numbers );
 
 

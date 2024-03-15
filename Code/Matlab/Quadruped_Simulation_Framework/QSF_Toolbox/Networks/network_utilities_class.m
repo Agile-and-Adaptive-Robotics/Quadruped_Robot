@@ -1547,7 +1547,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute linear combination subnetwork.
-        function Uns = compute_desired_absolute_linear_combination_steady_state_output( ~, Us_inputs, cs, ss )
+        function Us_output = compute_desired_absolute_linear_combination_steady_state_output( ~, Us_inputs, cs, ss )
         
             %{
             Input(s):
@@ -1556,7 +1556,7 @@ classdef network_utilities_class
                 ss          =   [-1/1] Input Signatures.
             
             Output(s):
-                Uns         =   [V] Membrane Voltage Outputs.
+                Us_output  	=   [V] Membrane Voltage Outputs.
             %}
             
             % Set the default input arguments.
@@ -1565,13 +1565,13 @@ classdef network_utilities_class
             if nargin < 2, Us_inputs = zeros( 1, 2 ); end
             
             % Compute the steady state network outputs.
-            Uns = ( ( ss.*cs )'*Us_inputs' )';
+            Us_output = ( ( ss.*cs )'*Us_inputs' )';
             
         end
         
             
         % Implement a function to compute the steady state output associated with the desired formulation of a relative linear combination subnetwork.
-        function Uns = compute_desired_relative_linear_combination_steady_state_output( ~, Us_inputs, Rs, cs, ss )
+        function Us_output = compute_desired_relative_linear_combination_steady_state_output( ~, Us_inputs, Rs, cs, ss )
         
             %{
             Input(s):
@@ -1581,7 +1581,7 @@ classdef network_utilities_class
                 ss          =   [-1/1] Input Signatures.
             
             Output(s):
-                Uns         =   [V] Membrane Voltage Outputs.
+                Us_output 	=   [V] Membrane Voltage Outputs.
             %}
             
             % Set the default input arguments.
@@ -1591,20 +1591,58 @@ classdef network_utilities_class
             if nargin < 2, Us_inputs = zeros( 1, 2 ); end
             
             % Compute the steady state network outputs.
-            Uns = Rs(end)*( ( ss.*cs./Rs( 1:( end - 1 ) ) )'*Us_inputs' )';
+            Us_output = Rs(end)*( ( ss.*cs./Rs( 1:( end - 1 ) ) )'*Us_inputs' )';
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
-        function Uns = compute_achieved_relative_linear_combination_steady_state_output( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
+        function Us_output = compute_achieved_rel_lin_comb_ss_output( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
         
+            %{
+            Input(s):
+                Us_inputs = [V] Membrane Voltage Inputs (# of timesteps x # of inputs).
+                Rs = [V] Maximum Membrane Voltage (# of inputs).
+                Gms = [S] Membrane Conductances (# of inputs).
+                Ias = [S] Applied Currents (# of neurons).
+                gs = [S] Synaptic Conductances (# of synapses).
+                dEs = [V] Synaptic Reversal Potentials (# of synapses).
             
-            % Compute the 
+            Output(s):
+                Us_output = [V] Membrane Voltage Outputs (# of timesteps).
+            %}
+ 
+            % Set the default input arguments.
+            if nargin < 7, dEs = [ 194e-3; -194e-3 ]; end
+            if nargin < 6, gs = [ 0.10e-6; 0.10e-6 ]; end
+            if nargin < 5, Ias = [ 0; 0; 0 ]; end
+            if nargin < 4, Gms = [ 1e-6; 1e-6; 1e-6 ]; end
+            if nargin < 3, Rs = [ 20e-3; 20e-3; 20e-3 ]; end
+            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
             
-           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
-
-           Uns = (  )./(  );
+            % Retrieve the number of neurons & synapses.
+            num_neurons = size( Us_inputs, 1 );
+            num_timesteps = size( Us_inputs, 2 );
+            
+            % Preallocate an array to store the maximum membrane voltage products.
+            Ps = zeros( num_neurons, 1 );
+            
+            % Preallocate an array to store the maximum membrane voltage products.
+            for k = 1:( num_neurons - 1 )            % Iterate through each of the input neurons...
+                
+                % Compute the indexes for this maximum membrane voltage product.
+                indexes = ( 1:( num_neurons - 1 ) ) ~= k;
+                
+                % Compute this maximum membrane voltage product...
+                Ps( k ) = prod( Rs( indexes ) );
+                
+            end
+            
+            % Compute the final maximum membrane voltage product.
+            Ps( end ) = prod( Rs( 1:( num_neurons - 1 ) ) );
+            
+            % Compute the membrane voltage outputs.
+            Us_output = ( Ps'*[ gs.*dEs.*Us_inputs'; Ias( end )*ones( 1, num_timesteps ) ] )./( Ps'*[ gs.*Us_inputs'; Gms( end )*ones( 1, num_timesteps ) ] );
             
         end
         
