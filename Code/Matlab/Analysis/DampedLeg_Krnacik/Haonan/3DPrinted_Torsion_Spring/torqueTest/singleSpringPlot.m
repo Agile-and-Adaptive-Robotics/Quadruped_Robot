@@ -4,6 +4,8 @@ LT = 5;
 ST = 12;
 infill = '100I';
 
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest')
+
 springName = strcat('2L',num2str(LT),'LT',num2str(ST),'ST','_',infill);
 saveName = strcat('S2L',num2str(LT),'LT',num2str(ST),'ST',infill);
 mgrMatrix = {'245Nmm' '613Nmm' '858Nmm' '1226Nmm'};
@@ -34,4 +36,5 @@ for ii = 1:length(mgrMatrix)
     xlabel('Time (s)')
     ylabel('Displacement (º)')
     xlim([0 1.5])
+    hold off
 end

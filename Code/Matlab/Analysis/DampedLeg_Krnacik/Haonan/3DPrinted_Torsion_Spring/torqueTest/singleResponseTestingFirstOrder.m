@@ -7,7 +7,7 @@ addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest');
 load springData;                        
 
-springName = 'S2L5LT4ST37T';
+springName = 'S2L5LT12ST100I';
 torqueName = 'T300Nmm';
 direction = 'CCW';
 loadingg = 'loading';
@@ -69,7 +69,7 @@ title(plotTitleCropped)
 hold off
 
 % save plot
-saveas(gcf,strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\Figures\FirstOrder\',(fileTitleCropped),'.png'))
+% saveas(gcf,strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\Figures\FirstOrder\',(fileTitleCropped),'.png'))
 
 %% full response
 % We are assuming a ramp into step input for the torque applied to each
@@ -98,4 +98,4 @@ title(plotTitle)
 hold off
 
 % save plot
-saveas(gcf,strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\Figures\FirstOrder\',(plotTitle),'.png'))
+% saveas(gcf,strcat('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\3DPrinted_Torsion_Spring\torqueTest\Figures\FirstOrder\',(plotTitle),'.png'))
