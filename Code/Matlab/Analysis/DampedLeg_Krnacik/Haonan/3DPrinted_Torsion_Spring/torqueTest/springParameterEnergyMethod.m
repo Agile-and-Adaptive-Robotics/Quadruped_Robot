@@ -1,9 +1,11 @@
+
+
 %%
-m = 0.200;      %   [kg]
+m = 0.500;      %   [kg]
 g = 9.81;       %   [m/s^2]
 r = 0.125;      %   [m]
-hmax = 0.760;   %   [m]
-h0 = 0.365;     %   [m]
+hmax = 0.7675;   %   [m]
+h0 = 0.340;     %   [m]
 
 tstep1 = 0.010;
 tstep2 = 0.00001;
@@ -46,7 +48,7 @@ plot(t2(1:tend),xdotsq(1:tend))
 figure
 plot(t2(1:tend),integral)
 
-k = 0.245/data(200);
+k = (m*g*r)/data(200);
 %%
 PE1 = m*g*hmax;
 
