@@ -385,11 +385,13 @@ elseif num_neurons == 3             % If there are three neurons...
     % Plot the RK4 maximum timestep.
     fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination RK4 Maximum Timestep' ); hold on, grid on, rotate3d on, view( 60, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Linear Combination RK4 Maximum Timestep' )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), dts_grid_plot, 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+    scatter3( Us_inputs_flat( :, 1 ), Us_inputs_flat( :, 2 ), dts, 15, 'black', 'filled' )
     saveas( fig, [ save_directory, '\', 'absolute_linear_combination_rk4_maximum_timestep' ] )
     
     % Plot the linearized system condition numbers.
     fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Condition Numbers' ); hold on, grid on, rotate3d on, view( 60, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Absolute Linear Combination Condition Number' )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), condition_numbers_grid_plot, 'Edgecolor', 'None', 'Facecolor', 'Interp' )
+    scatter3( Us_inputs_flat( :, 1 ), Us_inputs_flat( :, 2 ), condition_numbers, 15, 'black', 'filled' )
     saveas( fig, [ save_directory, '\', 'absolute_linear_combination_condition_numbers' ] )
     
 else                % Otherwise...
@@ -473,12 +475,12 @@ else                % Otherwise... (We must want to load data from an existing s
     data = load( [ load_directory, '\', 'absolute_linear_combination_subnetwork_error' ] );
     
     % Store the simulation results in separate variables.
-    grid_mask = data.grid_mask
-    grid_dims = data.grid_dims
-    applied_currents_flat = data.applied_currents_flat
-    applied_currents_grid = data.applied_currents_grid
-    Us_achieved_flat = data.Us_achieved_flat
-    Us_achieved_grid = data.Us_achieved_grid
+    grid_mask = data.grid_mask;
+    grid_dims = data.grid_dims;
+    applied_currents_flat = data.applied_currents_flat;
+    applied_currents_grid = data.applied_currents_grid;
+    Us_achieved_flat = data.Us_achieved_flat;
+    Us_achieved_grid = data.Us_achieved_grid;
     
 end
 
@@ -536,19 +538,20 @@ if num_neurons == 2                 % If there are two neurons...
 elseif num_neurons == 3             % If there are three neurons...
     
     % Switch the first two dimensions of the grids for plotting.
-    Us_desired_grid_plot = permute( Us_desired_grid, [ 2, 1, 3 ] );
+    Us_desired_grid_plot = permute( Us_desired_grid, [ 2, 1, 3 ] );        
     Us_achieved_grid_plot = permute( Us_achieved_grid, [ 2, 1, 3 ] );
     error_grid_plot = error_grid';
     
     % Create a surface that shows the desired membrane voltage output.
     fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Desired)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Desired)' )
     surf( Us_desired_grid_plot( grid_mask{ : }, 1 ), Us_desired_grid_plot( grid_mask{ : }, 2 ), Us_desired_grid_plot( grid_mask{ : }, 3 ), 'EdgeColor', 'None', 'FaceColor', 'Interp' )
-    scatter3( Us_desired_flat( :, 1 ), Us_desired_flat( :, 2 ), Us_desired_grid_plot( grid_mask{ : }, 3 ), [], 'black' )
+    scatter3( Us_desired_flat( :, 1 ), Us_desired_flat( :, 2 ), Us_desired_flat( :, 3 ), 15, 'black', 'filled' )
     saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_desired' ] )
 
     % Create a surface that shows the achieved membrane voltage output.
     fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Achieved)' )
     surf( Us_achieved_grid_plot( grid_mask{ : }, 1 ), Us_achieved_grid_plot( grid_mask{ : }, 2 ), Us_achieved_grid_plot( grid_mask{ : }, 3 ), 'EdgeColor', 'None', 'FaceColor', 'Interp' )
+    scatter3( Us_achieved_flat( :, 1 ), Us_achieved_flat( :, 2 ), Us_achieved_flat( :, 3 ), 15, 'black', 'filled' )
     saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_achieved' ] )
 
     % Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
@@ -561,7 +564,8 @@ elseif num_neurons == 3             % If there are three neurons...
 
     % Create a surface that shows the membrane voltage error.
     fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Error' ); hold on, grid on, rotate3d on, view( -45, 45 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Error' )
-    surf( Us_achieved_grid_plot( grid_mask{ : }, 1 ), Us_achieved_grid_plot( grid_mask{ : }, 2 ), error_grid, 'EdgeColor', 'None', 'FaceColor', 'Interp' )
+    surf( Us_achieved_grid_plot( grid_mask{ : }, 1 ), Us_achieved_grid_plot( grid_mask{ : }, 2 ), error_grid_plot, 'EdgeColor', 'None', 'FaceColor', 'Interp' )
+    scatter3( Us_achieved_flat( :, 1 ), Us_achieved_flat( :, 2 ), error_flat, 15, 'black', 'filled' )
     saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_error' ] )
 
 else                % Otherwise...
