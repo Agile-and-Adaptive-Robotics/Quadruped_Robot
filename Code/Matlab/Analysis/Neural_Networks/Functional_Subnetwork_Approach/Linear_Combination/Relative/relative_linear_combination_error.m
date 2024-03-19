@@ -1,4 +1,4 @@
-%% Absolute Linear Combination Subnetwork Error.
+%% Relative Linear Combination Subnetwork Error.
 
 % Clear Everything.
 clear, close('all'), clc
@@ -23,11 +23,12 @@ network_dt = 1e-4;                                      % [s] Simulation Timeste
 network_tf = 3;                                         % [s] Simulation Duration.
 
 
-%% Define Absolute Linear Combination Subnetwork Parameters.
+%% Define Relative Linear Combination Subnetwork Parameters.
 
 % Define the maximum membrane voltages.
 R1 = 20e-3;                                             % [V] Maximum Membrane Voltages (Neuron 1).
 R2 = 20e-3;                                             % [V] Maximum Membrane Voltage (Neuron 2).
+R3 = 20e-3;                                             % [V] Maximum Membrane Voltage (Neuron 3).
 
 % Define the membrane conductances.
 Gm1 = 1e-6;                                             % [S] Membrane Conductance (Neuron 1).
@@ -66,10 +67,10 @@ s1 = 1;                                                 % [-1/1] Input Signature
 s2 = -1;                                                % [-1/1] Input Signature 2.
 
 
-%% Compute Absolute Linear Combination Subnetwork Parameter Arrays.
+%% Compute Relative Linear Combination Subnetwork Parameter Arrays.
 
 % Construct the maximum membrane voltage array.
-Rs = [ R1; R2; 0 ];                                     % [V] Maximum Membrane Voltages (# neurons x 1).
+Rs = [ R1; R2; R3 ];                                     % [V] Maximum Membrane Voltages (# neurons x 1).
 
 % Construct the membrane conductance array.
 Gms = [ Gm1; Gm2; Gm3 ];                                % [S] Membrane Conductance (# neurons x 1).
@@ -96,28 +97,31 @@ cs = [ c1; c2 ];                                        % [-] Input Gains (# neu
 ss = [ s1; s2 ];                                        % [-1/1] Input Signatures (# neurons - 1 x 1).
 
 
-%% Compute Derived Absolute Linear Combination Subnetwork Constraints.
+%% Compute Derived Relative Linear Combination Subnetwork Constraints.
 
 % Compute network structure information.
 num_neurons = length( Rs );                                         % [#] Number of Neurons.
 num_synapses = length( dEs );                                       % [#] Number of Synapses.
 
-% Retrieve the input maximum membrane voltages.
-Rs_inputs = Rs( 1:end - 1 );                                        % [V] Maximum Membrane Voltages of Input Neurons.
-
 % Retrieve the input indexes associated with excitatory and inhibitory inputs.
 i_excitatory = ss == 1;                                             % [#] Excitatory Input Neuron Indexes.
 i_inhibitory = ss == -1;                                            % [#] Inhibitory Input Neuron Indexes.
 
-% Compute the maximum membrane voltages required for the excitatory and inhibitory inputs.
-Rn_inhibitory = cs( i_inhibitory )'*Rs_inputs( i_inhibitory );     	% [V] Maximum Membrane Voltage To Capture Inhibitory Neuron Inputs.
-Rn_excitatory = cs( i_excitatory )'*Rs_inputs( i_excitatory );     	% [V] Maximum Membrane Voltage To Capture Excitatory Neuron Inputs.
+% Retrieve the excitatory and inhibitory gains.
+cs_excitatory = cs( i_excitatory );                                 % [-] Excitatory Gains.
+cs_inhibitory = cs( i_inhibitory );                                 % [-] Inhibitory Gains.
 
-% Compute the maximum membrane voltage of the output neuron.
-Rn = max( Rn_inhibitory, Rn_excitatory );                           % [V] Maximum Membrane Voltage (Output Neuron).
+% Compute the relevant gain magnitude with respect to the 1-norm.
+cs_magnitude = max( norm( cs_inhibitory, 1 ), norm( cs_excitatory, 1 ) );
 
-% Add the maximum membrane voltage of the output neuron to the maximum membrane voltage array.
-Rs( end ) = Rn;                                                     % [V] Maximum Membrane Voltages (# neurons x 1).
+% Normalize the inhibitory and excitatory gains.
+cs_excitatory_unit = cs_excitatory/cs_magnitude;
+cs_inhibitory_unit = cs_inhibitory/cs_magnitude;
+
+% Construct the normalized input gains vector.
+cs_unit = zeros( size( cs ) );
+cs_unit( i_excitatory ) = cs_excitatory_unit;
+cs_unit( i_inhibitory ) = cs_inhibitory_unit;
 
 % Preallocate an array to store the synaptic conductances.
 gs = zeros( num_synapses, 1 );                                      % [S] Synaptic Conductances (# synapses x 1).
@@ -126,17 +130,17 @@ gs = zeros( num_synapses, 1 );                                      % [S] Synapt
 for k = 1:num_synapses                                              % Iterate through each of the synapses...
     
     % Compute the synaptic conductance associated with this synapse.
-    gs( k ) = ( Ias( end ) - ss( k )*cs( k )*Rs( k )*Gms( end ) )/( ss( k )*cs( k )*Rs( k ) - dEs( k ) );           % [S] Synaptic Conductances (# synapses x 1).
-    
+    gs( k ) = ( Ias( end ) - ss( k )*cs_unit( k )*Rs( k )*Gms( end ) )/( ss( k )*cs_unit( k )*Rs( k ) - dEs( k ) );           % [S] Synaptic Conductances (# synapses x 1).
+
 end
 
 
-%% Print Absolute Linear Combination Subnetwork Parameters.
+%% Print Relative Linear Combination Subnetwork Parameters.
 
 % Print out a header.
 fprintf( '\n------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
-fprintf( 'ABSOLUTE LINEAR COMBINATION SUBNETWORK PARAMETERS:\n' )
+fprintf( 'RELATIVE LINEAR COMBINATION SUBNETWORK PARAMETERS:\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 % Print out neuron information.
@@ -147,7 +151,7 @@ for k = 1:num_neurons               % Iterate through each of the neurons...
     
     % Print the maximum membrane voltage for this neuron.
     fprintf( 'R%0.0f \t\t= \t%0.2f \t[mV]\n', k, Rs( k )*( 10^3 ) )
-    
+
 end
 
 % Print out the membrane conductances.
@@ -155,7 +159,7 @@ for k = 1:num_neurons               % Iterate through each of the neurons...
     
     % Print the membrane conductance for this neuron.
     fprintf( 'Gm%0.0f \t= \t%0.2f \t[muS]\n', k, Gms( k )*( 10^6 ) )
-    
+
 end
 
 % Print out the membrane capacitances.
@@ -163,7 +167,7 @@ for k = 1:num_neurons               % Iterate through each of the neurons...
     
     % Print the membrane capacitance for this neuron.
     fprintf( 'Cm%0.0f \t= \t%0.2f \t[nF]\n', k, Cms( k )*( 10^9 ) )
-    
+
 end
 
 % Print out the sodium channel conductances.
@@ -171,7 +175,7 @@ for k = 1:num_neurons               % Iterate through each of the neurons...
     
     % Print the sodium channel conductance for this neuron.
     fprintf( 'Gna%0.0f \t= \t%0.2f \t[muS]\n', k, Gnas( k )*( 10^6 ) )
-    
+
 end
 
 % Print a new line.
@@ -182,7 +186,7 @@ fprintf( 'Synapse Parameters:\n' )
 
 % Print out the synaptic reversal potentials.
 for k = 1:num_synapses              % Iterate through each of the synapses....
-    
+
     % Print the synaptic reversal potential for this synapse.
     fprintf( 'dEs%0.0f%0.0f \t= \t%0.2f \t[mV]\n', num_neurons, k, dEs( k )*( 10^3 ) )
     
@@ -190,7 +194,7 @@ end
 
 % Print out the synaptic conductances.
 for k = 1:num_synapses              % Iterate through each of the synapses...
-    
+   
     % Print the synaptic conductance for this synapse.
     fprintf( 'gs%0.0f%0.0f \t= \t%0.2f \t[muS]\n', num_neurons, k, gs( k )*( 10^6 ) )
     
@@ -204,7 +208,7 @@ fprintf( 'Applied Curent Parameters:\n' )
 
 % Print out the applied currents.
 for k = 1:num_neurons               % Iterate through each of the neurons...
-    
+
     % Print out the applied current for this neuron.
     fprintf( 'Ia%0.0f \t= \t%0.2f \t[nA]\n', k, Ias( k )*( 10^9 ) )
     
@@ -218,7 +222,7 @@ fprintf( 'Network Design Parameters:\n' )
 
 % Print the input gains.
 for k = 1:num_synapses                   % Iterate through each of the synapses...
-    
+   
     % Print out the gain for this synapse.
     fprintf( 'c%0.0f \t\t= \t%0.2f \t[-]\n', k, cs( k ) )
     
@@ -226,7 +230,7 @@ end
 
 % Print the input signatures.
 for k = 1:num_synapses                  % Iterate through each of the synpases...
-    
+   
     % Print out the signature for this synapse.
     fprintf( 's%0.0f \t\t= \t%0.0f \t\t[-]\n', k, ss( k ) )
     
@@ -237,7 +241,7 @@ fprintf( '------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 
-%% Create Absolute Linear Combination Subnetwork.
+%% Create Relative Linear Combination Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
@@ -264,7 +268,7 @@ network.applied_current_manager = network.applied_current_manager.set_applied_cu
 network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_states; 0 ].*Ias, 'I_apps' );
 
 
-%% Compute Desired & Achieved Absolute Inversion Formulations.
+%% Compute Desired & Achieved Relative Inversion Formulations.
 
 % Retrieve the maximum membrane voltages.
 Rs = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) );                      % [V] Maximum Membrane Voltages.
@@ -319,8 +323,8 @@ grid_dims = size( Us_inputs_grid( grid_mask{ : }, 1 ) );
 % Flatten the input grid.
 Us_inputs_flat = reshape( Us_inputs_grid, [ numel( Us_inputs_grid( grid_mask{ : }, 1 ) ), num_neurons - 1 ] );
 
-% Compute the desired and achieved absolute linear combination steady state output.
-Us_outputs_flat_desired = network.compute_desired_absolute_linear_combination_steady_state_output( Us_inputs_flat, cs, ss );
+% Compute the desired and achieved relative linear combination steady state output.
+Us_outputs_flat_desired = network.compute_desired_relative_linear_combination_steady_state_output( Us_inputs_flat, Rs', cs, ss );
 [ Us_outputs_flat_achieved, As, dts, condition_numbers ] = network.achieved_linear_combination_RK4_stability_analysis( Us_inputs_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0 );
 
 % Convert the flat steady state output results to grids.
@@ -334,7 +338,7 @@ Us_outputs_grid_achieved = reshape( Us_outputs_flat_achieved, grid_dims );
 [ condition_number_max, indexes_condition_number ] = max( condition_numbers );
 
 
-%% Print the Desired and Achieved Absolute Linear Combination Formulation Results.
+%% Print the Desired and Achieved Relative Linear Combination Formulation Results.
 
 % Print out the stability information.
 fprintf( 'STABILITY SUMMARY:\n' )
@@ -344,27 +348,27 @@ fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
 fprintf( [ 'Condition Number: \t\tcond( A ) = %0.3e [-] @ [ ', repmat( '%0.2f ', [ 1, num_neurons - 1 ] ) ,'] [mV] \n' ], condition_number_max, Us_inputs_flat( indexes_condition_number, : )*( 10^3 ) )
 
 
-%% Plot the Desired and Achieved Absolute Linear Combination Formulation Results.
+%% Plot the Desired and Achieved Relative Linear Combination Formulation Results.
 
-% Determine how to plot the absolute linear combination formulation results.
+% Determine how to plot the relative linear combination formulation results.
 if num_neurons == 2                 % If there are two neurons...
     
     % Plot the desired and achieved linear combination formulation results.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Absolute Linear Combination Theory' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Relative Linear Combination Theory' )
     plot( Us_inputs_flat, Us_outputs_flat_desired, '-', 'Linewidth', 3 )
     plot( Us_inputs_flat, Us_outputs_flat_achieved, '--', 'Linewidth', 3 )
     legend( 'Desired', 'Achieved' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_theory' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_theory' ] )
     
     % Plot the RK4 maximum timestep.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination RK4 Maximum Timestep' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Linear Combination RK4 Maximum Timestep' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination RK4 Maximum Timestep' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Relative Linear Combination RK4 Maximum Timestep' )
     plot( Us_inputs_flat, dts, '-', 'Linewidth', 3 )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_rk4_maximum_timestep' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_rk4_maximum_timestep' ] )
     
     % Plot the linearized system condition numbers.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Condition Numbers' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Absolute Linear Combination Condition Number' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Condition Numbers' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'Relative Linear Combination Condition Number' )
     plot( Us_inputs_flat, condition_numbers, '-', 'Linewidth', 3 )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_condition_numbers' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_condition_numbers' ] )
     
 elseif num_neurons == 3             % If there are three neurons...
     
@@ -376,32 +380,32 @@ elseif num_neurons == 3             % If there are three neurons...
     condition_numbers_grid_plot = condition_numbers_grid';
     
     % Plot the desired and achieved linear combination formulation results.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Theory' ); hold on, grid on, rotate3d on, view( -45, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U2 [mV]' ), title( 'Absolute Linear Combination Theory' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Theory' ); hold on, grid on, rotate3d on, view( -45, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Membrane Voltage 3 (Output), U2 [mV]' ), title( 'Relative Linear Combination Theory' )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), Us_outputs_grid_desired_plot, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), Us_outputs_grid_achieved_plot, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
     legend( { 'Desired', 'Achieved' }, 'Orientation', 'Horizontal', 'Location', 'Best' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_theory' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_theory' ] )
     
     % Plot the RK4 maximum timestep.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination RK4 Maximum Timestep' ); hold on, grid on, rotate3d on, view( 60, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Linear Combination RK4 Maximum Timestep' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination RK4 Maximum Timestep' ); hold on, grid on, rotate3d on, view( 60, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Relative Linear Combination RK4 Maximum Timestep' )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), dts_grid_plot, 'Edgecolor', 'None', 'Facecolor', 'Interp' )
     scatter3( Us_inputs_flat( :, 1 ), Us_inputs_flat( :, 2 ), dts, 15, 'black', 'filled' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_rk4_maximum_timestep' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_rk4_maximum_timestep' ] )
     
     % Plot the linearized system condition numbers.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Condition Numbers' ); hold on, grid on, rotate3d on, view( 60, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Absolute Linear Combination Condition Number' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Condition Numbers' ); hold on, grid on, rotate3d on, view( 60, 30 ), xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Input), U2 [mV]' ), zlabel( 'Condition Number [-]' ), title( 'Relative Linear Combination Condition Number' )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), condition_numbers_grid_plot, 'Edgecolor', 'None', 'Facecolor', 'Interp' )
     scatter3( Us_inputs_flat( :, 1 ), Us_inputs_flat( :, 2 ), condition_numbers, 15, 'black', 'filled' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_condition_numbers' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_condition_numbers' ] )
     
 else                % Otherwise...
     
     % Throw a warning.
-    warning( 'Can not visualize absolute linear combination formulation results for more than two input neurons.' )
+    warning( 'Can not visualize relative linear combination formulation results for more than two input neurons.' )
     
 end
 
-%% Simulate the Absolute Linear Combination Network.
+%% Simulate the Relative Linear Combination Network.
 
 % Determine whether to simulate the network.
 if b_simulate               % If we want to simulate the network....
@@ -467,12 +471,12 @@ if b_simulate               % If we want to simulate the network....
     Us_achieved_grid = reshape( Us_achieved_flat, [ grid_dims, num_neurons ] );
     
     % Save the simulation results.
-    save( [ save_directory, '\', 'absolute_linear_combination_subnetwork_error' ], 'grid_mask', 'grid_dims', 'applied_currents_flat', 'applied_currents_grid', 'Us_achieved_flat', 'Us_achieved_grid' )
+    save( [ save_directory, '\', 'relative_linear_combination_subnetwork_error' ], 'grid_mask', 'grid_dims', 'applied_currents_flat', 'applied_currents_grid', 'Us_achieved_flat', 'Us_achieved_grid' )
     
 else                % Otherwise... (We must want to load data from an existing simulation...)
     
     % Load the simulation results.
-    data = load( [ load_directory, '\', 'absolute_linear_combination_subnetwork_error' ] );
+    data = load( [ load_directory, '\', 'relative_linear_combination_subnetwork_error' ] );
     
     % Store the simulation results in separate variables.
     grid_mask = data.grid_mask;
@@ -485,12 +489,12 @@ else                % Otherwise... (We must want to load data from an existing s
 end
 
 
-%% Compute the Absolute Linear Combination Subnetwork Error.
+%% Compute the Relative Linear Combination Subnetwork Error.
 
 % Compute the flat desired membrane voltage ouputs.
-Us_outputs_desired_flat = network.compute_desired_absolute_linear_combination_steady_state_output( Us_achieved_flat( :, 1:( end - 1 ) ), cs, ss );
+Us_outputs_desired_flat = network.compute_desired_relative_linear_combination_steady_state_output( Us_achieved_flat( :, 1:( end - 1 ) ), Rs', cs, ss );
 
-% Construct the flat desired membrane voltages.
+% Construct teh flat desired membrane voltages.
 Us_desired_flat = Us_achieved_flat; Us_desired_flat( :, end ) = Us_outputs_desired_flat;
 
 % Convert the desired membrane voltages into a grid.
@@ -506,33 +510,33 @@ error_grid = reshape( error_flat, grid_dims );
 mse = sqrt( sum( error_flat.^2, 'all' ) );
 
 
-%% Plot the Absolute Linear Combination Subnetwork Results.
+%% Plot the Relative Linear Combination Subnetwork Results.
 
-% Determine how to plot the absolute linear combination simulation results.
+% Determine how to plot the relative linear combination simulation results.
 if num_neurons == 2                 % If there are two neurons...
     
     % Create a plot of the desired membrane voltage output.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Desired)' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Response (Desired)' )
     plot( Us_desired_flat( :, 1 ), Us_desired_flat( :, 2 ), '-', 'Linewidth', 3 )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_desired' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_desired' ] )
     
     % Create a plot of the achieved membrane voltage output.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Achieved)' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Response (Achieved)' )
     plot( Us_achieved_flat( :, 1 ), Us_achieved_flat( :, 2 ), '-', 'Linewidth', 3 )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_achieved' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_achieved' ] )
     
     % Create a plot of the desired and achieved membrane voltage outputs.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Comparison)' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Response (Comparison)' )
     h1 = plot( Us_desired_flat( :, 1 ), Us_desired_flat( :, 2 ), '-', 'Linewidth', 3 );
     h2 = plot( Us_inputs_flat, Us_outputs_flat_achieved, '--', 'Linewidth', 3 );
     h3 = plot( Us_achieved_flat( :, 1 ), Us_achieved_flat( :, 2 ), '.', 'Linewidth', 3 );
     legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_comparison' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_comparison' ] )
     
     % Create a surface that shows the membrane voltage error.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Error' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Error' )
     plot( Us_achieved_flat( :, 1 ), error_flat, '-', 'Linewidth', 3 )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_error' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_error' ] )
 
 
 elseif num_neurons == 3             % If there are three neurons...
@@ -543,34 +547,34 @@ elseif num_neurons == 3             % If there are three neurons...
     error_grid_plot = error_grid';
     
     % Create a surface that shows the desired membrane voltage output.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Desired)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Desired)' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Response (Desired)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Response (Desired)' )
     surf( Us_desired_grid_plot( grid_mask{ : }, 1 ), Us_desired_grid_plot( grid_mask{ : }, 2 ), Us_desired_grid_plot( grid_mask{ : }, 3 ), 'EdgeColor', 'None', 'FaceColor', 'Interp' )
     scatter3( Us_desired_flat( :, 1 ), Us_desired_flat( :, 2 ), Us_desired_flat( :, 3 ), 15, 'black', 'filled' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_desired' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_desired' ] )
 
     % Create a surface that shows the achieved membrane voltage output.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Achieved)' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Response (Achieved)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Response (Achieved)' )
     surf( Us_achieved_grid_plot( grid_mask{ : }, 1 ), Us_achieved_grid_plot( grid_mask{ : }, 2 ), Us_achieved_grid_plot( grid_mask{ : }, 3 ), 'EdgeColor', 'None', 'FaceColor', 'Interp' )
     scatter3( Us_achieved_flat( :, 1 ), Us_achieved_flat( :, 2 ), Us_achieved_flat( :, 3 ), 15, 'black', 'filled' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_achieved' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_achieved' ] )
 
     % Create a figure that shows the differences between the achieved and desired membrane voltage outputs.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Response (Comparison)' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, view( -45, 15 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Response (Comparison)' )
     surf( Us_desired_grid_plot( grid_mask{ : }, 1 ), Us_desired_grid_plot( grid_mask{ : }, 2 ), Us_desired_grid_plot( grid_mask{ : }, 3 ), 'EdgeColor', 'None', 'FaceColor', 'b', 'FaceAlpha', 0.5 )
     surf( Us_inputs_grid_plot( grid_mask{ : }, 1 ), Us_inputs_grid_plot( grid_mask{ : }, 2 ), Us_outputs_grid_achieved_plot, 'EdgeColor', 'None', 'FaceColor', 'g', 'FaceAlpha', 0.5 )
     surf( Us_achieved_grid_plot( grid_mask{ : }, 1 ), Us_achieved_grid_plot( grid_mask{ : }, 2 ), Us_achieved_grid_plot( grid_mask{ : }, 3 ), 'EdgeColor', 'None', 'FaceColor', 'r', 'FaceAlpha', 0.5 )
     legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_comparison' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_comparison' ] )
 
     % Create a surface that shows the membrane voltage error.
-    fig = figure( 'Color', 'w', 'Name', 'Absolute Linear Combination Subnetwork Steady State Error' ); hold on, grid on, rotate3d on, view( -45, 45 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Linear Combination Subnetwork Steady State Error' )
+    fig = figure( 'Color', 'w', 'Name', 'Relative Linear Combination Subnetwork Steady State Error' ); hold on, grid on, rotate3d on, view( -45, 45 ), xlabel( 'Membrane Voltage of First Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [V]' ), zlabel( 'Membrane Voltage Error, E [V]' ), title( 'Relative Linear Combination Subnetwork Steady State Error' )
     surf( Us_achieved_grid_plot( grid_mask{ : }, 1 ), Us_achieved_grid_plot( grid_mask{ : }, 2 ), error_grid_plot, 'EdgeColor', 'None', 'FaceColor', 'Interp' )
     scatter3( Us_achieved_flat( :, 1 ), Us_achieved_flat( :, 2 ), error_flat, 15, 'black', 'filled' )
-    saveas( fig, [ save_directory, '\', 'absolute_linear_combination_ss_response_error' ] )
+    saveas( fig, [ save_directory, '\', 'relative_linear_combination_ss_response_error' ] )
 
 else                % Otherwise...
     
     % Throw a warning.
-    warning( 'Can not visualize absolute linear combination simulation results for more than two input neurons.' )
+    warning( 'Can not visualize relative linear combination simulation results for more than two input neurons.' )
     
 end

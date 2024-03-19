@@ -345,7 +345,7 @@ fprintf( 'delta STD:\t%9.3e [V] (%6.2f [%%])\n', error_difference_std, error_dif
 fprintf( 'delta Max Error:\t%9.3e [mV] (%6.2f [%%])\n', error_difference_max, error_difference_max_percent )
 
 
-%% Plot the Steady State Division Error Surfaces
+%% Plot the Steady State Division After Inversion Subnetwork Error Surfaces.
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute division subnetwork.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Absolute Division Subnetwork Steady State Response (Comparison)' )
@@ -355,7 +355,7 @@ legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Ho
 view( -45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Absolute_Division_After_Inversion_Subnetwork_Steady_State_Response.png' ] )
+saveas( fig, [ save_directory, '\', 'absolute_division_after_inversion_ss_response.png' ] )
 
 % Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative division subnetwork.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage of Output Neuron, U3 [mV]' ), title( 'Relative Division Subnetwork Steady State Response (Comparison)' )
@@ -365,17 +365,17 @@ legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Ho
 view( -45, 30 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Relative_Division_After_Inversion_Subnetwork_Steady_State_Response.png' ] )
+saveas( fig, [ save_directory, '\', 'relative_division_after_inversion_ss_response.png' ] )
 
 % Create a surface that shows the membrane voltage error.
-fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error, E [mV]' ), title( 'Division Subnetwork Steady State Error' )
+fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error, E [mV]' ), title( 'Division After Inversion Steady State Error' )
 surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(10^3), error_absolute*(10^3), 'Edgecolor', 'None', 'Facecolor', 'r', 'FaceAlpha', 0.75 )
 surf( Us_achieved_relative( :, :, 1 )*(10^3), Us_achieved_relative( :, :, 2 )*(10^3), error_relative*(10^3), 'Edgecolor', 'None', 'Facecolor', 'b', 'FaceAlpha', 0.75 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Comparison.png' ] )
+saveas( fig, [ save_directory, '\', 'division_after_inversion_error_comparison.png' ] )
 
 % Create a surface that shows the membrane voltage error percentage.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Percentage, E [%]' ), title( 'Division Subnetwork Steady State Error Percentage' )
@@ -385,7 +385,7 @@ legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'H
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Percentage_Comparison.png' ] )
+saveas( fig, [ save_directory, '\', 'division_after_inversion_error_percentage_comparison.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative division subnetworks.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference, dE [mV]' ), title( 'Division Subnetwork Steady State Error Difference' )
@@ -393,7 +393,7 @@ surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(1
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Difference.png' ] )
+saveas( fig, [ save_directory, '\', 'division_after_inversion_error_difference.png' ] )
 
 % Create a surface that shows the difference in error between the absolute and relative percent division subnetworks.
 fig = figure( 'color', 'w' ); hold on, grid on, rotate3d on, xlabel( 'Membrane Voltage of First Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Second Input Neuron, U2 [mV]' ), zlabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Division Subnetwork Steady State Error Percentage Difference' )
@@ -401,5 +401,5 @@ surf( Us_achieved_absolute( :, :, 1 )*(10^3), Us_achieved_absolute( :, :, 2 )*(1
 view( 45, 15 )
 % colormap( get_bichromatic_colormap(  ) )
 % colorbar(  )
-saveas( fig, [ save_directory, '\', 'Division_After_Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+saveas( fig, [ save_directory, '\', 'division_after_inversion_error_percentage_difference.png' ] )
 

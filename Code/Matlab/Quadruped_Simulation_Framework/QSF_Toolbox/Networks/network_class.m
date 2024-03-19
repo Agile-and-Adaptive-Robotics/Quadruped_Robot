@@ -7,16 +7,16 @@ classdef network_class
     % Define the class properties.
     properties
         
-        neuron_manager
-        synapse_manager
-        applied_current_manager
-        applied_voltage_manager
+        neuron_manager                                                                                                          % [class] Manages Neuron Classes.
+        synapse_manager                                                                                                         % [class] Manages Synapse Classes.
+        applied_current_manager                                                                                                 % [class] Manages Applied Currents.
+        applied_voltage_manager                                                                                                 % [class] Manages Applied Voltages.
         
-        dt
-        tf
+        dt                                                                                                                      % [s] Network Simulation Timestep.
+        tf                                                                                                                      % [s] Network Simulation Duration.
         
-        network_utilities
-        numerical_method_utilities
+        network_utilities                                                                                                       % [class] Performs Fundamental Network Operations.
+        numerical_method_utilities                                                                                              % [class] Performs Fundamental Numerical Method Operations.
         
     end
     

@@ -1591,7 +1591,7 @@ classdef network_utilities_class
             if nargin < 2, Us_inputs = zeros( 1, 2 ); end
             
             % Compute the steady state network outputs.
-            Us_output = Rs(end)*( ( ss.*cs./Rs( 1:( end - 1 ) ) )'*Us_inputs' )';
+            Us_output = Rs( end )*( ( ss.*cs./Rs( 1:( end - 1 ) ) )'*Us_inputs' )';
             
         end
         
