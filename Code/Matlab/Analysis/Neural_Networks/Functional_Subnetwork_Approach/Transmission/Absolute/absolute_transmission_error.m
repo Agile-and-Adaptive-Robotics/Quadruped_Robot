@@ -11,8 +11,8 @@ save_directory = '.\Save';                              % [str] Save Directory.
 load_directory = '.\Load';                              % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-b_simulate = true;                                  	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
-% b_simulate = false;                                     % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = true;                                  	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+b_simulate = false;                                     % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
 b_verbose = true;                                       % [T/F] Printing Flag. (Determines whether to print out information.)
@@ -255,8 +255,7 @@ end
 %% Compute the Absolute Transmission Network Error.
 
 % Compute the desired membrane voltage output.
-% Us_desired_output =  c1./( c2*Us_achieved( :, 1 ) + c3 );
-Us_desired_output =  c*Us_achieved( :, 1 );
+Us_desired_output = network.compute_desired_absolute_transmission_steady_state_output( Us_achieved( :, 1 ), c );
 
 % Compute the desired membrane voltage output.
 Us_desired = Us_achieved; Us_desired( :, end ) = Us_desired_output;
@@ -271,25 +270,38 @@ mse = sqrt( sum( error.^2, 'all' ) );
 %% Plot the Absolute Transmission Network Results.
 
 % Create a plot of the desired membrane voltage output.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Subnetwork Steady State Response (Desired)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Steady State Response (Desired)' )
 plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_desired' ] )
 
 % Create a plot of the achieved membrane voltage output.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Subnetwork Steady State Response (Achieved)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Subnetwork Steady State Response (Achieved)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Steady State Response (Achieved)' )
 plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_achieved' ] )
 
 % Create a plot of the desired and achieved membrane voltage outputs.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Subnetwork Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Subnetwork Steady State Response (Comparison)' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Steady State Response (Comparison)' )
 h1 = plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 );
 h2 = plot( U1s_flat, U2s_flat_achieved_absolute, '--', 'Linewidth', 3 );
 h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '.', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_comparison' ] )
 
+% Create a plot of the desired and achieved membrane voltage outputs.
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Decoding (Comparison)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'Absolute Transmission Steady State Decoding (Comparison)' )
+h1 = plot( Us_desired( :, 1 )*( 10^3 ), Us_desired( :, 2 )*( 10^3 ), '-', 'Linewidth', 3 );
+h2 = plot( U1s_flat*( 10^3 ), U2s_flat_achieved_absolute*( 10^3 ), '--', 'Linewidth', 3 );
+h3 = plot( Us_achieved( :, 1 )*( 10^3 ), Us_achieved( :, 2 )*( 10^3 ), '.', 'Linewidth', 3 );
+legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
+saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_comparison' ] )
+
 % Create a surface that shows the membrane voltage error.
-fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Absolute Transmission Subnetwork Steady State Error' )
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Transmission Steady State Error' )
 plot( Us_achieved( :, 1 ), error, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_error' ] )
+
+% Create a surface that shows the decoding error.
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Decoding Error' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Membrane Voltage Decoding Error, E [-]' ), title( 'Absolute Transmission Steady State Decoding Error' )
+plot( Us_achieved( :, 1 )*( 10^3 ), error*( 10^3 ), '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_decoding_error' ] )
 

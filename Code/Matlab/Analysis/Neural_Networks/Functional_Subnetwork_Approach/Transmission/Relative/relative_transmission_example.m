@@ -6,6 +6,10 @@ clear, close( 'all' ), clc
 
 %% Define Simulation Parameters.
 
+% Define the save and load directories.
+save_directory = '.\Save';                              % [str] Save Directory.
+load_directory = '.\Load';                              % [str] Load Directory.
+
 % Define the level of verbosity.
 b_verbose = true;                                   % [T/F] Printing Flag.
 
@@ -20,7 +24,7 @@ network_tf = 3;                                     % [s] Simulation Duration.
 
 % Define the maximum membrane voltages.
 R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
-R2 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+R2 = 10e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 
 % Define the membrane conductances.
 Gm1 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 1)
@@ -42,7 +46,7 @@ Ia1 = R1*Gm1;                                      	% [A] Applied Current (Neuro
 Ia2 = 0;                                            % [A] Applied Current (Neuron 2).
 
 % Define the current state.
-current_state1 = 0.5;                                 % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
+current_state1 = 1.0;                               % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
 
 % Define the network design parameters.
 c = 1;                                              % [-] Design Constant.
@@ -151,11 +155,29 @@ toc
 
 %% Plot the Relative Transmission Subnetwork Results.
 
+% Define the absolute transmission comparison example.
+R1_absolute = 20e-3;
+R2_absolute = 20e-3;
+
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
+
+% Plot the relative network encoding over time.
+fig_network_encoding = figure( 'Color', 'w' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Encoding, U/R [-]' ), title( 'Relative Transmission Encoding vs Time' )
+plot( ts, Us( 1, : )/R1, '-', 'Linewidth', 3 )
+plot( ts, Us( 2, : )/R2, '-', 'Linewidth', 3 )
+legend( 'Input', 'Output' )
+saveas( fig_network_encoding, [ save_directory, '\', 'relative_transmission_encoding_example' ] )
+
+% Plot the relative network decoding over time.
+fig_network_decoding = figure( 'Color', 'w' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Relative Transmission Decoding vs Time' )
+plot( ts, ( R1_absolute/R1 )*Us( 1, : )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( ts, ( R2_absolute/R2 )*Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
+legend( 'Input', 'Output' )
+saveas( fig_network_decoding, [ save_directory, '\', 'relative_transmission_decoding_example' ] )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );

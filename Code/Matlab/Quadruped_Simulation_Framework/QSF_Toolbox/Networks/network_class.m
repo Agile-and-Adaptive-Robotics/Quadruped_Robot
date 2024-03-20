@@ -77,6 +77,19 @@ classdef network_class
         % Implement the class constructor.
         function self = network_class( dt, tf, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager )
             
+            %{
+            Input(s):
+                dt                          =   [s] Simulation Timestep.
+                tf                          =   [s] Simulation Duration.
+                neuron_manager              =   [class] Neuron Manager Class.
+                synapse_manager             =   [class] Synapse Manager Class.
+                applied_current_manager     =   [class] Applied Current Manager Class.
+                applied_voltage_manager     =   [class] Applied Voltage Manager Class.
+                
+            Output(s):
+                self                        =   [class] Neural Network Class.
+            %}
+            
             % Create an instance of the numeriacl methods utilities class.
             self.numerical_method_utilities = numerical_method_utilities_class(  );
             
@@ -101,6 +114,14 @@ classdef network_class
         
         % Implement a function to construct the delta matrix from the stored delta scalars.
         function deltas = get_deltas( self, neuron_IDs )
+            
+            %{
+            Input(s):
+                neuron_IDs	=   [#] Neuron IDs.
+                
+            Output(s):
+                deltas      =   [V] Network Bifurcation Parameters.
+            %}
             
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end
@@ -160,6 +181,14 @@ classdef network_class
         % Implement a function to construct the synaptic reversal potential matrix from the stored synaptic reversal potential scalars.
         function dE_syns = get_dEsyns( self, neuron_IDs )
             
+            %{
+            Input(s):
+                neuron_IDs  =   [#] Neuron IDs.
+            
+            Output(s):
+                dE_syns     =   [V] Synaptic Reversal Potentials.
+            %}
+            
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end
             
@@ -218,6 +247,14 @@ classdef network_class
         % Implement a function to construct the maximum synaptic conductance matrix from the stored maximum synaptic conductance scalars.
         function g_syn_maxs = get_gsynmaxs( self, neuron_IDs )
             
+            %{
+            Input(s):
+                neuron_IDs  =   [#] Neuron IDs.
+            
+            Output(s):
+                g_syn_maxs	=   [S] Maximum Synaptic Conductances.
+            %}
+            
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end
             
@@ -275,6 +312,14 @@ classdef network_class
         
         % Implement a function to construct the synaptic condcutance matrix from the stored synaptic conductance scalars.
         function G_syns = get_Gsyns( self, neuron_IDs )
+            
+            %{
+            Input(s):
+                neuron_IDs  =   [#] Neuron IDs.
+            
+            Output(s):
+                G_syns      =   [S] Synaptic Conductances.
+            %}
             
             % Set the default input arugments.
             if nargin < 2, neuron_IDs = 'all'; end

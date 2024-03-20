@@ -6,6 +6,10 @@ clear, close( 'all' ), clc
 
 %% Define Simulation Parameters.
 
+% Define the save and load directories.
+save_directory = '.\Save';                              % [str] Save Directory.
+load_directory = '.\Load';                              % [str] Load Directory.
+
 % Define the level of verbosity.
 b_verbose = true;                                   % [T/F] Printing Flag.
 
@@ -158,6 +162,13 @@ fig_network_currents = network.network_utilities.plot_network_currents( ts, I_le
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
+
+% Plot the absolute network decoding over time.
+fig_network_decoding = figure( 'Color', 'w' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Transmission Decoding vs Time' )
+plot( ts, Us( 1, : )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( ts, Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
+legend( 'Input', 'Output' )
+saveas( fig_network_decoding, [ save_directory, '\', 'asbolute_transmission_decoding_example' ] )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
