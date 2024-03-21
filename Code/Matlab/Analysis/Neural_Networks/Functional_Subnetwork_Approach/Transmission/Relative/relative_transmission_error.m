@@ -11,8 +11,8 @@ save_directory = '.\Save';                              % [str] Save Directory.
 load_directory = '.\Load';                              % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-b_simulate = true;                                  	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
-% b_simulate = false;                                     % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = true;                                  	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+b_simulate = false;                                     % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
 b_verbose = true;                                       % [T/F] Printing Flag. (Determines whether to print out information.)
@@ -55,7 +55,7 @@ Ia1 = R1*Gm1;                                      	% [A] Applied Current (Neuro
 Ia2 = 0;                                            % [A] Applied Current (Neuron 2).
 
 % Define the current state.
-current_state1 = 0.5;                                 % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
+current_state1 = 1.0;                           	% [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
 
 % Define the network design parameters.
 c = 1;                                              % [-] Design Constant.
@@ -267,6 +267,10 @@ mse = sqrt( sum( error.^2, 'all' ) );
 
 %% Plot the Relative Transmission Network Results.
 
+% Define the absolute transmission comparison example.
+R1_absolute = 20e-3;
+R2_absolute = 20e-3;
+
 % Create a plot of the desired membrane voltage output.
 fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Subnetwork Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Transmission Subnetwork Steady State Response (Desired)' )
 plot( Us_desired( :, 1 ), Us_desired( :, 2 ), '-', 'Linewidth', 3 )
@@ -285,8 +289,45 @@ h3 = plot( Us_achieved( :, 1 ), Us_achieved( :, 2 ), '.', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_comparison' ] )
 
+% Create a plot of the desired and achieved membrane voltage outputs.
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Steady State Encoding (Comparison)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'Relative Transmission Steady State Encoding (Comparison)' )
+h1 = plot( Us_desired( :, 1 )/R1, Us_desired( :, 2 )/R2, '-', 'Linewidth', 3 );
+h2 = plot( U1s_flat/R1, U2s_flat_achieved_relative/R2, '--', 'Linewidth', 3 );
+h3 = plot( Us_achieved( :, 1 )/R1, Us_achieved( :, 2 )/R2, '.', 'Linewidth', 3 );
+legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
+saveas( fig, [ save_directory, '\', 'relative_transmission_ss_encoding_comparison' ] )
+
+% Create a plot of the desired and achieved membrane voltage outputs.
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Steady State Decoding (Comparison)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'Relative Transmission Steady State Decoding (Comparison)' )
+h1 = plot( ( R1_absolute/R1 )*Us_desired( :, 1 ), ( R2_absolute/R2 )*Us_desired( :, 2 ), '-', 'Linewidth', 3 );
+h2 = plot( ( R1_absolute/R1 )*U1s_flat, ( R2_absolute/R2 )*U2s_flat_achieved_relative, '--', 'Linewidth', 3 );
+h3 = plot( ( R1_absolute/R1 )*Us_achieved( :, 1 ), ( R2_absolute/R2 )*Us_achieved( :, 2 ), '.', 'Linewidth', 3 );
+legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
+saveas( fig, [ save_directory, '\', 'relative_transmission_ss_decoding_comparison' ] )
+
 % Create a surface that shows the membrane voltage error.
-fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [V]' ), title( 'Relative Transmission Subnetwork Steady State Error' )
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Subnetwork Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage Error, E [V]' ), title( 'Relative Transmission Subnetwork Steady State Error' )
 plot( Us_achieved( :, 1 ), error, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_error' ] )
+
+% Create a surface that shows the encoding error.
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Steady State Encoding Error' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Encoding Error, E/R2 [-]' ), title( 'Relative Transmission Steady State Encoding Error' )
+plot( Us_achieved( :, 1 )/R1, error/R2, '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_encoding_error' ] )
+
+% Create a surface that shows the encoding error.
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Steady State Encoding Error Percentage' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Encoding Error Percentage, E [%]' ), title( 'Relative Transmission Steady State Encoding Error Percentage' )
+plot( Us_achieved( :, 1 )/R1, 100*( error/R2 ), '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_encoding_error_percentage' ] )
+
+% Create a surface that shows the encoding error.
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Steady State Decoding Error' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Decoding Error, E [-]' ), title( 'Relative Transmission Steady State Decoding Error' )
+plot( ( R1_absolute/R1 )*Us_achieved( :, 1 ), ( R2_absolute/R2 )*error, '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_decoding_error' ] )
+
+% Create a surface that shows the encoding error.
+fig = figure( 'Color', 'w', 'Name', 'Relative Transmission Steady State Decoding Error Percentage' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Decoding Error Percentage, E [%]' ), title( 'Relative Transmission Steady State Decoding Error Percentage' )
+plot( ( R1_absolute/R1 )*Us_achieved( :, 1 ), 100*( R2_absolute/R2 )*error, '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_decoding_error_percentage' ] )
+
 

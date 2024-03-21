@@ -164,11 +164,16 @@ fig_network_currents = network.network_utilities.plot_network_currents( ts, I_le
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
 
 % Plot the absolute network decoding over time.
-fig_network_decoding = figure( 'Color', 'w' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Transmission Decoding vs Time' )
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'Absolute Transmission Decoding vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Transmission Decoding vs Time' )
 plot( ts, Us( 1, : )*( 10^3 ), '-', 'Linewidth', 3 )
 plot( ts, Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
 legend( 'Input', 'Output' )
-saveas( fig_network_decoding, [ save_directory, '\', 'asbolute_transmission_decoding_example' ] )
+saveas( fig_network_decoding, [ save_directory, '\', 'absolute_transmission_decoding_example' ] )
+
+% Plot the absolute network dynamic decoding example.
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'Absolute Transmission Dynamic Decoding Example' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Transmission Dynamic Decoding Example' )
+plot( Us( 1, : )*( 10^3 ), Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
+saveas( fig_network_decoding, [ save_directory, '\', 'absolute_transmission_dynamic_decoding_example' ] )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );

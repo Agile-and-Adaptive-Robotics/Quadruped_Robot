@@ -7,14 +7,14 @@ clear, close( 'all' ), clc
 %% Set the Simulation Parameters.
 
 % Define the network integration step size.
-network_dt = 1.3e-4;                                                                                    % [s] Simulation Step Size.
+network_dt = 1.3e-4;                                            % [s] Simulation Step Size.
 
 % Define the network simulation duration.
-network_tf = 3;                                                                                         % [s] Simulation Duration.
+network_tf = 3;                                              	% [s] Simulation Duration.
 
 % Define the applied current state.
-% current_state = 0;                                                                                    % [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
-current_state = 1;                                                                                      % [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
+% current_state = 0;                                        	% [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
+current_state = 1;                                           	% [0-1] Current Activation Ratio (0 = Input Current Completely Off, 1 = Input Current Completely On).
 
 
 %% Define the Fundamental Parameters of a Relative Transmission Subnetwork.
@@ -126,6 +126,7 @@ network_relative.applied_current_manager = network_relative.applied_current_mana
 
 % Convert the maximum membrane voltages.
 R1_absolute = R1_relative;                                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
+R2_absolute = R2_relative;                                                                                      % [V] Maximum Membrane Voltage (Neuron 2).
 
 % Convert the membrane conductances.
 Gm1_absolute = Gm1_relative;                                                                                    % [S] Membrane Conductance (Neuron 1).
@@ -146,14 +147,11 @@ dEs21_absolute = 194e-3;                                                        
 Ia1_absolute = Ia1_relative;                                                                                    % [A] Applied Current (Neuron 1).
 Ia2_absolute = 0;                                                                                               % [A] Applied Current (Neuron 2).
 
-% Convert design constants.
-c_absolute = c_relative;                                                                                        % [-] Design Constant.
-
 
 %% Compute the Derived Parameters of the Absolute Transmission Subnetwork.
 
 % Compute the maximum membrane voltages.
-R2_absolute = c_absolute*R1_absolute;                                                                           % [V] Maximum Membrane Voltage (Neuron 2).
+c_absolute = R2_absolute/R1_absolute;                                                                           % [-] Design Constant.
 
 % Compute the synaptic conductances.
 gs21_absolute = ( R2_absolute*Gm2_absolute - Ia2_absolute )/( dEs21_absolute - R2_absolute );                   % [S] Synaptic Conductance (Synapse 21).
@@ -262,6 +260,20 @@ fig_absolute_network_currents = network_absolute.network_utilities.plot_network_
 % Plot the network states over time.
 fig_relative_network_states = network_relative.network_utilities.plot_network_states( ts_relative, Us_relative, hs_relative, neuron_IDs_relative );
 fig_absolute_network_states = network_absolute.network_utilities.plot_network_states( ts_absolute, Us_absolute, hs_absolute, neuron_IDs_absolute );
+
+% Plot the absolute network decoding over time.
+fig_network_decoding = figure( 'Color', 'w' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Transmission Decoding vs Time' )
+plot( ts, Us( 1, : )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( ts, Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
+legend( 'Input', 'Output' )
+saveas( fig_network_decoding, [ save_directory, '\', 'asbolute_transmission_decoding_example' ] )
+
+% Plot the relative network decoding over time.
+fig_network_decoding = figure( 'Color', 'w' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Relative Transmission Decoding vs Time' )
+plot( ts, ( R1_absolute/R1 )*Us( 1, : )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( ts, ( R2_absolute/R2 )*Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
+legend( 'Input', 'Output' )
+saveas( fig_network_decoding, [ save_directory, '\', 'relative_transmission_decoding_example' ] )
 
 % Animate the network states over time.
 fig_relative_network_animation = network_relative.network_utilities.animate_network_states( Us_relative, hs_relative, neuron_IDs_relative );

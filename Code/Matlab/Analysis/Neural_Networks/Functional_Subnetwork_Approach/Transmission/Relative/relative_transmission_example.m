@@ -24,7 +24,7 @@ network_tf = 3;                                     % [s] Simulation Duration.
 
 % Define the maximum membrane voltages.
 R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
-R2 = 10e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+R2 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 
 % Define the membrane conductances.
 Gm1 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 1)
@@ -178,6 +178,11 @@ plot( ts, ( R1_absolute/R1 )*Us( 1, : )*( 10^3 ), '-', 'Linewidth', 3 )
 plot( ts, ( R2_absolute/R2 )*Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
 legend( 'Input', 'Output' )
 saveas( fig_network_decoding, [ save_directory, '\', 'relative_transmission_decoding_example' ] )
+
+% Plot the absolute network dynamic decoding example.
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'Absolute Transmission Dynamic Decoding Example' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Transmission Dynamic Decoding Example' )
+plot( ( R1_absolute/R1 )*Us( 1, : )*( 10^3 ), ( R2_absolute/R2 )*Us( 2, : )*( 10^3 ), '-', 'Linewidth', 3 )
+saveas( fig_network_decoding, [ save_directory, '\', 'relative_transmission_dynamic_decoding_example' ] )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );

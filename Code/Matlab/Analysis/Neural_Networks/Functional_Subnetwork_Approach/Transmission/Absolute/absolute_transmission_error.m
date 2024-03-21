@@ -293,7 +293,7 @@ h1 = plot( Us_desired( :, 1 )*( 10^3 ), Us_desired( :, 2 )*( 10^3 ), '-', 'Linew
 h2 = plot( U1s_flat*( 10^3 ), U2s_flat_achieved_absolute*( 10^3 ), '--', 'Linewidth', 3 );
 h3 = plot( Us_achieved( :, 1 )*( 10^3 ), Us_achieved( :, 2 )*( 10^3 ), '.', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best' )
-saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_comparison' ] )
+saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_decoding_comparison' ] )
 
 % Create a surface that shows the membrane voltage error.
 fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Error' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [V]' ), ylabel( 'Membrane Voltage Error, E [V]' ), title( 'Absolute Transmission Steady State Error' )
@@ -304,4 +304,9 @@ saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_error' ] 
 fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Decoding Error' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Membrane Voltage Decoding Error, E [-]' ), title( 'Absolute Transmission Steady State Decoding Error' )
 plot( Us_achieved( :, 1 )*( 10^3 ), error*( 10^3 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_decoding_error' ] )
+
+% Create a surface that shows the decoding error.
+fig = figure( 'Color', 'w', 'Name', 'Absolute Transmission Steady State Decoding Error Percentage' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Membrane Voltage Decoding Error Percentage, E [%]' ), title( 'Absolute Transmission Steady State Decoding Error Percentage' )
+plot( Us_achieved( :, 1 )*( 10^3 ), 100*( error/R2 ), '-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_decoding_error_percentage' ] )
 
