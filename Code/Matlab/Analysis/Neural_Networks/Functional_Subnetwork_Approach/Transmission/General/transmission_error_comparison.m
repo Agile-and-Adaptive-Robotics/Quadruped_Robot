@@ -45,7 +45,7 @@ Ia2_absolute = 0;                                         	% [A] Applied Current
 current_state1_absolute = 1.0;                             	% [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
 
 % Define the network design parameters.
-c_absolute = 1;                                             % [-] Design Constant.
+c_absolute = 2;                                             % [-] Design Constant.
 
 
 %% Compute the Derived Absolute Transmission Subnetwork Parameters.
@@ -525,15 +525,8 @@ fig = figure( 'Color', 'w', 'Name', 'Transmission Steady State Decoding Error Di
 plot( Us_achieved_decoded_absolute( :, 1 ), error_decoded_difference, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'transmission_decoding_error_difference.png' ] )
 
-
-
-
-
-
-
-
 % Create a surface that shows the difference in error between the absolute and relative percent transmission subnetworks.
-% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Transmission Subnetwork Steady State Error Difference Percentage' )
-fig = figure( 'color', 'w' ); hold on, grid on
-plot( Us_achieved_absolute( :, 1 )*( 10^3 ), error_difference_percent, 'b-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'Transmission_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+fig = figure( 'Color', 'w', 'Name', 'Transmission Steady State Decoding Error Difference Percentage' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Transmission Steady State Decoding Error Difference Percentage' )
+plot( Us_achieved_decoded_absolute( :, 1 ), error_decoded_difference_percent, 'b-', 'Linewidth', 3 )
+saveas( fig, [ save_directory, '\', 'transmission_decoding_error_percentage_difference.png' ] )
+

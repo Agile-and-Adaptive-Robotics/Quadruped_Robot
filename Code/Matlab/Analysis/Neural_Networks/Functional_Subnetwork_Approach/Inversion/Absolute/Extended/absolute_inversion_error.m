@@ -11,8 +11,8 @@ save_directory = '.\Save';                              % [str] Save Directory.
 load_directory = '.\Load';                              % [str] Load Directory.
 
 % Set a flag to determine whether to simulate.
-% b_simulate = true;                                      % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
-b_simulate = false;                                   % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+b_simulate = true;                                      % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% b_simulate = false;                                   % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
 b_verbose = true;                                       % [T/F] Printing Flag. (Determines whether to print out information.)
@@ -162,8 +162,7 @@ Cms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) );    
 Gms = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) );                    % [S] Membrane Conductances.
 
 % Retrieve the applied currents.
-% Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );             % [A] Applied Currents.
-Ias = [ 0, Ia2 ];                                                                               % [A] Applied Currents.
+Ias = cell2mat( network.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) );             % [A] Applied Currents.
 
 % Retrieve the synaptic conductances.
 gs = network.get_gsynmaxs( 'all' );                                                             % [S] Synaptic Conductances.
@@ -201,12 +200,24 @@ fprintf( 'Condition Number: \t\tcond( A ) = %0.3e [-] @ %0.2f [mV]\n', condition
 
 %% Plot the Desired and Achieved Absolute Inversion Formulation Results.
 
-% Plot the desired and achieved relative inversion formulation results.
+% Decode the input and output membrane voltages.
+U1s_flat_decoded = U1s_flat*( 10^3 );
+U2s_flat_desired_absolute_decoded = U2s_flat_desired_absolute*( 10^3 );
+U2s_flat_achieved_absolute_decoded = U2s_flat_achieved_absolute*( 10^3 );
+
+% Plot the desired and achieved absolute inversion formulation results.
 fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Theory' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'Absolute Inversion Theory' )
 plot( U1s_flat, U2s_flat_desired_absolute, '-', 'Linewidth', 3 )
 plot( U1s_flat, U2s_flat_achieved_absolute, '--', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved' )
 saveas( fig, [ save_directory, '\', 'absolute_inversion_theory' ] )
+
+% Plot the decoded desired and achieved absolute inversion formulation results.
+fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion Theory Decoded' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'Absolute Inversion Theory Decoded' )
+plot( U1s_flat_decoded, U2s_flat_desired_absolute_decoded, '-', 'Linewidth', 3 )
+plot( U1s_flat_decoded, U2s_flat_achieved_absolute_decoded, '--', 'Linewidth', 3 )
+legend( 'Desired', 'Achieved' )
+saveas( fig, [ save_directory, '\', 'absolute_inversion_theory_decoded' ] )
 
 % Plot the RK4 maximum timestep.
 fig = figure( 'Color', 'w', 'Name', 'Absolute Inversion RK4 Maximum Timestep' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'Absolute Inversion RK4 Maximum Timestep' )
@@ -266,13 +277,17 @@ end
 %% Compute the Absolute Inversion Network Error.
 
 % Compute the desired membrane voltage output.
-Us_desired_output =  c1./( c2*Us_achieved( :, 1 ) + c3 );
-
+% Us_desired_output =  c1./( c2*Us_achieved( :, 1 ) + c3 );
+Us_desired_output = network.compute_desired_absolute_inversion_steady_state_output( Us_achieved( :, 1 ), c1, c2, c3 );
+            
 % Compute the desired membrane voltage output.
 Us_desired = Us_achieved; Us_desired( :, end ) = Us_desired_output;
 
 % Compute the error between the achieved and desired results.
 error = Us_achieved( :, end ) - Us_desired( :, end );
+
+% Compute the error percentage between the achieved and desired results.
+error_percentage = 100*( error/R2 );
 
 % Compute the mean squared error summary statistic.
 mse = sqrt( sum( error.^2, 'all' ) );

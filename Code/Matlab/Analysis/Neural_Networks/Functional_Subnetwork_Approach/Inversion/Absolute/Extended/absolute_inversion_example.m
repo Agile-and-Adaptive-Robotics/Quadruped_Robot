@@ -1,10 +1,14 @@
 %% Absolute Inversion Subnetwork Example.
 
 % Clear Everything.
-clear, close('all'), clc
+clear, close( 'all' ), clc
 
 
 %% Define Simulation Parameters.
+
+% Define the save and load directories.
+save_directory = '.\Save';                        	% [str] Save Directory.
+load_directory = '.\Load';                         	% [str] Load Directory.
 
 % Define the level of verbosity.
 b_verbose = true;                                   % [T/F] Printing Flag.
@@ -38,7 +42,6 @@ dEs21 = 0;                                          % [V] Synaptic Reversal Pote
 
 % Define the applied currents.
 Ia1 = R1*Gm1;                                     	% [A] Applied Current (Neuron 1)
-Ia2 = R2*Gm2;                                       % [A] Applied Current (Neuron 2).
 
 % Define the current state.
 current_state1 = 0;                                 % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
@@ -56,6 +59,9 @@ c2 = ( c1 - delta*c3 )/( delta*R1 );                % [S] Design Constant 2.
 
 % Compute the maximum membrane voltages.
 R2 = c1/c3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+
+% Compute the applied currents.
+Ia2 = R2*Gm2;                                       % [A] Applied Current (Neuron 2).
 
 % Compute the synaptic conductances.
 gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );       % [S] Synaptic Conductance (Synapse 21).
@@ -93,7 +99,7 @@ fprintf( '\n' )
 % Print out the applied current information.
 fprintf( 'Applied Curent Parameters:\n' )
 fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1*Ia1*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', current_state2*Ia2*( 10^9 ) )
+fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2*( 10^9 ) )
 fprintf( '\n' )
 
 % Print out the network design parameters.
@@ -164,11 +170,26 @@ toc
 
 %% Plot the Absolute Inversion Subnetwork Results.
 
+% Compute the decoded output.
+Us_decoded = Us*( 10^3 );
+
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
+
+% Plot the absolute network decoding over time.
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'Absolute Inversion Decoding vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'Network Decoding [-]' ), title( 'Absolute Inversion Decoding vs Time' )
+plot( ts, Us_decoded( 1, : ), '-', 'Linewidth', 3 )
+plot( ts, Us_decoded( 2, : ), '-', 'Linewidth', 3 )
+legend( 'Input', 'Output' )
+saveas( fig_network_decoding, [ save_directory, '\', 'absolute_inversion_decoding_example' ] )
+
+% Plot the absolute network dynamic decoding example.
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'Absolute Inversion Dynamic Decoding Example' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'Absolute Inversion Dynamic Decoding Example' )
+plot( Us_decoded( 1, : ), Us_decoded( 2, : ), '-', 'Linewidth', 3 )
+saveas( fig_network_decoding, [ save_directory, '\', 'absolute_inversion_dynamic_decoding_example' ] )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );
