@@ -5911,6 +5911,68 @@ classdef network_class
         end
         
         
+        % Implement a function to compute simulation results for given applied currents.
+        function [ self, ts, Us_flat, hs_flat, dUs_flat, dhs_flat, Gsyns_flat, Ileaks_flat, Isyns_flat, Inas_flat, Iapps_flat, Itotals_flat, minfs_flat, hinfs_flat, tauhs_flat, neuron_IDs ] = simulate_flat( self, applied_current_IDs, applied_currents_flat, dt, tf, method )
+                       
+            % Retrieve the number of neurons.
+            num_neurons = self.neuron_manager.num_neurons;
+
+            % Retrieve size information.
+            num_applied_currents = size( applied_currents_flat, 1 );
+            num_input_neurons = size( applied_currents_flat, 2 );
+            
+            % Compute the number of simulation timesteps.
+            num_timesteps = tf/dt + 1;
+            
+            % Create a matrix to store the membrane voltages.
+            Us_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            hs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            dUs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            dhs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            Gsyns_flat = zeros( num_applied_currents, num_neurons, num_neurons, num_timesteps );
+            Ileaks_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            Isyns_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            Inas_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            Iapps_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            Itotals_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            minfs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            hinfs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+            tauhs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+
+            % Simulate the network for each of the applied current combinations.
+            for k1 = 1:num_applied_currents                      % Iterate through each of the applied currents...
+                
+                % Create applied currents.
+                for k2 = 1:num_input_neurons                    % Iterate through each of the input neurons...
+                    
+                    % Set the applied current for this input neuron.
+                    self.applied_current_manager = self.applied_current_manager.set_applied_current_property( applied_current_IDs( k2 ), applied_currents_flat( k1, k2 ), 'I_apps' );
+                    
+                end
+                
+                % Simulate the network.
+                [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_set_simulation( dt, tf, method );
+                
+                % Retrieve the final membrane voltages.
+                Us_flat( k1, :, : ) = Us;
+                hs_flat( k1, :, : ) = hs;
+                dUs_flat( k1, :, : ) = dUs;
+                dhs_flat( k1, :, : ) = dhs;
+                Gsyns_flat( k1, :, :, : ) = G_syns;
+                Ileaks_flat( k1, :, : ) = I_leaks;
+                Isyns_flat( k1, :, : ) = I_syns;
+                Inas_flat( k1, :, : ) = I_nas;
+                Iapps_flat( k1, :, : ) = I_apps;
+                Itotals_flat( k1, :, : ) = I_totals;
+                minfs_flat( k1, :, : ) = m_infs;
+                hinfs_flat( k1, :, : ) = h_infs;
+                tauhs_flat( k1, :, : ) = tauhs;
+
+            end
+            
+        end
+        
+        
         %% Save & Load Functions.
         
         % Implement a function to save network data as a matlab object.
