@@ -113,7 +113,7 @@ classdef network_class
         %% Specific Get Functions.
         
         % Implement a function to construct the delta matrix from the stored delta scalars.
-        function deltas = get_deltas( self, neuron_IDs )
+        function deltas = get_deltas( self, neuron_IDs, synapse_manager )
             
             % Retrieves the delta matrix associated with the given neuron IDs.
             
@@ -126,6 +126,7 @@ classdef network_class
             %}
             
             % Set the default input arugments.
+            if nargin < 3, synapse_manager = self.synapse_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
@@ -135,15 +136,13 @@ classdef network_class
             assert( all( unique( neuron_IDs ) == neuron_IDs ), 'Neuron IDs must be unique.' )
             
             % Retrieve the synapse IDs relevant to the given neuron IDs.
-            synapse_IDs = self.synapse_manager.neuron_IDs2synapse_IDs( neuron_IDs, 'ignore' );
+            synapse_IDs = synapse_manager.neuron_IDs2synapse_IDs( neuron_IDs, 'ignore' );
             
             % Retrieve the synapse indexes associated with the given synapse IDs.
-            synapse_indexes = self.synapse_manager.get_synapse_indexes( synapse_IDs );
+            synapse_indexes = synapse_manager.get_synapse_indexes( synapse_IDs );
             
-            % Retrieve the number of relevant neurons.
+            % Retrieve the number of relevant neurons and synapses.
             num_neurons = length( neuron_IDs );
-            
-            % Retrieve the number of relevant synapses.
             num_syanpses = length( synapse_IDs );
             
             % Preallocate the deltas matrix.
@@ -153,18 +152,18 @@ classdef network_class
             for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Determine how to assign the delta value.
-                if ( synapse_indexes( k ) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron index.
-                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
+                    from_neuron_index_local_logical = synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
                     
                     % Retrieve the to neuron index.
-                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).to_neuron_ID == neuron_IDs;
+                    to_neuron_index_local_logical = synapse_manager.synapses( synapse_indexes( k ) ).to_neuron_ID == neuron_IDs;
                     
                     % Set the component of the delta matrix associated with this neuron.
-                    deltas( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes( k ) ).delta;
+                    deltas( to_neuron_index_local_logical, from_neuron_index_local_logical ) = synapse_manager.synapses( synapse_indexes( k ) ).delta;
                     
-                elseif ( synapse_indexes( k ) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )            % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )            % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
@@ -613,11 +612,14 @@ classdef network_class
         %% Compute Functions.
         
         % Implement a function to compute the synaptic conductance for each synapse.
-        function G_syns = compute_Gsyns( self )
+        function G_syns = compute_Gsyns( self, neuron_manager )
+            
+            % Define the default input arguments.
+            if nargin < 2, neuron_manager = self.neuron_manager; end
             
             % Retrieve the neuron properties.
-            Us = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'U' ) )';
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
+            Us = neuron_manager.get_neuron_property( 'all', 'U', true )';
+            Rs = neuron_manager.get_neuron_property( 'all', 'R', true )'; Rs = repmat( Rs', [ neuron_manager.num_neurons, 1 ] );
             
             % Retrieve the maximum synaptic conductances.
             g_syn_maxs = self.get_gsynmaxs( 'all' );
@@ -638,29 +640,29 @@ classdef network_class
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Retrieve the neuron membrane conductances.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) )';
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true )';
             
             % Retrieve the neuron membrane voltage ranges.
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
             
             % Retrieve the sodium channel conductances.
-            Gnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna' ) )';
+            Gnas = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna', true )';
             
             % Retrieve the neuron sodium channel activation parameters.
-            Ams = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Am' ) )';
-            Sms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm' ) )';
-            dEms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm' ) )';
+            Ams = self.neuron_manager.get_neuron_property( neuron_IDs, 'Am', true )';
+            Sms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm', true )';
+            dEms = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm', true )';
             
             % Retrieve the neuron sodium channel deactivation parameters.
-            Ahs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah' ) )';
-            Shs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh' ) )';
-            dEhs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh' ) )';
+            Ahs = self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah', true )';
+            Shs = self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh', true )';
+            dEhs = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh', true )';
             
             % Retrieve the sodium channel reversal potentials.
-            dEnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna' ) )';
+            dEnas = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna', true )';
             
             % Retrieve the tonic currents.
-            I_tonics = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) )';
+            I_tonics = self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true )';
             
             % Retrieve the synapse properties.
             deltas = self.get_deltas( neuron_IDs );
@@ -679,18 +681,16 @@ classdef network_class
             if nargin < 5, k = self.c_transmission_DEFAULT; end
             if nargin < 4, I_app2 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse ID.
             synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
             
             % Retrieve the neuron properties.
-            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
+            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true );
             
             % Retrieve the synaptic reversal potential.
-            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID, 'dE_syn' ) );
+            dE_syn12 = self.synapse_manager.get_synapse_property( synapse_ID, 'dE_syn', true );
             
             % Compute the required maximum synaptic conductances required to design a transmission subnetwork.
             g_syn_max12 = self.network_utilities.compute_transmission_gsynmax( Gm2, R1, dE_syn12, I_app2, k );
@@ -705,19 +705,17 @@ classdef network_class
             if nargin < 5, c = self.c_modulation_DEFAULT; end
             if nargin < 4, I_app2 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse ID.
             synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
             
             % Retrieve the neuron properties.
-            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true );
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Retrieve the synaptic reversal potential.
-            dE_syn12 = cell2mat( self.synapse_manager.get_synapse_property( synapse_ID, 'dE_syn' ) );
+            dE_syn12 = self.synapse_manager.get_synapse_property( synapse_ID, 'dE_syn', true);
             
             % Compute the maximum synaptic conductance for a modulation subnetwork.
             g_syn_max12 = self.network_utilities.compute_modulation_gsynmax( Gm2, R1, R2, dE_syn12, I_app2, c );
@@ -732,20 +730,18 @@ classdef network_class
             if nargin < 5, k = self.c_addition_DEFAULT; end
             if nargin < 4, I_app3 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true )';
             
             % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+            dE_syn13 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true )';
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
             [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_addition_gsynmax( Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k );
@@ -763,20 +759,18 @@ classdef network_class
             if nargin < 5, k = self.c_addition_DEFAULT; end
             if nargin < 4, I_app3 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true )';
             
             % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+            dE_syn13 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true )';
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
             [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_relative_addition_gsynmax( Gm3, R1, R2, dE_syn13, dE_syn23, I_app3, k );
@@ -794,19 +788,17 @@ classdef network_class
             if nargin < 5, k = self.c_subtraction_DEFAULT; end
             if nargin < 4, I_app3 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
             
             % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+            dE_syn13 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true )';
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
             [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_subtraction_gsynmax( Gm3, R1, dE_syn13, dE_syn23, I_app3, k );
@@ -832,17 +824,17 @@ classdef network_class
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            Gm4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) )';
-            R4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R' ) )';
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true )';
+            Gm4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true )';
+            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true )';
+            R4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R', true )';
             
             % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn14 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
-            dE_syn34 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 3 ), 'dE_syn' ) )';
+            dE_syn14 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true )';
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
+            dE_syn34 = self.synapse_manager.get_synapse_property( synapse_IDs( 3 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this multiplication subnetwork.
             [ g_syn_max14, g_syn_max23, g_syn_max34 ] = self.network_utilities.compute_multiplication_gsynmax( Gm3, Gm4, R1, R2, R3, R4, dE_syn14, dE_syn23, dE_syn34, I_app3, I_app4, k );
@@ -865,8 +857,8 @@ classdef network_class
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Retrieve the neuron properties.
-            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
             
             % Compute the maximum synaptic conductances for this inversion subnetwork.
             g_syn_max = self.network_utilities.compute_inversion_gsynmax( Gm2, R1, I_app2, k, epsilon );
@@ -906,21 +898,19 @@ classdef network_class
             if nargin < 5, k = self.c_division_DEFAULT; end
             if nargin < 4, I_app3 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) )';
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) )';
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true )';
+            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true )';
             
             % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+            dE_syn13 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true )';
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this division subnetwork.
             [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_division_gsynmax( Gm3, R1, R2, R3, dE_syn13, dE_syn23, I_app3, k, c );
@@ -938,19 +928,17 @@ classdef network_class
             if nargin < 5, k = self.c_derivation_DEFAULT; end
             if nargin < 4, I_app3 = self.Iapp_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) )';
-            R1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) )';
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true )';
+            R1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
             
             % Retrieve the synaptic reversal potentials associated with these synapses.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) )';
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) )';
+            dE_syn13 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true )';
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
             [ g_syn_max13, g_syn_max23 ] = self.network_utilities.compute_derivation_gsynmax( Gm3, R1, dE_syn13, dE_syn23, I_app3, k );
@@ -971,8 +959,8 @@ classdef network_class
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Retrieve the membrane conductances and membrane capacitances of these neurons.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
-            Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) );
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
+            Cms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm', true );
             
             % Ensure that the integration neurons are symmetrical.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
@@ -987,18 +975,16 @@ classdef network_class
         % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
         function dEsyn = compute_integration_dEsyn( self, neuron_IDs, synapse_IDs )
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the membrane conductances and voltage domains.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true );
             
             % Retrieve the maximum synaptic conductances
-            g_syn_maxs = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs, 'g_syn_max' ) )';
+            g_syn_maxs = self.synapse_manager.get_synapse_property( synapse_IDs, 'g_syn_max', true )';
             
             % Ensure that the integration network is symmetric.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
@@ -1018,8 +1004,8 @@ classdef network_class
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Retrieve the membrane conductances and voltage domain.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true );
             
             % Ensure that the integration network is symmetric.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
@@ -1037,18 +1023,16 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 6, ki_mean = self.c_integration_mean_DEFAULT; end
             
-            % Validate the neuron IDs.
+            % Validate the neuron and synapse IDs.
             neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
             synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Retrieve the relevant neuron data.
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
+            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
             
             % Retrieve the relevant synpase data.
-            dE_syn13 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn' ) );
-            dE_syn23 = cell2mat( self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn' ) );
+            dE_syn13 = self.synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dE_syn', true );
+            dE_syn23 = self.synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true );
             
             % Compute activation period of the associated multistate cpg subnetwork.
             Ta = self.network_utilities.compute_activation_period( T, n );
@@ -1361,7 +1345,7 @@ classdef network_class
             num_types = length( object_types );
             
             % Delete each of the specified objects for each of the given types.
-            for k = 1:num_types                     % Iterate through each of the object types...
+            for k = 1:num_types                                                                                                 % Iterate through each of the object types...
                 
                 % Determine which type of objects should be deleted.
                 if strcmpi( object_types{ k }, 'neuron' ) || strcmpi( object_types{ k }, 'neurons' )                            % If we want to delete neurons...
@@ -1424,8 +1408,8 @@ classdef network_class
             self = self.design_multistate_cpg_applied_currents( neuron_IDs( 1:( end - 1 ) ) );
             
             % Retrieve the relevant neuron properties of the drive neuron.
-            Gm = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm' ) );
-            R = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R' ) );
+            Gm = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
+            R = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R', true );
             
             % Design the driven multistate cpg applied current.
             self.applied_current_manager = self.applied_current_manager.design_driven_multistate_cpg_applied_current( neuron_IDs( end ), Gm, R );
@@ -1470,8 +1454,8 @@ classdef network_class
         function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID )
             
             % Retrieve the necessary neuron properties.
-            Gm = cell2mat( self.neuron_manager.get_neuron_property( neuron_ID, 'Gm' ) );
-            R = cell2mat( self.neuron_manager.get_neuron_property( neuron_ID, 'R' ) );
+            Gm = self.neuron_manager.get_neuron_property( neuron_ID, 'Gm', true );
+            R = self.neuron_manager.get_neuron_property( neuron_ID, 'R', true );
             
             % Design the centering subnetwork applied current.
             self.applied_current_manager = self.applied_current_manager.design_dmcpgdcll2cds_applied_current( neuron_ID, Gm, R );
@@ -1543,8 +1527,8 @@ classdef network_class
         function self = design_centering_applied_currents( self, neuron_IDs )
             
             % Retrieve the necessary neuron properties.
-            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Design the centering subnetwork applied current.
             self.applied_current_manager = self.applied_current_manager.design_centering_applied_current( neuron_IDs, Gm2, R2 );
@@ -1574,8 +1558,8 @@ classdef network_class
         function self = design_inversion_applied_current( self, neuron_IDs )
             
             % Retrieve the necessary neuron properties.
-            Gm2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
-            R2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
+            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Design the inversion subnetwork applied current.
             self.applied_current_manager = self.applied_current_manager.design_inversion_applied_current( neuron_IDs, Gm2, R2 );
@@ -1587,8 +1571,8 @@ classdef network_class
         function self = design_absolute_inversion_applied_currents( self, neuron_IDs )
             
             % Retrieve the relevant design input arguments.
-            R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );                                  % [V] Inversion Output Activation Domain.
-            Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );                                % [S] Inversion Output Membrane Conductance
+            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );                                  % [V] Inversion Output Activation Domain.
+            Gm_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );                                % [S] Inversion Output Membrane Conductance
             
             % Design the absolute inversion applied currents.
             self.applied_current_manager = self.applied_current_manager.design_absolute_inversion_applied_currents( neuron_IDs, Gm_2, R_2 );
@@ -1600,8 +1584,8 @@ classdef network_class
         function self = design_relative_inversion_applied_currents( self, neuron_IDs )
             
             % Retrieve the relevant design input arguments.
-            R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );                                  % [V] Inversion Output Activation Domain.
-            Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );                                % [S] Inversion Output Membrane Conductance
+            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );                                  % [V] Inversion Output Activation Domain.
+            Gm_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );                                % [S] Inversion Output Membrane Conductance
             
             % Design the relative inversion applied currents.
             self.applied_current_manager = self.applied_current_manager.design_relative_inversion_applied_currents( neuron_IDs, Gm_2, R_2 );
@@ -1631,8 +1615,8 @@ classdef network_class
         function self = design_multiplication_applied_currents( self, neuron_IDs )
             
             % Retrieve the necessary neuron properties.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
+            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
             
             % Design the multiplication subnetwork applied current.
             self.applied_current_manager = self.applied_current_manager.design_multiplication_applied_current( neuron_IDs, Gm3, R3 );
@@ -1644,8 +1628,8 @@ classdef network_class
         function self = design_absolute_multiplication_applied_currents( self, neuron_IDs )
             
             % Retrieve the relevant design input arguments.
-            R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );                                  % [V] Division Output Activation Domain.
-            Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );                                % [S] Division Output Membrane Conductance
+            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );                                  % [V] Division Output Activation Domain.
+            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );                                % [S] Division Output Membrane Conductance
             
             % Design the absolute multiplication applied currents.
             self.applied_current_manager = self.applied_current_manager.design_absolute_multiplication_applied_currents( neuron_IDs, Gm_3, R_3 );
@@ -1657,8 +1641,8 @@ classdef network_class
         function self = design_relative_multiplication_applied_currents( self, neuron_IDs )
             
             % Retrieve the relevant design input arguments.
-            R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );                                  % [V] Division Output Activation Domain.
-            Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );                                % [S] Division Output Membrane Conductance
+            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );                                  % [V] Division Output Activation Domain.
+            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );                                % [S] Division Output Membrane Conductance
             
             % Design the relative multiplication applied currents.
             self.applied_current_manager = self.applied_current_manager.design_relative_multiplication_applied_currents( neuron_IDs, Gm_3, R_3 );
@@ -1670,8 +1654,8 @@ classdef network_class
         function self = design_integration_applied_currents( self, neuron_IDs )
             
             % Retrieve the membrane conductances and voltage domain.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) );
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true );
             
             % Ensure that the integration network is symmetric.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
@@ -1687,8 +1671,8 @@ classdef network_class
         function self = design_vb_integration_applied_currents( self, neuron_IDs )
             
             % Retrieve the membrane conductances and voltage domain.
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'Gm' ) );
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'R' ) );
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'Gm', true );
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'R', true );
             
             % Ensure that the voltage based integration network is symmetric.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
@@ -1704,15 +1688,15 @@ classdef network_class
         function self = design_split_vb_integration_applied_currents( self, neuron_IDs )
             
             % Retrieve the relevant membrane conductance.
-            Gm3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
-            Gm4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm' ) );
-            Gm9 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 9 ), 'Gm' ) );
-            Gms = [ Gm3 Gm4 Gm9 ];
+            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
+            Gm4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm', true );
+            Gm9 = self.neuron_manager.get_neuron_property( neuron_IDs( 9 ), 'Gm', true );
+            Gms = [ Gm3, Gm4, Gm9 ];
             
             % Retrieve the relevant voltage domains.
-            R3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
-            R4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R' ) );
-            Rs = [ R3 R4 ];
+            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
+            R4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R', true );
+            Rs = [ R3, R4 ];
             
             % Ensure that the voltage based integration network is symmetric.
             assert( Gm3 == Gm4, 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
@@ -2483,10 +2467,10 @@ classdef network_class
             end
             
             % Retrieve the membrane conductance of the output neuron.
-            Gm_n = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm' ) );
+            Gm_n = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
             
             % Retrieve the activation domains of the input neurons.
-            R_ks = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1:( end - 1 ) ), 'R' ) );
+            R_ks = self.neuron_manager.get_neuron_property( neuron_IDs( 1:( end - 1 ) ), 'R', true );
             
             % Design the absolute addition synapses.
             self.synapse_manager = self.synapse_manager.design_absolute_addition_synapses( neuron_IDs, c, R_ks, Gm_n, Iapp_n );
@@ -2518,10 +2502,10 @@ classdef network_class
             end
             
             % Retrieve the membrane conductance of the output neuron.
-            Gm_n = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm' ) );
+            Gm_n = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
             
             % Retrieve the activation domains of the output neuron.
-            R_n = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R' ) );
+            R_n = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R', true );
             
             % Design the absolute addition synapses.
             self.synapse_manager = self.synapse_manager.design_relative_addition_synapses( neuron_IDs, c, n, R_n, Gm_n, Iapp_n );
@@ -2575,10 +2559,10 @@ classdef network_class
             end
             
             % Retrieve the membrane conductance of the output neuron.
-            Gm_n = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm' ) );
+            Gm_n = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
             
             % Retrieve the activation domains of the input neurons.
-            R_ks = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1:( end - 1 ) ), 'R' ) );
+            R_ks = self.neuron_manager.get_neuron_property( neuron_IDs( 1:( end - 1 ) ), 'R', true );
             
             % Design the absolute subtraction synapses.
             self.synapse_manager = self.synapse_manager.design_absolute_subtraction_synapses( neuron_IDs, c, s_ks, R_ks, Gm_n, Iapp_n );
@@ -2609,10 +2593,10 @@ classdef network_class
             end
             
             % Retrieve the membrane conductance of the output neuron.
-            Gm_n = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm' ) );
+            Gm_n = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
             
             % Retrieve the activation domains of the input neurons.
-            R_n = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R' ) );
+            R_n = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R', true );
             
             % Design the absolute subtraction synapses.
             self.synapse_manager = self.synapse_manager.design_relative_subtraction_synapses( neuron_IDs, c, npm_k, s_ks, R_n, Gm_n, Iapp_n );
@@ -2628,7 +2612,7 @@ classdef network_class
             
             % Retrieve the neuron IDs associated with each subtraction subnetwork.
             neuron_IDs1 = neuron_IDs( 1:3 );
-            neuron_IDs2 = [ neuron_IDs( 2 ) neuron_IDs( 1 ) neuron_IDs( 4 ) ];
+            neuron_IDs2 = [ neuron_IDs( 2 ), neuron_IDs( 1 ), neuron_IDs( 4 ) ];
             
             % Design the subtraction subnetwork synapses.
             [ self.synapse_manager, synapse_IDs1 ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs1 );
@@ -2705,14 +2689,14 @@ classdef network_class
             num_transmission_synapses = 2;
             
             % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs_cell{ 1 }( 3 ) neuron_IDs_cell{ 1 }( 4 ) ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];
+            from_neuron_IDs = [ neuron_IDs_cell{ 1 }( 3 ), neuron_IDs_cell{ 1 }( 4 ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ), neuron_IDs_cell{ 2 }( 3 ) ];
             
             % Design each of the transmission synapses.
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                 
                 % Design this transmission synapse.
-                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 0.5, false );
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ), to_neuron_IDs( k ) ], 0.5, false );
                 
             end
             
@@ -2769,13 +2753,13 @@ classdef network_class
             end
             
             % Retrieve the relevant membrane conductances.
-            Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
-            Gm_4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm' ) );
+            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
+            Gm_4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm', true );
             
             % Retrieve the relevant activation domains.
-            R_1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
-            R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
-            R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
+            R_1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true );
+            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
+            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
             
             % Design the absolute multiplication synapses.
             self.synapse_manager = self.synapse_manager.design_absolute_multiplication_synapses( neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 );
@@ -2807,12 +2791,12 @@ classdef network_class
             end
             
             % Retrieve the relevant membrane conductances.
-            Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
-            Gm_4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm' ) );
+            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
+            Gm_4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm', true );
             
             % Retrieve the relevant activation domains.
-            R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
-            R_4 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R' ) );
+            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
+            R_4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R', true );
             
             % Design the relative multiplication synapses.
             self.synapse_manager = self.synapse_manager.design_relative_multiplication_synapses( neuron_IDs, c1, c2, epsilon1, epsilon2, R_3, R_4, Gm_3, Gm_4, Iapp_3 );
@@ -2867,10 +2851,10 @@ classdef network_class
         %             end
         %
         %             % Retrieve the relevant membrane conductances.
-        %             Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
+        %             Gm_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
         %
         %             % Retrieve the relevant activation domains.
-        %             R_1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
+        %             R_1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true );
         %
         %             % Design the absolute inversion synapses.
         %             self.synapse_manager = self.synapse_manager.design_absolute_inversion_synapse( neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 );
@@ -2928,10 +2912,10 @@ classdef network_class
         %             end
         %
         %             % Retrieve the relevant membrane conductances.
-        %             Gm_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );
+        %             Gm_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
         %
         %             % Retrieve the relevant activation domains.
-        %             R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+        %             R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
         %
         %             % Design the relative inversion synapses.
         %             self.synapse_manager = self.synapse_manager.design_relative_inversion_synapse( neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 );
@@ -2961,7 +2945,7 @@ classdef network_class
             end
             
             % Retrieve the relevant activation domains.
-            R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Design the relative inversion synapses.
             self.synapse_manager = self.synapse_manager.design_relative_inversion_synapse( neuron_IDs, epsilon, delta, R_2, Iapp_2 );
@@ -3003,11 +2987,11 @@ classdef network_class
             if nargin < 3, c = self.c_division_DEFAULT; end                            	% [-] Division Subentwork Gain
             
             % Retrieve the relevant membrane conductances.
-            Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
+            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
             
             % Retrieve the relevant activation domains.
-            R_1 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R' ) );
-            R_2 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R' ) );
+            R_1 = self.neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true );
+            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Design the absolute division synapses.
             self.synapse_manager = self.synapse_manager.design_absolute_division_synapses( neuron_IDs, c, alpha, epsilon, R_1, R_2, Gm_3 );
@@ -3024,10 +3008,10 @@ classdef network_class
             if nargin < 3, c = self.c_division_DEFAULT; end                                     % [-] Division Subentwork Gain
             
             % Retrieve the relevant membrane conductances.
-            Gm_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm' ) );
+            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
             
             % Retrieve the relevant activation domains.
-            R_3 = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R' ) );
+            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
             
             % Design the relative division synapses.
             self.synapse_manager = self.synapse_manager.design_relative_division_synapses( neuron_IDs, c, alpha, epsilon, R_3, Gm_3 );
@@ -3093,7 +3077,7 @@ classdef network_class
             % Get the synapse IDs that connect the two neurons.
             synapse_ID34 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 3 ), neuron_IDs( 4 ) );
             synapse_ID43 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 4 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_IDs synapse_ID34 synapse_ID43 ];
+            synapse_IDs = [ synapse_IDs, synapse_ID34, synapse_ID43 ];
             
             % Compute and set the integration subnetwork maximum synaptic conductances.
             self = self.compute_set_integration_gsynmaxs( neuron_IDs( 3:4 ), synapse_IDs( 3:4 ), ki_range );                % Note: For a basic integration subnetwork, this calculation maximum synaptic conductance must be computed before the synaptic reversal potential.
@@ -3122,8 +3106,8 @@ classdef network_class
             self = self.design_double_subtraction_synapses( neuron_IDs( 5:8 ), k_sub );
             
             % Design the transmission synapses. NOTE: Neuron IDs are in this order: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }
-            self = self.design_transmission_synapse( [ neuron_IDs( 9 ) neuron_IDs( 6 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 3 ) neuron_IDs( 5 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 9 ), neuron_IDs( 6 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 3 ), neuron_IDs( 5 ) ], 1, false );
             
         end
         
@@ -3141,14 +3125,14 @@ classdef network_class
             self = self.design_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub );
             
             % Design the modulation synapses.
-            self = self.design_modulation_synapses( [ neuron_IDs( 10 ) neuron_IDs( 11 ) ], c_mod )  ;
-            self = self.design_modulation_synapses( [ neuron_IDs( 10 ) neuron_IDs( 12 ) ], c_mod )  ;
+            self = self.design_modulation_synapses( [ neuron_IDs( 10 ), neuron_IDs( 11 ) ], c_mod )  ;
+            self = self.design_modulation_synapses( [ neuron_IDs( 10 ), neuron_IDs( 12 ) ], c_mod )  ;
             
             % Design the transmission synapses.
-            self = self.design_transmission_synapse( [ neuron_IDs( 7 ) neuron_IDs( 11 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 8 ) neuron_IDs( 12 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 1 ) neuron_IDs( 10 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 2 ) neuron_IDs( 10 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 7 ), neuron_IDs( 11 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 8 ), neuron_IDs( 12 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 1 ), neuron_IDs( 10 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 2 ), neuron_IDs( 10 ) ], 1, false );
             
         end
         
@@ -3170,8 +3154,8 @@ classdef network_class
             self = self.design_mod_split_vb_integration_synapses( neuron_IDs( 5:end ), T, n, ki_mean, ki_range, k_sub1, c_mod );
             
             % Design the transmission synapses.
-            self = self.design_transmission_synapse( [ neuron_IDs( 3 ) neuron_IDs( 5 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 4 ) neuron_IDs( 6 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 3 ), neuron_IDs( 5 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 4 ), neuron_IDs( 6 ) ], 1, false );
             
         end
         
@@ -5094,9 +5078,9 @@ classdef network_class
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 4, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 3, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 2, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
 
             % Compute the linearized system matrix.
             A = self.network_utilities.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
@@ -5108,8 +5092,8 @@ classdef network_class
         function B = compute_linearized_input_matrix( self, Cms, Ias )
         
             % Set the default input arguments.
-            if nargin < 3, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 3, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 2, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             
             % Compute the linearized input matrix.
             B = self.network_utilitities.compute_linearized_input_matrix( Cms, Ias );
@@ -5122,12 +5106,12 @@ classdef network_class
         
             % Set the default input arguments.
             if nargin < 8, Us0 = zeros( self.neuron_manager.num_neurons, 1 ); end
-            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) ); end
+            if nargin < 7, Ias = self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 4, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 3, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 2, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
 
             % Compute the linearized system.
             [ A, B ] = self.network_utilities.get_linearized_system( Cms, Gms, Rs, gs, dEs, Ias, Us0 );
@@ -5143,9 +5127,9 @@ classdef network_class
             if nargin < 7, Us0 = zeros( self.neuron_manager.num_neurons, 1 ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 4, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 3, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 2, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             
             % Compute the maximum RK4 step size and condition number.            
             [ A, dt, condition_number ] = self.network_utilities.RK4_stability_analysis_at_point( Cms, Gms, Rs, gs, dEs, Us0, dt0 );
@@ -5161,9 +5145,9 @@ classdef network_class
             if nargin < 7, Us = zeros( 1, self.neuron_manager.num_neurons ); end
             if nargin < 6, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 5, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 4, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 3, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 2, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 4, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 3, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 2, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             
             % Retrieve the number of operating points.
             num_points = size( Us, 1 );
@@ -5198,10 +5182,10 @@ classdef network_class
             if nargin < 9, dt0 = 1e-6; end
             if nargin < 8, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 7, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 6, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 5, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 3, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 6, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 5, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 4, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 3, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved transmission steady state output at each of the provided inputs.
@@ -5223,10 +5207,10 @@ classdef network_class
             if nargin < 10, dt0 = 1e-6; end
             if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 7, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 6, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 5, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 4, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
@@ -5249,10 +5233,10 @@ classdef network_class
             if nargin < 10, dt0 = 1e-6; end
             if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 7, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 6, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 5, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 4, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
@@ -5275,10 +5259,10 @@ classdef network_class
             if nargin < 9, dt0 = 1e-6; end
             if nargin < 8, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 7, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 6, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 5, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 3, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 6, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 5, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 4, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 3, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved inversion steady state output at each of the provided inputs.
@@ -5300,10 +5284,10 @@ classdef network_class
             if nargin < 10, dt0 = 1e-6; end
             if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 7, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 6, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 5, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 4, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
@@ -5326,10 +5310,10 @@ classdef network_class
             if nargin < 10, dt0 = 1e-6; end
             if nargin < 9, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 8, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 7, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 6, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 5, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 4, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 7, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 6, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 5, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 4, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
@@ -5352,10 +5336,10 @@ classdef network_class
             if nargin < 9, dt0 = 1e-6; end
             if nargin < 8, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 7, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 6, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 5, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 3, Cms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Cm' ) ); end
+            if nargin < 6, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 5, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 4, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 3, Cms = self.neuron_manager.get_neuron_property( 'all', 'Cm', true ); end
             if nargin < 2, Us_inputs = zeros( 1, length( Rs ) - 1 ); end
             
             % Compute the achieved division steady state output at each of the provided inputs.            
@@ -5434,8 +5418,8 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 4, c = 1; end
-            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
-            if nargin < 2, U_inputs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'U' ) ); end
+            if nargin < 3, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
+            if nargin < 2, U_inputs = self.neuron_manager.get_neuron_property( 'all', 'U', true ); end
             
             % Compute the steady state network outputs.
             U_outputs = self.network_utilities.compute_desired_relative_addition_steady_state_output( U_inputs, Rs, c );
@@ -5449,9 +5433,9 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 7, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 6, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 5, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 5, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 4, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 3, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
 
             % Compute the steady state network outputs.
             U_outputs = self.network_utilities.compute_achieved_addition_steady_state_output( U_inputs, Rs, Gms, Ias, gs, dEs );
@@ -5479,7 +5463,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 5, ss = [ 1, -1 ]; end
             if nargin < 4, c = 1; end
-            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 3, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
             if nargin < 2, U_inputs = zeros( 1, 2 ); end
             
             % Compute the steady state network outputs.
@@ -5494,9 +5478,9 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 7, dEs = self.get_dEsyns( 'all' ); end
             if nargin < 6, gs = self.get_gsynmaxs( 'all' ); end
-            if nargin < 5, Ias = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'I_tonic' ) ); end
-            if nargin < 4, Gms = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'Gm' ) ); end
-            if nargin < 3, Rs = cell2mat( self.neuron_manager.get_neuron_property( 'all', 'R' ) ); end
+            if nargin < 5, Ias = self.neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
+            if nargin < 4, Gms = self.neuron_manager.get_neuron_property( 'all', 'Gm', true ); end
+            if nargin < 3, Rs = self.neuron_manager.get_neuron_property( 'all', 'R', true ); end
             
             % Compute the steady state network outputs.
             U_outputs = self.network_utilities.compute_achieved_subtraction_steady_state_output( U_inputs, Rs, Gms, Ias, gs, dEs );
@@ -5535,8 +5519,8 @@ classdef network_class
         function U2s = compute_desired_relative_inversion_steady_state_output( self, Us1, c1, c2, c3, R1, R2 )
         
             % Set the default input arguments.
-            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
-            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 7, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
+            if nargin < 6, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 5, c3 = 1e-6; end                                                                                               % [-] Design Constant 3.
             if nargin < 4, c2 = 19e-6; end                                                                                              % [-] Design Constant 2.
             if nargin < 3, c1 = 1e-6; end                                                                                               % [-] Design Constant 1.
@@ -5551,8 +5535,8 @@ classdef network_class
         function U2s = compute_desired_reduced_relative_inversion_steady_state_output( self, Us1, c1, c2, R1, R2 )
         
             % Set the default input arguments.
-            if nargin < 6, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
-            if nargin < 5, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 6, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
+            if nargin < 5, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 4, c2 = 52.6e-3; end                                                                                            % [-] Design Constant 2.
             if nargin < 3, c1 = 52.6e-3; end                                                                                            % [-] Design Constant 1.
             
@@ -5568,9 +5552,9 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 7, dEs21 = self.get_dEsyns( [ 1, 2 ] ); end                                                                     % [V] Synaptic Reversal Potential (Synapse 21).
             if nargin < 6, gs21 = self.get_gsynmaxs( [ 1, 2 ] ); end                                                                    % [S] Maximum Synaptic Conductance (Synapse 21).
-            if nargin < 5, Ia2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'I_tonic' ) ); end                               % [A] Applied Currents (Neuron 2).
-            if nargin < 4, Gm2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'Gm' ) ); end                                    % [S] Membrane Conductance (Neuron 2).
-            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 5, Ia2 = self.neuron_manager.get_neuron_property( 2, 'I_tonic', true ); end                               % [A] Applied Currents (Neuron 2).
+            if nargin < 4, Gm2 = self.neuron_manager.get_neuron_property( 2, 'Gm', true ); end                                    % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
 
             % Compute the steady state output.
             U2s = self.network_utilities.compute_achieved_inversion_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );              % [V] Membrane Voltage (Neuron 2).
@@ -5609,9 +5593,9 @@ classdef network_class
         function U3s = compute_desired_relative_division_steady_state_output( self, U_inputs, c1, c2, c3, R1, R2, R3 )
             
             % Set the default input arguments.
-            if nargin < 8, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
-            if nargin < 7, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 6, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 8, R3 = self.neuron_manager.get_neuron_property( 3, 'R', true ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
+            if nargin < 7, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 6, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 5, c3 = 1e-6; end                                                                                                   % [S] Design Constant 3.
             if nargin < 4, c2 = 19e-6; end                                                                                                  % [S] Design Constant 2.
             if nargin < 3, c1 = 1e-6; end                                                                                                   % [S] Design Constant 1.
@@ -5626,9 +5610,9 @@ classdef network_class
         function U3s = compute_desired_reduced_relative_division_steady_state_output( self, U_inputs, c1, c2, R1, R2, R3 )
             
             % Set the default input arguments.
-            if nargin < 7, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
-            if nargin < 6, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 5, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 7, R3 = self.neuron_manager.get_neuron_property( 3, 'R', true ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
+            if nargin < 6, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 5, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 4, c2 = 0.0526; end                                                                                                 % [-] Design Constant 2.
             if nargin < 3, c1 = 0.0526; end                                                                                                 % [-] Design Constant 1.
             
@@ -5647,10 +5631,10 @@ classdef network_class
             if nargin < 9, dEs31 = self.get_dEsyns( [ 1, 3 ] ); end                                                                                     % [V] Synaptic Revesal Potential (Synapse 31).
             if nargin < 8, gs32 = self.get_gsynmaxs( [ 2, 3 ] ); end                                                                                    % [S] Synaptic Conductance (Synapse 32).
             if nargin < 7, gs31 = self.get_gsynmaxs( [ 1, 3 ] ); end                                                                                    % [S] Synaptic Conductance (Synapse 31).
-            if nargin < 6, Ia3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'I_tonic' ) ); end                                               % [A] Applied Current (Neuron 3).
-            if nargin < 5, Gm3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'Gm' ) ); end                                                    % [S] Membrane Conductance (Neuron 3).
-            if nargin < 4, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end                                                      % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end                                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 6, Ia3 = self.neuron_manager.get_neuron_property( 3, 'I_tonic', true ); end                                               % [A] Applied Current (Neuron 3).
+            if nargin < 5, Gm3 = self.neuron_manager.get_neuron_property( 3, 'Gm', true ); end                                                    % [S] Membrane Conductance (Neuron 3).
+            if nargin < 4, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end                                                      % [V] Maximum Membrane Voltage (Neuron 2).
+            if nargin < 3, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end                                                      % [V] Maximum Membrane Voltage (Neuron 1).
             
             % Compute the steady state output.
             U3s = self.network_utilities.compute_achieved_division_steady_state_output( U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 );         % [V] Membrane Voltage (Neuron 3).
@@ -5695,10 +5679,10 @@ classdef network_class
         function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
             
             % Set the default input arguments.
-            if nargin < 12, R4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'R' ) ); end
-            if nargin < 11, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
-            if nargin < 10, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
-            if nargin < 9, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 12, R4 = self.neuron_manager.get_neuron_property( 4, 'R', true ); end
+            if nargin < 11, R3 = self.neuron_manager.get_neuron_property( 3, 'R', true ); end
+            if nargin < 10, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end
+            if nargin < 9, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end
             if nargin < 8, c6 = 1e-6; end
             if nargin < 7, c5 = 19e-6; end
             if nargin < 6, c4 = 1e-6; end
@@ -5716,10 +5700,10 @@ classdef network_class
         function [ U4s, U3s ] = compute_desired_red_rel_mult_ss_output( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 )
             
             % Set the default input arguments.
-            if nargin < 10, R4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'R' ) ); end
-            if nargin < 9, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
-            if nargin < 8, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
-            if nargin < 7, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 10, R4 = self.neuron_manager.get_neuron_property( 4, 'R', true ); end
+            if nargin < 9, R3 = self.neuron_manager.get_neuron_property( 3, 'R', true ); end
+            if nargin < 8, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end
+            if nargin < 7, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end
             if nargin < 6, c4 = 1e-6; end
             if nargin < 5, c3 = 1e-6; end
             if nargin < 4, c2 = 19e-6; end
@@ -5741,13 +5725,13 @@ classdef network_class
             if nargin < 12, gs43 = self.get_gsynmaxs( [ 3, 4 ] ); end
             if nargin < 11, gs41 = self.get_gsynmaxs( [ 1, 4 ] ); end
             if nargin < 10, gs32 = self.get_gsynmaxs( [ 2, 3 ] ); end
-            if nargin < 9, Ia4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'I_tonic' ) ); end
-            if nargin < 8, Ia3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'I_tonic' ) ); end
-            if nargin < 7, Gm4 = cell2mat( self.neuron_manager.get_neuron_property( 4, 'G' ) ); end
-            if nargin < 6, Gm3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'G' ) ); end
-            if nargin < 5, R3 = cell2mat( self.neuron_manager.get_neuron_property( 3, 'R' ) ); end
-            if nargin < 4, R2 = cell2mat( self.neuron_manager.get_neuron_property( 2, 'R' ) ); end
-            if nargin < 3, R1 = cell2mat( self.neuron_manager.get_neuron_property( 1, 'R' ) ); end
+            if nargin < 9, Ia4 = self.neuron_manager.get_neuron_property( 4, 'I_tonic', true ); end
+            if nargin < 8, Ia3 = self.neuron_manager.get_neuron_property( 3, 'I_tonic', true ); end
+            if nargin < 7, Gm4 = self.neuron_manager.get_neuron_property( 4, 'G', true ); end
+            if nargin < 6, Gm3 = self.neuron_manager.get_neuron_property( 3, 'G', true ); end
+            if nargin < 5, R3 = self.neuron_manager.get_neuron_property( 3, 'R', true ); end
+            if nargin < 4, R2 = self.neuron_manager.get_neuron_property( 2, 'R', true ); end
+            if nargin < 3, R1 = self.neuron_manager.get_neuron_property( 1, 'R', true ); end
 
             % Compute the steady state output.
             [ U4s, U3s ] = self.network_utilities.compute_achieved_multiplication_steady_state_output( U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 );
@@ -5847,23 +5831,23 @@ classdef network_class
             neuron_IDs = self.neuron_manager.get_enabled_neuron_IDs(  );
             
             % Retrieve basic neuron properties.
-            Us = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'U' ) );
-            hs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'h' ) );
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) );
-            Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) );
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
-            I_tonics = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) );
+            Us = self.neuron_manager.get_neuron_property( neuron_IDs, 'U', true );
+            hs = self.neuron_manager.get_neuron_property( neuron_IDs, 'h', true );
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
+            Cms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm', true );
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true )'; Rs = repmat( Rs', [ self.neuron_manager.num_neurons, 1 ] );
+            I_tonics = self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true );
             
             % Retrieve sodium channel neuron properties.
-            Ams = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Am' ) );
-            Sms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm' ) );
-            dEms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm' ) );
-            Ahs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah' ) );
-            Shs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh' ) );
-            dEhs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh' ) );
-            tauh_maxs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'tauh_max' ) );
-            Gnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna' ) );
-            dEnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna' ) );
+            Ams = self.neuron_manager.get_neuron_property( neuron_IDs, 'Am', true );
+            Sms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm', true );
+            dEms = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm', true );
+            Ahs = self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah', true );
+            Shs = self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh', true );
+            dEhs = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh', true );
+            tauh_maxs = self.neuron_manager.get_neuron_property( neuron_IDs, 'tauh_max', true );
+            Gnas = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna', true );
+            dEnas = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna', true );
             
             % Retrieve synaptic properties.
             g_syn_maxs = self.get_gsynmaxs( neuron_IDs );
@@ -5922,22 +5906,22 @@ classdef network_class
             neuron_IDs = self.neuron_manager.get_enabled_neuron_IDs(  );
             
             % Retrieve the neuron properties.
-            Us = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'U' ) )';
-            hs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'h' ) )';
-            Gms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm' ) )';
-            Cms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm' ) )';
-            Rs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'R' ) )'; Rs = repmat( Rs', [ length( Rs ), 1 ] );
-            Ams = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Am' ) )';
-            Sms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm' ) )';
-            dEms = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm' ) )';
-            Ahs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah' ) )';
-            Shs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh' ) )';
-            dEhs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh' ) )';
-            tauh_maxs = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'tauh_max' ) )';
-            Gnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna' ) )';
-            dEnas = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna' ) )';
-            I_tonics = cell2mat( self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic' ) )';
-            
+            Us = self.neuron_manager.get_neuron_property( neuron_IDs, 'U', true )';
+            hs = self.neuron_manager.get_neuron_property( neuron_IDs, 'h', true )';
+            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true )';
+            Cms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Cm', true )';
+            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true )'; Rs = repmat( Rs', [ length( Rs ), 1 ] );
+            Ams = self.neuron_manager.get_neuron_property( neuron_IDs, 'Am', true )';
+            Sms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Sm', true )';
+            dEms = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEm', true )';
+            Ahs = self.neuron_manager.get_neuron_property( neuron_IDs, 'Ah', true )';
+            Shs = self.neuron_manager.get_neuron_property( neuron_IDs, 'Sh', true )';
+            dEhs = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEh', true )';
+            tauh_maxs = self.neuron_manager.get_neuron_property( neuron_IDs, 'tauh_max', true )';
+            Gnas = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gna', true )';
+            dEnas = self.neuron_manager.get_neuron_property( neuron_IDs, 'dEna', true )';
+            I_tonics = self.neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true )';
+
             % Retrieve the synapse properties.
             g_syn_maxs = self.get_gsynmaxs( neuron_IDs );
             dE_syns = self.get_dEsyns( neuron_IDs );

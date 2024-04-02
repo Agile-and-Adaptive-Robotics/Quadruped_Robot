@@ -127,7 +127,10 @@ classdef synapse_manager_class
         %% General Get & Set Synapse Property Functions
         
         % Implement a function to retrieve the properties of specific synapses.
-        function xs = get_synapse_property( self, synapse_IDs, synapse_property )
+        function xs = get_synapse_property( self, synapse_IDs, synapse_property, as_matrix )
+            
+            % Set the default input arguments.
+            if nargin < 4, as_matrix = false; end
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
@@ -149,6 +152,14 @@ classdef synapse_manager_class
                 
                 % Evaluate the given synapse property.
                 eval( eval_str );
+                
+            end
+            
+            % Determine whether to convert the network properties to a matrix.
+            if as_matrix                                    % If we want the neuron properties as a matrix instead of a cell...
+               
+                % Convert the synapse properties from a cell to a matrix.
+                xs = cell2mat( xs );
                 
             end
             

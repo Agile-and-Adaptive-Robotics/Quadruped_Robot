@@ -521,7 +521,10 @@ classdef neuron_manager_class
         %% General Get & Set Neuron Property Functions
         
         % Implement a function to retrieve the properties of specific neurons.
-        function xs = get_neuron_property( self, neuron_IDs, neuron_property )
+        function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix )
+            
+            % Set the default input arguments.
+            if nargin < 4, as_matrix = false; end
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
@@ -543,6 +546,14 @@ classdef neuron_manager_class
                 
                 % Evaluate the given neuron property.
                 eval( eval_str );
+                
+            end
+            
+            % Determine whether to convert the network properties to a matrix.
+            if as_matrix                                    % If we want the neuron properties as a matrix instead of a cell...
+               
+                % Convert the neuron properties from a cell to a matrix.
+                xs = cell2mat( xs );
                 
             end
             
