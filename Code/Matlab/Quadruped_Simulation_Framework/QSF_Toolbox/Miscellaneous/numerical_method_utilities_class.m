@@ -237,21 +237,21 @@ classdef numerical_method_utilities_class
             fprintf( '\n' )
             
             fprintf( 'Min:\n' )
-            fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', scale*error_min_theoretical, error_min_percentage_theoretical, scale*Us_critmin_achieved_theoretical_steady( 1 ), scale*Us_critmin_achieved_theoretical_steady( 2 ) )
-            fprintf( '\tNumerical: \t\t%9.3e \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', scale*error_min_numerical, error_min_percentage_numerical, scale*Us_critmin_achieved_numerical_steady( 1 ), scale*Us_critmin_achieved_numerical_steady( 2 ) )
-            fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', scale*( error_min_numerical - error_min_theoretical ), error_min_percentage_numerical - error_min_percentage_theoretical )
+            fprintf( '\tTheoretical: \t%9.3f \t[%s] \t(%6.2f [%%]) \t@ \t(%9.3f [%s], %9.3f [%s])\n', scale*error_min_theoretical, unit_str, error_min_percentage_theoretical, scale*Us_critmin_achieved_theoretical_steady( 1 ), unit_str, scale*Us_critmin_achieved_theoretical_steady( 2 ), unit_str )
+            fprintf( '\tNumerical: \t\t%9.3e \t[%s] \t(%6.2f [%%]) \t@ \t(%9.3f [%s], %9.3f [%s])\n', scale*error_min_numerical, unit_str, error_min_percentage_numerical, scale*Us_critmin_achieved_numerical_steady( 1 ), unit_str, scale*Us_critmin_achieved_numerical_steady( 2 ), unit_str )
+            fprintf( '\tDifference: \t%9.3e \t[%s] \t(%6.2f [%%])\n', scale*( error_min_numerical - error_min_theoretical ), unit_str, error_min_percentage_numerical - error_min_percentage_theoretical )
             fprintf( '\n' )
             
             fprintf( 'Max:\n' )
-            fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', error_max_theoretical*( 10^3 ), error_max_percentage_theoretical, Us_critmax_achieved_theoretical_steady( 1 )*( 10^3 ), Us_critmax_achieved_theoretical_steady( 2 )*( 10^3 ) )
-            fprintf( '\tNumerical: \t\t%9.3f \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', error_max_numerical*( 10^3 ), error_max_percentage_numerical, Us_critmax_achieved_numerical_steady( 1 )*( 10^3 ), Us_critmax_achieved_numerical_steady( 2 )*( 10^3 ) )
-            fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_max_numerical - error_max_theoretical )*( 10^3 ), error_max_percentage_numerical - error_max_percentage_theoretical )
+            fprintf( '\tTheoretical: \t%9.3f \t[%s] \t(%6.2f [%%]) \t@ \t(%9.3f [%s], %9.3f [%s])\n', scale*error_max_theoretical, unit_str, error_max_percentage_theoretical, scale*Us_critmax_achieved_theoretical_steady( 1 ), unit_str, scale*Us_critmax_achieved_theoretical_steady( 2 ), unit_str )
+            fprintf( '\tNumerical: \t\t%9.3f \t[%s] \t(%6.2f [%%]) \t@ \t(%9.3f [%s], %9.3f [%s])\n', scale*error_max_numerical, unit_str, error_max_percentage_numerical, scale*Us_critmax_achieved_numerical_steady( 1 ), unit_str, scale*Us_critmax_achieved_numerical_steady( 2 ), unit_str )
+            fprintf( '\tDifference: \t%9.3e \t[%s] \t(%6.2f [%%])\n', scale*( error_max_numerical - error_max_theoretical ), unit_str, error_max_percentage_numerical - error_max_percentage_theoretical )
             fprintf( '\n' )
             
             fprintf( 'Range:\n' )
-            fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%])\n', error_range_theoretical*( 10^3 ), error_range_percentage_theoretical )
-            fprintf( '\tNumerical: \t\t%9.3f \t[mV] \t(%6.2f [%%])\n', error_range_numerical*( 10^3 ), error_range_percentage_numerical )
-            fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_range_numerical - error_range_theoretical )*( 10^3 ), error_range_percentage_numerical - error_range_percentage_theoretical )
+            fprintf( '\tTheoretical: \t%9.3f \t[%s] \t(%6.2f [%%])\n', scale*error_range_theoretical, unit_str, error_range_percentage_theoretical )
+            fprintf( '\tNumerical: \t\t%9.3f \t[%s] \t(%6.2f [%%])\n', scale*error_range_numerical, unit_str, error_range_percentage_numerical )
+            fprintf( '\tDifference: \t%9.3e \t[%s] \t(%6.2f [%%])\n', scale*( error_range_numerical - error_range_theoretical ), unit_str, error_range_percentage_numerical - error_range_percentage_theoretical )
             fprintf( '\n' )
             
         end

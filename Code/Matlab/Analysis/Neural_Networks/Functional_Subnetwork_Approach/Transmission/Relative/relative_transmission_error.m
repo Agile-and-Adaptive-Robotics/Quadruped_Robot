@@ -316,7 +316,7 @@ Us_critmax_achieved_theoretical_steady_decoded = Us_flat_achieved_theoretical_st
 % Define the membrane voltage summary statistic printing information.
 header_mv = 'Relative Transmission Summary Statistics (Membrane Voltages)\n';
 unit_mv = 'mV';
-scale_mv = 10^-3;
+scale_mv = 10^3;
 
 % Print the summary statistics for the membrane voltage results.
 network.numerical_method_utilities.print_summary_statistics( header_mv, unit_mv, scale_mv, error_rmse_theoretical, error_rmse_percentage_theoretical, error_rmse_numerical, error_rmse_percentage_numerical, error_std_theoretical, error_std_percentage_theoretical, error_std_numerical, error_std_percentage_numerical, error_min_theoretical, error_min_percentage_theoretical, Us_critmin_achieved_theoretical_steady, error_min_numerical, error_min_percentage_numerical, Us_critmin_achieved_numerical_steady, error_max_theoretical, error_max_percentage_theoretical, Us_critmax_achieved_theoretical_steady, error_max_numerical, error_max_percentage_numerical, Us_critmax_achieved_numerical_steady, error_range_theoretical, error_range_percentage_theoretical, error_range_numerical, error_range_percentage_numerical ) 
@@ -328,76 +328,6 @@ scale_decoded = 1;
 
 % Print the summary statistics for the decoded results.
 network.numerical_method_utilities.print_summary_statistics( header_decoded, unit_decoded, scale_decoded, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, Us_critmin_achieved_theoretical_steady_decoded, error_min_numerical_decoded, error_min_percentage_numerical_decoded, Us_critmin_achieved_numerical_steady_decoded, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, Us_critmax_achieved_theoretical_steady_decoded, error_max_numerical_decoded, error_max_percentage_numerical_decoded, Us_critmax_achieved_numerical_steady_decoded, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded ) 
-
-% % Print the relative transmission summary statistics.
-% fprintf( '\n' )
-% fprintf( 'Relative Transmission Summary Statistics (Membrane Voltages)\n' )
-% fprintf( '\n' )
-% 
-% fprintf( 'RMSE:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%])\n', error_rmse_theoretical*( 10^3 ), error_rmse_percentage_theoretical )
-% fprintf( '\tNumerical: \t\t%9.3f \t[mV] \t(%6.2f [%%])\n', error_rmse_numerical*( 10^3 ), error_rmse_percentage_numerical )
-% fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_rmse_numerical - error_rmse_theoretical )*( 10^3 ), error_rmse_percentage_numerical - error_rmse_percentage_theoretical )
-% fprintf( '\n' )
-% 
-% fprintf( 'STD:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%])\n', error_std_theoretical*( 10^3 ), error_std_percentage_theoretical )
-% fprintf( '\tNumerical: \t\t%9.3f \t[mV] \t(%6.2f [%%])\n', error_std_numerical*( 10^3 ), error_std_percentage_numerical )
-% fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_std_numerical - error_std_theoretical )*( 10^3 ), error_std_percentage_numerical - error_std_percentage_theoretical )
-% fprintf( '\n' )
-% 
-% fprintf( 'Min:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', error_min_theoretical*( 10^3 ), error_min_percentage_theoretical, Us_flat_achieved_theoretical_steady( index_min_theoretical, 1 )*( 10^3 ), Us_flat_achieved_theoretical_steady( index_min_theoretical, 2 )*( 10^3 ) )
-% fprintf( '\tNumerical: \t\t%9.3e \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', error_min_numerical*( 10^3 ), error_min_percentage_numerical, Us_flat_achieved_numerical_steady( index_min_numerical, 1 )*( 10^3 ), Us_flat_achieved_numerical_steady( index_min_numerical, 2 )*( 10^3 ) )
-% fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_min_numerical - error_min_theoretical )*( 10^3 ), error_min_percentage_numerical - error_min_percentage_theoretical )
-% fprintf( '\n' )
-% 
-% fprintf( 'Max:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', error_max_theoretical*( 10^3 ), error_max_percentage_theoretical, Us_flat_achieved_theoretical_steady( index_max_theoretical, 1 )*( 10^3 ), Us_flat_achieved_theoretical_steady( index_max_theoretical, 2 )*( 10^3 ) )
-% fprintf( '\tNumerical: \t\t%9.3f \t[mV] \t(%6.2f [%%]) \t@ \t(%9.3f [mV], %9.3f [mV])\n', error_max_numerical*( 10^3 ), error_max_percentage_numerical, Us_flat_achieved_numerical_steady( index_max_numerical, 1 )*( 10^3 ), Us_flat_achieved_numerical_steady( index_max_numerical, 2 )*( 10^3 ) )
-% fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_max_numerical - error_max_theoretical )*( 10^3 ), error_max_percentage_numerical - error_max_percentage_theoretical )
-% fprintf( '\n' )
-% 
-% fprintf( 'Range:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[mV] \t(%6.2f [%%])\n', error_range_theoretical*( 10^3 ), error_range_percentage_theoretical )
-% fprintf( '\tNumerical: \t\t%9.3f \t[mV] \t(%6.2f [%%])\n', error_range_numerical*( 10^3 ), error_range_percentage_numerical )
-% fprintf( '\tDifference: \t%9.3e \t[mV] \t(%6.2f [%%])\n', ( error_range_numerical - error_range_theoretical )*( 10^3 ), error_range_percentage_numerical - error_range_percentage_theoretical )
-% fprintf( '\n' )
-% 
-% % Print the decoded relative transmission summary statistics.
-% fprintf( '\n' )
-% fprintf( 'Relative Transmission Summary Statistics (Decoded Outputs)\n' )
-% fprintf( '\n' )
-% 
-% fprintf( 'RMSE:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[-] \t(%6.2f [%%])\n', error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded )
-% fprintf( '\tNumerical: \t\t%9.3f \t[-] \t(%6.2f [%%])\n', error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded )
-% fprintf( '\tDifference: \t%9.3e \t[-] \t(%6.2f [%%])\n', error_rmse_numerical_decoded - error_rmse_theoretical_decoded, error_rmse_percentage_numerical_decoded - error_rmse_percentage_theoretical_decoded )
-% fprintf( '\n' )
-% 
-% fprintf( 'STD:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[-] \t(%6.2f [%%])\n', error_std_theoretical_decoded, error_std_percentage_theoretical_decoded )
-% fprintf( '\tNumerical: \t\t%9.3f \t[-] \t(%6.2f [%%])\n', error_std_numerical_decoded, error_std_percentage_numerical_decoded )
-% fprintf( '\tDifference: \t%9.3e \t[-] \t(%6.2f [%%])\n', error_std_numerical_decoded - error_std_theoretical_decoded, error_std_percentage_numerical_decoded - error_std_percentage_theoretical_decoded )
-% fprintf( '\n' )
-% 
-% fprintf( 'Min:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[-] \t(%6.2f [%%]) \t@ \t(%9.3f [-], %9.3f [-])\n', error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, Us_flat_achieved_theoretical_steady_decoded( index_min_theoretical_decoded, 1 ), Us_flat_achieved_theoretical_steady_decoded( index_min_theoretical_decoded, 2 ) )
-% fprintf( '\tNumerical: \t\t%9.3e \t[-] \t(%6.2f [%%]) \t@ \t(%9.3f [-], %9.3f [-])\n', error_min_numerical_decoded, error_min_percentage_numerical_decoded, Us_flat_achieved_numerical_steady_decoded( index_min_numerical_decoded, 1 ), Us_flat_achieved_numerical_steady_decoded( index_min_numerical_decoded, 2 ) )
-% fprintf( '\tDifference: \t%9.3e \t[-] \t(%6.2f [%%])\n', error_min_numerical_decoded - error_min_theoretical_decoded, error_min_percentage_numerical_decoded - error_min_percentage_theoretical_decoded )
-% fprintf( '\n' )
-% 
-% fprintf( 'Max:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[-] \t(%6.2f [%%]) \t@ \t(%9.3f [-], %9.3f [-])\n', error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, Us_flat_achieved_theoretical_steady_decoded( index_max_theoretical_decoded, 1 ), Us_flat_achieved_theoretical_steady_decoded( index_max_theoretical_decoded, 2 ) )
-% fprintf( '\tNumerical: \t\t%9.3f \t[-] \t(%6.2f [%%]) \t@ \t(%9.3f [-], %9.3f [-])\n', error_max_numerical_decoded, error_max_percentage_numerical_decoded, Us_flat_achieved_numerical_steady_decoded( index_max_numerical_decoded, 1 ), Us_flat_achieved_numerical_steady_decoded( index_max_numerical_decoded, 2 ) )
-% fprintf( '\tDifference: \t%9.3e \t[-] \t(%6.2f [%%])\n', error_max_numerical_decoded - error_max_theoretical_decoded, error_max_percentage_numerical_decoded - error_max_percentage_theoretical_decoded )
-% fprintf( '\n' )
-% 
-% fprintf( 'Range:\n' )
-% fprintf( '\tTheoretical: \t%9.3f \t[-] \t(%6.2f [%%])\n', error_range_theoretical_decoded, error_range_percentage_theoretical_decoded )
-% fprintf( '\tNumerical: \t\t%9.3f \t[-] \t(%6.2f [%%])\n', error_range_numerical_decoded, error_range_percentage_numerical_decoded )
-% fprintf( '\tDifference: \t%9.3e \t[-] \t(%6.2f [%%])\n', error_range_numerical_decoded - error_range_theoretical_decoded, error_range_percentage_numerical_decoded - error_range_percentage_theoretical_decoded )
-% fprintf( '\n' )
 
 
 %% Plot the Relative Transmission Network Results.
