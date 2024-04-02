@@ -110,10 +110,12 @@ classdef network_class
         end
         
         
-        %% Specific Get Functions
+        %% Specific Get Functions.
         
         % Implement a function to construct the delta matrix from the stored delta scalars.
         function deltas = get_deltas( self, neuron_IDs )
+            
+            % Retrieves the delta matrix associated with the given neuron IDs.
             
             %{
             Input(s):
@@ -151,25 +153,25 @@ classdef network_class
             for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Determine how to assign the delta value.
-                if ( synapse_indexes(k) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron index.
-                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
                     
                     % Retrieve the to neuron index.
-                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).to_neuron_ID == neuron_IDs;
                     
                     % Set the component of the delta matrix associated with this neuron.
-                    deltas( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).delta;
+                    deltas( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes( k ) ).delta;
                     
-                elseif ( synapse_indexes(k) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )            % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )            % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
                 else                                        % Otherwise...
                     
                     % Throw an error.
-                    error( 'Invalid synapse index %0.2f.', synapse_indexes(k) )
+                    error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
                     
                 end
                 
@@ -180,6 +182,8 @@ classdef network_class
         
         % Implement a function to construct the synaptic reversal potential matrix from the stored synaptic reversal potential scalars.
         function dE_syns = get_dEsyns( self, neuron_IDs )
+            
+            % Retrieves the synaptic reversal potential matrix associated with the given neuron IDs.
             
             %{
             Input(s):
@@ -217,25 +221,25 @@ classdef network_class
             for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Determine how to assign the synaptic reversal potential value.
-                if ( synapse_indexes(k) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron logical index.
-                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
                     
                     % Retrieve the to neuron logical index.
-                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).to_neuron_ID == neuron_IDs;
                     
                     % Set the component of the synaptic reversal potential matrix associated with this neuron.
-                    dE_syns( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).dE_syn;
+                    dE_syns( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes( k ) ).dE_syn;
                     
-                elseif ( synapse_indexes(k) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )            % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )            % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
                 else                                        % Otherwise...
                     
                     % Throw an error.
-                    error( 'Invalid synapse index %0.2f.', synapse_indexes(k) )
+                    error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
                     
                 end
                 
@@ -246,6 +250,8 @@ classdef network_class
         
         % Implement a function to construct the maximum synaptic conductance matrix from the stored maximum synaptic conductance scalars.
         function g_syn_maxs = get_gsynmaxs( self, neuron_IDs )
+            
+            % Retrieves the synaptic conductance matrix associated with the given neuron IDs.
             
             %{
             Input(s):
@@ -283,25 +289,25 @@ classdef network_class
             for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Determine how to assign the maximum synaptic conductance value.
-                if ( synapse_indexes(k) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron index.
-                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
                     
                     % Retrieve the to neuron index.
-                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).to_neuron_ID == neuron_IDs;
                     
                     % Set the component of the maximum synaptic conductance matrix associated with this neuron.
-                    g_syn_maxs( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).g_syn_max;
+                    g_syn_maxs( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes( k ) ).g_syn_max;
                     
-                elseif ( synapse_indexes(k) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )            % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )            % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
                 else                                        % Otherwise...
                     
                     % Throw an error.
-                    error( 'Invalid synapse index %0.2f.', synapse_indexes(k) )
+                    error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
                     
                 end
                 
@@ -312,6 +318,8 @@ classdef network_class
         
         % Implement a function to construct the synaptic condcutance matrix from the stored synaptic conductance scalars.
         function G_syns = get_Gsyns( self, neuron_IDs )
+            
+            % Retrieve the synaptic conductance matrix for the given neuron IDs.
             
             %{
             Input(s):
@@ -349,25 +357,25 @@ classdef network_class
             for k = 1:num_syanpses                         % Iterate through each synapse...
                 
                 % Determine how to assign the synaptic conductance value.
-                if ( synapse_indexes(k) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )                   % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron index.
-                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).from_neuron_ID == neuron_IDs;
+                    from_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
                     
                     % Retrieve the to neuron index.
-                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes(k) ).to_neuron_ID == neuron_IDs;
+                    to_neuron_index_local_logical = self.synapse_manager.synapses( synapse_indexes( k ) ).to_neuron_ID == neuron_IDs;
                     
                     % Set the component of the synaptic conductance matrix associated with this neuron.
-                    G_syns( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes(k) ).G_syn;
+                    G_syns( to_neuron_index_local_logical, from_neuron_index_local_logical ) = self.synapse_manager.synapses( synapse_indexes( k ) ).G_syn;
                     
-                elseif ( synapse_indexes(k) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes(k) ).b_enabled )            % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~self.synapse_manager.synapses( synapse_indexes( k ) ).b_enabled )            % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
                 else                                        % Otherwise...
                     
                     % Throw an error.
-                    error( 'Invalid synapse index %0.2f.', synapse_indexes(k) )
+                    error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
                     
                 end
                 
@@ -376,10 +384,21 @@ classdef network_class
         end
         
         
-        %% Specific Set Functions
+        %% Specific Set Functions.
         
         % Implement a function to set the deltas of each synapse based on the delta matrix.
         function self = set_deltas( self, deltas, neuron_IDs )
+            
+            % Sets the bifurcation parameter values of the neurons specified by neuron_IDs based on the entries of the given delta matrix.
+            
+            %{
+            Input(s):
+                deltas      =   [V] Bifurcation Parameter Matrix.
+                neuron_IDs  =   [#] IDs of Neurons Whose Parameters Should be Set.
+            
+            Output(s):
+                self        =   [class] Updated Network.
+            %}
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -395,7 +414,7 @@ classdef network_class
                 for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
                     
                     % Retrieve the synapse ID.
-                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'ignore' );
+                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( k2 ), neuron_IDs( k1 ), 'ignore' );
                     
                     % Retrieve the synpase index.
                     synapse_index = self.synapse_manager.get_synapse_index( synapse_ID );
@@ -413,6 +432,7 @@ classdef network_class
                     else                                            % Otherwise...
                         
                         % Throw an error.
+                        error( 'Synapse ID %0.2f is not recognized.', synapse_ID )       
                         
                     end
                     
@@ -424,6 +444,17 @@ classdef network_class
         
         % Implement a function to set the synaptic reversal potentials of each synapse based on the synaptic reversal matrix.
         function self = set_dEsyns( self, dE_syns, neuron_IDs )
+            
+            % Sets the synaptic reversal potentials of the neurons specified by neuron_IDs based on the entries of the given dE_syns matrix.
+            
+            %{
+            Input(s):
+                dE_syns    	=   [V] Synaptic Reversal Potential Matrix.
+                neuron_IDs  =   [#] IDs of Neurons Whose Parameters Should be Set.
+            
+            Output(s):
+                self        =   [class] Updated Network.
+            %}
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -439,7 +470,7 @@ classdef network_class
                 for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
                     
                     % Retrieve the synapse ID.
-                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'ignore' );
+                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( k2 ), neuron_IDs( k1 ), 'ignore' );
                     
                     % Retrieve the synpase index.
                     synapse_index = self.synapse_manager.get_synapse_index( synapse_ID );
@@ -457,6 +488,7 @@ classdef network_class
                     else                                            % Otherwise...
                         
                         % Throw an error.
+                        error( 'Synapse ID %0.2f is not recognized.', synapse_ID ) 
                         
                     end
                     
@@ -468,6 +500,17 @@ classdef network_class
         
         % Implement a function to set the maximum synaptic conductances of each synapse based on the maximum synaptic conductance matrix.
         function self = set_gsynmaxs( self, g_syn_maxs, neuron_IDs )
+            
+            % Sets the maximum synaptic conductance of the neurons specified by neuron_IDs based on the entries of the given g_syn_maxs matrix.
+            
+            %{
+            Input(s):
+                g_syn_maxs	=   [V] Maximum Synaptic Conductance Matrix.
+                neuron_IDs  =   [#] IDs of Neurons Whose Parameters Should be Set.
+            
+            Output(s):
+                self        =   [class] Updated Network.
+            %}
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -483,7 +526,7 @@ classdef network_class
                 for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
                     
                     % Retrieve the synapse ID.
-                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'ignore' );
+                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( k2 ), neuron_IDs( k1 ), 'ignore' );
                     
                     % Retrieve the synpase index.
                     synapse_index = self.synapse_manager.get_synapse_index( synapse_ID );
@@ -501,6 +544,7 @@ classdef network_class
                     else                                            % Otherwise...
                         
                         % Throw an error.
+                        error( 'Synapse ID %0.2f is not recognized.', synapse_ID )
                         
                     end
                     
@@ -512,6 +556,17 @@ classdef network_class
         
         % Implement a function to set the synaptic conductance of each synapse based on the synaptic conductance matrix.
         function self = set_Gsyns( self, G_syns, neuron_IDs )
+            
+            % Sets the synaptic conductance of the neurons specified by neuron_IDs based on the entries of the given G_syns matrix.
+            
+            %{
+            Input(s):
+                G_syns      =   [V] Synaptic Conductance Matrix.
+                neuron_IDs  =   [#] IDs of Neurons Whose Parameters Should be Set.
+            
+            Output(s):
+                self        =   [class] Updated Network.
+            %}
             
             % Set the default neuron IDs.
             if nargin < 3, neuron_IDs = 'all'; end
@@ -527,7 +582,7 @@ classdef network_class
                 for k2 = 1:num_neurons                       % Iterate through each of the from neurons...
                     
                     % Retrieve the synapse ID.
-                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs(k2), neuron_IDs(k1), 'ignore' );
+                    synapse_ID = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( k2 ), neuron_IDs( k1 ), 'ignore' );
                     
                     % Retrieve the synapse index.
                     synapse_index = self.synapse_manager.get_synapse_index( synapse_ID, 'ignore' );
@@ -555,7 +610,7 @@ classdef network_class
         end
         
         
-        %% Compute Functions
+        %% Compute Functions.
         
         % Implement a function to compute the synaptic conductance for each synapse.
         function G_syns = compute_Gsyns( self )
@@ -1013,7 +1068,7 @@ classdef network_class
         
         
         
-        %% Compute-Set Functions
+        %% Compute-Set Functions.
         
         % Implement a function to compute and set the synaptic conductance of each synapse.
         function self = compute_set_Gsyns( self )
@@ -1288,7 +1343,53 @@ classdef network_class
         end
         
         
-        %% Network Deletion Functions
+        %% Network Deletion Functions.
+        
+        % Implement a function to delete network components.
+        function self = delete( self, object_types, object_ids )
+            
+            %{
+            Input(s):
+                object_types    =   [cell, str] Type of Network Object to Delete.  Must be one of: Neurons, Synapses, or Currents.
+                object_ids      =   [cell, #] IDs Associated with Objects that Should be Deleted.
+            
+            Output(s):
+                self            =   [class] Updated Network Object.
+            %}
+            
+            % Retrieve the number of different object types to delete.
+            num_types = length( object_types );
+            
+            % Delete each of the specified objects for each of the given types.
+            for k = 1:num_types                     % Iterate through each of the object types...
+                
+                % Determine which type of objects should be deleted.
+                if strcmpi( object_types{ k }, 'neuron' ) || strcmpi( object_types{ k }, 'neurons' )                            % If we want to delete neurons...
+                    
+                    % Delete the specified neurons.
+                    self.neuron_manager = self.neuron_manager.delete_neurons( object_ids{ k } );
+                    
+                elseif strcmpi( object_types{ k }, 'synapse' ) || strcmpi( object_types{ k }, 'synapses' )                      % If we want to delete synapses...
+                    
+                    % Delete the specified synapses.
+                    self.synapse_manager = self.neuron_manager.delete_synapses( object_ids{ k } );
+                    
+                elseif strcmpi( object_types{ k }, 'current' ) || strcmpi( object_types{ k }, 'currents' )                      % If we want to delete applied currents...
+                    
+                    % Delete the specified applied currents.
+                    self.applied_current_manager = self.applied_current_manager.delete_applied_currents( object_ids{ k } );
+                    
+                else                                                                                                            % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Invalid network object type %s selected for deletion.', object_types{ k } )
+                    
+                end
+                
+            end
+            
+        end
+        
         
         % Implement a function to delete all of the components in a network.
         function self = delete_all( self )
@@ -1305,7 +1406,7 @@ classdef network_class
         end
         
         
-        %% Subnetwork Applied Current Design Functions
+        %% Subnetwork Applied Current Design Functions.
         
         % Implement a function to design the applied currents for a multistate cpg subnetwork.
         function self = design_multistate_cpg_applied_currents( self, neuron_IDs )
