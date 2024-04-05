@@ -35,7 +35,7 @@ classdef network_utilities_class
         c_integration_mean_DEFAULT = 0.01e9;                % [-] Integration Subnetwork Default Average Gain.
         c_integration_range_DEFAULT = 0.01e9;               % [-] Integration Subnetwork Default Gain Range.
 
-        Ia_DEFAULT = 0;                                   % [-] Default Applied Current.
+        Ia_DEFAULT = 0;                                     % [-] Default Applied Current.
         
     end
     
@@ -128,7 +128,7 @@ classdef network_utilities_class
         %% Multistate CPG Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductance.
-        function gs_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias )
+        function gs_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities )
             
             %{
             Input(s):
@@ -149,6 +149,9 @@ classdef network_utilities_class
             Output(s):
                 gs_vector	=   [S] Maxmimum Synaptic Conductances (Column Vector) 
             %}
+            
+            % Set the default input arguments.
+            if nargin < 15, neuron_utilities = self.neuron_utilities; end
             
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
@@ -176,14 +179,14 @@ classdef network_utilities_class
                     if i ~= k                   % If this synapse is not a self-connection...
                         
                         % Compute the leak current.
-                        Ileak = self.neuron_utilities.compute_Ileak( deltas( i, k ), Gms( i ) );
+                        Ileak = neuron_utilities.compute_Ileak( deltas( i, k ), Gms( i ) );
                         
                         % Compute the sodium channel steady state activation and deactivation parameters.
-                        minf = self.neuron_utilities.compute_mhinf( deltas( i, k ), Ams( i ), Sms( i ), dEms( i ) );
-                        hinf = self.neuron_utilities.compute_mhinf( deltas( i, k ), Ahs( i ), Shs( i ), dEhs( i ) );
+                        minf = neuron_utilities.compute_mhinf( deltas( i, k ), Ams( i ), Sms( i ), dEms( i ) );
+                        hinf = neuron_utilities.compute_mhinf( deltas( i, k ), Ahs( i ), Shs( i ), dEhs( i ) );
                         
                         % Compute the sodium channel current.
-                        Ina = self.neuron_utilities.compute_Ina( deltas( i, k ), hinf, minf, Gnas( i ), dEnas( i ) );
+                        Ina = neuron_utilities.compute_Ina( deltas( i, k ), hinf, minf, Gnas( i ), dEnas( i ) );
                         
                         % Compute the system and right-hand side coefficients.
                         aik1 = deltas( i, k ) - dEs( i, k );
@@ -300,7 +303,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance matrix.
-        function gs_matrix = compute_cpg_gsynmax_matrix( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias )
+        function gs_matrix = compute_cpg_gsynmax_matrix( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities )
             
             %{
             Input(s):
@@ -322,8 +325,11 @@ classdef network_utilities_class
                 gs_matrix           =   [S] Maxmimum Synaptic Conductances (Matrix) 
             %}
             
+            % Set the default input arguments.
+            if nargin < 15, neuron_utilities = self.neuron_utilities; end
+            
             % Compute the maximum synaptic conductance vector.
-            gs_vector = self.compute_cpg_gsynmax_vector( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias );
+            gs_vector = self.compute_cpg_gsynmax_vector( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities );
             
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
@@ -1782,7 +1788,7 @@ classdef network_utilities_class
         %% Stability Functions.
         
         % Implement a function to compute the maximum RK4 step size.
-        function [ A, dt, condition_number ] = RK4_stability_analysis_at_point( self, Cms, Gms, Rs, gs, dEs, Us0, dt0 )
+        function [ A, dt, condition_number ] = RK4_stability_analysis_at_point( self, Cms, Gms, Rs, gs, dEs, Us0, dt0, numerical_method_utilities )
         
             %{
             Input(s):
@@ -1801,6 +1807,7 @@ classdef network_utilities_class
             %}
             
             % Set the default input arguments.
+            if nargin < 9, numerical_method_utilities = self.numerical_method_utilities; end
             if nargin < 8, dt0 = 1e-6; end
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
             
@@ -1808,7 +1815,7 @@ classdef network_utilities_class
             A = self.compute_linearized_system_matrix( Cms, Gms, Rs, gs, dEs, Us0 );
             
             % Compute the maximum RK4 step size.
-            dt = self.numerical_method_utilities.compute_max_RK4_step_size( A, dt0 );
+            dt = numerical_method_utilities.compute_max_RK4_step_size( A, dt0 );
             
             % Compute the condition number of the system matrix.
             condition_number = cond( A );
@@ -1819,7 +1826,7 @@ classdef network_utilities_class
         %% Simulation Functions.
         
         % Implement a function to perform a single simulation step.
-        function [ dUs, dhs, Gs, Ils, Iss, Inas, Itotals, minfs, hinfs, tauhs ] = simulation_step( self, Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias )
+        function [ dUs, dhs, Gs, Ils, Iss, Inas, Itotals, minfs, hinfs, tauhs ] = simulation_step( self, Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, neuron_utilities )
             
             % This function computes a single step of a neural network without sodium channels.
             
@@ -1857,32 +1864,35 @@ classdef network_utilities_class
                 tauhs       =   [s] num_neurons x 1 vector of sodium channel deactivation parameter time constants.
             %}
             
+            % Set the default input arguments.
+            if nargin < 20, neuron_utilities = self.neuron_utilities; end
+            
             % Compute the leak currents.
-            Ils = self.neuron_utilities.compute_Ileak( Us, Gms );
+            Ils = neuron_utilities.compute_Ileak( Us, Gms );
             
             % Compute synaptic currents.
             [ Iss, Gs ] = self.Isyn_step( Us, Rs, gs, dEs );
             
             % Compute the sodium channel currents.
-            [ Inas, minfs ] = self.neuron_utilities.Ina_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );
+            [ Inas, minfs ] = neuron_utilities.Ina_step( Us, hs, Gnas, Ams, Sms, dEms, dEnas );
             
             % Compute the sodium channel deactivation time constant.
-            [ tauhs, hinfs ] = self.neuron_utilities.tauh_step( Us, tauh_maxs, Ahs, Shs, dEhs );
+            [ tauhs, hinfs ] = neuron_utilities.tauh_step( Us, tauh_maxs, Ahs, Shs, dEhs );
             
             % Compute the total currents.
-            Itotals = self.neuron_utilities.compute_Itotal( Ils, Iss, Inas, Itonics, Ias );
+            Itotals = neuron_utilities.compute_Itotal( Ils, Iss, Inas, Itonics, Ias );
             
             % Compute the membrane voltage derivatives.
-            dUs = self.neuron_utilities.compute_dU( Itotals, Cms );
+            dUs = neuron_utilities.compute_dU( Itotals, Cms );
             
             % Compute the sodium channel deactivation parameter derivatives.
-            dhs = self.neuron_utilities.compute_dh( hs, hinfs, tauhs );
+            dhs = neuron_utilities.compute_dh( hs, hinfs, tauhs );
             
         end
         
         
         % Implement a function that defines the network flow.
-        function dx = network_flow( self, t, x, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias )
+        function dx = network_flow( self, t, x, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, neuron_utilities )
            
             %{
             Input(s):
@@ -1909,6 +1919,9 @@ classdef network_utilities_class
                 dx          =   [variable] Network State Flows.
             %}
             
+            % Set the default input arguments.
+            if nargin < 20, neuron_utilities = self.neuron_utilities; end
+            
             % Retrieve the number of states.
             num_states = length( x );
             
@@ -1920,7 +1933,7 @@ classdef network_utilities_class
             hs = x( ( num_states/2 + 1 ):end );
             
             % Perform a simulation step.
-            [ dUs, dhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias );
+            [ dUs, dhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, neuron_utilities );
             
             % Store the simulation step state derivatives into a single state variable.
             dx = [ dUs; dhs ];
@@ -1929,7 +1942,7 @@ classdef network_utilities_class
         
         
         % Implement a function to perform an integration step.
-        function [ Us, hs, dUs, dhs, Gs, Ils, Iss, Inas, Itotals, minfs, hinfs, tauhs ] = integration_step( self, Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, Vas_cell, dt, method )
+        function [ Us, hs, dUs, dhs, Gs, Ils, Iss, Inas, Itotals, minfs, hinfs, tauhs ] = integration_step( self, Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, Vas_cell, dt, method, neuron_utilities, numerical_method_utilities )
         
             %{
             Input(s):
@@ -1971,24 +1984,26 @@ classdef network_utilities_class
             %}
             
             % Set the default input arguments.
+            if nargin < 24, numerical_method_utilities = self.numerical_method_utilities; end
+            if nargin < 23, neuron_utilities = self.neuron_utilities; end
             if nargin < 22, method = 'RK4'; end
             
             % Perform a single simulation step.
-            [ ~, ~, Gs, Ils, Iss, Inas, Itotals, minfs, hinfs, tauhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias );
+            [ ~, ~, Gs, Ils, Iss, Inas, Itotals, minfs, hinfs, tauhs ] = self.simulation_step( Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, neuron_utilities );
             
             % Define the network flow.
-            f = @( t, x ) self.network_flow( t, x, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias );
+            f = @( t, x ) self.network_flow( t, x, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, neuron_utilities );
             
             % Determine how to perform a single numerical integration step.
             if strcmpi( method, 'FE' )                                                  % If the numerical integration method is set to FE...
                 
                 % Perform a single forward euler step.
-                [ x, dx ] = self.numerical_method_utilities.FE( f, 0, [ Us; hs ], dt );
+                [ x, dx ] = numerical_method_utilities.FE( f, 0, [ Us; hs ], dt );
                 
             elseif strcmpi( method, 'RK4' )                                             % If the numerical integration method is set to RK4...
                 
                 % Perform a single RK4 step.
-                [ x, dx ] = self.numerical_method_utilities.RK4( f, 0, [ Us; hs ], dt );
+                [ x, dx ] = numerical_method_utilities.RK4( f, 0, [ Us; hs ], dt );
                 
             else                                                                        % Otherwise...
                
@@ -2014,7 +2029,7 @@ classdef network_utilities_class
                 if ~isempty(  Vas_cell{ k } )
                     
                     Us( k ) = Vas_cell{ k };
-                    hs( k ) = self.neuron_utilities.compute_mhinf( Us( k ), Ahs( k ), Shs( k ), dEhs( k ) );
+                    hs( k ) = neuron_utilities.compute_mhinf( Us( k ), Ahs( k ), Shs( k ), dEhs( k ) );
                     
                     dUs( k ) = 0;
                     dhs( k ) = 0;
@@ -2027,7 +2042,7 @@ classdef network_utilities_class
             
         
         % Implement a function to simulate the network.
-        function [ ts, Us, hs, dUs, dhs, Gs, Ils, Iss, Inas, Ias, Itotals, minfs, hinfs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, Vas_cell, tf, dt, method )
+        function [ ts, Us, hs, dUs, dhs, Gs, Ils, Iss, Inas, Ias, Itotals, minfs, hinfs, tauhs ] = simulate( self, Us0, hs0, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias, Vas_cell, tf, dt, method, neuron_utilities, numerical_method_utilities )
             
             % This function simulates a neural network described by Gms, Cms, Rs, gsyn_maxs, dEsyns with an initial condition of U0, h0 for tf seconds with a step size of dt and an applied current of Iapp.
             
@@ -2070,6 +2085,8 @@ classdef network_utilities_class
             %}
             
             % Set the default input arguments.
+            if nargin < 25, numerical_method_utilities = self.numerical_method_utilities; end
+            if nargin < 24, neuron_utilities = self.neuron_utilities; end
             if nargin < 23, method = 'RK4'; end
             
             % Compute the simulation time vector.
@@ -2097,7 +2114,7 @@ classdef network_utilities_class
             for k = 1:( num_timesteps - 1 )               % Iterate through each timestep...
                 
                 % Perform a single integration step.
-                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), Gs( :, :, k ), Ils( :, k ), Iss( :, k ), Inas( :, k ), Itotals( :, k ), minfs( :, k ), hinfs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias( :, k ), Vas_cell( :, k), dt, method );
+                [ Us( :, k + 1 ), hs( :, k + 1 ), dUs( :, k ), dhs( :, k ), Gs( :, :, k ), Ils( :, k ), Iss( :, k ), Inas( :, k ), Itotals( :, k ), minfs( :, k ), hinfs( :, k ), tauhs( :, k ) ] = self.integration_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias( :, k ), Vas_cell( :, k), dt, method, neuron_utilities, numerical_method_utilities );
                 
             end
             
@@ -2105,7 +2122,7 @@ classdef network_utilities_class
             k = k + 1;
             
             % Compute the network state derivatives (as well as other intermediate network values).
-            [ dUs( :, k ), dhs( :, k ), Gs( :, :, k ), Ils( :, k ), Iss( :, k ), Inas( :, k ), Itotals( :, k ), minfs( :, k ), hinfs( :, k ), tauhs( :, k ) ] = self.simulation_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias( :, k ) );
+            [ dUs( :, k ), dhs( :, k ), Gs( :, :, k ), Ils( :, k ), Iss( :, k ), Inas( :, k ), Itotals( :, k ), minfs( :, k ), hinfs( :, k ), tauhs( :, k ) ] = self.simulation_step( Us( :, k ), hs( :, k ), Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, Itonics, Ias( :, k ), neuron_utilities );
             
         end
         
@@ -2157,7 +2174,7 @@ classdef network_utilities_class
                 subplot( 5, 1, 5 ), plot( ts, Itotals( k, : ), '-', 'Linewidth', 3 )
 
                 % Add an entry to our legend string.
-                legstr{k} = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
+                legstr{ k } = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
                 
             end
             
@@ -2203,7 +2220,7 @@ classdef network_utilities_class
                 subplot( 2, 1, 2 ), plot( ts, hs( k, : ), '-', 'Linewidth', 3 )
                 
                 % Add an entry to our legend string.
-                legstr{k} = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
+                legstr{ k } = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
                 
             end
             
@@ -2215,7 +2232,7 @@ classdef network_utilities_class
         
         
         % Implement a function to animate the network states over time.
-        function fig = animate_network_states( self, Us, hs, neuron_IDs, num_playbacks, playback_speed )
+        function fig = animate_network_states( self, Us, hs, neuron_IDs, num_playbacks, playback_speed, array_utilities )
             
             %{
             Input(s):
@@ -2230,6 +2247,7 @@ classdef network_utilities_class
             %}
             
             % Set the default input arguments.
+            if nargin < 7, array_utilities = self.array_utilities; end
             if nargin < 6, playback_speed = 1; end
             if nargin < 5, num_playbacks = 1; end
             if nargin < 4, neuron_IDs = 1:size( Us, 1 ); end
@@ -2248,7 +2266,7 @@ classdef network_utilities_class
             if U_min == U_max                           % If the minimum voltage is equal to the maximum voltage...
                 
                 % Scale the given domain.
-                domain = self.array_utilities.scale_domain( [ U_min, U_max ], 0.25, 'absolute' );
+                domain = array_utilities.scale_domain( [ U_min, U_max ], 0.25, 'absolute' );
                 
                 % Set the minimum and maximum voltage domain.
                 U_min = domain( 1 ); U_max = domain( 2 );
@@ -2259,7 +2277,7 @@ classdef network_utilities_class
             if h_min == h_max                           % If the minimum sodium deactivation parameter is equal to the maximum sodium deactivation parameter...
                 
                 % Scale the given domain.
-                domain = self.array_utilities.scale_domain( [ h_min, h_max ], 0.25, 'absolute' );
+                domain = array_utilities.scale_domain( [ h_min, h_max ], 0.25, 'absolute' );
                 
                 % Set the minimum and maximum voltage domain.
                 h_min = domain( 1 ); h_max = domain( 2 );
@@ -2283,7 +2301,6 @@ classdef network_utilities_class
             frame_persist_percentage = 0.125;       % Works for two neurons CPGs.
 %             frame_persist_percentage = 0.10;         % Works for multistate CPGs.
 
-            
             % Compute the number of frames that should persist during the animation.
             num_frames_persist = floor( frame_persist_percentage*num_frames );
             

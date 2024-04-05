@@ -41,7 +41,7 @@ classdef network_class
         c_integration_range_DEFAULT = 0.01e9;                                                                                   % [-] Integration Subnetwork Gain Range
         
         % Define applied current parameters.
-        Ia_DEFAULT = 0;                                                                                                       % [A] Applied Current
+        Ia_DEFAULT = 0;                                                                                                         % [A] Applied Current
         Idrive_max_DEFAULT = 1.25e-9;                                                                                           % [A] Maximum Drive Current.
         
         % Define the cpg parameters.
@@ -125,7 +125,7 @@ classdef network_class
                 deltas      =   [V] Network Bifurcation Parameters.
             %}
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
@@ -193,7 +193,7 @@ classdef network_class
                 dE_syns     =   [V] Synaptic Reversal Potentials.
             %}
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
@@ -261,7 +261,7 @@ classdef network_class
                 gs          =   [S] Maximum Synaptic Conductances.
             %}
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
@@ -329,7 +329,7 @@ classdef network_class
                 Gs      =   [S] Synaptic Conductances.
             %}
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
@@ -621,9 +621,10 @@ classdef network_class
         %% Compute Functions.
         
         % Implement a function to compute the synaptic conductance for each synapse.
-        function Gs = compute_Gsyns( self, neuron_manager )
+        function Gs = compute_Gsyns( self, neuron_manager, network_utilities )
             
             % Define the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
             if nargin < 2, neuron_manager = self.neuron_manager; end
             
             % Retrieve the neuron properties.
@@ -631,18 +632,19 @@ classdef network_class
             Rs = neuron_manager.get_neuron_property( 'all', 'R', true )'; Rs = repmat( Rs', [ neuron_manager.num_neurons, 1 ] );
             
             % Retrieve the maximum synaptic conductances.
-            g_syn_maxs = self.get_gsynmaxs( 'all' );
+            gs = self.get_gsynmaxs( 'all' );
             
             % Compute the synaptic conductance.
-            Gs = self.network_utilities.compute_Gsyn( Us, Rs, g_syn_maxs );
+            Gs = network_utilities.compute_Gsyn( Us, Rs, gs );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-        function gs = compute_cpg_gsynmaxs( self, neuron_IDs, neuron_manager, synapse_manager )
+        function gs = compute_cpg_gsynmaxs( self, neuron_IDs, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default neuron IDs.
+            if nargin < 5, network_utilities = self.network_utilities; end
             if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
@@ -680,15 +682,16 @@ classdef network_class
             dEs = self.get_dEsyns( neuron_IDs, neuron_manager, synapse_manager );
             
             % Compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-            gs = self.network_utilities.compute_cpg_gsynmax_matrix( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Itonics );
+            gs = network_utilities.compute_cpg_gsynmax_matrix( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Itonics );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a transmission subnetwork with the specified parameters.
-        function gs12 = compute_transmission_gsynmax( self, neuron_IDs, synapse_ID, Ia2, k, neuron_manager, synapse_manager )
+        function gs12 = compute_transmission_gsynmax( self, neuron_IDs, synapse_ID, Ia2, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
             if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_transmission_DEFAULT; end
@@ -706,15 +709,16 @@ classdef network_class
             dEs12 = synapse_manager.get_synapse_property( synapse_ID, 'dE_syn', true );
             
             % Compute the required maximum synaptic conductances required to design a transmission subnetwork.
-            gs12 = self.network_utilities.compute_transmission_gsynmax( Gm2, R1, dEs12, Ia2, k );
+            gs12 = network_utilities.compute_transmission_gsynmax( Gm2, R1, dEs12, Ia2, k );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a modulation subnetwork with the specified parameters.
-        function gs12 = compute_modulation_gsynmax( self, neuron_IDs, synapse_ID, Ia2, c, neuron_manager, synapse_manager )
+        function gs12 = compute_modulation_gsynmax( self, neuron_IDs, synapse_ID, Ia2, c, neuron_manager, synapse_manager, network_utilities )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
             if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, c = self.c_modulation_DEFAULT; end
@@ -733,15 +737,16 @@ classdef network_class
             dEs12 = synapse_manager.get_synapse_property( synapse_ID, 'dE_syn', true );
             
             % Compute the maximum synaptic conductance for a modulation subnetwork.
-            gs12 = self.network_utilities.compute_modulation_gsynmax( Gm2, R1, R2, dEs12, Ia2, c );
+            gs12 = network_utilities.compute_modulation_gsynmax( Gm2, R1, R2, dEs12, Ia2, c );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances required to design an addition subnetwork with the specified parameters.
-        function gs = compute_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager )
+        function gs = compute_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
             if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_addition_DEFAULT; end
@@ -761,7 +766,7 @@ classdef network_class
             dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
-            [ gs13, gs23 ] = self.network_utilities.compute_addition_gsynmax( Gm3, R1, R2, dEs13, dEs23, Ia3, k );
+            [ gs13, gs23 ] = network_utilities.compute_addition_gsynmax( Gm3, R1, R2, dEs13, dEs23, Ia3, k );
             
             % Store the maximum synaptic conductances.
             gs = [ gs13, gs23 ];
@@ -770,9 +775,10 @@ classdef network_class
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a relative addition subnetwork with the specified parameters.
-        function gs = compute_relative_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager )
+        function gs = compute_relative_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
             if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_addition_DEFAULT; end
@@ -792,7 +798,7 @@ classdef network_class
             dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
-            [ gs13, gs23 ] = self.network_utilities.compute_relative_addition_gsynmax( Gm3, R1, R2, dEs13, dEs23, Ia3, k );
+            [ gs13, gs23 ] = network_utilities.compute_relative_addition_gsynmax( Gm3, R1, R2, dEs13, dEs23, Ia3, k );
             
             % Store the maximum synaptic conductances.
             gs = [ gs13, gs23 ];
@@ -801,9 +807,10 @@ classdef network_class
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a subtraction subnetwork with the specified parameters.
-        function g_syn_maxs = compute_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager )
+        function g_syn_maxs = compute_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
             if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_subtraction_DEFAULT; end
@@ -822,7 +829,7 @@ classdef network_class
             dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
-            [ gs13, gs23 ] = self.network_utilities.compute_subtraction_gsynmax( Gm3, R1, dEs13, dEs23, Ia3, k );
+            [ gs13, gs23 ] = network_utilities.compute_subtraction_gsynmax( Gm3, R1, dEs13, dEs23, Ia3, k );
             
             % Store the maximum synaptic conductances.
             g_syn_maxs = [ gs13, gs23 ];
@@ -831,9 +838,10 @@ classdef network_class
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a multiplication subnetwork with the specifed parameters.
-        function gs = compute_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, Ia4, k, neuron_manager, synapse_manager )
+        function gs = compute_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, Ia4, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
             if nargin < 8, synapse_manager = self.synapse_manager; end
             if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, k = self.c_multiplication_DEFAULT; end
@@ -860,7 +868,7 @@ classdef network_class
             dEs34 = synapse_manager.get_synapse_property( synapse_IDs( 3 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this multiplication subnetwork.
-            [ gs14, gs23, gs34 ] = self.network_utilities.compute_multiplication_gsynmax( Gm3, Gm4, R1, R2, R3, R4, dEs14, dEs23, dEs34, Ia3, Ia4, k );
+            [ gs14, gs23, gs34 ] = network_utilities.compute_multiplication_gsynmax( Gm3, Gm4, R1, R2, R3, R4, dEs14, dEs23, dEs34, Ia3, Ia4, k );
             
             % Store the maximum synaptic conductances.
             gs = [ gs14, gs23, gs34 ];
@@ -869,9 +877,10 @@ classdef network_class
         
         
         % Implement a function to compute the maximum synaptic conductances required to design an inversion subnetwork with the specified parameters.
-        function gs12 = compute_inversion_gsynmax( self, neuron_IDs, Ia2, epsilon, k, neuron_manager )
+        function gs12 = compute_inversion_gsynmax( self, neuron_IDs, Ia2, epsilon, k, neuron_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_inversion_DEFAULT; end
             if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end
@@ -885,39 +894,42 @@ classdef network_class
             R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true )';
             
             % Compute the maximum synaptic conductances for this inversion subnetwork.
-            gs12 = self.network_utilities.compute_inversion_gsynmax( Gm2, R1, Ia2, k, epsilon );
+            gs12 = network_utilities.compute_inversion_gsynmax( Gm2, R1, Ia2, k, epsilon );
             
         end
         
         
         % Implement a function to compute the input offset for a relative inversion subnetwork.
-        function epsilon = compute_relative_inversion_epsilon( self, c )
+        function epsilon = compute_relative_inversion_epsilon( self, c, network_utilities )
             
             % Define the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
             if nargin < 2, c = self.c_inversion_DEFAULT; end                    % [-] Inversion Subnetwork Gain
             
             % Compute the input offset.
-            epsilon = self.network_utilities.compute_relative_inversion_epsilon( c );
+            epsilon = network_utilities.compute_relative_inversion_epsilon( c );
             
         end
         
         
         % Implement a function to compute the output offset for a relative inversion subnetwork.
-        function delta = compute_relative_inversion_delta( self, c )
+        function delta = compute_relative_inversion_delta( self, c, network_utilities )
             
             % Define the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
             if nargin < 2, c = self.c_inversion_DEFAULT; end                    % [-] Inversion Subnetwork Gain
             
             % Compute the output offset.
-            delta = self.network_utilities.compute_relative_inversion_delta( c );
+            delta = network_utilities.compute_relative_inversion_delta( c );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a division subnetwork with the specified parameters.
-        function gs = compute_division_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager )
+        function gs = compute_division_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
             if nargin < 8, synapse_manager = self.synapse_manager; end
             if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, c = [  ]; end
@@ -939,7 +951,7 @@ classdef network_class
             dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this division subnetwork.
-            [ gs13, gs23 ] = self.network_utilities.compute_division_gsynmax( Gm3, R1, R2, R3, dEs13, dEs23, Ia3, k, c );
+            [ gs13, gs23 ] = network_utilities.compute_division_gsynmax( Gm3, R1, R2, R3, dEs13, dEs23, Ia3, k, c );
             
             % Store the maximum synaptic conductances.
             gs = [ gs13, gs23 ];
@@ -948,9 +960,10 @@ classdef network_class
         
         
         % Implement a function to compute the maximum synaptic conductances required to design a derivation subnetwork with the specified parameters.
-        function gs = compute_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager )
+        function gs = compute_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
             if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_derivation_DEFAULT; end
@@ -969,7 +982,7 @@ classdef network_class
             dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true )';
             
             % Compute the maximum synaptic conductances for this addition subnetwork.
-            [ gs13, gs23 ] = self.network_utilities.compute_derivation_gsynmax( Gm3, R1, dEs13, dEs23, Ia3, k );
+            [ gs13, gs23 ] = network_utilities.compute_derivation_gsynmax( Gm3, R1, dEs13, dEs23, Ia3, k );
             
             % Store the maximum synaptic conductances.
             gs = [ gs13, gs23 ];
@@ -978,9 +991,10 @@ classdef network_class
         
         
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
-        function gs = compute_integration_gsynmax( self, neuron_IDs, ki_range, neuron_manager )
+        function gs = compute_integration_gsynmax( self, neuron_IDs, ki_range, neuron_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 5, network_utilities = self.network_utilities; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, ki_range = self.c_integration_range_DEFAULT; end
             
@@ -996,15 +1010,16 @@ classdef network_class
             assert( Cms( 1 ) == Cms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance capacitances.' );
             
             % Compute the integration subnetwork maximum synaptic conductances.
-            gs = self.network_utilities.compute_integration_gsynmax( Gms( 1 ), Cms( 1 ), ki_range );
+            gs = network_utilities.compute_integration_gsynmax( Gms( 1 ), Cms( 1 ), ki_range );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
-        function dEs = compute_integration_dEsyn( self, neuron_IDs, synapse_IDs, neuron_manager, synapse_manager )
+        function dEs = compute_integration_dEsyn( self, neuron_IDs, synapse_IDs, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 6, network_utilities = self.network_utilities; end
             if nargin < 5, synapse_manager = self.synapse_manager; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             
@@ -1025,15 +1040,16 @@ classdef network_class
             assert( gs( 1 ) == gs( 2 ), 'Integration subnetwork neurons must have symmetrical maximum synaptic conductances.' );
             
             % Compute the synaptic reversal potentials for an integration subnetwork.
-            dEs = self.network_utilities.compute_integration_dEsyn( Gms( 1 ), Rs( 1 ), gs( 1 ) );
+            dEs = network_utilities.compute_integration_dEsyn( Gms( 1 ), Rs( 1 ), gs( 1 ) );
             
         end
         
         
         % Implement a function to compute the applied current for an integration network.
-        function Ia = compute_integration_Iapp( self, neuron_IDs, neuron_manager )
+        function Ia = compute_integration_Iapp( self, neuron_IDs, neuron_manager, network_utilities )
             
             % Set default input arguments.
+            if nargin < 4, network_utilities = self.network_utilities; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Validate the neuron IDs.
@@ -1048,15 +1064,16 @@ classdef network_class
             assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
             
             % Compute the applied current.
-            Ia = self.network_utilities.compute_integration_Iapp( Gms( 1 ), Rs( 1 ) );
+            Ia = network_utilities.compute_integration_Iapp( Gms( 1 ), Rs( 1 ) );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
-        function gs = compute_vb_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, T, n, ki_mean, neuron_manager, synapse_manager )
+        function gs = compute_vb_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, T, n, ki_mean, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
             if nargin < 8, synapse_manager = self.synapse_manager; end
             if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, ki_mean = self.c_integration_mean_DEFAULT; end
@@ -1073,294 +1090,334 @@ classdef network_class
             dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dE_syn', true );
             
             % Compute activation period of the associated multistate cpg subnetwork.
-            Ta = self.network_utilities.compute_activation_period( T, n );
+            Ta = network_utilities.compute_activation_period( T, n );
             
             % Compute the voltage based integration subnetwork intermediate synaptic conductances.
-            Is13 = self.network_utilities.compute_vb_integration_Isyn( R3, Ta, ki_mean, false );
-            Is23 = self.network_utilities.compute_vb_integration_Isyn( R3, Ta, ki_mean, true );
+            Is13 = network_utilities.compute_vb_integration_Isyn( R3, Ta, ki_mean, false );
+            Is23 = network_utilities.compute_vb_integration_Isyn( R3, Ta, ki_mean, true );
             
             % Compute the voltage based integration subnetwork maximum synaptic conductances.
-            gs13 = self.network_utilities.compute_vb_integration_gsynmax( R3, dEs13, Is13 );
-            gs23 = self.network_utilities.compute_vb_integration_gsynmax( R3, dEs23, Is23 );
+            gs13 = network_utilities.compute_vb_integration_gsynmax( R3, dEs13, Is13 );
+            gs23 = network_utilities.compute_vb_integration_gsynmax( R3, dEs23, Is23 );
             
             % Store the voltage based integration subnetwork maximum synaptic conductances in an array.
-            gs = [ gs13,  gs23 ];
+            gs = [ gs13, gs23 ];
             
         end
-        
         
         
         %% Compute-Set Functions.
         
         % Implement a function to compute and set the synaptic conductance of each synapse.
-        function self = compute_set_Gsyns( self )
+        function self = compute_set_Gsyns( self, neuron_IDs, neuron_manager, synapse_manager, network_utilities )
             
+            % Set the default input arguments.
+            if nargin < 5, network_utilities = self.network_utilities; end
+            if nargin < 4, synapse_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, neuron_IDs = 'all'; end
+
             % Compute the synaptic conductances.
-            G_syns = self.compute_Gsyns(  );
+            Gs = self.compute_Gsyns( neuron_manager, network_utilities );
             
             % Set the synaptic conductances.
-            self = self.set_Gsyns( G_syns );
-            
+            self = self.set_Gsyns( Gs, neuron_IDs, neuron_manager, synapse_manager );
+                        
         end
         
         
         % Implement a funciton to compute and set the maximum synaptic conductances for a multistate cpg subnetwork.
-        function self = compute_set_cpg_gsynmaxs( self, neuron_IDs )
+        function self = compute_set_cpg_gsynmaxs( self, neuron_IDs, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default neuron IDs.
+            if nargin < 5, network_utilities = self.network_utilities; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Compute the maximum synaptic conductance matrix.
-            g_syn_maxs = self.compute_cpg_gsynmaxs( neuron_IDs );
+            gs = self.compute_cpg_gsynmaxs( neuron_IDs, neuron_manager, synapse_manager, network_utilities );
             
             % Set the synaptic conductance of all of constinuent synapses.
-            self = self.set_gsynmaxs( g_syn_maxs, neuron_IDs );
+            self = self.set_gsynmaxs( gs, neuron_IDs, neuron_manager, synapse_manager );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductance for a transmission subnetwork.
-        function self = compute_set_transmission_gsynmax( self, neuron_IDs, synapse_ID, I_app, k )
+        function self = compute_set_transmission_gsynmax( self, neuron_IDs, synapse_ID, Ia2, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_transmission_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_ID = synapse_manager.validate_synapse_IDs( synapse_ID );
             
             % Compute the maximum synaptic conductance for a transmission subnetwork.
-            g_syn_max12 = self.compute_transmission_gsynmax( neuron_IDs, synapse_ID, I_app, k );
+            gs12 = self.compute_transmission_gsynmax( neuron_IDs, synapse_ID, Ia2, k, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, g_syn_max12, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs12, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductance for a modulation subnetwork.
-        function self = compute_set_modulation_gsynmax( self, neuron_IDs, synapse_ID, I_app, c )
+        function self = compute_set_modulation_gsynmax( self, neuron_IDs, synapse_ID, Ia2, c, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, c = self.c_modulation_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_ID = synapse_manager.validate_synapse_IDs( synapse_ID );
             
             % Compute the maximum synaptic conductance for a modulation subnetwork.
-            g_syn_max12 = self.compute_modulation_gsynmax( neuron_IDs, synapse_ID, I_app, c );
+            gs12 = self.compute_modulation_gsynmax( neuron_IDs, synapse_ID, Ia2, c, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, g_syn_max12, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs12, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for an addition subnetwork.
-        function self = compute_set_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
+        function self = compute_set_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_addition_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );            
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the maximum synaptic conductances.
-            g_syn_maxs = self.compute_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            gs = self.compute_addition_gsynmaxs( neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for a relative addition subnetwork.
-        function self = compute_set_relative_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
+        function self = compute_set_relative_addition_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_addition_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the maximum synaptic conductances.
-            g_syn_maxs = self.compute_relative_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            gs = self.compute_relative_addition_gsynmaxs( neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for a subtraction subnetwork.
-        function self = compute_set_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
+        function self = compute_set_subtraction_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_subtraction_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the maximum synaptic conductances.
-            g_syn_maxs = self.compute_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            gs = self.compute_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for a multiplication subnetwork.
-        function self = compute_set_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app3, I_app4, k )
+        function self = compute_set_multiplication_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, Ia4, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 8, synapse_manager = self.synapse_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, k = self.c_multiplication_DEFAULT; end
-            if nargin < 5, I_app4 = self.Ia_DEFAULT; end
-            if nargin < 4, I_app3 = self.Ia_DEFAULT; end
+            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );            
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the maximum synaptic conductances.
-            g_syn_maxs = self.compute_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, I_app3, I_app4, k );
+            gs = self.compute_multiplication_gsynmaxs( neuron_IDs, synapse_IDs, Ia3, Ia4, k, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for an inversion subnetwork.
-        function self = compute_set_inversion_gsynmax( self, neuron_IDs, synapse_ID, I_app, epsilon, k )
+        function self = compute_set_inversion_gsynmax( self, neuron_IDs, synapse_ID, Ia2, epsilon, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 8, synapse_manager = self.synapse_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, k = self.c_inversion_DEFAULT; end
             if nargin < 5, epsilon = self.epsilon_inversion_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_ID = self.synapse_manager.validate_synapse_IDs( synapse_ID );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_ID = synapse_manager.validate_synapse_IDs( synapse_ID );
             
             % Compute the maximum synaptic conductances.
-            g_syn_max = self.compute_inversion_gsynmax( neuron_IDs, I_app, epsilon, k );
+            gs = self.compute_inversion_gsynmax( neuron_IDs, Ia2, epsilon, k, neuron_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_ID, g_syn_max, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for a division subnetwork.
-        function self = compute_set_division_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k, c )
+        function self = compute_set_division_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 8, synapse_manager = self.synapse_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, c = [  ]; end
             if nargin < 5, k = self.c_division_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the maximum synaptic conductances.
-            g_syn_maxs = self.compute_division_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k, c );
+            gs = self.compute_division_gsynmaxs( neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for a derivation subnetwork.
-        function self = compute_set_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, I_app, k )
+        function self = compute_set_derivation_gsynmaxs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k = self.c_derivation_DEFAULT; end
-            if nargin < 4, I_app = self.Ia_DEFAULT; end
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.synapse_manager.validate_synapse_IDs( synapse_IDs );
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the maximum synaptic conductances.
-            g_syn_maxs = self.compute_derivation_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            gs = self.compute_derivation_gsynmaxs( neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for an integration subnetwork.
-        function self = compute_set_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, ki_range )
+        function self = compute_set_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, ki_range, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
             
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
             % Compute the maximum synaptic conductances for the integration subnetwork.
-            g_syn_max = self.compute_integration_gsynmax( neuron_IDs, ki_range );
+            gs = self.compute_integration_gsynmax( neuron_IDs, ki_range, neuron_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, g_syn_max*ones( 1, 2 ), 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs*ones( 1, 2 ), 'g_syn_max' );
             
         end
         
         
         % Implement a function to compute and set the synaptic reversal potentials for an integration subnetwork.
-        function self = compute_set_integration_dEsyns( self, neuron_IDs, synapse_IDs )
+        function self = compute_set_integration_dEsyns( self, neuron_IDs, synapse_IDs, neuron_manager, synapse_manager, network_utilities )
+            
+            % Define the default input arguments.
+            if nargin < 6, network_utilities = self.network_utilities; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
             
             % Compute the synaptic reversal potentials for an integration subnetwork.
-            dEsyn = self.compute_integration_dEsyn( neuron_IDs, synapse_IDs );
+            dEs = self.compute_integration_dEsyn( neuron_IDs, synapse_IDs, neuron_manager, synapse_manager, network_utilities );
             
             % Set the synaptic reversal potentials of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs, dEsyn*ones( 1, 2 ), 'dE_syn' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, dEs*ones( 1, 2 ), 'dE_syn' );
             
         end
         
         
         % Implement a function to compute and set the maximum synaptic conductances for a voltage based integration subnetwork.
-        function self = compute_set_vb_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, T, n, ki_mean )
+        function self = compute_set_vb_integration_gsynmaxs( self, neuron_IDs, synapse_IDs, T, n, ki_mean, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 8, synapse_manager = self.synapse_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
             if nargin < 6, ki_mean = self.c_integration_mean_DEFAULT; end
             
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
             % Compute the maximum synaptic conductances for the voltage based integration subnetwork neurons.
-            g_syn_maxs = self.compute_vb_integration_gsynmaxs( neuron_IDs, synapse_IDs, T, n, ki_mean );
+            gs = self.compute_vb_integration_gsynmaxs( neuron_IDs, synapse_IDs, T, n, ki_mean, neuron_manager, synapse_manager, network_utilities );
             
             % Set the maximum synaptic conductances of the relevant synapses.
-            self.synapse_manager = self.synapse_manager.set_synapse_property( synapse_IDs( 1:2 ), g_syn_maxs, 'g_syn_max' );
+            self.synapse_manager = synapse_manager.set_synapse_property( synapse_IDs( 1:2 ), gs, 'g_syn_max' );
             
         end
         
@@ -1368,7 +1425,7 @@ classdef network_class
         %% Network Deletion Functions.
         
         % Implement a function to delete network components.
-        function self = delete( self, object_types, object_ids )
+        function self = delete( self, object_types, object_ids, neuron_manager, synapse_manager, applied_current_manager )
             
             %{
             Input(s):
@@ -1378,6 +1435,11 @@ classdef network_class
             Output(s):
                 self            =   [class] Updated Network Object.
             %}
+            
+            % Define default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             
             % Retrieve the number of different object types to delete.
             num_types = length( object_types );
@@ -1389,17 +1451,17 @@ classdef network_class
                 if strcmpi( object_types{ k }, 'neuron' ) || strcmpi( object_types{ k }, 'neurons' )                            % If we want to delete neurons...
                     
                     % Delete the specified neurons.
-                    self.neuron_manager = self.neuron_manager.delete_neurons( object_ids{ k } );
+                    self.neuron_manager = neuron_manager.delete_neurons( object_ids{ k } );
                     
                 elseif strcmpi( object_types{ k }, 'synapse' ) || strcmpi( object_types{ k }, 'synapses' )                      % If we want to delete synapses...
                     
                     % Delete the specified synapses.
-                    self.synapse_manager = self.neuron_manager.delete_synapses( object_ids{ k } );
+                    self.synapse_manager = synapse_manager.delete_synapses( object_ids{ k } );
                     
                 elseif strcmpi( object_types{ k }, 'current' ) || strcmpi( object_types{ k }, 'currents' )                      % If we want to delete applied currents...
                     
                     % Delete the specified applied currents.
-                    self.applied_current_manager = self.applied_current_manager.delete_applied_currents( object_ids{ k } );
+                    self.applied_current_manager = applied_current_manager.delete_applied_currents( object_ids{ k } );
                     
                 else                                                                                                            % Otherwise...
                     
@@ -1414,16 +1476,21 @@ classdef network_class
         
         
         % Implement a function to delete all of the components in a network.
-        function self = delete_all( self )
+        function self = delete_all( self, neuron_manager, synapse_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, synapse_manager = self.synapse_manager; end
+            if nargin < 2, neuron_manager = self.neuron_manager; end
             
             % Delete all of the neurons.
-            self.neuron_manager = self.neuron_manager.delete_neurons( 'all' );
+            self.neuron_manager = neuron_manager.delete_neurons( 'all' );
             
             % Delete all of the synapses.
-            self.synapse_manager = self.synapse_manager.delete_synapses( 'all' );
+            self.synapse_manager = synapse_manager.delete_synapses( 'all' );
             
             % Delete all of the applied currents.
-            self.applied_current_manager = self.applied_current_manager.delete_applied_currents( 'all' );
+            self.applied_current_manager = applied_current_manager.delete_applied_currents( 'all' );
             
         end
         
@@ -1431,45 +1498,62 @@ classdef network_class
         %% Subnetwork Applied Current Design Functions.
         
         % Implement a function to design the applied currents for a multistate cpg subnetwork.
-        function self = design_multistate_cpg_applied_currents( self, neuron_IDs )
+        function self = design_multistate_cpg_applied_currents( self, neuron_IDs, dt, tf, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % Design the applied currents for a multistate cpg subnetwork.
-            self.applied_current_manager = self.applied_current_manager.design_multistate_cpg_applied_current( neuron_IDs, self.dt, self.tf );
+            self.applied_current_manager = applied_current_manager.design_multistate_cpg_applied_current( neuron_IDs, dt, tf );
             
         end
         
         
         % Implement a function to design the applied currents for a driven multistate cpg subnetwork.
-        function self = design_driven_multistate_cpg_applied_currents( self, neuron_IDs )
+        function self = design_driven_multistate_cpg_applied_currents( self, neuron_IDs, dt, tf, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % Design the multistate cpg applied currents.
-            self = self.design_multistate_cpg_applied_currents( neuron_IDs( 1:( end - 1 ) ) );
+            self = self.design_multistate_cpg_applied_currents( neuron_IDs( 1:( end - 1 ) ), dt, tf, applied_current_manager );
             
             % Retrieve the relevant neuron properties of the drive neuron.
-            Gm = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
-            R = self.neuron_manager.get_neuron_property( neuron_IDs( end ), 'R', true );
+            Gm = neuron_manager.get_neuron_property( neuron_IDs( end ), 'Gm', true );
+            R = neuron_manager.get_neuron_property( neuron_IDs( end ), 'R', true );
             
             % Design the driven multistate cpg applied current.
-            self.applied_current_manager = self.applied_current_manager.design_driven_multistate_cpg_applied_current( neuron_IDs( end ), Gm, R );
+            self.applied_current_manager = applied_current_manager.design_driven_multistate_cpg_applied_current( neuron_IDs( end ), Gm, R );
             
         end
         
         
         % Implement a function to design the applied currents for a driven multistate cpg split lead lag subnetwork.
-        function self = design_dmcpg_sll_applied_currents( self, neuron_IDs_cell )
+        function self = design_dmcpg_sll_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % Retrieve the number of cpg neurons.
             num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
             
             % Design the applied currents for the driven multistate cpg subnetworks.
-            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 1 } );
-            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 2 } );
-            
+            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 1 }, dt, tf, neuron_manager, applied_current_manager );
+            self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs_cell{ 2 }, dt, tf, neuron_manager, applied_current_manager );
+
             % Design the applied currents for the modulated split subtraction voltage based integration subnetworks.
             for k = 1:num_cpg_neurons                               % Iterate through each of the cpg neurons...
                 
                 % Design the applied currents for this modulated split subtraction voltage based integration subnetwork
-                self = self.design_mod_split_sub_vb_integration_applied_currents( neuron_IDs_cell{ k + 2 } );
+                self = self.design_mod_split_sub_vb_integration_applied_currents( neuron_IDs_cell{ k + 2 }, neuron_manager, applied_current_manager );
                 
             end
             
@@ -1477,263 +1561,349 @@ classdef network_class
         
         
         % Implement a function to design the applied currents for a driven multistate cpg double centered lead lag subnetwork.
-        function self = design_dmcpg_dcll_applied_currents( self, neuron_IDs_cell )
+        function self = design_dmcpg_dcll_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
+            
+            % Set default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % Design the applied currents for the driven multistate cpg split lead lag subnetwork.
-            self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell{ 1 } );
+            self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell{ 1 }, dt, tf, neuron_manager, applied_current_manager );
             
             % Design the applied currents for a double centering subnetwork.
-            self = self.design_double_centering_applied_currents( neuron_IDs_cell{ 2 } );
+            self = self.design_double_centering_applied_currents( neuron_IDs_cell{ 2 }, neuron_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design the applied currents that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
-        function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID )
+        function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the necessary neuron properties.
-            Gm = self.neuron_manager.get_neuron_property( neuron_ID, 'Gm', true );
-            R = self.neuron_manager.get_neuron_property( neuron_ID, 'R', true );
+            Gm = neuron_manager.get_neuron_property( neuron_ID, 'Gm', true );
+            R = neuron_manager.get_neuron_property( neuron_ID, 'R', true );
             
             % Design the centering subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_dmcpgdcll2cds_applied_current( neuron_ID, Gm, R );
+            self.applied_current_manager = applied_current_manager.design_dmcpgdcll2cds_applied_current( neuron_ID, Gm, R );
             
         end
         
         
         % Implement a function to design the applied currents for an open loop driven multistate cpg double centered lead lag error subnetwork.
-        function self = design_ol_dmcpg_dclle_applied_currents( self, neuron_IDs_cell )
+        function self = design_ol_dmcpg_dclle_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % Design the applied currents for the driven multistate cpg double centered lead lag subnetwork.
-            self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell{ 1 } );
+            self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell{ 1 }, dt, tf, neuron_manager, applied_current_manager );
             
             % Design the applied currents for the centered double subtraction subnetwork.
-            self = self.design_centered_double_subtraction_applied_currents( neuron_IDs_cell{ 2 } );
+            self = self.design_centered_double_subtraction_applied_currents( neuron_IDs_cell{ 2 }, neuron_manager, applied_current_manager );
             
             % Design the desired lead lag applied current.
-            self = self.design_dmcpgdcll2cds_applied_current( neuron_IDs_cell{ 3 } );
+            self = self.design_dmcpgdcll2cds_applied_current( neuron_IDs_cell{ 3 }, neuron_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design the applied currents for a closed loop proportional controlled driven multistate cpg double centered lead lag subnetwork.
-        function self = design_clpc_dmcpg_dcll_applied_currents( self, neuron_IDs_cell )
+        function self = design_clpc_dmcpg_dcll_applied_currents( self, neuron_IDs_cell, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the applied currents for an open loop driven multistate cpg double centered lead lag error subnetwork.
-            self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );
+            self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell, neuron_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design the applied currents for an absolute addition subnetwork.
-        function self = design_absolute_addition_applied_currents( self, neuron_IDs )
+        function self = design_absolute_addition_applied_currents( self, neuron_IDs, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end
             
             % Design the absolute addition applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_absolute_addition_applied_currents( neuron_IDs );
+            self.applied_current_manager = applied_current_manager.design_absolute_addition_applied_currents( neuron_IDs );
             
         end
         
         
         % Implement a function to design the applied currents for a relative addition subnetwork.
-        function self = design_relative_addition_applied_currents( self, neuron_IDs )
+        function self = design_relative_addition_applied_currents( self, neuron_IDs, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end
             
             % Design the relative addition applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_relative_addition_applied_currents( neuron_IDs );
+            self.applied_current_manager = applied_current_manager.design_relative_addition_applied_currents( neuron_IDs );
             
         end
         
         
         % Implement a function to design the applied currents for an absolute subtraction subnetwork.
-        function self = design_absolute_subtraction_applied_currents( self, neuron_IDs )
+        function self = design_absolute_subtraction_applied_currents( self, neuron_IDs, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end
             
             % Design the absolute subtraction applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_absolute_subtraction_applied_currents( neuron_IDs );
+            self.applied_current_manager = applied_current_manager.design_absolute_subtraction_applied_currents( neuron_IDs );
             
         end
         
         
         % Implement a function to design the applied currents for a relative subtraction subnetwork.
-        function self = design_relative_subtraction_applied_currents( self, neuron_IDs )
+        function self = design_relative_subtraction_applied_currents( self, neuron_IDs, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end
             
             % Design the relative subtraction applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_relative_subtraction_applied_currents( neuron_IDs );
+            self.applied_current_manager = applied_current_manager.design_relative_subtraction_applied_currents( neuron_IDs );
             
         end
         
         
         % Implement a function to design the applied currents for a centering subnetwork.
-        function self = design_centering_applied_currents( self, neuron_IDs )
+        function self = design_centering_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the necessary neuron properties.
-            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
-            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
+            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
+            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Design the centering subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_centering_applied_current( neuron_IDs, Gm2, R2 );
+            self.applied_current_manager = applied_current_manager.design_centering_applied_current( neuron_IDs, Gm2, R2 );
             
         end
         
         
         % Implement a function to design the applied currents for a double centering subnetwork.
-        function self = design_double_centering_applied_currents( self, neuron_IDs )
+        function self = design_double_centering_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the double centering applied currents (in the same way as the single centering applied currents).
-            self = self.design_centering_applied_currents( neuron_IDs );
+            self = self.design_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design the applied currents for a centered double subtraction subnetwork.
-        function self = design_centered_double_subtraction_applied_currents( self, neuron_IDs_cell )
+        function self = design_centered_double_subtraction_applied_currents( self, neuron_IDs_cell, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the applied currents for a double centering subnetwork.
-            self = self.design_double_centering_applied_currents( neuron_IDs_cell{ 2 } );
+            self = self.design_double_centering_applied_currents( neuron_IDs_cell{ 2 }, neuron_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design the applied current for an inversion subnetwork.
-        function self = design_inversion_applied_current( self, neuron_IDs )
+        function self = design_inversion_applied_current( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the necessary neuron properties.
-            Gm2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
-            R2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
+            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );
+            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );
             
             % Design the inversion subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_inversion_applied_current( neuron_IDs, Gm2, R2 );
+            self.applied_current_manager = applied_current_manager.design_inversion_applied_current( neuron_IDs, Gm2, R2 );
             
         end
         
         
         % Implement a function to design the applied current for an absolute inversion subnetwork.
-        function self = design_absolute_inversion_applied_currents( self, neuron_IDs )
+        function self = design_absolute_inversion_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the relevant design input arguments.
-            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );                                  % [V] Inversion Output Activation Domain.
-            Gm_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );                                % [S] Inversion Output Membrane Conductance
+            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );                                  % [V] Inversion Output Activation Domain.
+            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );                                % [S] Inversion Output Membrane Conductance
             
             % Design the absolute inversion applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_absolute_inversion_applied_currents( neuron_IDs, Gm_2, R_2 );
+            self.applied_current_manager = applied_current_manager.design_absolute_inversion_applied_currents( neuron_IDs, Gm2, R2 );
             
         end
         
         
         % Implement a function to design the applied current for a relative inversion subnetwork.
-        function self = design_relative_inversion_applied_currents( self, neuron_IDs )
+        function self = design_relative_inversion_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the relevant design input arguments.
-            R_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );                                  % [V] Inversion Output Activation Domain.
-            Gm_2 = self.neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );                                % [S] Inversion Output Membrane Conductance
+            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true );                                  % [V] Inversion Output Activation Domain.
+            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true );                                % [S] Inversion Output Membrane Conductance
             
             % Design the relative inversion applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_relative_inversion_applied_currents( neuron_IDs, Gm_2, R_2 );
+            self.applied_current_manager = applied_current_manager.design_relative_inversion_applied_currents( neuron_IDs, Gm2, R2 );
             
         end
         
         
         % Implement a function to design the applied current for an absolute division subnetwork.
-        function self = design_absolute_division_applied_currents( self, neuron_IDs )
+        function self = design_absolute_division_applied_currents( self, neuron_IDs, applied_current_manager )
             
-            % Design the absolute division applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_absolute_division_applied_currents( neuron_IDs );
+            % Set the default input arguments.
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end
+            
+            % Design the absolute division applied currents.            
+            self.applied_current_manager = applied_current_manager.design_absolute_division_applied_currents( neuron_IDs );
             
         end
         
         
         % Implement a function to design the applied current for a relative division subnetwork.
-        function self = design_relative_division_applied_currents( self, neuron_IDs )
+        function self = design_relative_division_applied_currents( self, neuron_IDs, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end
             
             % Design the relative division applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_relative_division_applied_currents( neuron_IDs );
+            self.applied_current_manager = applied_current_manager.design_relative_division_applied_currents( neuron_IDs );
             
         end
         
         
         % Implement a function to design the applied currents for a multiplication subnetwork.
-        function self = design_multiplication_applied_currents( self, neuron_IDs )
+        function self = design_multiplication_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the necessary neuron properties.
-            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
-            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
+            Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
+            R3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
             
             % Design the multiplication subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_multiplication_applied_current( neuron_IDs, Gm3, R3 );
+            self.applied_current_manager = applied_current_manager.design_multiplication_applied_current( neuron_IDs, Gm3, R3 );
             
         end
         
         
         % Implement a function to design the applied currents for an absolute multiplication subnetwork.
-        function self = design_absolute_multiplication_applied_currents( self, neuron_IDs )
+        function self = design_absolute_multiplication_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the relevant design input arguments.
-            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );                                  % [V] Division Output Activation Domain.
-            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );                                % [S] Division Output Membrane Conductance
+            R3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );                                  % [V] Division Output Activation Domain.
+            Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );                                % [S] Division Output Membrane Conductance
             
             % Design the absolute multiplication applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_absolute_multiplication_applied_currents( neuron_IDs, Gm_3, R_3 );
+            self.applied_current_manager = applied_current_manager.design_absolute_multiplication_applied_currents( neuron_IDs, Gm3, R3 );
             
         end
         
         
         % Implement a function to design the applied currents for a relative multiplication subnetwork.
-        function self = design_relative_multiplication_applied_currents( self, neuron_IDs )
+        function self = design_relative_multiplication_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the relevant design input arguments.
-            R_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );                                  % [V] Division Output Activation Domain.
-            Gm_3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );                                % [S] Division Output Membrane Conductance
+            R3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );                                  % [V] Division Output Activation Domain.
+            Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );                                % [S] Division Output Membrane Conductance
             
             % Design the relative multiplication applied currents.
-            self.applied_current_manager = self.applied_current_manager.design_relative_multiplication_applied_currents( neuron_IDs, Gm_3, R_3 );
+            self.applied_current_manager = applied_current_manager.design_relative_multiplication_applied_currents( neuron_IDs, Gm3, R3 );
             
         end
         
         
         % Implement a function to design the applied currents for an integration subnetwork.
-        function self = design_integration_applied_currents( self, neuron_IDs )
+        function self = design_integration_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the membrane conductances and voltage domain.
-            Gms = self.neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
-            Rs = self.neuron_manager.get_neuron_property( neuron_IDs, 'R', true );
+            Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true );
+            Rs = neuron_manager.get_neuron_property( neuron_IDs, 'R', true );
             
             % Ensure that the integration network is symmetric.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
             assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
             
             % Design the integration subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_integration_applied_currents( neuron_IDs, Gms( 1 ), Rs( 1 ) );
+            self.applied_current_manager = applied_current_manager.design_integration_applied_currents( neuron_IDs, Gms( 1 ), Rs( 1 ) );
             
         end
         
         
         % Implement a function to design the applied currents for a voltage based integration subnetwork.
-        function self = design_vb_integration_applied_currents( self, neuron_IDs )
+        function self = design_vb_integration_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the membrane conductances and voltage domain.
-            Gms = self.neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'Gm', true );
-            Rs = self.neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'R', true );
+            Gms = neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'Gm', true );
+            Rs = neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'R', true );
             
             % Ensure that the voltage based integration network is symmetric.
             assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
             assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
             
             % Design the voltage based integration subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_integration_applied_currents( neuron_IDs( 3:4 ), Gms( 1 ), Rs( 1 ) );
+            self.applied_current_manager = applied_current_manager.design_integration_applied_currents( neuron_IDs( 3:4 ), Gms( 1 ), Rs( 1 ) );
             
         end
         
         
         % Implement a function to design the applied currents for a split voltage based integration subnetwork.
-        function self = design_split_vb_integration_applied_currents( self, neuron_IDs )
+        function self = design_split_vb_integration_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Retrieve the relevant membrane conductance.
-            Gm3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
-            Gm4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm', true );
-            Gm9 = self.neuron_manager.get_neuron_property( neuron_IDs( 9 ), 'Gm', true );
+            Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true );
+            Gm4 = neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'Gm', true );
+            Gm9 = neuron_manager.get_neuron_property( neuron_IDs( 9 ), 'Gm', true );
             Gms = [ Gm3, Gm4, Gm9 ];
             
             % Retrieve the relevant voltage domains.
-            R3 = self.neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
-            R4 = self.neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R', true );
+            R3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true );
+            R4 = neuron_manager.get_neuron_property( neuron_IDs( 4 ), 'R', true );
             Rs = [ R3, R4 ];
             
             % Ensure that the voltage based integration network is symmetric.
@@ -1741,25 +1911,33 @@ classdef network_class
             assert( R3 == R4, 'Integration subnetwork neurons must have symmetrical voltage domains.' );
             
             % Design the voltage based integration subnetwork applied current.
-            self.applied_current_manager = self.applied_current_manager.design_split_vb_integration_applied_currents( [ neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 9 ) ], Gms, Rs );
+            self.applied_current_manager = applied_current_manager.design_split_vb_integration_applied_currents( [ neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 9 ) ], Gms, Rs );
             
         end
         
         
         % Implement a function to design the applied currents for a modulated split voltage based integration subnetwork.
-        function self = design_mod_split_vb_integration_applied_currents( self, neuron_IDs )
+        function self = design_mod_split_vb_integration_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the split voltage based integration applied currents.
-            self = self.design_split_vb_integration_applied_currents( neuron_IDs );
+            self = self.design_split_vb_integration_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design the applied currents for a modulated split difference voltage based integration subnetwork.
-        function self = design_mod_split_sub_vb_integration_applied_currents( self, neuron_IDs )
+        function self = design_mod_split_sub_vb_integration_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the modulated split voltage based integration applied currents.
-            self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs( 5:end ) );
+            self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs( 5:end ), neuron_manager, applied_current_manager );
             
             %             % Design the modulated split voltage based integration applied currents.
             %             self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs( 1:( end - 4 ) ) );
@@ -1767,33 +1945,40 @@ classdef network_class
         end
         
         
-        %% Subnetwork Neuron Design Functions
+        %% Subnetwork Neuron Design Functions.
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
-        function self = design_multistate_cpg_neurons( self, neuron_IDs )
+        function self = design_multistate_cpg_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the multistate cpg subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_multistate_cpg_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_multistate_cpg_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for a driven multistate cpg subnetwork.
-        function self = design_driven_multistate_cpg_neurons( self, neuron_IDs )
+        function self = design_driven_multistate_cpg_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the multistate cpg neurons.
-            self = self.design_multistate_cpg_neurons( neuron_IDs( 1:( end - 1 ) ) );
+            self = self.design_multistate_cpg_neurons( neuron_IDs( 1:( end - 1 ) ), neuron_manager );
             
             % Design the drive neuron.
-            self.neuron_manager = self.neuron_manager.design_driven_multistate_cpg_neurons( neuron_IDs( end ) );
+            self.neuron_manager = neuron_manager.design_driven_multistate_cpg_neurons( neuron_IDs( end ) );
             
         end
         
         
         % Implement a function to design the neurons for a driven multistate cpg split lead lag subnetwork.
-        function self = design_dmcpg_sll_neurons( self, neuron_IDs_cell, T, ki_mean, r )
+        function self = design_dmcpg_sll_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             if nargin < 3, T = self.T_oscillation_DEFAULT; end
@@ -1802,202 +1987,242 @@ classdef network_class
             num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
             
             % Design the driven multistate CPG neurons.
-            self = self.design_driven_multistate_cpg_neurons( neuron_IDs_cell{ 1 } );
-            self = self.design_driven_multistate_cpg_neurons( neuron_IDs_cell{ 2 } );
+            self = self.design_driven_multistate_cpg_neurons( neuron_IDs_cell{ 1 }, neuron_manager );
+            self = self.design_driven_multistate_cpg_neurons( neuron_IDs_cell{ 2 }, neuron_manager );
             
             % Design the modulated split subtraction voltage based integration subnetwork neurons.
             for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
                 
                 % Design the neurons of this modulated split subtraction voltage based integration subnetworks.
-                self = self.design_mod_split_sub_vb_integration_neurons( neuron_IDs_cell{ k + 2 }, ki_mean );
+                self = self.design_mod_split_sub_vb_integration_neurons( neuron_IDs_cell{ k + 2 }, ki_mean, neuron_manager );
                 
             end
             
             % Design the split lead lag subnetwork neurons.
-            self = self.design_addition_neurons( neuron_IDs_cell{ end }( 1:2 ) );
-            self = self.design_slow_transmission_neurons( neuron_IDs_cell{ end }( 3:4 ), num_cpg_neurons, T, r );
+            self = self.design_addition_neurons( neuron_IDs_cell{ end }( 1:2 ), neuron_manager );
+            self = self.design_slow_transmission_neurons( neuron_IDs_cell{ end }( 3:4 ), num_cpg_neurons, T, r, neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for a driven multistate double centered lead lag subnetwork.
-        function self = design_dmcpg_dcll_neurons( self, neuron_IDs_cell, T, ki_mean, r )
+        function self = design_dmcpg_dcll_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             if nargin < 3, T = self.T_oscillation_DEFAULT; end
             
             % Design the neurons for the driven multistate split lead lag subnetwork.
-            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell{ 1 }, T, ki_mean, r );
+            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell{ 1 }, T, ki_mean, r, neuron_manager );
             
             % Design the neurons for the double centering subnetwork.
-            self = self.design_double_centering_neurons( neuron_IDs_cell{ 2 } );
+            self = self.design_double_centering_neurons( neuron_IDs_cell{ 2 }, neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
-        function self = design_ol_dmcpg_dclle_neurons( self, neuron_IDs_cell, T, ki_mean, r )
+        function self = design_ol_dmcpg_dclle_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             if nargin < 3, T = self.T_oscillation_DEFAULT; end
             
             % Design the neurons for the driven multiple cpg double centered lead lag subnetwork.
-            self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell{ 1 }, T, ki_mean, r );
+            self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell{ 1 }, T, ki_mean, r, neuron_manager );
             
             % Design the neurons for the centered double subtraction subnetwork.
-            self = self.design_centered_double_subtraction_neurons( neuron_IDs_cell{ 2 } );
+            self = self.design_centered_double_subtraction_neurons( neuron_IDs_cell{ 2 }, neuron_manager );
             
             % Design the neurons for the transmission subnetwork neurons.
-            self = self.design_transmission_neurons( neuron_IDs_cell{ 3 } );
+            self = self.design_transmission_neurons( neuron_IDs_cell{ 3 }, neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for a closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
-        function self = design_clpc_dmcpg_dcll_neurons( self, neuron_IDs_cell, T, ki_mean, r )
+        function self = design_clpc_dmcpg_dcll_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             if nargin < 3, T = self.T_oscillation_DEFAULT; end
             
             % Design the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
-            self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r );
+            self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for a transmission subnetwork.
-        function self = design_transmission_neurons( self, neuron_IDs )
+        function self = design_transmission_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input argument.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the transmission subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_transmission_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_transmission_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for a transmission subnetwork.
-        function self = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r )
+        function self = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r, neuron_manager )
+            
+            % Set the default input argument.
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             
             % Design the slow transmission subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_slow_transmission_neurons( neuron_IDs, num_cpg_neurons, T, r );
+            self.neuron_manager = neuron_manager.design_slow_transmission_neurons( neuron_IDs, num_cpg_neurons, T, r );
             
         end
         
         
         % Implement a function to design the neurons for a modulation subnetwork.
-        function self = design_modulation_neurons( self, neuron_IDs )
+        function self = design_modulation_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input argument.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the modulation subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_modulation_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_modulation_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for an addition subnetwork.
-        function self = design_addition_neurons( self, neuron_IDs )
+        function self = design_addition_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_addition_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_addition_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for an absolute addition subnetwork.
-        function self = design_absolute_addition_neurons( self, neuron_IDs )
+        function self = design_absolute_addition_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the absolute addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_absolute_addition_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_absolute_addition_neurons( neuron_IDs, neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for a relative addition subnetwork.
-        function self = design_relative_addition_neurons( self, neuron_IDs )
+        function self = design_relative_addition_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the relative addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_relative_addition_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_relative_addition_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for a subtraction subnetwork.
-        function self = design_subtraction_neurons( self, neuron_IDs )
+        function self = design_subtraction_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the subtraction subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_subtraction_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for an absolute subtraction subnetwork.
-        function self = design_absolute_subtraction_neurons( self, neuron_IDs, s_ks )
+        function self = design_absolute_subtraction_neurons( self, neuron_IDs, s_ks, neuron_manager )
             
             % Define the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, s_ks = [ 1, -1 ]; end                                                              % [-] Absolute Subtraction Subnetwork Excitatory / Inhibitory Signs
             
             % Design the absolute subtraction subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_absolute_subtraction_neurons( neuron_IDs, s_ks );
+            self.neuron_manager = neuron_manager.design_absolute_subtraction_neurons( neuron_IDs, s_ks );
             
         end
         
         
         % Implement a function to design the neurons for a relative subtraction subnetwork.
-        function self = design_relative_subtraction_neurons( self, neuron_IDs )
+        function self = design_relative_subtraction_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the relative subtraction subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_relative_subtraction_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_relative_subtraction_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for a double subtraction subnetwork.
-        function self = design_double_subtraction_neurons( self, neuron_IDs )
+        function self = design_double_subtraction_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the double subtraction subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_double_subtraction_neurons( neuron_IDs );
+            self.neuron_manager = neuron_manager.design_double_subtraction_neurons( neuron_IDs );
             
         end
         
         
         % Implement a function to design the neurons for a centering subnetwork.
-        function self = design_centering_neurons( self, neuron_IDs )
+        function self = design_centering_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the addition subnetwork neurons.
-            self = self.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ] );
+            self = self.design_addition_neurons( [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ], neuron_manager );
             
             % Design the subtraction subnetwork neurons.
-            self = self.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ] );
+            self = self.design_subtraction_neurons( [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 5 ) ], neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for a double centering subnetwork.
-        function self = design_double_centering_neurons( self, neuron_IDs )
+        function self = design_double_centering_neurons( self, neuron_IDs, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the addition subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ] );
-            self.neuron_manager = self.neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ] );
+            self.neuron_manager = neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ] );
+            self.neuron_manager = neuron_manager.design_addition_neurons( [ neuron_IDs( 1 ), neuron_IDs( 3 ), neuron_IDs( 5 ) ] );
             
             % Design the subtraction subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 6 ) ] );
-            self.neuron_manager = self.neuron_manager.design_subtraction_neurons( [ neuron_IDs( 5 ) neuron_IDs( 1 ) neuron_IDs( 7 ) ] );
+            self.neuron_manager = neuron_manager.design_subtraction_neurons( [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 6 ) ] );
+            self.neuron_manager = neuron_manager.design_subtraction_neurons( [ neuron_IDs( 5 ), neuron_IDs( 1 ), neuron_IDs( 7 ) ] );
             
         end
         
         
         % Implement a function to design the neurons for a centered double subtraction subnetwork.
-        function self = design_centered_double_subtraction_neurons( self, neuron_IDs_cell )
+        function self = design_centered_double_subtraction_neurons( self, neuron_IDs_cell, neuron_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             
             % Design the double subtraction subnetwork neurons.
-            self = self.design_double_subtraction_neurons( neuron_IDs_cell{ 1 } );
+            self = self.design_double_subtraction_neurons( neuron_IDs_cell{ 1 }, neuron_manager );
             
             % Design the double centering subnetwork neurons.
-            self = self.design_double_centering_neurons( neuron_IDs_cell{ 2 } );
+            self = self.design_double_centering_neurons( neuron_IDs_cell{ 2 }, neuron_manager );
             
         end
         
@@ -2149,94 +2374,111 @@ classdef network_class
         
         
         % Implement a function to design the neurons for a split voltage based integration subnetwork.
-        function self = design_split_vb_integration_neurons( self, neuron_IDs, ki_mean )
+        function self = design_split_vb_integration_neurons( self, neuron_IDs, ki_mean, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Design the integration subnetwork neurons.
-            self.neuron_manager = self.neuron_manager.design_split_vb_integration_neurons( neuron_IDs, ki_mean );
+            self.neuron_manager = neuron_manager.design_split_vb_integration_neurons( neuron_IDs, ki_mean );
             
         end
         
         
         % Implement a function to design the neurons for a modulated split voltage based integration subnetwork.
-        function self = design_mod_split_vb_integration_neurons( self, neuron_IDs, ki_mean )
+        function self = design_mod_split_vb_integration_neurons( self, neuron_IDs, ki_mean, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Design the split voltage based integration neurons.
-            self = self.design_split_vb_integration_neurons( neuron_IDs( 1:9 ), ki_mean );
+            self = self.design_split_vb_integration_neurons( neuron_IDs( 1:9 ), ki_mean, neuron_manager );
             
             % Design the modulation neurons.
-            self = self.design_modulation_neurons( neuron_IDs( 10:12 ) );
+            self = self.design_modulation_neurons( neuron_IDs( 10:12 ), neuron_manager );
             
         end
         
         
         % Implement a function to design the neurons for a modulated split difference voltage based integration subnetwork.
-        function self = design_mod_split_sub_vb_integration_neurons( self, neuron_IDs, ki_mean )
+        function self = design_mod_split_sub_vb_integration_neurons( self, neuron_IDs, ki_mean, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Design the double subtraction neurons.
-            self = self.design_double_subtraction_neurons( neuron_IDs( 1:4 ) );
+            self = self.design_double_subtraction_neurons( neuron_IDs( 1:4 ), neuron_manager );
             
             % Design the modulated split voltage based integration neurons.
-            self = self.design_mod_split_vb_integration_neurons( neuron_IDs( 5:end ), ki_mean );
+            self = self.design_mod_split_vb_integration_neurons( neuron_IDs( 5:end ), ki_mean, neuron_manager );
             
         end
         
         
         
-        %% Subnetwork Synapse Design Functions
+        %% Subnetwork Synapse Design Functions.
         
         % Implement a function to design the synapses for a multistate cpg subnetwork.
-        function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable )
+        function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             
             % Design the multistate cpg subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
+            self.synapse_manager = synapse_manager.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
             
             % Compute and set the maximum synaptic conductances required to achieve these delta values.
-            self = self.compute_set_cpg_gsynmaxs( neuron_IDs );
+            self = self.compute_set_cpg_gsynmaxs( neuron_IDs, neuron_manager, synapse_manager, network_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a driven multistate cpg subnetwork.
-        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max )
+        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, Idrive_max, neuron_manager, synapse_manager, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             
             % Design the synapses of the multistate cpg subnetwork.
-            self = self.design_multistate_cpg_synapses( neuron_IDs( 1:( end - 1 ) ), delta_oscillatory, delta_bistable );
+            self = self.design_multistate_cpg_synapses( neuron_IDs( 1:( end - 1 ) ), delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, network_utilities );
             
             % Design the driven multistate cpg subnetwork synapses.
-            self.synapse_manager = self.synapse_manager.design_driven_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, I_drive_max );
+            self.synapse_manager = synapse_manager.design_driven_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, Idrive_max );
             
         end
         
         
         % Implement a function to design the synapses for a driven multistate cpg split lead lag subnetwork.
-        function self = design_dmcpg_sll_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+        function self = design_dmcpg_sll_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Idrive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 1, network_utilities = self.network_utilities; end
+            if nargin < 14, applied_current_manager = self.applied_current_manager; end
+            if nargin < 13, synapse_manager = self.synapse_manager; end
+            if nargin < 12, neuron_manager = self.neuron_manager; end
             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
             if nargin < 6, T = self.T_oscillation_DEFAULT; end
-            if nargin < 5, I_drive_max = self.Idrive_max_DEFAULT; end
+            if nargin < 5, Idrive_max = self.Idrive_max_DEFAULT; end
             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
             
             % Design the synapses of the driven multistate cpg subnetworks.
-            self = self.design_driven_multistate_cpg_synapses( neuron_IDs_cell{ 1 }, delta_oscillatory, delta_bistable, I_drive_max );
-            self = self.design_driven_multistate_cpg_synapses( neuron_IDs_cell{ 2 }, delta_oscillatory, delta_bistable, I_drive_max );
+            self = self.design_driven_multistate_cpg_synapses( neuron_IDs_cell{ 1 }, delta_oscillatory, delta_bistable, Idrive_max, neuron_manager, synapse_manager, network_utilities );
+            self = self.design_driven_multistate_cpg_synapses( neuron_IDs_cell{ 2 }, delta_oscillatory, delta_bistable, Idrive_max, neuron_manager, synapse_manager, network_utilities );
             
             % Compute the number of cpg neurons.
-            num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
+            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
             
             % Compute the number of transmission pathways to design.
             num_transmission_synapses = 4*num_cpg_neurons + 2;
@@ -2269,7 +2511,7 @@ classdef network_class
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                 
                 % Design this transmission synapse.
-                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false );
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
                 
             end
             
@@ -2293,10 +2535,10 @@ classdef network_class
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
             
             % Design the driven multistate cpg split lead lag synapses.
-            self = self.design_dmcpg_sll_synapses( neuron_IDs_cell{ 1 }, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            self = self.design_dmcpg_sll_synapses( neuron_IDs_cell{ 1 }, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Design the double centering subnetwork synapses.
-            self = self.design_double_centering_synapses( neuron_IDs_cell{ 2 }, k_add, k_sub3 );
+            self = self.design_double_centering_synapses( neuron_IDs_cell{ 2 }, k_add, k_sub3, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Define the number of transmission synapses.
             num_transmission_synapses = 2;
@@ -2309,7 +2551,7 @@ classdef network_class
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                 
                 % Design this transmission synapse.
-                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 0.5, false );
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 0.5, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
                 
             end
             
@@ -2352,7 +2594,7 @@ classdef network_class
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                 
                 % Design this transmission synapse.
-                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false );
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
                 
             end
             
@@ -2387,14 +2629,14 @@ classdef network_class
             num_transmission_synapses = 2;
             
             % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 2 }( end - 1 ) neuron_IDs_cell{ 2 }{ 2 }( end ) ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 1 }{ 2 }( end ) neuron_IDs_cell{ 1 }{ 1 }{ 1 }( end ) ];
+            from_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 2 }( end - 1 ), neuron_IDs_cell{ 2 }{ 2 }( end ) ];
+            to_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 1 }{ 2 }( end ), neuron_IDs_cell{ 1 }{ 1 }{ 1 }( end ) ];
             
             % Design each of the transmission synapses.
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                 
                 % Design this transmission synapse.
-                self = self.design_transmission_synapse( [ from_neuron_IDs( k ) to_neuron_IDs( k ) ], kp_gain, false );
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ), to_neuron_IDs( k ) ], kp_gain, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
                 
             end
             
@@ -2402,84 +2644,94 @@ classdef network_class
         
         
         % Implement a function to design the synapses for a transmission subnetwork.
-        function self = design_transmission_synapse( self, neuron_IDs, k, b_applied_current_compensation )
+        function self = design_transmission_synapse( self, neuron_IDs, k, b_applied_current_compensation, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, b_applied_current_compensation = true; end
             if nargin < 3, k = self.c_transmission_DEFAULT; end
             
             % Design the transmission subnetwork neurons.
-            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_transmission_synapse( neuron_IDs );
+            [ self.synapse_manager, synapse_ID ] = synapse_manager.design_transmission_synapse( neuron_IDs );
             
             % Determine whether to consider the applied current.
             if b_applied_current_compensation                       % If we want to compensate for the applied current...
                 
                 % Get the applied current associated with the final neuron.
-                I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+                Ias = applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
                 
                 % Determine whether to throw a warning.
-                if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+                if ~all( Ias == Ias( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
                 
                 % Set the applied current to be the average current.
-                I_app = mean( I_apps );
+                Ia = mean( Ias );
                 
             else                                                    % Otherwise...
                 
                 % Set the applied current magnitude to zero.
-                I_app = 0;
+                Ia = 0;
                 
             end
             
             % Compute and set the maximum synaptic conductance for a transmission subnetwork.
-            self = self.compute_set_transmission_gsynmax( neuron_IDs, synapse_ID, I_app, k );
+            self = self.compute_set_transmission_gsynmax( neuron_IDs, synapse_ID, Ia, k, neuron_manager, synapse_manager, network_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a modulation subnetwork.
-        function self = design_modulation_synapses( self, neuron_IDs, c )
+        function self = design_modulation_synapses( self, neuron_IDs, c, synapse_manager, applied_current_manager )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, c = self.c_modulation_DEFAULT; end
             
             % Design the modulation synapses.
-            [ self.synapse_manager, synapse_ID ] = self.synapse_manager.design_modulation_synapse( neuron_IDs );
+            [ self.synapse_manager, synapse_ID ] = synapse_manager.design_modulation_synapse( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
+            Ias = applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 2 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( Ias == Ias( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
             
             % Set the applied current to be the average current.
-            I_app = mean( I_apps );
+            Ia = mean( Ias );
             
             % Compute and set the maximum synaptic conductance for a transmission subnetwork.
-            self = self.compute_set_modulation_gsynmax( neuron_IDs, synapse_ID, I_app, c );
+            self = self.compute_set_modulation_gsynmax( neuron_IDs, synapse_ID, Ia, c );
             
         end
         
         
         % Implement a function to design the synapses for an addition subnetwork.
-        function self = design_addition_synapses( self, neuron_IDs, k )
+        function self = design_addition_synapses( self, neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, k = self.c_addition_DEFAULT; end
             
             % Design the addition subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_addition_synapses( neuron_IDs );
+            [ self.synapse_manager, synapse_IDs ] = synapse_manager.design_addition_synapses( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            Ias = applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( Ias == Ias( 1 ) ), warning( 'The basic addition subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
             
             % Set the applied current to be the average current.
-            I_app = mean( I_apps );
+            Ia = mean( Ias );
             
             % Compute and set the maximum synaptic conductances necessary to design this addition subnetwork.
-            self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            self = self.compute_set_addition_gsynmaxs( neuron_IDs, synapse_IDs, Ia, k, neuron_manager, synapse_manager, network_utilities );
             
         end
         
@@ -2552,25 +2804,25 @@ classdef network_class
         
         
         % Implement a function to design the synapses for a subtraction subnetwork.
-        function self = design_subtraction_synapses( self, neuron_IDs, k )
+        function self = design_subtraction_synapses( self, neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
             if nargin < 3, k = self.c_subtraction_DEFAULT; end
             
             % Design the subtraction subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs );
+            [ self.synapse_manager, synapse_IDs ] = synapse_manager.design_subtraction_synapses( neuron_IDs );
             
             % Get the applied current associated with the final neuron.
-            I_apps = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            Ias = applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps == I_apps( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( Ias == Ias( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
             
             % Set the applied current to be the average current.
-            I_app = mean( I_apps );
+            Ia = mean( Ias );
             
             % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, I_app, k );
+            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs, synapse_IDs, Ia, k, neuron_manager, synapse_manager, network_utilities );
             
         end
         
@@ -2643,9 +2895,13 @@ classdef network_class
         
         
         % Implement a function to design the synapses for a double subtraction subnetwork.
-        function self = design_double_subtraction_synapses( self, neuron_IDs, k )
+        function self = design_double_subtraction_synapses( self, neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, k = self.c_subtraction_DEFAULT; end
             
             % Retrieve the neuron IDs associated with each subtraction subnetwork.
@@ -2653,75 +2909,87 @@ classdef network_class
             neuron_IDs2 = [ neuron_IDs( 2 ), neuron_IDs( 1 ), neuron_IDs( 4 ) ];
             
             % Design the subtraction subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs1 ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs1 );
-            [ self.synapse_manager, synapse_IDs2 ] = self.synapse_manager.design_subtraction_synapses( neuron_IDs2 );
+            [ self.synapse_manager, synapse_IDs1 ] = synapse_manager.design_subtraction_synapses( neuron_IDs1 );
+            [ self.synapse_manager, synapse_IDs2 ] = synapse_manager.design_subtraction_synapses( neuron_IDs2 );
             
             % Get the applied current associated with the final neuron.
-            I_apps1 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
-            I_apps2 = self.applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
+            Ias1 = applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 3 ), [  ], [  ], 'ignore' );
+            Ias2 = applied_current_manager.neuron_IDs2Iapps( neuron_IDs( 4 ), [  ], [  ], 'ignore' );
             
             % Determine whether to throw a warning.
-            if ~all( I_apps1 == I_apps1( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
-            if ~all( I_apps2 == I_apps2( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( Ias1 == Ias1( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
+            if ~all( Ias2 == Ias2( 1 ) ), warning( 'The basic subtraction subnetwork will not operate ideally with a non-constant applied current.  Compensating for average current.' ), end
             
             % Set the applied current to be the average current.
-            I_app1 = mean( I_apps1 );
-            I_app2 = mean( I_apps2 );
+            Ia1 = mean( Ias1 );
+            Ia2 = mean( Ias2 );
             
             % Compute and set the maximum synaptic reversal potentials necessary to design this addition subnetwork.
-            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs1, synapse_IDs1, I_app1, k );
-            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs2, synapse_IDs2, I_app2, k );
+            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs1, synapse_IDs1, Ia1, k, neuron_manager, synapse_manager, network_utilities );
+            self = self.compute_set_subtraction_gsynmaxs( neuron_IDs2, synapse_IDs2, Ia2, k, neuron_manager, synapse_manager, network_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a centering subnetwork.
-        function self = design_centering_synapses( self, neuron_IDs, k_add, k_sub )
+        function self = design_centering_synapses( self, neuron_IDs, k_add, k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, k_sub = self.c_subtraction_DEFAULT; end
             if nargin < 3, k_add = self.c_addition_DEFAULT; end
             
             % Design the addition subnetwork synapses.
-            self = self.design_addition_synapses( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ], k_add );
+            self = self.design_addition_synapses( [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ], k_add, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Design the subtraction subnetwork synapses.
-            self = self.design_subtraction_synapses( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ], k_sub );
+            self = self.design_subtraction_synapses( [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 5 ) ], k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a double centering subnetwork.
-        function self = design_double_centering_synapses( self, neuron_IDs, k_add, k_sub )
+        function self = design_double_centering_synapses( self, neuron_IDs, k_add, k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, k_sub = self.c_subtraction_DEFAULT; end
             if nargin < 3, k_add = self.c_addition_DEFAULT; end
             
             % Design the addition subnetwork neurons.
-            self = self.design_addition_synapses( [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) ], k_add );
-            self = self.design_addition_synapses( [ neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 5 ) ], k_add );
+            self = self.design_addition_synapses( [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ], k_add, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_addition_synapses( [ neuron_IDs( 2 ), neuron_IDs( 3 ), neuron_IDs( 5 ) ], k_add, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Design the subtraction subnetwork neurons.
-            self = self.design_subtraction_synapses( [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 6 ) ], k_sub );
-            self = self.design_subtraction_synapses( [ neuron_IDs( 5 ) neuron_IDs( 1 ) neuron_IDs( 7 ) ], k_sub );
+            self = self.design_subtraction_synapses( [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 6 ) ], k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_subtraction_synapses( [ neuron_IDs( 5 ), neuron_IDs( 1 ), neuron_IDs( 7 ) ], k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a centered double subtraction subnetwork.
-        function self = design_centered_double_subtraction_synapses( self, neuron_IDs_cell, k_sub1, k_sub2, k_add )
+        function self = design_centered_double_subtraction_synapses( self, neuron_IDs_cell, k_sub1, k_sub2, k_add, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k_add = self.c_addition_DEFAULT; end
             if nargin < 4, k_sub2 = self.c_subtraction_DEFAULT; end
             if nargin < 3, k_sub1 = self.c_subtraction_DEFAULT; end
             
             % Design the double subtraction subnetwork synapses.
-            self = self.design_double_subtraction_synapses( neuron_IDs_cell{ 1 }, k_sub1 );
+            self = self.design_double_subtraction_synapses( neuron_IDs_cell{ 1 }, k_sub1, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Design the double centering subnetwork synpases.
-            self = self.design_double_centering_synapses( neuron_IDs_cell{ 2 }, k_add, k_sub2 );
+            self = self.design_double_centering_synapses( neuron_IDs_cell{ 2 }, k_add, k_sub2, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Define the number of transmission synapses.
             num_transmission_synapses = 2;
@@ -2734,7 +3002,7 @@ classdef network_class
             for k = 1:num_transmission_synapses                     % Iterate through each of the transmission pathways...
                 
                 % Design this transmission synapse.
-                self = self.design_transmission_synapse( [ from_neuron_IDs( k ), to_neuron_IDs( k ) ], 0.5, false );
+                self = self.design_transmission_synapse( [ from_neuron_IDs( k ), to_neuron_IDs( k ) ], 0.5, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
                 
             end
             
@@ -2845,7 +3113,7 @@ classdef network_class
         % Implement a function to design the synapse of an inversion subnetwork.
         function self = design_inversion_synapse( self, neuron_IDs, epsilon, k )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 4, k = self.c_inversion_DEFAULT; end
             if nargin < 3, epsilon = self.epsilon_inversion_DEFAULT; end
             
@@ -3087,7 +3355,7 @@ classdef network_class
         % Implement a function to design the synapses for an integration subnetwork.
         function self = design_integration_synapses( self, neuron_IDs, ki_range )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 3, ki_range = self.c_integration_range_DEFAULT; end
             
             % Design the integration subnetwork synapses.
@@ -3103,18 +3371,19 @@ classdef network_class
         
         
         % Implement a function to design the synapses for a voltage based integration subnetwork.
-        function self = design_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range )
+        function self = design_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, synapse_manager )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
+            if nargin < 7, synapse_manager = self.synapse_manager; end
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Design the derivation subnetwork synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.design_vb_integration_synapses( neuron_IDs );
+            [ self.synapse_manager, synapse_IDs ] = synapse_manager.design_vb_integration_synapses( neuron_IDs );
             
             % Get the synapse IDs that connect the two neurons.
-            synapse_ID34 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 3 ), neuron_IDs( 4 ) );
-            synapse_ID43 = self.synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 4 ), neuron_IDs( 3 ) );
+            synapse_ID34 = synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 3 ), neuron_IDs( 4 ) );
+            synapse_ID43 = synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( 4 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_IDs, synapse_ID34, synapse_ID43 ];
             
             % Compute and set the integration subnetwork maximum synaptic conductances.
@@ -3132,7 +3401,7 @@ classdef network_class
         % Implement a function to design the synapses for a split voltage based integration subnetwork.
         function self = design_split_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 7, k_sub = self.c_subtraction_DEFAULT; end
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
@@ -3141,19 +3410,21 @@ classdef network_class
             self = self.design_vb_integration_synapses( neuron_IDs( 1:4 ), T, n, ki_mean, ki_range );
             
             % Design the double subtraction synapses.
-            self = self.design_double_subtraction_synapses( neuron_IDs( 5:8 ), k_sub );
+            self = self.design_double_subtraction_synapses( neuron_IDs( 5:8 ), k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Design the transmission synapses. NOTE: Neuron IDs are in this order: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }
-            self = self.design_transmission_synapse( [ neuron_IDs( 9 ), neuron_IDs( 6 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 3 ), neuron_IDs( 5 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 9 ), neuron_IDs( 6 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_transmission_synapse( [ neuron_IDs( 3 ), neuron_IDs( 5 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a modulated split voltage based integration subnetwork.
-        function self = design_mod_split_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod )
+        function self = design_mod_split_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod, synapse_manager, applied_current_manager )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, synapse_manager = self.synapse_manager; end
             if nargin < 8, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 7, k_sub = 2*self.c_subtraction_DEFAULT; end
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
@@ -3163,14 +3434,14 @@ classdef network_class
             self = self.design_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub );
             
             % Design the modulation synapses.
-            self = self.design_modulation_synapses( [ neuron_IDs( 10 ), neuron_IDs( 11 ) ], c_mod )  ;
-            self = self.design_modulation_synapses( [ neuron_IDs( 10 ), neuron_IDs( 12 ) ], c_mod )  ;
+            self = self.design_modulation_synapses( [ neuron_IDs( 10 ), neuron_IDs( 11 ) ], c_mod, synapse_manager, applied_current_manager )  ;
+            self = self.design_modulation_synapses( [ neuron_IDs( 10 ), neuron_IDs( 12 ) ], c_mod, synapse_manager, applied_current_manager )  ;
             
             % Design the transmission synapses.
-            self = self.design_transmission_synapse( [ neuron_IDs( 7 ), neuron_IDs( 11 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 8 ), neuron_IDs( 12 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 1 ), neuron_IDs( 10 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 2 ), neuron_IDs( 10 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 7 ), neuron_IDs( 11 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_transmission_synapse( [ neuron_IDs( 8 ), neuron_IDs( 12 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_transmission_synapse( [ neuron_IDs( 1 ), neuron_IDs( 10 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_transmission_synapse( [ neuron_IDs( 2 ), neuron_IDs( 10 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
@@ -3178,7 +3449,7 @@ classdef network_class
         % Implement a function to design the synapses for a modulated split difference voltage based integration subnetwork.
         function self = design_mod_split_sub_vb_integration_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 9, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 8, k_sub2 = self.c_subtraction_DEFAULT; end
             if nargin < 7, k_sub1 = 2*self.c_subtraction_DEFAULT; end
@@ -3186,14 +3457,14 @@ classdef network_class
             if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Design the double subtraction synapses.
-            self = self.design_double_subtraction_synapses( neuron_IDs( 1:4 ), k_sub2 );
+            self = self.design_double_subtraction_synapses( neuron_IDs( 1:4 ), k_sub2, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
             % Design the modulated split voltage based integration synapses.
             self = self.design_mod_split_vb_integration_synapses( neuron_IDs( 5:end ), T, n, ki_mean, ki_range, k_sub1, c_mod );
             
             % Design the transmission synapses.
-            self = self.design_transmission_synapse( [ neuron_IDs( 3 ), neuron_IDs( 5 ) ], 1, false );
-            self = self.design_transmission_synapse( [ neuron_IDs( 4 ), neuron_IDs( 6 ) ], 1, false );
+            self = self.design_transmission_synapse( [ neuron_IDs( 3 ), neuron_IDs( 5 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            self = self.design_transmission_synapse( [ neuron_IDs( 4 ), neuron_IDs( 6 ) ], 1, false, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
@@ -3201,19 +3472,21 @@ classdef network_class
         %% Subnetwork Design Functions
         
         % Implement a function to design a multistate CPG oscillator subnetwork using existing neurons.
-        function self = design_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable )
+        function self = design_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
             % Design the multistate cpg subnetwork neurons.
-            self = self.design_multistate_cpg_neurons( neuron_IDs );
+            self = self.design_multistate_cpg_neurons( neuron_IDs, neuron_manager );
             
             % Design the multistate cpg subnetwork applied current.
-            self = self.design_multistate_cpg_applied_currents( neuron_IDs );
+            self = self.design_multistate_cpg_applied_currents( neuron_IDs, applied_current_manager );
             
             % Design the multistate cpg subnetwork synapses.
             self = self.design_multistate_cpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
@@ -3222,9 +3495,10 @@ classdef network_class
         
         
         % Implement a function to design a driven multistate CPG oscillator subnetwork using existing neurons.
-        function self = design_driven_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max )
+        function self = design_driven_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, I_drive_max = self.Idrive_max_DEFAULT; end
             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
@@ -3232,7 +3506,7 @@ classdef network_class
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
             % Design the driven multistate cpg subnetwork neurons.
-            self = self.design_driven_multistate_cpg_neurons( neuron_IDs );
+            self = self.design_driven_multistate_cpg_neurons( neuron_IDs, neuron_manager );
             
             % Design the driven multistate cpg subnetwork applied current.
             self = self.design_driven_multistate_cpg_applied_currents( neuron_IDs );
@@ -3244,9 +3518,13 @@ classdef network_class
         
         
         % Implement a function to design a driven multistate CPG split lead lag subnetwork using existing neurons.
-        function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r )
+        function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r, dt, tf, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 16, applied_current_manager = self.applied_current_manager; end
+            if nargin < 15, neuron_manager = self.neuron_manager; end
+            if nargin < 14, tf = self.tf; end
+            if nargin < 13, dt = self.dt; end
             if nargin < 12, r = self.r_oscillation_DEFAULT; end
             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
@@ -3261,21 +3539,22 @@ classdef network_class
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
             % Design the driven multistate CPG split lead lag subnetwork neurons.
-            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, T, ki_mean, r );
+            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
             
             % Design the driven multistate CPG split lead lag subnetwork applied currents.
-            self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell );
+            self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager );
             
             % Design the driven multistate CPG split lead lag subnetwork synapses.
-            self = self.design_dmcpg_sll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
+            self = self.design_dmcpg_sll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design a driven multistate CPG double centered lead lag subnetwork using existing neurons.
-        function self = design_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r )
+        function self = design_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 15, neuron_manager = self.neuron_manager; end
             if nargin < 14, r = self.r_oscillation_DEFAULT; end
             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 12, k_add = self.c_addition_DEFAULT; end
@@ -3292,7 +3571,7 @@ classdef network_class
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
             % Design the driven multistate CPG double centered lead lag subnetwork neurons.
-            self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r );
+            self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
             
             % Design the driven multistate CPG double centered lead lag subnetwork applied currents.
             self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell );
@@ -3304,9 +3583,10 @@ classdef network_class
         
         
         % Implement a function to design an open loop driven multistate CPG double centered lead lag error subnetwork using existing neurons.
-        function self = design_ol_dmcpg_dclle_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r )
+        function self = design_ol_dmcpg_dclle_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 18, neuron_manager = self.neuron_manager; end
             if nargin < 17, r = self.r_oscillation_DEFAULT; end
             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
@@ -3326,7 +3606,7 @@ classdef network_class
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
             % Design the open loop driven multistate cpg double centered lead lag error subnetwork neurons.
-            self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r );
+            self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
             
             % Design the open loop driven multistate cpg double centered lead lag error subnetwork applied currents.
             self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );
@@ -3338,9 +3618,11 @@ classdef network_class
         
         
         % Implement a function to design a closed loop P controlled driven multistate CPG double centered lead lag subnetwork using existing neurons.
-        function self = design_clpc_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, kp_gain )
+        function self = design_clpc_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, kp_gain, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 20, applied_current_manager = self.applied_current_manager; end
+            if nargin < 19, neuron_manager = self.neuron_manager; end
             if nargin < 18, kp_gain = self.kp_gain_DEFAULT; end
             if nargin < 17, r = self.r_oscillation_DEFAULT; end
             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
@@ -3361,10 +3643,10 @@ classdef network_class
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
             % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork neurons.
-            self = self.design_clpc_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r );
+            self = self.design_clpc_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
             
             % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork applied currents.
-            self = self.design_clpc_dmcpg_dcll_applied_currents( neuron_IDs_cell );
+            self = self.design_clpc_dmcpg_dcll_applied_currents( neuron_IDs_cell, neuron_manager, applied_current_manager );
             
             % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork synapses.
             self = self.design_clpc_dmcpg_dcll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, kp_gain );
@@ -3375,7 +3657,7 @@ classdef network_class
         % Implement a function to design a transmission subnetwork using existing neurons.
         function self = design_transmission_subnetwork( self, neuron_IDs, k )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 3, k = self.c_transmission_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
@@ -3384,21 +3666,22 @@ classdef network_class
             self = self.design_transmission_neurons( neuron_IDs );
             
             % Design the tranmission subnetwork synapses.
-            self = self.design_transmission_synapse( neuron_IDs, k );
+            self = self.design_transmission_synapse( neuron_IDs, k, true, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design a modulation subnetwork using existing neurons.
-        function self = design_modulation_subnetwork( self, neuron_IDs, c )
+        function self = design_modulation_subnetwork( self, neuron_IDs, c, neuron_manager )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, c = self.c_modulation_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the modulation neurons.
-            self = self.design_modulation_neurons( neuron_IDs );
+            self = self.design_modulation_neurons( neuron_IDs, neuron_manager );
             
             % Design the modulation synapses.
             self = self.design_modulation_synapses( neuron_IDs, c );
@@ -3407,18 +3690,19 @@ classdef network_class
         
         
         % Implement a function to design an addition subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_addition_subnetwork( self, neuron_IDs, k )
+        function self = design_addition_subnetwork( self, neuron_IDs, k, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, k = self.c_addition_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the addition subnetwork neurons.
-            self = self.design_addition_neurons( neuron_IDs );
+            self = self.design_addition_neurons( neuron_IDs, neuron_manager );
             
             % Design the addition subnetwork synapses.
-            self = self.design_addition_synapses( neuron_IDs, k );
+            self = self.design_addition_synapses( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
@@ -3460,18 +3744,22 @@ classdef network_class
         
         
         % Implement a function to design a subtraction subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_subtraction_subnetwork( self, neuron_IDs, k )
+        function self = design_subtraction_subnetwork( self, neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, k = self.c_subtraction_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the subtraction subnetwork neurons.
-            self = self.design_subtraction_neurons( neuron_IDs );
+            self = self.design_subtraction_neurons( neuron_IDs, neuron_manager );
             
             % Design the subtraction subnetwork synapses.
-            self = self.design_subtraction_synapses( neuron_IDs, k );
+            self = self.design_subtraction_synapses( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
@@ -3516,26 +3804,29 @@ classdef network_class
         
         
         % Implement a function to design a double subtraction subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_double_subtraction_subnetwork( self, neuron_IDs, k )
+        function self = design_double_subtraction_subnetwork( self, neuron_IDs, k, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, k = self.c_subtraction_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the double subtraction subnetwork neurons.
-            self = self.design_double_subtraction_neurons( neuron_IDs );
+            self = self.design_double_subtraction_neurons( neuron_IDs, neuron_manager );
             
             % Design the double subtraction subnetwork synapses.
-            self = self.design_double_subtraction_synapses( neuron_IDs, k );
+            self = self.design_double_subtraction_synapses( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design a centering subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_centering_subnetwork( self, neuron_IDs, k_add, k_sub )
+        function self = design_centering_subnetwork( self, neuron_IDs, k_add, k_sub, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, k_sub = self.c_subtraction_DEFAULT; end
             if nargin < 3, k_add = self.c_addition_DEFAULT; end
             
@@ -3543,46 +3834,50 @@ classdef network_class
             self = self.design_centering_neurons( neuron_IDs );
             
             % Design the centering subnetwork applied currents.
-            self = self.design_centering_applied_currents( neuron_IDs );
+            self = self.design_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
             
             % Design the centering subnetwork synapses.
-            self = self.design_centering_synapses( neuron_IDs, k_add, k_sub );
+            self = self.design_centering_synapses( neuron_IDs, k_add, k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design a double centering subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_double_centering_subnetwork( self, neuron_IDs, k_add, k_sub )
+        function self = design_double_centering_subnetwork( self, neuron_IDs, k_add, k_sub, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, k_sub = self.c_subtraction_DEFAULT; end
             if nargin < 3, k_add = self.c_addition_DEFAULT; end
             
             % Design the double centering subnetwork neurons.
-            self = self.design_double_centering_neurons( neuron_IDs );
+            self = self.design_double_centering_neurons( neuron_IDs, neuron_manager );
             
             % Design the double centering subnetwork applied currents.
-            self = self.design_double_centering_applied_currents( neuron_IDs );
+            self = self.design_double_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
             
             % Design the double centering subnetwork synapses.
-            self = self.design_double_centering_synapses( neuron_IDs, k_add, k_sub );
+            self = self.design_double_centering_synapses( neuron_IDs, k_add, k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
         
         % Implement a function to design a centered double subtraction subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_centered_double_subtraction_subnetwork( self, neuron_IDs_cell, k_sub1, k_sub2, k_add )
+        function self = design_centered_double_subtraction_subnetwork( self, neuron_IDs_cell, k_sub1, k_sub2, k_add, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
             if nargin < 5, k_add = self.c_addition_DEFAULT; end
             if nargin < 4, k_sub2 = self.c_subtraction_DEFAULT; end
             if nargin < 3, k_sub1 = self.c_subtraction_DEFAULT; end
             
             % Design the centered double subtraction neurons.
-            self = self.design_centered_double_subtraction_neurons( neuron_IDs_cell );
+            self = self.design_centered_double_subtraction_neurons( neuron_IDs_cell, neuron_manager );
             
             % Design the centered double subtraction applied currents.
-            self = self.design_centered_double_subtraction_applied_currents( neuron_IDs_cell );
+            self = self.design_centered_double_subtraction_applied_currents( neuron_IDs_cell, neuron_manager, applied_current_manager );
             
             % Design the centered double subtraction synapses.
             self = self.design_centered_double_subtraction_synapses( neuron_IDs_cell, k_sub1, k_sub2, k_add );
@@ -3817,7 +4112,7 @@ classdef network_class
         % Implement a function to design an integration subnetwork ( using the specified neurons & their existing synapses ).
         function self = design_integration_subnetwork( self, neuron_IDs, ki_mean, ki_range )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
@@ -3857,9 +4152,10 @@ classdef network_class
         
         
         % Implement a function to design a split voltage based integration subnetwork ( using the specified neurons & their existing synapses ).
-        function self = design_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub )
+        function self = design_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, neuron_manager )
             
             % Set the default input arguments.
+            if nargin < 8, neuron_manager = self.neuron_manager; end
             if nargin < 7, k_sub = 2*self.c_subtraction_DEFAULT; end
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
@@ -3867,7 +4163,7 @@ classdef network_class
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the split voltage based integration subnetwork neurons.
-            self = self.design_split_vb_integration_neurons( neuron_IDs, ki_mean );
+            self = self.design_split_vb_integration_neurons( neuron_IDs, ki_mean, neuron_manager );
             
             % Design the split voltage based integration applied currents.
             self = self.design_split_vb_integration_applied_currents( neuron_IDs );
@@ -3879,9 +4175,12 @@ classdef network_class
         
         
         % Implement a function to design a modulated split voltage based integration subnetwork ( using the specified neurons & their existing synapses ).
-        function self = design_mod_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod )
+        function self = design_mod_split_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod, neuron_manager, synapse_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 11, applied_current_manager = self.applied_current_manager; end
+            if nargin < 10, synapse_manager = self.synapse_manager; end
+            if nargin < 9, neuron_manager = self.neuron_manager; end
             if nargin < 8, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 7, k_sub = 2*self.c_subtraction_DEFAULT; end
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
@@ -3890,21 +4189,23 @@ classdef network_class
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the modulated split voltage based integration subnetwork neurons.
-            self = self.design_mod_split_vb_integration_neurons( neuron_IDs, ki_mean );
+            self = self.design_mod_split_vb_integration_neurons( neuron_IDs, ki_mean, neuron_manager );
             
             % Design the modulated split voltage based integration applied currents.
-            self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs );
+            self = self.design_mod_split_vb_integration_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
             
             % Design the modulated split voltage based integration synapses.
-            self = self.design_mod_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod );
+            self = self.design_mod_split_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod, synapse_manager, applied_current_manager );
             
         end
         
         
         % Implement a function to design a modulated difference split voltage based integration subnetwork ( using the specified neurons & their existing synapses ).
-        function self = design_mod_split_sub_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
+        function self = design_mod_split_sub_vb_integration_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, applied_current_manager )
             
             % Set the default input arguments.
+            if nargin < 11, applied_current_manager = self.applied_current_manager; end
+            if nargin < 10, neuron_manager = self.neuron_manager; end
             if nargin < 9, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 8, k_sub2 = self.c_subtraction_DEFAULT; end
             if nargin < 7, k_sub1 = 2*self.c_subtraction_DEFAULT; end
@@ -3914,10 +4215,10 @@ classdef network_class
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Design the modulated split voltage based integration subnetwork neurons.
-            self = self.design_mod_split_sub_vb_integration_neurons( neuron_IDs, ki_mean );
+            self = self.design_mod_split_sub_vb_integration_neurons( neuron_IDs, ki_mean, neuron_manager );
             
             % Design the modulated split voltage based integration applied currents.
-            self = self.design_mod_split_sub_vb_integration_applied_currents( neuron_IDs );
+            self = self.design_mod_split_sub_vb_integration_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
             
             % Design the modulated split voltage based integration synapses.
             self = self.design_mod_split_sub_vb_integration_synapses( neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
@@ -4102,13 +4403,17 @@ classdef network_class
         
         
         % Implement a function to create the subtraction subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs ] = create_subtraction_subnetwork_components( self )
+        function [ self, neuron_IDs, synapse_IDs ] = create_subtraction_subnetwork_components( self, neuron_manager, synapse_manager )
+            
+            % Set the default input arguments.
+            if nargin < 3, synapse_manager = self.synapse_manager; end
+            if nargin < 2, neuron_manager = self.neuron_manager; end
             
             % Create the subtraction neurons.
-            [ self.neuron_manager, neuron_IDs ] = self.neuron_manager.create_subtraction_neurons(  );
+            [ self.neuron_manager, neuron_IDs ] = neuron_manager.create_subtraction_neurons(  );
             
             % Create the subtraction synapses.
-            [ self.synapse_manager, synapse_IDs ] = self.synapse_manager.create_subtraction_synapses( neuron_IDs );
+            [ self.synapse_manager, synapse_IDs ] = synapse_manager.create_subtraction_synapses( neuron_IDs );
             
         end
         
@@ -4578,7 +4883,7 @@ classdef network_class
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_ID ] = create_transmission_subnetwork( self, k )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 2, k = self.c_transmission_DEFAULT; end
             
             % Create the transmission subnetwork components.
@@ -4593,7 +4898,7 @@ classdef network_class
         % Implement a function to create a modulation subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_ID ] = create_modulation_subnetwork( self, c )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             %             if nargin < 2, c = 0.05; end
             if nargin < 2, c = self.c_modulation_DEFAULT; end
             
@@ -4656,14 +4961,14 @@ classdef network_class
         % Implement a function to create a subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs ] = create_subtraction_subnetwork( self, k )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 2, k = self.c_subtraction_DEFAULT; end
             
             % Create the subtraction subnetwork components.
             [ self, neuron_IDs, synapse_IDs ] = self.create_subtraction_subnetwork_components(  );
             
             % Design the subtraction subnetwork.
-            self = self.design_subtraction_subnetwork( neuron_IDs, k );
+            self = self.design_subtraction_subnetwork( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
             
         end
         
@@ -4706,7 +5011,7 @@ classdef network_class
         % Implement a function to create a double subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs ] = create_double_subtraction_subnetwork( self, k )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 2, k = self.c_subtraction_DEFAULT; end
             
             % Create the double subtraction subnetwork components.
@@ -4901,7 +5206,7 @@ classdef network_class
         % Implement a function to create a multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork( self, k )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 2, k = self.c_multiplication_DEFAULT; end
             
             % Create the multiplication subnetwork components.
@@ -4954,7 +5259,7 @@ classdef network_class
         %         % Implement a function to create a multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
         %         function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork( self, k )
         %
-        %             % Set the default input arugments.
+        %             % Set the default input arguments.
         %             if nargin < 2, k = self.c_multiplication_DEFAULT; end
         %
         %             % Create the multiplication subnetwork components.
@@ -4986,7 +5291,7 @@ classdef network_class
         % Implement a function to create an integration subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_integration_subnetwork( self, ki_mean, ki_range )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 3, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end
             
@@ -5002,7 +5307,7 @@ classdef network_class
         % Implement a function to create a voltage based integration subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_vb_integration_subnetwork( self, T, n, ki_mean, ki_range )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
@@ -5018,7 +5323,7 @@ classdef network_class
         % Implement a function to create a split voltage based integration subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_split_vb_integration_subnetwork( self, T, n, ki_mean, ki_range, k_sub )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 6, k_sub = self.c_subtraction_DEFAULT; end
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
@@ -5035,7 +5340,7 @@ classdef network_class
         % Implement a function to create a modulated split voltage based integration subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_vb_integration_subnetwork( self, T, n, ki_mean, ki_range, k_sub, c_mod )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 7, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 6, k_sub = 2*self.c_subtraction_DEFAULT; end
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
@@ -5053,7 +5358,7 @@ classdef network_class
         % Implement a function to create a modulated split difference voltage based integration subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_sub_vb_integration_subnetwork( self, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod )
             
-            % Set the default input arugments.
+            % Set the default input arguments.
             if nargin < 8, c_mod = self.c_modulation_DEFAULT; end
             if nargin < 7, k_sub2 = self.c_subtraction_DEFAULT; end
             if nargin < 6, k_sub1 = 2*self.c_subtraction_DEFAULT; end
