@@ -90,20 +90,22 @@ classdef neuron_manager_class
     methods
         
         % Implement the class constructor.
-        function self = neuron_manager_class( neurons )
-            
-            % Create an instance of the array utilities class.
-            self.array_utilities = array_utilities_class(  );
-            
-            % Create an instance of the data loader class.
-            self.data_loader_utilities = data_loader_utilities_class(  );
-            
-            % Create an instance of the neuron utilities class.
-            self.neuron_utilities = neuron_utilities_class(  );
-            
+        function self = neuron_manager_class( neurons, neuron_utilities, data_loader_utilities, array_utilities )
+                        
             % Set the default class properties.
-            if nargin < 1, self.neurons = [  ]; else, self.neurons = neurons; end
+            if nargin < 4, array_utilities = array_utilities_class; end
+            if nargin < 3, data_loader_utilities = data_loader_utilities_class; end
+            if nargin < 2, neuron_utilities = neuron_utilities_class(  ); end
+            if nargin < 1, neurons = [  ]; end
 
+            % Store utilities class properties.
+            self.array_utilities = array_utilities;
+            self.data_loader_utilities = data_loader_utilities;
+            self.neuron_utilities = neuron_utilities;
+            
+            % Store the neuron property.
+            self.neurons = neurons;
+            
             % Compute the number of neurons.
             self.num_neurons = length( self.neurons );
             
@@ -113,7 +115,13 @@ classdef neuron_manager_class
         %% Neuron Index & ID Functions
         
         % Implement a function to retrieve the index associated with a given neuron ID.
-        function neuron_index = get_neuron_index( self, neuron_ID )
+        function neuron_index = get_neuron_index( self, neuron_ID, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Compute the number of neurons.
+            n_neurons = length( neurons );
             
             % Set a flag variable to indicate whether a matching neuron index has been found.
             b_match_found = false;
@@ -121,13 +129,13 @@ classdef neuron_manager_class
             % Initialize the neuron index.
             neuron_index = 0;
             
-            while ( neuron_index < self.num_neurons ) && ( ~b_match_found )
+            while ( neuron_index < n_neurons ) && ( ~b_match_found )
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
                 
                 % Check whether this neuron index is a match.
-                if self.neurons( neuron_index ).ID == neuron_ID                       % If this neuron has the correct neuron ID...
+                if neurons( neuron_index ).ID == neuron_ID                       % If this neuron has the correct neuron ID...
                     
                     % Set the match found flag to true.
                     b_match_found = true;
@@ -171,7 +179,13 @@ classdef neuron_manager_class
         
         
         % Implement a function to validate neuron IDs.
-        function neuron_IDs = validate_neuron_IDs( self, neuron_IDs )
+        function neuron_IDs = validate_neuron_IDs( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Compute the number of neurons.
+            n_neurons = length( neurons );
             
             % Determine whether we want get the desired neuron property from all of the neurons.
             if isa( neuron_IDs, 'char' )                                                      % If the neuron IDs variable is a character array instead of an integer srray...
@@ -180,13 +194,13 @@ classdef neuron_manager_class
                 if  strcmpi( neuron_IDs, 'all' )                  % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the neuron IDs.
-                    neuron_IDs = zeros( 1, self.num_neurons );
+                    neuron_IDs = zeros( 1, n_neurons );
                     
                     % Retrieve the neuron ID associated with each neuron.
-                    for k = 1:self.num_neurons                   % Iterate through each neuron...
+                    for k = 1:n_neurons                   % Iterate through each neuron...
                         
                         % Store the neuron ID associated with the current neuron.
-                        neuron_IDs(k) = self.neurons(k).ID;
+                        neuron_IDs( k ) = neurons( k ).ID;
                         
                     end
                     
@@ -203,13 +217,17 @@ classdef neuron_manager_class
         
         
         % Implement a function to check if a proposed neuron ID is unique.
-        function [ b_unique, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID )
+        function [ b_unique, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID, neurons, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, array_utilities = self.array_utilities; end
+            if nargin < 3, neurons = self.neurons; end
             
             % Retrieve all of the existing neuron IDs.
-            existing_neuron_IDs = self.get_all_neuron_IDs(  );
+            existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
             
             % Determine whether the given neuron ID is one of the existing neuron IDs (if so, provide the matching logicals and indexes).
-            [ b_match_found, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
+            [ b_match_found, match_logicals, match_indexes ] = array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
             
             % Define the uniqueness flag.
             b_unique = ~b_match_found;
@@ -218,13 +236,17 @@ classdef neuron_manager_class
         
         
         % Implement a function to check whether a proposed neuron ID is a unique natural.
-        function b_unique_natural = unique_natural_neuron_ID( self, neuron_ID )
+        function b_unique_natural = unique_natural_neuron_ID( self, neuron_ID, neurons, array_utilities )
 
+            % Set the default input arguments.
+            if nargin < 4, array_utilities = self.array_utilities; end
+            if nargin < 3, neurons = self.neurons; end
+            
             % Initialize the unique natural to false.
             b_unique_natural = false;
             
             % Determine whether this neuron ID is unique.
-            b_unique = self.unique_neuron_ID( neuron_ID );
+            b_unique = self.unique_neuron_ID( neuron_ID, neurons, array_utilities );
             
             % Determine whether this neuron ID is a unique natural.
             if b_unique && ( neuron_ID > 0 ) && ( round( neuron_ID ) == neuron_ID )                     % If this neuron ID is a unique natural...
@@ -472,15 +494,21 @@ classdef neuron_manager_class
         
         
         % Implement a function to retrieve all of the neuron IDs.
-        function neuron_IDs = get_all_neuron_IDs( self )
+        function neuron_IDs = get_all_neuron_IDs( self, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, neurons = self.neurons; end
+            
+            % Compute the number of neurons.
+            n_neurons = length( neurons );
             
             % Preallocate a variable to store the neuron IDs.
-            neuron_IDs = zeros( 1, self.num_neurons );
+            neuron_IDs = zeros( 1, n_neurons );
             
             % Retrieve the ID associated with each neuron.
-            for k = 1:self.num_neurons
+            for k = 1:n_neurons                             % Iterate through each of the neurons...
                 
-                neuron_IDs(k) = self.neurons(k).ID;
+                neuron_IDs( k ) = neurons( k ).ID;
                 
             end
             
@@ -521,13 +549,14 @@ classdef neuron_manager_class
         %% General Get & Set Neuron Property Functions
         
         % Implement a function to retrieve the properties of specific neurons.
-        function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix )
+        function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix, neurons )
             
             % Set the default input arguments.
+            if nargin < 5, neurons = self.neurons; end
             if nargin < 4, as_matrix = false; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_properties_to_get = length( neuron_IDs );
@@ -539,10 +568,10 @@ classdef neuron_manager_class
             for k = 1:num_properties_to_get
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs{k} = self.neurons(%0.0f).%s;', neuron_index, neuron_property );
+                eval_str = sprintf( 'xs{ k } = neurons( %0.0f ).%s;', neuron_index, neuron_property );
                 
                 % Evaluate the given neuron property.
                 eval( eval_str );
@@ -561,10 +590,16 @@ classdef neuron_manager_class
         
         
         % Implement a function to set the properties of specific neurons.
-        function self = set_neuron_property( self, neuron_IDs, neuron_property_values, neuron_property )
+        function self = set_neuron_property( self, neuron_IDs, neuron_property_values, neuron_property, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 5, neurons = self.neurons; end
+            
+            % Compute the number of neurons.
+            n_neurons = length( neurons );
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retreive the number of neuron IDs.
             num_neuron_IDs = length( neuron_IDs );
@@ -599,16 +634,16 @@ classdef neuron_manager_class
             end
             
             % Set the properties of each neuron.
-            for k = 1:self.num_neurons                   % Iterate through each neuron...
+            for k = 1:n_neurons                   % Iterate through each neuron...
                 
                 % Determine the index of the neuron property value that we want to apply to this neuron (if we want to set a property of this neuron).
-                index = find( self.neurons(k).ID == neuron_IDs, 1 );
+                index = find( neurons( k ).ID == neuron_IDs, 1 );
                 
                 % Determine whether to set a property of this neuron.
                 if ~isempty( index )                         % If a matching neuron ID was detected...
                     
                     % Create an evaluation string that sets the desired neuron property.
-                    eval_string = sprintf( 'self.neurons(%0.0f).%s = neuron_property_values{%0.0f};', k, neuron_property, index );
+                    eval_string = sprintf( 'neurons( %0.0f ).%s = neuron_property_values{ %0.0f };', k, neuron_property, index );
                     
                     % Evaluate the evaluation string.
                     eval( eval_string );
@@ -616,28 +651,37 @@ classdef neuron_manager_class
                 end
             end
             
+            % Store the upated neurons object.
+            self.neurons = neurons;
+            
         end
 
         
-        %% Enable & Disable Functions
+        %% Enable & Disable Functions.
         
         % Implement a function to enable a neuron.
-        function self = enable_neuron( self, neuron_ID )
+        function neurons = enable_neuron( self, neuron_ID, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
-            neuron_index = self.get_neuron_index( neuron_ID );
+            neuron_index = self.get_neuron_index( neuron_ID, neurons );
             
             % Enable this neuron.
-            self.neurons( neuron_index ).b_enabled = true;
+            neurons( neuron_index ).b_enabled = true;
             
         end
         
         
         % Implement a function to enable neurons.
-        function self = enable_neurons( self, neuron_IDs )
+        function neurons = enable_neurons( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
                         
             % Determine the number of neurons to enable.
             num_neurons_to_enable = length( neuron_IDs );
@@ -645,8 +689,8 @@ classdef neuron_manager_class
             % Enable all of the specified neurons.
             for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
                 
-                % Enable this neuron.
-                self = self.enable_neuron( neuron_IDs(k) );
+                % Enable this neuron.                
+                neurons = self.enable_neuron( neuron_IDs( k ), neurons );
                 
             end
             
@@ -654,22 +698,28 @@ classdef neuron_manager_class
         
         
         % Implement a function to disable a neuron.
-        function self = disable_neuron( self, neuron_ID )
+        function neurons = disable_neuron( self, neuron_ID, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
-            neuron_index = self.get_neuron_index( neuron_ID );
+            neuron_index = self.get_neuron_index( neuron_ID, neurons );
             
             % Disable this neuron.
-            self.neurons( neuron_index ).b_enabled = false;
+            neurons( neuron_index ).b_enabled = false;
             
         end
         
         
         % Implement a function to disable neurons.
-        function self = disable_neurons( self, neuron_IDs )
+        function neurons = disable_neurons( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
                         
             % Determine the number of neurons to disable.
             num_neurons_to_enable = length( neuron_IDs );
@@ -678,7 +728,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
                 
                 % Disable this neuron.
-                self = self.disable_neuron( neuron_IDs(k) );
+                neurons = self.disable_neuron( neuron_IDs( k ), neurons );
                 
             end
             
@@ -686,10 +736,13 @@ classdef neuron_manager_class
         
         
         % Implement a function to toggle neuron enable state.
-        function self = toggle_enabled_neurons( self, neuron_IDs )
+        function neurons = toggle_enabled_neurons( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
                         
             % Determine the number of neurons to disable.
             num_neurons_to_enable = length( neuron_IDs );
@@ -698,23 +751,88 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_enable                      % Iterate through all of the specified neurons...
                 
                 % Retrieve this neuron index.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Disable this neuron.
-                self.neurons( neuron_index ).b_enabled = ~self.neurons( neuron_index ).b_enabled;
+                neurons( neuron_index ).b_enabled = ~self.neurons( neuron_index ).b_enabled;
                 
             end
             
         end
         
         
-        %% Call Neuron Methods Functions
+        %% Enable & Disable Setting Functions
+        
+        % Implement a function to enable a neuron.
+        function self = enable_set_neuron( self, neuron_ID, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Enable and set the specified neuron.
+            self.neurons = self.enable_neuron( neuron_ID, neurons );
+            
+        end
+        
+        
+        % Implement a function to enable neurons.
+        function self = enable_set_neurons( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Enable and set the neurons.
+            self.neurons = self.enable_neurons( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to disable a neuron.
+        function self = disable_set_neuron( self, neuron_ID, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Disable and set the specified neurons.
+            self.neurons = self.disable_neuron( neuron_ID, neurons );
+            
+        end
+        
+        
+        % Implement a function to disable neurons.
+        function self = disable_set_neurons( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Disable and set specified neurons.
+            self.neurons = self.disable_neurons( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to toggle neuron enable state.
+        function self = toggle_enabled_set_neurons( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            
+            % Toggle and set the specified neurons.
+            self.neurons = self.toggle_enabled_neurons( neuron_IDs, neurons );
+            
+        end
+        
+        
+        %% Call Neuron Methods Functions.
         
         % Implement a function to that calls a specified neuron method for each of the specified neurons.
-        function self = call_neuron_method( self, neuron_IDs, neuron_method )
+        function neurons = call_neuron_method( self, neuron_IDs, neuron_method, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 4, neurons = self.neurons; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -723,10 +841,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'self.neurons(%0.0f) = self.neurons(%0.0f).%s();', neuron_index, neuron_index, neuron_method );
+                eval_str = sprintf( 'neurons( %0.0f ) = self.neurons( %0.0f ).%s(  );', neuron_index, neuron_index, neuron_method );
                 
                 % Evaluate the given neuron method.
                 eval( eval_str );
@@ -736,7 +854,22 @@ classdef neuron_manager_class
         end
         
         
-        %% Compute Multiplication-Division Subgain Functions
+        % Implement a function to that calls a specified neuron method for each of the specified neurons.
+        function self = call_set_neuron_method( self, neuron_IDs, neuron_method, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 4, neurons = self.neurons; end
+                        
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Call the specified neuron method for each of the specified neurons and update the neurons object.
+            self.neurons = self.call_neuron_method( neuron_IDs, neuron_method, neurons );
+            
+        end
+        
+        
+        %% Compute Multiplication-Division Subnetwork Gain Functions.
 
         % Implement a function to compute the absolute multiplication division subgain.
         function c2 = compute_absolute_multiplication_c2( self, c, c1, epsilon1, epsilon2, R2 )
@@ -748,22 +881,23 @@ classdef neuron_manager_class
             if nargin < 3, c1 = self.c_DEFAULT; end
             if nargin < 2, c = self.c_DEFAULT; end
             
-            % Compute the division subnetwork gain.
+            % Compute the absolute multiplication subnetwork gain.
             c2 = ( ( c*R2 )/( R2 + epsilon1 ) )*c1 + c*epsilon2*R2;
             
         end
-                    
+           
         
-        %% Sodium Channel Conductance Compute & Set Functions
+        %% Sodium Channel Conductance Compute Functions.
                 
         % Implement a function to compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-        function self = compute_set_cpg_Gna( self, neuron_IDs )
+        function neurons = compute_cpg_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -772,10 +906,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_cpg_Gna( self.neurons( neuron_index ).R, self.neurons( neuron_index ).Gm, self.neurons( neuron_index ).Am, self.neurons( neuron_index ).Sm, self.neurons( neuron_index ).dEm, self.neurons( neuron_index ).Ah, self.neurons( neuron_index ).Sh, self.neurons( neuron_index ).dEh, self.neurons( neuron_index ).dEna );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_cpg_Gna( neurons( neuron_index ).R, neurons( neuron_index ).Gm, neurons( neuron_index ).Am, neurons( neuron_index ).Sm, neurons( neuron_index ).dEm, neurons( neuron_index ).Ah, neurons( neuron_index ).Sh, neurons( neuron_index ).dEh, neurons( neuron_index ).dEna, neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -783,13 +917,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of driven multistate cpg neurons.
-        function self = compute_set_driven_multistate_cpg_Gna( self, neuron_IDs )
+        function neurons = compute_driven_multistate_cpg_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -798,10 +933,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_driven_multistate_cpg_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_driven_multistate_cpg_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -809,13 +944,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of transmission neurons.
-        function self = compute_set_transmission_Gna( self, neuron_IDs )
+        function neurons = compute_transmission_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -824,10 +960,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_transmission_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_transmission_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -835,13 +971,14 @@ classdef neuron_manager_class
         
                 
         % Implement a function to compute and set the sodium channel conductance of modulation neurons.
-        function self = compute_set_modulation_Gna( self, neuron_IDs )
+        function neurons = compute_modulation_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -850,10 +987,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_modulation_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_modulation_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -861,13 +998,14 @@ classdef neuron_manager_class
 
         
         % Implement a function to compute and set the sodium channel conductance of addition neurons.
-        function self = compute_set_addition_Gna( self, neuron_IDs )
+        function neurons = compute_addition_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -876,10 +1014,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_addition_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_addition_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -887,13 +1025,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute addition neurons.
-        function self = compute_set_absolute_addition_Gna( self, neuron_IDs )
+        function neurons = compute_absolute_addition_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -902,10 +1041,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_addition_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_addition_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -913,13 +1052,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of relative addition neurons.
-        function self = compute_set_relative_addition_Gna( self, neuron_IDs )
+        function neurons = compute_relative_addition_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -928,10 +1068,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_addition_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -939,13 +1079,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
-        function self = compute_set_subtraction_Gna( self, neuron_IDs )
+        function neurons = compute_subtraction_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -954,10 +1095,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_subtraction_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -965,13 +1106,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute subtraction neurons.
-        function self = compute_set_absolute_subtraction_Gna( self, neuron_IDs )
+        function neurons = compute_absolute_subtraction_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -980,10 +1122,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_subtraction_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -991,13 +1133,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of relative subtraction neurons.
-        function self = compute_set_relative_subtraction_Gna( self, neuron_IDs )
+        function neurons = compute_relative_subtraction_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1006,10 +1149,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_subtraction_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1017,13 +1160,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of double subtraction neurons.
-        function self = compute_set_double_subtraction_Gna( self, neuron_IDs )
+        function neurons = compute_double_subtraction_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1032,10 +1176,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_double_subtraction_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_double_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1043,13 +1187,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute double subtraction neurons.
-        function self = compute_set_absolute_double_subtraction_Gna( self, neuron_IDs )
+        function neurons = compute_absolute_double_subtraction_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1058,10 +1203,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_double_subtraction_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_double_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1069,13 +1214,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of relative double subtraction neurons.
-        function self = compute_set_relative_double_subtraction_Gna( self, neuron_IDs )
+        function neurons = compute_relative_double_subtraction_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1084,10 +1230,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_double_subtraction_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_double_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1095,13 +1241,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of multiplication neurons.
-        function self = compute_set_multiplication_Gna( self, neuron_IDs )
+        function neurons = compute_multiplication_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1110,10 +1257,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_multiplication_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_multiplication_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1121,13 +1268,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute multiplication neurons.
-        function self = compute_set_absolute_multiplication_Gna( self, neuron_IDs )
+        function neurons = compute_absolute_multiplication_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1136,10 +1284,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_multiplication_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_multiplication_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1147,13 +1295,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of relative multiplication neurons.
-        function self = compute_set_relative_multiplication_Gna( self, neuron_IDs )
+        function neurons = compute_relative_multiplication_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1162,10 +1311,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_multiplication_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_multiplication_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1173,13 +1322,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of inversion neurons.
-        function self = compute_set_inversion_Gna( self, neuron_IDs )
+        function neurons = compute_inversion_Gna( self, neuron_IDs, neurons )
         
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1188,10 +1338,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_inversion_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_inversion_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1199,13 +1349,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute inversion neurons.
-        function self = compute_set_absolute_inversion_Gna( self, neuron_IDs )
+        function neurons = compute_absolute_inversion_Gna( self, neuron_IDs, neurons )
         
             % Set the default input arguments.
+            if narign < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1214,10 +1365,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1225,13 +1376,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of relative inversion neurons.
-        function self = compute_set_relative_inversion_Gna( self, neuron_IDs )
+        function neurons = compute_relative_inversion_Gna( self, neuron_IDs, neurons )
         
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1240,10 +1392,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_inversion_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_inversion_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1251,13 +1403,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of division neurons.
-        function self = compute_set_division_Gna( self, neuron_IDs )
+        function neurons = compute_division_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1266,10 +1419,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_division_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_division_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1277,13 +1430,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute division neurons.
-        function self = compute_set_absolute_division_Gna( self, neuron_IDs )
+        function neurons = compute_absolute_division_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1292,10 +1446,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_division_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1303,13 +1457,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of relative division neurons.
-        function self = compute_set_relative_division_Gna( self, neuron_IDs )
+        function neurons = compute_relative_division_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1318,10 +1473,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_division_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_division_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1329,13 +1484,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of derivation neurons.
-        function self = compute_set_derivation_Gna( self, neuron_IDs )
+        function neurons = compute_derivation_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1344,10 +1500,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_derivation_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_derivation_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1355,13 +1511,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of integration neurons.
-        function self = compute_set_integration_Gna( self, neuron_IDs )
+        function neurons = compute_integration_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1370,10 +1527,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_integration_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_integration_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1381,13 +1538,14 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of voltage based integration neurons.
-        function self = compute_set_vb_integration_Gna( self, neuron_IDs )
+        function neurons = compute_vb_integration_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1396,10 +1554,10 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_vb_integration_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_vb_integration_Gna( neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1407,13 +1565,14 @@ classdef neuron_manager_class
                 
         
         % Implement a function to compute and set the sodium channel conductance of split voltage based integration neurons.
-        function self = compute_set_split_vb_integration_Gna( self, neuron_IDs )
+        function neurons = compute_split_vb_integration_Gna( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1422,11 +1581,736 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_split_vb_integration_Gna(  );
+                neurons( neuron_index ) = neurons( neuron_index ).compute_set_split_vb_integration_Gna( neurons( neuron_index ).neuron_utilities );
                 
+            end
+            
+        end
+        
+        
+        
+        %% Sodium Channel Conductance Compute & Set Functions.
+                
+        % Implement a function to compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
+        function self = compute_set_cpg_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
+            self.neurons = self.compute_cpg_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of driven multistate cpg neurons.
+        function self = compute_set_driven_multistate_cpg_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of driven multistate CPG neurons.
+            self.neurons = self.compute_driven_multistate_cpg_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of transmission neurons.
+        function self = compute_set_transmission_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of transmission neurons.
+            self.neurons = self.compute_transmission_Gna( neuron_IDs, neurons );
+            
+        end
+        
+                
+        % Implement a function to compute and set the sodium channel conductance of modulation neurons.
+        function self = compute_set_modulation_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of modulation neurons.
+            self.neurons = self.compute_modulation_Gna( neuron_IDs, neurons );
+                        
+        end
+
+        
+        % Implement a function to compute and set the sodium channel conductance of addition neurons.
+        function self = compute_set_addition_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of addition neurons.
+            self.neurons = self.compute_addition_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of absolute addition neurons.
+        function self = compute_set_absolute_addition_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of absolute addition neurons.
+            self.neurons = self.compute_absolute_addition_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of relative addition neurons.
+        function self = compute_set_relative_addition_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Copmpute and set the sodium channel conductance of relative addition neurons.
+            self.neurons = self.compute_relative_addition_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
+        function self = compute_set_subtraction_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the soidumchannel conductance of subtraction neurons.
+            self.neurons = self.compute_subtraction_Gna( neuron_IDs, neurons );
+                        
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of absolute subtraction neurons.
+        function self = compute_set_absolute_subtraction_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of absolute subtraction neurons.
+            self.neurons = self.compute_absolute_subtraction_Gna( neuron_IDs, neurons );
+           
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of relative subtraction neurons.
+        function self = compute_set_relative_subtraction_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of relative subtraction neurons.
+            self.neurons = self.compute_relative_subtraction_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of double subtraction neurons.
+        function self = compute_set_double_subtraction_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of double subtraction neurons.
+            self.neurons = self.compute_double_subtraction_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of absolute double subtraction neurons.
+        function self = compute_set_absolute_double_subtraction_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of absolute double subtraction neurons.
+            self.neurons = self.compute_absolute_double_subtraction_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of relative double subtraction neurons.
+        function self = compute_set_relative_double_subtraction_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of relative double subtraction neurons.
+            self.neurons = self.compute_relative_double_subtraction_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of multiplication neurons.
+        function self = compute_set_multiplication_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium chanbnel conductnace of multiplication neurons.
+            self.neurons = self.compute_multiplication_Gna( neuron_IDs, neurons );
+
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of absolute multiplication neurons.
+        function self = compute_set_absolute_multiplication_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductnace of absolute multiplication neurons.
+            self.neurons = self.compute_absolute_multiplication_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of relative multiplication neurons.
+        function self = compute_set_relative_multiplication_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of relative multiplication neurons.
+            self.neurons = self.compute_relative_multiplication_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of inversion neurons.
+        function self = compute_set_inversion_Gna( self, neuron_IDs, neurons )
+        
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of inversion neurons.
+            self.neurons = self.compute_inversion_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of absolute inversion neurons.
+        function self = compute_set_absolute_inversion_Gna( self, neuron_IDs, neurons )
+        
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set teh sodium channelk conductance of absolute inversion neurons.
+            self.neurons = self.compute_absolute_inversion_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of relative inversion neurons.
+        function self = compute_set_relative_inversion_Gna( self, neuron_IDs, neurons )
+        
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of relative inversion neurons.
+            self.neurons = self.compute_relative_inversion_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of division neurons.
+        function self = compute_set_division_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of division neurons.
+            self.neurons = self.compute_division_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of absolute division neurons.
+        function self = compute_set_absolute_division_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of absolute division neurons.
+            self.neurons = self.compute_absolute_division_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of relative division neurons.
+        function self = compute_set_relative_division_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of relative division neurons.
+            self.neurons = self.compute_relative_division_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of derivation neurons.
+        function self = compute_set_derivation_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set hte sodium channel conductance of derivation neurons.
+            self.neurons = self.compute_derivation_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of integration neurons.
+        function self = compute_set_integration_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of intergration neurons.
+            self.neurons = self.compute_intergration_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        % Implement a function to compute and set the sodium channel conductance of voltage based integration neurons.
+        function self = compute_set_vb_integration_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of voltage based integration neurons.
+            self.neurons = self.compute_vb_integration_Gna( neuron_IDs, neurons );
+            
+        end
+                
+        
+        % Implement a function to compute and set the sodium channel conductance of split voltage based integration neurons.
+        function self = compute_set_split_vb_integration_Gna( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
+            
+            % Compute and set the sodium channel conductance of split voltage based integration neurons.
+            self.neurons = self.compute_split_vb_integration_Gna( neuron_IDs, neurons );
+            
+        end
+        
+        
+        %% Membrane Conductance Compute Functions.
+        
+        % Implement a function to compute the membrane conductance of absolute addition input neurons.
+        function neurons = compute_absolute_addition_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_addition_Gm_input( neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of absolute addition output neurons.
+        function neurons = compute_absolute_addition_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_addition_Gm_output( neurons( neuron_index ).neuron_utilities );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of relative addition input neurons.
+        function neurons = compute_relative_addition_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_addition_Gm_input( neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of relative addition output neurons.
+        function neurons = compute_relative_addition_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+                
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_addition_Gm_output( neurons( neuron_index ).neuron_utilities );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of absolute subtraction input neurons.
+        function neurons = compute_absolute_subtraction_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_subtraction_Gm_input( neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of absolute subtraction output neurons.
+        function neurons = compute_absolute_subtraction_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_subtraction_Gm_output( neurons( neuron_index ).neuron_utilities );
+            
+        end
+
+        
+        % Implement a function to compute the membrane conductance of relative subtraction input neurons.
+        function neurons = compute_relative_subtraction_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_subtraction_Gm_input( neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+        end
+
+       
+        % Implement a function to compute the membrane conductance of relative subtraction output neurons.
+        function neurons = compute_relative_subtraction_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_subtraction_Gm_output( neurons( neuron_index ).neuron_utilities );
+                        
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of absolute inversion input neurons.
+        function neurons = compute_absolute_inversion_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the input neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
+
+            % Compute and set the membrane conductance for the input neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_inversion_Gm_input( neurons( neuron_index ).neuron_utilities );
+            
+        end
+
+
+        % Implement a function to compute the membrane conductance of absolute inversion output neurons.
+        function neurons = compute_absolute_inversion_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_inversion_Gm_output( neurons( neuron_index ).neuron_utilities );
+                        
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of relative inversion input neurons.
+        function neurons = compute_relative_inversion_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the input neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
+
+            % Compute and set the membrane conductance for the input neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_inversion_Gm_input( neurons( neuron_index ).neuron_utilities );
+                        
+        end
+
+                
+        % Implement a function to compute the membrane conductance of relative inversion output neurons.
+        function neurons = compute_relative_inversion_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_inversion_Gm_output( neurons( neuron_index ).neuron_utilities );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of absolute division input neurons.
+        function neurons = compute_absolute_division_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the sodium channel conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_division_Gm_input( neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of absolute division output neurons.
+        function neurons = compute_absolute_division_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_division_Gm_output( neurons( neuron_index ).neuron_utilities );
+            
+        end
+        
+
+        % Implement a function to compute the membrane conductance of relative division input neurons.
+        function neurons = compute_relative_division_Gm_input( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_division_Gm_input( neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of relative division output neurons.
+        function neurons = compute_relative_division_Gm_output( self, neuron_IDs, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+
+            % Compute and set the membrane conductance for the output neuron.
+            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_division_Gm_output( neurons( neuron_index ).neuron_utilities );
+            
+        end
+        
+        
+        % Implement a function to compute the membrane conductance of derivation neurons.
+        function neurons = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons )
+            
+            % Set the default input arguments.
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Safety Factor
+            if nargin < 4, w = self.w_derivation_DEFAULT; end                                               % [Hz?] Derivative Subnetwork Cutoff Frequency
+            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                          % [-] Derivative Subnetwork Gain
+            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                neurons( neuron_index ) = neurons( neuron_index ).compute_derivation_Gm( k_gain, w, safety_factor, neurons( neuron_index ).neuron_utilities );
+                                
             end
             
         end
@@ -1435,159 +2319,92 @@ classdef neuron_manager_class
         %% Membrane Conductance Compute & Set Functions
         
         % Implement a function to compute and set the membrane conductance of absolute addition input neurons.
-        function self = compute_set_absolute_addition_Gm_input( self, neuron_IDs )
+        function self = compute_set_absolute_addition_Gm_input( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
-                
-                % Compute and set the membrane conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_addition_Gm_input(  );
-                                
-            end
+            % Compute and set the membrane conductance of absolute addition input neurons.
+            self.neurons = self.compute_absolute_addition_Gm_input( neuron_IDs, neurons );
             
         end
         
         
         % Implement a function to compute and set the membrane conductance of absolute addition output neurons.
-        function self = compute_set_absolute_addition_Gm_output( self, neuron_IDs )
+        function self = compute_set_absolute_addition_Gm_output( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
-            
-            % Compute and set the membrane conductance for the output neuron.
-            self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_addition_Gm_output(  );
-            
+            % Compute and set the membrane conductance of absolute addition output neurons.
+            self.neurons = self.compute_absolute_addition_Gm_output( neuron_IDs, neurons );
+                        
         end
         
         
         % Implement a function to compute and set the membrane conductance of relative addition input neurons.
-        function self = compute_set_relative_addition_Gm_input( self, neuron_IDs )
+        function self = compute_set_relative_addition_Gm_input( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
-                
-                % Compute and set the membrane conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_Gm_input(  );
-                                
-            end
+            % Compute and set the membrane conductance of relative addition input neurons.
+            self.neurons = self.compute_relative_addition_Gm_input( neuron_IDs, neurons );
             
         end
         
         
         % Implement a function to compute and set the membrane conductance of relative addition output neurons.
-        function self = compute_set_relative_addition_Gm_output( self, neuron_IDs )
+        function self = compute_set_relative_addition_Gm_output( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
-                
-            % Compute and set the membrane conductance for the output neuron.
-            self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_Gm_output(  );
+            % Compute and set the membrane conductance of relative addition output neurons.
+            self.neurons = self.compute_relative_addition_Gm_output( neuron_IDs, neurons );
             
         end
         
         
         % Implement a function to compute and set the membrane conductance of absolute subtraction input neurons.
-        function self = compute_set_absolute_subtraction_Gm_input( self, neuron_IDs )
+        function self = compute_set_absolute_subtraction_Gm_input( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
-                
-                % Compute and set the sodium channel conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_subtraction_Gm_input(  );
-                                
-            end
+            % Compute and set the membrane conductance of absolute subtraction input neurons.
+            self.neurons = self.compute_absolute_subtraction_Gm_input( neuron_IDs, neurons );
             
         end
         
         
         % Implement a function to compute and set the membrane conductance of absolute subtraction output neurons.
-        function self = compute_set_absolute_subtraction_Gm_output( self, neuron_IDs )
+        function self = compute_set_absolute_subtraction_Gm_output( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
-
-            % Compute and set the membrane conductance for the output neuron.
-            self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_subtraction_Gm_output(  );
+            % Compute and set the membrane conductance of absolute subtraction output neurons.
+            self.neurons = self.compute_absolute_subtraction_Gm_output( self, neuron_IDs, neurons );
             
         end
 
         
         % Implement a function to compute and set the membrane conductance of relative subtraction input neurons.
-        function self = compute_set_relative_subtraction_Gm_input( self, neuron_IDs )
+        function self = compute_set_relative_subtraction_Gm_input( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
-                
-                % Compute and set the membrane conductance for this neuron.
-                self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_subtraction_Gm_input(  );
-                                
-            end
+            % Compute and set the membrane conductance of relative subtraction input neurons.
+            self.neurons = self.compute_relative_subtraction_Gm_input( neuron_IDs, neurons );
             
         end
 
@@ -1599,10 +2416,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_subtraction_Gm_output(  );
@@ -1617,10 +2434,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the membrane conductance for the input neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_Gm_input(  );
@@ -1635,10 +2452,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_Gm_output(  );
@@ -1653,10 +2470,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the membrane conductance for the input neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_inversion_Gm_input(  );
@@ -1671,10 +2488,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_inversion_Gm_output(  );
@@ -1689,7 +2506,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -1698,7 +2515,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_Gm_input(  );
@@ -1715,10 +2532,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_Gm_output(  );
@@ -1733,7 +2550,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -1742,7 +2559,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_division_Gm_input(  );
@@ -1759,10 +2576,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_division_Gm_output(  );
@@ -1780,7 +2597,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1789,7 +2606,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_derivation_Gm( k_gain, w, safety_factor );
@@ -1808,7 +2625,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1817,7 +2634,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_transmission_Cm(  );
@@ -1837,7 +2654,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1846,7 +2663,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_slow_transmission_Cm( self.neurons( neuron_index ).Gm, num_cpg_neurons, T, r );
@@ -1863,7 +2680,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1872,7 +2689,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_modulation_Cm(  );
@@ -1889,7 +2706,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1898,7 +2715,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_addition_Cm(  );
@@ -1915,7 +2732,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1924,7 +2741,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_addition_Cm(  );
@@ -1941,7 +2758,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1950,7 +2767,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_Cm(  );
@@ -1967,7 +2784,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -1976,7 +2793,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_subtraction_Cm(  );
@@ -1993,7 +2810,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2002,7 +2819,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_subtraction_Cm(  );
@@ -2019,7 +2836,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2028,7 +2845,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_subtraction_Cm(  );
@@ -2045,7 +2862,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2054,7 +2871,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_double_subtraction_Cm(  );
@@ -2071,7 +2888,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2080,7 +2897,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_double_subtraction_Cm(  );
@@ -2097,7 +2914,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2106,7 +2923,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_double_subtraction_Cm(  );
@@ -2123,7 +2940,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2132,7 +2949,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_multiplication_Cm(  );
@@ -2149,7 +2966,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2158,7 +2975,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_multiplication_Cm(  );
@@ -2175,7 +2992,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2184,7 +3001,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_multiplication_Cm(  );
@@ -2201,7 +3018,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2210,7 +3027,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_inversion_Cm(  );
@@ -2227,7 +3044,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2236,7 +3053,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_Cm(  );
@@ -2253,7 +3070,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2262,7 +3079,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_inversion_Cm(  );
@@ -2279,7 +3096,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2288,7 +3105,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_division_Cm(  );
@@ -2305,7 +3122,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2314,7 +3131,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_Cm(  );
@@ -2331,7 +3148,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2340,7 +3157,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_division_Cm(  );
@@ -2358,14 +3175,14 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
 
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the membrane capacitance of the second neuron.
             Cm2 = cell2mat( self.get_neuron_property( neuron_IDs( 2 ), 'Cm' ) );            % [F] Membrane Capacitance
             Gm2 = cell2mat( self.get_neuron_property( neuron_IDs( 2 ), 'Gm' ) );            % [S] Membrane Conductance
 
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the membrane capacitance for this neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_derivation_Cm1( Gm2, Cm2, k_gain );
@@ -2381,10 +3198,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
 
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 2 ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( 2 ), neurons );
 
             % Compute and set the membrane capacitance for this neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_derivation_Cm2( self.neurons( neuron_index ).Gm, w );
@@ -2400,7 +3217,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2409,7 +3226,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_integration_Cm( ki_mean );
@@ -2427,7 +3244,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2436,7 +3253,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_vb_integration_Cm( ki_mean );
@@ -2454,7 +3271,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2463,7 +3280,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_split_vb_integration_Cm1( ki_mean );
@@ -2480,7 +3297,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
@@ -2489,7 +3306,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs(k) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_split_vb_integration_Cm2(  );
@@ -2508,7 +3325,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -2517,7 +3334,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the activation domain for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_addition_R_input(  );
@@ -2534,13 +3351,13 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the activation domains of the input neurons.
             Rs = cell2mat( self.get_neuron_property( neuron_IDs( 1:( end - 1 ) ) , 'R' ) );     % [V] Activation Domains
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
             
             % Compute and set the activation domain for this neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_addition_R_output( Rs );
@@ -2555,7 +3372,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );                                % [-] Neuron IDs
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );                                % [-] Neuron IDs
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -2564,7 +3381,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the activation domain for this input neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_R_input(  );
@@ -2581,10 +3398,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_addition_R_output(  );
@@ -2599,7 +3416,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -2608,7 +3425,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the activation domain for this input neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_subtraction_R_input(  );
@@ -2625,13 +3442,13 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the activation domains of the input neurons.
             Rs = cell2mat( self.get_neuron_property( neuron_IDs( 1:( end - 1 ) ) , 'R' ) );     % [V] Activation Domain
             
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for this neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_subtraction_R_output( Rs, s_ks );
@@ -2646,7 +3463,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -2655,7 +3472,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the activation domain for this neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_subtraction_R_input(  );
@@ -2672,10 +3489,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_subtraction_R_output(  );
@@ -2692,10 +3509,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for this neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_R2( epsilon, k_gain );
@@ -2712,10 +3529,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the activation domain for the input neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_R_input( epsilon, delta );
@@ -2732,10 +3549,10 @@ classdef neuron_manager_class
 %             if nargin < 2, neuron_IDs = 'all'; end                                                % [-] Neuron IDs
 %             
 %             % Validate the neuron IDs.
-%             neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+%             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
 %             
 %             % Retrieve the index associated with this neuron ID.
-%             neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+%             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 % 
 %             % Compute and set the activation domain for this neuron.
 %             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_R_output( c, epsilon );
@@ -2753,10 +3570,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for this neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_inversion_R_output( c, epsilon, delta );
@@ -2771,10 +3588,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the activation domain for the input neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_inversion_R_input(  );
@@ -2789,10 +3606,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with this output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for this output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_inversion_R_output(  );
@@ -2807,7 +3624,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -2816,7 +3633,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this input neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the activation domain for this input neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_R_input(  );
@@ -2836,13 +3653,13 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the numerator activation domain.
             R_numerator = cell2mat( self.get_neuron_property( neuron_IDs( 1 ) , 'R' ) );        % [V] Numerator Activation Domain
 
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the action domain for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_absolute_division_R_output( c, alpha, epsilon, R_numerator );
@@ -2857,7 +3674,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
@@ -2866,7 +3683,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this input neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the activation domain for this input neuron.
                 self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_division_R_input(  );
@@ -2883,10 +3700,10 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ) );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the activation domain for the output neuron.
             self.neurons( neuron_index ) = self.neurons( neuron_index ).compute_set_relative_division_R_output(  );
@@ -2906,7 +3723,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the third neuron ID.
             neuron_index = self.get_neuron_index( neuron_IDs( 3 ) );
@@ -3059,7 +3876,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the number of neurons to delete.
             num_neurons_to_delete = length( neuron_IDs );
@@ -3103,7 +3920,7 @@ classdef neuron_manager_class
             for k = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
                 
                 % Get the index associated with this neuron.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ) );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Set this neurons name.
                 self.neurons( neuron_index ).name = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
@@ -3973,7 +4790,7 @@ classdef neuron_manager_class
             if nargin < 2, neuron_IDs = 'all'; end                                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs );
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Design the absolute inversion subnetwork neurons.
             self = self.design_absolute_inversion_neurons( neuron_IDs( 2:3 ), c1, epsilon1 );
