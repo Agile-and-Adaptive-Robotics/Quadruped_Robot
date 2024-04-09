@@ -871,7 +871,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to toggle multiple neuron enable states.
-        function neurons = toggle_enabled_neurons( self, neuron_IDs, neurons, set_flag )
+        function [ b_enableds, neurons, self ] = toggle_enabled_neurons( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 4, set_flag = true; end
@@ -956,9 +956,10 @@ classdef neuron_manager_class
         %% Sodium Channel Conductance Compute Functions.
                 
         % Implement a function to compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-        function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -989,9 +990,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute and set the sodium channel conductance of driven multistate cpg neurons.
-        function neurons = compute_driven_multistate_cpg_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_driven_multistate_cpg_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1001,24 +1003,31 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_driven_multistate_cpg_Gna( neurons( neuron_index ).neuron_utilities );
+
+                % Compute the sodium channel conductance for this neuron.
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_driven_multistate_cpg_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of transmission neurons.
-        function neurons = compute_transmission_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_transmission_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1028,6 +1037,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1035,17 +1047,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_transmission_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
                 
         % Implement a function to compute and set the sodium channel conductance of modulation neurons.
-        function neurons = compute_modulation_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_modulation_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1055,6 +1071,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1062,17 +1081,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_modulation_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_modulation_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
 
         
         % Implement a function to compute and set the sodium channel conductance of addition neurons.
-        function neurons = compute_addition_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_addition_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1082,6 +1105,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1089,17 +1115,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_addition_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute addition neurons.
-        function neurons = compute_absolute_addition_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_absolute_addition_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1109,6 +1139,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1116,17 +1149,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_addition_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_addition_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of relative addition neurons.
-        function neurons = compute_relative_addition_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_relative_addition_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1136,6 +1173,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1143,17 +1183,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_addition_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_addition_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
-        function neurons = compute_subtraction_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1163,6 +1207,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1170,17 +1217,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute subtraction neurons.
-        function neurons = compute_absolute_subtraction_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_absolute_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1190,6 +1241,10 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1197,17 +1252,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_subtraction_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of relative subtraction neurons.
-        function neurons = compute_relative_subtraction_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_relative_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1217,6 +1276,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1224,17 +1286,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_subtraction_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of double subtraction neurons.
-        function neurons = compute_double_subtraction_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_double_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1244,6 +1310,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1251,17 +1320,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_double_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_double_subtraction_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute double subtraction neurons.
-        function neurons = compute_absolute_double_subtraction_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_absolute_double_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1271,6 +1344,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1278,17 +1354,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_double_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_double_subtraction_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of relative double subtraction neurons.
-        function neurons = compute_relative_double_subtraction_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_relative_double_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1298,6 +1378,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1305,17 +1388,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_double_subtraction_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_double_subtraction_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of multiplication neurons.
-        function neurons = compute_multiplication_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_multiplication_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1325,6 +1412,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1332,17 +1422,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_multiplication_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_multiplication_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute multiplication neurons.
-        function neurons = compute_absolute_multiplication_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_absolute_multiplication_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1352,6 +1446,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1359,17 +1456,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_multiplication_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_multiplication_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of relative multiplication neurons.
-        function neurons = compute_relative_multiplication_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_relative_multiplication_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1379,6 +1480,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1386,17 +1490,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_multiplication_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_multiplication_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of inversion neurons.
-        function neurons = compute_inversion_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_inversion_Gna( self, neuron_IDs, neurons, set_flag )
         
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1406,6 +1514,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1413,17 +1524,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_inversion_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute inversion neurons.
-        function neurons = compute_absolute_inversion_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_absolute_inversion_Gna( self, neuron_IDs, neurons, set_flag )
         
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if narign < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1433,6 +1548,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1440,17 +1558,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_inversion_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of relative inversion neurons.
-        function neurons = compute_relative_inversion_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_relative_inversion_Gna( self, neuron_IDs, neurons, set_flag )
         
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1460,6 +1582,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1467,17 +1592,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_inversion_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_inversion_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of division neurons.
-        function neurons = compute_division_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_division_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1487,6 +1616,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1494,17 +1626,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_division_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of absolute division neurons.
-        function neurons = compute_absolute_division_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_absolute_division_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1514,6 +1650,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1521,17 +1660,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_division_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_division_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of relative division neurons.
-        function neurons = compute_relative_division_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_relative_division_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1541,6 +1684,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1548,17 +1694,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_division_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_division_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of derivation neurons.
-        function neurons = compute_derivation_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_derivation_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1568,6 +1718,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1575,17 +1728,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_derivation_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of integration neurons.
-        function neurons = compute_integration_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_integration_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1595,6 +1752,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1602,17 +1762,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_integration_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_integration_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the sodium channel conductance of voltage based integration neurons.
-        function neurons = compute_vb_integration_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_vb_integration_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1622,6 +1786,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1629,17 +1796,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_vb_integration_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vb_integration_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
                 
         
         % Implement a function to compute and set the sodium channel conductance of split voltage based integration neurons.
-        function neurons = compute_split_vb_integration_Gna( self, neuron_IDs, neurons )
+        function [ Gnas, neurons, self ] = compute_split_vb_integration_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -1649,6 +1820,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the soduium channel conductances.
+            Gnas = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -1656,360 +1830,23 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_set_split_vb_integration_Gna( neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_split_vb_integration_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
             
-        end
-        
-        
-        
-        %% Sodium Channel Conductance Compute & Set Functions.
-                
-        % Implement a function to compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-        function self = compute_set_cpg_Gna( self, neuron_IDs, neurons )
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-            self.neurons = self.compute_cpg_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of driven multistate cpg neurons.
-        function self = compute_set_driven_multistate_cpg_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of driven multistate CPG neurons.
-            self.neurons = self.compute_driven_multistate_cpg_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of transmission neurons.
-        function self = compute_set_transmission_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of transmission neurons.
-            self.neurons = self.compute_transmission_Gna( neuron_IDs, neurons );
-            
-        end
-        
-                
-        % Implement a function to compute and set the sodium channel conductance of modulation neurons.
-        function self = compute_set_modulation_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of modulation neurons.
-            self.neurons = self.compute_modulation_Gna( neuron_IDs, neurons );
-                        
         end
 
-        
-        % Implement a function to compute and set the sodium channel conductance of addition neurons.
-        function self = compute_set_addition_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of addition neurons.
-            self.neurons = self.compute_addition_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of absolute addition neurons.
-        function self = compute_set_absolute_addition_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of absolute addition neurons.
-            self.neurons = self.compute_absolute_addition_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of relative addition neurons.
-        function self = compute_set_relative_addition_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Copmpute and set the sodium channel conductance of relative addition neurons.
-            self.neurons = self.compute_relative_addition_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
-        function self = compute_set_subtraction_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the soidumchannel conductance of subtraction neurons.
-            self.neurons = self.compute_subtraction_Gna( neuron_IDs, neurons );
-                        
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of absolute subtraction neurons.
-        function self = compute_set_absolute_subtraction_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of absolute subtraction neurons.
-            self.neurons = self.compute_absolute_subtraction_Gna( neuron_IDs, neurons );
-           
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of relative subtraction neurons.
-        function self = compute_set_relative_subtraction_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of relative subtraction neurons.
-            self.neurons = self.compute_relative_subtraction_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of double subtraction neurons.
-        function self = compute_set_double_subtraction_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of double subtraction neurons.
-            self.neurons = self.compute_double_subtraction_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of absolute double subtraction neurons.
-        function self = compute_set_absolute_double_subtraction_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of absolute double subtraction neurons.
-            self.neurons = self.compute_absolute_double_subtraction_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of relative double subtraction neurons.
-        function self = compute_set_relative_double_subtraction_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of relative double subtraction neurons.
-            self.neurons = self.compute_relative_double_subtraction_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of multiplication neurons.
-        function self = compute_set_multiplication_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium chanbnel conductnace of multiplication neurons.
-            self.neurons = self.compute_multiplication_Gna( neuron_IDs, neurons );
-
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of absolute multiplication neurons.
-        function self = compute_set_absolute_multiplication_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductnace of absolute multiplication neurons.
-            self.neurons = self.compute_absolute_multiplication_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of relative multiplication neurons.
-        function self = compute_set_relative_multiplication_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of relative multiplication neurons.
-            self.neurons = self.compute_relative_multiplication_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of inversion neurons.
-        function self = compute_set_inversion_Gna( self, neuron_IDs, neurons )
-        
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of inversion neurons.
-            self.neurons = self.compute_inversion_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of absolute inversion neurons.
-        function self = compute_set_absolute_inversion_Gna( self, neuron_IDs, neurons )
-        
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set teh sodium channelk conductance of absolute inversion neurons.
-            self.neurons = self.compute_absolute_inversion_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of relative inversion neurons.
-        function self = compute_set_relative_inversion_Gna( self, neuron_IDs, neurons )
-        
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of relative inversion neurons.
-            self.neurons = self.compute_relative_inversion_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of division neurons.
-        function self = compute_set_division_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of division neurons.
-            self.neurons = self.compute_division_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of absolute division neurons.
-        function self = compute_set_absolute_division_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of absolute division neurons.
-            self.neurons = self.compute_absolute_division_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of relative division neurons.
-        function self = compute_set_relative_division_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of relative division neurons.
-            self.neurons = self.compute_relative_division_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of derivation neurons.
-        function self = compute_set_derivation_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set hte sodium channel conductance of derivation neurons.
-            self.neurons = self.compute_derivation_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of integration neurons.
-        function self = compute_set_integration_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of intergration neurons.
-            self.neurons = self.compute_intergration_Gna( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of voltage based integration neurons.
-        function self = compute_set_vb_integration_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of voltage based integration neurons.
-            self.neurons = self.compute_vb_integration_Gna( neuron_IDs, neurons );
-            
-        end
-                
-        
-        % Implement a function to compute and set the sodium channel conductance of split voltage based integration neurons.
-        function self = compute_set_split_vb_integration_Gna( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Compute and set the sodium channel conductance of split voltage based integration neurons.
-            self.neurons = self.compute_split_vb_integration_Gna( neuron_IDs, neurons );
-            
-        end
-        
         
         %% Membrane Conductance Compute Functions.
         
         % Implement a function to compute the membrane conductance of absolute addition input neurons.
-        function neurons = compute_absolute_addition_Gm_input( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_absolute_addition_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2019,6 +1856,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
             
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
@@ -2026,17 +1866,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_addition_Gm_input( neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_addition_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of absolute addition output neurons.
-        function neurons = compute_absolute_addition_Gm_output( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_absolute_addition_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2047,15 +1891,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
             
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_addition_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_addition_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of relative addition input neurons.
-        function neurons = compute_relative_addition_Gm_input( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_relative_addition_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2065,6 +1913,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
             
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
@@ -2072,17 +1923,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_addition_Gm_input( neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_addition_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of relative addition output neurons.
-        function neurons = compute_relative_addition_Gm_output( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_relative_addition_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2093,15 +1948,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
                 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_addition_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_addition_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+           
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of absolute subtraction input neurons.
-        function neurons = compute_absolute_subtraction_Gm_input( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_absolute_subtraction_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2111,6 +1970,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
             
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
@@ -2118,17 +1980,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_subtraction_Gm_input( neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_subtraction_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of absolute subtraction output neurons.
-        function neurons = compute_absolute_subtraction_Gm_output( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_absolute_subtraction_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2139,15 +2005,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_subtraction_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_subtraction_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
 
         
         % Implement a function to compute the membrane conductance of relative subtraction input neurons.
-        function neurons = compute_relative_subtraction_Gm_input( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_relative_subtraction_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2156,6 +2026,9 @@ classdef neuron_manager_class
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
@@ -2164,17 +2037,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_subtraction_Gm_input( neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_subtraction_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
 
        
         % Implement a function to compute the membrane conductance of relative subtraction output neurons.
-        function neurons = compute_relative_subtraction_Gm_output( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_relative_subtraction_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2185,15 +2062,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_subtraction_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_subtraction_Gm_output( true, neurons( neuron_index ).neuron_utilities );
                         
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute the membrane conductance of absolute inversion input neurons.
-        function neurons = compute_absolute_inversion_Gm_input( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_absolute_inversion_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2204,15 +2085,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the membrane conductance for the input neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_inversion_Gm_input( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_inversion_Gm_input( true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
 
 
         % Implement a function to compute the membrane conductance of absolute inversion output neurons.
-        function neurons = compute_absolute_inversion_Gm_output( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_absolute_inversion_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2223,15 +2108,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_inversion_Gm_output( neurons( neuron_index ).neuron_utilities );
-                        
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_inversion_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute the membrane conductance of relative inversion input neurons.
-        function neurons = compute_relative_inversion_Gm_input( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_relative_inversion_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2242,15 +2131,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the membrane conductance for the input neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_inversion_Gm_input( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_inversion_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                         
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
 
                 
         % Implement a function to compute the membrane conductance of relative inversion output neurons.
-        function neurons = compute_relative_inversion_Gm_output( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_relative_inversion_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2261,15 +2154,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_inversion_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_inversion_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of absolute division input neurons.
-        function neurons = compute_absolute_division_Gm_input( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_absolute_division_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2278,6 +2175,9 @@ classdef neuron_manager_class
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
+            
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
@@ -2286,17 +2186,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_division_Gm_input( neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_division_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of absolute division output neurons.
-        function neurons = compute_absolute_division_Gm_output( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_absolute_division_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2307,15 +2211,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_division_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_division_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
 
         % Implement a function to compute the membrane conductance of relative division input neurons.
-        function neurons = compute_relative_division_Gm_input( self, neuron_IDs, neurons )
+        function [ Gms, neurons, self ] = compute_relative_division_Gm_input( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2325,6 +2233,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs ) - 1;
             
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2332,17 +2243,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_division_Gm_input( neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_division_Gm_input( true, neurons( neuron_index ).neuron_utilities );
                                 
             end
             
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end            
+
         end
         
         
         % Implement a function to compute the membrane conductance of relative division output neurons.
-        function neurons = compute_relative_division_Gm_output( self, neuron_IDs, neurons )
+        function [ Gm, neurons, self ] = compute_relative_division_Gm_output( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
             
@@ -2353,15 +2268,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
 
             % Compute and set the membrane conductance for the output neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_relative_division_Gm_output( neurons( neuron_index ).neuron_utilities );
+            [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_division_Gm_output( true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the membrane conductance of derivation neurons.
-        function neurons = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons )
+        function [ Gms, neurons, self ] = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
             if nargin < 6, neurons = self.neurons; end
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Safety Factor
             if nargin < 4, w = self.w_derivation_DEFAULT; end                                               % [Hz?] Derivative Subnetwork Cutoff Frequency
@@ -2373,6 +2292,9 @@ classdef neuron_manager_class
             
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
+            
+            % Preallocate an array to store the membrane conductances.
+            Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
@@ -2381,246 +2303,23 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane conductance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_derivation_Gm( k_gain, w, safety_factor, neurons( neuron_index ).neuron_utilities );
+                [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Gm( k_gain, w, safety_factor, true, neurons( neuron_index ).neuron_utilities );
                                 
             end
             
-        end
-        
-        
-        %% Membrane Conductance Compute & Set Functions
-        
-        % Implement a function to compute and set the membrane conductance of absolute addition input neurons.
-        function self = compute_set_absolute_addition_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of absolute addition input neurons.
-            self.neurons = self.compute_absolute_addition_Gm_input( neuron_IDs, neurons );
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
-        
-        
-        % Implement a function to compute and set the membrane conductance of absolute addition output neurons.
-        function self = compute_set_absolute_addition_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of absolute addition output neurons.
-            self.neurons = self.compute_absolute_addition_Gm_output( neuron_IDs, neurons );
-                        
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of relative addition input neurons.
-        function self = compute_set_relative_addition_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of relative addition input neurons.
-            self.neurons = self.compute_relative_addition_Gm_input( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of relative addition output neurons.
-        function self = compute_set_relative_addition_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of relative addition output neurons.
-            self.neurons = self.compute_relative_addition_Gm_output( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of absolute subtraction input neurons.
-        function self = compute_set_absolute_subtraction_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of absolute subtraction input neurons.
-            self.neurons = self.compute_absolute_subtraction_Gm_input( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of absolute subtraction output neurons.
-        function self = compute_set_absolute_subtraction_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of absolute subtraction output neurons.
-            self.neurons = self.compute_absolute_subtraction_Gm_output( self, neuron_IDs, neurons );
-            
-        end
-
-        
-        % Implement a function to compute and set the membrane conductance of relative subtraction input neurons.
-        function self = compute_set_relative_subtraction_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of relative subtraction input neurons.
-            self.neurons = self.compute_relative_subtraction_Gm_input( neuron_IDs, neurons );
-            
-        end
-
-       
-        % Implement a function to compute and set the membrane conductance of relative subtraction output neurons.
-        function self = compute_set_relative_subtraction_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductnace of relative usbtraction output neurons.
-            self.neurons = self.compute_relative_subtraction_Gm_output( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of absolute inversion input neurons.
-        function self = compute_set_absolute_inversion_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-
-            % Compute and set the membrane conductance of absolute inversion input neurons.
-            self.neurons = self.compute_absolute_inversion_Gm_input( neuron_IDs, neurons );
-            
-        end
-
-
-        % Implement a function to compute and set the membrane conductance of absolute inversion output neurons.
-        function self = compute_set_absolute_inversion_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of absolute inversion output neurons.
-            self.neurons = self.compute_absolute_inversion_Gm_output( neuron_IDs, neurons );
-                   
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of relative inversion input neurons.
-        function self = compute_set_relative_inversion_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of relative inversion input neurons.
-            self.neurons = self.compute_relative_inversion_Gm_input( neuron_IDs, neurons );
-            
-        end
-
-                
-        % Implement a function to compute and set the membrane conductance of relative inversion output neurons.
-        function self = compute_set_relative_inversion_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of relative inversion output neurons.
-            self.neurons = self.compute_relative_inversion_Gm_output( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of absolute division input neurons.
-        function self = compute_set_absolute_division_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of absolute division input neurons.
-            self.neurons = self.compute_absolute_division_Gm_input( self, neuron_IDs, neurons );
-
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of absolute division output neurons.
-        function self = compute_set_absolute_division_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Comute and set the membrane conductance of absolute division output neurons.
-            self.neurons = self.compute_absolute_division_Gm_output( neuron_IDs, neurons );
-            
-        end
-        
-
-        % Implement a function to compute and set the membrane conductance of relative division input neurons.
-        function self = compute_set_relative_division_Gm_input( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of relative division input neurons.
-            self.neurons = self.compute_relative_division_Gm_input( neuron_IDs, neurons );
-                        
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of relative division output neurons.
-        function self = compute_set_relative_division_Gm_output( self, neuron_IDs, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of rlative division output neurons.
-            self.neurons = self.compute_relative_division_Gm_output( neuron_IDs, neurons );
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane conductance of derivation neurons.
-        function self = compute_set_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons )
-            
-            % Set the default input arguments.
-            if nargin < 6, neurons = self.neurons; end
-            if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Safety Factor
-            if nargin < 4, w = self.w_derivation_DEFAULT; end                                               % [Hz?] Derivative Subnetwork Cutoff Frequency
-            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                          % [-] Derivative Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
-            
-            % Compute and set the membrane conductance of derivation neurons.
-            self.neurons = self.compute_derivation_Gm( neuron_IDs, k_gain, w, safety_factor, neurons );
-            
-        end
-        
         
         
         %% Membrane Capacitance Compute Functions.
         
         % Implement a function to compute and set the membrane capacitance of transmission subnetwork neurons.
-        function neurons = compute_transmission_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_transmission_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2630,6 +2329,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2637,17 +2339,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_transmission_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of slow transmission subnetwork neurons.
-        function neurons = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, neurons )
+        function [ Cms, neurons, self ] = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
             if nargin < 6, neurons = self.neurons; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end                                          % [-] Oscillation Decay
             if nargin < 4, T = self.T_oscillation_DEFAULT; end                                          % [s] Oscillation Period
@@ -2660,6 +2366,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2667,17 +2376,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_slow_transmission_Cm( neurons( neuron_index ).Gm, num_cpg_neurons, T, r, neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_slow_transmission_Cm( neurons( neuron_index ).Gm, num_cpg_neurons, T, r, true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of modulation subnetwork neurons.
-        function neurons = compute_modulation_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_modulation_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2687,6 +2400,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2694,17 +2410,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_modulation_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_modulation_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of addition subnetwork neurons.
-        function neurons = compute_addition_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_addition_Cm( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2714,6 +2434,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2721,17 +2444,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_addition_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of absolute addition subnetwork neurons.
-        function neurons = compute_absolute_addition_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_absolute_addition_Cm( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2741,6 +2468,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2748,17 +2478,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_addition_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_addition_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of relative subnetwork neurons.
-        function neurons = compute_relative_addition_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_relative_addition_Cm( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2768,6 +2502,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2775,17 +2512,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_addition_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_addition_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
-        function neurons = compute_subtraction_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2795,6 +2536,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2802,17 +2546,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_subtraction_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of absolute subtraction subnetwork neurons.
-        function neurons = compute_absolute_subtraction_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_absolute_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2822,6 +2570,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2829,17 +2580,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_subtraction_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_subtraction_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of relative subtraction subnetwork neurons.
-        function neurons = compute_relative_subtraction_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_relative_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2849,6 +2604,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2856,17 +2614,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_subtraction_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_subtraction_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of double subtraction subnetwork neurons.
-        function neurons = compute_double_subtraction_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_double_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2876,6 +2638,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2883,17 +2648,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_double_subtraction_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_double_subtraction_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of absolute double subtraction subnetwork neurons.
-        function neurons = compute_absolute_double_subtraction_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_absolute_double_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2903,6 +2672,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2910,17 +2682,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_double_subtraction_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_double_subtraction_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of relative double subtraction subnetwork neurons.
-        function neurons = compute_relative_double_subtraction_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_relative_double_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2930,6 +2706,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2937,17 +2716,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_double_subtraction_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_double_subtraction_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of multiplication subnetwork neurons.
-        function neurons = compute_multiplication_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_multiplication_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2957,6 +2740,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2964,17 +2750,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).comput_multiplication_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).comput_multiplication_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of absolute multiplication subnetwork neurons.
-        function neurons = compute_absolute_multiplication_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_absolute_multiplication_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -2984,6 +2774,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -2991,17 +2784,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_multiplication_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_multiplication_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of relative multiplication subnetwork neurons.
-        function neurons = compute_relative_multiplication_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_relative_multiplication_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3011,6 +2808,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3018,17 +2818,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_multiplication_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_multiplication_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of inversion subnetwork neurons.
-        function neurons = compute_inversion_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_inversion_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3038,6 +2842,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3045,17 +2852,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_inversion_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of absolute inversion subnetwork neurons.
-        function neurons = compute_absolute_inversion_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_absolute_inversion_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3065,6 +2876,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3072,17 +2886,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_inversion_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_inversion_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of relative inversion subnetwork neurons.
-        function neurons = compute_relative_inversion_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_relative_inversion_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3092,6 +2910,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3099,17 +2920,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_inversion_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_inversion_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of division subnetwork neurons.
-        function neurons = compute_division_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_division_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3119,6 +2944,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3126,17 +2954,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_division_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of absolute division subnetwork neurons.
-        function neurons = compute_absolute_division_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_absolute_division_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3146,6 +2978,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3153,17 +2988,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_absolute_division_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_absolute_division_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the membrane capacitance of relative division subnetwork neurons.
-        function neurons = compute_relative_division_Cm( self, neuron_IDs, neurons )
+        function [ Cms, neurons, self ] = compute_relative_division_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3173,6 +3012,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3180,17 +3022,21 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                neurons( neuron_index ) = neurons( neuron_index ).compute_relative_division_Cm( neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_division_Cm( true, neurons( neuron_index ).neuron_utilities );
                 
             end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute and set the first membrane capacitance of derivation subnetwork neurons.
-        function neurons = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons )
+        function [ Cm1, neurons, self ] = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons, set_flag )
             
             % Set the default input arguments. 
+            if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Gain
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -3206,15 +3052,19 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
 
             % Compute and set the membrane capacitance for this neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_derivation_Cm1( Gm2, Cm2, k_gain, neurons( neuron_index ).neuron_utilities );
+            [ Cm1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Cm1( Gm2, Cm2, k_gain, true, neurons( neuron_index ).neuron_utilities );
 
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute and set the second memebrane capacitance of derivation subnetwork neurons.
-        function neurons = compute_derivation_Cm2( self, neuron_IDs, w, neurons )
+        function [ Cm2, neurons, self ] = compute_derivation_Cm2( self, neuron_IDs, w, neurons, set_flag )
             
-            % Set the default input arguments.            
+            % Set the default input arguments.    
+            if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, w = self.w_derivation_DEFAULT; end                                       % [Hz?] Derivative Subnetwork Cutoff Frequency?
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -3226,15 +3076,20 @@ classdef neuron_manager_class
             neuron_index = self.get_neuron_index( neuron_IDs( 2 ), neurons );
 
             % Compute and set the membrane capacitance for this neuron.
-            neurons( neuron_index ) = neurons( neuron_index ).compute_derivation_Cm2( neurons( neuron_index ).Gm, w, neurons( neuron_index ).neuron_utilities );
+            [ Cm2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Cm2( neurons( neuron_index ).Gm, w, true, neurons( neuron_index ).neuron_utilities );
 
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute and set the membrane capacitance of integration neurons.
-        function self = compute_integration_Cm( self, neuron_IDs, ki_mean )
+        function [ Cms, neurons, self ] = compute_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                           % [-] Average Integration Mean
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
@@ -3244,6 +3099,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3251,17 +3109,22 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_integration_Cm( ki_mean );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_integration_Cm( ki_mean, true, neurons( neuron_index ).neuron_utilities );
                 
             end
 
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute and set the membrane capacitance of voltage based integration neurons.
-        function self = compute_vb_integration_Cm( self, neuron_IDs, ki_mean )
+        function [ Cms, neurons, self ] = compute_vb_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3271,6 +3134,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3278,17 +3144,22 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_vb_integration_Cm( ki_mean );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vb_integration_Cm( ki_mean, true, neuros( neuron_index ).neuron_utilities );
                 
             end
 
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute and set the first membrane capacitance of split voltage based integration neurons.
-        function self = compute_split_vb_integration_Cm1( self, neuron_IDs, ki_mean )
+        function [ Cms, neurons, self ] = compute_split_vb_integration_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
@@ -3298,6 +3169,9 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
+            
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
@@ -3305,17 +3179,22 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_split_vb_integration_Cm1( ki_mean );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_split_vb_integration_Cm1( ki_mean, true, neurons( neuron_index ).neuron_utilities );
                 
             end
 
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute and set the second membrane capacitance of split voltage based integration neurons.
-        function self = compute_split_vb_integration_Cm2( self, neuron_IDs )
+        function [ Cms, neurons, self ] = compute_split_vb_integration_Cm2( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -3324,36 +3203,8 @@ classdef neuron_manager_class
             % Determine how many neurons to which we are going to apply the given method.
             num_neurons_to_evaluate = length( neuron_IDs );
             
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_split_vb_integration_Cm2(  );
-                
-            end
-
-        end
-        
-        
-        
-        
-        
-        %% Membrane Capacitance Compute & Set Functions.
-        
-        % Implement a function to compute and set the membrane capacitance of transmission subnetwork neurons.
-        function self = compute_set_transmission_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
+            % Preallocate an array to store the membrane conductances.
+            Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
@@ -3362,1109 +3213,24 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_transmission_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of slow transmission subnetwork neurons.
-        function self = compute_set_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r )
-
-            % Set the default input arguments.
-            if nargin < 5, r = self.r_oscillation_DEFAULT; end                                          % [-] Oscillation Decay
-            if nargin < 4, T = self.T_oscillation_DEFAULT; end                                          % [s] Oscillation Period
-            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                          % [#] Number of CPG Neurons
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_slow_transmission_Cm( neurons( neuron_index ).Gm, num_cpg_neurons, T, r );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of modulation subnetwork neurons.
-        function self = compute_set_modulation_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_modulation_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of addition subnetwork neurons.
-        function self = compute_set_addition_Cm( self, neuron_IDs )
-            
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_addition_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of absolute addition subnetwork neurons.
-        function self = compute_set_absolute_addition_Cm( self, neuron_IDs )
-            
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_addition_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of relative subnetwork neurons.
-        function self = compute_set_relative_addition_Cm( self, neuron_IDs )
-            
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_addition_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
-        function self = compute_set_subtraction_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_subtraction_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of absolute subtraction subnetwork neurons.
-        function self = compute_set_absolute_subtraction_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_subtraction_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of relative subtraction subnetwork neurons.
-        function self = compute_set_relative_subtraction_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_subtraction_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of double subtraction subnetwork neurons.
-        function self = compute_set_double_subtraction_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_double_subtraction_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of absolute double subtraction subnetwork neurons.
-        function self = compute_set_absolute_double_subtraction_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_double_subtraction_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of relative double subtraction subnetwork neurons.
-        function self = compute_set_relative_double_subtraction_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_double_subtraction_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of multiplication subnetwork neurons.
-        function self = compute_set_multiplication_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_multiplication_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of absolute multiplication subnetwork neurons.
-        function self = compute_set_absolute_multiplication_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_multiplication_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of relative multiplication subnetwork neurons.
-        function self = compute_set_relative_multiplication_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_multiplication_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of inversion subnetwork neurons.
-        function self = compute_set_inversion_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_inversion_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of absolute inversion subnetwork neurons.
-        function self = compute_set_absolute_inversion_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of relative inversion subnetwork neurons.
-        function self = compute_set_relative_inversion_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_inversion_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of division subnetwork neurons.
-        function self = compute_set_division_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_division_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of absolute division subnetwork neurons.
-        function self = compute_set_absolute_division_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_division_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of relative division subnetwork neurons.
-        function self = compute_set_relative_division_Cm( self, neuron_IDs )
-
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_division_Cm(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the first membrane capacitance of derivation subnetwork neurons.
-        function self = compute_set_derivation_Cm1( self, neuron_IDs, k_gain )
-            
-            % Set the default input arguments.            
-            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the membrane capacitance of the second neuron.
-            Cm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Cm', true, neurons );            % [F] Membrane Capacitance
-            Gm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neurons );            % [S] Membrane Conductance
-
-            % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
-
-            % Compute and set the membrane capacitance for this neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_derivation_Cm1( Gm2, Cm2, k_gain );
-
-        end
-        
-        
-        % Implement a function to compute and set the second memebrane capacitance of derivation subnetwork neurons.
-        function self = compute_set_derivation_Cm2( self, neuron_IDs, w )
-            
-            % Set the default input arguments.            
-            if nargin < 3, w = self.w_derivation_DEFAULT; end                                       % [Hz?] Derivative Subnetwork Cutoff Frequency?
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 2 ), neurons );
-
-            % Compute and set the membrane capacitance for this neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_derivation_Cm2( neurons( neuron_index ).Gm, w );
-
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of integration neurons.
-        function self = compute_set_integration_Cm( self, neuron_IDs, ki_mean )
-            
-            % Set the default input arguments.
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                           % [-] Average Integration Mean
-            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_integration_Cm( ki_mean );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_split_vb_integration_Cm2( true, neurons( neuron_index ).neuron_utilities );
                 
             end
 
-        end
-        
-        
-        % Implement a function to compute and set the membrane capacitance of voltage based integration neurons.
-        function self = compute_set_vb_integration_Cm( self, neuron_IDs, ki_mean )
-            
-            % Set the default input arguments.
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_vb_integration_Cm( ki_mean );
-                
-            end
-
-        end
-        
-        
-        % Implement a function to compute and set the first membrane capacitance of split voltage based integration neurons.
-        function self = compute_set_split_vb_integration_Cm1( self, neuron_IDs, ki_mean )
-            
-            % Set the default input arguments.
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_split_vb_integration_Cm1( ki_mean );
-                
-            end
-
-        end
-        
-        
-        % Implement a function to compute and set the second membrane capacitance of split voltage based integration neurons.
-        function self = compute_set_split_vb_integration_Cm2( self, neuron_IDs )
-            
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs );
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the membrane capacitance for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_split_vb_integration_Cm2(  );
-                
-            end
-
-        end
-        
-        
-        %% Activation Domain Compute & Set Functions
-        
-        % Implement a function to compute and set the operational domain for absolute addition input neurons.
-        function self = compute_set_absolute_addition_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the activation domain for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_addition_R_input(  );
-                
-            end
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
-        % Implement a function to compute and set the operational domain for absolute addition output neurons.
-        function self = compute_set_absolute_addition_R_output( self, neuron_IDs )
+        %% Basic Neuron Creation & Deletion Functions.
         
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the activation domains of the input neurons.
-            Rs = self.get_neuron_property( neuron_IDs( 1:( end - 1 ) ) , 'R', true, neurons );     % [V] Activation Domains
-            
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-            
-            % Compute and set the activation domain for this neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_addition_R_output( Rs );
-            
-        end
+        % Implement a function to set the default properties of a neuron.
+        function [ ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled ] = preprocess_neuron_properties( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, array_utilities )
         
-        
-        % Implement a function to compute and set the operational domain for relative addition input neurons.
-        function self = compute_set_relative_addition_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );                                % [-] Neuron IDs
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the activation domain for this input neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_addition_R_input(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative addition output neurons.
-        function self = compute_set_relative_addition_R_output( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for the output neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_addition_R_output(  );
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for absolute subtraction input neurons.
-        function self = compute_set_absolute_subtraction_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the activation domain for this input neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_subtraction_R_input(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for absolute subtraction output neurons.
-        function self = compute_set_absolute_subtraction_R_output( self, neuron_IDs, s_ks )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the activation domains of the input neurons.
-            Rs = self.get_neuron_property( neuron_IDs( 1:( end - 1 ) ) , 'R', true, neurons );     % [V] Activation Domain
-            
-            % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for this neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_subtraction_R_output( Rs, s_ks );
-                        
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative subtraction input neurons.
-        function self = compute_set_relative_subtraction_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the activation domain for this neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_subtraction_R_input(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative subtraction output neurons.
-        function self = compute_set_relative_subtraction_R_output( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for the output neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_subtraction_R_output(  );
-                        
-        end
-        
-        
-        % Implement a function to compute and set the sodium channel conductance of inversion neurons.
-        function self = compute_set_absolute_inversion_R2( self, neuron_IDs, epsilon, k_gain )
-        
-            % Set the default input arguments.
-            if nargin < 4, k_gain = self.c_inversion_DEFAULT; end                                       % [-] Inversion Subnetwork Gain
-            if nargin < 3, epsilon = self.epsilon_inversion_DEFAULT; end                                % [-] Inversion Subnetwork Offset
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for this neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_R2( epsilon, k_gain );
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for absolute inversion input neurons.
-        function self = compute_set_absolute_inversion_R_input( self, neuron_IDs, epsilon, delta )
-        
-            % Set the default input arguments.
-            if nargin < 4, delta = self.delta_inversion_DEFAULT; end                        	% [-] Inversion Subnetwork Output Offset
-            if nargin < 3, epsilon = self.epsilon_inversion_DEFAULT; end                      	% [-] Inversion Subnetwork Input Offset
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
-
-            % Compute and set the activation domain for the input neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_R_input( epsilon, delta );
-            
-        end
-        
-        
-%         % Implement a function to compute and set the operational domain for absolute inversion output neurons.
-%         function self = compute_set_absolute_inversion_R_output( self, neuron_IDs, c, epsilon )
-%         
-%             % Set the default input arguments.
-%             if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end                         	% [-] Inversion Subnetwork Offset
-%             if nargin < 3, c = self.c_inversion_DEFAULT; end                                      % [-] Inversion Subnetwork Gain
-%             if nargin < 2, neuron_IDs = 'all'; end                                                % [-] Neuron IDs
-%             
-%             % Validate the neuron IDs.
-%             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-%             
-%             % Retrieve the index associated with this neuron ID.
-%             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-% 
-%             % Compute and set the activation domain for this neuron.
-%             self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_R_output( c, epsilon );
-%             
-%         end
-        
-
-        % Implement a function to compute and set the operational domain for absolute inversion output neurons.
-        function self = compute_set_absolute_inversion_R_output( self, neuron_IDs, c, epsilon, delta )
-        
-            % Set the default input arguments.
-            if nargin < 5, delta = self.delta_inversion_DEFAULT; end                          	% [-] Inversion Subnetwork Output Offset
-            if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end                      	% [-] Inversion Subnetwork Input Offset
-            if nargin < 3, c = self.c_DEFAULT; end                                              % [-] Inversion Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for this neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_inversion_R_output( c, epsilon, delta );
-            
-        end
-
-        
-        % Implement a function to compute and set the operational domain for relative inversion input neurons.
-        function self = compute_set_relative_inversion_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
-
-            % Compute and set the activation domain for the input neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_inversion_R_input(  );
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative inversion output neurons.
-        function self = compute_set_relative_inversion_R_output( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with this output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for this output neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_inversion_R_output(  );
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for absolute division input neurons.
-        function self = compute_set_absolute_division_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this input neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the activation domain for this input neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_division_R_input(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for absolute division output neurons.
-        function self = compute_set_absolute_division_R_output( self, neuron_IDs, c, alpha, epsilon )
-                    
-            % Set the default input arguments.
-            if nargin < 5, epsilon = self.epsilon_division_DEFAULT; end                        	% [-] Division Subnetwork Offset
-            if nargin < 4, alpha = self.alpha_DEFAULT; end                                     	% [-] Division Subnetwork Denominator Adjustment
-            if nargin < 3, c = self.c_division_DEFAULT; end                                   	% [-] Division Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the numerator activation domain.
-            R_numerator = self.get_neuron_property( neuron_IDs( 1 ) , 'R', true, neurons );        % [V] Numerator Activation Domain
-
-            % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the action domain for the output neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_absolute_division_R_output( c, alpha, epsilon, R_numerator );
-                       
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative division input neurons.
-        function self = compute_set_relative_division_R_input( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;
-            
-            % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
-                
-                % Retrieve the index associated with this input neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Compute and set the activation domain for this input neuron.
-                self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_division_R_input(  );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative division output neurons.
-        function self = compute_set_relative_division_R_output( self, neuron_IDs )
-        
-            % Set the default input arguments.
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with the output neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
-
-            % Compute and set the activation domain for the output neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_division_R_output(  );
-            
-        end
-        
-        
-        % Implement a function to compute and set the operational domain for relative multiplication output neurons.
-        function self = compute_set_relative_multiplication_R3( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2 )
-                 
-            % Set the default input arguments.
-            if nargin < 7, epsilon2 = self.epsilon_division_DEFAULT; end                                % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_inversion_DEFAULT; end                               % [-] Inversion Subnetwork Offset
-            if nargin < 5, c2 = self.c_division_DEFAULT; end                                            % [-] Division Subnetwork Gain
-            if nargin < 4, c1 = self.c_inversion_DEFAULT; end                                           % [-] Inversion Subnetwork Gain
-            if nargin < 3, c = self.c_multiplication_DEFAULT; end                                       % [-] Multiplication Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Retrieve the index associated with the third neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 3 ), neurons );
-
-            % Compute and set the activation domain for the third neuron.
-            self.neurons( neuron_index ) = neurons( neuron_index ).compute_set_relative_multiplication_R3( c, c1, c2, epsilon1, epsilon2 );
-            
-        end
-        
-        
-        %% Basic Neuron Creation & Deletion Functions
-        
-        % Implement a function to create a new neuron.
-        function [ self, ID ] = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled )
-            
             % Set the default neuron properties.
+            if nargin < 27, array_utilities = self.array_utilites; end
+            if nargin < 26, neurons = self.neurons; end
             if nargin < 25, b_enabled = true; end                                                               % [T/F] Neuron Enabled Flag
             if nargin < 24, I_total = self.Itotal_DEFAULT; end                                                  % [A] Total Current
             if nargin < 23, I_app = self.Iapp_DEFFAULT; end                                                     % [A] Applied Current
@@ -4489,7 +3255,82 @@ classdef neuron_manager_class
             if nargin < 4, U = 0; end                                                                           % [V] Membrane Voltage
             if nargin < 3, name = ''; end                                                                       % [-] Neuron Name
             if nargin < 2, ID = self.generate_unique_neuron_ID( neurons, array_utilities ); end                                         % [#] Neuron ID
+                        
+        end
+        
             
+        % Implement a function to verify the compatibility of neuron properties.
+        function valid_flag = validate_neuron_properties( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
+            
+            % Set the default neuron properties.
+            if nargin < 28, array_utilities = self.array_utilities; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, num_neurons_to_create ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
+            
+            % Determine whether to convert the names property to a cell.
+            if ~iscell( names ), names = { names }; end
+            
+            % Determine whether the neuron properties are relevant.
+            valid_flag = ( n_neurons == length( IDs ) ) && ( n_neurons == length( names ) &&  n_neurons == length( Us ) ) && ( n_neurons == length( hs ) ) && ( n_neurons == length( Cms ) ) && ( n_neurons == length( Gms ) ) && ( n_neurons == length( Ers ) ) && ( n_neurons == length( Rs ) ) && ( n_neurons == length( Ams ) ) && ( n_neurons == length( Sms ) ) && ( n_neurons == length( dEms ) ) && ( n_neurons == length( Ahs ) ) && ( n_neurons == length( Shs ) ) && ( n_neurons == length( dEhs ) ) && ( n_neurons == length( dEnas ) ) && ( n_neurons == length( tauh_maxs ) ) && ( n_neurons == length( Gnas ) ) && ( n_neurons == length( I_leaks ) ) && ( n_neurons == length( I_syns ) ) && ( n_neurons == length( I_nas ) ) && ( n_neurons == length( I_tonics ) ) && ( n_neurons == length( I_apps ) ) && ( n_neurons == length( I_totals ) ) && ( n_neurons == length( b_enableds ) );
+            
+        end
+        
+        
+        % Implement a function to create a new neuron.
+        function [ ID, neuron, self ] = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities )
+            
+            % Set the default neuron properties.
+            if nargin < 28, array_utilities = self.array_utilites; end
+            if nargin < 27, set_flag = true; end
+            if nargin < 26, neurons = self.neurons; end
+            if nargin < 25, b_enabled = true; end                                                               % [T/F] Neuron Enabled Flag
+            if nargin < 24, I_total = self.Itotal_DEFAULT; end                                                  % [A] Total Current
+            if nargin < 23, I_app = self.Iapp_DEFFAULT; end                                                     % [A] Applied Current
+            if nargin < 22, I_tonic = self.Itonic_DEFAULT; end                                                  % [A] Tonic Current
+            if nargin < 21, I_na = self.Ina_DEFAULT; end                                                        % [A] Sodium Channel Current
+            if nargin < 20, I_syn = self.Isyn_DEFAULT; end                                                      % [A] Synaptic Current
+            if nargin < 19, I_leak = self.Ileak_DEFAULT; end                                                    % [A] Leak Current
+            if nargin < 18, Gna = self.Gna_DEFAULT; end                                                         % [S] Sodium Channel Conductance
+            if nargin < 17, tauh_max = self.tauh_max_DEFAULT; end                                               % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 16, dEna = self.dEna_DEFAULT; end                                                       % [V] Sodium Channel Reversal Potential
+            if nargin < 15, dEh = self.dEh_DEFAULT; end                                                         % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 14, Sh = self.Sh_DEFAULT; end                                                           % [-] Sodium Channel Deactivation Slope
+            if nargin < 13, Ah = self.Ah_DEFAULT; end                                                           % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 12, dEm = self.dEm_DEFAULT; end                                                         % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 11, Sm = self.Sm_DEFAULT; end                                                           % [-] Sodium Channel Activation Slope
+            if nargin < 10, Am = self.Am_DEFAULT; end                                                           % [-] Sodium Channel Activation Amplitude
+            if nargin < 9, R = self.R_DEFAULT; end                                                              % [V] Activation Domain
+            if nargin < 8, Er = self.Er_DEFAULT; end                                                            % [V] Membrane Equilibrium Potential
+            if nargin < 7, Gm = self.Gm_DEFAULT; end                                                            % [S] Membrane Conductance
+            if nargin < 6, Cm = self.Cm_DEFAULT; end                                                            % [F] Membrane Capacitance
+            if nargin < 5, h = [  ]; end                                                                        % [-] Sodium Channel Deactivation Parameter
+            if nargin < 4, U = 0; end                                                                           % [V] Membrane Voltage
+            if nargin < 3, name = ''; end                                                                       % [-] Neuron Name
+            if nargin < 2, ID = self.generate_unique_neuron_ID( neurons, array_utilities ); end                                         % [#] Neuron ID
+           
             % Ensure that this neuron ID is a unique natural.
             assert( self.unique_natural_neuron_ID( ID, neurons, array_utilities ), 'Proposed neuron ID %0.2f is not a unique natural number.', ID )
             
@@ -4497,82 +3338,63 @@ classdef neuron_manager_class
             neuron = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled );
             
             % Append this neuron to the array of existing neurons.
-            self.neurons = [ self.neurons neuron ];
+            neurons = [ neurons neuron ];
             
-            % Increase the number of neurons counter.
-            self.num_neurons = self.num_neurons + 1;
+            % Determine whether to update the neuron manager object.
+            if set_flag                                         % If we want to update the neuron manager object...
+                
+                % Update the neurons property.
+                self.neurons = neurons;
             
+                % Increase the number of neurons counter.
+                self.num_neurons = self.num_neurons + 1;
+            
+            end
+                
         end
         
         
         % Implement a function to create multiple neurons.
-        function [ self, IDs ] = create_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds )
-            
-            % Determine whether number of neurons to create.
-            if nargin > 2                                               % If more than just neuron IDs were provided...
-                
-                % Set the number of neurons to create to be the number of provided IDs.
-                num_neurons_to_create = length( IDs );
-                
-            elseif nargin == 2                                          % If just the neuron IDs were provided...
-                
-                % Retrieve the number of IDs.
-                num_IDs = length( IDs );
-                
-                % Determine who to interpret this number of IDs.
-                if num_IDs == 1                                     % If the number of IDs is one...
-                    
-                    % Then create a number of neurons equal to the specific ID.  (i.e., in this case we are treating the single provided ID value as the number of neurons that we want to create.)
-                    num_neurons_to_create = IDs;
-                    
-                    % Preallocate an array of IDs.
-                    IDs = self.generate_unique_neuron_IDs( num_neurons_to_create, neurons, array_utilities );
-                    
-                else                                                % Otherwise... ( More than one ID was provided... )
-                    
-                    % Set the number of neurons to create to be the number of provided neuron IDs.
-                    num_neurons_to_create = num_IDs;
-                    
-                end
-                
-            elseif nargin == 1                                      % If no input arguments were provided... ( Beyond the default self argument.)
-                
-                % Set the number of neurons to create to one.
-                num_neurons_to_create = 1;
-                
-            end
-            
+        function [ IDs, neurons, self ] = create_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        
             % Set the default neuron properties.
-            if nargin < 25, b_enableds = true( 1, num_neurons_to_create ); end                                                      % [T/F] Neuron Enabled Flag
-            if nargin < 24, I_totals = self.Itotal_DEFAULT*ones( 1, num_neurons_to_create ); end                                    % [A] Total Current
-            if nargin < 23, I_apps = self.Iapp_DEFAULT*ones( 1, num_neurons_to_create ); end                                        % [A] Applied Current
-            if nargin < 22, I_tonics = self.Itonic_DEFAULT*ones( 1, num_neurons_to_create ); end                                    % [A] Tonic Current
-            if nargin < 21, I_nas = self.Ina_DEFAULT*ones( 1, num_neurons_to_create ); end                                          % [A] Sodium Channel Current
-            if nargin < 20, I_syns = self.Isyn_DEFAULT*ones( 1, num_neurons_to_create ); end                                        % [A] Synaptic Current
-            if nargin < 19, I_leaks = self.Ileak_DEFAULT*ones( 1, num_neurons_to_create ); end                                     % [A] Leak Current
-            if nargin < 18, Gnas = self.Gna_DEFAULT*ones( 1, num_neurons_to_create ); end                                           % [S] Sodium Channel Conductance
-            if nargin < 17, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, num_neurons_to_create ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
-            if nargin < 16, dEnas = self.dEna_DEFAULT*ones( 1, num_neurons_to_create ); end                                         % [V] Sodium Channel Reversal Potential
-            if nargin < 15, dEhs = self.dEh_DEFAULT*ones( 1, num_neurons_to_create ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
-            if nargin < 14, Shs = self.Sh_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Deactivation Slope
-            if nargin < 13, Ahs = self.Ah_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Deactivation Amplitude
-            if nargin < 12, dEms = self.dEm_DEFAULT*ones( 1, num_neurons_to_create ); end                                          % [-] Sodium Channel Activation Reversal Potential
-            if nargin < 11, Sms = self.Sm_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Activation Slope
-            if nargin < 10, Ams = self.Am_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Activation Amplitude
-            if nargin < 9, Rs = self.R_DEFAULT*ones( 1, num_neurons_to_create ); end                                                % [V] Activation Domain
-            if nargin < 8, Ers = self.Er_DEFAULT*ones( 1, num_neurons_to_create ); end                                              % [V] Membrane Equilibrium Potential
-            if nargin < 7, Gms = self.Gm_DEFAULT*ones( 1, num_neurons_to_create ); end                                              % [S] Membrane Conductance
-            if nargin < 6, Cms = self.Cm_DEFAULT*ones( 1, num_neurons_to_create ); end                                              % [F] Membrane Capacitance
-            if nargin < 5, hs = repmat( { [  ] }, 1, num_neurons_to_create ); end                                                   % [-] Sodium Channel Deactivation Parameter
-            if nargin < 4, Us = zeros( 1, num_neurons_to_create ); end                                                              % [V] Membrane Voltage
-            if nargin < 3, names = repmat( { '' }, 1, num_neurons_to_create ); end                                                  % [-] Neuron Name
-            if nargin < 2, IDs = self.generate_unique_neuron_IDs( num_neurons_to_create, neurons, array_utilities ); end                                      % [#] Neuron ID
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, num_neurons_to_create ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, num_neurons_to_create ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, num_neurons_to_create ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, num_neurons_to_create ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, num_neurons_to_create ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, num_neurons_to_create ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, num_neurons_to_create ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, num_neurons_to_create ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, num_neurons_to_create ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, num_neurons_to_create ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, num_neurons_to_create ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, num_neurons_to_create ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, num_neurons_to_create ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, num_neurons_to_create ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, num_neurons_to_create ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, num_neurons_to_create ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, num_neurons_to_create ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, num_neurons_to_create ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, num_neurons_to_create ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, num_neurons_to_create ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( num_neurons_to_create, neurons, array_utilities ); end          	% [#] Neuron ID
+            if nargin < 2, n_neurons = 1; end
+            
+            % Ensure that the number of neurons and properties agree.
+            assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Neuron property sizes must agree.' )
             
             % Create each of the spcified neurons.
-            for k = 1:num_neurons_to_create                         % Iterate through each of the neurons we want to create...
+            for k = 1:n_neurons                         % Iterate through each of the neurons we want to create...
        
                 % Create this neuron.
-                self = self.create_neuron( IDs( k ), names{k}, Us( k ), hs{k}, Cms( k ), Gms( k ), Ers( k ), Rs( k ), Ams( k ), Sms( k ), dEms( k ), Ahs( k ), Shs( k ), dEhs( k ), dEnas( k ), tauh_maxs( k ), Gnas( k ), I_leaks( k ), I_syns( k ), I_nas( k ), I_tonics( k ), I_apps( k ), I_totals( k ), b_enableds( k ) );
+                [ ~, neurons, self ] = self.create_neuron( IDs( k ), names{ k }, Us( k ), hs{ k }, Cms( k ), Gms( k ), Ers( k ), Rs( k ), Ams( k ), Sms( k ), dEms( k ), Ahs( k ), Shs( k ), dEhs( k ), dEnas( k ), tauh_maxs( k ), Gnas( k ), I_leaks( k ), I_syns( k ), I_nas( k ), I_tonics( k ), I_apps( k ), I_totals( k ), b_enableds( k ), neurons, set_flag, array_utilities );
             
             end
             
@@ -4580,24 +3402,38 @@ classdef neuron_manager_class
         
         
         % Implement a function to delete a neuron.
-        function self = delete_neuron( self, neuron_ID )
+        function [ neurons, self ] = delete_neuron( self, neuron_ID, neurons, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
             neuron_index = self.get_neuron_index( neuron_ID, neurons );
             
             % Remove this neuron from the array of neurons.
-            self.neurons( neuron_index ) = [  ];
+            neurons( neuron_index ) = [  ];
             
-            % Decrease the number of neurons counter.
-            self.num_neurons = self.num_neurons - 1;
+            % Determine whether to update the neuron manager object.
+            if set_flag                                     % If we want to update the neuron manager object...
+                
+                % Update the neuron property.
+                self.neurons = neurons;
             
+                % Decrease the number of neurons counter.
+                self.num_neurons = self.num_neurons - 1;
+            
+            end
+                
         end
         
         
         % Implement a function to delete multiple neurons.
-        function self = delete_neurons( self, neuron_IDs )
+        function [ neurons, self ] = delete_neurons( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
@@ -4610,79 +3446,128 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_delete                      % Iterate through each of the neurons we want to delete...
                 
                 % Delete this neuron.
-                self = self.delete_neuron( neuron_IDs( k ) );
+                [ neurons, self ] = self.delete_neuron( neuron_IDs( k ), neurons, set_flag );
                 
             end
             
         end
         
        
-        %% Subnetwork Neuron Creation Functions
-                
+        %% Subnetwork Neuron Creation Functions.
+
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
-        function [ self, neuron_IDs ] = create_multistate_cpg_neurons( self, num_cpg_neurons )
+        function [ IDs, neurons, self ] = create_multistate_cpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
         
-            % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            % Set the default neuron properties.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
             
-            % Determine whether to generate unique neuron IDs or use the specified neuron IDs.
-            if length( num_cpg_neurons ) > 1                            % If more than one "number of cpg neurons" was specified...
-            
-                % Set the neuron IDs to be those specified by the first input argument. ( We assume that this variable is instead the IDs that we would like to use for the newly created neurons.)
-                neuron_IDs = num_cpg_neurons;
-
-            else                                                        % Otherwise...
+            % Determine whether to update the default or provided names.
+            if all( [ names{ : } ] == '' )                                      % If all of the names are empty...
                 
-                % Generate unique neuron IDs for the multistate CPG subnetwork.
-                neuron_IDs = self.generate_unique_neuron_IDs( num_cpg_neurons, neurons, array_utilities );
-
+                % Define the neuron names.
+                for k = 1:n_neurons                                             % Iterate through each of the neurons...
+                    
+                    % Define the name associated with this neuron.
+                    names{ k } = sprintf( 'CPG Neuron %0.0f', IDs( k ) );
+                    
+                end
+                
             end
-                
-            % Create the multistate cpg subnetwork neurons.
-            self = self.create_neurons( neuron_IDs );
             
-            % Edit the network properties.
-            for k = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
-                
-                % Get the index associated with this neuron.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
-                
-                % Set this neurons name.
-                self.neurons( neuron_index ).name = sprintf( 'Neuron %0.0f', neuron_IDs( k ) );
-                
-            end
+            % Create the multistate cpg subnetwork neurons.            
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
-        function [ self, neuron_IDs ] = create_driven_multistate_cpg_neurons( self, num_cpg_neurons )
+        function [ IDs, neurons, self ] = create_driven_multistate_cpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
         
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID       
             
             % Create the neurons for a multistate cpg subnetwork.
-            [ self, neuron_IDs_cpg ] = self.create_multistate_cpg_neurons( num_cpg_neurons );
+            [ IDs_cpg, neurons, neuron_manager ] = self.create_multistate_cpg_neurons( n_neurons - 1, IDs( 1:( end - 1 ) ), names( 1:( end - 1 ) ), Us( 1:( end - 1 ) ), hs( 1:( end - 1 ) ), Cms( 1:( end - 1 ) ), Gms( 1:( end - 1 ) ), Ers( 1:( end - 1 ) ), Rs( 1:( end - 1 ) ), Ams( 1:( end - 1 ) ), Sms( 1:( end - 1 ) ), dEms( 1:( end - 1 ) ), Ahs( 1:( end - 1 ) ), Shs( 1:( end - 1 ) ), dEhs( 1:( end - 1 ) ), dEnas( 1:( end - 1 ) ), tauh_maxs( 1:( end - 1 ) ), Gnas( 1:( end - 1 ) ), I_leaks( 1:( end - 1 ) ), I_syns( 1:( end - 1 ) ), I_nas( 1:( end - 1 ) ), I_tonics( 1:( end - 1 ) ), I_apps( 1:( end - 1 ) ), I_totals( 1:( end - 1 ) ), b_enableds( 1:( end - 1 ) ), neurons, true, array_utilities );
+            
+            % Determine whether to update the default or provided CPG drive neuron name.
+            if isempty( names{ end } )                  % If the final name is empty...
+               
+                % Set the drive neuron name.
+                names{ end } = 'CPG Drive';
+                
+            end
             
             % Create an additional neuron to drive the multistate cpg.
-            [ self, neuron_ID_drive ] = self.create_neuron(  );
+            [ ID_drive, neurons, neuron_manager ] = neuron_manager.create_neuron( IDs( end ), names{ end }, Us( end ), hs( end ), Cms( end ), Gms( end ), Ers( end ), Rs( end ), Ams( end ), Sms( end ), dEms( end ), Ahs( end ), Shs( end ), dEhs( end ), dEnas( end ), tauh_maxs( end ), Gnas( end ), I_leaks( end ), I_syns( end ), I_nas( end ), I_tonics( end ), I_apps( end ), I_totals( end ), b_enableds( end ), neurons, true, array_utilities );
            
-            % Set the name of the drive neuron.
-            self = self.set_neuron_property( neuron_ID_drive, { 'CPG Drive' }, 'name' );
-            
             % Concatenate the neuron IDs.
-            neuron_IDs = [ neuron_IDs_cpg, neuron_ID_drive ];
+            IDs = [ IDs_cpg, ID_drive ];
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
-            
+        
         % Implement a function to create the neurons for a driven multistate cpg split lead lag subnetwork.
         function [ self, neuron_IDs_cell ] = create_dmcpg_sll_neurons( self, num_cpg_neurons )
         
             % Set the default input arguments.
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
             
-            % Preallocat a cell array to store the neuron IDs.
+            % Preallocate a cell array to store the neuron IDs.
             neuron_IDs_cell = cell( 1, num_cpg_neurons + 3 );
             
             % Create the driven multistate cpg subnetwork neurons.
@@ -4699,7 +3584,7 @@ classdef neuron_manager_class
             
             % Create the unique driven multistate cpg split lead lag neurons.
             [ self, neuron_IDs_cell{ end } ] = self.create_neurons( self.num_dmcpg_sll_neurons_DEFAULT );
-
+            
             % Set the names of these addition neurons.
             self = self.set_neuron_property( neuron_IDs_cell{ end }, { 'Fast Lead', 'Fast Lag', 'Slow Lead', 'Slow Lag' }, 'name' );
 
@@ -4770,396 +3655,562 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a transmission subnetwork.
-        function [ self, neuron_IDs ] = create_transmission_neurons( self )
+        function [ IDs, neurons, self ] = create_transmission_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
                 
-            % Create the transmission subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_transmission_neurons_DEFAULT );
+            % Define the number of neurons.
+            n_neurons = self.num_transmission_neurons_DEFAULT;
             
-            % Set the names of the transmission subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Trans 1', 'Trans 2' }, 'name'  );
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
 
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                              % If the names are empty...
+               
+                % Define the default neuron names.
+                names = { [ network_type, ' Transmission Input' ], [ network_type, ' Transmission Output' ] };
+                
+            end
+            
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            
         end
         
             
         % Implement a function to create the neurons for a modulation subnetwork.
-        function [ self, neuron_IDs ] = create_modulation_neurons( self )
+        function [ IDs, neurons, self ] = create_modulation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
 
-            % Create the modulation subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_modulation_neurons_DEFAULT );
+            % Define the number of neurons.
+            n_neurons = self.num_modulation_neurons_DEFAULT;
             
-            % Set the names of the modulation subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Mod 1', 'Mod 2' }, 'name'  );
-                 
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
+
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                              % If the names are empty...
+               
+                % Define the default neuron names.
+                names = { [ network_type, ' Modulation Input' ], [ network_type, ' Modulation Output' ] };
+                
+            end
+            
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            
         end
         
         
         % Implement a function to create the neurons for an addition subnetwork.
-        function [ self, neuron_IDs ] = create_addition_neurons( self )
+        function [ IDs, neurons, self ] = create_addition_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
  
-            % Create the addition subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_addition_neurons_DEFAULT );
+            % Set the default number of neurons.
+            if nargin < 3, n_neurons = self.num_addition_neurons_DEFAULT; end
             
-            % Set the names of the addition subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Add 1', 'Add 2', 'Sum' }, 'name'  );
+            % Ensure that the specified number of neurons is valid.
+            assert( n_neurons > 1, 'Addition subnetworks must consist of at least two neurons.' );
             
-        end
-        
-        
-        % Implement a function to create the neurons for an absolute addition subnetwork.
-        function [ self, neuron_IDs ] = create_absolute_addition_neurons( self, num_addition_neurons )
- 
-            % Define the default input arguments.
-            if nargin < 2, num_addition_neurons = self.num_addition_neurons_DEFAULT; end
-            
-            % Create the absolute addition subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_addition_neurons );
-            
-            % Set hte names of the absolute addition subnetwork neurons.
-            for k = 1:( num_addition_neurons - 1 )                  % Iterate through each of the subnetwork input neurons...
-            
-                % Set the name of this absolute addition subnetwork input neuron.
-                self = self.set_neuron_property( neuron_IDs( k ), { sprintf( 'Absolute Addition Input %0.0f', k ) }, 'name' );
-                
-            end
-            
-            % Set the names of the absolute addition subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs( end ), { 'Absolute Addition Output' }, 'name' );
-            
-        end
-        
-        
-        % Implement a function to create the neurons for a relative addition subnetwork.
-        function [ self, neuron_IDs ] = create_relative_addition_neurons( self, num_addition_neurons )
- 
-            % Define the default input arguments.
-            if nargin < 2, num_addition_neurons = self.num_addition_neurons_DEFAULT; end
-            
-            % Create the relative addition subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_addition_neurons );
-            
-            % Set hte names of the relative addition subnetwork neurons.
-            for k = 1:( num_addition_neurons - 1 )                  % Iterate through each of the subnetwork input neurons...
-            
-                % Set the name of this relative addition subnetwork input neuron.
-                self = self.set_neuron_property( neuron_IDs( k ), { sprintf( 'Relative Addition Input %0.0f', k ) }, 'name' );
-                
-            end
-            
-            % Set the names of the relative addition subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs( end ), { 'Relative Addition Output' }, 'name' );
-            
-        end
-        
-        
-        % Implement a function to create the neurons for a multi absolute addition subnetwork.
-        function [ self, neuron_IDs ] = create_multi_absolute_addition_neurons( self, num_inputs )
- 
             % Set the default input arguments.
-            if nargin < 2, num_inputs = 2; end
+            if nargin < 30, array_utilities = self.array_utilities; end
+            if nargin < 29, set_flag = true; end
+            if nargin < 28, neurons = self.neurons; end
+            if nargin < 27, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 26, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 25, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 24, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 23, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 22, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 21, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 20, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 19, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 18, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 17, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 16, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 15, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 14, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 13, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 12, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 11, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 9, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 8, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 7, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 6, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
             
-            % Create the absolute addition subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_inputs + 1 );
-            
-            % Create a variable to store the input names.
-            input_names = cell( 1, num_inputs );
-            
-            % Create the input names.
-            for k = 1:num_inputs                % Iterate through each of the inputs...
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+               
+                % Determine how to specify the names of the addition neurons.
+                if n_neurons ==  2                                              % If this subnetwork has exactly two neurons...
                 
-                % Create this input name.
-                input_names{ k } = sprintf( 'Abs Add In %0.0f', k );
+                    % Define the name of the single input neuron.
+                    names{ 1 } = [ network_type, ' Addition Input' ];
+                    
+                elseif n_neurons > 2                                            % If this subnetwork has more than two neurons...
+
+                    for k = 1:( n_neurons - 1 )                                 % Iterate through each of the neurons...
+
+                        % Define the default input neuron names.
+                        names{ k } = sprintf( '%s Addition Input %0.0f', network_type, k );
+
+                    end
+
+                else                                                          	% Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Addition subnetworks must consist of at least two neurons.' )
+                    
+                end
+                
+                % Define the default output neuron names.
+                names{ end } = [ network_type, ' Addition Output' ];
                 
             end
             
-            % Set the names of the absolute addition subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, [ input_names, 'Abs Sum' ], 'name'  );
-            
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+  
         end
+
         
-        
-        % Implement a function to create the neurons for a multi relative addition subnetwork.
-        function [ self, neuron_IDs ] = create_multi_relative_addition_neurons( self, num_inputs )
- 
-            % Set the default input arguments.
-            if nargin < 2, num_inputs = 2; end
-            
-            % Create the relative addition subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_inputs + 1 );
-            
-            % Create a variable to store the input names.
-            input_names = cell( 1, num_inputs );
-            
-            % Create the input names.
-            for k = 1:num_inputs                % Iterate through each of the inputs...
-                
-                % Create this input name.
-                input_names{ k } = sprintf( 'Rel Add In %0.0f', k );
-                
-            end
-            
-            % Set the names of the relative addition subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, [ input_names, 'Rel Sum' ], 'name'  );
-            
-        end
-        
-            
         % Implement a function to create the neurons for a subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_subtraction_neurons( self )
-                
-            % Create the subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_subtraction_neurons_DEFAULT );
+        function [ IDs, neurons, self ] = create_subtraction_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
-            % Set the names of the subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Sub 1', 'Sub 2', 'Sub 3' }, 'name'  );
-
-        end
-        
-        
-        % Implement a function to create the neurons for an absolute subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_absolute_subtraction_neurons( self, num_subtraction_neurons )
-                
-            % Define the default input arguments.
-            if nargin < 2, num_subtraction_neurons = self.num_subtraction_neurons_DEFAULT; end
+            % Set the default number of neurons.
+            if nargin < 3, n_neurons = self.num_subtraction_neurons_DEFAULT; end
             
-            % Create the absolute subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_subtraction_neurons );
+            % Ensure that the specified number of neurons is valid.
+            assert( n_neurons > 1, 'Subtraction subnetworks must consist of at least two neurons.' );
             
-            % Set hte names of the absolute subtraction subnetwork neurons.
-            for k = 1:( num_subtraction_neurons - 1 )                  % Iterate through each of the subnetwork input neurons...
-            
-                % Set the name of this absolute subtraction subnetwork input neuron.
-                self = self.set_neuron_property( neuron_IDs( k ), { sprintf( 'Absolute Subtraction Input %0.0f', k ) }, 'name' );
-                
-            end
-            
-            % Set the names of the absolute subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs( end ), { 'Absolute Subtraction Output' }, 'name' );
-
-        end
-        
-        
-        % Implement a function to create the neurons for a relative subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_relative_subtraction_neurons( self, num_subtraction_neurons )
-                
-            % Define the default input arguments.
-            if nargin < 2, num_subtraction_neurons = self.num_subtraction_neurons_DEFAULT; end
-            
-            % Create the relative subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_subtraction_neurons );
-            
-            % Set hte names of the relative subtraction subnetwork neurons.
-            for k = 1:( num_subtraction_neurons - 1 )                  % Iterate through each of the subnetwork input neurons...
-            
-                % Set the name of this relative subtraction subnetwork input neuron.
-                self = self.set_neuron_property( neuron_IDs( k ), { sprintf( 'Relative Subtraction Input %0.0f', k ) }, 'name' );
-                
-            end
-            
-            % Set the names of the relative subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs( end ), { 'Relative Subtraction Output' }, 'name' );
-
-        end
-        
-        
-        % Implement a function to create the neurons for a multi absolute subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_multi_absolute_subtraction_neurons( self, num_inputs )
- 
             % Set the default input arguments.
-            if nargin < 2, num_inputs = 2; end
+            if nargin < 30, array_utilities = self.array_utilities; end
+            if nargin < 29, set_flag = true; end
+            if nargin < 28, neurons = self.neurons; end
+            if nargin < 27, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 26, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 25, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 24, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 23, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 22, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 21, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 20, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 19, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 18, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 17, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 16, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 15, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 14, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 13, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 12, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 11, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 9, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 8, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 7, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 6, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
             
-            % Create the absolute subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_inputs + 1 );
-            
-            % Create a variable to store the input names.
-            input_names = cell( 1, num_inputs );
-            
-            % Create the input names.
-            for k = 1:num_inputs                % Iterate through each of the inputs...
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+               
+                % Determine how to specify the names of the addition neurons.
+                if n_neurons ==  2                                              % If this subnetwork has exactly two neurons...
                 
-                % Create this input name.
-                input_names{ k } = sprintf( 'Abs Sub In %0.0f', k );
+                    % Define the name of the single input neuron.
+                    names{ 1 } = [ network_type, ' Subtraction Input' ];
+                    
+                elseif n_neurons > 2                                            % If this subnetwork has more than two neurons...
+
+                    for k = 1:( n_neurons - 1 )                                 % Iterate through each of the neurons...
+
+                        % Define the default input neuron names.
+                        names{ k } = sprintf( '%s Subtraction Input %0.0f', network_type, k );
+
+                    end
+
+                else                                                          	% Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Subtraction subnetworks must consist of at least two neurons.' )
+                    
+                end
+                
+                % Define the default output neuron names.
+                names{ end } = [ network_type, ' Subtraction Output' ];
                 
             end
             
-            % Set the names of the multi absolute subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, [ input_names, 'Abs Diff' ], 'name'  );
-            
-        end
-        
-        
-        % Implement a function to create the neurons for a multi relative subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_multi_relative_subtraction_neurons( self, num_inputs )
- 
-            % Set the default input arguments.
-            if nargin < 2, num_inputs = 2; end
-            
-            % Create the multi relative subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( num_inputs + 1 );
-            
-            % Create a variable to store the input names.
-            input_names = cell( 1, num_inputs );
-            
-            % Create the input names.
-            for k = 1:num_inputs                % Iterate through each of the inputs...
-                
-                % Create this input name.
-                input_names{ k } = sprintf( 'Rel Sub In %0.0f', k );
-                
-            end
-            
-            % Set the names of the multi relative subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, [ input_names, 'Rel Diff' ], 'name'  );
-            
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+
         end
         
         
         % Implement a function to create the neurons for a double subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_double_subtraction_neurons( self )
+        function [ IDs, neurons, self ] = create_double_subtraction_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
                 
-            % Create the double subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_double_subtraction_neurons_DEFAULT );
+            % Set the number of neurons.
+            n_neurons = self.num_double_subtraction_neurons_DEFAULT;
+                        
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
             
-            % Set the names of the double subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4' }, 'name'  );
-
-        end
-        
-        
-        % Implement a function to create the neurons for an absolute double subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_absolute_double_subtraction_neurons( self )
+            % Ensure that the neuron properties match the required number of neurons.
+            assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Double subtraction subnetworks require four neurons.' )
+           
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+               
+                % Define the neuron names.
+                names = { [ network_type, ' Subtraction Input 1' ], [ network_type, ' Subtraction Input 2' ], [ network_type, ' Subtraction Output 1' ], [ network_type, ' Subtraction Output 2' ] };
                 
-            % Create the absolute double subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_double_subtraction_neurons_DEFAULT );
+            end
             
-            % Set the names of the absolute double subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Abs Sub 1', 'Abs Sub 2', 'Abs Sub 3', 'Abs Sub 4' }, 'name'  );
-
-        end
-        
-        
-        % Implement a function to create the neurons for a relative double subtraction subnetwork.
-        function [ self, neuron_IDs ] = create_relative_double_subtraction_neurons( self )
-                
-            % Create the relative double subtraction subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_double_subtraction_neurons_DEFAULT );
-            
-            % Set the names of the relative double subtraction subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Rel Sub 1', 'Rel Sub 2', 'Rel Sub 3', 'Rel Sub 4' }, 'name'  );
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
 
         end
         
         
         % Implement a function to create the neurons for a centering subnetwork.
-        function [ self, neuron_IDs ] = create_centering_neurons( self )
+        function [ IDs, neurons, self ] = create_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
             
-            % Create the centering subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_centering_neurons_DEFAULT );
+            % Set the number of neurons.
+            n_neurons = self.num_centering_neurons_DEFAULT;
+                        
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
             
-            % Set the names of the centering subnetwork neurons.
-            self = self.set_neuron_property( neuron_IDs, { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5' }, 'name' );
+            % Ensure that the neuron properties match the required number of neurons.
+            assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Centering subnetworks require five neurons.' )
+           
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+               
+                % Define the neuron names.
+                names = { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5' };
+                
+            end
             
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+
         end
         
         
         % Implement a function to create the neurons for a double centering subnetwork.
-        function [ self, neuron_IDs ] = create_double_centering_neurons( self )
+        function [ IDs, neurons, self ] = create_double_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
             
-            % Create the centering subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_double_centering_neurons_DEFAULT );
+            % Set the number of neurons.
+            n_neurons = self.num_double_centering_neurons_DEFAULT;
+                        
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
             
-            % Set the names of the centering subnetwork neurons.
-            self = self.set_neuron_property( neuron_IDs, { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5', 'Center 6', 'Center 7' }, 'name' );
+            % Ensure that the neuron properties match the required number of neurons.
+            assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Centering subnetworks require five neurons.' )
+           
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+               
+                % Define the neuron names.
+                names = { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5', 'Center 6', 'Center 7' };
+                
+            end
             
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+
         end
 
         
         % Implement a function to create the neurons for a centered double subtraction subnetwork.
-        function [ self, neuron_IDs_cell ] = create_centered_double_subtraction_neurons( self )
+        function [ IDs_cell, neurons, self ] = create_centered_double_subtraction_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+            
+            % Set the number of neurons.
+            n_neurons = self.num_double_subtraction_neurons_DEFAULT + self.num_double_centering_neurons_DEFAULT;
+                        
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
             
             % Create the double subtraction subnetwork neurons.
-            [ self, neuron_IDs_double_subtraction ] = self.create_double_subtraction_neurons(  );
+            [ IDs_double_subtraction, neurons, neuron_manager ] = self.create_double_subtraction_neurons( IDs( 1:4 ), names( 1:4 ), Us( 1:4 ), hs( 1:4 ), Cms( 1:4 ), Gms( 1:4 ), Ers( 1:4 ), Rs( 1:4 ), Ams( 1:4 ), Sms( 1:4 ), dEms( 1:4 ), Ahs( 1:4 ), Shs( 1:4 ), dEhs( 1:4 ), dEnas( 1:4 ), tauh_maxs( 1:4 ), Gnas( 1:4 ), I_leaks( 1:4 ), I_syns( 1:4 ), I_nas( 1:4 ), I_tonics( 1:4 ), I_apps( 1:4 ), I_totals( 1:4 ), b_enableds( 1:4 ), neurons, true, array_utilities );
             
             % Create the double centering subnetwork neurons.
-            [ self, neuron_IDs_double_centering ] = self.create_double_centering_neurons(  );
+            [ IDs_double_centering, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( 5:9 ), names( 5:9 ), Us( 5:9 ), hs( 5:9 ), Cms( 5:9 ), Gms( 5:9 ), Ers( 5:9 ), Rs( 5:9 ), Ams( 5:9 ), Sms( 5:9 ), dEms( 5:9 ), Ahs( 5:9 ), Shs( 5:9 ), dEhs( 5:9 ), dEnas( 5:9 ), tauh_maxs( 5:9 ), Gnas( 5:9 ), I_leaks( 5:9 ), I_syns( 5:9 ), I_nas( 5:9 ), I_tonics( 5:9 ), I_apps( 5:9 ), I_totals( 5:9 ), b_enableds( 5:9 ), neurons, true, array_utilities );
             
             % Concatenate the neuron IDs.
-            neuron_IDs_cell = { neuron_IDs_double_subtraction, neuron_IDs_double_centering };
+            IDs_cell = { IDs_double_subtraction, IDs_double_centering };
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
         
         % Implement a function to create the neurons for a multiplication subnetwork.
-        function [ self, neuron_IDs ] = create_multiplication_neurons( self )
-
-            % Create the multiplication subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_multiplication_neurons_DEFAULT );
+        function [ IDs, neurons, self ] = create_multiplication_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
-            % Set the names of the multiplication subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Mult1', 'Mult2', 'Mult Inter', 'Prod' }, 'name'  );
+            % Set the number of neurons.
+            n_neurons = self.num_multiplication_neurons_DEFAULT;
             
-        end
-        
-        
-        % Implement a function to create the neurons for an absolute multiplication subnetwork.
-        function [ self, neuron_IDs ] = create_absolute_multiplication_neurons( self )
-
-            % Create the absolute multiplication subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_multiplication_neurons_DEFAULT );
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
             
-            % Set the names of the absolute multiplication subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Absolute Multiplication Input 1', 'Absolute Multiplication Input 2', 'Absolute Multiplication Interneuron', 'Absolute Multiplication Output' }, 'name'  );
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+               
+                % Define the neuron names.
+                names = { [ network_type, ' Multiplication Input 1' ], [ network_type, ' Multiplication Input 2' ], [ network_type, ' Multiplication Interneuron' ], [ network_type, ' Multiplication Output' ] };
+                
+            end
             
-        end
-        
-        
-        % Implement a function to create the neurons for a relative multiplication subnetwork.
-        function [ self, neuron_IDs ] = create_relative_multiplication_neurons( self )
-
-            % Create the relative multiplication subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_multiplication_neurons_DEFAULT );
-            
-            % Set the names of the relative multiplication subnetwork neurons. 
-            self = self.set_neuron_property( neuron_IDs, { 'Relative Multiplication Input 1', 'Relative Multiplication Input 2', 'Relative Multiplication Interneuron', 'Relative Multiplication Output' }, 'name'  );
-            
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+  
         end
         
         
         % Implement a function to create the neurons for an inversion subnetwork.
-        function [ self, neuron_IDs ] = create_inversion_neurons( self )
+        function [ IDs, neurons, self ] = create_inversion_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
-            % Create the inversion subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_inversion_neurons_DEFAULT );
+            % Define the number of neurons.
+            n_neurons = self.num_inversion_neurons_DEFAULT;
             
-            % Set the names of the inversion subnetwork neurons.
-            self = self.set_neuron_property( neuron_IDs, { 'Inv In', 'Inv Out' }, 'name' );
+            % Set the default input arguments.
+            if nargin < 29, array_utilities = self.array_utilities; end
+            if nargin < 28, set_flag = true; end
+            if nargin < 27, neurons = self.neurons; end
+            if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
+            if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
+            if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
+            if nargin < 23, I_tonics = self.Itonic_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Tonic Current
+            if nargin < 22, I_nas = self.Ina_DEFAULT*ones( 1, n_neurons ); end                                          % [A] Sodium Channel Current
+            if nargin < 21, I_syns = self.Isyn_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Synaptic Current
+            if nargin < 20, I_leaks = self.Ileak_DEFAULT*ones( 1, n_neurons ); end                                      % [A] Leak Current
+            if nargin < 19, Gnas = self.Gna_DEFAULT*ones( 1, n_neurons ); end                                           % [S] Sodium Channel Conductance
+            if nargin < 18, tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons ); end                                 % [s] Maximum Sodium Channel Deactivation Time Constant
+            if nargin < 17, dEnas = self.dEna_DEFAULT*ones( 1, n_neurons ); end                                         % [V] Sodium Channel Reversal Potential
+            if nargin < 16, dEhs = self.dEh_DEFAULT*ones( 1, n_neurons ); end                                           % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 15, Shs = self.Sh_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Slope
+            if nargin < 14, Ahs = self.Ah_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 13, dEms = self.dEm_DEFAULT*ones( 1, n_neurons ); end                                           % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 12, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
+            if nargin < 11, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
+            if nargin < 10, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
+            if nargin < 9, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 8, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
+            if nargin < 7, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
+            if nargin < 6, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
+            if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
+            if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID            
+            if nargin < 2, network_type = 'Absolute'; end
+            
+            % Determine whether to use default names.
+            if all( [ names{ : } ] == '' )                              % If the names are empty...
+               
+                % Define the default neuron names.
+                names = { [ network_type, ' Inversion Input' ], [ network_type, ' Inversion Output' ] };
+
+            end
+            
+            % Create the subnetwork neurons.
+            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
-        
-        % Implement a function to create the neurons for an absolute inversion subnetwork.
-        function [ self, neuron_IDs ] = create_absolute_inversion_neurons( self )
-            
-            % Create the absolute inversion subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_inversion_neurons_DEFAULT );
-            
-            % Set the names of the absolute inversion subnetwork neurons.
-            self = self.set_neuron_property( neuron_IDs, { 'Absolute Inversion Input', 'Absolute Inversion Output' }, 'name' );
-            
-        end
-        
-        
-        % Implement a function to create the neurons for a relative inversion subnetwork.
-        function [ self, neuron_IDs ] = create_relative_inversion_neurons( self )
-            
-            % Create the relative inversion subnetwork neurons.
-            [ self, neuron_IDs ] = self.create_neurons( self.num_inversion_neurons_DEFAULT );
-            
-            % Set the names of the relative inversion subnetwork neurons.
-            self = self.set_neuron_property( neuron_IDs, { 'Relative Inversion Input', 'Relative Inversion Output' }, 'name' );
-            
-        end
-        
-        
+  
         % Implement a function to create the neurons for a division subnetwork.
         function [ self, neuron_IDs ] = create_division_neurons( self )
                 
@@ -5791,7 +4842,7 @@ classdef neuron_manager_class
                 neuron_h0 = neurons_to_load( k ).neuron_utilities.compute_mhinf( neuron_U0s( k ), neuron_Ahs( k ), neuron_Shs( k ), neuron_dEhs( k ) );
                 
                 % Create this neuron.
-                neurons_to_load( k ) = neuron_class( neuron_IDs( k ), neuron_names{k}, neuron_U0s( k ), neuron_h0, neuron_Cms( k ), neuron_Gms( k ), neuron_Ers( k ), neuron_Rs( k ), neuron_Ams( k ), neuron_Sms( k ), neuron_dEms( k ), neuron_Ahs( k ), neuron_Shs( k ), neuron_dEhs( k ), neuron_dEnas( k ), neuron_tauh_maxs( k ), neuron_Gnas( k ) );
+                neurons_to_load( k ) = neuron_class( neuron_IDs( k ), neuron_names{ k }, neuron_U0s( k ), neuron_h0, neuron_Cms( k ), neuron_Gms( k ), neuron_Ers( k ), neuron_Rs( k ), neuron_Ams( k ), neuron_Sms( k ), neuron_dEms( k ), neuron_Ahs( k ), neuron_Shs( k ), neuron_dEhs( k ), neuron_dEnas( k ), neuron_tauh_maxs( k ), neuron_Gnas( k ) );
                 
             end
             
