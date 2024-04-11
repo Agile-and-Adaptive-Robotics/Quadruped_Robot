@@ -15,7 +15,7 @@ classdef neuron_utilities_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
-        % Define the neuron parameters.
+        % Define default neuron parameters.
         Cm_DEFAULT = 5e-9;                          % [C] Membrane Capacitance
         Gm_DEFAULT = 1e-6;                          % [S] Membrane Conductance
         Er_DEFAULT = -60e-3;                        % [V] Equilibrium Voltage
@@ -28,36 +28,40 @@ classdef neuron_utilities_class
         dEh_DEFAULT = 0;                            % [V] Sodium Channel Deactivation Reversal Potential
         dEna_DEFAULT = 110e-3;                      % [V] Sodium Channel Reversal Potential
         tauh_max_DEFAULT = 0.25;                    % [s] Maximum Sodium Channel Steady State Time Constant
-        GNa_DEFAULT = 1e-6;                         % [S] Sodium Channel Conductance
+        Gna_DEFAULT = 0;                            % [S] Sodium Channel Conductance
         Ileak_DEFAULT = 0;                          % [A] Leak Current
         Isyn_DEFAULT = 0;                           % [A] Synaptic Current
-        INa_DEFAULT = 0;                            % [A] Sodium Channel Current
+        Ina_DEFAULT = 0;                            % [A] Sodium Channel Current
         Itonic_DEFAULT = 0;                         % [A] Tonic Current
         Iapp_DEFAULT = 0;                           % [A] Applied Current
         Itotal_DEFAULT = 0;                         % [A] Total Current
         
+        % Define generic subnetwork default parameters.
         c_DEFAULT = 1;                              % [-] General Subnetwork Gain
         epsilon_DEFAULT = 1e-6;                     % [-] Subnetwork Input Offset
         delta_DEFAULT = 1e-6;                       % [-] Subnetwork Output Offset
         alpha_DEFAULT = 1e-6;                     	% [-] Subnetwork Denominator Adjustment
 
+        % Define free subnetwork default parameters.
         R_free_DEFAULT = 20e-3;                     % [V] Free Activation Domain
         Cm_free_DEFAULT = 5e-9;                     % [C] Free Membrane Capacitance
         Gm_free_DEFAULT = 1e-6;                     % [S] Free Membrance Conductance
         Gm_minimum_DEFAULT = 0.1e-6;                % [S] Minimum Membrance Conductance.
         
-        Gna_no_ionchannels_DEFAULT = 0;             % [S] Sodium Channel Conductance (No Ion Channels)
-        Gna_ionchannels_DEFAULT = 1e-6;             % [S] Sodium Channel Conductance (Ion Channels)
+        % Define activate sodium channel default parameters.
+        Gna_active_DEFAULT = 1e-6;             % [S] Sodium Channel Conductance (Ion Channels)
                 
+        % Define derivative subnetwork parameters.
         c_derivation_DEFAULT = 1e6;                 % [-] Derivative Subnetwork Gain
         w_derivation_DEFAULT = 1;                   % [Hz?] Derivative Subnetwork Cuttoff Frequency?
         sf_derivation_DEFAULT = 0.05;               % [-] Derivative Subnetwork Safety Factor
         
+        % Define integration subnetwork parameters.
         c_integration_mean_DEFAULT = 0.01e9;        % [-] Mean Integration Subnetwork Gain
-        
+
+        % Define default cpg subnetwork parameters.
         T_oscillation_DEFAULT = 2;                  % [s] Oscillation Period.
         r_oscillation_DEFAULT = 0.90;               % [-] Oscillation Decay.
-        
         num_cpg_neurons_DEFAULT = 2;                % [#] Number of CPG neurons.
         
     end
@@ -76,7 +80,7 @@ classdef neuron_utilities_class
         end
         
         
-        %% Sodium Channel Functions
+        %% Sodium Channel Functions.
         
         % Implement a function to compute the steady state sodium channel activation and deactivation parameters.
         function mhinf = compute_mhinf( self, U, Amh, Smh, dEmh )
@@ -89,30 +93,6 @@ classdef neuron_utilities_class
             
             % Compute the steady state sodium channel activation / deactivation parameter.
             mhinf = 1./( 1 + Amh.*exp( -Smh.*( dEmh - U ) ) );          % [-] Steady State Sodium Channel Activation/Deactivation Parameter (Defaults to Deactivation Parameter)
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductances for a CPG subnetwork.
-        function Gna = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
-            
-            % Define the default input arguments.
-            if nargin < 10, dEna = self.dEna_DEFAULT; end                   % [V] Sodium Channel Reversal Potential
-            if nargin < 9, dEh = self.dEh_DEFAULT; end                      % [V] Sodium Channel Deactivation Reversal Potential
-            if nargin < 8, Sh = self.Sh_DEFAULT; end                        % [-] Sodium Channel Deactivation Slope
-            if nargin < 7, Ah = self.Ah_DEFAULT; end                        % [-] Sodium Channel Deactivation Amplitude
-            if nargin < 6, dEm = self.dEm_DEFAULT; end                      % [-] Sodium Channel Activation Reversal Potential
-            if nargin < 5, Sm = self.Sm_DEFAULT; end                        % [-] Sodium Channel Activation Slope
-            if nargin < 4, Am = self.Am_DEFAULT; end                        % [-] Sodium Channel Activation Amplitude
-            if nargin < 3, Gm = self.Gm_DEFAULT; end                        % [S] Membrane Conductance
-            if nargin < 2, R = self.R_DEFAULT; end                          % [V] Activation Domain
-            
-            % Compute the steady state sodium channel activation & devactivation parameters at the upper equilibrium.
-            minf_upper = self.compute_mhinf( R, Am, Sm, dEm );              % [-] Steady State Sodium Channel Activation Parameter
-            hinf_upper = self.compute_mhinf( R, Ah, Sh, dEh );              % [-] Steady State Sodium Channel Deactivation Parameter.
-            
-            % Compute the sodium channel conductance for each half-center neuron.
-            Gna = ( Gm.*R )./( minf_upper.*hinf_upper.*( dEna - R ) );      % [S] Sodium Channel Conductance.  Equation straight from Szczecinski's CPG example.
             
         end
         
@@ -185,7 +165,7 @@ classdef neuron_utilities_class
         end
         
         
-        %% Current Functions
+        %% Current Functions.
         
         % Implement a function to compute leak currents.
         function I_leak = compute_Ileak( self, U, Gm )
@@ -254,7 +234,7 @@ classdef neuron_utilities_class
         end
         
         
-        %% Neuron State Flow Functions
+        %% Neuron State Flow Functions.
         
         % Implement a function to compute the derivative of the membrane voltage with respect to time.
         function dUs = compute_dU( self, Itotals, Cms )
@@ -283,306 +263,213 @@ classdef neuron_utilities_class
         end
         
         
-        %% Sodium Channel Conductance Functions
+        %% Sodium Channel Conductance Functions.
         
-        % Implement a function to compute the sodium channel conductance of a driven multistate cpg subnetwork neuron.
-        function Gna = compute_driven_multistate_cpg_Gna( self )
+        % Implement a function to compute the sodium channel conductances for a CPG subnetwork.
+        function Gna = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
             
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            % Define the default input arguments.
+            if nargin < 10, dEna = self.dEna_DEFAULT; end                   % [V] Sodium Channel Reversal Potential
+            if nargin < 9, dEh = self.dEh_DEFAULT; end                      % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 8, Sh = self.Sh_DEFAULT; end                        % [-] Sodium Channel Deactivation Slope
+            if nargin < 7, Ah = self.Ah_DEFAULT; end                        % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 6, dEm = self.dEm_DEFAULT; end                      % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 5, Sm = self.Sm_DEFAULT; end                        % [-] Sodium Channel Activation Slope
+            if nargin < 4, Am = self.Am_DEFAULT; end                        % [-] Sodium Channel Activation Amplitude
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                        % [S] Membrane Conductance
+            if nargin < 2, R = self.R_DEFAULT; end                          % [V] Activation Domain
+            
+            % Compute the steady state sodium channel activation & devactivation parameters at the upper equilibrium.
+            minf_upper = self.compute_mhinf( R, Am, Sm, dEm );              % [-] Steady State Sodium Channel Activation Parameter
+            hinf_upper = self.compute_mhinf( R, Ah, Sh, dEh );              % [-] Steady State Sodium Channel Deactivation Parameter.
+            
+            % Compute the sodium channel conductance for each half-center neuron.
+            Gna = ( Gm.*R )./( minf_upper.*hinf_upper.*( dEna - R ) );      % [S] Sodium Channel Conductance.  Equation straight from Szczecinski's CPG example.
             
         end
         
         
-        % Implement a function to compute the sodium channel conductance of a transmission subnetwork neuron.
-        function Gna = compute_transmission_Gna( self )
+        % Implement a function to compute the sodium channel conductance of a driven multistate cpg subnetwork neuron.
+        function Gna = compute_dmcpg_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of an absolute transmission subnetwork neuron.
+        function Gna = compute_absolute_transmission_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+
+        
+        % Implement a function to compute the sodium channel conductance of a relative transmission subnetwork neuron.
+        function Gna = compute_relative_transmission_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a modulation subnetwork neuron.
-        function Gna = compute_modulation_Gna( self )
+        function Gna = compute_modulation_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of an addition subnetwork neuron.
-        function Gna = compute_addition_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute addition subnetwork neuron.
-        function Gna = compute_absolute_addition_Gna( self )
+        function Gna = compute_absolute_addition_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative addition subnetwork neuron.
-        function Gna = compute_relative_addition_Gna( self )
+        function Gna = compute_relative_addition_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of a subtraction subnetwork neuron.
-        function Gna = compute_subtraction_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute subtraction subnetwork neuron.
-        function Gna = compute_absolute_subtraction_Gna( self )
+        function Gna = compute_absolute_subtraction_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to comptue the sodium channel conductance of a relative subtraction subnetwork neuron.
-        function Gna = compute_relative_subtraction_Gna( self )
+        function Gna = compute_relative_subtraction_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
-        
-        % Implement a function to compute the sodium channel conductance of a double subtraction subnetwork neuron.
-        function Gna = compute_double_subtraction_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
+
         % Implement a function to compute the sodium channel conductance of an absolute double subtraction subnetwork neuron.
-        function Gna = compute_absolute_double_subtraction_Gna( self )
+        function Gna = compute_absolute_double_subtraction_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative double subtraction subnetwork neuron.
-        function Gna = compute_relative_double_subtraction_Gna( self )
+        function Gna = compute_relative_double_subtraction_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
-        
-        % Implement a function to compute the sodium channel conductance of a multiplication subnetwork neuron.
-        function Gna = compute_multiplication_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
+
         % Implement a function to compute the sodium channel conductance of an absolute multiplication subnetwork neuron.
-        function Gna = compute_absolute_multiplication_Gna( self )
+        function Gna = compute_absolute_multiplication_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative multiplication subnetwork neuron.
-        function Gna = compute_relative_multiplication_Gna( self )
+        function Gna = compute_relative_multiplication_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of an inversion subnetwork neuron.
-        function Gna = compute_inversion_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of an absolute inversion subnetwork neuron.
-        function Gna = compute_absolute_inversion_Gna( self )
+        function Gna = compute_absolute_inversion_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative inversino subnetwork neuron.
-        function Gna = compute_relative_inversion_Gna( self )
+        function Gna = compute_relative_inversion_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
-        
-        % Implement a function to compute the sodium channel conductance of a division subnetwork neuron.
-        function Gna = compute_division_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
+
         % Implement a function to compute the sodium channel conductance of an absolute division subnetwork neuron.
-        function Gna = compute_absolute_division_Gna( self )
+        function Gna = compute_absolute_division_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a relative division subnetwork neuron.
-        function Gna = compute_relative_division_Gna( self )
+        function Gna = compute_relative_division_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
         % Implement a function to compute the sodium channel conductance of a derivation subnetwork neuron.
-        function Gna = compute_derivation_Gna( self )
+        function Gna = compute_derivation_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
-        % Implement a function to compute the sodium channel conductance of an absolute derivation subnetwork neuron.
-        function Gna = compute_absolute_derivation_Gna( self )
+        % Implement a function to compute the sodium channel conductance of a integration subnetwork neuron.
+        function Gna = compute_integration_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
-        
-        % Implement a function to compute the sodium channel conductance of a relative derivation subnetwork neuron.
-        function Gna = compute_relative_derivation_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of an integration subnetwork neuron.
-        function Gna = compute_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of an absolute integration subnetwork neuron.
-        function Gna = compute_absolute_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of a relative integration subnetwork neuron.
-        function Gna = compute_relative_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
+
         % Implement a function to compute the sodium channel conductance of a voltage based integration subnetwork neuron.
-        function Gna = compute_vb_integration_Gna( self )
+        function Gna = compute_vbi_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
-        
-        
-        % Implement a function to compute the sodium channel conductance of an absolute voltage based integration subnetwork neuron.
-        function Gna = compute_absolute_vb_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of a relative voltage based integration subnetwork neuron.
-        function Gna = compute_relative_vb_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
+
+
         % Implement a function to compute the sodium channel conductance of a split voltage based integration subnetwork neuron.
-        function Gna = compute_split_vb_integration_Gna( self )
+        function Gna = compute_svbi_Gna( ~ )
             
             % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
         
         
-        % Implement a function to compute the sodium channel conductance of an absolute split voltage based integration subnetwork neuron.
-        function Gna = compute_absolute_split_vb_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of a relative split voltage based integration subnetwork neuron.
-        function Gna = compute_relative_split_vb_integration_Gna( self )
-            
-            % Compute the sodium channel conductance.
-            Gna = self.Gna_no_ionchannels_DEFAULT;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
-        %% Membrane Conductance Functions
+        %% Membrane Conductance Functions.
         
         % Implement a function to compute the membrane conductance for absolute addition subnetwork input neurons.
         function Gm = compute_absolute_addition_Gm_input( self )
@@ -721,7 +608,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the memebrane conductance for relative division subnetwork output neurons.
-        function Gm = compute_relative_division_Gm_output( self )
+        function Gm = compute_relative_division_Gm_output( ~ )
             
             % Set the membrane conductance.
 %             Gm = self.Gm_minimum_DEFAULT;                   % [S] Membrane Conductance
@@ -744,21 +631,43 @@ classdef neuron_utilities_class
         end
         
         
-        %% Membrane Capacitance Functions
+        %% Membrane Capacitance Functions.
         
-        % Implement a function to compute the membrane capacitance of transmission subnetwork neurons.
-        function Cm = compute_transmission_Cm( self )
+        % Implement a function to compute the membrane capacitance of absolute transmission subnetwork neurons.
+        function Cm = compute_absolute_transmission_Cm( self )
             
             % Compute the membrane capacitance.
-            %             Cm = 1e-9;
-            %             Cm = 0.5e-9;
             Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
             
         end
         
         
-        % Implement a function to compute the membrane capacitance of slow transmission subnetwork neurons.
-        function Cm = compute_slow_transmission_Cm( self, Gm, n, T, r )
+        % Implement a function to compute the membrane capacitance of relative transmission subnetwork neurons.
+        function Cm = compute_relative_transmission_Cm( self )
+            
+            % Compute the membrane capacitance.
+            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance of slow absolute transmission subnetwork neurons.
+        function Cm = compute_slow_absolute_transmission_Cm( self, Gm, n, T, r )
+            
+            % Define the default input arguments.
+            if nargin < 5, r = self.r_oscillation_DEFAULT; end              % [-] Oscillation Decay
+            if nargin < 4, T = self.T_oscillation_DEFAULT; end              % [-] Oscillation Period
+            if nargin < 3, n = self.num_cpg_neurons_DEFAULT; end            % [#] Number of Neurons
+            if nargin < 2, Gm = self.Gm_DEFAULT; end                % [S] Membrane Conductance
+            
+            % Compute the membrane capacitance.
+            Cm = -( Gm.*T )./( n.*log( r ) );                       % [C] Membrane Capacitance
+            
+        end
+        
+        
+        % Implement a function to compute the membrane capacitance of slow relative transmission subnetwork neurons.
+        function Cm = compute_slow_relative_transmission_Cm( self, Gm, n, T, r )
             
             % Define the default input arguments.
             if nargin < 5, r = self.r_oscillation_DEFAULT; end              % [-] Oscillation Decay
@@ -774,15 +683,6 @@ classdef neuron_utilities_class
         
         % Implement a function to compute the memebrane capacitance of modulation subnetwork neurons.
         function Cm = compute_modulation_Cm( self )
-            
-            % Compute the membrane capacitance.
-            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance of addition subnetwork neurons.
-        function Cm = compute_addition_Cm( self )
             
             % Compute the membrane capacitance.
             Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
@@ -808,17 +708,6 @@ classdef neuron_utilities_class
         end
         
         
-        % Implement a function to compute the membrane capacitance of subtraction subnetwork neurons.
-        function Cm = compute_subtraction_Cm( self )
-            
-            % Compute the membrane capacitance.
-            %             Cm = 1e-9;
-            %             Cm = 0.5e-9;
-            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
-            
-        end
-        
-        
         % Implement a function to compute the membrane capacitance of absolute subtraction subnetwork neurons.
         function Cm = compute_absolute_subtraction_Cm( self )
             
@@ -834,16 +723,6 @@ classdef neuron_utilities_class
             
             % Compute the membrane capacitance.
             %            Cm = 0.5e-9;
-            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance of double subtraction subnetwork neurons.
-        function Cm = compute_double_subtraction_Cm( self )
-            
-            % Compute the membrane capacitance.
-            %             Cm = 1e-9;
             Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
             
         end
@@ -869,15 +748,6 @@ classdef neuron_utilities_class
         end
         
         
-        % Implement a function to compute the membrane capacitance of inversion subnetwork neurons.
-        function Cm = compute_inversion_Cm( self )
-            
-            % Compute the membrane capacitance.
-            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
-            
-        end
-        
-        
         % Implement a function to compute the membrane capacitance of absolute inversion subnetwork neurons.
         function Cm = compute_absolute_inversion_Cm( self )
             
@@ -896,15 +766,6 @@ classdef neuron_utilities_class
         end
         
         
-        % Implement a function to compute the membrane capacitance of division subnetwork neurons.
-        function Cm = compute_division_Cm( self )
-            
-            % Compute the membrane capacitance.
-            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
-            
-        end
-        
-        
         % Implement a function to compute the membrane capacitance of asbolute division subnetwork neurons.
         function Cm = compute_absolute_division_Cm( ~ )
             
@@ -916,21 +777,12 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the membrane capacitance of relative division subnetwork neurons.
-        function Cm = compute_relative_division_Cm( self )
+        function Cm = compute_relative_division_Cm( ~ )
             
             % Compute the membrane capacitance.
 %             Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
             Cm = 5e-10;                                      % [C] Membrane Capacitance
 
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance of multiplication subnetwork neurons.
-        function Cm = compute_multiplication_Cm( self )
-            
-            % Compute the membrane capacitance.
-            Cm = self.Cm_free_DEFAULT;                                      % [C] Membrane Capacitance
-            
         end
         
         
@@ -995,7 +847,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the membrane capacitances for a voltage based integration subnetwork.
-        function Cm = compute_vb_integration_Cm( self, ki_mean )
+        function Cm = compute_vbi_Cm( self, ki_mean )
             
             % Set the default input arguments.
             if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end       % [-] Average Integration Gain.
@@ -1007,7 +859,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the first membrane capacitance for a split voltage based integration subnetwork.
-        function Cm = compute_split_vb_integration_Cm1( self, ki_mean )
+        function Cm = compute_svbi_Cm1( self, ki_mean )
             
             % Set the default input arguments.
             if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end       % [-] Average Integration Gain.
@@ -1019,7 +871,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the second membrane capacitance for a split voltage based integration subnetwork.
-        function Cm = compute_split_vb_integration_Cm2( ~ )
+        function Cm = compute_svbi_Cm2( ~ )
             
             % Compute the second split voltage based integration subnetwork membrane capacitance.
             Cm = 1e-9;                                                  % [C] Membrance Capacitance.
@@ -1027,7 +879,7 @@ classdef neuron_utilities_class
         end
         
         
-        %% Activation Domain Functions
+        %% Activation Domain Functions.
         
         % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
         function R = compute_absolute_addition_R_input( self )
@@ -1168,7 +1020,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
-        function R_out = compute_absolute_division_R_output( self, c, alpha, epsilon, R_numerator )
+        function R = compute_absolute_division_R_output( self, c, alpha, epsilon, R_numerator )
             
             % Define the default input arguments.
             if nargin < 5, R_numerator = self.R_free_DEFAULT; end           % [V] Activation Domain
@@ -1177,7 +1029,7 @@ classdef neuron_utilities_class
             if nargin < 2, c = self.c_DEFAULT; end                          % [-] Subnetwork Gain
             
             % Compute the operational domain.
-            R_out = ( c*R_numerator )./( alpha*R_numerator + epsilon );     % [V] Activation Domain
+            R = ( c*R_numerator )./( alpha*R_numerator + epsilon );     % [V] Activation Domain
             
         end
         

@@ -966,7 +966,7 @@ classdef neuron_manager_class
         
         %% Sodium Channel Conductance Compute Functions.
                 
-        % Implement a function to compute and set the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
+        % Implement a function to compute the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
         function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1000,8 +1000,8 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of driven multistate cpg neurons.
-        function [ Gnas, neurons, self ] = compute_driven_multistate_cpg_Gna( self, neuron_IDs, neurons, set_flag )
+        % Implement a function to compute the sodium channel conductance of driven multistate cpg neurons.
+        function [ Gnas, neurons, self ] = compute_dmcpg_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 4, set_flag = true; end
@@ -1024,7 +1024,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
 
                 % Compute the sodium channel conductance for this neuron.
-                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_driven_multistate_cpg_Gna( true, neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_dmcpg_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1034,7 +1034,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of transmission neurons.
+        % Implement a function to compute the sodium channel conductance of transmission neurons.
         function [ Gnas, neurons, self ] = compute_transmission_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1068,7 +1068,7 @@ classdef neuron_manager_class
         end
         
                 
-        % Implement a function to compute and set the sodium channel conductance of modulation neurons.
+        % Implement a function to compute the sodium channel conductance of modulation neurons.
         function [ Gnas, neurons, self ] = compute_modulation_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1102,7 +1102,7 @@ classdef neuron_manager_class
         end
 
         
-        % Implement a function to compute and set the sodium channel conductance of addition neurons.
+        % Implement a function to compute the sodium channel conductance of addition neurons.
         function [ Gnas, neurons, self ] = compute_addition_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1136,7 +1136,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of absolute addition neurons.
+        % Implement a function to compute the sodium channel conductance of absolute addition neurons.
         function [ Gnas, neurons, self ] = compute_absolute_addition_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1170,7 +1170,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of relative addition neurons.
+        % Implement a function to compute the sodium channel conductance of relative addition neurons.
         function [ Gnas, neurons, self ] = compute_relative_addition_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1204,7 +1204,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of subtraction neurons.
+        % Implement a function to compute the sodium channel conductance of subtraction neurons.
         function [ Gnas, neurons, self ] = compute_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1238,7 +1238,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of absolute subtraction neurons.
+        % Implement a function to compute the sodium channel conductance of absolute subtraction neurons.
         function [ Gnas, neurons, self ] = compute_absolute_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1273,7 +1273,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of relative subtraction neurons.
+        % Implement a function to compute the sodium channel conductance of relative subtraction neurons.
         function [ Gnas, neurons, self ] = compute_relative_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1307,7 +1307,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of double subtraction neurons.
+        % Implement a function to compute the sodium channel conductance of double subtraction neurons.
         function [ Gnas, neurons, self ] = compute_double_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1341,7 +1341,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of absolute double subtraction neurons.
+        % Implement a function to compute the sodium channel conductance of absolute double subtraction neurons.
         function [ Gnas, neurons, self ] = compute_absolute_double_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1375,7 +1375,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of relative double subtraction neurons.
+        % Implement a function to compute the sodium channel conductance of relative double subtraction neurons.
         function [ Gnas, neurons, self ] = compute_relative_double_subtraction_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1409,7 +1409,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of multiplication neurons.
+        % Implement a function to compute the sodium channel conductance of multiplication neurons.
         function [ Gnas, neurons, self ] = compute_multiplication_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1443,7 +1443,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of absolute multiplication neurons.
+        % Implement a function to compute the sodium channel conductance of absolute multiplication neurons.
         function [ Gnas, neurons, self ] = compute_absolute_multiplication_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1477,7 +1477,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of relative multiplication neurons.
+        % Implement a function to compute the sodium channel conductance of relative multiplication neurons.
         function [ Gnas, neurons, self ] = compute_relative_multiplication_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1511,7 +1511,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of inversion neurons.
+        % Implement a function to compute the sodium channel conductance of inversion neurons.
         function [ Gnas, neurons, self ] = compute_inversion_Gna( self, neuron_IDs, neurons, set_flag )
         
             % Set the default input arguments.
@@ -1545,7 +1545,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of absolute inversion neurons.
+        % Implement a function to compute the sodium channel conductance of absolute inversion neurons.
         function [ Gnas, neurons, self ] = compute_absolute_inversion_Gna( self, neuron_IDs, neurons, set_flag )
         
             % Set the default input arguments.
@@ -1579,7 +1579,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of relative inversion neurons.
+        % Implement a function to compute the sodium channel conductance of relative inversion neurons.
         function [ Gnas, neurons, self ] = compute_relative_inversion_Gna( self, neuron_IDs, neurons, set_flag )
         
             % Set the default input arguments.
@@ -1613,7 +1613,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of division neurons.
+        % Implement a function to compute the sodium channel conductance of division neurons.
         function [ Gnas, neurons, self ] = compute_division_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1647,7 +1647,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of absolute division neurons.
+        % Implement a function to compute the sodium channel conductance of absolute division neurons.
         function [ Gnas, neurons, self ] = compute_absolute_division_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1681,7 +1681,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of relative division neurons.
+        % Implement a function to compute the sodium channel conductance of relative division neurons.
         function [ Gnas, neurons, self ] = compute_relative_division_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1715,7 +1715,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of derivation neurons.
+        % Implement a function to compute the sodium channel conductance of derivation neurons.
         function [ Gnas, neurons, self ] = compute_derivation_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1749,7 +1749,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of integration neurons.
+        % Implement a function to compute the sodium channel conductance of integration neurons.
         function [ Gnas, neurons, self ] = compute_integration_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -1783,8 +1783,8 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the sodium channel conductance of voltage based integration neurons.
-        function [ Gnas, neurons, self ] = compute_vb_integration_Gna( self, neuron_IDs, neurons, set_flag )
+        % Implement a function to compute the sodium channel conductance of voltage based integration neurons.
+        function [ Gnas, neurons, self ] = compute_vbi_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 4, set_flag = true; end
@@ -1807,7 +1807,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vb_integration_Gna( true, neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vbi_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -1817,8 +1817,8 @@ classdef neuron_manager_class
         end
                 
         
-        % Implement a function to compute and set the sodium channel conductance of split voltage based integration neurons.
-        function [ Gnas, neurons, self ] = compute_split_vb_integration_Gna( self, neuron_IDs, neurons, set_flag )
+        % Implement a function to compute the sodium channel conductance of split voltage based integration neurons.
+        function [ Gnas, neurons, self ] = compute_svbi_Gna( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 4, set_flag = true; end
@@ -1841,7 +1841,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_split_vb_integration_Gna( true, neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_svbi_Gna( true, neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -2326,7 +2326,7 @@ classdef neuron_manager_class
         
         %% Membrane Capacitance Compute Functions.
         
-        % Implement a function to compute and set the membrane capacitance of transmission subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of transmission subnetwork neurons.
         function [ Cms, neurons, self ] = compute_transmission_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2360,7 +2360,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of slow transmission subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of slow transmission subnetwork neurons.
         function [ Cms, neurons, self ] = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2397,7 +2397,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of modulation subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of modulation subnetwork neurons.
         function [ Cms, neurons, self ] = compute_modulation_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2431,7 +2431,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of addition subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of addition subnetwork neurons.
         function [ Cms, neurons, self ] = compute_addition_Cm( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -2465,7 +2465,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of absolute addition subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of absolute addition subnetwork neurons.
         function [ Cms, neurons, self ] = compute_absolute_addition_Cm( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -2499,7 +2499,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of relative subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of relative subnetwork neurons.
         function [ Cms, neurons, self ] = compute_relative_addition_Cm( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
@@ -2533,7 +2533,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of subtraction subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of subtraction subnetwork neurons.
         function [ Cms, neurons, self ] = compute_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2567,7 +2567,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of absolute subtraction subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of absolute subtraction subnetwork neurons.
         function [ Cms, neurons, self ] = compute_absolute_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2601,7 +2601,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of relative subtraction subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of relative subtraction subnetwork neurons.
         function [ Cms, neurons, self ] = compute_relative_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2635,7 +2635,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of double subtraction subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of double subtraction subnetwork neurons.
         function [ Cms, neurons, self ] = compute_double_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2669,7 +2669,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of absolute double subtraction subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of absolute double subtraction subnetwork neurons.
         function [ Cms, neurons, self ] = compute_absolute_double_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2703,7 +2703,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of relative double subtraction subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of relative double subtraction subnetwork neurons.
         function [ Cms, neurons, self ] = compute_relative_double_subtraction_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2737,7 +2737,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of multiplication subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of multiplication subnetwork neurons.
         function [ Cms, neurons, self ] = compute_multiplication_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2771,7 +2771,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of absolute multiplication subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of absolute multiplication subnetwork neurons.
         function [ Cms, neurons, self ] = compute_absolute_multiplication_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2805,7 +2805,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of relative multiplication subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of relative multiplication subnetwork neurons.
         function [ Cms, neurons, self ] = compute_relative_multiplication_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2839,7 +2839,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of inversion subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of inversion subnetwork neurons.
         function [ Cms, neurons, self ] = compute_inversion_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2873,7 +2873,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of absolute inversion subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of absolute inversion subnetwork neurons.
         function [ Cms, neurons, self ] = compute_absolute_inversion_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2907,7 +2907,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of relative inversion subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of relative inversion subnetwork neurons.
         function [ Cms, neurons, self ] = compute_relative_inversion_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2941,7 +2941,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of division subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of division subnetwork neurons.
         function [ Cms, neurons, self ] = compute_division_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -2975,7 +2975,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of absolute division subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of absolute division subnetwork neurons.
         function [ Cms, neurons, self ] = compute_absolute_division_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -3009,7 +3009,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of relative division subnetwork neurons.
+        % Implement a function to compute the membrane capacitance of relative division subnetwork neurons.
         function [ Cms, neurons, self ] = compute_relative_division_Cm( self, neuron_IDs, neurons, set_flag )
 
             % Set the default input arguments.
@@ -3043,7 +3043,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the first membrane capacitance of derivation subnetwork neurons.
+        % Implement a function to compute the first membrane capacitance of derivation subnetwork neurons.
         function [ Cm1, neurons, self ] = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons, set_flag )
             
             % Set the default input arguments. 
@@ -3071,7 +3071,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the second memebrane capacitance of derivation subnetwork neurons.
+        % Implement a function to compute the second memebrane capacitance of derivation subnetwork neurons.
         function [ Cm2, neurons, self ] = compute_derivation_Cm2( self, neuron_IDs, w, neurons, set_flag )
             
             % Set the default input arguments.    
@@ -3095,7 +3095,7 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of integration neurons.
+        % Implement a function to compute the membrane capacitance of integration neurons.
         function [ Cms, neurons, self ] = compute_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arguments.
@@ -3130,8 +3130,8 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the membrane capacitance of voltage based integration neurons.
-        function [ Cms, neurons, self ] = compute_vb_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
+        % Implement a function to compute the membrane capacitance of voltage based integration neurons.
+        function [ Cms, neurons, self ] = compute_vbi_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 5, set_flag = true; end
@@ -3155,7 +3155,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vb_integration_Cm( ki_mean, true, neuros( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vbi_Cm( ki_mean, true, neuros( neuron_index ).neuron_utilities );
                 
             end
 
@@ -3165,8 +3165,8 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the first membrane capacitance of split voltage based integration neurons.
-        function [ Cms, neurons, self ] = compute_split_vb_integration_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag )
+        % Implement a function to compute the first membrane capacitance of split voltage based integration neurons.
+        function [ Cms, neurons, self ] = compute_svbi_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 5, set_flag = true; end
@@ -3190,7 +3190,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_split_vb_integration_Cm1( ki_mean, true, neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_svbi_Cm1( ki_mean, true, neurons( neuron_index ).neuron_utilities );
                 
             end
 
@@ -3200,8 +3200,8 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to compute and set the second membrane capacitance of split voltage based integration neurons.
-        function [ Cms, neurons, self ] = compute_split_vb_integration_Cm2( self, neuron_IDs, neurons, set_flag )
+        % Implement a function to compute the second membrane capacitance of split voltage based integration neurons.
+        function [ Cms, neurons, self ] = compute_svbi_Cm2( self, neuron_IDs, neurons, set_flag )
             
             % Set the default input arguments.
             if nargin < 4, set_flag = true; end
@@ -3224,7 +3224,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
                 
                 % Compute and set the membrane capacitance for this neuron.
-                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_split_vb_integration_Cm2( true, neurons( neuron_index ).neuron_utilities );
+                [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_svbi_Cm2( true, neurons( neuron_index ).neuron_utilities );
                 
             end
 
@@ -3232,6 +3232,173 @@ classdef neuron_manager_class
             if set_flag, self.neurons = neurons; end
             
         end
+        
+        
+        %% Activation Domain Compute Functions.
+        
+        % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_absolute_addition_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            
+            
+            [ R, neuron ] = neuron.compute_absolute_addition_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute addition subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_absolute_addition_R_output( self, neuron_IDs, Rs, neurons, set_flag )
+            
+            [ R, neuron ] = neuron.compute_absolute_addition_R_output( Rs, set_flag, neuron_utilities );
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_relative_addition_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            [ R, neuron ] = neuron.compute_relative_addition_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_relative_addition_R_output( self, neuron_IDs, neurons, set_flag )
+            
+            [ R, neuron ] = neuron.compute_relative_addition_R_output( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_absolute_subtraction_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            [ R, neuron ] = neuron.compute_absolute_subtraction_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute subtraction subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_absolute_subtraction_R_output( self, neuron_IDs, Rs, s_ks, neurons, set_flag )
+            
+            [ R, neuron ] = neuron.compute_absolute_subtraction_R_output( Rs, s_ks, set_flag, neuron_utilities );
+
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_relative_subtraction_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_subtraction_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_relative_subtraction_R_output( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_subtraction_R_output( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_absolute_inversion_R_input( self, neuron_IDs, epsilon, delta, neurons, set_flag )
+            
+            [ R, neuron ] = neuron.compute_absolute_inversion_R_input( epsilon, delta, set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_absolute_inversion_R_output( self, neuron_IDs, c, epsilon, delta, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_absolute_inversion_R_output( c, epsilon, delta, set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_relative_inversion_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_inversion_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_relative_inversion_R_output( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_inversion_R_output( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_absolute_division_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_absolute_division_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_absolute_division_R_output( self, neuron_IDs, c, alpha, epsilon, R_numerator, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_absolute_division_R_output( c, alpha, epsilon, R_numerator, set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
+        function [ Rs, neurons, self ] = compute_relative_division_R_input( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_division_R_input( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_relative_division_R_output( self, neuron_IDs, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_division_R_output( set_flag, neuron_utilities );
+            
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
+        function [ Rs, neurons, self ] = compute_relative_multiplication_R_output( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2, neurons, set_flag )
+            
+            
+            [ R, neuron ] = neuron.compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2, set_flag, neuron_utilities );
+            
+
+        end
+                
         
         
         %% Basic Neuron Creation & Deletion Functions.
@@ -4946,79 +5113,133 @@ classdef neuron_manager_class
         %% Subnetwork Neuron Design Functions
         
         % Implement a function to design the neurons for a multistate cpg subnetwork.
-        function self = design_multistate_cpg_neurons( self, neuron_IDs )
+        function [ Gnas, neurons, self ] = design_multistate_cpg_neurons( self, neuron_IDs, neurons, set_flag )
         
-            % Set the sodium channel conductance of every neuron in the network using the CPG approach.
-            self = self.compute_set_cpg_Gna( neuron_IDs );
+            % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Compute the sodium channel conductance required for a multistate cpg subnetwork.
+            [ Gnas, neurons, self ] = self.compute_cpg_Gna( neuron_IDs, neurons, set_flag );
             
         end
         
         
         % Implement a function to design the neurons for a driven multistate cpg subnetwork.
-        function self = design_driven_multistate_cpg_neurons( self, neuron_IDs )
+        function [ Gnas, neurons, self ] = design_driven_multistate_cpg_neurons( self, neuron_IDs, neurons, set_flag )
         
-            % Compute and set the sodium channel conductance of the driven multistate cpg neuron.
-            self = self.compute_set_driven_multistate_cpg_Gna( neuron_IDs );
+            % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Compute the sodium channel conductance required for a driven multistate cpg.
+            [ Gnas, neurons, self ] = self.compute_dmcpg_Gna( neuron_IDs, neurons, set_flag );
             
         end
         
 
         % Implement a function to design the neurons for a transmission subnetwork.
-        function self = design_transmission_neurons( self, neuron_IDs )
+        function [ Gnas, Cms, neurons, self ] = design_transmission_neurons( self, neuron_IDs, neurons, set_flag )
            
-            % Compute and set the sodium channel conductance of the transmission subnetwork neurons.
-            self = self.compute_set_transmission_Gna( neuron_IDs );
+            % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end
             
-            % Compute and set the membrane capacitance of the transmission subnetwork neurons.
-            self = self.compute_set_transmission_Cm( neuron_IDs );
+            % Compute the sodium channel conductance of the transmission subnetwork neurons.
+            [ Gnas, neurons, neuron_manager ] = self.compute_transmission_Gna( neuron_IDs, neurons, true );
+            
+            % Compute the membrane capacitance of the transmission subnetwork neurons.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_transmission_Cm( neuron_IDs, neurons, true );
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
         
         % Implement a function to design the neurons for a slow transmission subnetwork.
-        function self = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r )
+        function [ Gnas, Cms, neurons, self ] = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r, neurons, set_flag )
            
             % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, neurons = self.neurons; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, T = self.T_oscillation_DEFAULT; end
             if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the sodium channel conductance of the transmission subnetwork neurons.
+            [ Gnas, neurons, neuron_manager ] = self.compute_transmission_Gna( neuron_IDs, neurons, true );
+            
+            % Compute the membrane capacitance of the transmission subnetwork neurons.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_slow_transmission_Cm( neuron_IDs, num_cpg_neurons, T, r, neurons, true );
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
 
-            % Compute and set the sodium channel conductance of the transmission subnetwork neurons.
-            self = self.compute_set_transmission_Gna( neuron_IDs );
-            
-            % Compute and set the membrane capacitance of the transmission subnetwork neurons.
-            self = self.compute_set_slow_transmission_Cm( neuron_IDs, num_cpg_neurons, T, r );
-            
         end
         
         
         % Implement a function to design the neurons for a modulation subnetwork.
-        function self = design_modulation_neurons( self, neuron_IDs )
+        function [ Gnas, Cms, neurons, self ] = design_modulation_neurons( self, neuron_IDs, neurons, set_flag )
            
-            % Compute and set the sodium channel conductance of the modulation subnetwork neurons.
-            self = self.compute_set_modulation_Gna( neuron_IDs );
+            % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end
             
-            % Compute and set the membrane capacitance of the modulation subnetwork neurons.
-            self = self.compute_set_modulation_Cm( neuron_IDs );
+            % Compute the sodium channel conductance of the modulation subnetwork neurons.
+            [ Gnas, neurons, neuron_manager ] = self.compute_modulation_Gna( neuron_IDs, neurons, true );
+            
+            % Compute the membrane capacitance of the mdoluation subnetwork neurons.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_modulation_Cm( neuron_IDs, neurons, true );
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
         
         % Implement a function to design the neurons for an addition subnetwork.
-        function self = design_addition_neurons( self, neuron_IDs )
+        function [ Gnas, Cms, neurons, self ] = design_addition_neurons( self, neuron_IDs, neurons, set_flag )
            
-            % Compute and set the sodium channel conductance of the addition subnetwork neurons.
-            self = self.compute_set_addition_Gna( neuron_IDs );
+            % Set the default input arguments.
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = 'all'; end
             
-            % Compute and set the membrane capacitance of the addition subnetwork neurons.
-            self = self.compute_set_addition_Cm( neuron_IDs );
+            % Compute the sodium channel conductance of the addition subnetwork neurons.
+            [ Gnas, neurons, neuron_manager ] = self.compute_addition_Gna( neuron_IDs, neurons, true );
             
+            % Compute the membrane capacitance of the addition subnetwork neurons.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_addition_Cm( neuron_IDs, neurons, true );
+
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
+
         end
         
         
         % Implement a function to design the neurons for an absolute addition subnetwork.
         function self = design_absolute_addition_neurons( self, neuron_IDs )
            
+            
+            % Compute the sodium channel conductance of the absolute addition subnetwork neurons.
+            [ Gnas, neurons, neuron_manager ] = self.compute_absolute_addition_Gna( neuron_IDs, neurons, true );
+            
+            % Compute the membrane conductance of the absolute addition subnetwork neurons.
+            [ Gms_input, neurons, neuron_manager ] = neuron_manager.compute_absolute_addition_Gm_input( neuron_IDs, neurons, set_flag );
+            [ Gm_output, neurons, neuron_manager ] = neuron_manager.compute_absolute_addition_Gm_output( neuron_IDs, neurons, set_flag );
+            Gms = [ Gms_input, Gm_output ];
+            
+            % Compute the membrane capacitance of the absolute addition subnetwork neurons.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_absolute_addition_Cm( neuron_IDs, neurons, set_flag );
+            
+            % Compute the activation domain of the absolute addition subnetwork neurons.
+
+                        
             % Define the default input arguments.
             if nargin < 2, neuron_IDs = 'all'; end                                                          % [-] Neuron IDs
             

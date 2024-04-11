@@ -91,6 +91,9 @@ classdef neuron_class
         delta_DEFAULT = 1e-6;                                                                                          	% [-] Subnetwork Output Offset
         alpha_DEFAULT = 1e-6;                                                                                           % [-] Subnetwork Denominator Adjustment
         
+        % Define the default encoding scheme.
+        encoding_scheme_DEFAULT = 'Absolute';
+        
     end
     
     
@@ -280,14 +283,14 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a driven multistate cpg subnetwork neuron.
-        function [ Gna, self ] = compute_driven_multistate_cpg_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_dmcpg_Gna( self, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 3, neuron_utilities = self.neuron_utilities; end
             if nargin < 2, set_flag = true; end
 
             % Compute the sodium channel conductance for a driven multistate cpg subnetwork neuron.
-            Gna = neuron_utilities.compute_driven_multistate_cpg_Gna(  );                                          % [S] Sodium Channel Conductance
+            Gna = neuron_utilities.compute_dmcpg_Gna(  );                                          % [S] Sodium Channel Conductance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -296,14 +299,30 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a transmission subnetwork neuron.
-        function [ Gna, self ] = compute_transmission_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_transmission_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for a transmission subnetwork neuron.
-            Gna = neuron_utilities.compute_transmission_Gna(  );                                                   % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this transmission subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue transmission subnetwork.
+                Gna = neuron_utilities.compute_absolute_transmission_Gna(  );       % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative transmission subnetwork.
+                Gna = neuron_utilities.compute_relative_transmission_Gna(  );       % [S] Sodium Channel Conductance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -328,46 +347,30 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for an addition subnetwork neuron.
-        function [ Gna, self ] = compute_addition_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_addition_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for an addition subnetwork neuron.
-            Gna = neuron_utilities.compute_addition_Gna(  );                                                       % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                           % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue addition subnetwork.
+                Gna = neuron_utilities.compute_absolute_addition_Gna(  );       % [S] Sodium Channel Conductance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
+            elseif strcmpi( encoding_scheme, 'relative' )                   	% If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for an absolute addition subnetwork neuron.
-        function [ Gna, self ] = compute_absolute_addition_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for an absolute addition subnetwork neuron.
-            Gna = neuron_utilities.compute_absolute_addition_Gna(  );                                              % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a relative addition subnetwork neuron.
-        function [ Gna, self ] = compute_relative_addition_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for a relative addition subnetwork neuron.
-            Gna = neuron_utilities.compute_relative_addition_Gna(  );                                              % [S] Sodium Channel Conductance
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative addition subnetwork.
+                Gna = neuron_utilities.compute_relative_addition_Gna(  );       % [S] Sodium Channel Conductance
+
+            else                                                                % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -376,94 +379,62 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a subtraction subnetwork neuron.
-        function [ Gna, self ] = compute_subtraction_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_subtraction_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for a subtraction subnetwork neuron.
-            Gna = neuron_utilities.compute_subtraction_Gna(  );                                                    % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                           % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue subtraction subnetwork.
+                Gna = neuron_utilities.compute_absolute_subtraction_Gna(  );       % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                   	% If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative subtraction subnetwork.
+                Gna = neuron_utilities.compute_relative_subtraction_Gna(  );       % [S] Sodium Channel Conductance
+
+            else                                                                % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
             
         end
         
-        
-        % Implement a function to compute the required sodium channel conductance for an absolute subtraction subnetwork neuron.
-        function [ Gna, self ] = compute_absolute_subtraction_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for an absolute subtraction subnetwork neuron.
-            Gna = neuron_utilities.compute_absolute_subtraction_Gna(  );                                           % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a relative subtraction subnetwork neuron.
-        function [ Gna, self ] = compute_relative_subtraction_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for a relative subtraction subnetwork neuron.
-            Gna = neuron_utilities.compute_relative_subtraction_Gna(  );                                            % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
+
         % Implement a function to compute the required sodium channel conductance for a double subtraction subnetwork neuron.
-        function [ Gna, self ] = compute_double_subtraction_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_double_subtraction_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for a double subtraction subnetwork neuron.
-            Gna = neuron_utilities.compute_double_subtraction_Gna(  );                                             % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this double subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                           % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue double subtraction subnetwork.
+                Gna = neuron_utilities.compute_absolute_double_subtraction_Gna(  );       % [S] Sodium Channel Conductance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
+            elseif strcmpi( encoding_scheme, 'relative' )                   	% If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for an absolute double subtraction subnetwork neuron.
-        function [ Gna, self ] = compute_absolute_double_subtraction_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for an absolute double subtraction subnetwork neuron.
-            Gna = neuron_utilities.compute_absolute_double_subtraction_Gna(  );                                    % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a relative double subtraction subnetwork neuron.
-        function [ Gna, self ] = compute_relative_double_subtraction_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for a relative double subtraction subnetwork neuron.
-            Gna = neuron_utilities.compute_relative_double_subtraction_Gna(  );                                    % [S] Sodium Channel Conductance
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative double subtraction subnetwork.
+                Gna = neuron_utilities.compute_relative_double_subtraction_Gna(  );       % [S] Sodium Channel Conductance
+
+            else                                                                % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -472,94 +443,62 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a multiplication subnetwork neuron.
-        function [ Gna, self ] = compute_multiplication_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_multiplication_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for a multiplication subnetwork neuron.
-            Gna = neuron_utilities.compute_multiplication_Gna(  );                                                 % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this multiplication subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue multiplication subnetwork.
+                Gna = neuron_utilities.compute_absolute_multiplication_Gna(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative multiplication subnetwork.
+                Gna = neuron_utilities.compute_relative_multiplication_Gna(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
             
         end
         
-        
-        % Implement a function to compute the required sodium channel conductance for an absolute multiplication subnetwork neuron.
-        function [ Gna, self ] = compute_absolute_multiplication_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for an absolute multiplication subnetwork neuron.
-            Gna = neuron_utilities.compute_absolute_multiplication_Gna(  );                                        % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a relative multiplication subnetwork neuron.
-        function [ Gna, self ] = compute_relative_multiplication_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for a relative multiplication subnetwork neurons.
-            Gna = neuron_utilities.compute_relative_multiplication_Gna(  );                                         % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
+      
         % Implement a function to compute the required sodium channel conductance for an inversion subnetwork neuron.
-        function [ Gna, self ] = compute_inversion_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for an inversion subnetwork neuron.
-            Gna = neuron_utilities.compute_inversion_Gna(  );                                                      % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue inversion subnetwork.
+                Gna = neuron_utilities.compute_absolute_inversion_Gna(  );         % [S] Sodium Channel Conductance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for an absolute inversion subnetwork neuron.
-        function [ Gna, self ] = compute_absolute_inversion_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for an absolute inversion subnetwork neuron.
-            Gna = neuron_utilities.compute_absolute_inversion_Gna(  );                                             % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a relative inversion subnetwork neuron.
-        function [ Gna, self ] = compute_relative_inversion_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for a relative inversion subnetwork neuron.
-            Gna = neuron_utilities.compute_relative_inversion_Gna(  );                                              % [S] Sodium Channel Conductance
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative inversion subnetwork.
+                Gna = neuron_utilities.compute_relative_inversion_Gna(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -568,53 +507,37 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a division subnetwork neuron.
-        function [ Gna, self ] = compute_division_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_division_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the sodium channel conductance for a division subnetwork neuron.
-            Gna = neuron_utilities.compute_division_Gna(  );                                                       % [S] Sodium Channel Conductance
+            % Determine how to compute the sodium channel conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue division subnetwork.
+                Gna = neuron_utilities.compute_absolute_division_Gna(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative division subnetwork.
+                Gna = neuron_utilities.compute_relative_division_Gna(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
             
         end
         
-        
-        % Implement a function to compute the required sodium channel conductance for an absolute division subnetwork neuron.
-        function [ Gna, self ] = compute_absolute_division_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for an absolute division subnetwork neuron.
-            Gna = neuron_utilities.compute_absolute_division_Gna(  );                                              % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a relative division subnetwork neuron.
-        function [ Gna, self ] = compute_relative_division_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the sodium channel conductance for a relative division subnetwork neuron.
-            Gna = neuron_utilities.compute_relative_division_Gna(  );                                               % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
+                
         % Implement a function to compute the required sodium channel conductance for a derivation subnetwork neuron.
         function [ Gna, self ] = compute_derivation_Gna( self, set_flag, neuron_utilities )
             
@@ -648,14 +571,14 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a voltage based integration subnetwork neuron.
-        function [ Gna, self ] = compute_vb_integration_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_vbi_Gna( self, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 3, neuron_utilities = self.neuron_utilities; end
             if nargin < 2, set_flag = true; end
             
             % Compute the sodium channel conductance for a voltage based integration subnetwork neuron.
-            Gna = neuron_utilities.compute_vb_integration_Gna(  );                                                 % [S] Sodium Channel Conductance
+            Gna = neuron_utilities.compute_vbi_Gna(  );                                                 % [S] Sodium Channel Conductance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -664,14 +587,14 @@ classdef neuron_class
         
         
         % Implement a function to compute the required sodium channel conductance for a split voltage based integration subnetwork neuron.
-        function [ Gna, self ] = compute_split_vb_integration_Gna( self, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_svbi_Gna( self, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 3, neuron_utilities = self.neuron_utilities; end
             if nargin < 2, set_flag = true; end
             
             % Compute the sodium channel conductance for a split voltage based integration subnetwork neuron.
-            Gna = neuron_utilities.compute_split_vb_integration_Gna(  );                                           % [S] Sodium Channel Conductance
+            Gna = neuron_utilities.compute_svbi_Gna(  );                                           % [S] Sodium Channel Conductance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -681,15 +604,31 @@ classdef neuron_class
         
         %% Membrane Conductance Compute Functions.
         
-        % Implement a function to compute the membrance conductance for absolute addition subnetwork input neurons.
-        function [ Gm, self ] = compute_absolute_addition_Gm_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for addition subnetwork input neurons.
+        function [ Gm, self ] = compute_addition_Gm_input( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_addition_Gm_input(  );                                          % [S] Membrane Conductance
+            % Determine how to compute the membrane conductance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an input to an absolue addition subnetwork.
+                Gm = neuron_utilities.compute_absolute_addition_Gm_input(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an input to a relative addition subnetwork.
+                Gm = neuron_utilities.compute_relative_addition_Gm_input(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
@@ -697,15 +636,31 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the membrance conductance for absolute addition subnetwork output neurons.
-        function [ Gm, self ] = compute_absolute_addition_Gm_output( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for addition subnetwork output neurons.
+        function [ Gm, self ] = compute_addition_Gm_output( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_addition_Gm_output(  );                                         % [S] Membrane Conductance
+            % Determine how to compute the membrane conductance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an output to an absolue addition subnetwork.
+                Gm = neuron_utilities.compute_absolute_addition_Gm_output(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an output to a relative addition subnetwork.
+                Gm = neuron_utilities.compute_relative_addition_Gm_output(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
@@ -713,15 +668,31 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the membrance conductance for relative addition subnetwork input neurons.
-        function [ Gm, self ] = compute_relative_addition_Gm_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for subtraction subnetwork input neurons.
+        function [ Gm, self ] = compute_subtraction_Gm_input( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_addition_Gm_input(  );                                          % [S] Membrane Conductance
+            % Determine how to compute the membrane conductance for this subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an input to an absolue subtraction subnetwork.
+                Gm = neuron_utilities.compute_absolute_subtraction_Gm_input(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an input to a relative subtraction subnetwork.
+                Gm = neuron_utilities.compute_relative_subtraction_Gm_input(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
@@ -729,15 +700,63 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the membrance conductance for relative addition subnetwork output neurons.
-        function [ Gm, self ] = compute_relative_addition_Gm_output( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for subtraction subnetwork output neurons.
+        function [ Gm, self ] = compute_subtraction_Gm_output( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_addition_Gm_output(  );                                         % [S] Membrane Conductance
+            % Determine how to compute the membrane conductance for this subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an input to an absolue subtraction subnetwork.
+                Gm = neuron_utilities.compute_absolute_subtraction_Gm_output(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an input to a relative subtraction subnetwork.
+                Gm = neuron_utilities.compute_relative_subtraction_Gm_output(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gm = Gm; end
+            
+        end
+        
+
+        % Implement a function to compute the membrance conductance for inversion subnetwork input neurons.
+        function [ Gm, self ] = compute_inversion_Gm_input( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the membrane conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an input to an absolue inversion subnetwork.
+                Gm = neuron_utilities.compute_absolute_inversion_Gm_input(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an input to a relative inversion subnetwork.
+                Gm = neuron_utilities.compute_relative_inversion_Gm_input(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
@@ -745,15 +764,31 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork input neurons.
-        function [ Gm, self ] = compute_absolute_subtraction_Gm_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for inversion subnetwork output neurons.
+        function [ Gm, self ] = compute_inversion_Gm_output( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_subtraction_Gm_input(  );                                       % [S] Membrane Conductance
+            % Determine how to compute the membrane conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an output to an absolue inversion subnetwork.
+                Gm = neuron_utilities.compute_absolute_inversion_Gm_output(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an output to a relative inversion subnetwork.
+                Gm = neuron_utilities.compute_relative_inversion_Gm_output(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
@@ -761,15 +796,31 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the membrane conductance for absolute subtraction subnetwork output neurons.
-        function [ Gm, self ] = compute_absolute_subtraction_Gm_output( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for division subnetwork input neurons.
+        function [ Gm, self ] = compute_division_Gm_input( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_subtraction_Gm_output(  );                                      % [S] Membrane Conductance
+            % Determine how to compute the membrane conductance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an input to an absolue division subnetwork.
+                Gm = neuron_utilities.compute_absolute_division_Gm_input(  );         % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+            
+                % Compute the membrane conductance for this neuron assuming that it is an input to a relative division subnetwork.
+                Gm = neuron_utilities.compute_relative_division_Gm_input(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
@@ -777,166 +828,38 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the membrane conductance for relative subtraction subnetwork input neurons.
-        function [ Gm, self ] = compute_relative_subtraction_Gm_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the membrance conductance for division subnetwork output neurons.
+        function [ Gm, self ] = compute_division_Gm_output( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_subtraction_Gm_input(  );                                       % [S] Membrane Conductance
-           
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
+            % Determine how to compute the membrane conductance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Compute the membrane conductance for this neuron assuming that it is an output to an absolue division subnetwork.
+                Gm = neuron_utilities.compute_absolute_division_Gm_output(  );         % [S] Sodium Channel Conductance
             
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for relative subtraction subnetwork output neurons.
-        function [ Gm, self ] = compute_relative_subtraction_Gm_output( self, set_flag, neuron_utilities )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
             
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_subtraction_Gm_output(  );                                      % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for absolute inversion subnetwork input neurons.
-        function [ Gm, self ] = compute_absolute_inversion_Gm_input( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_inversion_Gm_input(  );                                         % [S] Membrane Conductance
+                % Compute the membrane conductance for this neuron assuming that it is an output to a relative division subnetwork.
+                Gm = neuron_utilities.compute_relative_division_Gm_output(  );         % [S] Sodium Channel Conductance
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gm = Gm; end
             
         end
         
-        
-        % Implement a function to compute the membrane conductance for absolute inversion subnetwork output neurons.
-        function [ Gm, self ] = compute_absolute_inversion_Gm_output( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_inversion_Gm_output(  );                                        % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for relative inversion subnetwork input neurons.
-        function [ Gm, self ] = compute_relative_inversion_Gm_input( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_inversion_Gm_input(  );                                         % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for relative inversion subnetwork output neurons.
-        function [ Gm, self ] = compute_relative_inversion_Gm_output( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_inversion_Gm_output(  );                                        % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for absolute division subnetwork input neurons.
-        function [ Gm, self ] = compute_absolute_division_Gm_input( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_division_Gm_input(  );                                          % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for absolute division subnetwork output neurons.
-        function [ Gm, self ] = compute_absolute_division_Gm_output( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_absolute_division_Gm_output(  );                                         % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for relative division subnetwork input neurons.
-        function [ Gm, self ] = compute_relative_division_Gm_input( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_division_Gm_input(  );                                          % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane conductance for relative division subnetwork output neurons.
-        function [ Gm, self ] = compute_relative_division_Gm_output( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane conductance.
-            Gm = neuron_utilities.compute_relative_division_Gm_output(  );                                         % [S] Membrane Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gm = Gm; end
-            
-        end
-        
-        
+
         % Implement a function to compute the required membrane conductance for a derivation neuron.
         function [ Gm, self ] = compute_derivation_Gm( self, k, w, safety_factor, set_flag, neuron_utilities )
             
@@ -958,15 +881,31 @@ classdef neuron_class
         
         %% Membrane Capacitance Compute Functions.
         
-        % Implement a function to compute the membrane capacitance for a transmission subnetwork neuron.
-        function [ Cm, self ] = compute_transmission_Cm( self, set_flag, neuron_utilities )
+        % Implement a function to compute the required membrane capacitance for a transmission subnetwork neuron.
+        function [ Cm, self ] = compute_transmission_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for a transmission subnetwork neuron.
-            Cm = neuron_utilities.compute_transmission_Cm(  );                                                     % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this transmission subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue transmission subnetwork.
+                Cm = neuron_utilities.compute_absolute_transmission_Cm(  );         % [C] Membrane Capacitance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative transmission subnetwork.
+                Cm = neuron_utilities.compute_relative_transmission_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -975,18 +914,34 @@ classdef neuron_class
         
         
         % Implement a function to compute the membrane capacitance for a transmission subnetwork neuron.
-        function [ Cm, self ] = compute_slow_transmission_Cm( self, Gm, num_cpg_neurons, T, r, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_slow_transmission_Cm( self, Gm, num_cpg_neurons, T, r, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 7, neuron_utilities = self.neuron_utilites; end
-            if nargin < 6, set_flag = true; end
+            if nargin < 8, neuron_utilities = self.neuron_utilities; end
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 5, r = self.r_oscillation_DEFAULT; end                                                                  % [-] Oscillation Decay
             if nargin < 4, T = self.T_oscillation_DEFAULT; end                                                                  % [s] Oscillation Period
             if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                                  % [#] Number of CPG Neurons
-            if nargin < 2, Gm = self.Gm; end                                                                            % [S] Membrane Conductance
+            if nargin < 2, Gm = self.Gm; end                                                                                    % [S] Membrane Conductance
             
-            % Compute the membrane capacitance for a transmission subnetwork neuron.
-            Cm = neuron_utilities.compute_slow_transmission_Cm( Gm, num_cpg_neurons, T, r );                       % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this transmission subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                           % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue transmission subnetwork.
+                Cm = neuron_utilities.compute_slow_absolute_transmission_Cm( Gm, num_cpg_neurons, T, r );                       % [C] Membrane Capacitance
+
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   	% If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative transmission subnetwork.
+                Cm = neuron_utilities.compute_slow_relative_transmission_Cm( Gm, num_cpg_neurons, T, r );                       % [C] Membrane Capacitance
+
+            else                                                                                                                % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1011,46 +966,30 @@ classdef neuron_class
         
         
         % Implement a function to compute the membrane capacitance for an addition subnetwork neuron.
-        function [ Cm, self ] = compute_addition_Cm( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_addition_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for an addition subnetwork neuron.
-            Cm = neuron_utilities.compute_addition_Cm(  );                                                         % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue addition subnetwork.
+                Cm = neuron_utilities.compute_absolute_addition_Cm(  );         % [C] Membrane Capacitance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for an absolute addition subnetwork neuron.
-        function [ Cm, self ] = compute_absolute_addition_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for an absolute addition subnetwork neuron.
-            Cm = neuron_utilities.compute_absolute_addition_Cm(  );                                                % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
-        % Implemenet a function to compute the membrane capacitance for a relative addition subnetwork neuron.
-        function [ Cm, self ] = compute_relative_addition_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for a relative addition subnetwork neuron.
-            Cm = neuron_utilities.compute_relative_addition_Cm(  );                                                 % [C] Membrane Capacitance
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative addition subnetwork.
+                Cm = neuron_utilities.compute_relative_addition_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1059,94 +998,62 @@ classdef neuron_class
         
         
         % Implement a function to compute the membrane capacitance for a subtraction subnetwork neuron.
-        function [ Cm, self ] = compute_subtraction_Cm( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_subtraction_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for a subtraction subnetwork neuron.
-            Cm = neuron_utilities.compute_subtraction_Cm(  );                                                      % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue subtraction subnetwork.
+                Cm = neuron_utilities.compute_absolute_subtraction_Cm(  );         % [C] Membrane Capacitance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative subtraction subnetwork.
+                Cm = neuron_utilities.compute_relative_subtraction_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
             
         end
         
-        
-        % Implement a function to compute the membrane capacitance for an absolute subtraction subnetwork neuron.
-        function [ Cm, self ] = compute_absolute_subtraction_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for an absolute subtraction subnetwork neuron.
-            Cm = neuron_utilities.compute_absolute_subtraction_Cm(  );                                             % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
-        % Implement a function to comput the membrane capacitance for a relative subtraction subnetwork neuron.
-        function [ Cm, self ] = compute_relative_subtraction_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for a relative subtraction subnetwork neuron.
-            Cm = neuron_utilities.compute_relative_subtraction_Cm(  );                                             % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
+
         % Implement a function to compute the membrane capacitance for a double subtraction subnetwork neuron.
-        function [ Cm, self ] = compute_double_subtraction_Cm( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_double_subtraction_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for a double subtraction subnetwork neuron.
-            Cm = neuron_utilities.compute_double_subtraction_Cm(  );                                               % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this double subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue double subtraction subnetwork.
+                Cm = neuron_utilities.compute_absolute_double_subtraction_Cm(  );         % [C] Membrane Capacitance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for an absolute double subtraction subnetwork neuron.
-        function [ Cm, self ] = compute_absolute_double_subtraction_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for an absolute double subtraction subnetwork neuron.
-            Cm = neuron_utilities.compute_absolute_double_subtraction_Cm(  );                                      % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for a relative double subtraction subnetwork neuron.
-        function [ Cm, self ] = compute_relative_double_subtraction_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for a relative double subtraction subnetwork neuron.
-            Cm = neuron_utilities.compute_relative_double_subtraction_Cm(  );                                      % [C] Membrane Capacitance
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative double subtraction subnetwork.
+                Cm = neuron_utilities.compute_relative_double_subtraction_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1155,94 +1062,62 @@ classdef neuron_class
         
         
         % Implement a function to compute the membrane capacitance for an inversion subnetwork neuron.
-        function [ Cm, self ] = compute_inversion_Cm( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_inversion_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for an inversion subnetwork neuron.
-            Cm = neuron_utilities.compute_inversion_Cm(  );                                                        % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
+                Cm = neuron_utilities.compute_absolute_inversion_Cm(  );         % [C] Membrane Capacitance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
+                Cm = neuron_utilities.compute_relative_inversion_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
             
         end
         
-        
-        % Implement a function to compute the membrane capacitance for an absolute inversion subnetwork neuron.
-        function [ Cm, self ] = compute_absolute_inversion_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for an absolute inversion subnetwork neuron.
-            Cm = neuron_utilities.compute_absolute_inversion_Cm(  );                                               % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for a relative inversion subnetwork neuron.
-        function [ Cm, self ] = compute_relative_inversion_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for a relative inversion subnetwork neuron.
-            Cm = neuron_utilities.compute_relative_inversion_Cm(  );                                               % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
+
         % Implement a function to compute the membrane capacitance for a division subnetwork neuron.
-        function [ Cm, self ] = compute_division_Cm( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_division_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for a division subnetwork neuron.
-            Cm = neuron_utilities.compute_division_Cm(  );                                                         % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.
+                Cm = neuron_utilities.compute_absolute_division_Cm(  );         % [C] Membrane Capacitance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for an absolute division subnetwork neuron.
-        function [ Cm, self ] = compute_absolute_division_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for an absolute division subnetwork neuron.
-            Cm = neuron_utilities.compute_absolute_division_Cm(  );                                                % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for a relative division subnetwork neuron.
-        function [ Cm, self ] = compute_relative_division_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for a relative division subnetwork.
-            Cm = neuron_utilities.compute_relative_division_Cm(  );                                                % [C] Membrane Capacitance
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative division subnetwork.
+                Cm = neuron_utilities.compute_relative_division_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1251,46 +1126,30 @@ classdef neuron_class
         
         
         % Implement a function to compute the membrane capacitance for a multiplication subnetwork neuron.
-        function [ Cm, self ] = compute_multiplication_Cm( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_multiplication_Cm( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the membrane capacitance for a multiplication subnetwork neuron.
-            Cm = neuron_utilities.compute_multiplication_Cm(  );                                                   % [C] Membrane Capacitance
+            % Determine how to compute the membrane capacitance for this multiplication subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue multiplication subnetwork.
+                Cm = neuron_utilities.compute_absolute_multiplication_Cm(  );         % [C] Membrane Capacitance
             
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for an absolute multiplication subnetwork neuron.
-        function [ Cm, self ] = compute_absolute_multiplication_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for an absolute multiplication subnetwork neuron.
-            Cm = neuron_utilities.compute_absolute_multiplication_Cm(  );                                          % [C] Membrane Capacitance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Cm = Cm; end
-            
-        end
-        
-        
-        % Implement a function to compute the membrane capacitance for a relative multiplication subnetwork neuron.
-        function [ Cm, self ] = compute_relative_multiplication_Cm( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the membrane capacitance for a relative multiplication subnetwork neuron.
-            Cm = neuron_utilities.compute_relative_multiplication_Cm(  );                                          % [C] Membrane Capacitance
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative multiplication subnetwork.
+                Cm = neuron_utilities.compute_relative_multiplication_Cm(  );         % [C] Membrane Capacitance
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1353,7 +1212,7 @@ classdef neuron_class
         
         
         % Implement a function to compute the membrane capacitance for a voltage based integration neuron.
-        function [ Cm, self ] = compute_vb_integration_Cm( self, ki_mean, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_vbi_Cm( self, ki_mean, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 4, neuron_utilities = self.neuron_utilities; end
@@ -1361,7 +1220,7 @@ classdef neuron_class
             if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end                                                       % [-] Average Integration Gain
             
             % Compute the membrane capacitance for this voltage based integration neuron.
-            Cm = neuron_utilities.compute_vb_integration_Cm( ki_mean );                                            % [C] Membrane Capacitance
+            Cm = neuron_utilities.compute_vbi_Cm( ki_mean );                                            % [C] Membrane Capacitance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1370,7 +1229,7 @@ classdef neuron_class
         
         
         % Implement a function to first compute the membrane capacitance for a split voltage based integration neuron.
-        function [ Cm, self ] = compute_split_vb_integration_Cm1( self, ki_mean, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_svbi_Cm1( self, ki_mean, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 4, neuron_utilities = self.neuron_utilities; end
@@ -1378,7 +1237,7 @@ classdef neuron_class
             if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end                                                       % [-] Average Integration Gain
             
             % Compute the first membrane capacitance for this split voltage based integration neuron.
-            Cm = neuron_utilities.compute_split_vb_integration_Cm1( ki_mean );                                     % [C] Membrane Capacitance
+            Cm = neuron_utilities.compute_svbi_Cm1( ki_mean );                                     % [C] Membrane Capacitance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1387,14 +1246,14 @@ classdef neuron_class
         
         
         % Implement a function to second compute the membrane capacitance for a split voltage based integration neuron.
-        function [ Cm, self ] = compute_split_vb_integration_Cm2( self, set_flag, neuron_utilities )
+        function [ Cm, self ] = compute_svbi_Cm2( self, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 3, neuron_utilities = self.neuron_utilities; end
             if nargin < 2, set_flag = true; end
             
             % Compute the second membrane capacitance for this split voltage based integration neuron.
-            Cm = neuron_utilities.compute_split_vb_integration_Cm2(  );                                            % [C] Membrane Capacitance
+            Cm = neuron_utilities.compute_svbi_Cm2(  );                                            % [C] Membrane Capacitance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Cm = Cm; end
@@ -1404,32 +1263,31 @@ classdef neuron_class
         
         %% Activation Domain Compute Functions.
         
-        % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
-        function [ R, self ] = compute_absolute_addition_R_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the addition subnetwork input neurons.
+        function [ R, self ] = compute_addition_R_input( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_addition_R_input(  );                                            % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the absolute addition subnetwork output neurons.
-        function [ R, self ] = compute_absolute_addition_R_output( self, Rs, set_flag, neuron_utilities )
-            
-            % Define the default input arguments.
             if nargin < 4, neuron_utilities = self.neuron_utilities; end
             if nargin < 3, set_flag = true; end
-            if nargin < 2, Rs = self.R; end                                                                             % [V] Activation Domain
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_addition_R_output( Rs );                                         % [V] Activation Domain
+            % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue addition subnetwork.
+                R = neuron_utilities.compute_absolute_addition_R_input(  );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative addition subnetwork.
+                R = neuron_utilities.compute_relative_addition_R_input(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
@@ -1437,65 +1295,32 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
-        function [ R, self ] = compute_relative_addition_R_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the addition subnetwork output neurons.
+        function [ R, self ] = compute_addition_R_output( self, Rs, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_addition_R_input(  );                                            % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
-        function [ R, self ] = compute_relative_addition_R_output( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_addition_R_output(  );                                           % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
-        function [ R, self ] = compute_absolute_subtraction_R_input( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end            
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_subtraction_R_input(  );                                         % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the absolute subtraction subnetwork output neurons.
-        function [ R, self ] = compute_absolute_subtraction_R_output( self, Rs, s_ks, set_flag, neuron_utilities )
-            
-            % Define the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end
             if nargin < 4, set_flag = true; end
-            if nargin < 3, s_ks = 1; end                                                                                  % [-] Subtraction Sign
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, Rs = self.R; end                                                                             % [V] Activation Domain
+
+            % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue addition subnetwork.
+                R = neuron_utilities.compute_absolute_addition_R_output( Rs );         % [V] Activation Domain.
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_subtraction_R_output( Rs, s_ks );                                  % [V] Activation Domain
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative addition subnetwork.
+                R = neuron_utilities.compute_relative_addition_R_output(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
@@ -1503,15 +1328,31 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
-        function [ R, self ] = compute_relative_subtraction_R_input( self, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the subtraction subnetwork input neurons.
+        function [ R, self ] = compute_subtraction_R_input( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_subtraction_R_input(  );                                         % [V] Activation Domain
+            % Determine how to compute the membrane capacitance for this subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue subtraction subnetwork.
+                R = neuron_utilities.compute_absolute_subtraction_R_input(  );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative subtraction subnetwork.
+                R = neuron_utilities.compute_relative_subtraction_R_input(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
@@ -1519,82 +1360,65 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
-        function [ R, self ] = compute_relative_subtraction_R_output( self, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the subtraction subnetwork output neurons.
+        function [ R, self ] = compute_subtraction_R_output( self, Rs, s_ks, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_subtraction_R_output(  );                                        % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
-        function [ R, self ] = compute_absolute_inversion_R_input( self, epsilon, delta, set_flag, neuron_utilities )
-            
-            % Define the default input argument.
-            if nargin < 5, neuron_utilities = self.neuron_utilities; end
-            if nargin < 4, set_flag = true; end
-            if nargin < 3, delta = self.delta_DEFAULT; end                                                                              % [V] Output Offset
-            if nargin < 2, epsilon = self.epsilon_DEFAULT; end                                                                          % [V] Input Offset
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_inversion_R_input( epsilon, delta );                                             % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        %         % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
-        %         function R = compute_absolute_inversion_R_output( self, c, epsilon, neuron_utilities )
-        %
-        %             % Define the default input arguments.
-        %             if nargin < 4, neuron_utilities = self.neuron_utilities; end
-        %             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Subnetwork Offset
-        %             if nargin < 2, c = self.c_DEFAULT; end                                                                         % [-] Subnetwork Gain
-        %
-        %             % Compute the operational domain.
-        %             R = neuron_utilities.compute_absolute_inversion_R_output( c, epsilon );                                % [V] Activation Domain
-        %
-        %         end
-        
-        
-        % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
-        function [ R, self ] = compute_absolute_inversion_R_output( self, c, epsilon, delta, set_flag, neuron_utilities )
-            
-            % Define the default input arguments.
             if nargin < 6, neuron_utilities = self.neuron_utilities; end
             if nargin < 5, set_flag = true; end
-            if nargin < 4, delta = self.delta_DEFAULT; end                                                              % [-] Output Offset
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Input Offset
-            if nargin < 2, c = self.c_DEFAULT; end                                                                      % [-] Subnetwork Gain
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, s_ks = 1; end                                                                               	% [-] Subtraction Sign
+            if nargin < 2, Rs = self.R; end                                                                             % [V] Activation Domain
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_inversion_R_output( c, epsilon, delta );                          	% [V] Activation Domain
+            % Determine how to compute the membrane capacitance for this subtraction subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                           % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue subtraction subnetwork.
+                R = neuron_utilities.compute_absolute_subtraction_R_output( Rs, s_ks );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                       % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative subtraction subnetwork.
+                R = neuron_utilities.compute_relative_subtraction_R_output(  );                 % [V] Activation Domain.
+
+            else                                                                                % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
             
         end
-        
-        
-        % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
-        function [ R, self ] = compute_relative_inversion_R_input( self, set_flag, neuron_utilities )
+
+
+        % Implement a function to compute the operational domain of the inversion subnetwork input neurons.
+        function [ R, self ] = compute_inversion_R_input( self, epsilon, delta, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 6, neuron_utilities = self.neuron_utilities; end
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_inversion_R_input(  );                                           % [V] Activation Domain
+            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
+                R = neuron_utilities.compute_absolute_inversion_R_input( epsilon, delta );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
+                R = neuron_utilities.compute_relative_inversion_R_input(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
@@ -1602,24 +1426,70 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
-        function [ R, self ] = compute_relative_inversion_R_output( self, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the inversion subnetwork output neurons.
+        function [ R, self ] = compute_inversion_R_output( self, c, epsilon, delta, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
+            if nargin < 7, neuron_utilities = self.neuron_utilities; end
+            if nargin < 6, set_flag = true; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_inversion_R_output(  );                                          % [V] Activation Domain
+            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
+                R = neuron_utilities.compute_absolute_inversion_R_output( c, epsilon, delta );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
+                R = neuron_utilities.compute_relative_inversion_R_output(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
-            
+
         end
-        
-        
+
+
         % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
-        function [ R, self ] = compute_absolute_division_R_input( self, set_flag, neuron_utilities )
+        function [ R, self ] = compute_absolute_division_R_input( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = true; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
+                R = neuron_utilities.compute_absolute_division_R_input( epsilon, delta );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
+                R = neuron_utilities.compute_relative_inversion_R_input(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R; end
+            
+            
+            
+            
             
             % Set the default input arguments.
             if nargin < 3, neuron_utilities = self.neuron_utilities; end
