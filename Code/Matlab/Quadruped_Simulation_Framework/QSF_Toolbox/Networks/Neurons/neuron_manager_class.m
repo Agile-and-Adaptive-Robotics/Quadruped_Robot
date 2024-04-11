@@ -41,43 +41,54 @@ classdef neuron_manager_class
         Iapp_DEFAULT = 0;                                                                                               % [A] Applied Current
         Itotal_DEFAULT = 0;                                                                                             % [A] Total Current
         
-        % Define the subnetwork neuron quantities.
-        num_cpg_neurons_DEFAULT = 2;                                                                                            % [#] Number of CPG Neurons.
-        num_dcpg_neurons_DEFAULT = 3;
+        % Define the default sizes of the original FSA subnetworks.
         num_transmission_neurons_DEFAULT = 2;                                                                                   % [#] Number of Transmission Neurons.
         num_modulation_neurons_DEFAULT = 2;                                                                                     % [#] Number of Modulation Neurons.
+        num_inversion_neurons_DEFAULT = 2;                                                                                      % [#] Number of Inversion Neurons.
         num_addition_neurons_DEFAULT = 3;                                                                                       % [#] Number of Addition Neurons.
         num_subtraction_neurons_DEFAULT = 3;                                                                                    % [#] Number of Subtraction Neurons.
+        num_division_neurons_DEFAULT = 3;                                                                                       % [#] Number of Division Neurons.
+        num_multiplication_neurons_DEFAULT = 4;                                                                                 % [#] Number of Multiplication Neurons.
+        num_derivation_neurons_DEFAULT = 3;                                                                                     % [#] Number of Derivation Neurons.
+        num_integration_neurons_DEFAULT = 2;                                                                                    % [#] Number of Integration Neurons.
+
+        % Define the default sizes of custom FSA toolbox subnetworks.
+        num_cpg_neurons_DEFAULT = 2;                                                                                            % [#] Number of CPG Neurons.
+        num_dcpg_neurons_DEFAULT = 3;
         num_double_subtraction_neurons_DEFAULT = 4;                                                                             % [#] Number of Double Subtraction Neurons.
         num_centering_neurons_DEFAULT = 5;                                                                                      % [#] Number of Centering Neurons.
         num_double_centering_neurons_DEFAULT = 7;                                                                               % [#] Number of Double Centering Neurons.
-        num_multiplication_neurons_DEFAULT = 4;                                                                                 % [#] Number of Multiplication Neurons.
-        num_inversion_neurons_DEFAULT = 2;                                                                                      % [#] Number of Inversion Neurons.
-        num_division_neurons_DEFAULT = 3;                                                                                       % [#] Number of Division Neurons.
-        num_derivation_neurons_DEFAULT = 3;                                                                                     % [#] Number of Derivation Neurons.
-        num_integration_neurons_DEFAULT = 2;                                                                                    % [#] Number of Integration Neurons.
-        num_vb_integration_neurons_DEFAULT = 4;                                                                                 % [#] Number of Voltage Based Integration Neurons.
-        num_split_vb_integration_neurons_DEFAULT = 9;                                                                           % [#] Number of Split Voltage Based Integration Neurons.
-        num_mod_split_vb_integration_neurons_DEFAULT = 3;                                                                       % [#] Number of Unique Modualted Split Voltage Based Integration Neurons.
-        num_mssvb_integration_neurons_total_DEFAULT = 16;                                                                       % [#] Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
-        num_dmcpg_sll_neurons_DEFAULT = 4;                                                                                      % [#] Number of Unique Driven Multistate Central Pattern Generator Split Lead Lag Neurons.
+        num_cds_neurons_DEFAULT = 11;
+        num_dmcpgdcll2cds_neurons_DEFAULT = 1;
+        num_vbi_neurons_DEFAULT = 4;                                                                                 % [#] Number of Voltage Based Integration Neurons.
+        num_svbi_neurons_DEFAULT = 9;                                                                           % [#] Number of Split Voltage Based Integration Neurons.
+        num_new_msvbi_neurons_DEFAULT = 3;
+        num_msvbi_neurons_DEFAULT = 3;                                                                       % [#] Number of Unique Modualted Split Voltage Based Integration Neurons.
+        num_mssvbi_neurons_DEFAULT = 16;                                                                       % [#] Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
+        num_sll_neurons_DEFAULT = 4;                                                                                      % [#] Number of Split Lead Lag Neurons.
         
+        % Define inversion subnetwork parameters.
         c_inversion_DEFAULT = 1;                                                                                                % [-] Inversion Subnetwork Gain.
         epsilon_inversion_DEFAULT = 1e-6;                                                                                       % [V] Inversion Subnetwork Input Offset.
         delta_inversion_DEFAULT = 1e-6;                                                                                         % [V] Inversion Subnetwork Output Offset.
 
+        % Define division subnetwork parameters.
         c_division_DEFAULT = 1;                                                                                                 % [-] Division Subnetwork Gain.
         epsilon_division_DEFAULT = 1e-6;                                                                                        % [-] Division Subnetwork Offset.
         alpha_DEFAULT = 1e-6;                                                                                                   % [-] Subnetwork Denominator Adjustment
 
+        % Define multiplication subnetwork parameters.
         c_multiplication_DEFAULT = 1;                                                                                           % [-] Multiplication Subnetwork Gain.
         
+        % Define derivation subnetwork parameters.
         c_derivation_DEFAULT = 1e6;                                                                                             % [-] Derivative Subnetwork Gain
         w_derivation_DEFAULT = 1;                                                                                               % [Hz?] Derivative Subnetwork Cutoff Frequency?
         sf_derivation_DEFAULT = 0.05;                                                                                           % [-] Derivative Subnetwork Safety Factor
         
+        % Define integration subnetwork parameters.
         c_integration_mean_DEFAULT = 0.01e9;                                                                                    % [-] Average Integration Gain
 
+        % Define cpg subnetwork parameters.
         T_oscillation_DEFAULT = 2;                                                                                              % [s] Oscillation Period. 
         r_oscillation_DEFAULT = 0.90;                                                                                           % [-] Oscillation Decay.
                 
@@ -3419,30 +3430,129 @@ classdef neuron_manager_class
         end
         
        
-        %% Subnetwork Neuron Size Functions.
+        %% Subnetwork Neuron Quantity Functions.
         
-        % Implement a function to compute the number of dmcpg sll neurons.
-        function n_neurons = compute_num_of_dmcpg_sll_neurons( self, num_cpg_neurons )
+        % Implement a function to compute the number of centered double subtraction neurons.
+        function [ n_neurons, n_ds_neurons, n_dc_neurons ] = compute_num_cds_neurons( self )
+        
+            % Compute the number of double subtraction neurons.
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
             
-            % Compute the number of neurons.
-            n_neurons = 2*num_cpg_neurons + num_cpg_neurons*( self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT ) + self.num_dmcpg_sll_neurons_DEFAULT;
+            % Compute the number of double centering neurons.
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;
+            
+            % Compute the number of centered double subtraction neurons.
+            n_neurons = n_ds_neurons + n_dc_neurons;
+            
+        end
+            
+        
+        % Implement a function to compute the number of driven multistate cpg neurons.
+        function n_neurons = compute_num_dmcpg_neurons( self, num_cpg_neurons )
+           
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the number of driven multistate cpg neurons.
+            n_neurons = num_cpg_neurons + 1;
+            
+        end
+        
+        
+        % Implement a function to compute the number of modulated split voltage based integration neurons.
+        function [ n_neurons, n_vsbi_neurons, n_new_msvbi_neurons ] = compute_num_msvbi_neurons( self )
+        
+            % Compute the number of split voltage based integration neurons.
+            n_vsbi_neurons = self.num_svbi_neurons_DEFAULT;
+            
+            % Compute the number of new modulated split voltage based integration neurons.
+            n_new_msvbi_neurons = self.num_new_msvbi_neurons_DEFAULT;
+            
+           % Compute the number of modulated split voltaged based integration neurons.
+           n_neurons = n_vsbi_neurons + n_new_msvbi_neurons;
+            
+        end
+        
+        
+        % Implement a function to compute the number of modulated split difference voltage based integration neurons.
+        function [ n_neurons, n_ds_neurons, n_msvbi_neurons ] = compute_num_mssvbi_neurons( self )
+            
+            % Compute the number of double subtraction neurons.
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
+            
+            % Compute the number of modulated split voltage based integration neurons.            
+            [ n_msvbi_neurons, ~, ~ ] = self.compute_num_msvbi_neurons(  );
+            
+            % Compute the number of modulated split difference voltage based integration neurons.
+            n_neurons = n_ds_neurons + n_msvbi_neurons;
+        
+        end
+        
+            
+        % Implement a function to compute the number of dmcpg sll neurons.
+        function [ n_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = compute_num_dmcpg_sll_neurons( self, num_cpg_neurons )
+            
+            % Compute the number of neurons for a driven multistate cpg.
+            n_dmcpg_neurons = self.compute_num_dmcpg_neurons( num_cpg_neurons );
+            
+            % Compute the number of neurons for a modulated split subtraction voltage based integration subnetwork.
+            [ n_mssvbi_neurons, ~, ~ ] = self.compute_num_mssvbi_neurons(  );
+            
+            % Compute the number of neurons for a split lead lag subnetwork.
+            n_sll_neurons = self.num_sll_neurons_DEFAULT;
+            
+            % Compute the number of driven multistate cpg split lead lag neurons.
+            n_neurons = 2*n_dmcpg_neurons + num_cpg_neurons*n_mssvbi_neurons + n_sll_neurons;
             
         end
         
         
         % Implement a function to compute the number of dmcpg dcll neurons.
-        function n_neurons = compute_num_of_dmcpg_dcll_neurons( self, num_cpg_neurons )
+        function [ n_neurons, n_dmcpg_sll_neurons, n_dc_neurons ] = compute_num_dmcpg_dcll_neurons( self, num_cpg_neurons )
              
-           % Compute the number of neurons.
-            n_neurons = 2*num_cpg_neurons + num_cpg_neurons*( self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT ) + self.num_dmcpg_sll_neurons_DEFAULT + self.num_double_centering_neurons_DEFAULT;
+            % Compute the number of dmcpg sll neurons.
+            [ n_dmcpg_sll_neurons, ~, ~, ~ ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
             
+            % Compute the number of double centering neurons.
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;
+            
+           % Compute the number of dmcpg dcll neurons.
+            n_neurons = n_dmcpg_sll_neurons + n_dc_neurons;
+            
+        end
+        
+        
+        % Implement a function to compute the number of open loop driven multistate central pattern generator double centering lead lag error subnetwork.
+        function [ n_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = compute_num_ol_dmcpg_dclle_neurons( self, num_cpg_neurons )
+            
+            % Compute the number of dmcpg dcll neurons.
+            [ n_dmcpg_dcll_neurons, ~, ~ ] = self.compute_num_dmcpg_dcll_neurons( num_cpg_neurons );
+            
+            % Compute the number of centered double subtraction neurons.
+            [ n_cds_neurons, ~, ~ ] = self.compute_num_cds_neurons(  );
+            
+            % Compute the number of dmcpgdcll2cds neurons.
+            n_dmcpgdcll2cds_neurons = self.num_dmcpgdcll2cds_neurons_DEFAULT;
+            
+            % Compute the number of ol dmcpg dclle neurons.
+            n_neurons = n_dmcpg_dcll_neurons + n_cds_neurons + n_dmcpgdcll2cds_neurons;
+            
+        end
+        
+        
+        % Implement a function to compute the number of closed loop proportional control driven multistate central pattern generator double centering lead lag subnetwork.
+        function [ n_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = compute_num_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons )
+        
+            % Compute the number of closed loop proportional control driven multistate central pattern generator double centering lead lag subnetwork.
+            [ n_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = self.compute_num_ol_dmcpg_dclle_neurons( num_cpg_neurons );
+                    
         end
         
         
         %% Subnetwork Neuron Creation Functions.
 
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
-        function [ IDs, neurons, self ] = create_multistate_cpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs, neurons, self ] = create_mcpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
         
             % Set the default number of multistate cpg neurons.
             if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end
@@ -3499,10 +3609,13 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
-        function [ IDs, neurons, self ] = create_driven_multistate_cpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs, neurons, self ] = create_dmcpg_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
         
-            % Set the default number of multistate cpg neurons.
-            if nargin < 2, n_neurons = self.num_dcpg_neurons_DEFAULT; end
+            % Set the default number of cpg neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the number of drive multistate cpg neurons.
+            n_neurons = self.compute_num_dmcpg_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -3537,7 +3650,7 @@ classdef neuron_manager_class
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Provided neuron properties must be of consistent size.' )
             
             % Create the neurons for a multistate cpg subnetwork.
-            [ IDs1, neurons, neuron_manager ] = self.create_multistate_cpg_neurons( n_neurons - 1, IDs( 1:( end - 1 ) ), names( 1:( end - 1 ) ), Us( 1:( end - 1 ) ), hs( 1:( end - 1 ) ), Cms( 1:( end - 1 ) ), Gms( 1:( end - 1 ) ), Ers( 1:( end - 1 ) ), Rs( 1:( end - 1 ) ), Ams( 1:( end - 1 ) ), Sms( 1:( end - 1 ) ), dEms( 1:( end - 1 ) ), Ahs( 1:( end - 1 ) ), Shs( 1:( end - 1 ) ), dEhs( 1:( end - 1 ) ), dEnas( 1:( end - 1 ) ), tauh_maxs( 1:( end - 1 ) ), Gnas( 1:( end - 1 ) ), I_leaks( 1:( end - 1 ) ), I_syns( 1:( end - 1 ) ), I_nas( 1:( end - 1 ) ), I_tonics( 1:( end - 1 ) ), I_apps( 1:( end - 1 ) ), I_totals( 1:( end - 1 ) ), b_enableds( 1:( end - 1 ) ), neurons, true, array_utilities );
+            [ IDs1, neurons, neuron_manager ] = self.create_mcpg_neurons( num_cpg_neurons, IDs( 1:( end - 1 ) ), names( 1:( end - 1 ) ), Us( 1:( end - 1 ) ), hs( 1:( end - 1 ) ), Cms( 1:( end - 1 ) ), Gms( 1:( end - 1 ) ), Ers( 1:( end - 1 ) ), Rs( 1:( end - 1 ) ), Ams( 1:( end - 1 ) ), Sms( 1:( end - 1 ) ), dEms( 1:( end - 1 ) ), Ahs( 1:( end - 1 ) ), Shs( 1:( end - 1 ) ), dEhs( 1:( end - 1 ) ), dEnas( 1:( end - 1 ) ), tauh_maxs( 1:( end - 1 ) ), Gnas( 1:( end - 1 ) ), I_leaks( 1:( end - 1 ) ), I_syns( 1:( end - 1 ) ), I_nas( 1:( end - 1 ) ), I_tonics( 1:( end - 1 ) ), I_apps( 1:( end - 1 ) ), I_totals( 1:( end - 1 ) ), b_enableds( 1:( end - 1 ) ), neurons, true, array_utilities );
             
             % Determine whether to update the default or provided CPG drive neuron name.
             if isempty( names{ end } )                  % If the final name is empty...
@@ -3563,7 +3676,7 @@ classdef neuron_manager_class
         function [ IDs_cell, neurons, self ] = create_dmcpg_sll_neurons( self, num_cpg_neurons, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
         
             % Compute the number of neurons.
-            n_neurons = self.compute_num_of_dmcpg_sll_neurons( num_cpg_neurons );
+            [ n_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end
@@ -3604,36 +3717,36 @@ classdef neuron_manager_class
             
             % Define the indexes of the neurons for the first driven multistate CPG.
             i_start1 = 1;
-            i_end1 = num_cpg_neurons;
+            i_end1 = n_dmcpg_neurons;
             
             % Create the first driven multistate CPG subnetwork neurons.
-            [ IDs_cell{ 1 }, neurons, neuron_manager ] = self.create_driven_multistate_cpg_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
+            [ IDs_cell{ 1 }, neurons, neuron_manager ] = self.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
 
             % Define the indexes of the neurons for the second driven multistate CPG.
-            i_start2 = num_cpg_neurons + 1;
-            i_end2 = 2*num_cpg_neurons;
+            i_start2 = i_end1 + 1;
+            i_end2 = i_end1 + n_dmcpg_neurons;
             
             % Create the second driven multistate CPG subnetwork neurons.
-            [ IDs_cell{ 2 }, neurons, neuron_manager ] = neuron_manager.create_driven_multistate_cpg_neurons( num_cpg_neurons, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs_cell{ 2 }, neurons, neuron_manager ] = neuron_manager.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
 
             % Create the modulated split subtraction voltage based integration subnetwork neurons for each pair of driven multistate cpg neurons.
             for k = 1:num_cpg_neurons                               % Iterate through each of the cpg neurons...
                 
                 % Define the indexes of the neurons for the modulated split subtration voltage based integration subnetwork.
-                i_start3 = ( 2*num_cpg_neurons + 1 ) + ( k - 1 )*( self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT );
-                i_end3 = ( 2*num_cpg_neurons + 1 ) + k*( self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT ) - 1;
+                i_start3 = i_end2 + ( k - 1 )*n_mssvbi_neurons + 1;
+                i_end3 = i_end2 + k*n_mssvbi_neurons;
                 
                 % Create the modulated split difference voltage based integration subnetwork neurons.
-                [ IDs_cell{ k + 2 }, neurons, neuron_manager ] = neuron_manager.create_mod_split_sub_vb_integration_neurons( network_type, IDs( i_start3:i_end3 ), names( i_start3:i_end3 ), Us( i_start3:i_end3 ), hs( i_start3:i_end3 ), Cms( i_start3:i_end3 ), Gms( i_start3:i_end3 ), Ers( i_start3:i_end3 ), Rs( i_start3:i_end3 ), Ams( i_start3:i_end3 ), Sms( i_start3:i_end3 ), dEms( i_start3:i_end3 ), Ahs( i_start3:i_end3 ), Shs( i_start3:i_end3 ), dEhs( i_start3:i_end3 ), dEnas( i_start3:i_end3 ), tauh_maxs( i_start3:i_end3 ), Gnas( i_start3:i_end3 ), I_leaks( i_start3:i_end3 ), I_syns( i_start3:i_end3 ), I_nas( i_start3:i_end3 ), I_tonics( i_start3:i_end3 ), I_apps( i_start3:i_end3 ), I_totals( i_start3:i_end3 ), b_enableds( i_start3:i_end3 ), neurons, true, array_utilities );
+                [ IDs_cell{ k + 2 }, neurons, neuron_manager ] = neuron_manager.create_mssvbi_neurons( network_type, IDs( i_start3:i_end3 ), names( i_start3:i_end3 ), Us( i_start3:i_end3 ), hs( i_start3:i_end3 ), Cms( i_start3:i_end3 ), Gms( i_start3:i_end3 ), Ers( i_start3:i_end3 ), Rs( i_start3:i_end3 ), Ams( i_start3:i_end3 ), Sms( i_start3:i_end3 ), dEms( i_start3:i_end3 ), Ahs( i_start3:i_end3 ), Shs( i_start3:i_end3 ), dEhs( i_start3:i_end3 ), dEnas( i_start3:i_end3 ), tauh_maxs( i_start3:i_end3 ), Gnas( i_start3:i_end3 ), I_leaks( i_start3:i_end3 ), I_syns( i_start3:i_end3 ), I_nas( i_start3:i_end3 ), I_tonics( i_start3:i_end3 ), I_apps( i_start3:i_end3 ), I_totals( i_start3:i_end3 ), b_enableds( i_start3:i_end3 ), neurons, true, array_utilities );
             
             end
             
             % Define the unique driven multistate cpg split lead lag indexes.
             i_start4 = i_end3 + 1;
-            i_end4 = n_neurons;
+            i_end4 = i_end3 + n_sll_neurons;
             
             % Create the unique driven multistate cpg split lead lag neurons.
-            [ IDs_cell{ end }, neurons, neuron_manager ] = neuron_manager.create_neurons( self.num_dmcpg_sll_neurons_DEFAULT, IDs( i_start4:i_end4 ), names( i_start4:i_end4 ), Us( i_start4:i_end4 ), hs( i_start4:i_end4 ), Cms( i_start4:i_end4 ), Gms( i_start4:i_end4 ), Ers( i_start4:i_end4 ), Rs( i_start4:i_end4 ), Ams( i_start4:i_end4 ), Sms( i_start4:i_end4 ), dEms( i_start4:i_end4 ), Ahs( i_start4:i_end4 ), Shs( i_start4:i_end4 ), dEhs( i_start4:i_end4 ), dEnas( i_start4:i_end4 ), tauh_maxs( i_start4:i_end4 ), Gnas( i_start4:i_end4 ), I_leaks( i_start4:i_end4 ), I_syns( i_start4:i_end4 ), I_nas( i_start4:i_end4 ), I_tonics( i_start4:i_end4 ), I_apps( i_start4:i_end4 ), I_totals( i_start4:i_end4 ), b_enableds( i_start4:i_end4 ), neurons, true, array_utilities );
+            [ IDs_cell{ end }, neurons, neuron_manager ] = neuron_manager.create_neurons( n_sll_neurons, IDs( i_start4:i_end4 ), names( i_start4:i_end4 ), Us( i_start4:i_end4 ), hs( i_start4:i_end4 ), Cms( i_start4:i_end4 ), Gms( i_start4:i_end4 ), Ers( i_start4:i_end4 ), Rs( i_start4:i_end4 ), Ams( i_start4:i_end4 ), Sms( i_start4:i_end4 ), dEms( i_start4:i_end4 ), Ahs( i_start4:i_end4 ), Shs( i_start4:i_end4 ), dEhs( i_start4:i_end4 ), dEnas( i_start4:i_end4 ), tauh_maxs( i_start4:i_end4 ), Gnas( i_start4:i_end4 ), I_leaks( i_start4:i_end4 ), I_syns( i_start4:i_end4 ), I_nas( i_start4:i_end4 ), I_tonics( i_start4:i_end4 ), I_apps( i_start4:i_end4 ), I_totals( i_start4:i_end4 ), b_enableds( i_start4:i_end4 ), neurons, true, array_utilities );
             
             % Set the names of these addition neurons.
             neuron_manager = neuron_manager.set_neuron_property( IDs_cell{ end }, { 'Fast Lead', 'Fast Lag', 'Slow Lead', 'Slow Lag' }, 'name' );
@@ -3648,7 +3761,7 @@ classdef neuron_manager_class
         function [ IDs_cell, neurons, self ] = create_dmcpg_dcll_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Compute the number of neurons.
-            n_neurons = self.compute_num_of_dmcpg_dcll_neurons( num_cpg_neurons );
+            [ n_neurons, n_dmcpg_sll_neurons, n_dc_neurons ] = self.compute_num_dmcpg_dcll_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -3685,14 +3798,14 @@ classdef neuron_manager_class
                         
             % Define the indexes associated with the dmcpgsll subnetwork.
             i_start1 = 1;
-            i_end1 = 2*num_cpg_neurons + num_cpg_neurons*( self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT ) + self.num_dmcpg_sll_neurons_DEFAULT;
+            i_end1 = n_dmcpg_sll_neurons;
             
             % Create the neurons for a driven multistate cpg split lead lag subnetwork.
             [ IDs1, neurons, neuron_manager ] = self.create_dmcpg_sll_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Define the indexes associated with the double centering subnetwork.
-            i_start2 = i_end1;
-            i_end2 = n_neurons;
+            i_start2 = i_end1 + 1;
+            i_end2 = i_end1 + n_dc_neurons;
             
             % Create the neurons for a double centering subnetwork.
             [ IDs2, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
@@ -3750,14 +3863,8 @@ classdef neuron_manager_class
         % Implement a function to create the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
         function [ IDs_cell, neurons, self ] = create_ol_dmcpg_dclle_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
-            % Compute the number of dmcpg dcll neurons.
-            
-            
-            % Compute the number of centered double subtraction neurons.
-            
-            
-            % Compute the number of ol dmcpg dclle neurons.
-            n_neurons = 2*num_cpg_neurons + num_cpg_neurons*( self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT ) + self.num_dmcpg_sll_neurons_DEFAULT + self.num_double_centering_neurons_DEFAULT;;          % NEED TO ADD NEURONS FROM OTHER SUBNETWORKS IN THIS FUNCTION.
+            % Compute the number of neurons.
+            [ n_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, ~ ] = self.compute_num_ol_dmcpg_dclle_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -3790,18 +3897,18 @@ classdef neuron_manager_class
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
             
             % Define the indexes associated with the dmcpg dcll neurons.
-            i_start1 = 1;          % THESE NEED TO BE CORRECTED.
-            i_end1 = 1;            % THESE NEED TO BE CORRECTED.
+            i_start1 = 1;
+            i_end1 = n_dmcpg_dcll_neurons;
             
             % Create the neurons for a driven multistate cpg double centered lead lag subnetwork.
             [ IDs_dmcpgdcll, neurons, neuron_manager ] = self.create_dmcpg_dcll_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
         
             % Define the indexes associated with the double subtraction neurons.
-            i_start2 = 1;          % THESE NEED TO BE CORRECTED.
-            i_end2 = 1;            % THESE NEED TO BE CORRECTED.
+            i_start2 = i_end1 + 1;
+            i_end2 = i_end1 + n_cds_neurons;
             
             % Create the neurons for a centered double subtraction subnetwork.
-            [ IDs_cds, neurons, neuron_manager ] = neuron_manager.create_centered_double_subtraction_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs_cds, neurons, neuron_manager ] = neuron_manager.create_cds_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
             % Create the neurons that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the double centered subtraction subnetwork.
             [ IDs_dmcpgdcll2cds, neurons, neuron_manager ] = neuron_manager.create_dmcpgdcll2cds_neuron( IDs( end ), names( end ), Us( end ), hs( end ), Cms( end ), Gms( end ), Ers( end ), Rs( end ), Ams( end ), Sms( end ), dEms( end ), Ahs( end ), Shs( end ), dEhs( end ), dEnas( end ), tauh_maxs( end ), Gnas( end ), I_leaks( end ), I_syns( end ), I_nas( end ), I_tonics( end ), I_apps( end ), I_totals( end ), b_enableds( end ), neurons, true, array_utilities );
@@ -3819,7 +3926,7 @@ classdef neuron_manager_class
         function [ IDs_cell, neurons, self ] = create_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
         
             % Compute the number of neurons.
-            n_neurons = 2*num_cpg_neurons;          % NEED TO ADD NEURONS FROM OTHER SUBNETWORKS IN THIS FUNCTION.
+            [ n_neurons, ~, ~, ~ ] = self.compute_num_clpc_dmcpg_dcll_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -4277,10 +4384,10 @@ classdef neuron_manager_class
 
         
         % Implement a function to create the neurons for a centered double subtraction subnetwork.
-        function [ IDs_cell, neurons, self ] = create_centered_double_subtraction_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_cell, neurons, self ] = create_cds_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the number of neurons.
-            n_neurons = self.num_double_subtraction_neurons_DEFAULT + self.num_double_centering_neurons_DEFAULT;
+            [ n_neurons, n_ds_neurons, n_dc_neurons ] = self.compute_num_cds_neurons(  );
                         
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -4317,14 +4424,14 @@ classdef neuron_manager_class
             
             % Set the indexes associated with the double subtraction neurons.
             i_start1 = 1;                                                                                               % [#] Starting Index 1.
-            i_end1 = self.num_double_subtraction_neurons_DEFAULT;                                                     	% [#] Ending Index 1.
+            i_end1 = n_ds_neurons;                                                                                      % [#] Ending Index 1.
             
             % Create the double subtraction subnetwork neurons.
             [ IDs1, neurons, neuron_manager ] = self.create_double_subtraction_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Set the indexes associated with the double centering neurons.
             i_start2 = i_end1 + 1;                                                                                  	% [#] Starting Index 2.
-            i_end2 = i_start2 + self.num_double_centering_neurons_DEFAULT - 1;                                          % [#] Ending Index 2.
+            i_end2 = i_end1 + n_dc_neurons;                                                                             % [#] Ending Index 2.
             
             % Create the double centering subnetwork neurons.
             [ IDs2, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
@@ -4604,10 +4711,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_vb_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs, neurons, self ] = create_vbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.num_vb_integration_neurons_DEFAULT;
+            n_neurons = self.num_vbi_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -4657,10 +4764,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the split voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_split_vb_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs, neurons, self ] = create_svbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.num_split_vb_integration_neurons_DEFAULT;
+            n_neurons = self.num_svbi_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -4710,10 +4817,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the modulated split voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_mod_split_vb_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs, neurons, self ] = create_msvbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = 2*self.num_split_vb_integration_neurons_DEFAULT;
+            [ n_neurons, n_vsbi_neurons, n_new_msvbi_neurons ] = self.compute_num_msvbi_neurons(  );
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -4750,17 +4857,17 @@ classdef neuron_manager_class
             
             % Define the split voltage based integration neuron indexes.
             i_start1 = 1;
-            i_end1 = self.num_split_vb_integration_neurons_DEFAULT;
+            i_end1 = n_vsbi_neurons;
             
             % Create the split voltage based integration neurons.
-            [ IDs1, neurons, neuron_manager ] = self.create_split_vb_integration_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
+            [ IDs1, neurons, neuron_manager ] = self.create_svbi_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Define the modulated split voltage based integration neuron indexes.
             i_start2 = i_end1 + 1;
-            i_end2 = n_neurons;
+            i_end2 = i_end1 + n_new_msvbi_neurons;
             
             % Create the modulated split voltage based integration subnetwork neurons.
-            [ IDs2, neurons, neuron_manager ] = neuron_manager.create_neurons( self.num_mod_split_vb_integration_neurons_DEFAULT, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs2, neurons, neuron_manager ] = neuron_manager.create_neurons( n_new_msvbi_neurons, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
             % Set the names of the modulated split voltage based integration subnetwork neurons.
             neuron_manager = neuron_manager.set_neuron_property( neuron_IDs2, { 'Modulation 1', 'Modulation 2', 'Modulation 3' }, 'name' );
@@ -4775,10 +4882,10 @@ classdef neuron_manager_class
                 
         
         % Implement a function to create the modulated split difference voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_mod_split_sub_vb_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs, neurons, self ] = create_mssvbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.num_double_subtraction_neurons_DEFAULT + 2*self.num_split_vb_integration_neurons_DEFAULT;
+            [ n_neurons, n_ds_neurons, n_msvbi_neurons ] = self.compute_num_mssvbi_neurons(  );
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -4815,17 +4922,17 @@ classdef neuron_manager_class
             
             % Define the double subtraction neuron indexes.
             i_start1 = 1;
-            i_end1 = self.num_double_subtraction_neurons_DEFAULT;
+            i_end1 = n_ds_neurons;
                         
             % Create the double subtraction neurons.
             [ IDs1, neurons, neuron_manager ] = self.create_double_subtraction_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Define the modulated split voltage based integration neuron indexes.
             i_start2 = i_end1 + 1;
-            i_end2 = n_neurons;
+            i_end2 = i_end1 + n_msvbi_neurons;
             
             % Create the modulated split voltage based integration neurons.
-            [ IDs2, neurons, neuron_manager ] = neuron_manager.create_mod_split_vb_integration_neurons( network_type, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs2, neurons, neuron_manager ] = neuron_manager.create_msvbi_neurons( network_type, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
             % Concatenate the neuron IDs.
             IDs = [ IDs1, IDs2 ];
