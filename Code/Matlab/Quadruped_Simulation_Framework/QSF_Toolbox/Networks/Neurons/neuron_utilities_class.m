@@ -265,39 +265,6 @@ classdef neuron_utilities_class
         
         %% Sodium Channel Conductance Functions.
         
-        % Implement a function to compute the sodium channel conductances for a CPG subnetwork.
-        function Gna = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
-            
-            % Define the default input arguments.
-            if nargin < 10, dEna = self.dEna_DEFAULT; end                   % [V] Sodium Channel Reversal Potential
-            if nargin < 9, dEh = self.dEh_DEFAULT; end                      % [V] Sodium Channel Deactivation Reversal Potential
-            if nargin < 8, Sh = self.Sh_DEFAULT; end                        % [-] Sodium Channel Deactivation Slope
-            if nargin < 7, Ah = self.Ah_DEFAULT; end                        % [-] Sodium Channel Deactivation Amplitude
-            if nargin < 6, dEm = self.dEm_DEFAULT; end                      % [-] Sodium Channel Activation Reversal Potential
-            if nargin < 5, Sm = self.Sm_DEFAULT; end                        % [-] Sodium Channel Activation Slope
-            if nargin < 4, Am = self.Am_DEFAULT; end                        % [-] Sodium Channel Activation Amplitude
-            if nargin < 3, Gm = self.Gm_DEFAULT; end                        % [S] Membrane Conductance
-            if nargin < 2, R = self.R_DEFAULT; end                          % [V] Activation Domain
-            
-            % Compute the steady state sodium channel activation & devactivation parameters at the upper equilibrium.
-            minf_upper = self.compute_mhinf( R, Am, Sm, dEm );              % [-] Steady State Sodium Channel Activation Parameter
-            hinf_upper = self.compute_mhinf( R, Ah, Sh, dEh );              % [-] Steady State Sodium Channel Deactivation Parameter.
-            
-            % Compute the sodium channel conductance for each half-center neuron.
-            Gna = ( Gm.*R )./( minf_upper.*hinf_upper.*( dEna - R ) );      % [S] Sodium Channel Conductance.  Equation straight from Szczecinski's CPG example.
-            
-        end
-        
-        
-        % Implement a function to compute the sodium channel conductance of a driven multistate cpg subnetwork neuron.
-        function Gna = compute_dmcpg_Gna( ~ )
-            
-            % Compute the sodium channel conductance.
-            Gna = 0;              % [S] Sodium Channel Conductance.
-            
-        end
-        
-        
         % Implement a function to compute the sodium channel conductance of an absolute transmission subnetwork neuron.
         function Gna = compute_absolute_transmission_Gna( ~ )
             
@@ -467,6 +434,40 @@ classdef neuron_utilities_class
             Gna = 0;              % [S] Sodium Channel Conductance.
             
         end
+        
+       
+        % Implement a function to compute the sodium channel conductances for a CPG subnetwork.
+        function Gna = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
+            
+            % Define the default input arguments.
+            if nargin < 10, dEna = self.dEna_DEFAULT; end                   % [V] Sodium Channel Reversal Potential
+            if nargin < 9, dEh = self.dEh_DEFAULT; end                      % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 8, Sh = self.Sh_DEFAULT; end                        % [-] Sodium Channel Deactivation Slope
+            if nargin < 7, Ah = self.Ah_DEFAULT; end                        % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 6, dEm = self.dEm_DEFAULT; end                      % [-] Sodium Channel Activation Reversal Potential
+            if nargin < 5, Sm = self.Sm_DEFAULT; end                        % [-] Sodium Channel Activation Slope
+            if nargin < 4, Am = self.Am_DEFAULT; end                        % [-] Sodium Channel Activation Amplitude
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                        % [S] Membrane Conductance
+            if nargin < 2, R = self.R_DEFAULT; end                          % [V] Activation Domain
+            
+            % Compute the steady state sodium channel activation & devactivation parameters at the upper equilibrium.
+            minf_upper = self.compute_mhinf( R, Am, Sm, dEm );              % [-] Steady State Sodium Channel Activation Parameter
+            hinf_upper = self.compute_mhinf( R, Ah, Sh, dEh );              % [-] Steady State Sodium Channel Deactivation Parameter.
+            
+            % Compute the sodium channel conductance for each half-center neuron.
+            Gna = ( Gm.*R )./( minf_upper.*hinf_upper.*( dEna - R ) );      % [S] Sodium Channel Conductance.  Equation straight from Szczecinski's CPG example.
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a driven multistate cpg subnetwork neuron.
+        function Gna = compute_dmcpg_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
         
         
         %% Membrane Conductance Functions.

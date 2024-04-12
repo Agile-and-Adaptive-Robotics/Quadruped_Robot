@@ -257,47 +257,6 @@ classdef neuron_class
         
         %% Sodium Channel Conductance Compute Functions.
         
-        % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
-        function [ Gna, self ] = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna, set_flag, neuron_utilities )
-            
-            % Define the default input arguments.
-            if nargin < 12, neuron_utilities = self.neuron_utilities; end
-            if nargin < 11, set_flag = true; end
-            if nargin < 10, dEna = self.dEna; end                                                                       % [V] Sodium Channel Reversal Potential
-            if nargin < 9, dEh = self.dEh; end                                                                          % [V] Sodium Channel Deactivation Reversal Potential
-            if nargin < 8, Sh = self.Sh; end                                                                            % [-] Sodium Channel Deactivation Slope
-            if nargin < 7, Ah = self.Ah; end                                                                            % [-] Sodium Channel Deactivation Amplitude
-            if nargin < 6, dEm = self.dEm; end                                                                          % [V] Sodium Channel Activation Reversal Potential
-            if nargin < 5, Sm = self.Sm; end                                                                            % [-] Sodium Channel Activation Slope
-            if nargin < 4, Am = self.Am; end                                                                            % [-] Sodium Channel Activation Amplitude
-            if nargin < 3, Gm = self.Gm; end                                                                            % [S] Membrane Conductance
-            if nargin < 2, R = self.R; end                                                                              % [V] Activation Domain
-            
-            % Compute the required sodium channel conductance to create oscillation in a two neuron CPG subnetwork.
-            Gna = neuron_utilities.compute_cpg_Gna( R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna );                       % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-
-        end
-        
-        
-        % Implement a function to compute the required sodium channel conductance for a driven multistate cpg subnetwork neuron.
-        function [ Gna, self ] = compute_dmcpg_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-
-            % Compute the sodium channel conductance for a driven multistate cpg subnetwork neuron.
-            Gna = neuron_utilities.compute_dmcpg_Gna(  );                                          % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
-        
         % Implement a function to compute the required sodium channel conductance for a transmission subnetwork neuron.
         function [ Gna, self ] = compute_transmission_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
@@ -595,6 +554,47 @@ classdef neuron_class
             
             % Compute the sodium channel conductance for a split voltage based integration subnetwork neuron.
             Gna = neuron_utilities.compute_svbi_Gna(  );                                           % [S] Sodium Channel Conductance
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
+        function [ Gna, self ] = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna, set_flag, neuron_utilities )
+            
+            % Define the default input arguments.
+            if nargin < 12, neuron_utilities = self.neuron_utilities; end
+            if nargin < 11, set_flag = true; end
+            if nargin < 10, dEna = self.dEna; end                                                                       % [V] Sodium Channel Reversal Potential
+            if nargin < 9, dEh = self.dEh; end                                                                          % [V] Sodium Channel Deactivation Reversal Potential
+            if nargin < 8, Sh = self.Sh; end                                                                            % [-] Sodium Channel Deactivation Slope
+            if nargin < 7, Ah = self.Ah; end                                                                            % [-] Sodium Channel Deactivation Amplitude
+            if nargin < 6, dEm = self.dEm; end                                                                          % [V] Sodium Channel Activation Reversal Potential
+            if nargin < 5, Sm = self.Sm; end                                                                            % [-] Sodium Channel Activation Slope
+            if nargin < 4, Am = self.Am; end                                                                            % [-] Sodium Channel Activation Amplitude
+            if nargin < 3, Gm = self.Gm; end                                                                            % [S] Membrane Conductance
+            if nargin < 2, R = self.R; end                                                                              % [V] Activation Domain
+            
+            % Compute the required sodium channel conductance to create oscillation in a two neuron CPG subnetwork.
+            Gna = neuron_utilities.compute_cpg_Gna( R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna );                       % [S] Sodium Channel Conductance
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a driven multistate cpg subnetwork neuron.
+        function [ Gna, self ] = compute_dmcpg_Gna( self, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 3, neuron_utilities = self.neuron_utilities; end
+            if nargin < 2, set_flag = true; end
+
+            % Compute the sodium channel conductance for a driven multistate cpg subnetwork neuron.
+            Gna = neuron_utilities.compute_dmcpg_Gna(  );                                          % [S] Sodium Channel Conductance
             
             % Determine whether to update the neuron object.
             if set_flag, self.Gna = Gna; end
@@ -1458,24 +1458,24 @@ classdef neuron_class
         end
 
 
-        % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
-        function [ R, self ] = compute_absolute_division_R_input( self, encoding_scheme, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the division subnetwork input neurons.
+        function [ R, self ] = compute_division_R_input( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 4, neuron_utilities = self.neuron_utilities; end
             if nargin < 3, set_flag = true; end
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
 
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
-                R = neuron_utilities.compute_absolute_division_R_input( epsilon, delta );         % [V] Activation Domain.
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.
+                R = neuron_utilities.compute_absolute_division_R_input(  );         % [V] Activation Domain.
             
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
-                R = neuron_utilities.compute_relative_inversion_R_input(  );         % [V] Activation Domain.
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inverdivisionsion subnetwork.
+                R = neuron_utilities.compute_relative_division_R_input(  );         % [V] Activation Domain.
 
             else                                                                    % Otherwise...
 
@@ -1487,72 +1487,42 @@ classdef neuron_class
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
             
-            
-            
-            
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_division_R_input(  );                                            % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
         end
         
         
-        % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
-        function [ R, self ] = compute_absolute_division_R_output( self, c, alpha, epsilon, R_numerator, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the division subnetwork output neurons.
+        function [ R, self ] = compute_division_R_output( self, c, alpha, epsilon, R_numerator, encoding_scheme, set_flag, neuron_utilities )
             
-            % Define the default input arguments.
-            if nargin < 7, neuron_utilities = self.neuron_utilities; end
-            if nargin < 6, set_flag = true; end
+            % Set the default input arguments.
+            if nargin < 8, neuron_utilities = self.neuron_utilities; end
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 5, R_numerator = self.R; end                                                                    % [V] Activation Domain
             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Subnetwork Offset
             if nargin < 3, alpha = self.alpha_DEFAULT; end                                                              % [-] Subnetwork Denominator Adjustment
             if nargin < 2, c = self.c_DEFAULT; end                                                                    	% [-] Subnetwork Gain
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_absolute_division_R_output( c, alpha, epsilon, R_numerator );           	% [V] Activation Domain
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.
+                R = neuron_utilities.compute_absolute_division_R_output( c, alpha, epsilon, R_numerator );         % [V] Activation Domain.
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
+            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inverdivisionsion subnetwork.
+                R = neuron_utilities.compute_relative_division_R_output(  );         % [V] Activation Domain.
+
+            else                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
             if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
-        function [ R, self ] = compute_relative_division_R_input( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_division_R_input(  );                                            % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
-        
-        % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
-        function [ R, self ] = compute_relative_division_R_output( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end
-            if nargin < 2, set_flag = true; end
-            
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_division_R_output(  );                                           % [V] Activation Domain
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
+                        
         end
         
         
