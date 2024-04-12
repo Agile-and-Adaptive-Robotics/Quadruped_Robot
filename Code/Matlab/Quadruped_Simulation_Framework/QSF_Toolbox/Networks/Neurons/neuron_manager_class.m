@@ -2264,46 +2264,140 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the addition subnetwork output neurons.
-        function [ Rs, neurons, self ] = compute_addition_R_output( self, neuron_IDs, Rs, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_addition_R_output( self, neuron_IDs, Rs, encoding_scheme, neurons, set_flag )
             
-            [ R, neuron ] = neuron.compute_addition_R_output( Rs, encoding_scheme, set_flag, neuron_utilities );
-
+            % Set the default input arguments.
+            if nargin < 6, set_flag = true; end
+            if nargin < 5, neurons = self.neurons; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, Rs = self.R_DEFAULT*ones( 1, 2 ); end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final addition neuron is the output neuron.
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_R_output( Rs, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
         end
         
         
         % Implement a function to compute the operational domain of the subtraction subnetwork input neurons.
         function [ Rs, neurons, self ] = compute_subtraction_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
             
-            [ R, neuron ] = neuron.compute_subtraction_R_input( encoding_scheme, set_flag, neuron_utilities );
+            % Set the default input arguments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                         % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
+            
+            % Preallocate an array to store the membrane conductances.
+            Rs = zeros( 1, num_neurons_to_evaluate );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                [ Rs( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_R_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end 
 
         end
         
         
         % Implement a function to compute the operational domain of the subtraction subnetwork output neurons.
-        function [ Rs, neurons, self ] = compute_subtraction_R_output( self, neuron_IDs, Rs, s_ks, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_subtraction_R_output( self, neuron_IDs, Rs, s_ks, encoding_scheme, neurons, set_flag )
             
-            [ R, neuron ] = neuron.compute_subtraction_R_output( Rs, s_ks, encoding_scheme, set_flag, neuron_utilities );
-
+            % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, s_ks = [ 1; -1 ]; end
+            if nargin < 3, Rs = self.R_DEFAULT*ones( 1, 2 ); end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final addition neuron is the output neuron.
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_R_output( Rs, s_ks, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
             
         end
         
         
         % Implement a function to compute the operational domain of the inversion subnetwork input neurons.
-        function [ Rs, neurons, self ] = compute_inversion_R_input( self, neuron_IDs, epsilon, delta, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_inversion_R_input( self, neuron_IDs, epsilon, delta, encoding_scheme, neurons, set_flag )
             
-            [ R, neuron ] = neuron.compute_inversion_R_input( epsilon, delta, encoding_scheme, set_flag, neuron_utilities );
+            % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, delta = self.delta_inversion_DEFAULT; end
+            if nargin < 3, epsilon = self.epsilon_inversion_DEFAULT; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );                     % Only the first inversion neuron is an input neuron.
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_R_input( epsilon, delta, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
 
         end
         
         
         % Implement a function to compute the operational domain of the inversion subnetwork output neurons.
-        function [ Rs, neurons, self ] = compute_inversion_R_output( self, neuron_IDs, c, epsilon, delta, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_inversion_R_output( self, neuron_IDs, c, epsilon, delta, encoding_scheme, neurons, set_flag )
             
+            % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, delta = self.delta_inversion_DEFAULT; end
+            if nargin < 3, epsilon = self.epsilon_inversion_DEFAULT; end
+            if nargin < 3, c = self.c_inversion_DEFAULT; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
-            [ R, neuron ] = neuron.compute_inversion_R_output( c, epsilon, delta, encoding_scheme, set_flag, neuron_utilities );
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final inversion neuron is an output neuron.
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_R_output( c, epsilon, delta, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
 
         end
         
@@ -2311,29 +2405,90 @@ classdef neuron_manager_class
         % Implement a function to compute the operational domain of the division subnetwork input neurons.
         function [ Rs, neurons, self ] = compute_division_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
             
+            % Set the default input arguments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
-            [ R, neuron ] = neuron.compute_division_R_input( encoding_scheme, set_flag, neuron_utilities );
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
+            % Determine how many neurons to which we are going to apply the given method.
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                         % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
+            
+            % Preallocate an array to store the membrane conductances.
+            Rs = zeros( 1, num_neurons_to_evaluate );
+            
+            % Evaluate the given neuron method for each neuron.
+            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+                
+                % Retrieve the index associated with this neuron ID.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                
+                % Compute and set the membrane conductance for this neuron.
+                [ Rs( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+                                
+            end
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end 
 
         end
         
         
         % Implement a function to compute the operational domain of the division subnetwork output neurons.
-        function [ Rs, neurons, self ] = compute_division_R_output( self, neuron_IDs, c, alpha, epsilon, R_numerator, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_division_R_output( self, neuron_IDs, c, alpha, epsilon, R_numerator, encoding_scheme, neurons, set_flag )
             
+            % Set the default input arguments.
+            if nargin < 9, set_flag = true; end
+            if nargin < 8, neurons = self.neurons; end
+            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, R_numerator = self.R_DEFAULT; end
+            if nargin < 5, epsilon = self.epsilon_inversion_DEFAULT; end
+            if nargin < 4, alpha = self.alpha_DEFAULT; end
+            if nargin < 3, c = self.c_inversion_DEFAULT; end
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
-            [ R, neuron ] = neuron.compute_division_R_output( c, alpha, epsilon, R_numerator, encoding_scheme, set_flag, neuron_utilities );
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final division neuron is an output neuron.
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R_output( c, alpha, epsilon, R_numerator, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
 
         end
         
         
         % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
-        function [ Rs, neurons, self ] = compute_relative_multiplication_R_output( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2, neurons, set_flag )
+        function [ R, neurons, self ] = compute_relative_multiplication_R_output( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2, neurons, set_flag )
             
+            % Set the default input arguments.
+            if nargin < 9, set_flag = true; end
+            if nargin < 8, neurons = self.neurons; end
+            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                         % [-] Division Subnetwork Offset
+            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                         % [-] Inversion Subnetwork Offset
+            if nargin < 5, c2 = self.c_DEFAULT; end                                                                        % [-] Division Subnetwork Gain
+            if nargin < 4, c1 = self.c_DEFAULT; end                                                                        % [-] Inversion Subnetwork Gain
+            if nargin < 3, c = self.c_DEFAULT; end                                                                         % [-] Multiplication Subnetwork Gain
+            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
             
-            [ R, neuron ] = neuron.compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2, set_flag, neuron_utilities );
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final neuron is an output neuron.
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
 
         end
                 
