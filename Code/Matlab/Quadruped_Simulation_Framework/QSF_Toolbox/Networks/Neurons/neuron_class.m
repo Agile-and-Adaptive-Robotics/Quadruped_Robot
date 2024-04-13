@@ -73,7 +73,7 @@ classdef neuron_class
         Itotal_DEFAULT = 0;                                                                                             % [A] Total Current
         
         % Define subtraction subnetwork parameters.
-        s_ks_DEFAULT = 1;                                                                                               % [-] Subtraction Input Signature.
+        s_ks_DEFAULT = [ 1, -1 ];                                                                                               % [-] Subtraction Input Signature.
         
         % Define derivative subnetwork parameters.
         c_derivation_DEFAULT = 1e6;                                                                                 	% [-] Derivative Gain
@@ -1276,7 +1276,7 @@ classdef neuron_class
             if isempty( parameters )
                 
                 % Set the parameters to default values.
-                Rs = self.R_DEFAULT;                                                % [V] Activation Domain
+                Rs = self.R_DEFAULT*ones( 1, 2 );                                                % [V] Activation Domain
                 
             elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
                 
@@ -1303,7 +1303,7 @@ classdef neuron_class
             if isempty( parameters )
                 
                 % Set the parameters to default values.
-                Rs = self.R_DEFAULT;                                                        % [V] Activation Domain.
+                Rs = self.R_DEFAULT*ones( 1, 2 );                                                        % [V] Activation Domain.
                 s_ks = self.s_ks_DEFAULT;                                                  	% [-] Subtraction Signature.
                     
             elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
