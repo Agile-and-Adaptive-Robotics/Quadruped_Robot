@@ -98,6 +98,10 @@ classdef neuron_manager_class
         % Define the default encoding scheme.
         encoding_scheme_DEFAULT = 'Absolute';
         
+        % Define the default saving and loading properties.
+        file_name_DEFAULT = 'Neuron_Manager.mat';
+        load_directory_DEFAULT = '.';
+        
     end
     
     
@@ -2460,7 +2464,7 @@ classdef neuron_manager_class
                     % Set the default input and output voltage offsets.
                     c = self.c_inversion_DEFAULT;                                                           % [-] Inversion Subnetwork Gain.
                     alpha = self.alpha_DEFTAULT;                                                            % [-] Subnetwork Denominator Adjustment
-                    epsilon = self.epsilon_inversion_DEFAULT;                                               % [V] Inversion Subnetwork Input Offset.
+                    epsilon = self.epsilon_inversion_DEFAULT;                                               % [V] Division Subnetwork Input Offset.
                     R_numerator = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );          % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
@@ -2499,21 +2503,109 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the multiplication subnetwork design parameters.
-        function [ parameters_inversion, parameters_division ] = process_multiplication_design_parameters( self, parameters, encoding_scheme, neurons )
+        function [ parameters_inversion, parameters_division, parameters_multiplication ] = process_multiplication_design_parameters( self, parameters, encoding_scheme, neurons )
            
             % Set the default input arguments.
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
             
-            % Unpack the parameters for the inversion and division subnetworks.
-            parameters_inversion = { parameters{ 1 }, parameters{ 3 }, parameters{ 4 } };
-            parameters_division = { parameters{ 1 }, parameters{ 2 }, parameters{ 3 }, parameters{ 5 } };
+            % Determine whether there are multiplication design parameters to process.
+            if ~isempty( parameters )                                   % If parameters were provided...
+                
+                % Determine how to process the multiplication design parameters based on the encoding scheme of this multiplication subnetwork.
+                if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
             
-            % Process the inversion parameters.
-            parameters_inversion = self.process_inversion_R_output_parameters( parameters_inversion, encoding_scheme );
-            parameters_division = self.process_division_R_output_parameters( parameters_division, encoding_scheme, neurons );
+                    % Determine whether there are the correct number of parameters for an absolute multiplication subnetwork.
+                    if length( parameters ) == 8                        % If there are exactly eight parameters...
+                        
+                        % Unpack the multiplication parameters.
+                        c = parameters{ 1 };                            % [-] Multiplication Subnetwork Gain.
+                        c1 = parameters{ 2 };                           % [-] Inversion Subnetwork Gain.
+                        alpha = parameters{ 3 };                        % [-] Division Subnetwork Denominator Adjustment.
+                        epsilon1 = parameters{ 4 };                     % [V] Inversion Subnetwork Input Offset.
+                        epsilon2 = parameters{ 5 };                     % [V] Division Subnetwork Input Offset.
+                        delta = parameters{ 6 };                        % [V] Inversion Subnetwork Output Offset.
+                        R1 = parameters{ 7 };                           % [V] Multiplication Subnetwork Neuron 1 Activation Domain.
+                        R2 = parameters{ 8 };                           % [V] Multiplication Subnetwork Neuron 2 Activation Domain.
+                        
+                        % Compute the required absolute division subnetwork gain.
+                        c2 = self.compute_absolute_multiplication_c2( c, c1, epsilon1, epsilon2, R2 );
+                        
+                        % Create the inversion, division, and multiplication parameters.
+                        parameters_inversion = { c1, epsilon1, delta };
+                        parameters_division = { c2, alpha, epsilon2, R1 };
+                        parameters_multiplication = { c, c1, c2, alpha, epsilon1, epsilon2, delta, R1, R2 };
+                        
+                    else                                                % Otherwise...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )                        
+                        
+                    end
+                    
+                elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                
+                    if length( parameters ) == 5                        % If there are exactly five parameters...
+
+                        % Create the inversion, division, and multiplication parameters.
+                        parameters_inversion = {  };
+                        parameters_division = {  };
+                        parameters_multiplication = parameters;
+                    
+                    else                                                % Otherwise...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )    
+                        
+                    end
+                    
+                else                                                    % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                    
+                end
+                    
+            else                                                        % Otherwise...
+                
+                % Process the inversion and division parameters.
+                parameters_inversion = self.process_inversion_R_output_parameters( parameters, encoding_scheme );
+                parameters_division = self.process_division_R_output_parameters( parameters, encoding_scheme, neurons );
             
+                % Process the multiplication gain.
+                c = self.c_multiplication_DEFAULT; 
+                
+                % Determine how to process encoding scheme specific multiplication parameters.
+                if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+                    
+                    % Retrieve the activation domain of the second neuron.
+                    R2 = self.get_neuron_property( neuron_IDs( 2 ), 'R', true, neurons );          % [V] Multiplication Subnetwork Neuron 2 Activation Domain.
+
+                    % Create the multiplication parameters.
+                    parameters_multiplication = { c, parameters_inversion{ 1 }, parameters_division{ 1 }, parameters_division{ 2 }, parameters_inversion{ 2 }, parameters_division{ 3 }, parameters_inversion{ 3 }, parameters_division{ 4 }, R2 };
+                
+                elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                
+                    % Set the default multiplication subnetwork parameters.
+                    c1 = self.c_inversion_DEFAULT;
+                    c2 = self.c_division_DEFAULT;
+                    epsilon1 = self.epsilon_inversion_DEFAULT;
+                    epsilon2 = self.epsilon_division_DEFAULT;
+                    
+                    % Create the multiplication parameters.
+                    parameters_multiplication = { c, c1, c2, epsilon1, epsilon2 };
+                
+                    
+                else                                                    % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                    
+                end
+                
+            end
+
         end
         
         
@@ -4687,31 +4779,16 @@ classdef neuron_manager_class
         end
         
         
-%         % Implement a function to design the neurons for a multiplication subnetwork.
-%         function self = design_multiplication_neurons( self, neuron_IDs )
-%             
-%             % Compute and set the sodium channel conductance of the multiplication subnetwork neurons.
-%             self = self.compute_set_multiplication_Gna( neuron_IDs );
-%             
-%             % Compute and set the membrane capacitance of the multiplication subnetwork neurons.
-%             self = self.compute_set_multiplication_Cm( neuron_IDs );
-%             
-%         end
-        
-        
         % Implement a function to design the neurons for a multiplication subnetwork.
-        function self = design_multiplication_neurons( self, neuron_IDs, c, c1, alpha, epsilon1, epsilon2 )
+        function [ Gnas_multiplication, Gms_multiplication, Cms_multiplication, Rs_multiplication, neurons, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag )
             
-            % STARTED UPDATING THIS FUNCTION, BUT NOT COMPLETE YET.
-            
-            c = self.c_inversion_DEFAULT;
-            alpha = self.alpha_DEFTAULT;                                                            % [-] Subnetwork Denominator Adjustment
-            epsilon = self.epsilon_inversion_DEFAULT;               % [V] Inversion Subnetwork Input Offset.
-            delta = self.delta_inversion_DEFAULT;                   % [V] Inversion Subnetwork Output Offset.
-            R_numerator = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );          % [V] Activation Domain.
-            
-            
-            
+            % Set the default input arguments.
+            if nargin < 6, set_flag = true; end
+            if nargin < 5, neurons = self.neurons; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            if nargin < 2, neuron_IDs = 'all'; end
+
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
@@ -4720,7 +4797,7 @@ classdef neuron_manager_class
             neuron_IDs_division = neuron_IDs( [ 1, 3, 4 ] );
             
             % Process the multiplication parameters.
-            [ parameters_inversion, parameters_division ] = self.process_multiplication_design_parameters( parameters, encoding_scheme, neurons );
+            [ parameters_inversion, parameters_division, ~ ] = self.process_multiplication_design_parameters( parameters, encoding_scheme, neurons );
             
             % Design the inversion subnetwork neurons.
             [ Gnas_inversion, Gms_inversion, Cms_inversion, Rs_inversion, neurons, neuron_manager ] = self.design_inversion_neurons( neuron_IDs_inversion, parameters_inversion, encoding_scheme, neurons, true );
@@ -4728,50 +4805,14 @@ classdef neuron_manager_class
             % Design the division subnetwork neurons.
             [ Gnas_division, Gms_division, Cms_division, Rs_division, neurons, neuron_manager ] = neuron_manager.design_division_neurons( neuron_IDs_division, parameters_division, encoding_scheme, neurons, true );
             
-            
-            
-            % Define the default input arguments.
-            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                 % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                 % [-] Inversion Subnetwork Offset
-            if nargin < 5, alpha = self.alpha_DEFAULT; end                                                      % [-] Division Subnetwork Denominator Adjustment
-            if nargin < 4, c1 = self.c_DEFAULT; end                                                             % [-] Division Subnetwork Gain
-            if nargin < 3, c = self.c_DEFAULT; end                                                              % [-] Inversion Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                                              % [-] Neuron IDs
-            
-            % Validate the neuron IDs.
-            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
-            
-            % Design the inversion subnetwork neurons.
-            self = self.design_inversion_neurons( neuron_IDs( 2:3 ), c1, epsilon1 );
-            
-            % Compute the absolute division subnetwork gain.
-            c2 = self.compute_absolute_multiplication_c2( c, c1, epsilon1, epsilon2, R2 );
-            
-            % Design the division subnetwork neurons.
-            self = self.design_division_neurons( neuron_IDs( [ 1, 3, 4 ] ), c2, alpha, epsilon2 );
-            
-        end
-        
-        
-        % Implement a function to design the neurons for a relative multiplication subnetwork.
-        function self = design_relative_multiplication_neurons( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2 )
-            
-            % Define the default input arguments.
-            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                 % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                 % [-] Inversion Subnetwork Offset
-            if nargin < 5, c2 = self.c_DEFAULT; end                                                             % [-] Division Subnetwork Gain
-            if nargin < 4, c1 = self.c_DEFAULT; end                                                             % [-] Inversion Subnetwork Gain
-            if nargin < 3, c = self.c_DEFAULT; end                                                              % [-] Multiplication Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                                              % [-] Neuron IDs
-            
-            % Design the relative inversion subnetwork neurons.
-            self  = self.design_relative_inversion_neurons( neuron_IDs );
-            
-            % Design the relative division subnetwork neurons.
-            self = self.design_relative_division_neurons( neuron_IDs );
-            
-            % Update the inversion subnetwork output neuron activation domain.
-            self = self.compute_set_relative_multiplication_R3( neuron_IDs( 3 ), c, c1, c2, epsilon1, epsilon2 );
+            % Create the multiplication subnetwork property arrays.
+            Gnas_multiplication = [ Gnas_division( 1 ), Gnas_inversion( 1 ), Gnas_division( 2 ), Gnas_division ( 3 ) ];
+            Gms_multiplication = [ Gms_division( 1 ), Gms_inversion( 1 ), Gms_division( 2 ), Gms_division ( 3 ) ];
+            Cms_multiplication = [ Cms_division( 1 ), Cms_inversion( 1 ), Cms_division( 2 ), Cms_division ( 3 ) ];
+            Rs_multiplication = [ Rs_division( 1 ), Rs_inversion( 1 ), Rs_division( 2 ), Rs_division ( 3 ) ];
+
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
@@ -4847,70 +4888,90 @@ classdef neuron_manager_class
         
         
         % Implement a function to design the neurons for a derivation subnetwork.
-        function self = design_derivation_neurons( self, neuron_IDs, k_gain, w, safety_factor )
+        function [ Gnas, Gms, Cms, neurons, self ] = design_derivation_neurons( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, neurons = self.neurons; end
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end
             if nargin < 4, w = self.w_derivation_DEFAULT; end
             if nargin < 3, k_gain = self.c_derivation_DEFAULT; end
             
-            % Compute and set the sodium channel conductance of the derivation subnetwork neurons.
-            self = self.compute_set_derivation_Gna( neuron_IDs );
+            % Compute the sodium channel conductance of a derivation subnetwork.
+            [ Gnas, neurons, neuron_manager ] = self.compute_derivation_Gna( neuron_IDs, neurons, true );
             
-            % Compute and set the membrane conductance for a derivation subnetwork.
-            self = self.compute_set_derivation_Gm( neuron_IDs, k_gain, w, safety_factor );
+            % Compute the membrane conductance of a derivation subnetwork.
+            [ Gms, neurons, neuron_manager ] = neuron_manager.compute_derivation_Gm( neuron_IDs, k_gain, w, safety_factor, neurons, true );
             
-            % Compute and set the membrane capacitance of the second derivation subnetwork neuron.
-            self = self.compute_set_derivation_Cm2( neuron_IDs, w );
+            % Compute the membrane capacitance of a derivation subnetwork.
+            [ Cm1, neurons, neuron_manager ] = neuron_manager.compute_derivation_Cm1( neuron_IDs, k_gain, neurons, true );
+            [ Cm2, neurons, neuron_manager ] = neuron_manager.compute_derivation_Cm2( neuron_IDs, w, neurons, true );
+            Cms = [ Cm1, Cm2 ];
             
-            % Compute and set the membrane capacitance of the first derivation subnetwork neuron.
-            self = self.compute_set_derivation_Cm1( neuron_IDs, k_gain );
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
         
         % Implement a function to design the neurons for an integration subnetwork.
-        function self = design_integration_neurons( self, neuron_IDs, ki_mean )
+        function [ Gnas, Cms, neurons, self ] = design_integration_neurons( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arugments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
-            % Compute and set the sodium channel conductance of the integration subnetwork neurons.
-            self = self.compute_set_integration_Gna( neuron_IDs );
+            % Compute the sodium channel conductance of the integration subnetwork.
+            [ Gnas, neurons, neuron_manager ] = self.compute_integration_Gna( neuron_IDs, neurons, true );
             
-            % Compute and set the membrane capacitance of the integration neurons.
-            self = self.compute_set_integration_Cm( neuron_IDs, ki_mean );
+            % Compute the membrane capacitance of the integration subnetwork.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_integration_Cm( neuron_IDs, ki_mean, neurons, true );
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
         
         % Implement a function to design the neurons for a voltage based integration subnetwork.
-        function self = design_vbi_neurons( self, neuron_IDs, ki_mean )
+        function [ Gnas, Cms, neurons, self ] = design_vbi_neurons( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arugments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
-            % Compute and set the sodium channel conductance of the voltage based integration subnetwork neurons.
-            self = self.compute_set_vb_integration_Gna( neuron_IDs );
+            % Compute the sodium channel conductance of the voltage based integration subnetwork.
+            [ Gnas, neurons, neuron_manager ] = self.compute_vbi_Gna( neuron_IDs, neurons, true );
             
-            % Compute and set the membrane capacitance of the integration neurons.
-            self = self.compute_set_vb_integration_Cm( neuron_IDs( 3:4 ), ki_mean );
+            % Compute the membrane capacitance of the voltage based integration subnetwork.
+            [ Cms, neurons, neuron_manager ] = neuron_manager.compute_vbi_Cm( neuron_IDs( 3:4 ), ki_mean, neurons, true );
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
         
         % Implemenet a function to design the neurons for a split voltage based integration subnetwork.
-        function self = design_svbi_neurons( self, neuron_IDs, ki_mean )
+        function [ Gnas, Cms, neurons, self ] = design_svbi_neurons( self, neuron_IDs, ki_mean, neurons, set_flag )
             
             % Set the default input arugments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
-            % Compute and set the sodium channel conductance of the split voltage based integration subnetwork neurons.
-            self = self.compute_set_split_vb_integration_Gna( neuron_IDs );
+            % Compute the sodium channel conductance of the split voltage based integration subnetwork.
+            [ Gnas, neurons, neuron_manager ] = self.compute_svbi_Gna( neuron_IDs, neurons, true );
             
-            % Compute and set the membrane capacitance of the split voltage based integration subnetwork neurons.
-            self = self.compute_set_split_vb_integration_Cm1( neuron_IDs( 3:4 ), ki_mean );
-            self = self.compute_set_split_vb_integration_Cm2( neuron_IDs( 5:8 ) );
+            % Compute the membrane capacitance of the split voltage based integration subnetwork.
+            [ Cms1, neurons, neuron_manager ] = neuron_manager.compute_svbi_Cm1( neuron_IDs( 3:4 ), ki_mean, neurons, true );
+            [ Cms2, neurons, neuron_manager ] = neuron_manager.compute_svbi_Cm2( neuron_IDs( 5:8 ), neurons, true );
+            Cms = [ Cms1, Cms2 ];
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
             
         end
         
@@ -4934,11 +4995,12 @@ classdef neuron_manager_class
         
         
         % Implement a function to load neuron manager data as a matlab object.
-        function self = load( ~, directory, file_name )
+        function [ data, self ] = load( self, directory, file_name, set_flag )
             
             % Set the default input arguments.
-            if nargin < 3, file_name = 'Neuron_Manager.mat'; end
-            if nargin < 2, directory = '.'; end
+            if nargin < 4, set_flag = true; end
+            if nargin < 3, file_name = self.file_name_DEFAULT; end
+            if nargin < 2, directory = self.load_directory_DEFAULT; end
             
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
@@ -4946,16 +5008,18 @@ classdef neuron_manager_class
             % Load the data.
             data = load( full_path );
             
-            % Retrieve the desired variable from the loaded data structure.
-            self = data.self;
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = data; end
             
         end
         
         
         % Implement a function to load neuron data from a xlsx file.
-        function self = load_xlsx( self, file_name, directory, b_append, b_verbose )
+        function self = load_xlsx( self, file_name, directory, b_append, b_verbose, neurons, set_flag )
             
             % Set the default input arguments.
+            if nargin < 7, set_flag = true; end
+            if nargin < 6, neurons = self.neurons; end
             if nargin < 5, b_verbose = true; end
             if nargin < 4, b_append = false; end
             if nargin < 3, directory = '.'; end
@@ -4991,18 +5055,29 @@ classdef neuron_manager_class
             if b_append                         % If we want to append the neurons we just loaded...
                 
                 % Append the neurons we just loaded to the array of existing neurons.
-                self.neurons = [ self.neurons neurons_to_load ];
+                neurons = [ neurons neurons_to_load ];
                 
                 % Update the number of neurons.
-                self.num_neurons = length( self.neurons );
+                n_neurons = length( neurons );
                 
             else                                % Otherwise...
                 
                 % Replace the existing neurons with the neurons we just loaded.
-                self.neurons = neurons_to_load;
+                neurons = neurons_to_load;
                 
                 % Update the number of neurons.
-                self.num_neurons = length( self.neurons );
+                n_neurons = length( neurons );
+                
+            end
+            
+            % Determine whether to update the neuron manager properties.
+            if set_flag                                 % If we want to update the neuron manager properties...
+                
+                % Update the neurons property.
+                self.neurons = neurons;
+                
+                % Update the number of neurons.
+                self.num_neurons = n_neurons;
                 
             end
             
