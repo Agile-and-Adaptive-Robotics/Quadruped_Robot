@@ -17,7 +17,7 @@ mgr = springData.data.(springName).(torqueName).torque/1000;             % [Nm] 
 
 % physical parameters
 I1 = 6.6066/1000^2;         % [kg*m^2]      inertia of the pulley and hex rod from Solidworks
-r1 = 20.4/1000;             % [m]           radius of the pulley
+r1 = 20.39/1000;             % [m]           radius of the pulley
 m = mgr/(9.81*r1);          % [kg]          mass hung from pulley
 
 indStart = 25;

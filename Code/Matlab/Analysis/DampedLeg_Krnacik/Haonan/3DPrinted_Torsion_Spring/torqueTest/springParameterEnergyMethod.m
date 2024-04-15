@@ -3,7 +3,7 @@ figure
 plot(data)
 
 %%
-data = deg2rad(data(125:300));       
+data = -deg2rad(data(104:300));       
 data0 = data - data(1);
 
 %%
@@ -81,7 +81,6 @@ SE = 0.5*k*thetamax^2;
 
 PE20 = m*g*(h0-hmass-thetamax0*r);
 SE0 = 0.5*k0*thetamax0^2;
-
     
 b0 = (PE1-PE20-SE0)/integral0(tpeak);
 b = (PE1-PE2-SE)/integral(tpeak);
