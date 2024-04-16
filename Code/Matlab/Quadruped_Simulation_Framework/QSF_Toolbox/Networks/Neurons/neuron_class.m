@@ -1273,17 +1273,17 @@ classdef neuron_class
             if nargin < 2, parameters = {  }; end
             
             % Determine how to set the parameters.
-            if isempty( parameters )
+            if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Rs = self.R_DEFAULT*ones( 1, 2 );                                                % [V] Activation Domain
+                Rs = self.R_DEFAULT*ones( 1, 2 );                    	% [V] Activation Domain
                 
-            elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Rs = parameters{ 1 };                                               % [V] Activation Domain
+                Rs = parameters{ 1 };                                	% [V] Activation Domain
                 
-            else                                                                    % Otherwise...
+            else                                                     	% Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1300,19 +1300,19 @@ classdef neuron_class
             if nargin < 2, parameters = {  }; end
             
             % Determine how to set the parameters.
-            if isempty( parameters )
+            if isempty( parameters )                                % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Rs = self.R_DEFAULT*ones( 1, 2 );                                                        % [V] Activation Domain.
-                s_ks = self.s_ks_DEFAULT;                                                  	% [-] Subtraction Signature.
+                Rs = self.R_DEFAULT*ones( 1, 2 );                   % [V] Activation Domain.
+                s_ks = self.s_ks_DEFAULT;                         	% [-] Subtraction Signature.
                     
-            elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 2                      	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Rs = parameters{ 1 };                                                       % [V] Activation Domain.
-                s_ks = parameters{ 2 };                                                     % [-] Subtraction Signature.
+                Rs = parameters{ 1 };                            	% [V] Activation Domain.
+                s_ks = parameters{ 2 };                          	% [-] Subtraction Signature.
                                     
-            else                                                                    % Otherwise...
+            else                                                	% Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1329,19 +1329,19 @@ classdef neuron_class
             if nargin < 2, parameters = {  }; end
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                        % If the parameters are empty...
+            if isempty( parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                epsilon = self.epsilon_DEFAULT;                                          	% [-] Subnetwork Input Offset
-                delta = self.delta_DEFAULT;                                             	% [-] Subnetwork Output Offset
+                epsilon = self.epsilon_DEFAULT;                  	% [-] Subnetwork Input Offset
+                delta = self.delta_DEFAULT;                       	% [-] Subnetwork Output Offset
 
-            elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 1                     	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                epsilon = parameters{ 1 };                                                	% [-] Subnetwork Input Offset
-                delta = parameters{ 2 };                                                   	% [-] Subnetwork Output Offset
+                epsilon = parameters{ 1 };                       	% [-] Subnetwork Input Offset
+                delta = parameters{ 2 };                         	% [-] Subnetwork Output Offset
 
-            else                                                                    % Otherwise...
+            else                                                  	% Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1358,21 +1358,21 @@ classdef neuron_class
             if nargin < 2, parameters = {  }; end
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                        % If the parameters are empty...
+            if isempty( parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c = self.c_DEFAULT;                                                         % [-] General Subnetwork Gain
-                epsilon = self.epsilon_DEFAULT;                                          	% [-] Subnetwork Input Offset
-                delta = self.delta_DEFAULT;                                             	% [-] Subnetwork Output Offset
+                c = self.c_DEFAULT;                              	% [-] General Subnetwork Gain
+                epsilon = self.epsilon_DEFAULT;                  	% [-] Subnetwork Input Offset
+                delta = self.delta_DEFAULT;                       	% [-] Subnetwork Output Offset
 
-            elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 1                     	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c = parameters{ 1 };                                                        % [-] General Subnetwork Gain
-                epsilon = parameters{ 2 };                                                	% [-] Subnetwork Input Offset
-                delta = parameters{ 3 };                                                   	% [-] Subnetwork Output Offset
+                c = parameters{ 1 };                            	% [-] General Subnetwork Gain
+                epsilon = parameters{ 2 };                        	% [-] Subnetwork Input Offset
+                delta = parameters{ 3 };                           	% [-] Subnetwork Output Offset
                 
-            else                                                                    % Otherwise...
+            else                                                    % Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1389,23 +1389,23 @@ classdef neuron_class
             if nargin < 2, parameters = {  }; end
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                        % If the parameters are empty...
+            if isempty( parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c = self.c_DEFAULT;                                                         % [-] General Subnetwork Gain
-                alpha = self.alpha_DEFAULT;                                          	% [-] Subnetwork Denominator Adjustment
-                epsilon = self.epsilon_DEFAULT;                                             	% [-] Subnetwork Input Offset
-                R_numerator = self.R;                                                      % [V] Activation Domain.
+                c = self.c_DEFAULT;                                 % [-] General Subnetwork Gain
+                alpha = self.alpha_DEFAULT;                      	% [-] Subnetwork Denominator Adjustment
+                epsilon = self.epsilon_DEFAULT;                    	% [-] Subnetwork Input Offset
+                R_numerator = self.R;                             	% [V] Activation Domain.
 
-            elseif length( parameters ) == 1                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 1                      	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c = parameters{ 1 };                                                        % [-] General Subnetwork Gain
-                alpha = parameters{ 2 };                                                	% [-] Subnetwork Input Offset
-                epsilon = parameters{ 3 };                                                   	% [-] Subnetwork Output Offset
-                R_numerator = parameters{ 4 };                                              % [V] Activation Domain.
+                c = parameters{ 1 };                              	% [-] General Subnetwork Gain
+                alpha = parameters{ 2 };                         	% [-] Subnetwork Input Offset
+                epsilon = parameters{ 3 };                       	% [-] Subnetwork Output Offset
+                R_numerator = parameters{ 4 };                     	% [V] Activation Domain.
                 
-            else                                                                    % Otherwise...
+            else                                                   	% Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1831,9 +1831,10 @@ classdef neuron_class
         %% Save & Load Functions
         
         % Implement a function to save neuron data as a matlab object.
-        function save( self, directory, file_name )
+        function save( self, directory, file_name, neuron )
             
             % Set the default input arguments.
+            if nargin < 4, neuron = self; end
             if nargin < 3, file_name = 'Neuron.mat'; end                                                                % [-] File Name
             if nargin < 2, directory = '.'; end                                                                         % [-] Directory Path
             
@@ -1841,13 +1842,13 @@ classdef neuron_class
             full_path = [ directory, '\', file_name ];                                                                  % [-] Full Directory Path
             
             % Save the neuron data.
-            save( full_path, self )
+            save( full_path, neuron )
             
         end
         
         
         % Implement a function to load neuron data as a matlab object.
-        function self = load( ~, directory, file_name )
+        function neuron = load( ~, directory, file_name )
             
             % Set the default input arguments.
             if nargin < 3, file_name = 'Neuron.mat'; end                                                                % [-] File Name
@@ -1860,7 +1861,7 @@ classdef neuron_class
             data = load( full_path );
             
             % Retrieve the desired variable from the loaded data structure.
-            self = data.self;
+            neuron = data.neuron;
             
         end
         
