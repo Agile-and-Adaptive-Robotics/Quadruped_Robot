@@ -268,19 +268,19 @@ classdef synapse_utilities_class
         
 
         % Implement a function to compute the synaptic reversal potential for a division subnetwork.
-        function dE_syn1 = compute_division_dEsyn1( self )
+        function dEs1 = compute_division_dEsyn1( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.dEs_max_DEFAULT;                                          % [V] Synaptic Reversal Potential
+            dEs1 = self.dEs_max_DEFAULT;                                          % [V] Synaptic Reversal Potential
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a division subnetwork.
-        function dE_syn2 = compute_division_dEsyn2( ~ )
+        function dEs2 = compute_division_dEsyn2( ~ )
             
             % Compute the synaptic reversal potential.
-            dE_syn2 = 0;                                                            % [V] Synaptic Reversal Potential
+            dEs2 = 0;                                                            % [V] Synaptic Reversal Potential
             
         end
         
@@ -332,55 +332,55 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for a derivation subnetwork.
-        function dE_syn1 = compute_derivation_dEsyn1( self )
+        function dEs1 = compute_derivation_dEsyn1( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.dEs_max_DEFAULT;                                         % [V] Synaptic Reversal Potential
+            dEs1 = self.dEs_max_DEFAULT;                                         % [V] Synaptic Reversal Potential
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a derivation subnetwork.
-        function dE_syn2 = compute_derivation_dEsyn2( self )
+        function dEs2 = compute_derivation_dEsyn2( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn2 = self.dEs_min_DEFAULT;                                         % [V] Synaptic Reversal Potential
+            dEs2 = self.dEs_min_DEFAULT;                                         % [V] Synaptic Reversal Potential
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a integration subnetwork.
-        function dE_syn1 = compute_integration_dEsyn1( self )
+        function dEs1 = compute_integration_dEsyn1( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.dEs_min_DEFAULT;                                         % [V] Synaptic Reversal Potential
+            dEs1 = self.dEs_min_DEFAULT;                                         % [V] Synaptic Reversal Potential
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a integration subnetwork.
-        function dE_syn2 = compute_integration_dEsyn2( self )
+        function dEs2 = compute_integration_dEsyn2( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn2 = self.dEs_min_DEFAULT;                                         % [V] Synaptic Reversal Potential
+            dEs2 = self.dEs_min_DEFAULT;                                         % [V] Synaptic Reversal Potential
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a voltage based integration subnetwork.
-        function dE_syn1 = compute_vb_integration_dEsyn1( self )
+        function dEs1 = compute_vb_integration_dEsyn1( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn1 = self.dEs_max_DEFAULT;                                         % [V] Synaptic Reversal Potential
+            dEs1 = self.dEs_max_DEFAULT;                                         % [V] Synaptic Reversal Potential
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a voltage based integration subnetwork.
-        function dE_syn2 = compute_vb_integration_dEsyn2( self )
+        function dE2 = compute_vb_integration_dEsyn2( self )
             
             % Compute the synaptic reversal potential.
-            dE_syn2 = -self.dEs_max_DEFAULT;                                         % [V] Synaptic Reversal Potential
+            dE2 = -self.dEs_max_DEFAULT;                                         % [V] Synaptic Reversal Potential
             
         end
         
@@ -388,22 +388,22 @@ classdef synapse_utilities_class
         %% Maximum Synaptic Conductance Compute Functions
         
         % Implement a function to compute the maximum synaptic conductance for a driven multistate cpg subnetwork.
-        function g_syn_max = compute_driven_multistate_cpg_gsynmax( self, dEs, delta_oscillatory, I_drive_max )
+        function gs = compute_driven_multistate_cpg_gsynmax( self, dEs, delta_oscillatory, Idrive_max )
             
             % Define the default input arguments.
-            if nargin < 4, I_drive_max = self.Idrive_max_DEFAULT; end                                                  % [A] Maximum Drive Current
+            if nargin < 4, Idrive_max = self.Idrive_max_DEFAULT; end                                                  % [A] Maximum Drive Current
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                                      % [-] Oscillatory Delta
             if nargin < 2, dEs = self.dEs_max_DEFAULT; end                                                    % [V] Synaptic Reversal Potential
             
             % Compute the maximum synaptic conductance.
-            g_syn_max = I_drive_max./( dEs - delta_oscillatory );                                                    % [S] Maximum Synaptic Conductance
+            gs = Idrive_max./( dEs - delta_oscillatory );                                                    % [S] Maximum Synaptic Conductance
             %             g_syn_max = 0;
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of absolute addition subnetwork synapses.
-        function gsyn_nk = compute_absolute_addition_gsyn( self, c, R_k, Gm_n, dEs_nk, Iapp_n )
+        function gs_nk = compute_absolute_addition_gsyn( self, c, R_k, Gm_n, dEs_nk, Iapp_n )
             
             % Define the default input arguments.
             if nargin < 6, Iapp_n = self.Iapp_absolute_addition_DEFAULT; end                                            % [A] Applied Current
@@ -413,13 +413,13 @@ classdef synapse_utilities_class
             if nargin < 2, c = self.c_absolute_addition_DEFAULT; end                                                    % [-] Absolute Addition Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
-            gsyn_nk = ( c.*R_k.*Gm_n - Iapp_n )./( dEs_nk - c.*R_k );                                                 % [S] Maximum Synaptic Conductance
+            gs_nk = ( c.*R_k.*Gm_n - Iapp_n )./( dEs_nk - c.*R_k );                                                 % [S] Maximum Synaptic Conductance
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of relative addition subnetwork synapses.
-        function gsyn_nk = compute_relative_addition_gsyn( self, c, n, R_n, Gm_n, dEs_nk, Iapp_n )
+        function gs_nk = compute_relative_addition_gsyn( self, c, n, R_n, Gm_n, dEs_nk, Iapp_n )
             
             % Define the default input arguments.
             if nargin < 7, Iapp_n = self.Iapp_relative_addition_DEFAULT; end                                            % [A] Applied Current
@@ -430,13 +430,13 @@ classdef synapse_utilities_class
             if nargin < 2, c = self.c_relative_addition_DEFAULT; end                                                    % [-] Absolute Addition Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
-            gsyn_nk = ( ( n - 1 ).*Iapp_n - c.*R_n.*Gm_n )./( c.*R_n - ( n - 1 ).*dEs_nk );                           % [S] Maximum Synaptic Conductance
+            gs_nk = ( ( n - 1 ).*Iapp_n - c.*R_n.*Gm_n )./( c.*R_n - ( n - 1 ).*dEs_nk );                           % [S] Maximum Synaptic Conductance
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of absolute subtraction subnetwork synapses.
-        function gsyn_nk = compute_absolute_subtraction_gsyn( self, c, s_k, R_k, Gm_n, dEs_nk, Iapp_n )
+        function gs_nk = compute_absolute_subtraction_gsyn( self, c, s_k, R_k, Gm_n, dEs_nk, Iapp_n )
             
             % Define the default input arguments.
             if nargin < 7, Iapp_n = self.Iapp_absolute_subtraction_DEFAULT; end                                         % [A] Applied Current
@@ -447,17 +447,17 @@ classdef synapse_utilities_class
             if nargin < 2, c = self.c_absolute_subtraction_DEFAULT; end                                                 % [-] Absolute Subtraction Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
-            gsyn_nk = ( Iapp_n - c.*s_k.*Gm_n.*R_k )./( c.*s_k.*R_k - dEs_nk );                                       % [S] Maximum Synaptic Conductance
+            gs_nk = ( Iapp_n - c.*s_k.*Gm_n.*R_k )./( c.*s_k.*R_k - dEs_nk );                                       % [S] Maximum Synaptic Conductance
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of relative subtraction subnetwork synapses.
-        function gsyn_nk = compute_relative_subtraction_gsyn( self, c, npm_k, s_k, R_n, Gm_n, dEsyn_nk, Iapp_n )
+        function gs_nk = compute_relative_subtraction_gsyn( self, c, npm_k, s_k, R_n, Gm_n, dEs_nk, Iapp_n )
             
             % Define the default input arguments.
             if nargin < 8, Iapp_n = self.Iapp_relative_subtraction_DEFAULT; end                                         % [A] Applied Current
-            if nargin < 7, dEsyn_nk = self.dEs_max_DEFAULT; end                                                  % [V] Synaptic Reversal Potential
+            if nargin < 7, dEs_nk = self.dEs_max_DEFAULT; end                                                  % [V] Synaptic Reversal Potential
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
             if nargin < 5, R_n = self.R_DEFAULT; end                                                                    % [V] Activation Domain
             if nargin < 4, s_k = 1; end                                                                                 % [-] Excitation / Inhibition Sign
@@ -465,7 +465,7 @@ classdef synapse_utilities_class
             if nargin < 2, c = self.c_relative_subtraction_DEFAULT; end                                                 % [-] Relative Subtraction Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
-            gsyn_nk = ( npm_k.*Iapp_n - c.*s_k.*Gm_n.*R_n )./( c.*s_k.*R_n - npm_k.*dEsyn_nk );                         % [S] Maximum Synaptic Conductance
+            gs_nk = ( npm_k.*Iapp_n - c.*s_k.*Gm_n.*R_n )./( c.*s_k.*R_n - npm_k.*dEs_nk );                         % [S] Maximum Synaptic Conductance
             
         end
         
@@ -487,14 +487,14 @@ classdef synapse_utilities_class
 
 
         % Implement a function to compute the maximum synaptic conductance of absolute inversion subnetwork synapses.
-        function gsyn_21 = compute_absolute_inversion_gsyn( self, dE_syn21, Iapp_2 )
+        function gs21 = compute_absolute_inversion_gsyn( self, dEs21, Iapp2 )
             
             % Define the default input arguments.
-            if nargin < 3, Iapp_2 = self.Iapp2_absolute_inversion_DEFAULT; end                                          % [A] Applied Current
-            if nargin < 2, dE_syn21 = self.dEs_small_negative_DEFAULT; end                                            % [V] Synaptic Reversal Potential
+            if nargin < 3, Iapp2 = self.Iapp2_absolute_inversion_DEFAULT; end                                          % [A] Applied Current
+            if nargin < 2, dEs21 = self.dEs_small_negative_DEFAULT; end                                            % [V] Synaptic Reversal Potential
             
             % Compute the maximum synaptic conductance.
-            gsyn_21 = -Iapp_2./dE_syn21;                                                                             	% [S] Maximum Synaptic Conductance
+            gs21 = -Iapp2./dEs21;                                                                             	% [S] Maximum Synaptic Conductance
 
         end
         
@@ -516,14 +516,14 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of relative inversion subnetwork synapses.
-        function gsyn_21 = compute_relative_inversion_gsyn( self, dE_syn21, Iapp_2 )
+        function gs21 = compute_relative_inversion_gsyn( self, dEs21, Iapp2 )
             
             % Define the default input arguments.
-            if nargin < 3, Iapp_2 = self.Iapp2_absolute_inversion_DEFAULT; end                                          % [A] Applied Current
-            if nargin < 2, dE_syn21 = self.dEs_small_negative_DEFAULT; end                                            % [V] Synaptic Reversal Potential
+            if nargin < 3, Iapp2 = self.Iapp2_absolute_inversion_DEFAULT; end                                          % [A] Applied Current
+            if nargin < 2, dEs21 = self.dEs_small_negative_DEFAULT; end                                            % [V] Synaptic Reversal Potential
             
             % Compute the maximum synaptic conductance.
-            gsyn_21 = -Iapp_2./dE_syn21;                                                                             	% [S] Maximum Synaptic Conductance
+            gs21 = -Iapp2./dEs21;                                                                             	% [S] Maximum Synaptic Conductance
 
         end
         
@@ -545,16 +545,16 @@ classdef synapse_utilities_class
         
 
         % Implement a function to compute the maximum synaptic conductance of numerator absolute division subnetwork synapses.
-        function gsyn_31 = compute_absolute_division_gsyn31( self, alpha, epsilon, R_1, Gm_3 )
+        function gs31 = compute_absolute_division_gsyn31( self, alpha, epsilon, R1, Gm3 )
             
             % Define the default input arugments.
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
-            if nargin < 4, R_1 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
+            if nargin < 5, Gm3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
+            if nargin < 4, R1 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Absolute Division Subnetwork Offset
             if nargin < 2, alpha = self.alpha_DEFAULT; end                                                              % [-] Absolute Division Subnetwork Denominator Adjustment
             
             % Compute the maximum synaptic conductance.
-            gsyn_31 = ( alpha.*R_1.*Gm_3 )./epsilon;                                                    % [S] Maximum Synaptic Conductance
+            gs31 = ( alpha.*R1.*Gm3 )./epsilon;                                                    % [S] Maximum Synaptic Conductance
             
         end
 
@@ -577,47 +577,47 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the maximum synaptic conductance of denominator absolute division subnetwork synapses.
-        function gsyn_32 = compute_absolute_division_gsyn32( self, epsilon, R_2, Gm_3 )
+        function gs32 = compute_absolute_division_gsyn32( self, epsilon, R2, Gm3 )
             
             % Define the default input arugments.
-            if nargin < 4, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
-            if nargin < 3, R_2 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
+            if nargin < 4, Gm3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
+            if nargin < 3, R2 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
             if nargin < 2, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Absolute Division Subnetwork Offset
             
             % Compute the maximum synaptic conductance.
-            gsyn_32 = R_2.*Gm_3./epsilon;             % [S] Maximum Synaptic Conductance
+            gs32 = R2.*Gm3./epsilon;             % [S] Maximum Synaptic Conductance
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of numerator relative division subnetwork synapses.
-        function gsyn_31 = compute_relative_division_gsyn31( self, R_3, Gm_3, dEsyn_31 )
+        function gs31 = compute_relative_division_gsyn31( self, R3, Gm3, dEs31 )
             
             % Define the default input arguments.
-            if nargin < 4, dEsyn_31 = self.dEs_max_DEFAULT; end                                                   % [V] Synaptic Reversal Potential
-            if nargin < 3, Gm_3 = self.Gm_DEFAULT; end                                                              	% [S] Membrane Conductance
-            if nargin < 2, R_3 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
+            if nargin < 4, dEs31 = self.dEs_max_DEFAULT; end                                                   % [V] Synaptic Reversal Potential
+            if nargin < 3, Gm3 = self.Gm_DEFAULT; end                                                              	% [S] Membrane Conductance
+            if nargin < 2, R3 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
 
             % Compute the maximum synaptic conductance.
-            gsyn_31 = ( R_3.*Gm_3 )./( dEsyn_31 - R_3 );                                                                % [S] Maximum Synaptic Conductance
+            gs31 = ( R3.*Gm3 )./( dEs31 - R3 );                                                                % [S] Maximum Synaptic Conductance
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of denominator relative division subnetwork synapses.
-        function gsyn_32 = compute_relative_division_gsyn32( self, c, alpha, epsilon, R_3, Gm_3, dEsyn_31 )
+        function gs32 = compute_relative_division_gsyn32( self, c, alpha, epsilon, R3, Gm3, dEs31 )
             
             % Define the default input arguments.
-            if nargin < 7, dEsyn_31 = self.dEs_max_DEFAULT; end                                                  % [V] Synaptic Reversal Potential
-            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
-            if nargin < 5, R_3 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
+            if nargin < 7, dEs31 = self.dEs_max_DEFAULT; end                                                  % [V] Synaptic Reversal Potential
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end                                                                  % [S] Membrane Conductance
+            if nargin < 5, R3 = self.R_DEFAULT; end                                                                    % [V] Activation Domain
             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                          % [-] Relative Division Subnetwork Offset
             if nargin < 3, alpha = self.alpha_DEFAULT; end
             if nargin < 2, c = self.c_relative_division_DEFAULT; end                                                    % [-] Relative Division Subnetwork Gain
             
             % Compute the maximum synaptic conductance.
 %             gsyn_32 = ( ( ( ( 1 + epsilon ).*dEsyn_31 )./( epsilon.*dEsyn_31 - c.*R_3 ) ) - 1 ).*Gm_3;                  % [S] Maximum Synaptic Conductance
-            gsyn_32 = ( ( ( 1 - alpha ).*dEsyn_31 + c*R_3 )./( ( epsilon + alpha ).*dEsyn_31 - c.*R_3 ) )*Gm_3;                  % [S] Maximum Synaptic Conductance
+            gs32 = ( ( ( 1 - alpha ).*dEs31 + c*R3 )./( ( epsilon + alpha ).*dEs31 - c.*R3 ) )*Gm3;                  % [S] Maximum Synaptic Conductance
             
         end
         
