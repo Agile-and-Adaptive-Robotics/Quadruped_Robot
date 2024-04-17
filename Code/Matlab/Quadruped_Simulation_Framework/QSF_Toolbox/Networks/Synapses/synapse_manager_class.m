@@ -7,12 +7,12 @@ classdef synapse_manager_class
     % Define general class properties.
     properties
         
-        synapses
-        num_synapses
+        synapses                                            % [class] Synapse Array.
+        num_synapses                                        % [#] Number of Synapses.
         
-        array_utilities
-        data_loader_utilities
-        synapse_utilities
+        array_utilities                                     % [class] Array Utilities.
+        data_loader_utilities                               % [class] Data Loader Utilities.
+        synapse_utilities                                   % [class] Synapse Utilities.
         
     end
     
@@ -21,79 +21,79 @@ classdef synapse_manager_class
     properties ( Access = private, Constant = true )
         
         % Define the neuron parameters.
-        R_DEFAULT = 20e-3;                                                                                                      % [V] Activation Domain
-        Gm_DEFAULT = 1e-6;                                                                                                      % [S] Membrane Conductance
+        R_DEFAULT = 20e-3;                                 	% [V] Activation Domain.
+        Gm_DEFAULT = 1e-6;                              	% [S] Membrane Conductance.
         
         % Define the maximum synaptic conductance.
-        gsyn_max_DEFAULT = 1e-6;                                                                                                % [S] Maximum Synaptic Conductance
+        gs_max_DEFAULT = 1e-6;                            	% [S] Maximum Synaptic Conductance.
         
         % Define the synaptic reversal potential parameters.
-        dEsyn_maximum_DEFAULT = 194e-3;                                                                                         % [V] Maximum Synaptic Reversal Potential
-        dEsyn_minimum_DEFAULT = -40e-3;                                                                                         % [V] Minimum Synaptic Reversal Potential
-        dEsyn_small_negative_DEFAULT = -1e-3;                                                                                   % [V] Small Negative Synaptic Reversal Potential
+        dEs_maximum_DEFAULT = 194e-3;                      	% [V] Maximum Synaptic Reversal Potential.
+        dEs_minimum_DEFAULT = -40e-3;                      	% [V] Minimum Synaptic Reversal Potential.
+        dEs_small_negative_DEFAULT = -1e-3;             	% [V] Small Negative Synaptic Reversal Potential.
         
         % Define the synapse identification parameters.
-        to_neuron_ID_DEFAULT = 0;                                                                                               % [#] To Neuron ID
-        from_neuron_ID_DEFAULT = 0;                                                                                             % [#] From Neuron ID
-        ID_DEFAULT = 0;                                                                                                         % [#] Synapse ID
+        to_neuron_ID_DEFAULT = 0;                          	% [#] To Neuron ID.
+        from_neuron_ID_DEFAULT = 0;                       	% [#] From Neuron ID.
+        ID_DEFAULT = 0;                                  	% [#] Synapse ID.
         
         % Define the subnetwork gain parameters.
-        c_absolute_addition_DEFAULT = 1;                                                                                        % [-] Absolute Addition Subnetwork Gain
-        c_relative_addition_DEFAULT = 1;                                                                                        % [-] Relative Addition Subnetwork Gain
-        c_absolute_subtraction_DEFAULT = 1;                                                                                     % [-] Absolute Subtraction Subnetwork Gain
-        c_relative_subtraction_DEFAULT = 1;                                                                                     % [-] Relative Subtraction Subnetwork Gain
-        c_absolute_inversion_DEFAULT = 1;                                                                                       % [-] Absolute Inversion Subnetwork Gain
-        c_relative_inversion_DEFAULT = 1;                                                                                       % [-] Relative Inversion Subnetwork Gain
-        c_absolute_division_DEFAULT = 1;                                                                                        % [-] Absolute Division Subnetwork Gain
-        c_relative_division_DEFAULT = 1;                                                                                        % [-] Relative Division Subnetwork Gain
-        c_absolute_multiplication_DEFAULT = 1;                                                                                  % [-] Absolute Multiplication Subnetwork Gain
-        c_relative_multiplication_DEFAULT = 1;                                                                                  % [-] Relative Multiplication Subnetwork Gain
+        c_absolute_addition_DEFAULT = 1;                   	% [-] Absolute Addition Subnetwork Gain.
+        c_relative_addition_DEFAULT = 1;                   	% [-] Relative Addition Subnetwork Gain.
+        c_absolute_subtraction_DEFAULT = 1;             	% [-] Absolute Subtraction Subnetwork Gain.
+        c_relative_subtraction_DEFAULT = 1;              	% [-] Relative Subtraction Subnetwork Gain.
+        c_absolute_inversion_DEFAULT = 1;                	% [-] Absolute Inversion Subnetwork Gain.
+        c_relative_inversion_DEFAULT = 1;                 	% [-] Relative Inversion Subnetwork Gain.
+        c_absolute_division_DEFAULT = 1;                  	% [-] Absolute Division Subnetwork Gain.
+        c_relative_division_DEFAULT = 1;                  	% [-] Relative Division Subnetwork Gain.
+        c_absolute_multiplication_DEFAULT = 1;            	% [-] Absolute Multiplication Subnetwork Gain.
+        c_relative_multiplication_DEFAULT = 1;              % [-] Relative Multiplication Subnetwork Gain.
         
         % Define the subnetwork offset parameters.
-        epsilon_DEFAULT = 1e-6;                                                                                                 % [-] Subnetwork Input Offset
-        delta_DEFAULT = 1e-6;                                                                                                   % [-] Subnetwork Output Offset
-        alpha_DEFAULT = 1e-6;                                                                                                   % [-] Division Subnetwork Denominator Offset
+        epsilon_DEFAULT = 1e-6;                          	% [-] Subnetwork Input Offset.
+        delta_DEFAULT = 1e-6;                           	% [-] Subnetwork Output Offset.
+        alpha_DEFAULT = 1e-6;                             	% [-] Division Subnetwork Denominator Offset.
         
         % Define the number of subnetwork neurons.
-        num_addition_neurons_DEFAULT = 2;                                                                                       % [#] Number of Addition Neurons.
-        num_absolute_addition_neurons_DEFAULT = 3;                                                                              % [#] Number of Absolute Addition Neurons.
-        num_relative_addition_neurons_DEFAULT = 3;                                                                              % [#] Number of Relative Addition Neurons.
+        num_addition_neurons_DEFAULT = 2;                 	% [#] Number of Addition Neurons.
+        num_absolute_addition_neurons_DEFAULT = 3;        	% [#] Number of Absolute Addition Neurons.
+        num_relative_addition_neurons_DEFAULT = 3;        	% [#] Number of Relative Addition Neurons.
         
         % Define the number of subnetwork synapses.
-        num_transmission_synapses_DEFAULT = 1;                                                                                  % [#] Number of Transmission Synapses.
-        num_modulation_synapses_DEFAULT = 1;                                                                                    % [#] Number of Modulation Synapses.
-        num_addition_synapses_DEFAULT = 2;                                                                                      % [#] Number of Addition Synapses.
-        num_subtraction_synapses_DEFAULT = 2;                                                                                   % [#] Number of Subtraction Synapses.
-        num_double_subtraction_synapses_DEFAULT = 4;                                                                            % [#] Number of Double Subtraction Synapses.
-        num_centering_synapses_DEFAULT = 4;                                                                                     % [#] Number of Centering Synapses.
-        num_double_centering_synapses_DEFAULT = 8;                                                                              % [#] Number of Double Centering Synapses.
-        num_multiplication_synapses_DEFAULT = 3;                                                                                % [#] Number of Multiplication Synapses.
-        num_inversion_synapses_DEFAULT = 1;                                                                                     % [#] Number of Inversion Synapses.
-        num_division_synapses_DEFAULT = 2;                                                                                      % [#] Number of Division Synapses.
-        num_derivation_synapses_DEFAULT = 2;                                                                                    % [#] Number of Derivation Synapses.
-        num_integration_synapses_DEFAULT = 2;                                                                                   % [#] Number of Integration Synapses.
-        num_vb_integration_synapses_DEFAULT = 4;                                                                                % [#] Number of Voltage Based Integration Synapses.
-        num_split_vb_integration_synapses =  10;                                                                                % [#] Number of Split Voltage Based Integration Synapses.
-        num_mod_split_vb_integration_synapses = 6;                                                                              % [#] Number of Modulated Split Voltage Based Integration Synapses.
-        num_mod_split_sub_vb_integratino_synapses = 2;                                                                          % [#] Number fo Modulated Split Difference Voltage Based Integration Synapses.
+        num_transmission_synapses_DEFAULT = 1;            	% [#] Number of Transmission Synapses.
+        num_modulation_synapses_DEFAULT = 1;               	% [#] Number of Modulation Synapses.
+        num_addition_synapses_DEFAULT = 2;               	% [#] Number of Addition Synapses.
+        num_subtraction_synapses_DEFAULT = 2;            	% [#] Number of Subtraction Synapses.
+        num_double_subtraction_synapses_DEFAULT = 4;       	% [#] Number of Double Subtraction Synapses.
+        num_centering_synapses_DEFAULT = 4;               	% [#] Number of Centering Synapses.
+        num_double_centering_synapses_DEFAULT = 8;        	% [#] Number of Double Centering Synapses.
+        num_multiplication_synapses_DEFAULT = 3;          	% [#] Number of Multiplication Synapses.
+        num_inversion_synapses_DEFAULT = 1;                	% [#] Number of Inversion Synapses.
+        num_division_synapses_DEFAULT = 2;               	% [#] Number of Division Synapses.
+        num_derivation_synapses_DEFAULT = 2;              	% [#] Number of Derivation Synapses.
+        num_integration_synapses_DEFAULT = 2;             	% [#] Number of Integration Synapses.
+        num_vbi_synapses_DEFAULT = 4;                    	% [#] Number of Voltage Based Integration Synapses.
+        num_svbi_synapses =  10;                          	% [#] Number of Split Voltage Based Integration Synapses.
+        num_msvbi_synapses = 6;                          	% [#] Number of Modulated Split Voltage Based Integration Synapses.
+        num_mssvbi_synapses = 2;                           	% [#] Number fo Modulated Split Difference Voltage Based Integration Synapses.
         
         % Define the CPG parameters.
-        delta_bistable_DEFAULT = -10e-3;                                                                                        % [V] Bistable CPG Equilibrium Offset
-        delta_oscillatory_DEFAULT = 0.01e-3;                                                                                    % [V] Oscillatory CPG Equilibrium Offset
-        delta_noncpg_DEFAULT = 0;                                                                                                      % [V] Generic CPG Equilibrium Offset
+        delta_bistable_DEFAULT = -10e-3;                  	% [V] Bistable CPG Equilibrium Offset.
+        delta_oscillatory_DEFAULT = 0.01e-3;              	% [V] Oscillatory CPG Equilibrium Offset.
+        delta_noncpg_DEFAULT = 0;                         	% [V] Generic CPG Equilibrium Offset.
         
         % Define the applied current parameters.
-        Idrive_max_DEFAULT = 1.25e-9;                                                                                           % [A] Maximum Drive Current
-        Iapp_absolute_addition_DEFAULT = 0;                                                                                     % [A] Absolute Addition Applied Current
-        Iapp_relative_addition_DEFAULT = 0;                                                                                     % [A] Relative Addition Applied Current
-        Iapp_absolute_subtraction_DEFAULT = 0;                                                                                  % [A] Absolute Subtraction Applied Current
-        Iapp_relative_subtraction_DEFAULT = 0;                                                                                  % [A] Relative Subtraction Applied Current
-        Iapp1_absolute_inversion_DEFAULT = 0;                                                                                   % [A] Absolute Inversion Applied Current 1
-        Iapp2_absolute_inversion_DEFAULT = 2e-8;                                                                                % [A] Absolute Inversion Applied Current 2
-        Iapp1_relative_inversion_DEFAULT = 0;                                                                                   % [A] Relative Inversion Applied Current 1
-        Iapp2_relative_inversion_DEFAULT = 2e-8;                                                                                % [A] Relative Inversion Applied Current 2
-        Iapp_absolute_division_DEFAULT = 0;                                                                                     % [A] Absolute Division Applied Current
-        Iapp_relative_division_DEFAULT = 0;                                                                                     % [A] Relative Division Applied Current
+        Id_max_DEFAULT = 1.25e-9;                         	% [A] Maximum Drive Current.
+        Ia_absolute_addition_DEFAULT = 0;                	% [A] Absolute Addition Applied Current.
+        Ia_relative_addition_DEFAULT = 0;                 	% [A] Relative Addition Applied Current.
+        Ia_absolute_subtraction_DEFAULT = 0;             	% [A] Absolute Subtraction Applied Current.
+        Ia_relative_subtraction_DEFAULT = 0;             	% [A] Relative Subtraction Applied Current.
+        Ia1_absolute_inversion_DEFAULT = 0;              	% [A] Absolute Inversion Applied Current 1.
+        Ia2_absolute_inversion_DEFAULT = 2e-8;          	% [A] Absolute Inversion Applied Current 2.
+        Ia1_relative_inversion_DEFAULT = 0;                	% [A] Relative Inversion Applied Current 1.
+        Ia2_relative_inversion_DEFAULT = 2e-8;             	% [A] Relative Inversion Applied Current 2.
+        Ia_absolute_division_DEFAULT = 0;                  	% [A] Absolute Division Applied Current.
+        Ia_relative_division_DEFAULT = 0;                 	% [A] Relative Division Applied Current.
         
     end
     
@@ -104,22 +104,24 @@ classdef synapse_manager_class
     methods
         
         % Implement the class constructor.
-        function self = synapse_manager_class( synapses )
+        function self = synapse_manager_class( synapses, synapse_utilities, data_loader_utilities, array_utilities )
             
-            % Create an instance of the array manager class.
-            self.array_utilities = array_utilities_class(  );
+            % Set the default class properties.
+            if nargin < 4, array_utilities = array_utilities_class(  ); end                         % [class] Array Utilities.
+            if nargin < 3, data_loader_utilities = data_loader_utilities_class(  ); end             % [class] Data Loader Utilities.
+            if nargin < 2, synapse_utilities = synapse_utilities_class(  ); end                     % [class] Synapse Utilities.
+            if nargin < 1, synapses = [  ]; end                                                     % [class] Synapse Array.
             
-            % Create an instance of the data loader utilities class.
-            self.data_loader_utilities = data_loader_utilities_class(  );
+            % Store utilities class properties.
+            self.array_utilities = array_utilities;
+            self.data_loader_utilities = data_loader_utilities;
+            self.synapse_utilities = synapse_utilities;
             
-            % Create an instance of the synapse utilities class.
-            self.synapse_utilities = synapse_utilities_class(  );
-            
-            % Set the default synapse properties.
-            if nargin < 1, self.synapses = [  ]; else, self.synapses = synapses; end
+            % Store the synapse property.
+            self.synapses = synapses;                                               
             
             % Compute the number of synapses.
-            self.num_synapses = length( self.synapses );
+            self.num_synapses = length( synapses );                                                 % [#] Number of Synapses.
             
         end
         
@@ -127,13 +129,14 @@ classdef synapse_manager_class
         %% General Get & Set Synapse Property Functions
         
         % Implement a function to retrieve the properties of specific synapses.
-        function xs = get_synapse_property( self, synapse_IDs, synapse_property, as_matrix )
+        function xs = get_synapse_property( self, synapse_IDs, synapse_property, as_matrix, synapses )
             
             % Set the default input arguments.
+            if nargin < 5, synapses = self.synapses; end
             if nargin < 4, as_matrix = false; end
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_properties_to_get = length( synapse_IDs );
@@ -142,13 +145,13 @@ classdef synapse_manager_class
             xs = cell( 1, num_properties_to_get );
             
             % Retrieve the given synapse property for each synapse.
-            for k = 1:num_properties_to_get
+            for k = 1:num_properties_to_get                         % Iterate through each of the properties to get...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs{k} = self.synapses(%0.0f).%s;', synapse_index, synapse_property );
+                eval_str = sprintf( 'xs{ k } = synapses( %0.0f ).%s;', synapse_index, synapse_property );
                 
                 % Evaluate the given synapse property.
                 eval( eval_str );
@@ -167,10 +170,17 @@ classdef synapse_manager_class
         
         
         % Implement a function to set the properties of specific synapses.
-        function self = set_synapse_property( self, synapse_IDs, synapse_property_values, synapse_property )
+        function self = set_synapse_property( self, synapse_IDs, synapse_property_values, synapse_property, synapses, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 6, set_flag = true; end
+            if nargin < 5, synapses = self.synapses; end
+            
+            % Compute the number of synapses.
+            n_synapses = length( synapses );
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retreive the number of synapse IDs.
             num_synapse_IDs = length( synapse_IDs );
@@ -179,10 +189,10 @@ classdef synapse_manager_class
             num_synapse_property_values = length( synapse_property_values );
             
             % Ensure that the provided synapse property values have the same length as the provided synapse IDs.
-            if ( num_synapse_IDs ~= num_synapse_property_values )                                     % If the number of provided synapse IDs does not match the number of provided property values...
+            if ( num_synapse_IDs ~= num_synapse_property_values )                                	% If the number of provided synapse IDs does not match the number of provided property values...
                 
                 % Determine whether to agument the property values.
-                if num_synapse_property_values == 1                                                  % If there is only one provided property value...
+                if num_synapse_property_values == 1                                                	% If there is only one provided property value...
                     
                     % Agument the property value length to match the ID length.
                     synapse_property_values = synapse_property_values*ones( 1, num_synapse_IDs );
@@ -196,9 +206,8 @@ classdef synapse_manager_class
                 
             end
             
-            
             % Validate the synapse property values.
-            if ~isa( synapse_property_values, 'cell' )                    % If the synapse property values are not a cell array...
+            if ~isa( synapse_property_values, 'cell' )                                              % If the synapse property values are not a cell array...
                 
                 % Convert the synapse property values to a cell array.
                 synapse_property_values = num2cell( synapse_property_values );
@@ -206,16 +215,16 @@ classdef synapse_manager_class
             end
             
             % Set the properties of each synapse.
-            for k = 1:self.num_synapses                   % Iterate through each synapse...
+            for k = 1:n_synapses                                                                    % Iterate through each synapse...
                 
                 % Determine the index of the synapse property value that we want to apply to this synapse (if we want to set a property of this synapse).
-                index = find( self.synapses(k).ID == synapse_IDs, 1 );
+                index = find( synapses( k ).ID == synapse_IDs, 1 );
                 
                 % Determine whether to set a property of this synapse.
-                if ~isempty( index )                         % If a matching synapse ID was detected...
+                if ~isempty( index )                                                                % If a matching synapse ID was detected...
                     
                     % Create an evaluation string that sets the desired synapse property.
-                    eval_string = sprintf( 'self.synapses(%0.0f).%s = synapse_property_values{%0.0f};', k, synapse_property, index );
+                    eval_string = sprintf( 'synapses( %0.0f ).%s = synapse_property_values{ %0.0f };', k, synapse_property, index );
                     
                     % Evaluate the evaluation string.
                     eval( eval_string );
@@ -223,16 +232,23 @@ classdef synapse_manager_class
                 end
             end
             
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synapses = self.synapses; end
+            
         end
         
         
         %% Call Methods Functions
         
         % Implement a function to that calls a specified synapse method for each of the specified synapses.
-        function self = call_synapse_method( self, synapse_IDs, synapse_method )
+        function self = call_synapse_method( self, synapse_IDs, synapse_method, synapses, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 5, set_flag = true; end
+            if nargin < 4, synapses = self.synapses; end
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -241,10 +257,10 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'self.synapses(%0.0f) = self.synapses(%0.0f).%s();', synapse_index, synapse_index, synapse_method );
+                eval_str = sprintf( 'self.synapses( %0.0f ) = synapses( %0.0f ).%s(  );', synapse_index, synapse_index, synapse_method );
                 
                 % Evaluate the given synapse method.
                 eval( eval_str );
@@ -257,10 +273,14 @@ classdef synapse_manager_class
         %% Specific Get Synapse Property Functions
         
         % Implement a function to retrieve the index associated with a given synapse ID.
-        function synapse_index = get_synapse_index( self, synapse_ID, undetected_option )
+        function synapse_index = get_synapse_index( self, synapse_ID, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 3, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 3, synapses = self.synapses; end
+            
+            % Compute the number of synapses.
+            n_synapses = length( synapses );                                            % [#] Number of Synapses.
             
             % Set a flag variable to indicate whether a matching synapse index has been found.
             b_match_found = false;
@@ -268,13 +288,14 @@ classdef synapse_manager_class
             % Initialize the synapse index.
             synapse_index = 0;
             
-            while ( synapse_index < self.num_synapses ) && ( ~b_match_found )
+            % Search for a synapse whose ID matches the target value.
+            while ( synapse_index < n_synapses ) && ( ~b_match_found )                  % While we have not yet checked all of the synapses and have not yet found an ID match...
                 
                 % Advance the synapse index.
                 synapse_index = synapse_index + 1;
                 
                 % Check whether this synapse index is a match.
-                if self.synapses(synapse_index).ID == synapse_ID                       % If this synapse has the correct synapse ID...
+                if self.synapses( synapse_index ).ID == synapse_ID                       % If this synapse has the correct synapse ID...
                     
                     % Set the match found flag to true.
                     b_match_found = true;
@@ -284,15 +305,15 @@ classdef synapse_manager_class
             end
             
             % Determine whether to adjust the synapse index.
-            if ~b_match_found                                                       % If a match was not found...
+            if ~b_match_found                                                           % If a match was not found...
                 
                 % Determine how to handle when a match is not found.
-                if strcmpi( undetected_option, 'error' )                            % If the undetected option is set to 'error'...
+                if strcmpi( undetected_option, 'error' )                                % If the undetected option is set to 'error'...
                     
                     % Throw an error.
                     error( 'No synapse with ID %0.0f.', synapse_ID )
                     
-                elseif strcmpi( undetected_option, 'warning' )                     % If the undetected option is set to 'warning'...
+                elseif strcmpi( undetected_option, 'warning' )                          % If the undetected option is set to 'warning'...
                     
                     % Throw a warning.
                     warning( 'No synapse with ID %0.0f.', synapse_ID )
@@ -300,12 +321,12 @@ classdef synapse_manager_class
                     % Set the synapse index to negative one.
                     synapse_index = -1;
                     
-                elseif strcmpi( undetected_option, 'ignore' )                       % If the undetected option is set to 'ignore'...
+                elseif strcmpi( undetected_option, 'ignore' )                           % If the undetected option is set to 'ignore'...
                     
                     % Set the synapse index to negative one.
                     synapse_index = -1;
                     
-                else                                                                % Otherwise...
+                else                                                                    % Otherwise...
                     
                     % Throw an error.
                     error( 'Undetected option %s not recognized.', undetected_option )
@@ -324,7 +345,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the number of synapse IDs.
             num_synapse_IDs = length( synapse_IDs );
@@ -336,20 +357,20 @@ classdef synapse_manager_class
             for k = 1:num_synapse_IDs                           % Iterate through each synapse ID...
                 
                 % Determine how to compute the synapse index.
-                if synapse_IDs(k) >= 0                           % If the synapse ID is positive... (this means that the synapse ID exists...)
+                if synapse_IDs( k ) >= 0                           % If the synapse ID is positive... (this means that the synapse ID exists...)
                     
                     % Retrieve the synapse index associated with this synapse ID.
-                    synapse_indexes(k) = self.get_synapse_index( synapse_IDs(k) );
+                    synapse_indexes( k ) = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                     
-                elseif synapse_IDs(k) == -1                     % If the synapse ID is -1... (this means that the synapse ID does not exist...)
+                elseif synapse_IDs( k ) == -1                     % If the synapse ID is -1... (this means that the synapse ID does not exist...)
                     
                     % Set the synapse index to negative one (to indicate that it doesn't exist).
-                    synapse_indexes(k) = -1;
+                    synapse_indexes( k ) = -1;
                     
                 else                                            % Otherwise...
                     
                     % Throw an error.
-                    error( 'Synapse ID %0.2f not recognized.', synapse_IDs(k) )
+                    error( 'Synapse ID %0.2f not recognized.', synapse_IDs( k ) )
                     
                 end
                 
@@ -368,7 +389,7 @@ classdef synapse_manager_class
             for k = 1:self.num_synapses                  % Iterate through each synapse...
                 
                 % Retrieve the ID of this synapse.
-                synapse_IDs(k) = self.synapses(k).ID;
+                synapse_IDs( k ) = self.synapses( k ).ID;
                 
             end
             
@@ -388,13 +409,13 @@ classdef synapse_manager_class
             for k = 1:self.num_synapses                         % Iterate through each synapse...
                 
                 % Determine whether this synapse is a self-connection.
-                if ( self.synapses(k).from_neuron_ID == self.synapses(k).to_neuron_ID )             % If this synapse is a self-connection...
+                if ( self.synapses( k ).from_neuron_ID == self.synapses( k ).to_neuron_ID )             % If this synapse is a self-connection...
                     
                     % Advance the synapse ID index.
                     index = index + 1;
                     
                     % Retrieve this synapse index.
-                    synapse_IDs(index) = self.synapses(k).ID;
+                    synapse_IDs(index) = self.synapses( k ).ID;
                     
                 end
                 
@@ -409,26 +430,32 @@ classdef synapse_manager_class
         %% Synapse ID Functions
         
         % Implement a function to validate synapse IDs.
-        function synapse_IDs = validate_synapse_IDs( self, synapse_IDs )
+        function synapse_IDs = validate_synapse_IDs( self, synapse_IDs, synapses )
+            
+            % Set the default input arguments.
+            if nargin < 3, synapses = self.synapses; end
+            
+            % Compute the number of synapses.
+            n_synapses = length( synapses );
             
             % Determine whether we want get the desired synapse property from all of the synapses.
-            if isa( synapse_IDs, 'char' )                                                      % If the synapse IDs variable is a character array instead of an integer srray...
+            if isa( synapse_IDs, 'char' )                               % If the synapse IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmpi( synapse_IDs, 'all' )                 % If the character array is either 'all' or 'All'...
+                if  strcmpi( synapse_IDs, 'all' )                       % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the synapse IDs.
-                    synapse_IDs = zeros( 1, self.num_synapses );
+                    synapse_IDs = zeros( 1, n_synapses );
                     
                     % Retrieve the synapse ID associated with each synapse.
-                    for k = 1:self.num_synapses                   % Iterate through each synapse...
+                    for k = 1:n_synapses                                % Iterate through each synapse...
                         
                         % Store the synapse ID associated with the current synapse.
-                        synapse_IDs(k) = self.synapses(k).ID;
+                        synapse_IDs( k ) = synapses( k ).ID;
                         
                     end
                     
-                else                                                                        % Otherwise...
+                else                                                  	% Otherwise...
                     
                     % Throw an error.
                     error( 'Synapse_IDs must be either an array of valid synapse IDs or one of the strings: ''all'' or ''All''.' )
@@ -465,7 +492,7 @@ classdef synapse_manager_class
             for k = 1:num_IDs                           % Iterate through each of the new IDs...
                 
                 % Generate a unique synapse ID.
-                synapse_IDs(k) = self.array_utilities.get_lowest_natural_number( [ existing_synapse_IDs, synapse_IDs( 1:(k - 1) ) ] );
+                synapse_IDs( k ) = self.array_utilities.get_lowest_natural_number( [ existing_synapse_IDs, synapse_IDs( 1:(k - 1) ) ] );
                 
             end
             
@@ -537,16 +564,16 @@ classdef synapse_manager_class
                     k2 = 0;
                     
                     % Determine whether there is another synapse with the same ID.
-                    while ( k2 < self.num_synapses ) && ( ~match_logicals(k1) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the synapses and we haven't found a match...
+                    while ( k2 < self.num_synapses ) && ( ~match_logicals( k1 ) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the synapses and we haven't found a match...
                         
                         % Advance the loop variable.
                         k2 = k2 + 1;
                         
                         % Determine whether this synapse is a match.
-                        if self.synapses(k2).ID == synapse_IDs(k1)                              % If this synapse ID is a match...
+                        if self.synapses( k2 ).ID == synapse_IDs( k1 )                              % If this synapse ID is a match...
                             
                             % Set this match logical to true.
-                            match_logicals(k1) = true;
+                            match_logicals( k1 ) = true;
                             
                         end
                         
@@ -582,7 +609,7 @@ classdef synapse_manager_class
                 k = k + 1;
                 
                 % Determine whether this synapse connects the specified neurons.
-                if ( self.synapses(k).from_neuron_ID == from_neuron_ID ) && ( self.synapses(k).to_neuron_ID == to_neuron_ID )
+                if ( self.synapses( k ).from_neuron_ID == from_neuron_ID ) && ( self.synapses( k ).to_neuron_ID == to_neuron_ID )
                     
                     % Set the synapse detected flag to true.
                     b_synapse_detected = true;
@@ -595,7 +622,7 @@ classdef synapse_manager_class
             if b_synapse_detected                                   % If we found a matching synapse....
                 
                 % Retrieve the ID of the matching synapse.
-                synapse_ID = self.synapses(k).ID;
+                synapse_ID = self.synapses( k ).ID;
                 
             else                                                    % Otherwise...
                 
@@ -649,7 +676,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_find                              % Iterate through each set of neurons for which we are searching for a connecting synapse...
                 
                 % Retrieve the ID of the synapse that connects these neurons.
-                synapse_IDs(k) = self.from_to_neuron_ID2synapse_ID( from_neuron_IDs(k), to_neuron_IDs(k), undetected_option );
+                synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( from_neuron_IDs( k ), to_neuron_IDs( k ), undetected_option );
                 
             end
             
@@ -675,10 +702,10 @@ classdef synapse_manager_class
                 for k = 1:num_pairs                         % Iterate through each pair of neurons...
                     
                     % Retrieve the from neuron ID.
-                    from_neuron_IDs(k) = neuron_ID_order(k);
+                    from_neuron_IDs( k ) = neuron_ID_order( k );
                     
                     % Retrieve the to neuron ID.
-                    to_neuron_IDs(k) = neuron_ID_order(k + 1);
+                    to_neuron_IDs( k ) = neuron_ID_order(k + 1);
                     
                 end
                 
@@ -735,10 +762,10 @@ classdef synapse_manager_class
                         k3 = k3 + 1;
                         
                         % Retrieve the from neuron ID.
-                        from_neuron_IDs(k3) = neuron_ID_order(k1);
+                        from_neuron_IDs( k3 ) = neuron_ID_order( k1 );
                         
                         % Retrieve the to neuron ID.
-                        to_neuron_IDs(k3) = neuron_ID_order(k2);
+                        to_neuron_IDs( k3 ) = neuron_ID_order( k2 );
                         
                     end
                 end
@@ -788,19 +815,19 @@ classdef synapse_manager_class
                 k = k + 1;
                 
                 % Store these from neuron and to neuron IDs.
-                from_neuron_IDs(k) = self.synapses(k).from_neuron_ID;
-                to_neuron_IDs(k) = self.synapses(k).to_neuron_ID;
-                b_enableds(k) = self.synapses(k).b_enabled;
+                from_neuron_IDs( k ) = self.synapses( k ).from_neuron_ID;
+                to_neuron_IDs( k ) = self.synapses( k ).to_neuron_ID;
+                b_enableds( k ) = self.synapses( k ).b_enabled;
                 
                 % Determine whether we need to check this synapse for repetition.
                 if k ~= 1                               % If this is not the first iteration...
                     
                     % Determine whether the from and to neuron IDs are unique.
-                    [ from_neuron_ID_match, from_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( from_neuron_IDs(k), from_neuron_IDs( 1:( k  - 1 ) ) );
-                    [ to_neuron_ID_match, to_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( to_neuron_IDs(k), to_neuron_IDs( 1:( k  - 1) ) );
+                    [ from_neuron_ID_match, from_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( from_neuron_IDs( k ), from_neuron_IDs( 1:( k  - 1 ) ) );
+                    [ to_neuron_ID_match, to_neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( to_neuron_IDs( k ), to_neuron_IDs( 1:( k  - 1) ) );
                     
                     % Determine whether this synapse is a duplicate.
-                    if from_neuron_ID_match && to_neuron_ID_match && b_enableds(k) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
+                    if from_neuron_ID_match && to_neuron_ID_match && b_enableds( k ) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
                         
                         % Set the one-to-one flag to false (this synapse is duplicate).
                         b_one_to_one = false;
@@ -846,7 +873,7 @@ classdef synapse_manager_class
             synapse_IDs_bistable = self.array_utilities.remove_entries( synapse_IDs_bistable, synapse_IDs_self_connections );
             
             % Set the delta value of each of the oscillatory synapses.
-            self = self.set_synapse_property( synapse_IDs_oscillatory, delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta' );
+            self = self.set_synapse_property( synapse_IDs_oscillatory, delta_oscillatory*ones( 1, length( synapse_IDs_oscillatory ) ), 'delta', synapses, set_flag );
 
 %             deltas_temp = [ 0.01e-3, 0.01e-3, 0.01e-3, 0.01e-3 ];                       % No syncopation.
 %             deltas_temp = [ 0.01e-3, 0.05e-3, 0.01e-3, 0.05e-3 ];                       % Low level of syncopation.
@@ -857,10 +884,10 @@ classdef synapse_manager_class
 %             self = self.set_synapse_property( synapse_IDs_oscillatory, deltas_temp, 'delta' );
 
             % Set the delta value of each of the bistable synapses.
-            self = self.set_synapse_property( synapse_IDs_bistable, delta_bistable*ones( 1, length( synapse_IDs_bistable ) ), 'delta' );
+            self = self.set_synapse_property( synapse_IDs_bistable, delta_bistable*ones( 1, length( synapse_IDs_bistable ) ), 'delta', synapses, set_flag );
             
             % Set the delta value of each of the self-connecting synapses.
-            self = self.set_synapse_property( synapse_IDs_self_connections, zeros( 1, length( synapse_IDs_self_connections ) ), 'delta' );
+            self = self.set_synapse_property( synapse_IDs_self_connections, zeros( 1, length( synapse_IDs_self_connections ) ), 'delta', synapses, set_flag );
             
         end
         
@@ -874,7 +901,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -883,7 +910,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_dEsyn(  );
@@ -900,7 +927,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -909,7 +936,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_transmission_dEsyn(  );
@@ -926,7 +953,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -935,7 +962,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_modulation_dEsyn(  );
@@ -952,7 +979,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -961,7 +988,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_addition_dEsyn1(  );
@@ -978,7 +1005,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -987,7 +1014,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_addition_dEsyn2(  );
@@ -1004,7 +1031,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1013,7 +1040,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_addition_dEsyn(  );
@@ -1030,7 +1057,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1039,7 +1066,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_dEsyn(  );
@@ -1056,7 +1083,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1065,7 +1092,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_subtraction_dEsyn1(  );
@@ -1082,7 +1109,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1091,7 +1118,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_subtraction_dEsyn2(  );
@@ -1108,7 +1135,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs_excitatory = 'all'; end                                                                                  % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs_excitatory = self.validate_synapse_IDs( synapse_IDs_excitatory );
+            synapse_IDs_excitatory = self.validate_synapse_IDs( synapse_IDs_excitatory, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs_excitatory );
@@ -1117,7 +1144,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs_excitatory( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs_excitatory( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_dEsyn_excitatory(  );
@@ -1134,7 +1161,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs_inhibitory = 'all'; end                                                                                  % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs_inhibitory = self.validate_synapse_IDs( synapse_IDs_inhibitory );
+            synapse_IDs_inhibitory = self.validate_synapse_IDs( synapse_IDs_inhibitory, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs_inhibitory );
@@ -1143,7 +1170,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs_inhibitory( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs_inhibitory( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_dEsyn_inhibitory(  );
@@ -1160,7 +1187,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs_excitatory = 'all'; end                                                                                      % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs_excitatory = self.validate_synapse_IDs( synapse_IDs_excitatory );
+            synapse_IDs_excitatory = self.validate_synapse_IDs( synapse_IDs_excitatory, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs_excitatory );
@@ -1169,7 +1196,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs_excitatory( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs_excitatory( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_dEsyn_excitatory(  );
@@ -1186,7 +1213,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs_inhibitory = 'all'; end                                                                                      % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs_inhibitory = self.validate_synapse_IDs( synapse_IDs_inhibitory );
+            synapse_IDs_inhibitory = self.validate_synapse_IDs( synapse_IDs_inhibitory, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs_inhibitory );
@@ -1195,7 +1222,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs_inhibitory( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs_inhibitory( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_dEsyn_inhibitory(  );
@@ -1212,7 +1239,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1221,7 +1248,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn1(  );
@@ -1238,7 +1265,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1247,7 +1274,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn2(  );
@@ -1264,7 +1291,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1273,7 +1300,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_multiplication_dEsyn3(  );
@@ -1290,7 +1317,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1299,7 +1326,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_inversion_dEsyn(  );
@@ -1318,7 +1345,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1327,7 +1354,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_dEsyn( c, delta );
@@ -1347,7 +1374,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1356,7 +1383,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_inversion_dEsyn( epsilon, delta, R_2 );
@@ -1373,7 +1400,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1382,7 +1409,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_division_dEsyn1(  );
@@ -1399,7 +1426,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1408,7 +1435,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_division_dEsyn2(  );
@@ -1427,10 +1454,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                            	% [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the numerator synapse ID.
-            synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
+            synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
             
             % Compute and set the required parameter for the numerator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_dEsyn1( c, alpha );
@@ -1445,10 +1472,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the denominator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( end ) );
+            synapse_index = self.get_synapse_index( synapse_IDs( end ), synapses, undetected_option );
             
             % Compute and set the required parameter for the denominator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_dEsyn2(  );
@@ -1465,10 +1492,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the numerator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
+            synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
             
             % Compute and set the required parameter for the numerator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_dEsyn1( c, alpha );
@@ -1483,10 +1510,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the denominator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( end ) );
+            synapse_index = self.get_synapse_index( synapse_IDs( end ), synapses, undetected_option );
             
             % Compute and set the required parameter for the denominator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_dEsyn2(  );
@@ -1501,7 +1528,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1510,7 +1537,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_derivation_dEsyn1(  );
@@ -1527,7 +1554,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1536,7 +1563,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_derivation_dEsyn2(  );
@@ -1553,7 +1580,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1562,7 +1589,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_integration_dEsyn1(  );
@@ -1579,7 +1606,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1588,7 +1615,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_integration_dEsyn2(  );
@@ -1605,7 +1632,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1614,7 +1641,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_vb_integration_dEsyn1(  );
@@ -1631,7 +1658,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1640,7 +1667,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_vb_integration_dEsyn2(  );
@@ -1656,12 +1683,12 @@ classdef synapse_manager_class
         function self = compute_set_driven_multistate_cpg_gsynmax( self, synapse_IDs, delta_oscillatory, I_drive_max )
             
             % Set the default input arguments.
-            if nargin < 4, I_drive_max = self.Idrive_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
+            if nargin < 4, I_drive_max = self.Id_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                                                      % [V] Oscillatory CPG Equilibrium Offset
             if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1670,7 +1697,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_gsynmax( self.synapses( synapse_index ).dE_syn, delta_oscillatory, I_drive_max );
@@ -1684,14 +1711,14 @@ classdef synapse_manager_class
         function self = compute_set_absolute_addition_gsyn( self, synapse_IDs, c, R_k, Gm_n, Iapp_n )
             
             % Set the default input arguments.
-            if nargin < 6, Iapp_n = self.Iapp_absolute_addition_DEFAULT; end                                                            % [A] Applied Current
+            if nargin < 6, Iapp_n = self.Ia_absolute_addition_DEFAULT; end                                                            % [A] Applied Current
             if nargin < 5, Gm_n = self.Gm_DEFAULT; end                                                                                  % [S] Membrane Conductance
             if nargin < 4, R_k = self.R_DEFAULT; end                                                                                    % [V] Activation Domain
             if nargin < 3, c = self.c_absolute_addition_DEFAULT; end                                                                    % [-] Subnetwork Gain
             if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1700,7 +1727,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_addition_gsyn( c, R_k, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
@@ -1714,7 +1741,7 @@ classdef synapse_manager_class
         function self = compute_set_relative_addition_gsyn( self, synapse_IDs, c, n, R_n, Gm_n, Iapp_n )
             
             % Set the default input arguments.
-            if nargin < 7, Iapp_n = self.Iapp_relative_addition_DEFAULT; end                                                                % [A] Applied Current
+            if nargin < 7, Iapp_n = self.Ia_relative_addition_DEFAULT; end                                                                % [A] Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
             if nargin < 5, R_n = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
             if nargin < 4, n = self.num_addition_neurons_DEFAULT; end                                                                       % [#] Number of Addition Neurons
@@ -1722,7 +1749,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1731,7 +1758,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_gsyn( c, n, R_n, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
@@ -1745,7 +1772,7 @@ classdef synapse_manager_class
         function self = compute_set_absolute_subtraction_gsyn( self, synapse_IDs, c, s_k, R_k, Gm_n, Iapp_n )
             
             % Set the default input arguments.
-            if nargin < 7, Iapp_n = self.Iapp_absolute_subtraction_DEFAULT; end                                                             % [A] Applied Current
+            if nargin < 7, Iapp_n = self.Ia_absolute_subtraction_DEFAULT; end                                                             % [A] Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
             if nargin < 5, R_k = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
             if nargin < 4, s_k = [ 1, -1 ]; end                                                                                             % [-] Excitatory / Inhibitory Sign Flag
@@ -1753,7 +1780,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1762,7 +1789,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_gsyn( c, s_k( k ), R_k( k ), Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
@@ -1776,7 +1803,7 @@ classdef synapse_manager_class
         function self = compute_set_relative_subtraction_gsyn( self, synapse_IDs, c, npm_k, s_k, R_n, Gm_n, Iapp_n )
             
             % Set the default input arguments.
-            if nargin < 8, Iapp_n = self.Iapp_relative_subtraction_DEFAULT; end                                                             % [A] Applied Current
+            if nargin < 8, Iapp_n = self.Ia_relative_subtraction_DEFAULT; end                                                             % [A] Applied Current
             if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
             if nargin < 6, R_n = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
             if nargin < 5, s_k = [ 1, -1 ]; end                                                                                             % [-] Excitatory / Inhibitory Sign Flag
@@ -1785,7 +1812,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1794,7 +1821,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_gsyn( c, npm_k( k ), s_k( k ), R_n, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
@@ -1843,7 +1870,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1852,7 +1879,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_gsyn( self.synapses( synapse_index ).dE_syn, Iapp_2 );
@@ -1870,7 +1897,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1879,7 +1906,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_inversion_gsyn( self.synapses( synapse_index ).dE_syn, Iapp_2 );
@@ -1900,10 +1927,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the numerator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
+            synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
             
             % Compute and set the required parameter for the numerator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_gsyn31( alpha, epsilon, R_1, Gm_3 );
@@ -1921,10 +1948,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the numerator and denominator synapses.
-            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ) );
+            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ), synapses, undetected_option );
             
             % Compute and set the required parameter for the denominator synapse.
             self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_absolute_division_gsyn32( epsilon, R_2, Gm_3 );
@@ -1941,10 +1968,10 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the numerator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( 1 ) );
+            synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
             
             % Compute and set the required parameter for the numerator synapse.
             self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_gsyn31( R_3, Gm_3, self.synapses( synapse_index ).dE_syn );
@@ -1964,11 +1991,11 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the index associated with the numerator and denominator synapses.
-            synapse_index_numerator = self.get_synapse_index( synapse_IDs( 1 ) );
-            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ) );
+            synapse_index_numerator = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
+            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ), synapses, undetected_option );
             
             % Compute and set the required parameter for this synapse.
             self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_relative_division_gsyn32( c, alpha, epsilon, R_3, Gm_3, self.synapses( synapse_index_numerator ).dE_syn );
@@ -1982,7 +2009,7 @@ classdef synapse_manager_class
         function self = enable_synapses( self, synapse_IDs )
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine the number of synapses to enable.
             num_synapses_to_enable = length( synapse_IDs );
@@ -1991,7 +2018,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
                 
                 % Retrieve this synapse index.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Enable this synapse.
                 self.synapses( synapse_index ).b_enabled = true;
@@ -2005,7 +2032,7 @@ classdef synapse_manager_class
         function self = disable_synapses( self, synapse_IDs )
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine the number of synapses to disable.
             num_synapses_to_enable = length( synapse_IDs );
@@ -2014,7 +2041,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
                 
                 % Retrieve this synapse index.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Disable this synapse.
                 self.synapses( synapse_index ).b_enabled = false;
@@ -2028,7 +2055,7 @@ classdef synapse_manager_class
         function self = toggle_enabled_synapses( self, synapse_IDs )
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Determine the number of synapses to disable.
             num_synapses_to_enable = length( synapse_IDs );
@@ -2037,7 +2064,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
                 
                 % Retrieve this synapse index.
-                synapse_index = self.get_synapse_index( synapse_IDs(k) );
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Toggle this synapse.
                 self.synapses( synapse_index ).b_enabled = ~self.synapses( synapse_index ).b_enabled;
@@ -2057,8 +2084,8 @@ classdef synapse_manager_class
             if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                                  % [V] Generic CPG Equilibrium Offset
             if nargin < 7, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                                    % [-] To Neuron ID
             if nargin < 6, from_neuron_ID = self.from_neuron_ID_DEFAULT; end                                % [-] From Neuron ID
-            if nargin < 5, g_syn_max = self.gsyn_max_DEFAULT; end                                            % [S] Maximum Synaptic Conductance
-            if nargin < 4, dE_syn = self.dEsyn_minimum_DEFAULT; end                                        % [V] Synaptic Reversal Potential
+            if nargin < 5, g_syn_max = self.gs_max_DEFAULT; end                                            % [S] Maximum Synaptic Conductance
+            if nargin < 4, dE_syn = self.dEs_minimum_DEFAULT; end                                        % [V] Synaptic Reversal Potential
             if nargin < 3, name = ''; end                                                                   % [-] Synapse Name
             if nargin < 2, ID = self.generate_unique_synapse_ID(  ); end                                    % [#] Synapse ID
             
@@ -2119,8 +2146,8 @@ classdef synapse_manager_class
             if nargin < 8, deltas = self.delta_noncpg_DEFAULT*ones( 1, num_synapses_to_create ); end                                       % [V] Generic CPG Equilibrium Offset
             if nargin < 7, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, num_synapses_to_create ); end                         % [-] To Neuron ID
             if nargin < 6, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, num_synapses_to_create ); end                     % [-] From Neuron ID
-            if nargin < 5, g_syn_maxs = self.gsyn_max_DEFAULT*ones( 1, num_synapses_to_create ); end                                 % [S] Maximum Synaptic Conductance
-            if nargin < 4, dE_syns = self.dEsyn_minimum_DEFAULT*ones( 1, num_synapses_to_create ); end                             % [V] Synaptic Reversal Potential
+            if nargin < 5, g_syn_maxs = self.gs_max_DEFAULT*ones( 1, num_synapses_to_create ); end                                 % [S] Maximum Synaptic Conductance
+            if nargin < 4, dE_syns = self.dEs_minimum_DEFAULT*ones( 1, num_synapses_to_create ); end                             % [V] Synaptic Reversal Potential
             if nargin < 3, names = repmat( { '' }, 1, num_synapses_to_create ); end                                                 % [-] Synapse Name
             if nargin < 2, IDs = self.generate_unique_synapse_IDs( num_synapses_to_create ); end                                    % [#] Synapse ID
             
@@ -2128,7 +2155,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_create                         % Iterate through each of the synapses we want to create...
                 
                 % Create this synapse.
-                self = self.create_synapse( IDs(k), names{k}, dE_syns(k), g_syn_maxs(k), from_neuron_IDs(k), to_neuron_IDs(k), deltas(k), b_enableds(k) );
+                self = self.create_synapse( IDs( k ), names{k}, dE_syns( k ), g_syn_maxs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ) );
                 
             end
             
@@ -2139,7 +2166,7 @@ classdef synapse_manager_class
         function self = delete_synapse( self, synapse_ID )
             
             % Retrieve the index associated with this synapse.
-            synapse_index = self.get_synapse_index( synapse_ID );
+            synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Remove this synapse from the array of synapses.
             self.synapses( synapse_index ) = [  ];
@@ -2157,7 +2184,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the number of synapses to delete.
             num_synapses_to_delete = length( synapse_IDs );
@@ -2166,7 +2193,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_delete                      % Iterate through each of the synapses we want to delete...
                 
                 % Delete this synapse.
-                self = self.delete_synapse( synapse_IDs(k) );
+                self = self.delete_synapse( synapse_IDs( k ) );
                 
             end
             
@@ -2177,7 +2204,7 @@ classdef synapse_manager_class
         function self = connect_synapse( self, synapse_ID, from_neuron_ID, to_neuron_ID )
             
             % Retrieve the index associated with this synapse.
-            synapse_index = self.get_synapse_index( synapse_ID );
+            synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Set the from neuron ID property of this synapse.
             self.synapses( synapse_index ).from_neuron_ID = from_neuron_ID;
@@ -2195,7 +2222,7 @@ classdef synapse_manager_class
             if nargin < 2, synapse_IDs = 'all'; end
             
             % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Retrieve the number of synapses to connect.
             num_synapses_to_connect = length( synapse_IDs );
@@ -2207,7 +2234,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_connect                      % Iterate through each of the synapses we want to connect...
                 
                 % Connect this synapse.
-                self = connect_synapse( self, synapse_IDs(k), from_neuron_IDs(k), to_neuron_IDs(k) );
+                self = connect_synapse( self, synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
                 
             end
             
@@ -2239,7 +2266,7 @@ classdef synapse_manager_class
                     k3 = k3 + 1;
                     
                     % Get the index associated with this synapse.
-                    synapse_index = self.get_synapse_index( synapse_IDs( k3 ) );
+                    synapse_index = self.get_synapse_index( synapse_IDs( k3 ), synapses, undetected_option );
                     
                     % Set the from neuron ID and to neuron ID.
                     self.synapses( synapse_index ).from_neuron_ID = neuron_IDs( k1 );
@@ -2273,7 +2300,7 @@ classdef synapse_manager_class
             for k = 1:num_drive_synapses                    % Iterate through each of the drive synapses...
                 
                 % Set the name of this synapse.
-                self = self.set_synapse_property( synapse_IDs_drive( k ), { sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs_drive( k ), { sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ) }, 'name', synapses, set_flag );
                 
                 % Connect this synapse.
                 self = self.connect_synapse( synapse_IDs_drive( k ), neuron_IDs( end ), neuron_IDs( k ) );
@@ -2313,8 +2340,8 @@ classdef synapse_manager_class
                 synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
                 
                 % Set the names of these synapses.
-                self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name' );
-                self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name', synapses, set_flag );
+                self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name', synapses, set_flag );
                 
                 % Connect this synapse.
                 self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
@@ -2352,8 +2379,8 @@ classdef synapse_manager_class
                 synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
                 
                 % Set the names of these synapses.
-                self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name' );
-                self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name', synapses, set_flag );
+                self = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name', synapses, set_flag );
                 
                 % Connect this synapse.
                 self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
@@ -2370,8 +2397,8 @@ classdef synapse_manager_class
             synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
             
             % Set the names of the slow transmission synapses of the split lead lag subnetwork.
-            self = self.set_synapse_property( synapse_IDs( end - 1 ), { synapse_name1 }, 'name' );
-            self = self.set_synapse_property( synapse_IDs( end ), { synapse_name2 }, 'name' );
+            self = self.set_synapse_property( synapse_IDs( end - 1 ), { synapse_name1 }, 'name', synapses, set_flag );
+            self = self.set_synapse_property( synapse_IDs( end ), { synapse_name2 }, 'name', synapses, set_flag );
             
             % Connect the slow tranmission synapses of the split lead lag subnetwork.
             self = self.connect_synapse( synapse_IDs( end - 1 ), from_neuron_ID1, to_neuron_ID1 );
@@ -2428,7 +2455,7 @@ classdef synapse_manager_class
             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
                 
                 % Set the names of each of the unique synapses.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
                 
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -2473,7 +2500,7 @@ classdef synapse_manager_class
             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
                 
                 % Set the names of each of the unique synapses.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
                 
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -2518,7 +2545,7 @@ classdef synapse_manager_class
             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
                 
                 % Set the names of each of the unique synapses.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
                 
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -2550,7 +2577,7 @@ classdef synapse_manager_class
             [ self, synapse_ID ] = self.create_synapses( self.num_transmission_synapses_DEFAULT );
             
             % Set the names of the transmission subnetwork synapses.
-            self = self.set_synapse_property( synapse_ID, { 'Trans 12' }, 'name' );
+            self = self.set_synapse_property( synapse_ID, { 'Trans 12' }, 'name', synapses, set_flag );
             
             % Connect the transmission subnetwork synapses to the transmission subnetwork neurons.
             self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
@@ -2565,7 +2592,7 @@ classdef synapse_manager_class
             [ self, synapse_ID ] = self.create_synapses( self.num_modulation_synapses_DEFAULT );
             
             % Set the names of the modulation subnetwork synapses.
-            self = self.set_synapse_property( synapse_ID, { 'Mod 12' }, 'name' );
+            self = self.set_synapse_property( synapse_ID, { 'Mod 12' }, 'name', synapses, set_flag );
             
             % Connect the modulation subnetwork synapses to the modulation subnetwork neurons.
             self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
@@ -2580,7 +2607,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_addition_synapses_DEFAULT );
             
             % Set the names of the addition subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Add 13', 'Add 23' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Add 13', 'Add 23' }, 'name', synapses, set_flag );
             
             % Connect the addition subnetwork synapses to the addition subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
@@ -2607,7 +2634,7 @@ classdef synapse_manager_class
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
                 
                 % Set the name of this synapse.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
                 
             end
             
@@ -2633,7 +2660,7 @@ classdef synapse_manager_class
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
                 
                 % Set the name of this synapse.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
                 
             end
             
@@ -2647,7 +2674,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_subtraction_synapses_DEFAULT );
             
             % Set the names of the subtraction subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23' }, 'name', synapses, set_flag );
             
             % Connect the subtraction subnetwork synapses to the subtraction subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
@@ -2674,7 +2701,7 @@ classdef synapse_manager_class
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
                 
                 % Set the name of this synapse.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
                 
             end
             
@@ -2700,7 +2727,7 @@ classdef synapse_manager_class
                 self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
                 
                 % Set the name of this synapse.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
                 
             end
             
@@ -2714,7 +2741,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_double_subtraction_synapses_DEFAULT );
             
             % Set the names of the double subtraction subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24' }, 'name', synapses, set_flag );
             
             % Connect the double subtraction subnetwork synapses to the subtraction subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 4 ) ] );
@@ -2729,7 +2756,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_centering_synapses_DEFAULT );
             
             % Set the names of the centering subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { '14', '24', '45', '35' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { '14', '24', '45', '35' }, 'name', synapses, set_flag );
             
             % Connect the centering subnetwork synapses.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) ] );
@@ -2744,7 +2771,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_double_centering_synapses_DEFAULT );
             
             % Set the names of the centering subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { '14', '24', '25', '35', '46', '36', '57', '17' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { '14', '24', '25', '35', '46', '36', '57', '17' }, 'name', synapses, set_flag );
             
             % Set the from and to neuron IDs.
             from_neuron_IDs = [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) neuron_IDs( 1 ) ];
@@ -2773,7 +2800,7 @@ classdef synapse_manager_class
             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
                 
                 % Set the names of each of the unique synapses.
-                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name' );
+                self = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
                 
                 % Connect the unique synapses.
                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -2808,7 +2835,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_multiplication_synapses_DEFAULT );
             
             % Set the names of the multiplication subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Mult 14', 'Mult 23', 'Mult 34' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Mult 14', 'Mult 23', 'Mult 34' }, 'name', synapses, set_flag );
             
             % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
@@ -2823,7 +2850,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_multiplication_synapses_DEFAULT );
             
             % Set the names of the multiplication subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Absolute Multiplication Synapse 14', 'Absolute Multiplication Synapse 23', 'Absolute Multiplication Synapse 34' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Absolute Multiplication Synapse 14', 'Absolute Multiplication Synapse 23', 'Absolute Multiplication Synapse 34' }, 'name', synapses, set_flag );
             
             % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
@@ -2838,7 +2865,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_multiplication_synapses_DEFAULT );
             
             % Set the names of the multiplication subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Relative Multiplication Synapse 14', 'Relative Multiplication Synapse 23', 'Relative Multiplication Synapse 34' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Relative Multiplication Synapse 14', 'Relative Multiplication Synapse 23', 'Relative Multiplication Synapse 34' }, 'name', synapses, set_flag );
             
             % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
@@ -2853,7 +2880,7 @@ classdef synapse_manager_class
             [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
             
             % Set the name of the inversion subnetwork synapse.
-            self = self.set_synapse_property( synapse_ID, { 'Inv 12' }, 'name' );
+            self = self.set_synapse_property( synapse_ID, { 'Inv 12' }, 'name', synapses, set_flag );
             
             % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
             self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
@@ -2868,7 +2895,7 @@ classdef synapse_manager_class
             [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
             
             % Set the name of the inversion subnetwork synapse.
-            self = self.set_synapse_property( synapse_ID, { 'Absolute Inversion Synapse 12' }, 'name' );
+            self = self.set_synapse_property( synapse_ID, { 'Absolute Inversion Synapse 12' }, 'name', synapses, set_flag );
             
             % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
             self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
@@ -2883,7 +2910,7 @@ classdef synapse_manager_class
             [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
             
             % Set the name of the inversion subnetwork synapse.
-            self = self.set_synapse_property( synapse_ID, { 'Relative Inversion Synapse 12' }, 'name' );
+            self = self.set_synapse_property( synapse_ID, { 'Relative Inversion Synapse 12' }, 'name', synapses, set_flag );
             
             % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
             self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
@@ -2898,7 +2925,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_division_synapses_DEFAULT );
             
             % Set the names of the division subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Div 13', 'Div 23' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Div 13', 'Div 23' }, 'name', synapses, set_flag );
             
             % Connect the division subnetwork synapses to the division subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
@@ -2913,7 +2940,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_division_synapses_DEFAULT );
             
             % Set the names of the division subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Absolute Division Synapse 13', 'Absolute Division Synapse 23' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Absolute Division Synapse 13', 'Absolute Division Synapse 23' }, 'name', synapses, set_flag );
             
             % Connect the division subnetwork synapses to the division subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
@@ -2928,7 +2955,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_division_synapses_DEFAULT );
             
             % Set the names of the division subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Relative Division Synapse 13', 'Relative Division Synapse 23' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Relative Division Synapse 13', 'Relative Division Synapse 23' }, 'name', synapses, set_flag );
             
             % Connect the division subnetwork synapses to the division subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
@@ -2943,7 +2970,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_derivation_synapses_DEFAULT );
             
             % Set the names of the derivation subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Der 13', 'Der 23' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Der 13', 'Der 23' }, 'name', synapses, set_flag );
             
             % Connect the derivation subnetwork synapses to the derivation subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
@@ -2958,7 +2985,7 @@ classdef synapse_manager_class
             [ self, synapse_IDs ] = self.create_synapses( self.num_integration_synapses_DEFAULT );
             
             % Set the names of the integration subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Int 12', 'Int 21' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Int 12', 'Int 21' }, 'name', synapses, set_flag );
             
             % Connect the integration subnetwork synapses to the integration subnetwork neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 2 ) neuron_IDs( 1 ) ] );
@@ -2970,10 +2997,10 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = create_vb_integration_synapses( self, neuron_IDs )
             
             % Create the voltage based integetration subnetwork synpases.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_vb_integration_synapses_DEFAULT );
+            [ self, synapse_IDs ] = self.create_synapses( self.num_vbi_synapses_DEFAULT );
             
             % Set the names of the voltage based integration subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43' }, 'name', synapses, set_flag );
             
             % Connect the voltage based integration subnetwork synapses to the integration subnetwrok neurons.
             self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ] );
@@ -2985,10 +3012,10 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = create_split_vb_integration_synapses( self, neuron_IDs )
             
             % Create the voltage based integetration subnetwork synpases.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_split_vb_integration_synapses );
+            [ self, synapse_IDs ] = self.create_synapses( self.num_svbi_synapses );
             
             % Set the names of the voltage based integration subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43', 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24', 'Eq 1 -> Sub 2', 'Int 3 -> Sub 1' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43', 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24', 'Eq 1 -> Sub 2', 'Int 3 -> Sub 1' }, 'name', synapses, set_flag );
             
             % Define the from and to neuron IDs.  NOTE: Neuron IDs are in this order: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }
             from_neuron_IDs = [ neuron_IDs( 1:4 ) neuron_IDs( 5:6 ) neuron_IDs( 5:6 ) neuron_IDs( 9 ) neuron_IDs( 3 ) ];
@@ -3007,10 +3034,10 @@ classdef synapse_manager_class
             [ self, synapse_IDs1 ] = self.create_split_vb_integration_synapses( neuron_IDs( 1:9 ) );
             
             % Create the synapses that are unique to the modulated split voltage based integration subnetwork.
-            [ self, synapse_IDs2 ] = self.create_synapses( self.num_mod_split_vb_integration_synapses );
+            [ self, synapse_IDs2 ] = self.create_synapses( self.num_msvbi_synapses );
             
             % Set the names of the modulated split voltage based integration subnetwork synapses.
-            self = self.set_synapse_property( synapse_IDs2, { 'Sub 3 -> Mod 2', 'Sub 4 -> Mod 3', 'Mod 1 -> Mod 2', 'Mod 1 -> Mod 3', 'Int 1 -> Mod 1', 'Int 2 -> Mod 1' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs2, { 'Sub 3 -> Mod 2', 'Sub 4 -> Mod 3', 'Mod 1 -> Mod 2', 'Mod 1 -> Mod 3', 'Int 1 -> Mod 1', 'Int 2 -> Mod 1' }, 'name', synapses, set_flag );
             
             % Define the from and to neuron IDs. NOTE: Neurons are organized as follows: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1', 'Mod 1', 'Mod 2', 'Mod 3' }
             from_neuron_IDs = [ neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 10 ) neuron_IDs( 10 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ];
@@ -3035,10 +3062,10 @@ classdef synapse_manager_class
             [ self, synapse_IDs2 ] = self.create_mod_split_vb_integration_synapses( neuron_IDs( 5:end ) );
             
             % Create the synapses unique to this subnetwork.
-            [ self, synapse_IDs3 ] = self.create_synapses( self.num_mod_split_sub_vb_integratino_synapses );
+            [ self, synapse_IDs3 ] = self.create_synapses( self.num_mssvbi_synapses );
             
             % Set the names of the synapses that are unique to this subnetwork.
-            self = self.set_synapse_property( synapse_IDs3, { 'Sub 3 -> Int 1', 'Sub 4 -> Int 2' }, 'name' );
+            self = self.set_synapse_property( synapse_IDs3, { 'Sub 3 -> Int 1', 'Sub 4 -> Int 2' }, 'name', synapses, set_flag );
             
             % Define the from and to neuron IDs.
             from_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 4 ) ];
@@ -3072,7 +3099,7 @@ classdef synapse_manager_class
         function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, I_drive_max )
             
             % Set the default input arguments.
-            if nargin < 4, I_drive_max = self.Idrive_max_DEFAULT; end
+            if nargin < 4, I_drive_max = self.Id_max_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
             
             % Retrieve the number of cpg neurons.
@@ -3135,7 +3162,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_absolute_addition_synapses( self, neuron_IDs, c, R_ks, Gm_n, Iapp_n )
             
             % Define the default input arguments.
-            if nargin < 6, Iapp_n = self.Iapp_absolute_addition_DEFAULT; end
+            if nargin < 6, Iapp_n = self.Ia_absolute_addition_DEFAULT; end
             if nargin < 5, Gm_n = self.Gm_DEFAULT; end
             if nargin < 4, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end
             if nargin < 3, c = self.c_absolute_addition_DEFAULT; end
@@ -3167,7 +3194,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_relative_addition_synapses( self, neuron_IDs, c, n, R_n, Gm_n, Iapp_n )
             
             % Define the default input arguments.
-            if nargin < 7, Iapp_n = self.Iapp_relative_addition_DEFAULT; end                                        % [A] Output Applied Current
+            if nargin < 7, Iapp_n = self.Ia_relative_addition_DEFAULT; end                                        % [A] Output Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 5, R_n = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
             if nargin < 4, n = self.num_relative_addition_neurons_DEFAULT; end                                              % [#] Number of Addition Neurons
@@ -3215,7 +3242,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_absolute_subtraction_synapses( self, neuron_IDs, c, s_ks, R_ks, Gm_n, Iapp_n )
             
             % Define the default input arguments.
-            if nargin < 7, Iapp_n = self.Iapp_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current
+            if nargin < 7, Iapp_n = self.Ia_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 5, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end                           % [-] Input Activation Domains
             if nargin < 4, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Signs
@@ -3263,7 +3290,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_relative_subtraction_synapses( self, neuron_IDs, c, npm_k, s_ks, R_n, Gm_n, Iapp_n )
             
             % Define the default input arguments.
-            if nargin < 8, Iapp_n = self.Iapp_relative_subtraction_DEFAULT; end                                     % [A] Output Applied Current
+            if nargin < 8, Iapp_n = self.Ia_relative_subtraction_DEFAULT; end                                     % [A] Output Applied Current
             if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 6, R_n = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
             if nargin < 5, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Sign
@@ -3332,7 +3359,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_absolute_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 )
             
             % Define the default input arugments.
-            if nargin < 13, Iapp_3 = self.Iapp2_absolute_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
+            if nargin < 13, Iapp_3 = self.Ia2_absolute_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
             if nargin < 12, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
             if nargin < 11, Gm_3 = self.Gm_DEFAULT; end                                                             % [S] Inversion Output Membrane Conductance
             if nargin < 10, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
@@ -3360,7 +3387,7 @@ classdef synapse_manager_class
         function [ self, synapse_IDs ] = design_relative_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_3, R_4, Gm_3, Gm_4, Iapp_3 )
             
             % Define the default input arguments.
-            if nargin < 12, Iapp_3 = self.Iapp2_relative_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
+            if nargin < 12, Iapp_3 = self.Ia2_relative_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
             if nargin < 11, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
             if nargin < 10, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Inversion Output Membrane Conductance
             if nargin < 9, R_4 = self.R_DEFAULT; end                                                                % [V] Division Output Activation Domain
@@ -3399,7 +3426,7 @@ classdef synapse_manager_class
         %         function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
         %
         %             % Define the default input arguments.
-        %             if nargin < 7, Iapp_2 = self.Iapp2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
+        %             if nargin < 7, Iapp_2 = self.Ia2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
         %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
         %             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                % [V] Input Activation Domain
         %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
@@ -3423,7 +3450,7 @@ classdef synapse_manager_class
         function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, delta, Iapp_2 )
             
             % Define the default input arguments.
-            if nargin < 5, Iapp_2 = self.Iapp2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
+            if nargin < 5, Iapp_2 = self.Ia2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
             if nargin < 4, delta = self.delta_DEFAULT; end                                                          % [V] Inversion Subnetwork Output Offset
             if nargin < 3, c = self.c_absolute_inversion_DEFAULT; end                                            	% [-] Inversion Subnetwork Gain
             
@@ -3443,7 +3470,7 @@ classdef synapse_manager_class
         %         function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 )
         %
         %             % Define the default input arguments.
-        %             if nargin < 7, Iapp_2 = self.Iapp2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
+        %             if nargin < 7, Iapp_2 = self.Ia2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
         %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
         %             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
         %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
@@ -3465,7 +3492,7 @@ classdef synapse_manager_class
         function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, epsilon, delta, R_2, Iapp_2 )
             
             % Define the default input arguments.
-            if nargin < 6, Iapp_2 = self.Iapp2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
+            if nargin < 6, Iapp_2 = self.Ia2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                % [V] Activation Domain
             if nargin < 4, delta = self.delta_DEFAULT; end                                                          % [V] Inversion Subnetwork Output Offset
             if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                      % [V] Inversion Subnetwork Input Offset
@@ -3668,7 +3695,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_load               % Iterate through each of the synapses...
                 
                 % Create this synapse.
-                synapses_to_load(k) = synapse_class( synapse_IDs(k), synapse_names{k}, synapse_dEsyns(k), synapse_gsyn_maxs(k), synapse_from_neuron_IDs(k), synapse_to_neuron_IDs(k) );
+                synapses_to_load( k ) = synapse_class( synapse_IDs( k ), synapse_names{k}, synapse_dEsyns( k ), synapse_gsyn_maxs( k ), synapse_from_neuron_IDs( k ), synapse_to_neuron_IDs( k ) );
                 
             end
             

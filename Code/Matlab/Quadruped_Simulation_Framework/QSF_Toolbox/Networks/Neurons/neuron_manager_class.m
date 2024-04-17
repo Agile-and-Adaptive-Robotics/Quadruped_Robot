@@ -95,8 +95,9 @@ classdef neuron_manager_class
         T_oscillation_DEFAULT = 2;                                                                                              % [s] Oscillation Period.
         r_oscillation_DEFAULT = 0.90;                                                                                           % [-] Oscillation Decay.
         
-        % Define the default encoding scheme.
-        encoding_scheme_DEFAULT = 'Absolute';
+        % Define the default options.
+        encoding_scheme_DEFAULT = 'Absolute';                                                                                   %
+        undetected_option = 'error';                                                                                            % [str] Undetected Option ('Error', 'Warning', 'Ignore'). Determines what to do when neuron IDs are not detected.
         
         % Define the default saving and loading properties.
         file_name_DEFAULT = 'Neuron_Manager.mat';
@@ -114,8 +115,8 @@ classdef neuron_manager_class
         function self = neuron_manager_class( neurons, neuron_utilities, data_loader_utilities, array_utilities )
             
             % Set the default class properties.
-            if nargin < 4, array_utilities = array_utilities_class; end
-            if nargin < 3, data_loader_utilities = data_loader_utilities_class; end
+            if nargin < 4, array_utilities = array_utilities_class(  ); end
+            if nargin < 3, data_loader_utilities = data_loader_utilities_class(  ); end
             if nargin < 2, neuron_utilities = neuron_utilities_class(  ); end
             if nargin < 1, neurons = [  ]; end
             
@@ -136,9 +137,10 @@ classdef neuron_manager_class
         %% Neuron Index & ID Functions.
         
         % Implement a function to retrieve the index associated with a given neuron ID.
-        function neuron_index = get_neuron_index( self, neuron_ID, neurons )
+        function neuron_index = get_neuron_index( self, neuron_ID, neurons, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 4, undetected_option = 'error'; end
             if nargin < 3, neurons = self.neurons; end
             
             % Compute the number of neurons.
@@ -150,13 +152,14 @@ classdef neuron_manager_class
             % Initialize the neuron index.
             neuron_index = 0;
             
-            while ( neuron_index < n_neurons ) && ( ~b_match_found )
+            % Search for a neuron whose ID matches the target value.
+            while ( neuron_index < n_neurons ) && ( ~b_match_found )                % While we have not yet checked all of the neurons and have not yet found an ID match...
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
                 
                 % Check whether this neuron index is a match.
-                if neurons( neuron_index ).ID == neuron_ID                       % If this neuron has the correct neuron ID...
+                if neurons( neuron_index ).ID == neuron_ID                          % If this neuron has the correct neuron ID...
                     
                     % Set the match found flag to true.
                     b_match_found = true;
@@ -686,10 +689,10 @@ classdef neuron_manager_class
             xs = cell( 1, num_properties_to_get );
             
             % Retrieve the given neuron property for each neuron.
-            for k = 1:num_properties_to_get
+            for k = 1:num_properties_to_get                 % Iterate through each of the properties to get...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Define the eval string.
                 eval_str = sprintf( 'xs{ k } = neurons( %0.0f ).%s;', neuron_index, neuron_property );
@@ -748,7 +751,7 @@ classdef neuron_manager_class
             end
             
             % Validate the neuron property values.
-            if ~isa( neuron_property_values, 'cell' )                    % If the neuron property values are not a cell array...
+            if ~isa( neuron_property_values, 'cell' )                                               % If the neuron property values are not a cell array...
                 
                 % Convert the neuron property values to a cell array.
                 neuron_property_values = num2cell( neuron_property_values );
@@ -756,13 +759,13 @@ classdef neuron_manager_class
             end
             
             % Set the properties of each neuron.
-            for k = 1:n_neurons                   % Iterate through each neuron...
+            for k = 1:n_neurons                                                                     % Iterate through each neuron...
                 
                 % Determine the index of the neuron property value that we want to apply to this neuron (if we want to set a property of this neuron).
                 index = find( neurons( k ).ID == neuron_IDs, 1 );
                 
                 % Determine whether to set a property of this neuron.
-                if ~isempty( index )                         % If a matching neuron ID was detected...
+                if ~isempty( index )                                                                % If a matching neuron ID was detected...
                     
                     % Create an evaluation string that sets the desired neuron property.
                     eval_string = sprintf( 'neurons( %0.0f ).%s = neuron_property_values{ %0.0f };', k, neuron_property, index );
@@ -789,7 +792,7 @@ classdef neuron_manager_class
             if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
-            neuron_index = self.get_neuron_index( neuron_ID, neurons );
+            neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
             
             % Enable this neuron.
             [ b_enabled, neurons( neuron_index ) ] = neurons( neuron_index ).enable( true );
@@ -835,7 +838,7 @@ classdef neuron_manager_class
             if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
-            neuron_index = self.get_neuron_index( neuron_ID, neurons );
+            neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
             
             % Disable this neuron.
             [ b_enabled, neurons( neuron_index ) ] = neurons( neuron_index ).disable( true );
@@ -880,7 +883,7 @@ classdef neuron_manager_class
             if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
-            neuron_index = self.get_neuron_index( neuron_ID, neurons );
+            neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
             
             % Toggle whether this neuron is enabled.
             [ b_enabled, neurons( neuron_index ) ] = neurons( neuron_index ).toggle_enabled( neurons( neuron_index ).b_enabled, true );
@@ -940,7 +943,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Define the eval string.
                 eval_str = sprintf( '[ values, neurons( %0.0f ) ] = neurons( %0.0f ).%s(  );', neuron_index, neuron_index, neuron_method );
@@ -997,7 +1000,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_cpg_Gna( neurons( neuron_index ).R, neurons( neuron_index ).Gm, neurons( neuron_index ).Am, neurons( neuron_index ).Sm, neurons( neuron_index ).dEm, neurons( neuron_index ).Ah, neurons( neuron_index ).Sh, neurons( neuron_index ).dEh, neurons( neuron_index ).dEna, true, neurons( neuron_index ).neuron_utilities );
@@ -1031,7 +1034,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_dmcpg_Gna( true, neurons( neuron_index ).neuron_utilities );
@@ -1066,7 +1069,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1100,7 +1103,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_modulation_Gna( true, neurons( neuron_index ).neuron_utilities );
@@ -1135,7 +1138,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1170,7 +1173,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1205,7 +1208,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_double_subtraction_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1240,7 +1243,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_multiplication_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1275,7 +1278,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1310,7 +1313,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1344,7 +1347,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Gna( true, neurons( neuron_index ).neuron_utilities );
@@ -1378,7 +1381,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_integration_Gna( true, neurons( neuron_index ).neuron_utilities );
@@ -1412,7 +1415,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vbi_Gna( true, neurons( neuron_index ).neuron_utilities );
@@ -1446,7 +1449,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_svbi_Gna( true, neurons( neuron_index ).neuron_utilities );
@@ -1483,7 +1486,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane conductance for this neuron.
                 [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Gm_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1509,7 +1512,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final addition neuron is the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final addition neuron is the output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Gm_output( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1542,7 +1545,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_Gm_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1568,7 +1571,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_Gm_output( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1592,7 +1595,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the input neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the input neuron.
             [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_Gm_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1616,7 +1619,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_Gm_output( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1649,7 +1652,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
                 [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Gm_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1675,7 +1678,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Gm_output( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1710,7 +1713,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane conductance for this neuron.
                 [ Gms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Gm( k_gain, w, safety_factor, true, neurons( neuron_index ).neuron_utilities );
@@ -1747,7 +1750,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1785,7 +1788,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_slow_transmission_Cm( neurons( neuron_index ).Gm, num_cpg_neurons, T, r, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1819,7 +1822,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_modulation_Cm( true, neurons( neuron_index ).neuron_utilities );
@@ -1854,7 +1857,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1889,7 +1892,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1924,7 +1927,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_double_subtraction_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1959,7 +1962,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_multiplication_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1994,7 +1997,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2029,7 +2032,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Cm( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2059,7 +2062,7 @@ classdef neuron_manager_class
             Gm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neurons );            % [S] Membrane Conductance
             
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );
             
             % Compute and set the membrane capacitance for this neuron.
             [ Cm1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Cm1( Gm2, Cm2, k_gain, true, neurons( neuron_index ).neuron_utilities );
@@ -2116,7 +2119,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_integration_Cm( ki_mean, true, neurons( neuron_index ).neuron_utilities );
@@ -2151,7 +2154,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_vbi_Cm( ki_mean, true, neuros( neuron_index ).neuron_utilities );
@@ -2186,7 +2189,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_svbi_Cm1( ki_mean, true, neurons( neuron_index ).neuron_utilities );
@@ -2220,7 +2223,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane capacitance for this neuron.
                 [ Cms( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_svbi_Cm2( true, neurons( neuron_index ).neuron_utilities );
@@ -2633,7 +2636,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane conductance for this neuron.
                 [ Rs( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_R_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2663,7 +2666,7 @@ classdef neuron_manager_class
             parameters = self.process_addition_R_output_parameters( parameters, encoding_scheme, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final addition neuron is the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final addition neuron is the output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2696,7 +2699,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane conductance for this neuron.
                 [ Rs( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_R_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2726,7 +2729,7 @@ classdef neuron_manager_class
             parameters = self.process_subtraction_R_output_parameters( parameters, encoding_scheme, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final addition neuron is the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final addition neuron is the output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2754,7 +2757,7 @@ classdef neuron_manager_class
             parameters = self.process_inversion_R_input_parameters( parameters, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons );                     % Only the first inversion neuron is an input neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );                     % Only the first inversion neuron is an input neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_R_input( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2782,7 +2785,7 @@ classdef neuron_manager_class
             parameters = self.process_inversion_R_output_parameters( parameters, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final inversion neuron is an output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final inversion neuron is an output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2815,7 +2818,7 @@ classdef neuron_manager_class
             for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
-                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons );
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the membrane conductance for this neuron.
                 [ Rs( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R_input( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2845,7 +2848,7 @@ classdef neuron_manager_class
             parameters = self.process_division_R_output_parameters( parameters, encoding_scheme, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final division neuron is an output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final division neuron is an output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2873,7 +2876,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons );                     % Only the final neuron is an output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final neuron is an output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2, true, neurons( neuron_index ).neuron_utilities );
@@ -3037,7 +3040,7 @@ classdef neuron_manager_class
             if nargin < 3, neurons = self.neurons; end
             
             % Retrieve the index associated with this neuron.
-            neuron_index = self.get_neuron_index( neuron_ID, neurons );
+            neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
             
             % Remove this neuron from the array of neurons.
             neurons( neuron_index ) = [  ];
