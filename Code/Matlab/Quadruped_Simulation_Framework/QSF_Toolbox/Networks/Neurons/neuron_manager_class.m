@@ -673,9 +673,10 @@ classdef neuron_manager_class
         %% General Get & Set Neuron Property Functions.
         
         % Implement a function to retrieve the properties of specific neurons.
-        function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix, neurons )
+        function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix, neurons, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, as_matrix = false; end
             
@@ -785,9 +786,10 @@ classdef neuron_manager_class
         %% Enable & Disable Functions.
         
         % Implement a function to enable a neuron.
-        function [ b_enabled, neurons, self ] = enable_neuron( self, neuron_ID, neurons, set_flag )
+        function [ b_enabled, neurons, self ] = enable_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
@@ -831,9 +833,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to disable a neuron.
-        function [ b_enabled, neurons, self ] = disable_neuron( self, neuron_ID, neurons, set_flag )
+        function [ b_enabled, neurons, self ] = disable_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
@@ -876,9 +879,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to toggle a neuron's enabled flag.
-        function [ b_enabled, neurons, self ] = toggle_enabled_neuron( self, neuron_ID, neurons, set_flag )
+        function [ b_enabled, neurons, self ] = toggle_enabled_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
@@ -924,9 +928,10 @@ classdef neuron_manager_class
         %% Call Neuron Methods Functions.
         
         % Implement a function to that calls a specified neuron method for each of the specified neurons.
-        function [ values, neurons, self ] = call_neuron_method( self, neuron_IDs, neuron_method, neurons, set_flag )
+        function [ values, neurons, self ] = call_neuron_method( self, neuron_IDs, neuron_method, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             
@@ -980,9 +985,10 @@ classdef neuron_manager_class
         %% Sodium Channel Conductance Compute Functions.
         
         % Implement a function to compute the sodium channel conductance for a two neuron CPG subnetwork for each neuron.
-        function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1014,9 +1020,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of driven multistate cpg neurons.
-        function [ Gnas, neurons, self ] = compute_dmcpg_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_dmcpg_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1048,9 +1055,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of transmission neurons.
-        function [ Gnas, neurons, self ] = compute_transmission_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_transmission_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1083,9 +1091,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of modulation neurons.
-        function [ Gnas, neurons, self ] = compute_modulation_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_modulation_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1117,9 +1126,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of addition neurons.
-        function [ Gnas, neurons, self ] = compute_addition_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_addition_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1152,9 +1162,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of subtraction neurons.
-        function [ Gnas, neurons, self ] = compute_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1187,9 +1198,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of double subtraction neurons.
-        function [ Gnas, neurons, self ] = compute_double_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_double_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1222,9 +1234,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of multiplication neurons.
-        function [ Gnas, neurons, self ] = compute_multiplication_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_multiplication_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1257,9 +1270,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of inversion neurons.
-        function [ Gnas, neurons, self ] = compute_inversion_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_inversion_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1292,9 +1306,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of division neurons.
-        function [ Gnas, neurons, self ] = compute_division_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_division_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1327,9 +1342,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of derivation neurons.
-        function [ Gnas, neurons, self ] = compute_derivation_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_derivation_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1361,9 +1377,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of integration neurons.
-        function [ Gnas, neurons, self ] = compute_integration_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_integration_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1395,9 +1412,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of voltage based integration neurons.
-        function [ Gnas, neurons, self ] = compute_vbi_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_vbi_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1429,9 +1447,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the sodium channel conductance of split voltage based integration neurons.
-        function [ Gnas, neurons, self ] = compute_svbi_Gna( self, neuron_IDs, neurons, set_flag )
+        function [ Gnas, neurons, self ] = compute_svbi_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1465,9 +1484,10 @@ classdef neuron_manager_class
         %% Membrane Conductance Compute Functions.
         
         % Implement a function to compute the membrane conductance of addition input neurons.
-        function [ Gms, neurons, self ] = compute_addition_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gms, neurons, self ] = compute_addition_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1500,9 +1520,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of addition output neurons.
-        function [ Gm, neurons, self ] = compute_addition_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gm, neurons, self ] = compute_addition_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1524,9 +1545,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of subtraction input neurons.
-        function [ Gms, neurons, self ] = compute_subtraction_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gms, neurons, self ] = compute_subtraction_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1559,9 +1581,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of subtraction output neurons.
-        function [ Gm, neurons, self ] = compute_subtraction_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gm, neurons, self ] = compute_subtraction_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme; end
@@ -1583,9 +1606,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of inversion input neurons.
-        function [ Gm, neurons, self ] = compute_inversion_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gm, neurons, self ] = compute_inversion_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1607,9 +1631,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of inversion output neurons.
-        function [ Gm, neurons, self ] = compute_inversion_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gm, neurons, self ] = compute_inversion_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1631,9 +1656,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of division input neurons.
-        function [ Gms, neurons, self ] = compute_division_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gms, neurons, self ] = compute_division_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1666,9 +1692,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of division output neurons.
-        function [ Gms, neurons, self ] = compute_division_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Gms, neurons, self ] = compute_division_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1690,15 +1717,16 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane conductance of derivation neurons.
-        function [ Gms, neurons, self ] = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag )
+        function [ Gms, neurons, self ] = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 8, undetected_option = 'error'; end
             if nargin < 7, set_flag = true; end
             if nargin < 6, neurons = self.neurons; end
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Safety Factor
             if nargin < 4, w = self.w_derivation_DEFAULT; end                                               % [Hz?] Derivative Subnetwork Cutoff Frequency
             if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                          % [-] Derivative Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 2, neuron_IDs = 'all'; end                                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1729,9 +1757,10 @@ classdef neuron_manager_class
         %% Membrane Capacitance Compute Functions.
         
         % Implement a function to compute the membrane capacitance of transmission subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_transmission_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_transmission_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1764,9 +1793,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of slow transmission subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 9, undetected_option = 'error'; end
             if nargin < 8, set_flag = true; end
             if nargin < 7, neurons = self.neurons; end
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1802,9 +1832,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of modulation subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_modulation_Cm( self, neuron_IDs, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_modulation_Cm( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
@@ -1836,9 +1867,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of addition subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_addition_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_addition_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1871,9 +1903,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of subtraction subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1906,9 +1939,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of double subtraction subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_double_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_double_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1941,9 +1975,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of multiplication subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_multiplication_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_multiplication_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1976,9 +2011,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of inversion subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_inversion_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_inversion_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2011,9 +2047,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of division subnetwork neurons.
-        function [ Cms, neurons, self ] = compute_division_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_division_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2046,9 +2083,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the first membrane capacitance of derivation subnetwork neurons.
-        function [ Cm1, neurons, self ] = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons, set_flag )
+        function [ Cm1, neurons, self ] = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Gain
@@ -2074,9 +2112,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the second memebrane capacitance of derivation subnetwork neurons.
-        function [ Cm2, neurons, self ] = compute_derivation_Cm2( self, neuron_IDs, w, neurons, set_flag )
+        function [ Cm2, neurons, self ] = compute_derivation_Cm2( self, neuron_IDs, w, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, w = self.w_derivation_DEFAULT; end                                       % [Hz?] Derivative Subnetwork Cutoff Frequency?
@@ -2086,7 +2125,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with this neuron ID.
-            neuron_index = self.get_neuron_index( neuron_IDs( 2 ), neurons );
+            neuron_index = self.get_neuron_index( neuron_IDs( 2 ), neurons, undetected_option );
             
             % Compute and set the membrane capacitance for this neuron.
             [ Cm2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_derivation_Cm2( neurons( neuron_index ).Gm, w, true, neurons( neuron_index ).neuron_utilities );
@@ -2098,9 +2137,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of integration neurons.
-        function [ Cms, neurons, self ] = compute_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                           % [-] Average Integration Mean
@@ -2133,9 +2173,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the membrane capacitance of voltage based integration neurons.
-        function [ Cms, neurons, self ] = compute_vbi_Cm( self, neuron_IDs, ki_mean, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_vbi_Cm( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
@@ -2168,9 +2209,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the first membrane capacitance of split voltage based integration neurons.
-        function [ Cms, neurons, self ] = compute_svbi_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_svbi_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
@@ -2203,9 +2245,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the second membrane capacitance of split voltage based integration neurons.
-        function [ Cms, neurons, self ] = compute_svbi_Cm2( self, neuron_IDs, neurons, set_flag )
+        function [ Cms, neurons, self ] = compute_svbi_Cm2( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = 'error'; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
@@ -2615,9 +2658,10 @@ classdef neuron_manager_class
         %% Activation Domain Compute Functions.
         
         % Implement a function to compute the operational domain of the addition subnetwork input neurons.
-        function [ Rs, neurons, self ] = compute_addition_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Rs, neurons, self ] = compute_addition_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = 'error'; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
