@@ -1088,6 +1088,79 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to process the addition subnetwork synaptic conductance parameters.
+        function parameters = process_addition_gs_parameters( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c = self.c_DEFAULT;
+                    R_k = self.R_DEFAULT;
+                    Gm_n = self.Gm_DEFAULT;
+                    dEs_nk = self.dEs_DEFAULT;
+                    Ia_n = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c, R_k, Gm_n, dEs_nk, Ia_n };
+                    
+                else                                                       	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 5                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                   % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c = self.c_DEFAULT;
+                    n = self.num_addition_neurons_DEFAULT;
+                    R_n = self.R_DEFAULT;
+                    Gm_n = self.Gm_DEFAULT;
+                    dEs_nk = self.dEs_DEFAULT;
+                    Ia_n = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c, n, R_n, Gm_n, dEs_nk, Ia_n };
+                    
+                else                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
         %% Synaptic Reversal Potential Compute Functions.
         
         % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
@@ -1885,10 +1958,13 @@ classdef synapse_manager_class
         %% Maximum Synaptic Conductance Compute Functions.
         
         % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
-        function self = compute_set_driven_multistate_cpg_gsynmax( self, synapse_IDs, delta_oscillatory, I_drive_max )
+        function [ gs, synapses, self ] = compute_dmcpg_gs( self, synapse_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, I_drive_max = self.Id_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
+            if nargin < 7, undetected_option = 'error'; end
+            if nargin < 6, set_flag = true; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                                                      % [V] Oscillatory CPG Equilibrium Offset
             if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
             
@@ -1898,6 +1974,9 @@ classdef synapse_manager_class
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
             
+            % Preallocate an array to store the computed values.
+            gs = zeros( 1, num_synapses_to_evaluate ); 
+            
             % Evaluate the given synapse method for each neuron.
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
                 
@@ -1905,25 +1984,105 @@ classdef synapse_manager_class
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_driven_multistate_cpg_gsynmax( self.synapses( synapse_index ).dE_syn, delta_oscillatory, I_drive_max );
+                [ gs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_dmcpg_gs( synapses( synapse_index ).dE_syn, delta_oscillatory, Id_max, true, synapses( synapse_index ).synapse_utilities );
                 
             end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
             
         end
         
         
-        % Implement a function to compute and set the maximum synaptic conductance of absolute addition subnetwork synapses.
-        function self = compute_set_absolute_addition_gsyn( self, synapse_IDs, c, R_k, Gm_n, Iapp_n )
+        % Implement a function to compute and set the maximum synaptic conductance of addition subnetwork synapses.
+        function [ gs_nk, synapses, self ] = compute_addition_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, Iapp_n = self.Ia_absolute_addition_DEFAULT; end                                                            % [A] Applied Current
-            if nargin < 5, Gm_n = self.Gm_DEFAULT; end                                                                                  % [S] Membrane Conductance
-            if nargin < 4, R_k = self.R_DEFAULT; end                                                                                    % [V] Activation Domain
-            if nargin < 3, c = self.c_absolute_addition_DEFAULT; end                                                                    % [-] Subnetwork Gain
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
+            if nargin < 7, undetected_option = 'error'; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = true; end                                           	% [T/F] Set Flag.
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
+            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
+
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the parameters.
+            parameters = process_addition_gs_parameters( parameters, encoding_scheme );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            gs_nk = zeros( 1, num_synapses_to_evaluate ); 
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
+                
+                % Determine how to unpack the parameters for this synapse.
+                if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
+                    
+                    % Unpack the parameters.
+                    c = parameters{ 1 };
+                    R_ks = parameters{ 2 };
+                    Gm_n = parameters{ 3 };
+                    dEs_nks = parameters{ 4 };
+                    Ia_n = parameters{ 5 };
+                    
+                    % Assemble the parameters for this synapse.
+                    these_parameters = { c, R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
+                    
+                elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
+                
+                    % Unpack the parameters.
+                    c = parameters{ 1 };
+                    n = parameters{ 2 };
+                    R_n = parameters{ 3 };
+                    Gm_n = parameters{ 4 };
+                    dEs_nk = parameters{ 5 };
+                    Ia_n = parameters{ 6 };
+                
+                    % Assemble the parameters for this synapse.
+                    these_parameters = { c, n, R_n, Gm_n, dEs_nk( k ), Ia_n };
+                    
+                else
+                   
+                    % Throw an error.
+                   	error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                    
+                end
+                
+                % Compute the required parameter for this synapse.
+                [ gs_nk, synapses( synapse_index ) ] = synapses( synapse_index ).compute_addition_gs( these_parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                                
+            end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
+            
+        end
+        
+        
+        % Implement a function to compute and set the maximum synaptic conductance of subtraction subnetwork synapses.
+        function [ gs_nk, synapses, self ] = compute_subtraction_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = 'error'; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = true; end                                           	% [T/F] Set Flag.
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
+            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the parameters.
+            parameters = process_subtraction_gs_parameters( parameters, encoding_scheme );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -1934,104 +2093,48 @@ classdef synapse_manager_class
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
+                % Determine how to unpack the parameters for this synapse.
+                if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
+                    
+                    % Unpack the parameters.
+                    c = parameters{ 1 };
+                    s_ks = parameters{ 2 };
+                    R_ks = parameters{ 3 };
+                    Gm_n = parameters{ 4 };
+                    dEs_nks = parameters{ 5 };
+                    Ia_n = parameters{ 6 }; 
+                    
+                    % Assemble the parameters for this synapse.
+                    these_parameters = { c, s_ks( k ), R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
+                    
+                elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
+                
+                    % Unpack the parameters.
+                    c = parameters{ 1 };
+                    npm_ks = parameters{ 2 };
+                    s_ks = parameters{ 3 };
+                    R_n = parameters{ 4 };
+                    Gm_n = parameters{ 5 };
+                    dEs_nks = parameters{ 6 };
+                    Ia_n = parameters{ 7 };
+                    
+                    % Assemble the parameters for this synapse.
+                    these_parameters = { c, npm_ks( k ), s_ks( k ), R_n, Gm_n, dEs_nks( k ), Ia_n };
+                    
+                else
+                   
+                    % Throw an error.
+                   	error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                    
+                end
+                
                 % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_addition_gsyn( c, R_k, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
+                [ gs_nk, synapses( synapse_index ) ] = synapses( synapse_index ).compute_subtraction_gs( these_parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
                 
             end
             
-        end
-        
-        
-        % Implement a function to compute and set the maximum synaptic conductance of relative addition subnetwork synapses.
-        function self = compute_set_relative_addition_gsyn( self, synapse_IDs, c, n, R_n, Gm_n, Iapp_n )
-            
-            % Set the default input arguments.
-            if nargin < 7, Iapp_n = self.Ia_relative_addition_DEFAULT; end                                                                % [A] Applied Current
-            if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 5, R_n = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 4, n = self.num_addition_neurons_DEFAULT; end                                                                       % [#] Number of Addition Neurons
-            if nargin < 3, c = self.c_relative_addition_DEFAULT; end                                                                        % [-] Subnetwork Gain
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_addition_gsyn( c, n, R_n, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the maximum synaptic conductance of absolute subtraction subnetwork synapses.
-        function self = compute_set_absolute_subtraction_gsyn( self, synapse_IDs, c, s_k, R_k, Gm_n, Iapp_n )
-            
-            % Set the default input arguments.
-            if nargin < 7, Iapp_n = self.Ia_absolute_subtraction_DEFAULT; end                                                             % [A] Applied Current
-            if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 5, R_k = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 4, s_k = [ 1, -1 ]; end                                                                                             % [-] Excitatory / Inhibitory Sign Flag
-            if nargin < 3, c = self.c_absolute_subtraction_DEFAULT; end                                                                     % [-] Subnetwork Gain
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_subtraction_gsyn( c, s_k( k ), R_k( k ), Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the maximum synaptic conductance of relative subtraction subnetwork synapses.
-        function self = compute_set_relative_subtraction_gsyn( self, synapse_IDs, c, npm_k, s_k, R_n, Gm_n, Iapp_n )
-            
-            % Set the default input arguments.
-            if nargin < 8, Iapp_n = self.Ia_relative_subtraction_DEFAULT; end                                                             % [A] Applied Current
-            if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 6, R_n = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 5, s_k = [ 1, -1 ]; end                                                                                             % [-] Excitatory / Inhibitory Sign Flag
-            if nargin < 4, npm_k = [ 1, 1 ]; end                                                                                            % [-] Number of Excitatory / Inhibitory Neurons
-            if nargin < 3, c = self.c_relative_subtraction_DEFAULT; end                                                                     % [-] Subnetwork Gain
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_subtraction_gsyn( c, npm_k( k ), s_k( k ), R_n, Gm_n, self.synapses( synapse_index ).dE_syn, Iapp_n );
-                
-            end
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
             
         end
         
@@ -3301,10 +3404,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a driven multistate cpg subnetwork.
-        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, I_drive_max )
+        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, Id_max )
             
             % Set the default input arguments.
-            if nargin < 4, I_drive_max = self.Id_max_DEFAULT; end
+            if nargin < 4, Id_max = self.Id_max_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
             
             % Retrieve the number of cpg neurons.
@@ -3319,7 +3422,7 @@ classdef synapse_manager_class
             self = self.compute_dmcpg_dEs( synapse_IDs );
             
             % Compute and set the maximum synaptic conductances.
-            self = self.compute_set_driven_multistate_cpg_gsynmax( synapse_IDs, delta_oscillatory, I_drive_max );
+            self = self.compute_dmcpg_gs( synapse_IDs, delta_oscillatory, Id_max );
             
         end
         
@@ -3364,10 +3467,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for an absolute addition subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_addition_synapses( self, neuron_IDs, c, R_ks, Gm_n, Iapp_n )
+        function [ self, synapse_IDs ] = design_absolute_addition_synapses( self, neuron_IDs, c, R_ks, Gm_n, Ia_n )
             
             % Define the default input arguments.
-            if nargin < 6, Iapp_n = self.Ia_absolute_addition_DEFAULT; end
+            if nargin < 6, Ia_n = self.Ia_absolute_addition_DEFAULT; end
             if nargin < 5, Gm_n = self.Gm_DEFAULT; end
             if nargin < 4, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end
             if nargin < 3, c = self.c_absolute_addition_DEFAULT; end
@@ -3388,7 +3491,7 @@ classdef synapse_manager_class
                 self = self.compute_addition_dEs( synapse_IDs( k ) );
                 
                 % Compute and set the absolute addition maximum synaptic conductance.
-                self = self.compute_set_absolute_addition_gsyn( synapse_IDs( k ), c, R_ks( k ), Gm_n, Iapp_n );
+                self = self.compute_addition_gs( synapse_IDs( k ), c, R_ks( k ), Gm_n, Ia_n );
                 
             end
             
@@ -3396,10 +3499,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a relative addition subnetwork.
-        function [ self, synapse_IDs ] = design_relative_addition_synapses( self, neuron_IDs, c, n, R_n, Gm_n, Iapp_n )
+        function [ self, synapse_IDs ] = design_relative_addition_synapses( self, neuron_IDs, c, n, R_n, Gm_n, Ia_n )
             
             % Define the default input arguments.
-            if nargin < 7, Iapp_n = self.Ia_relative_addition_DEFAULT; end                                        % [A] Output Applied Current
+            if nargin < 7, Ia_n = self.Ia_relative_addition_DEFAULT; end                                        % [A] Output Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 5, R_n = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
             if nargin < 4, n = self.num_relative_addition_neurons_DEFAULT; end                                              % [#] Number of Addition Neurons
@@ -3421,7 +3524,7 @@ classdef synapse_manager_class
                 self = self.compute_set_relative_addition_dEsyn( synapse_IDs( k ) );
                 
                 % Compute and set the relative addition maximum synaptic conductance.
-                self = self.compute_set_relative_addition_gsyn( synapse_IDs( k ), c, n, R_n, Gm_n, Iapp_n );
+                self = self.compute_set_relative_addition_gsyn( synapse_IDs( k ), c, n, R_n, Gm_n, Ia_n );
                 
             end
             
@@ -3444,10 +3547,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for an absolute subtraction subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_subtraction_synapses( self, neuron_IDs, c, s_ks, R_ks, Gm_n, Iapp_n )
+        function [ self, synapse_IDs ] = design_absolute_subtraction_synapses( self, neuron_IDs, c, s_ks, R_ks, Gm_n, Ia_n )
             
             % Define the default input arguments.
-            if nargin < 7, Iapp_n = self.Ia_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current
+            if nargin < 7, Ia_n = self.Ia_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 5, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end                           % [-] Input Activation Domains
             if nargin < 4, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Signs
@@ -3484,7 +3587,7 @@ classdef synapse_manager_class
                 end
                 
                 % Compute and set the absolute subtraction maximum synaptic gain.
-                self = self.compute_set_absolute_subtraction_gsyn( synapse_IDs( k ), c, s_ks( k ), R_ks( k ), Gm_n, Iapp_n );
+                self = self.compute_subtraction_gs( synapse_IDs( k ), c, s_ks( k ), R_ks( k ), Gm_n, Ia_n );
                 
             end
             
@@ -3492,10 +3595,10 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a relative subtraction subnetwork.
-        function [ self, synapse_IDs ] = design_relative_subtraction_synapses( self, neuron_IDs, c, npm_k, s_ks, R_n, Gm_n, Iapp_n )
+        function [ self, synapse_IDs ] = design_relative_subtraction_synapses( self, neuron_IDs, c, npm_k, s_ks, R_n, Gm_n, Ia_n )
             
             % Define the default input arguments.
-            if nargin < 8, Iapp_n = self.Ia_relative_subtraction_DEFAULT; end                                     % [A] Output Applied Current
+            if nargin < 8, Ia_n = self.Ia_relative_subtraction_DEFAULT; end                                     % [A] Output Applied Current
             if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             if nargin < 6, R_n = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
             if nargin < 5, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Sign
@@ -3539,7 +3642,7 @@ classdef synapse_manager_class
                 end
                 
                 % Compute and set the relative subtraction maximum synaptic gain.
-                self = self.compute_set_relative_subtraction_gsyn( synapse_IDs( k ), c, n, s_ks( k ), R_n, Gm_n, Iapp_n );
+                self = self.compute_set_relative_subtraction_gsyn( synapse_IDs( k ), c, n, s_ks( k ), R_n, Gm_n, Ia_n );
                 
             end
             
