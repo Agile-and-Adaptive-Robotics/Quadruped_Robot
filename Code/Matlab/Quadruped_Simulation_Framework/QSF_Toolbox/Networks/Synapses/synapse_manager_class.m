@@ -95,6 +95,12 @@ classdef synapse_manager_class
         Ia_absolute_division_DEFAULT = 0;                  	% [A] Absolute Division Applied Current.
         Ia_relative_division_DEFAULT = 0;                 	% [A] Relative Division Applied Current.
         
+        % Define the default undetected option.
+        undetected_option_DEFAULT = 'error';
+        
+        % Define the default set flag parameter.
+        set_flag_DEFAULT = true;
+        
     end
     
     
@@ -132,7 +138,7 @@ classdef synapse_manager_class
         function xs = get_synapse_property( self, synapse_IDs, synapse_property, as_matrix, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, as_matrix = false; end
             
@@ -174,7 +180,7 @@ classdef synapse_manager_class
         function [ synapses, self ] = set_synapse_property( self, synapse_IDs, synapse_property_values, synapse_property, synapses, set_flag )
             
             % Set the default input arguments.
-            if nargin < 6, set_flag = true; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             
             % Compute the number of synapses.
@@ -245,8 +251,8 @@ classdef synapse_manager_class
         function [ values, synapses, self ] = call_synapse_method( self, synapse_IDs, synapse_method, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             
             % Validate the synapse IDs.
@@ -284,7 +290,7 @@ classdef synapse_manager_class
         function synapse_index = get_synapse_index( self, synapse_ID, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             
             % Compute the number of synapses.
@@ -350,7 +356,7 @@ classdef synapse_manager_class
         function synapse_indexes = get_synapse_indexes( self, synapse_IDs, synapses, undetected_option )
             
             % Set the default synapse IDs.
-            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end
             
@@ -638,7 +644,7 @@ classdef synapse_manager_class
             % NOTE: This function assumes that only one synapse connects each set of neurons.
             
             % Set the default input argument.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             
             % Compute the number of synapses.
@@ -709,7 +715,7 @@ classdef synapse_manager_class
         function synapse_IDs = from_to_neuron_IDs2synapse_IDs( self, from_neuron_IDs, to_neuron_IDs, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             
             % Ensure that the same number of from and to neuron IDs are specified.
@@ -833,7 +839,7 @@ classdef synapse_manager_class
         function synapse_IDs = neuron_IDs2synapse_IDs( self, neuron_IDs, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             
             % Retrieve the IDs of all relevant from and to neurons.
@@ -902,8 +908,8 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 8, array_utilities = self.array_utilities; end
-            if nargin < 7, undetected_option = 'error'; end
-            if nargin < 6, set_flag = true; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
@@ -1089,11 +1095,13 @@ classdef synapse_manager_class
         
         
         % Implement a function to process the addition subnetwork synaptic conductance parameters.
-        function parameters = process_addition_gs_parameters( self, parameters, encoding_scheme )
-        
+        function parameters = process_addition_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+                    
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
@@ -1101,11 +1109,14 @@ classdef synapse_manager_class
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
                 if isempty( parameters )                                    % If no parameters were provided...
                     
+                    % Compute the number of synapse IDs.
+                    num_synapse_IDs = length( synapse_IDs );
+                    
                     % Set the default parameter values.
                     c = self.c_DEFAULT;
-                    R_k = self.R_DEFAULT;
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );
                     Gm_n = self.Gm_DEFAULT;
-                    dEs_nk = self.dEs_DEFAULT;
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
                     Ia_n = self.Ia_DEFAULT;
                     
                     % Store the required parameters in a cell.
@@ -1133,7 +1144,7 @@ classdef synapse_manager_class
                     n = self.num_addition_neurons_DEFAULT;
                     R_n = self.R_DEFAULT;
                     Gm_n = self.Gm_DEFAULT;
-                    dEs_nk = self.dEs_DEFAULT;
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
                     Ia_n = self.Ia_DEFAULT;
                     
                     % Store the required parameters in a cell.
@@ -1161,14 +1172,440 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to process the subtraction subnetwork synaptic conductance parameters.
+        function parameters = process_subtraction_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                    % If no parameters were provided...
+                    
+                    % Compute the number of synapse IDs.
+                    num_synapse_IDs = length( synapse_IDs );
+                    
+                    % Set the default parameter values.
+                    c = self.c_DEFAULT;
+                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );
+                    Gm_n = self.Gm_DEFAULT;
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    Ia_n = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c, s_k, R_k, Gm_n, dEs_nk, Ia_n };
+                    
+                else                                                       	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                   % If no parameters were provided...
+                    
+                    % Compute the number of synapse IDs.
+                    num_synapse_IDs = length( synapse_IDs );
+                    
+                    % Set the default parameter values.
+                    c = self.c_DEFAULT;
+                    npm_k = self.npm_DEFAULT*ones( 1, num_synapse_IDs );
+                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );
+                    R_n = self.R_DEFAULT;
+                    Gm_n = self.Gm_DEFAULT;
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    Ia_n = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c, npm_k, s_k, R_n, Gm_n, dEs_nk, Ia_n };
+                    
+                else                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 7                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+
+        
+        % Implement a function to process the inversion subnetwork synaptic conductance parameters.
+        function parameters = process_inversion_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    Ia2 = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { dEs21, Ia2 };
+                    
+                else                                                       	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 2                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                   % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    Ia2 = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { dEs21, Ia2 };
+                    
+                else                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 2                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division subnetwork synaptic conductance parameters.
+        function parameters = process_division_gs31_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    alpha = self.alpha_DEFAULT;
+                    epsilon = self.epsilon_DEFAULT;
+                    R1 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { alpha, epsilon, R1, Gm3 };
+                    
+                else                                                       	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 4                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                   % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    R3 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    dEs31 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { R3, Gm3, dEs31 };
+                    
+                else                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 3                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division subnetwork synaptic conductance parameters.
+        function parameters = process_division_gs32_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    epsilon = self.epsilon_DEFAULT;
+                    R2 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { epsilon, R2, Gm3 };
+                    
+                else                                                       	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 4                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                   % If no parameters were provided...
+                    
+                    c = self.c_DEFAULT;
+                    alpha = self.alpha_DEFAULT;
+                    epsilon = self.epsilon_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    dEs31 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c, alpha, epsilon, R3, Gm3, dEs31 };
+                    
+                else                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 3                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the to from neuron IDs.
+        function [ to_from_neuron_IDs, to_from_neuron_IDs_flag ] = process_to_from_neuron_IDs( ~, to_from_neuron_IDs )
+            
+            % Compute the number of synapses.
+            n_synapses = length( to_from_neuron_IDs );
+            
+            % Determine whether to generate to from neuron IDs.
+            if all( to_from_neuron_IDs == -1 )                                 % If the to neuron IDs were not provided...
+                
+                % Preallocate an array to store the to from neuron IDs.
+                to_from_neuron_IDs = zeros( 1, n_synapses );
+                
+                % Set the to neuron IDs flag to true.
+                to_from_neuron_IDs_flag = true;
+                
+            else                                                        % Otherwise...
+                
+                % Set the to neuron IDs flag to false.
+                to_from_neuron_IDs_flag = false;
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process synapse names.
+        function [ names, names_flag ] = process_names( ~, names )
+           
+            % Compute the number of synapses.
+            n_synapses = length( names );
+            
+            % Determine whether to generate names.
+            if isempty( names )                                         % If the names are empty...
+                
+                % Preallocate an array to store the names.
+                names = cell( 1, n_synapses );
+                
+                % Set the names flag to true.
+                names_flag = true;
+                
+            else                                                        % Otherwise...
+               
+                % Set the names flag to false.
+                names_flag = false;
+                
+            end
+            
+        end
+        
+        
+        %% Parameter Retrieval Functions.
+        
+        % Implement a function to retrieve addition subnetwork parameters.
+        function these_parameters = get_addition_gs_parameters( ~, k, parameters, encoding_scheme )
+            
+            % Determine how to unpack the parameters for this synapse.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
+                
+                % Unpack the parameters.
+                c = parameters{ 1 };
+                R_ks = parameters{ 2 };
+                Gm_n = parameters{ 3 };
+                dEs_nks = parameters{ 4 };
+                Ia_n = parameters{ 5 };
+                
+                % Assemble the parameters for this synapse.
+                these_parameters = { c, R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
+                
+                % Unpack the parameters.
+                c = parameters{ 1 };
+                n = parameters{ 2 };
+                R_n = parameters{ 3 };
+                Gm_n = parameters{ 4 };
+                dEs_nk = parameters{ 5 };
+                Ia_n = parameters{ 6 };
+                
+                % Assemble the parameters for this synapse.
+                these_parameters = { c, n, R_n, Gm_n, dEs_nk( k ), Ia_n };
+                
+            else
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve subtraction subnetwork parameters.
+        function these_parameters = get_subtraction_gs_parameters( ~, k, parameters, encoding_scheme )
+            
+            % Determine how to unpack the parameters for this synapse.
+            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
+
+                % Unpack the parameters.
+                c = parameters{ 1 };
+                s_ks = parameters{ 2 };
+                R_ks = parameters{ 3 };
+                Gm_n = parameters{ 4 };
+                dEs_nks = parameters{ 5 };
+                Ia_n = parameters{ 6 }; 
+
+                % Assemble the parameters for this synapse.
+                these_parameters = { c, s_ks( k ), R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
+
+            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
+
+                % Unpack the parameters.
+                c = parameters{ 1 };
+                npm_ks = parameters{ 2 };
+                s_ks = parameters{ 3 };
+                R_n = parameters{ 4 };
+                Gm_n = parameters{ 5 };
+                dEs_nks = parameters{ 6 };
+                Ia_n = parameters{ 7 };
+
+                % Assemble the parameters for this synapse.
+                these_parameters = { c, npm_ks( k ), s_ks( k ), R_n, Gm_n, dEs_nks( k ), Ia_n };
+
+            else
+
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+
+            end
+            
+        end
+
+        
         %% Synaptic Reversal Potential Compute Functions.
         
         % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
         function [ dEs, synapses, self ] = compute_dmcpg_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1202,8 +1639,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_transmission_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
@@ -1238,8 +1675,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_modulation_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
             
@@ -1273,8 +1710,8 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_addition_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
@@ -1309,8 +1746,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_addition_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if anrgin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if anrgin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
@@ -1345,8 +1782,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_addition_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
@@ -1381,8 +1818,8 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_subtraction_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end     
@@ -1417,8 +1854,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_set_subtraction_dEsyn2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                % [-] Synapse IDs
@@ -1453,8 +1890,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_subtraction_dEs_excitatory( self, synapse_IDs_excitatory, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs_excitatory = 'all'; end                                                                                                % [-] Synapse IDs
@@ -1489,8 +1926,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_subtraction_dEs_inhibitory( self, synapse_IDs_inhibitory, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs_inhibitory = 'all'; end                                                                                  % [-] Synapse IDs
@@ -1525,8 +1962,8 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_multiplication_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
@@ -1561,8 +1998,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_multiplication_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
@@ -1597,8 +2034,8 @@ classdef synapse_manager_class
         function [ dEs3, synapses, self ] = compute_multiplication_dEs3( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
@@ -1633,8 +2070,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_inversion_dEs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = 'error'; end
-            if nargin < 6, set_flag = true; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
@@ -1673,8 +2110,8 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_division_dEs1( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = 'error'; end
-            if nargin < 6, set_flag = true; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
@@ -1713,8 +2150,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_division_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
-            if nargin < 5, set_flag = true; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
@@ -1749,8 +2186,8 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_derivation_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1784,8 +2221,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_derivation_dEs2( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1819,8 +2256,8 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_integration_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1854,8 +2291,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_integration_dEs2( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1889,8 +2326,8 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_vbi_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1924,8 +2361,8 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_vbi_dEs2( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
-            if nargin < 4, set_flag = true; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
             
@@ -1961,8 +2398,8 @@ classdef synapse_manager_class
         function [ gs, synapses, self ] = compute_dmcpg_gs( self, synapse_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = 'error'; end
-            if nargin < 6, set_flag = true; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                                                      % [V] Oscillatory CPG Equilibrium Offset
@@ -1998,8 +2435,8 @@ classdef synapse_manager_class
         function [ gs_nk, synapses, self ] = compute_addition_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = 'error'; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = true; end                                           	% [T/F] Set Flag.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
             if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
@@ -2009,7 +2446,7 @@ classdef synapse_manager_class
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Process the parameters.
-            parameters = process_addition_gs_parameters( parameters, encoding_scheme );
+            parameters = process_addition_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
@@ -2023,41 +2460,11 @@ classdef synapse_manager_class
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
-                % Determine how to unpack the parameters for this synapse.
-                if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
-                    
-                    % Unpack the parameters.
-                    c = parameters{ 1 };
-                    R_ks = parameters{ 2 };
-                    Gm_n = parameters{ 3 };
-                    dEs_nks = parameters{ 4 };
-                    Ia_n = parameters{ 5 };
-                    
-                    % Assemble the parameters for this synapse.
-                    these_parameters = { c, R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
-                    
-                elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
-                
-                    % Unpack the parameters.
-                    c = parameters{ 1 };
-                    n = parameters{ 2 };
-                    R_n = parameters{ 3 };
-                    Gm_n = parameters{ 4 };
-                    dEs_nk = parameters{ 5 };
-                    Ia_n = parameters{ 6 };
-                
-                    % Assemble the parameters for this synapse.
-                    these_parameters = { c, n, R_n, Gm_n, dEs_nk( k ), Ia_n };
-                    
-                else
-                   
-                    % Throw an error.
-                   	error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
-                    
-                end
+                % Retrieve the parameters associated with this synapse.
+                these_parameters = self.get_addition_gs_parameters( k, parameters, encoding_scheme );
                 
                 % Compute the required parameter for this synapse.
-                [ gs_nk, synapses( synapse_index ) ] = synapses( synapse_index ).compute_addition_gs( these_parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                [ gs_nk( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_addition_gs( these_parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
                                 
             end
             
@@ -2071,8 +2478,8 @@ classdef synapse_manager_class
         function [ gs_nk, synapses, self ] = compute_subtraction_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = 'error'; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = true; end                                           	% [T/F] Set Flag.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
             if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
@@ -2082,10 +2489,13 @@ classdef synapse_manager_class
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Process the parameters.
-            parameters = process_subtraction_gs_parameters( parameters, encoding_scheme );
+            parameters = process_subtraction_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
             
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            gs_nk = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
@@ -2093,43 +2503,11 @@ classdef synapse_manager_class
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
-                % Determine how to unpack the parameters for this synapse.
-                if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
-                    
-                    % Unpack the parameters.
-                    c = parameters{ 1 };
-                    s_ks = parameters{ 2 };
-                    R_ks = parameters{ 3 };
-                    Gm_n = parameters{ 4 };
-                    dEs_nks = parameters{ 5 };
-                    Ia_n = parameters{ 6 }; 
-                    
-                    % Assemble the parameters for this synapse.
-                    these_parameters = { c, s_ks( k ), R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
-                    
-                elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
-                
-                    % Unpack the parameters.
-                    c = parameters{ 1 };
-                    npm_ks = parameters{ 2 };
-                    s_ks = parameters{ 3 };
-                    R_n = parameters{ 4 };
-                    Gm_n = parameters{ 5 };
-                    dEs_nks = parameters{ 6 };
-                    Ia_n = parameters{ 7 };
-                    
-                    % Assemble the parameters for this synapse.
-                    these_parameters = { c, npm_ks( k ), s_ks( k ), R_n, Gm_n, dEs_nks( k ), Ia_n };
-                    
-                else
-                   
-                    % Throw an error.
-                   	error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
-                    
-                end
+                % Retrieve the parameters associated with this synapse.
+                these_parameters = self.get_subtraction_gs_parameters( k, parameters, encoding_scheme );
                 
                 % Compute and set the required parameter for this synapse.
-                [ gs_nk, synapses( synapse_index ) ] = synapses( synapse_index ).compute_subtraction_gs( these_parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                [ gs_nk( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_subtraction_gs( these_parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
                 
             end
             
@@ -2139,49 +2517,28 @@ classdef synapse_manager_class
         end
         
         
-        %         % Implement a function to compute and set the maximum synaptic conductance of absolute inversion subnetwork synapses.
-        %         function self = compute_set_absolute_inversion_gsyn( self, synapse_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
-        %
-        %             % Set the default input arguments.
-        %             if nargin < 7, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
-        %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-        %             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-        %             if nargin < 3, c = self.c_absolute_inversion_DEFAULT; end                                                                       % [-] Subnetwork Gain
-        %             if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-        %
-        %             % Validate the synapse IDs.
-        %             synapse_IDs = self.validate_synapse_IDs( synapse_IDs );
-        %
-        %             % Determine how many synapses to which we are going to apply the given method.
-        %             num_synapses_to_evaluate = length( synapse_IDs );
-        %
-        %             % Evaluate the given synapse method for each neuron.
-        %             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-        %
-        %                 % Retrieve the index associated with this synapse ID.
-        %                 synapse_index = self.get_synapse_index( synapse_IDs( k ) );
-        %
-        %                 % Compute and set the required parameter for this synapse.
-        %                 self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_gsyn( c, epsilon, R_1, Gm_2, Iapp_2 );
-        %
-        %             end
-        %
-        %         end
-        
-        
         % Implement a function to compute and set the maximum synaptic conductance of absolute inversion subnetwork synapses.
-        function self = compute_set_absolute_inversion_gsyn( self, synapse_IDs, Iapp_2 )
+        function [ gs21, synapses, self ] = compute_inversion_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 3, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
+            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
+            % Process the parameters.
+            parameters = process_inversion_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+
             % Determine how many synapses to which we are going to apply the given method.
             num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            gs21 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
             for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
@@ -2190,131 +2547,127 @@ classdef synapse_manager_class
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_inversion_gsyn( self.synapses( synapse_index ).dE_syn, Iapp_2 );
+                [ gs21( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_inversion_gs( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
                 
             end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
             
         end
         
         
-        % Implement a function to compute and set the maximum synaptic conductance of relative inversion subnetwork synapses.
-        function self = compute_set_relative_inversion_gsyn( self, synapse_IDs, Iapp_2 )
+        % Implement a function to compute and set the maximum synaptic conductance of division subnetwork numerator synapses.
+        function [ gs31, synapses, self ] = compute_division_gs31( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 3, Iapp_2 = self.Iapp_ABSOLUTE_INVERSION_DEFAULT; end                                                               % [A] Applied Current
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
+            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_inversion_gsyn( self.synapses( synapse_index ).dE_syn, Iapp_2 );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to compute and set the maximum synaptic conductance of absolute division subnetwork numerator synapses.
-        function self = compute_set_absolute_division_gsyn31( self, synapse_IDs, alpha, epsilon, R_1, Gm_3 )
-            
-            % Set the default input arguments.
-            if nargin < 6, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 5, R_1 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-            if nargin < 3, alpha = self.alpha_DEFAULT; end                                                                                  % [-] Subnetwork Denominator Adjustment
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            % Process the parameters.
+            parameters = self.process_division_gs31_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
             
             % Retrieve the index associated with the numerator synapse.
             synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
             
             % Compute and set the required parameter for the numerator synapse.
-            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_absolute_division_gsyn31( alpha, epsilon, R_1, Gm_3 );
+            [ gs31, synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_gs31( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );            
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
             
         end
         
         
-        % Implement a function to compute and set the maximum synaptic conductance of absolute division subnetwork denominator synapses.
-        function self = compute_set_absolute_division_gsyn32( self, synapse_IDs, epsilon, R_2, Gm_3 )
+        % Implement a function to compute and set the maximum synaptic conductance of division subnetwork denominator synapses.
+        function [ gs32, synapses, self ] = compute_division_gs32( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 4, R_2 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
+            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the parameters.
+            parameters = self.process_division_gs32_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
             
             % Retrieve the index associated with the numerator and denominator synapses.
             synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ), synapses, undetected_option );
             
             % Compute and set the required parameter for the denominator synapse.
-            self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_absolute_division_gsyn32( epsilon, R_2, Gm_3 );
+            [ gs32, synapses( synapse_index_denominator ) ] = synapses( synapse_index_denominator ).compute_division_gs32( parameters, encoding_scheme, true, synapses( synapse_index_denominator ).synapse_utilities );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
             
         end
         
         
-        % Implement a function to compute and set the maximum synaptic conductance of relative division subnetwork numerator synapses.
-        function self = compute_set_relative_division_gsyn31( self, synapse_IDs, R_3, Gm_3 )
+        %% Enable & Disable Functions.
+        
+        % Implement a function to verify the compatibility of synapse properties.
+        function valid_flag = validate_synapse_properties( self, n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
+        
+            % Set the default synapse properties.
+            if nargin < 12, array_utilities = self.array_utilities; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.deltas_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = 2*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = ones( 1, n_synapses ); end
+            if nargin < 6, gs_maxs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end
+            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end
             
+            % Determine whether to convert the names property to a cell.
+            if ~iscell( names ), names = { names }; end
+            
+            % Determine whether the synapse properties are relevant.
+            valid_flag = ( n_synapes == length( IDs ) ) && ( n_synapes == length( names ) ) && ( n_synapes == length( dEs ) ) && ( n_synapes == length( gs_maxs ) ) && ( n_synapes == length( from_neuron_IDs ) ) && ( n_synapes == length( to_neuron_IDs ) ) && ( n_synapes == length( deltas ) ) && ( n_synapes == length( b_enableds ) );
+                
+        end
+        
+            
+        % Implement a function to enable a synapse.
+        function [ b_enabled, synapses, self ] = enable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+        
             % Set the default input arguments.
-            if nargin < 4, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 3, R_3 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
             
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            % Retrieve the index associated with this synapse.
+            synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
-            % Retrieve the index associated with the numerator synapse.
-            synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
+            % Enable this synapse.
+            [ b_enabled, synapses( synapse_index ) ] = synapses( synapse_index ).enable( true );
             
-            % Compute and set the required parameter for the numerator synapse.
-            self.synapses( synapse_index ) = self.synapses( synapse_index ).compute_set_relative_division_gsyn31( R_3, Gm_3, self.synapses( synapse_index ).dE_syn );
-            
-        end
-        
-        
-        % Implement a function to compute and set the maximum synaptic conductance of relative division subnetwork denominator synapses.
-        function self = compute_set_relative_division_gsyn32( self, synapse_IDs, c, alpha, epsilon, R_3, Gm_3 )
-            
-            % Set the default input arguments.
-            if nargin < 7, Gm_3 = self.Gm_DEFAULT; end                                                                                      % [S] Membrane Conductance
-            if nargin < 6, R_3 = self.R_DEFAULT; end                                                                                        % [V] Activation Domain
-            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                                                              % [-] Subnetwork Offset
-            if nargin < 4, alpha = self.alpha_DEFAULT; end
-            if nargin < 3, c = self.c_relative_division_DEFAULT; end                                                                        % [-] Subnetwork Gain
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                         % [-] Synapse IDs
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Retrieve the index associated with the numerator and denominator synapses.
-            synapse_index_numerator = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
-            synapse_index_denominator = self.get_synapse_index( synapse_IDs( end ), synapses, undetected_option );
-            
-            % Compute and set the required parameter for this synapse.
-            self.synapses( synapse_index_denominator ) = self.synapses( synapse_index_denominator ).compute_set_relative_division_gsyn32( c, alpha, epsilon, R_3, Gm_3, self.synapses( synapse_index_numerator ).dE_syn );
+            % Determine whether to update the synapse maanger object.
+            if set_flag, self.synapses = synapses; end
             
         end
         
-        
-        %% Enable & Disable Functions
         
         % Implement a function to enable synapses.
-        function self = enable_synapses( self, synapse_IDs )
+        function [ b_enableds, synapses, self ] = enable_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
+            
+            % SEt the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2322,22 +2675,47 @@ classdef synapse_manager_class
             % Determine the number of synapses to enable.
             num_synapses_to_enable = length( synapse_IDs );
             
+            % Preallocate an array to store the enabled flags.
+            b_enableds = false( 1, num_synapses_to_enable );
+            
             % Enable all of the specified synapses.
             for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
                 
-                % Retrieve this synapse index.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
                 % Enable this synapse.
-                self.synapses( synapse_index ).b_enabled = true;
+                [ b_enableds( k ), synapses, self ] = self.enable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
+            
+        end
+        
+        
+        % Implement a function to disable a synapse.
+        function [ b_enabled, synapses, self ] = disable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            
+            % Retrieve the index associated with this synapse.
+            synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
+            
+            % Disable this synapse.
+            [ b_enabled, synapses( synapse_index ) ] = synapses( synapse_index ).disable( true );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synapses = synapses; end
             
         end
         
         
         % Implement a function to disable synapses.
-        function self = disable_synapses( self, synapse_IDs )
+        function self = disable_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2345,22 +2723,47 @@ classdef synapse_manager_class
             % Determine the number of synapses to disable.
             num_synapses_to_enable = length( synapse_IDs );
             
+            % Preallocate an array to store the enabled flags.
+            b_enableds = false( 1, num_synapses_to_enable );
+            
             % Disable all of the specified synapses.
             for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
                 
-                % Retrieve this synapse index.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
                 % Disable this synapse.
-                self.synapses( synapse_index ).b_enabled = false;
+                [ b_enableds( k ), synapses, self ] = self.disable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
+            
+        end
+        
+        
+        % Implement a function to toggle a synapses enabled flag.
+        function [ b_enabled, synapses, self ] = toggle_enabled_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            
+            % Retrieve the index associated with this synapse.
+            synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
+            
+            % Toggle whether this synapse is enabled.
+            [ b_enabled, synapses( synapse_index ) ] = synapses( synapse_index ).toogle_enabled( synapses( synapse_index ).b_enabled, true );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synapses = synapses; end
             
         end
         
         
         % Implement a function to toggle synapse enable state.
-        function self = toggle_enabled_synapses( self, synapse_IDs )
+        function [ b_enableds, synapses, self ] = toggle_enabled_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2368,32 +2771,35 @@ classdef synapse_manager_class
             % Determine the number of synapses to disable.
             num_synapses_to_enable = length( synapse_IDs );
             
+            % Preallocate an array to store the enabled flags.
+            b_enableds = false( 1, num_synapses_to_enable );
+            
             % Disable all of the specified synapses.
             for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
                 
-                % Retrieve this synapse index.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
                 % Toggle this synapse.
-                self.synapses( synapse_index ).b_enabled = ~self.synapses( synapse_index ).b_enabled;
+                [ b_enableds( k ), synapses, self ] = self.toggle_enabled_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
             
         end
         
         
-        %% Synapse Creation Functions
+        %% Synapse Creation Functions.
         
         % Implement a function to create a new synapse.
-        function [ self, ID ] = create_synapse( self, ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
+        function [ ID, synapse, self ] = create_synapse( self, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, array_utilities )
             
             % Set the default synapse properties.
+            if nargin < 12, array_utilities = self.array_utilities; end
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 10, synapses = self.synapses; end
             if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag
             if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                                  % [V] Generic CPG Equilibrium Offset
             if nargin < 7, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                                    % [-] To Neuron ID
             if nargin < 6, from_neuron_ID = self.from_neuron_ID_DEFAULT; end                                % [-] From Neuron ID
-            if nargin < 5, g_syn_max = self.gs_max_DEFAULT; end                                            % [S] Maximum Synaptic Conductance
-            if nargin < 4, dE_syn = self.dEs_minimum_DEFAULT; end                                        % [V] Synaptic Reversal Potential
+            if nargin < 5, gs = self.gs_max_DEFAULT; end                                            % [S] Maximum Synaptic Conductance
+            if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                        % [V] Synaptic Reversal Potential
             if nargin < 3, name = ''; end                                                                   % [-] Synapse Name
             if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end                                    % [#] Synapse ID
             
@@ -2401,69 +2807,46 @@ classdef synapse_manager_class
             assert( self.unique_natural_synapse_ID( ID, synapses, array_utilities ), 'Proposed synapse ID %0.2f is not a unique natural number.', ID )
             
             % Create an instance of the synapse class.
-            synapse = synapse_class( ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled );
+            synapse = synapse_class( ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled );
             
             % Append this synapse to the array of existing synapses.
-            self.synapses = [ synapses, synapse ];
+            synapses = [ synapses, synapse ];
             
-            % Increase the number of synapses counter.
-            self.num_synapses = self.num_synapses + 1;
+            % Determine whether to update the synapse manager object.
+            if set_flag
+               
+                % Update the synapses property.
+                self.synapses = synapses;
+                
+                % Increase the number of synapses counter.
+                self.num_synapses = self.num_synapses + 1;
+                
+            end
             
         end
         
         
         % Implement a function to create multiple synapses.
-        function [ self, IDs ] = create_synapses( self, IDs, names, dE_syns, g_syn_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds )
-            
-            % Determine whether number of synapses to create.
-            if nargin > 2                                               % If more than just synapse IDs were provided...
-                
-                % Set the number of synapses to create to be the number of provided IDs.
-                num_synapses_to_create = length( IDs );
-                
-            elseif nargin == 2                                          % If just the synapse IDs were provided...
-                
-                % Retrieve the number of IDs.
-                num_IDs = length( IDs );
-                
-                % Determine who to interpret this number of IDs.
-                if num_IDs == 1                                     % If the number of IDs is one...
-                    
-                    % Then create a number of synapses equal to the specific ID.  (i.e., in this case we are treating the single provided ID value as the number of synapses that we want to create.)
-                    num_synapses_to_create = IDs;
-                    
-                    % Preallocate an array of IDs.
-                    IDs = self.generate_unique_synapse_IDs( num_synapses_to_create, synapses, array_utilities );
-                    
-                else                                                % Otherwise... ( More than one ID was provided... )
-                    
-                    % Set the number of synapses to create to be the number of provided synapse IDs.
-                    num_synapses_to_create = num_IDs;
-                    
-                end
-                
-            elseif nargin == 1                                      % If no input arguments were provided... ( Beyond the default self argument.)
-                
-                % Set the number of synapses to create to one.
-                num_synapses_to_create = 1;
-                
-            end
+        function [ IDs, synapses, self ] = create_synapses( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, array_utilities )
             
             % Set the default synapse properties.
-            if nargin < 9, b_enableds = true( 1, num_synapses_to_create ); end                                                      % [T/F] Synapse Enabled Flag
-            if nargin < 8, deltas = self.delta_noncpg_DEFAULT*ones( 1, num_synapses_to_create ); end                                       % [V] Generic CPG Equilibrium Offset
-            if nargin < 7, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, num_synapses_to_create ); end                         % [-] To Neuron ID
-            if nargin < 6, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, num_synapses_to_create ); end                     % [-] From Neuron ID
-            if nargin < 5, g_syn_maxs = self.gs_max_DEFAULT*ones( 1, num_synapses_to_create ); end                                 % [S] Maximum Synaptic Conductance
-            if nargin < 4, dE_syns = self.dEs_minimum_DEFAULT*ones( 1, num_synapses_to_create ); end                             % [V] Synaptic Reversal Potential
-            if nargin < 3, names = repmat( { '' }, 1, num_synapses_to_create ); end                                                 % [-] Synapse Name
-            if nargin < 2, IDs = self.generate_unique_synapse_IDs( num_synapses_to_create, synapses, array_utilities ); end                                    % [#] Synapse ID
+            if nargin < 13, array_utilities = self.array_utilities; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                      % [T/F] Synapse Enabled Flag
+            if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses ); end                            	% [V] Generic CPG Equilibrium Offset
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [-] To Neuron ID
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                     % [-] From Neuron ID
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                  % [S] Maximum Synaptic Conductance
+            if nargin < 5, dEs = self.dEs_minimum_DEFAULT*ones( 1, n_synapses ); end                                % [V] Synaptic Reversal Potential
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                 % [-] Synapse Name
+            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end        	% [#] Synapse ID
             
             % Create each of the spcified synapses.
-            for k = 1:num_synapses_to_create                         % Iterate through each of the synapses we want to create...
+            for k = 1:n_synapses                         % Iterate through each of the synapses we want to create...
                 
-                % Create this synapse.
-                self = self.create_synapse( IDs( k ), names{k}, dE_syns( k ), g_syn_maxs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ) );
+                % Create this synapse.                
+                [ ~, synapses, self ] = self.create_synapse( IDs( k ), names{ k }, dEs( k ), gs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ), synapses, set_flag, array_utilities );
                 
             end
             
@@ -2471,24 +2854,40 @@ classdef synapse_manager_class
         
         
         % Implement a function to delete a synapse.
-        function self = delete_synapse( self, synapse_ID )
+        function [ synapses, self ] = delete_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
             
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Remove this synapse from the array of synapses.
-            self.synapses( synapse_index ) = [  ];
+            synapses( synapse_index ) = [  ];
             
-            % Decrease the number of synapses counter.
-            self.num_synapses = self.num_synapses - 1;
+            % Determine whether to update the synapse manager object.
+            if set_flag                                     % If we want to update the synapse manager object...
+                
+                % Update the synapse property.
+                self.synapses = synapses;
+                
+                % Decrease the number of synapses counter.
+                self.num_synapses = self.num_synapses - 1;
+                
+            end
             
         end
         
         
         % Implement a function to delete multiple synapses.
-        function self = delete_synapses( self, synapse_IDs )
+        function [ synapses, self ] = delete_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
             if nargin < 2, synapse_IDs = 'all'; end
             
             % Validate the synapse IDs.
@@ -2501,7 +2900,7 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_delete                      % Iterate through each of the synapses we want to delete...
                 
                 % Delete this synapse.
-                self = self.delete_synapse( synapse_IDs( k ) );
+                [ synapses, self ] = self.delete_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
             
@@ -2509,24 +2908,37 @@ classdef synapse_manager_class
         
         
         % Implement a function to connect a synapse to neurons.
-        function self = connect_synapse( self, synapse_ID, from_neuron_ID, to_neuron_ID )
+        function [ synapses, self ] = connect_synapse( self, synapse_ID, from_neuron_ID, to_neuron_ID, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
             
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Set the from neuron ID property of this synapse.
-            self.synapses( synapse_index ).from_neuron_ID = from_neuron_ID;
+            synapses( synapse_index ).from_neuron_ID = from_neuron_ID;
             
             % Set the to neuron ID property of this synapse.
-            self.synapses( synapse_index ).to_neuron_ID = to_neuron_ID;
+            synapses( synapse_index ).to_neuron_ID = to_neuron_ID;
+         
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synapses = synapses; end
             
         end
         
         
         % Implement a function to connet multiple synapses to multiple neurons.
-        function self = connect_synapses( self, synapse_IDs, from_neuron_IDs, to_neuron_IDs )
+        function [ synapses, self ] = connect_synapses( self, synapse_IDs, from_neuron_IDs, to_neuron_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, to_neuron_IDs = 2; end
+            if nargin < 3, from_neuron_IDs = 1; end
             if nargin < 2, synapse_IDs = 'all'; end
             
             % Validate the synapse IDs.
@@ -2542,81 +2954,179 @@ classdef synapse_manager_class
             for k = 1:num_synapses_to_connect                      % Iterate through each of the synapses we want to connect...
                 
                 % Connect this synapse.
-                self = connect_synapse( self, synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
-                
+                [ synapses, self ] = self.connect_synapse( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), synapses, set_flag, undetected_option );
+                                
             end
+            
+        end
+                
+        
+        %% Subnetwork Synapse Quantity Functions.
+        
+        % Implement a function to compute the number of multistate cpg synapses.
+        function n_mcpg_synapses = compute_num_mcpg_synapses( self, num_cpg_neurons )
+           
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the number of synapses.
+            n_mcpg_synapses = num_cpg_neurons^2;
+            
+        end
+            
+        
+        % Implement a function to compute the number of driven multistate cpg synapses.
+        function [ n_dmcpg_synapses, n_mcpg_synapses ] = compute_num_dmcpg_synapses( self, num_cpg_neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the number of multistate cpg synapses.
+            n_mcpg_synapses = self.compute_num_mcpg_synapses( num_cpg_neurons );
+            
+            % Compute the number of driven multistate cpg synapses.
+            n_dmcpg_synapses = n_mcpg_synapses + num_cpg_neurons;
             
         end
         
         
-        %% Subnetwork Synapse Creation Functions
-        
+        %% Subnetwork Synapse Creation Functions.
+
         % Implement a function to create the synapses for a multistate CPG subnetwork.
-        function [ self, synapse_IDs ] = create_multistate_cpg_synapses( self, neuron_IDs )
+        function [ IDs, synapses, self ] = create_mcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, array_utilities )
             
-            % Compute the number of CPG neurons.
-            num_cpg_neurons = length( neuron_IDs );
+            % Set the default number of cpg neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
             
-            % Generate unique synapse IDs for the multistate CPG subnetwork.
-            synapse_IDs = self.generate_unique_synapse_IDs( num_cpg_neurons^2, synapses, array_utilities );
+            % Compute the number of synapses.
+            n_synapses = self.compute_num_mcpg_synapses( num_cpg_neurons );
             
-            % Create the multistate cpg subnetwork synapses.
-            self = self.create_synapses( synapse_IDs );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 12, synapses = self.synapses; end
+            if nargin < 11, b_enableds = true( 1, n_synapses ); end
+            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 9, to_neuron_IDs = -1*ones( 1, n_synapses ); end
+            if nargin < 8, from_neuron_IDs = -1*ones( 1, n_synapses ); end
+            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+            
+            % Determine whether it is necessary to generate to neuron IDs.
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Ensure that the synapse properties match the required number of synapses.
+            assert( self.validate_synapse_properties( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities ), 'Provided synapse properties must be of consistent size.' )
             
             % Initialize a counter variable.
             k3 = 0;
             
             % Edit the network properties.
-            for k1 = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (from which the synapses are starting)...
-                for k2 = 1:num_cpg_neurons                          % Iterate through each of the CPG neurons (to which the synapses are going)...
+            for k1 = 1:num_cpg_neurons                                  % Iterate through each of the CPG neurons (from which the synapses are starting)...
+                for k2 = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (to which the synapses are going)...
                     
                     % Advance the counter variable.
                     k3 = k3 + 1;
-                    
-                    % Get the index associated with this synapse.
-                    synapse_index = self.get_synapse_index( synapse_IDs( k3 ), synapses, undetected_option );
-                    
+                                        
                     % Set the from neuron ID and to neuron ID.
-                    synapses( synapse_index ).from_neuron_ID = neuron_IDs( k1 );
-                    synapses( synapse_index ).to_neuron_ID = neuron_IDs( k2 );
+                    if from_neuron_IDs_flag, from_neuron_IDs( k3 ) = neuron_IDs( k1 ); end
+                    if to_neuron_IDs_flag, to_neuron_IDs( k3 ) = neuron_IDs( k2 ); end
                     
                     % Set the name of this synapse.
-                    synapses( synapse_index ).name = sprintf( 'CPG %0.0f%0.0f', neuron_IDs( k1 ), neuron_IDs( k2 ) );
+                    if names_flag, names{ k3 } = sprintf( 'CPG %0.0f%0.0f', neuron_IDs( k1 ), neuron_IDs( k2 ) ); end
                     
                     % Set the reversal potential of this synapse (if necessary).
-                    if k1 == k2, self.synapses( synapse_index ).dE_syn = 0; end
+                    if k1 == k2, dEs( k3 ) = 0; end
                     
                 end
             end
+            
+            % Create the multistate cpg subnetwork synapses.            
+            [ IDs, synapses, self ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the synapses for a multistate CPG subnetwork.
-        function [ self, synapse_IDs ] = create_driven_multistate_cpg_synapses( self, neuron_IDs )
+        function [ IDs, synapses, self ] = create_dmcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, array_utilities  )
+            
+            % Compute the number of synapses.
+            [ n_dmcpg_synapses, n_mcpg_synapses ] = self.compute_num_dmcpg_synapses( num_cpg_neurons );
+            
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 12, synapses = self.synapses; end
+            if nargin < 11, b_enableds = true( 1, n_synapses ); end
+            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 9, to_neuron_IDs = -1*ones( 1, n_synapses ); end
+            if nargin < 8, from_neuron_IDs = -1*ones( 1, n_synapses ); end
+            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_dmcpg_synapses, synapses, array_utilities ); end            
+            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Ensure that the synapse properties match the required number of synapses.
+            assert( self.validate_synapse_properties( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities ), 'Provided synapse properties must be of consistent size.' )
+            
+            % Define the indexes of the synapses for the multistate cpg synapses.
+            i_start1 = 1;
+            i_end1 = n_mcpg_synapses;
             
             % Create the multistate cpg synapses.
-            [ self, synapse_IDs_cpg ] = self.create_multistate_cpg_synapses( neuron_IDs( 1:( end - 1 ) ) );
+            [ IDs1, synapses, synapse_manager ] = self.create_mcpg_synapses( num_cpg_neurons, neuron_IDs( i_start1:i_end1 ), synapse_IDs( i_start1:i_end1 ), names{ i_start1:i_end1 }, dEs( i_start1:i_end1 ), gs( i_start1:i_end1 ), from_neuron_IDs( i_start1:i_end1 ), to_neuron_IDs( i_start1:i_end1 ), deltas( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), synapses, true, array_utilities );
             
             % Compute the number of drive synapses.
-            num_drive_synapses = length( neuron_IDs ) - 1;
+            num_drive_synapses = n_dmcpg_synapses - n_mcpg_synapses;
             
-            % Create the drive synapses.
-            [ self, synapse_IDs_drive ] = self.create_synapses( num_drive_synapses );
+            % Define the indexes of the synapses for the drive synapses.
+            i_start2 = i_end1 + 1;
+            i_end2 = i_end1 + num_drive_synapses;
             
-            % Connect and set the name of each drive synapse.
-            for k = 1:num_drive_synapses                    % Iterate through each of the drive synapses...
+            % Determine whether it is necessary to generate to neuron IDs.
+            [ to_neuron_IDs( i_start2:i_end2 ), to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs( i_start2:i_end2 ) );
+            
+            % Determine whether it is necessary to generate from neuron IDs.
+            [ from_neuron_IDs( i_start2:i_end2 ), from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs( i_start2:i_end2 ) );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names( i_start2:i_end2 ), names_flag ] = self.process_names( names( i_start2:i_end2 ) );
                 
-                % Set the name of this synapse.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs_drive( k ), { sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ) }, 'name', synapses, set_flag );
-                
-                % Connect this synapse.
-                self = self.connect_synapse( synapse_IDs_drive( k ), neuron_IDs( end ), neuron_IDs( k ) );
-                
+            % Set the names of each drive synapse.
+            for k = 1:num_drive_synapes                                                         % Iterate through each of the drive synapses...
+
+                if from_neuron_IDs_flag, from_neuron_IDs( i_end1 + k ) = neuron_IDs( end ); end
+                if to_neuron_IDs_flag, to_neuron_IDs( i_end1 + k ) = neuron_IDs( k ); end
+
+                % Determine the name of this drive synapse.
+                if names_flag, names{ i_end1 + k } = sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ); end
+
             end
-            
+                
+            % Create the drive synapses.
+            [ IDs2, synapses, synapse_manager ] = synapse_manager.create_synapses( num_drive_synapses, synapse_IDs( i_start2:i_end2 ), names{ i_start2:i_end2 }, dEs( i_start2:i_end2 ), gs( i_start2:i_end2 ), from_neuron_IDs( i_start2:i_end2 ), to_neuron_IDs( i_start2:i_end2 ), deltas( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), synapses, true, array_utilities );
+                        
             % Concatenate the synapse IDs.
-            synapse_IDs = [ synapse_IDs_cpg, synapse_IDs_drive ];
+            IDs = [ IDs1, IDs2 ];
+            
+            % Determine whether to update the synpase manager object.
+            if set_flag, self = synapse_manager; end
             
         end
         
@@ -2726,8 +3236,8 @@ classdef synapse_manager_class
             synapse_IDs_cell = cell( 1, num_subnetworks + 1 );
             
             % Create the driven multistate cpg synapses.
-            [ self, synapse_IDs_cell{ 1 } ] = self.create_driven_multistate_cpg_synapses( neuron_IDs_cell{ 1 } );
-            [ self, synapse_IDs_cell{ 2 } ] = self.create_driven_multistate_cpg_synapses( neuron_IDs_cell{ 2 } );
+            [ self, synapse_IDs_cell{ 1 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 1 } );
+            [ self, synapse_IDs_cell{ 2 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 2 } );
             
             % Create the synapses for each of the modulated split subtraction voltage based integration synapses.
             for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
@@ -3748,8 +4258,8 @@ classdef synapse_manager_class
         %             self = self.compute_set_absolute_inversion_dEsyn( synapse_IDs, epsilon, delta );
         %
         %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-        % %             self = self.compute_set_absolute_inversion_gsyn( synapse_ID, c, epsilon, R_1, Gm_2, Iapp_2 );
-        %             self = self.compute_set_absolute_inversion_gsyn( synapse_IDs, Iapp_2 );
+        % %             self = self.compute_inversion_gs( synapse_ID, c, epsilon, R_1, Gm_2, Iapp_2 );
+        %             self = self.compute_inversion_gs( synapse_IDs, Iapp_2 );
         %
         %         end
         
@@ -3769,7 +4279,7 @@ classdef synapse_manager_class
             self = self.compute_set_absolute_inversion_dEsyn( synapse_ID, c, delta );
             
             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-            self = self.compute_set_absolute_inversion_gsyn( synapse_ID, Iapp_2 );
+            self = self.compute_inversion_gs( synapse_ID, Iapp_2 );
             
         end
         
@@ -3855,10 +4365,10 @@ classdef synapse_manager_class
             self = self.compute_set_absolute_division_dEsyn2( synapse_IDs );
             
             % Compute and set the maximum synaptic gain of the numerator absolute division synapse.
-            self = self.compute_set_absolute_division_gsyn31( synapse_IDs, alpha, epsilon, R_1, Gm_3 );
+            self = self.compute_division_gs31( synapse_IDs, alpha, epsilon, R_1, Gm_3 );
             
             % Compute and set the maximum synaptic gain of the denominator absolute division synapse.
-            self = self.compute_set_absolute_division_gsyn32( synapse_IDs, epsilon, R_2, Gm_3 );
+            self = self.compute_division_gs32( synapse_IDs, epsilon, R_2, Gm_3 );
             
         end
         

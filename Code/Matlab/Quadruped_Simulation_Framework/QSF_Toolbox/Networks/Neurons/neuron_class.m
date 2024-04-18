@@ -175,21 +175,14 @@ classdef neuron_class
             self.ID = ID;
             
             % Compute the steady state sodium channel activation and deactivation parameters.
-            m_inf = self.compute_minf( U, Am, Sm, dEm, neuron_utilities );                              % [-] Steady State Sodium Channel Activation Parameter
-            h_inf = self.compute_hinf( U, Ah, Sh, dEh, neuron_utilities );                              % [-] Steady State Sodium Channel Deactivation Parameter
-            
-            % Store the steady state soduim channel activation and deactivation parameters.
-            self.m_inf = m_inf;
-            self.h_inf = h_inf;
+            [ ~, self ] = self.compute_minf( U, Am, Sm, dEm, true, neuron_utilities );                              % [-] Steady State Sodium Channel Activation Parameter
+            [ h_inf, self ] = self.compute_hinf( U, Ah, Sh, dEh, true, neuron_utilities );                              % [-] Steady State Sodium Channel Deactivation Parameter
             
             % Determine whether to set the sodium channel activation parameter to its steady state value.
             if isempty( self.h ), self.h = h_inf; end                                                   % [-] Steady State Sodium Channel Deactivation Parameter
             
             % Compute and set the sodium channel deactivation time constant.
-            tauh = self.compute_tauh( U, tauh_max, h_inf, Ah, Sh, dEh, neuron_utilities );              % [-] Sodium Channel Deactivation Time Constant
-            
-            % Store the sodium channel deactivation time constant.
-            self.tauh = tauh;                                                                           
+            [ ~, self ] = self.compute_tauh( U, tauh_max, h_inf, Ah, Sh, dEh, true, neuron_utilities );              % [-] Sodium Channel Deactivation Time Constant                                                                         
             
         end
         

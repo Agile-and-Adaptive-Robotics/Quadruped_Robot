@@ -1344,7 +1344,7 @@ classdef synapse_class
 
 
         % Implement a function to compute the maximum synaptic conductance of division denominator synapses.
-        function [ gs32, self ] = compute_division_gsyn32( self, parameters, encoding_scheme, set_flag, synapse_utilities )
+        function [ gs32, self ] = compute_division_gs32( self, parameters, encoding_scheme, set_flag, synapse_utilities )
             
             % Set the default input arguments.
             if nargin < 5, synapse_utilities = self.synapse_utilities; end                                          % [class] Synapse Utilities.
