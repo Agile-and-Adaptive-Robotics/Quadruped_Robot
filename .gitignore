@@ -1,11 +1,20 @@
+# Ignore temporary Solidworks files.
 ~$*.SLDASM
 ~$*.SLDPRT
 _$*.SLDASM
 _$*.SLDPRT
 _$*.SLDPRT
+
+# Ignore temporary Matlab files.
 *.asv
+
+# Ignore temporary Excel files.
 ~*.xlsx
+
+# Ignore virtual environment files.
 *.venv
+
+# Ignore miscellaneous files.
 *.ini
 *.swj
 *.vscode

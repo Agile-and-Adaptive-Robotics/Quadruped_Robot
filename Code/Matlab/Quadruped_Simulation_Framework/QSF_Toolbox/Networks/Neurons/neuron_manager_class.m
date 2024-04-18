@@ -96,8 +96,8 @@ classdef neuron_manager_class
         r_oscillation_DEFAULT = 0.90;                                                                                           % [-] Oscillation Decay.
         
         % Define the default options.
-        encoding_scheme_DEFAULT = 'Absolute';                                                                                   %
-        undetected_option = 'error';                                                                                            % [str] Undetected Option ('Error', 'Warning', 'Ignore'). Determines what to do when neuron IDs are not detected.
+        encoding_scheme_DEFAULT = 'Absolute';                                                                                   % [str] Encoding Scheme ('Absolute' or 'Relative')
+        undetected_option_DEFAULT = 'error';                                                                                    % [str] Undetected Option ('Error', 'Warning', 'Ignore'). Determines what to do when neuron IDs are not detected.
         
         % Define the default saving and loading properties.
         file_name_DEFAULT = 'Neuron_Manager.mat';
@@ -140,7 +140,7 @@ classdef neuron_manager_class
         function neuron_index = get_neuron_index( self, neuron_ID, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neurons = self.neurons; end
             
             % Compute the number of neurons.
@@ -676,7 +676,7 @@ classdef neuron_manager_class
         function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, as_matrix = false; end
             
@@ -789,7 +789,7 @@ classdef neuron_manager_class
         function [ b_enabled, neurons, self ] = enable_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
@@ -836,7 +836,7 @@ classdef neuron_manager_class
         function [ b_enabled, neurons, self ] = disable_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
@@ -882,7 +882,7 @@ classdef neuron_manager_class
         function [ b_enabled, neurons, self ] = toggle_enabled_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
@@ -931,7 +931,7 @@ classdef neuron_manager_class
         function [ values, neurons, self ] = call_neuron_method( self, neuron_IDs, neuron_method, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             
@@ -951,7 +951,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Define the eval string.
-                eval_str = sprintf( '[ values, neurons( %0.0f ) ] = neurons( %0.0f ).%s(  );', neuron_index, neuron_index, neuron_method );
+                eval_str = sprintf( '[ values( k ), neurons( %0.0f ) ] = neurons( %0.0f ).%s(  );', neuron_index, neuron_index, neuron_method );
                 
                 % Evaluate the given neuron method.
                 eval( eval_str );
@@ -988,7 +988,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1023,7 +1023,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_dmcpg_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1058,7 +1058,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_transmission_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1094,7 +1094,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_modulation_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1129,7 +1129,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_addition_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1165,7 +1165,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1201,7 +1201,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_double_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1237,7 +1237,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_multiplication_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1273,7 +1273,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_inversion_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1309,7 +1309,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_division_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1345,7 +1345,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_derivation_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1380,7 +1380,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_integration_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1415,7 +1415,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_vbi_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1450,7 +1450,7 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_svbi_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
@@ -1487,7 +1487,7 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_addition_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1523,7 +1523,7 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_addition_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1548,7 +1548,7 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_subtraction_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1584,7 +1584,7 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_subtraction_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme; end
@@ -1609,7 +1609,7 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_inversion_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1634,7 +1634,7 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_inversion_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1659,7 +1659,7 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_division_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1695,7 +1695,7 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_division_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1720,7 +1720,7 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = 'error'; end
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 7, set_flag = true; end
             if nargin < 6, neurons = self.neurons; end
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Safety Factor
@@ -1760,7 +1760,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_transmission_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1796,7 +1796,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = 'error'; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 8, set_flag = true; end
             if nargin < 7, neurons = self.neurons; end
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1835,7 +1835,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_modulation_Cm( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
@@ -1870,7 +1870,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_addition_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1906,7 +1906,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1942,7 +1942,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_double_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1978,7 +1978,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_multiplication_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2014,7 +2014,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_inversion_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2050,7 +2050,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_division_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2086,7 +2086,7 @@ classdef neuron_manager_class
         function [ Cm1, neurons, self ] = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Gain
@@ -2115,7 +2115,7 @@ classdef neuron_manager_class
         function [ Cm2, neurons, self ] = compute_derivation_Cm2( self, neuron_IDs, w, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, w = self.w_derivation_DEFAULT; end                                       % [Hz?] Derivative Subnetwork Cutoff Frequency?
@@ -2140,7 +2140,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                           % [-] Average Integration Mean
@@ -2176,7 +2176,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_vbi_Cm( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
@@ -2212,7 +2212,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_svbi_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
@@ -2248,7 +2248,7 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_svbi_Cm2( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'error'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
@@ -2661,7 +2661,7 @@ classdef neuron_manager_class
         function [ Rs, neurons, self ] = compute_addition_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = 'error'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2694,9 +2694,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the addition subnetwork output neurons.
-        function [ R, neurons, self ] = compute_addition_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_addition_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 6, set_flag = true; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2722,9 +2723,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the subtraction subnetwork input neurons.
-        function [ Rs, neurons, self ] = compute_subtraction_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Rs, neurons, self ] = compute_subtraction_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2757,9 +2759,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the subtraction subnetwork output neurons.
-        function [ R, neurons, self ] = compute_subtraction_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_subtraction_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 6, set_flag = true; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2785,9 +2788,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the inversion subnetwork input neurons.
-        function [ R, neurons, self ] = compute_inversion_R_input( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_inversion_R_input( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 6, set_flag = true; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2813,9 +2817,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the inversion subnetwork output neurons.
-        function [ R, neurons, self ] = compute_inversion_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_inversion_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 6, set_flag = true; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2841,9 +2846,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the division subnetwork input neurons.
-        function [ Rs, neurons, self ] = compute_division_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag )
+        function [ Rs, neurons, self ] = compute_division_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, set_flag = true; end
             if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2876,9 +2882,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the division subnetwork output neurons.
-        function [ R, neurons, self ] = compute_division_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag )
+        function [ R, neurons, self ] = compute_division_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 6, set_flag = true; end
             if nargin < 5, neurons = self.neurons; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -2904,9 +2911,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
-        function [ R, neurons, self ] = compute_relative_multiplication_R_output( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2, neurons, set_flag )
+        function [ R, neurons, self ] = compute_relative_multiplication_R_output( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 9, set_flag = true; end
             if nargin < 8, neurons = self.neurons; end
             if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                         % [-] Division Subnetwork Offset
@@ -3013,7 +3021,7 @@ classdef neuron_manager_class
             neuron = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled );
             
             % Append this neuron to the array of existing neurons.
-            neurons = [ neurons neuron ];
+            neurons = [ neurons, neuron ];
             
             % Determine whether to update the neuron manager object.
             if set_flag                                         % If we want to update the neuron manager object...
@@ -3077,9 +3085,10 @@ classdef neuron_manager_class
         
         
         % Implement a function to delete a neuron.
-        function [ neurons, self ] = delete_neuron( self, neuron_ID, neurons, set_flag )
+        function [ neurons, self ] = delete_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, set_flag = true; end
             if nargin < 3, neurons = self.neurons; end
             
