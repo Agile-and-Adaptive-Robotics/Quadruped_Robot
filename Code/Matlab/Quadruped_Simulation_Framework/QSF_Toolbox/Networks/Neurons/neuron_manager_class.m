@@ -2988,7 +2988,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create a new neuron.
-        function [ ID, neuron, self ] = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities )
+        function [ ID_new, neuron_new, neurons, self ] = create_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities )
             
             % Set the default neuron properties.
             if nargin < 28, array_utilities = self.array_utilites; end
@@ -3023,13 +3023,16 @@ classdef neuron_manager_class
             assert( self.unique_natural_neuron_ID( ID, neurons, array_utilities ), 'Proposed neuron ID %0.2f is not a unique natural number.', ID )
             
             % Create an instance of the neuron class.
-            neuron = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled );
+            neuron_new = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled );
                         
+            % Retrieve the new neuron ID.
+            ID_new = neuron_new.ID;
+            
             % Determine whether to update the neuron manager object.
             if set_flag                                         % If we want to update the neuron manager object...
                 
                 % Append this neuron to the array of existing neurons.
-                neurons = [ neurons, neuron ];
+                neurons = [ neurons, neuron_new ];
                 
                 % Update the neurons property.
                 self.neurons = neurons;
@@ -3043,7 +3046,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create multiple neurons.
-        function [ IDs_new, neurons_new, self ] = create_neurons( self, n_neurons_to_create, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_neurons( self, n_neurons_to_create, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the default neuron properties.
             if nargin < 29, array_utilities = self.array_utilities; end
@@ -3084,6 +3087,9 @@ classdef neuron_manager_class
             % Preallocate an array to store the new neuron IDs.
             IDs_new = zeros( 1, n_neurons_to_create );
             
+            % Create an instance of the initial neurons.
+            neurons_initial = neurons;
+            
             % Create an instance of the neuron manager that can be updated.
             neuron_manager = self;
             
@@ -3091,15 +3097,22 @@ classdef neuron_manager_class
             for k = 1:n_neurons_to_create                         % Iterate through each of the neurons we want to create...
                 
                 % Create this neuron.
-                [ IDs_new( k ), neurons_new( k ), neuron_manager ] = neuron_manager.create_neuron( IDs( k ), names{ k }, Us( k ), hs{ k }, Cms( k ), Gms( k ), Ers( k ), Rs( k ), Ams( k ), Sms( k ), dEms( k ), Ahs( k ), Shs( k ), dEhs( k ), dEnas( k ), tauh_maxs( k ), Gnas( k ), I_leaks( k ), I_syns( k ), I_nas( k ), I_tonics( k ), I_apps( k ), I_totals( k ), b_enableds( k ), neurons, true, array_utilities );
-                
-                % Update the neurons objectt.
-                neurons = neuron_manager.neurons;
+                [ IDs_new( k ), neurons_new( k ), neurons, neuron_manager ] = neuron_manager.create_neuron( IDs( k ), names{ k }, Us( k ), hs{ k }, Cms( k ), Gms( k ), Ers( k ), Rs( k ), Ams( k ), Sms( k ), dEms( k ), Ahs( k ), Shs( k ), dEhs( k ), dEnas( k ), tauh_maxs( k ), Gnas( k ), I_leaks( k ), I_syns( k ), I_nas( k ), I_tonics( k ), I_apps( k ), I_totals( k ), b_enableds( k ), neurons, true, array_utilities );
                 
             end
             
             % Determine whether to update the neuron manager object.
-            if set_flag, self = neuron_manager; end
+            if set_flag                                         % If we want to update the neuron manager object...
+                
+                % Update the neuron manager.
+                self = neuron_manager;
+            
+            else                                                % Otherwise...
+                
+                % Reset the neurons object to the original neurons.
+                neurons = neurons_initial;
+                
+            end
             
         end
         
@@ -3153,6 +3166,28 @@ classdef neuron_manager_class
                 % Delete this neuron.
                 [ neurons, self ] = self.delete_neuron( neuron_IDs( k ), neurons, set_flag, undetected_option );
                 
+            end
+            
+        end
+        
+        
+        % Implement a function to update the neuron manager.
+        function [ neurons, self ] = update_neuron_manager( self, neurons, neuron_manager, set_flag )
+        
+            % Set the default input arguments.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag                     % If we want to update the neuron manager object...
+                
+                % Update the neuron manager object.
+                self = neuron_manager;
+            
+            else                            % Otherwise...
+                
+                % Reset the neurons object.
+                neurons = self.neurons;
+            
             end
             
         end
@@ -3280,7 +3315,7 @@ classdef neuron_manager_class
         %% Subnetwork Neuron Creation Functions.
         
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
-        function [ IDs, neurons, self ] = create_mcpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_mcpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the default number of multistate cpg neurons.
             if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end
@@ -3331,13 +3366,13 @@ classdef neuron_manager_class
             end
             
             % Create the multistate cpg subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a multistate CPG oscillator subnetwork.
-        function [ IDs, neurons, self ] = create_dmcpg_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the default number of cpg neurons.
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
@@ -3378,7 +3413,7 @@ classdef neuron_manager_class
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Provided neuron properties must be of consistent size.' )
             
             % Create the neurons for a multistate cpg subnetwork.
-            [ IDs1, neurons, neuron_manager ] = self.create_mcpg_neurons( num_cpg_neurons, IDs( 1:( end - 1 ) ), names{ 1:( end - 1 ) }, Us( 1:( end - 1 ) ), hs( 1:( end - 1 ) ), Cms( 1:( end - 1 ) ), Gms( 1:( end - 1 ) ), Ers( 1:( end - 1 ) ), Rs( 1:( end - 1 ) ), Ams( 1:( end - 1 ) ), Sms( 1:( end - 1 ) ), dEms( 1:( end - 1 ) ), Ahs( 1:( end - 1 ) ), Shs( 1:( end - 1 ) ), dEhs( 1:( end - 1 ) ), dEnas( 1:( end - 1 ) ), tauh_maxs( 1:( end - 1 ) ), Gnas( 1:( end - 1 ) ), I_leaks( 1:( end - 1 ) ), I_syns( 1:( end - 1 ) ), I_nas( 1:( end - 1 ) ), I_tonics( 1:( end - 1 ) ), I_apps( 1:( end - 1 ) ), I_totals( 1:( end - 1 ) ), b_enableds( 1:( end - 1 ) ), neurons, true, array_utilities );
+            [ IDs1_new, neurons1_new, neurons, neuron_manager ] = self.create_mcpg_neurons( num_cpg_neurons, IDs( 1:( end - 1 ) ), names{ 1:( end - 1 ) }, Us( 1:( end - 1 ) ), hs( 1:( end - 1 ) ), Cms( 1:( end - 1 ) ), Gms( 1:( end - 1 ) ), Ers( 1:( end - 1 ) ), Rs( 1:( end - 1 ) ), Ams( 1:( end - 1 ) ), Sms( 1:( end - 1 ) ), dEms( 1:( end - 1 ) ), Ahs( 1:( end - 1 ) ), Shs( 1:( end - 1 ) ), dEhs( 1:( end - 1 ) ), dEnas( 1:( end - 1 ) ), tauh_maxs( 1:( end - 1 ) ), Gnas( 1:( end - 1 ) ), I_leaks( 1:( end - 1 ) ), I_syns( 1:( end - 1 ) ), I_nas( 1:( end - 1 ) ), I_tonics( 1:( end - 1 ) ), I_apps( 1:( end - 1 ) ), I_totals( 1:( end - 1 ) ), b_enableds( 1:( end - 1 ) ), neurons, true, array_utilities );
             
             % Determine whether to update the default or provided CPG drive neuron name.
             if isempty( names{ end } )                  % If the final name is empty...
@@ -3389,19 +3424,22 @@ classdef neuron_manager_class
             end
             
             % Create an additional neuron to drive the multistate cpg.
-            [ ID2, neurons, neuron_manager ] = neuron_manager.create_neuron( IDs( end ), names{ end }, Us( end ), hs( end ), Cms( end ), Gms( end ), Ers( end ), Rs( end ), Ams( end ), Sms( end ), dEms( end ), Ahs( end ), Shs( end ), dEhs( end ), dEnas( end ), tauh_maxs( end ), Gnas( end ), I_leaks( end ), I_syns( end ), I_nas( end ), I_tonics( end ), I_apps( end ), I_totals( end ), b_enableds( end ), neurons, true, array_utilities );
+            [ ID2_new, neuron2_new, neurons, neuron_manager ] = neuron_manager.create_neuron( IDs( end ), names{ end }, Us( end ), hs( end ), Cms( end ), Gms( end ), Ers( end ), Rs( end ), Ams( end ), Sms( end ), dEms( end ), Ahs( end ), Shs( end ), dEhs( end ), dEnas( end ), tauh_maxs( end ), Gnas( end ), I_leaks( end ), I_syns( end ), I_nas( end ), I_tonics( end ), I_apps( end ), I_totals( end ), b_enableds( end ), neurons, true, array_utilities );
             
             % Concatenate the neuron IDs.
-            IDs = [ IDs1, ID2 ];
+            IDs_new = [ IDs1_new, ID2_new ];
             
-            % Determine whether to update the neuron manager object.
-            if set_flag, self = neuron_manager; end
+            % Concatenate the neurons.
+            neurons_new = [ neurons1_new, neuron2_new ];
+            
+            % Update the neuron manager and neurons objects as appropriate.
+            [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
         end
         
         
         % Implement a function to create the neurons for a driven multistate cpg split lead lag subnetwork.
-        function [ IDs_cell, neurons, self ] = create_dmcpg_sll_neurons( self, num_cpg_neurons, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_sll_neurons( self, num_cpg_neurons, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Compute the number of neurons.
             [ n_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
@@ -3440,22 +3478,23 @@ classdef neuron_manager_class
             % Ensure that the neuron properties match the required number of neurons.
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Provided neuron properties must be of consistent size.' )
             
-            % Preallocate a cell array to store the neuron IDs.
-            IDs_cell = cell( 1, num_cpg_neurons + 3 );
+            % Preallocate a cell array to store the new neuron IDs and neuron objects.
+            IDs_new = cell( 1, num_cpg_neurons + 3 );
+            neurons_new = cell( 1, num_cpg_neurons + 3 );
             
             % Define the indexes of the neurons for the first driven multistate CPG.
             i_start1 = 1;
             i_end1 = n_dmcpg_neurons;
             
             % Create the first driven multistate CPG subnetwork neurons.
-            [ IDs_cell{ 1 }, neurons, neuron_manager ] = self.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Define the indexes of the neurons for the second driven multistate CPG.
             i_start2 = i_end1 + 1;
             i_end2 = i_end1 + n_dmcpg_neurons;
             
             % Create the second driven multistate CPG subnetwork neurons.
-            [ IDs_cell{ 2 }, neurons, neuron_manager ] = neuron_manager.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
             % Create the modulated split subtraction voltage based integration subnetwork neurons for each pair of driven multistate cpg neurons.
             for k = 1:num_cpg_neurons                               % Iterate through each of the cpg neurons...
@@ -3465,7 +3504,7 @@ classdef neuron_manager_class
                 i_end3 = i_end2 + k*n_mssvbi_neurons;
                 
                 % Create the modulated split difference voltage based integration subnetwork neurons.
-                [ IDs_cell{ k + 2 }, neurons, neuron_manager ] = neuron_manager.create_mssvbi_neurons( network_type, IDs( i_start3:i_end3 ), names( i_start3:i_end3 ), Us( i_start3:i_end3 ), hs( i_start3:i_end3 ), Cms( i_start3:i_end3 ), Gms( i_start3:i_end3 ), Ers( i_start3:i_end3 ), Rs( i_start3:i_end3 ), Ams( i_start3:i_end3 ), Sms( i_start3:i_end3 ), dEms( i_start3:i_end3 ), Ahs( i_start3:i_end3 ), Shs( i_start3:i_end3 ), dEhs( i_start3:i_end3 ), dEnas( i_start3:i_end3 ), tauh_maxs( i_start3:i_end3 ), Gnas( i_start3:i_end3 ), I_leaks( i_start3:i_end3 ), I_syns( i_start3:i_end3 ), I_nas( i_start3:i_end3 ), I_tonics( i_start3:i_end3 ), I_apps( i_start3:i_end3 ), I_totals( i_start3:i_end3 ), b_enableds( i_start3:i_end3 ), neurons, true, array_utilities );
+                [ IDs_new{ k + 2 }, neurons_new{ k + 2 }, neurons, neuron_manager ] = neuron_manager.create_mssvbi_neurons( network_type, IDs( i_start3:i_end3 ), names( i_start3:i_end3 ), Us( i_start3:i_end3 ), hs( i_start3:i_end3 ), Cms( i_start3:i_end3 ), Gms( i_start3:i_end3 ), Ers( i_start3:i_end3 ), Rs( i_start3:i_end3 ), Ams( i_start3:i_end3 ), Sms( i_start3:i_end3 ), dEms( i_start3:i_end3 ), Ahs( i_start3:i_end3 ), Shs( i_start3:i_end3 ), dEhs( i_start3:i_end3 ), dEnas( i_start3:i_end3 ), tauh_maxs( i_start3:i_end3 ), Gnas( i_start3:i_end3 ), I_leaks( i_start3:i_end3 ), I_syns( i_start3:i_end3 ), I_nas( i_start3:i_end3 ), I_tonics( i_start3:i_end3 ), I_apps( i_start3:i_end3 ), I_totals( i_start3:i_end3 ), b_enableds( i_start3:i_end3 ), neurons, true, array_utilities );
                 
             end
             
@@ -3473,20 +3512,25 @@ classdef neuron_manager_class
             i_start4 = i_end3 + 1;
             i_end4 = i_end3 + n_sll_neurons;
             
+            % Ensure that there names for the split lead-lag neurons.
+            if isempty( names( i_start4:i_end4 ) )                  % If the sll neuron names are empty...
+                
+                % Set the drive neuron name.
+                names( i_start4:i_end4 ) = { 'Fast Lead', 'Fast Lag', 'Slow Lead', 'Slow Lag' };
+                
+            end
+            
             % Create the unique driven multistate cpg split lead lag neurons.
-            [ IDs_cell{ end }, neurons, neuron_manager ] = neuron_manager.create_neurons( n_sll_neurons, IDs( i_start4:i_end4 ), names( i_start4:i_end4 ), Us( i_start4:i_end4 ), hs( i_start4:i_end4 ), Cms( i_start4:i_end4 ), Gms( i_start4:i_end4 ), Ers( i_start4:i_end4 ), Rs( i_start4:i_end4 ), Ams( i_start4:i_end4 ), Sms( i_start4:i_end4 ), dEms( i_start4:i_end4 ), Ahs( i_start4:i_end4 ), Shs( i_start4:i_end4 ), dEhs( i_start4:i_end4 ), dEnas( i_start4:i_end4 ), tauh_maxs( i_start4:i_end4 ), Gnas( i_start4:i_end4 ), I_leaks( i_start4:i_end4 ), I_syns( i_start4:i_end4 ), I_nas( i_start4:i_end4 ), I_tonics( i_start4:i_end4 ), I_apps( i_start4:i_end4 ), I_totals( i_start4:i_end4 ), b_enableds( i_start4:i_end4 ), neurons, true, array_utilities );
+            [ IDs_new{ end }, neurons_new{ end }, neurons, neuron_manager ] = neuron_manager.create_neurons( n_sll_neurons, IDs( i_start4:i_end4 ), names( i_start4:i_end4 ), Us( i_start4:i_end4 ), hs( i_start4:i_end4 ), Cms( i_start4:i_end4 ), Gms( i_start4:i_end4 ), Ers( i_start4:i_end4 ), Rs( i_start4:i_end4 ), Ams( i_start4:i_end4 ), Sms( i_start4:i_end4 ), dEms( i_start4:i_end4 ), Ahs( i_start4:i_end4 ), Shs( i_start4:i_end4 ), dEhs( i_start4:i_end4 ), dEnas( i_start4:i_end4 ), tauh_maxs( i_start4:i_end4 ), Gnas( i_start4:i_end4 ), I_leaks( i_start4:i_end4 ), I_syns( i_start4:i_end4 ), I_nas( i_start4:i_end4 ), I_tonics( i_start4:i_end4 ), I_apps( i_start4:i_end4 ), I_totals( i_start4:i_end4 ), b_enableds( i_start4:i_end4 ), neurons, true, array_utilities );
             
-            % Set the names of these addition neurons.
-            neuron_manager = neuron_manager.set_neuron_property( IDs_cell{ end }, { 'Fast Lead', 'Fast Lag', 'Slow Lead', 'Slow Lag' }, 'name' );
-            
-            % Determine whether to update the neuron manager object.
-            if set_flag, self = neuron_manager; end
+            % Update the neuron manager and neurons objects as appropriate.
+            [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
         end
         
         
         % Implement a function to create the neurons for a driven multistate cpg double centered lead lag subnetwork.
-        function [ IDs_cell, neurons, self ] = create_dmcpg_dcll_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_dcll_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Compute the number of neurons.
             [ n_neurons, n_dmcpg_sll_neurons, n_dc_neurons ] = self.compute_num_dmcpg_dcll_neurons( num_cpg_neurons );
@@ -3524,31 +3568,36 @@ classdef neuron_manager_class
             % Ensure that the neuron properties match the required number of neurons.
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Provided neuron properties must be of consistent size.' )
             
+            % Preallocate a cell array to store the neuron objects and IDs.
+            IDs_new = cell( 1, 2 );
+            neurons_new = cell( 1, 2 );
+            
             % Define the indexes associated with the dmcpgsll subnetwork.
             i_start1 = 1;
             i_end1 = n_dmcpg_sll_neurons;
             
             % Create the neurons for a driven multistate cpg split lead lag subnetwork.
-            [ IDs1, neurons, neuron_manager ] = self.create_dmcpg_sll_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_dmcpg_sll_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Define the indexes associated with the double centering subnetwork.
             i_start2 = i_end1 + 1;
             i_end2 = i_end1 + n_dc_neurons;
             
             % Create the neurons for a double centering subnetwork.
-            [ IDs2, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
             % Concatenate the neuron IDs.
-            IDs_cell = { IDs1, IDs2 };
+            IDs_new = [ IDs_new{ : } ];
+            neurons_new = [ neurons_new{ : } ];
             
-            % Determine whether to update the neuron manager object.
-            if set_flag, self = neuron_manager; end
+            % Update the neuron manager and neurons objects as appropriate.
+            [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
         end
         
         
         % Implemenet a function to create the neurons that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the double centered subtraction subnetwork.
-        function [ ID, neurons, self ] = create_dmcpgdcll2cds_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities )
+        function [ ID_new, neuron_new, neurons, self ] = create_dmcpgdcll2cds_neuron( self, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities )
             
             % Set the default neuron properties.
             if nargin < 28, array_utilities = self.array_utilites; end
@@ -3583,13 +3632,13 @@ classdef neuron_manager_class
             assert( self.validate_neuron_properties( 1, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, array_utilities ), 'Provided neuron properties must be of consistent size.' )
             
             % Create the desired lead lag input neuron.
-            [ ID, neurons, self ] = self.create_neuron( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities );
+            [ ID_new, neuron_new, neurons, self ] = self.create_neuron( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
-        function [ IDs_cell, neurons, self ] = create_ol_dmcpg_dclle_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_ol_dmcpg_dclle_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Compute the number of neurons.
             [ n_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, ~ ] = self.compute_num_ol_dmcpg_dclle_neurons( num_cpg_neurons );
@@ -3624,34 +3673,39 @@ classdef neuron_manager_class
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
             
+            % Preallocate a cell to store the neuron IDs and objects.
+            IDs_new = cell( 1, 3 );
+            neurons_new = cell( 1, 3 );
+            
             % Define the indexes associated with the dmcpg dcll neurons.
             i_start1 = 1;
             i_end1 = n_dmcpg_dcll_neurons;
             
             % Create the neurons for a driven multistate cpg double centered lead lag subnetwork.
-            [ IDs_dmcpgdcll, neurons, neuron_manager ] = self.create_dmcpg_dcll_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_dmcpg_dcll_neurons( num_cpg_neurons, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Define the indexes associated with the double subtraction neurons.
             i_start2 = i_end1 + 1;
             i_end2 = i_end1 + n_cds_neurons;
             
             % Create the neurons for a centered double subtraction subnetwork.
-            [ IDs_cds, neurons, neuron_manager ] = neuron_manager.create_cds_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_cds_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
             % Create the neurons that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the double centered subtraction subnetwork.
-            [ IDs_dmcpgdcll2cds, neurons, neuron_manager ] = neuron_manager.create_dmcpgdcll2cds_neuron( IDs( end ), names( end ), Us( end ), hs( end ), Cms( end ), Gms( end ), Ers( end ), Rs( end ), Ams( end ), Sms( end ), dEms( end ), Ahs( end ), Shs( end ), dEhs( end ), dEnas( end ), tauh_maxs( end ), Gnas( end ), I_leaks( end ), I_syns( end ), I_nas( end ), I_tonics( end ), I_apps( end ), I_totals( end ), b_enableds( end ), neurons, true, array_utilities );
+            [ IDs_new{ 3 }, neurons_new{ 3 }, neurons, neuron_manager ] = neuron_manager.create_dmcpgdcll2cds_neuron( IDs( end ), names( end ), Us( end ), hs( end ), Cms( end ), Gms( end ), Ers( end ), Rs( end ), Ams( end ), Sms( end ), dEms( end ), Ahs( end ), Shs( end ), dEhs( end ), dEnas( end ), tauh_maxs( end ), Gnas( end ), I_leaks( end ), I_syns( end ), I_nas( end ), I_tonics( end ), I_apps( end ), I_totals( end ), b_enableds( end ), neurons, true, array_utilities );
             
-            % Concatenate the neuron IDs.
-            IDs_cell = { IDs_dmcpgdcll, IDs_cds, IDs_dmcpgdcll2cds };
+            % Concatenate the neuron IDs and objects.
+            IDs_new = [ IDs_new{ : } ];
+            neurons_new = [ neurons_new{ : } ];
             
-            % Determine whether to update the neuron manager object.
-            if set_flag, self = neuron_manager; end
+            % Update the neuron manager and neurons objects as appropriate.
+            [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
         end
         
         
         % Implement a function to create the neurons for an closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
-        function [ IDs_cell, neurons, self ] = create_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Compute the number of neurons.
             [ n_neurons, ~, ~, ~ ] = self.compute_num_clpc_dmcpg_dcll_neurons( num_cpg_neurons );
@@ -3687,13 +3741,13 @@ classdef neuron_manager_class
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
             
             % Create the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
-            [ IDs_cell, neurons, self ] = self.create_ol_dmcpg_dclle_neurons( num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_ol_dmcpg_dclle_neurons( num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a transmission subnetwork.
-        function [ IDs, neurons, self ] = create_transmission_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_transmission_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_transmission_neurons_DEFAULT;
@@ -3740,13 +3794,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a modulation subnetwork.
-        function [ IDs, neurons, self ] = create_modulation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_modulation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_modulation_neurons_DEFAULT;
@@ -3793,13 +3847,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for an addition subnetwork.
-        function [ IDs, neurons, self ] = create_addition_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_addition_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the default number of neurons.
             if nargin < 3, n_neurons = self.num_addition_neurons_DEFAULT; end
@@ -3871,13 +3925,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a subtraction subnetwork.
-        function [ IDs, neurons, self ] = create_subtraction_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_subtraction_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the default number of neurons.
             if nargin < 3, n_neurons = self.num_subtraction_neurons_DEFAULT; end
@@ -3949,13 +4003,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a double subtraction subnetwork.
-        function [ IDs, neurons, self ] = create_double_subtraction_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_double_subtraction_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the number of neurons.
             n_neurons = self.num_double_subtraction_neurons_DEFAULT;
@@ -4002,13 +4056,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a centering subnetwork.
-        function [ IDs, neurons, self ] = create_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
             
             % Set the number of neurons.
             n_neurons = self.num_centering_neurons_DEFAULT;
@@ -4054,13 +4108,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a double centering subnetwork.
-        function [ IDs, neurons, self ] = create_double_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_double_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the number of neurons.
             n_neurons = self.num_double_centering_neurons_DEFAULT;
@@ -4106,13 +4160,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a centered double subtraction subnetwork.
-        function [ IDs_cell, neurons, self ] = create_cds_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_cds_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the number of neurons.
             [ n_neurons, n_ds_neurons, n_dc_neurons ] = self.compute_num_cds_neurons(  );
@@ -4150,31 +4204,36 @@ classdef neuron_manager_class
             % Ensure that the neuron properties match the required number of neurons.
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), sprintf( 'Centered double subtraction subnetworks require %0.0f neurons.', n_neurons ) )
             
+            % Preallocate a cell array to store the neuron IDs and objects.
+            IDs_new = cell( 1, 2 );
+            neurons_new = cell( 1, 2 );
+            
             % Set the indexes associated with the double subtraction neurons.
             i_start1 = 1;                                                                                               % [#] Starting Index 1.
             i_end1 = n_ds_neurons;                                                                                      % [#] Ending Index 1.
             
             % Create the double subtraction subnetwork neurons.
-            [ IDs1, neurons, neuron_manager ] = self.create_double_subtraction_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_double_subtraction_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), neurons, true, array_utilities );
             
             % Set the indexes associated with the double centering neurons.
             i_start2 = i_end1 + 1;                                                                                  	% [#] Starting Index 2.
             i_end2 = i_end1 + n_dc_neurons;                                                                             % [#] Ending Index 2.
             
             % Create the double centering subnetwork neurons.
-            [ IDs2, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
+            [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, array_utilities );
             
-            % Concatenate the neuron IDs.
-            IDs_cell = { IDs1, IDs2 };
-            
-            % Determine whether to update the neuron manager object.
-            if set_flag, self = neuron_manager; end
+            % Concatenate the neuron IDs and objects.
+            IDs_new = [ IDs_new{ : } ];
+            neurons_new = [ neurons_new{ : } ];
+
+            % Update the neuron manager and neurons objects as appropriate.
+            [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
         end
         
         
         % Implement a function to create the neurons for a multiplication subnetwork.
-        function [ IDs, neurons, self ] = create_multiplication_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_multiplication_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Set the number of neurons.
             n_neurons = self.num_multiplication_neurons_DEFAULT;
@@ -4221,13 +4280,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for an inversion subnetwork.
-        function [ IDs, neurons, self ] = create_inversion_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_inversion_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_inversion_neurons_DEFAULT;
@@ -4274,13 +4333,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a division subnetwork.
-        function [ IDs, neurons, self ] = create_division_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_division_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_division_neurons_DEFAULT;
@@ -4327,13 +4386,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for a derivation subnetwork.
-        function [ IDs, neurons, self ] = create_derivation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_derivation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_derivation_neurons_DEFAULT;
@@ -4380,13 +4439,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
@@ -4433,13 +4492,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_vbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_vbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_vbi_neurons_DEFAULT;
@@ -4486,13 +4545,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the split voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_svbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_svbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_svbi_neurons_DEFAULT;
@@ -4539,13 +4598,13 @@ classdef neuron_manager_class
             end
             
             % Create the subnetwork neurons.
-            [ IDs, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, self ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities );
             
         end
         
         
         % Implement a function to create the modulated split voltage based neurons for an integration subnetwork.
-        function [ IDs, neurons, self ] = create_msvbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_msvbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, array_utilities )
             
             % Define the number of neurons.
             [ n_neurons, n_vsbi_neurons, n_new_msvbi_neurons ] = self.compute_num_msvbi_neurons(  );
@@ -4582,6 +4641,9 @@ classdef neuron_manager_class
             
             % Ensure that the neuron properties match the required number of neurons.
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), sprintf( 'Voltage based integration subnetworks require %0.0f neurons.', n_neurons ) )
+            
+            % Preallocate an array to store the neuron IDs and objects.
+            
             
             % Define the split voltage based integration neuron indexes.
             i_start1 = 1;
