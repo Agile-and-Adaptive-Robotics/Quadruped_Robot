@@ -315,7 +315,60 @@ classdef array_utilities_class
         end
         
         
-        %% Cell Array Functions
+        %% Cell Array Functions.
+        
+        % Implement a function to determine whether any of the entries in a cell array are themselves cells.
+        function cell_present = contains_cell( ~, array )
+            
+            %{
+            Input(s):
+                array           =   [variable] Cell array that may itself contain cells.
+            
+            Output(s):
+                cell_present    =   [T/F] Flag that describes whether the provided array contains cells.
+            %}
+            
+            % Initialize the cell present flag to false.
+            cell_present = false;
+            
+            % Determine whether the input array is in fact a cell.
+            if iscell( array )                                      % If the provided array is a cell...
+            
+                % Compute the number of array entries.
+                n_entries = length( array );
+               
+                % Initialize a loop counter variable.
+                k = 0;
+
+                % Determine whether
+                while ( k < n_entries ) && ~cell_present             % While we have not yet checked every entry and have not yet found a cell...
+
+                    % Advance the loop counter variable.
+                    k = k + 1;
+
+                    % Determine whetheer this entry is a cell.
+                    cell_present = iscell( array{ k } );
+
+                end
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert a cell array to a regular array.
+        function array = cell2array( ~, array )
+            
+            % Extract the contents of the array as long as it still contains
+            while self.contains_cell( array )               % While the provided array contains at least one cell entry...
+            
+                % Extract and concatenate the contents of the cell entries.
+                array = [ array{ : } ];
+            
+            end
+            
+        end
+        
         
         % Implement a function to interpolate a cell array that may contain empty entries.
         function ys_cell_sample = interp1_cell( self, xs_cell, ys_cell, xs_cell_sample )
