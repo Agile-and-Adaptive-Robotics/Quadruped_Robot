@@ -16,7 +16,7 @@
  * Notes:
  * (1) Effectively serves as a pause function for the displayed data stream
  * 
- * (2) Verbose messages include language to inform the reader of both the 
+ * (2) Verbose me ssages include language to inform the reader of both the 
  * encoder and the value. A fourth column reports the time modulus 
  * (reference = 1000 ms). Non-verbose messages contain only the encoder 
  * values and the time. 
@@ -64,9 +64,9 @@ bool verboseMsg   = false;//determines whether context is printed with joint ang
 #define Knee2 37  // Knee 2
 
 // create encoder objects
-Encoder encoderHip(2,3);
-Encoder encoderAnk(4,5);
-Encoder encoderKne(6,7);
+Encoder encoderHip(3,2);
+Encoder encoderAnk(7,6);
+Encoder encoderKne(5,4);
 
 // initialize joint position vars
 double positionHip   = -999.0;
