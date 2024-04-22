@@ -4,9 +4,9 @@ plot(data)
 xlim([0 150])
 
 %%
-n = 21;
+n = 33;
 data0 = data - data(1);
-data = abs(deg2rad(data0(n:n+200)));
+data = abs(deg2rad(data0(n:n+100)));
 data0 = data;
 data = data - data(1);
 dataNorm = data/data(end);
@@ -30,7 +30,7 @@ t = linspace(0,(length(data)-1)/100,length(data));                      % [s] cr
 k = (m*g*r)/data0(end);
 
 ts = settime5(dataNorm,t);        % [s]           settling time based on 5% of steady state value
-tau = ts/3;                                     % [s]           first order system coefficient
+tau = ts/4;                                     % [s]           first order system coefficient
 b = tau*k;                                     % [Nms/rad]     damping constant derived from second order ODE characteristics
 
 % Set up first order transfer function
@@ -47,7 +47,7 @@ xlabel('Time (s)')
 ylabel('Normalized Deflection')
 legend('Experimental Data','First Order Model Approximation','Location','southeast')
 hold off
-
+title('2L2LT4ST37T 10Nm CW Torque Test')
 
 fprintf('k = %1.4f\n',k);
 fprintf('b = %1.4f\n',b);

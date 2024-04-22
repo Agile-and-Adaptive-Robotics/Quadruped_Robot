@@ -84,9 +84,9 @@ n = 2; % Plotting GS muscle stimulation only
         plot(data1(:,4),data1(:,2),':b','LineWidth',3);
         plot(data1(:,4),data1(:,3),':r','LineWidth',3);
         
-        plot(data2(:,4),data2(:,1),'--k','LineWidth',2);
-        plot(data2(:,4),data2(:,2),'--b','LineWidth',2);
-        plot(data2(:,4),data2(:,3),'--r','LineWidth',2);
+%         plot(data2(:,4),data2(:,1),'--k','LineWidth',2);
+%         plot(data2(:,4),data2(:,2),'--b','LineWidth',2);
+%         plot(data2(:,4),data2(:,3),'--r','LineWidth',2);
 
 hold off
 legend('Hip (scaled rat)', 'Knee (scaled rat)', 'Ankle (scaled rat)','Hip (novel leg)','Knee (novel leg)','Ankle (novel leg)','Hip (original leg)','Knee (original leg)','Ankle (original leg)')

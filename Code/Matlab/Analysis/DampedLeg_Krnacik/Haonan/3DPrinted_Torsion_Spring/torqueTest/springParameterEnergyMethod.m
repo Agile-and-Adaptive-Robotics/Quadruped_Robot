@@ -3,7 +3,7 @@ figure
 plot(data)
 
 %%
-data = -deg2rad(data(104:300));       
+data = deg2rad(data(34:133));       
 data0 = data - data(1);
 
 %%
@@ -87,3 +87,10 @@ b = (PE1-PE2-SE)/integral(tpeak);
 
 fprintf('k0 = %1.4f, k = %1.4f\n',[k0 k]);
 fprintf('b0 = %1.4f, b = %1.4f\n',[b0 b]);
+
+%%
+figure
+plot(t2,x0)
+xlabel('Time (s)')
+ylabel('Deflection (rad)')
+title('2L2LT4ST100I Energy Test 40Nmm')

@@ -7,12 +7,12 @@ plot(data)
 %torque [      0.123       0.245             0.429       0.613       0.858 1.226                        ]       % [Nm] big pulley
 mList = [0.050 0.100 0.150 0.200 0.250 0.300 0.350 0.400 0.500 0.600 0.700 1.000 1.200 1.500 1.700 2.000];      % [kg]
 
-ii = 9;
-startIndex = 27;
+ii = 1;
+startIndex = 21;
 
 g = 9.81;       %   [m/s^2]
-% r = 0.02039;      %   [m]                   small pulley
-r = 0.125;
+r = 0.02039;      %   [m]                   small pulley
+% r = 0.125;
 m = mList(ii);
 
         data0 = data - data(1);
@@ -28,7 +28,7 @@ m = mList(ii);
 %         end
         
         ts = settime5(dataNorm,t);        % [s]           settling time based on 5% of steady state value
-        tau = ts/3;                                     % [s]           first order system coefficient
+        tau = ts/4;                                     % [s]           first order system coefficient
         b = tau*k;                                     % [Nms/rad]     damping constant derived from second order ODE characteristics
 
         % Set up first order transfer function
