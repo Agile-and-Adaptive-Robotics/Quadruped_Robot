@@ -2787,41 +2787,153 @@ classdef synapse_manager_class
         
         %% Synapse Creation Functions.
         
+        % Implement a function to update the synapse manager.
+        function [ synapses, self ] = update_synapse_manager( self, synapses, synapse_manager, set_flag )
+        
+            % Set the default input arguments.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end            % [T/F] Set Flag (Determines whether output self object is updated.)
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag                                                  	% If we want to update the synapse manager object...
+                
+                % Update the synapse manager object.
+                self = synapse_manager;
+            
+            else                                                            % Otherwise...
+                
+                % Reset the synapses object.
+                synapses = self.synapses;
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to process synapse creation inputs.
+        function [ n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = process_neuron_creation_inputs( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
+           
+            % Set the default synapse properties.
+            if nargin < 13, array_utilities = self.array_utilities; end                                     % [class] Array Utilities Class.
+            if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 9, b_enableds = true; end                                                           % [T/F] Synapse Enabled Flag
+            if nargin < 8, deltas = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
+            if nargin < 7, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end                                   % [-] To Neuron ID
+            if nargin < 6, from_neuron_IDs = self.from_neuron_ID_DEFAULT; end                               % [-] From Neuron ID
+            if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
+            if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
+            if nargin < 3, names = ''; end                                                                  % [-] Synapse Name
+            if nargin < 2, IDs = self.generate_unique_synapse_ID( synapses, array_utilities ); end          % [#] Synapse ID
+           
+            % Convert the synpase parmaeters from cells to arrays as appropriate.
+            b_enableds = array_utilities.cell2array( b_enableds );                                          % [T/F] Synapse Enabled Flag
+            deltas = array_utilities.cell2array( deltas );                                                  % [V] Generic CPG Equilibrium Offset
+            to_neuron_IDs = array_utilities.cell2array( to_neuron_IDs );                                    % [-] To Neuron ID
+            from_neuron_IDs = array_utilities.cell2array( from_neuron_IDs );                                % [-] From Neuron ID
+            gs = array_utilities.cell2array( gs );                                                          % [S] Maximum Synaptic Conductance
+            dEs = array_utilities.cell2array( dEs );                                                        % [V] Synaptic Reversal Potential
+            names = array_utilities.cell2array( names );                                                    % [-] Synapse Name
+            IDs = array_utilities.cell2array( IDs );                                                        % [#] Synapse ID
+            
+            % Ensure that the synapse properties match the required number of synapses.
+            assert( self.validate_synapse_properties( n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities ), 'Provided neuron properties must be of consistent size.' )
+            
+        end
+        
+        
+        % Implement a function to process the synapse creation outputs.
+        function [ IDs, synapses ] = process_synapse_creation_outputs( ~, IDs, synapses, as_cell_flag, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 4, as_cell_flag = self.as_cell_flag_DEFAULT; end                   	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 3, synapses = self.neurons; end                                    	% [class] Array of Synapse Class Objects.
+            
+            % Determine whether to embed the new synapse IDs and objects in cells.
+            if as_cell_flag                                                                 % If we want to embed the new synapse IDs and objects into cells...
+                
+                % Determine whether to embed the synapse IDs into a cell.
+                if ~iscell( IDs )                                                           % If the IDs are not already a cell...
+                
+                    % Embed synapse IDs into a cell.
+                    IDs = { IDs };
+                
+                end
+                
+                % Determine whether to embed the synapse objects into a cell.
+                if ~iscell( synapses )                                                       % If the synapses are not already a cell...
+                
+                    % Embed synapse objects into a cell.
+                    synapses = { synapses };
+                    
+                end
+                
+            else                                                                            % Otherwise...
+                
+                % Determine whether to embed the synapse IDs into an array.
+                if iscell( IDs )                                                            % If the synapse IDs are a cell...
+                
+                    % Convert the synapse IDs cell to a regular array.
+                    IDs = array_utilities.cell2array( IDs );
+                    
+                end
+                
+                % Determine whether to embed the synapse objects into an array.
+                if iscell( synapses )                                                        % If the synapse objects are a cell...
+                
+                    % Convert the synapse objects cell to a regular array.
+                    synapses = array_utilities.cell2array( synapses );
+                    
+                end
+                
+            end
+            
+        end
+        
+        
         % Implement a function to create a new synapse.
-        function [ ID, synapse, self ] = create_synapse( self, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, array_utilities )
+        function [ ID_new, synapse_new, synapses, self ] = create_synapse( self, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default synapse properties.
-            if nargin < 12, array_utilities = self.array_utilities; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, synapses = self.synapses; end
+            if nargin < 13, array_utilities = self.array_utilities; end                                     % [class] Array Utilities Class.
+            if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end                                   % [T/F] As Cell Flag (Determines whether the new synapse IDs and objects should be stored in arrays or cells.)
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                           % [T/F] Set Flag (Determines whether to update the synapse mangaer object.)
+            if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
             if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag
-            if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                                  % [V] Generic CPG Equilibrium Offset
+            if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
             if nargin < 7, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                                    % [-] To Neuron ID
             if nargin < 6, from_neuron_ID = self.from_neuron_ID_DEFAULT; end                                % [-] From Neuron ID
-            if nargin < 5, gs = self.gs_max_DEFAULT; end                                            % [S] Maximum Synaptic Conductance
-            if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                        % [V] Synaptic Reversal Potential
+            if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
+            if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
             if nargin < 3, name = ''; end                                                                   % [-] Synapse Name
-            if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end                                    % [#] Synapse ID
+            if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end           % [#] Synapse ID
+            
+            % Process the synapse creation properties.
+            [ ~, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_neuron_creation_inputs( 1, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
             
             % Ensure that this synapse ID is a unique natural.
             assert( self.unique_natural_synapse_ID( ID, synapses, array_utilities ), 'Proposed synapse ID %0.2f is not a unique natural number.', ID )
             
+            % Create an instance of the synapse manager.
+            synapse_manager = self;
+            
             % Create an instance of the synapse class.
-            synapse = synapse_class( ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled );
+            synapse_new = synapse_class( ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled );
+            
+            % Retrieve the new synapse ID.
+            ID_new = synapse_new.ID; 
+            
+            % Determine whether to embed the new synapse ID and object in cells.
+            [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
             
             % Append this synapse to the array of existing synapses.
-            synapses = [ synapses, synapse ];
+            synapses = [ synapses, synapse_new ];
+            
+            % Update the synapse manager to reflect the update neurons object.
+            synapse_manager.synapses = synapses;
+            synapse_manager.num_synapses = length( synapses );
             
             % Determine whether to update the synapse manager object.
-            if set_flag
-               
-                % Update the synapses property.
-                self.synapses = synapses;
-                
-                % Increase the number of synapses counter.
-                self.num_synapses = self.num_synapses + 1;
-                
-            end
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         

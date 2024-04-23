@@ -117,10 +117,10 @@ classdef neuron_manager_class
         function self = neuron_manager_class( neurons, neuron_utilities, data_loader_utilities, array_utilities )
             
             % Set the default class properties.
-            if nargin < 4, array_utilities = array_utilities_class(  ); end
-            if nargin < 3, data_loader_utilities = data_loader_utilities_class(  ); end
-            if nargin < 2, neuron_utilities = neuron_utilities_class(  ); end
-            if nargin < 1, neurons = [  ]; end
+            if nargin < 4, array_utilities = array_utilities_class(  ); end                     % [class] Array Utilities Class.
+            if nargin < 3, data_loader_utilities = data_loader_utilities_class(  ); end         % [class] Data Load Utilities Class.
+            if nargin < 2, neuron_utilities = neuron_utilities_class(  ); end                   % [class] Neuron Utilities Class.
+            if nargin < 1, neurons = [  ]; end                                                  % [class] Array of Neuron Class Objects.
             
             % Store utilities class properties.
             self.array_utilities = array_utilities;
@@ -142,8 +142,8 @@ classdef neuron_manager_class
         function neuron_index = get_neuron_index( self, neuron_ID, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end      % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 3, neurons = self.neurons; end                                  % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -155,13 +155,13 @@ classdef neuron_manager_class
             neuron_index = 0;
             
             % Search for a neuron whose ID matches the target value.
-            while ( neuron_index < n_neurons ) && ( ~b_match_found )                % While we have not yet checked all of the neurons and have not yet found an ID match...
+            while ( neuron_index < n_neurons ) && ( ~b_match_found )                    % While we have not yet checked all of the neurons and have not yet found an ID match...
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
                 
                 % Check whether this neuron index is a match.
-                if neurons( neuron_index ).ID == neuron_ID                          % If this neuron has the correct neuron ID...
+                if neurons( neuron_index ).ID == neuron_ID                              % If this neuron has the correct neuron ID...
                     
                     % Set the match found flag to true.
                     b_match_found = true;
@@ -171,15 +171,15 @@ classdef neuron_manager_class
             end
             
             % Determine whether to adjust the neuron index.
-            if ~b_match_found                                                       % If a match was not found...
+            if ~b_match_found                                                           % If a match was not found...
                 
                 % Determine how to handle when a match is not found.
-                if strcmpi( undetected_option, 'error' )                            % If the undetected option is set to 'error'...
+                if strcmpi( undetected_option, 'error' )                                % If the undetected option is set to 'error'...
                     
                     % Throw an error.
                     error( 'No neuron with ID %0.0f.', neuron_ID )
                     
-                elseif strcmpi( undetected_option, 'warning' )                     % If the undetected option is set to 'warning'...
+                elseif strcmpi( undetected_option, 'warning' )                          % If the undetected option is set to 'warning'...
                     
                     % Throw a warning.
                     warning( 'No neuron with ID %0.0f.', neuron_ID )
@@ -187,12 +187,12 @@ classdef neuron_manager_class
                     % Set the neuron index to negative one.
                     neuron_index = -1;
                     
-                elseif strcmpi( undetected_option, 'ignore' )                       % If the undetected option is set to 'ignore'...
+                elseif strcmpi( undetected_option, 'ignore' )                           % If the undetected option is set to 'ignore'...
                     
                     % Set the neuron index to negative one.
                     neuron_index = -1;
                     
-                else                                                                % Otherwise...
+                else                                                                    % Otherwise...
                     
                     % Throw an error.
                     error( 'Undetected option %s not recognized.', undetected_option )
@@ -208,29 +208,29 @@ classdef neuron_manager_class
         function neuron_IDs = validate_neuron_IDs( self, neuron_IDs, neurons )
             
             % Set the default input arguments.
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 3, neurons = self.neurons; end            	% [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
             
             % Determine whether we want get the desired neuron property from all of the neurons.
-            if isa( neuron_IDs, 'char' )                                                      % If the neuron IDs variable is a character array instead of an integer srray...
+            if isa( neuron_IDs, 'char' )                          	% If the neuron IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmpi( neuron_IDs, 'all' )                  % If the character array is either 'all' or 'All'...
+                if  strcmpi( neuron_IDs, 'all' )                    % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the neuron IDs.
                     neuron_IDs = zeros( 1, n_neurons );
                     
                     % Retrieve the neuron ID associated with each neuron.
-                    for k = 1:n_neurons                   % Iterate through each neuron...
+                    for k = 1:n_neurons                             % Iterate through each neuron...
                         
                         % Store the neuron ID associated with the current neuron.
                         neuron_IDs( k ) = neurons( k ).ID;
                         
                     end
                     
-                else                                                                        % Otherwise...
+                else                                               	% Otherwise...
                     
                     % Throw an error.
                     error( 'Neuron_IDs must be either an array of valid neuron IDs or one of the strings: ''all'' or ''All''.' )
@@ -246,8 +246,8 @@ classdef neuron_manager_class
         function [ b_unique, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve all of the existing neuron IDs.
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -265,8 +265,8 @@ classdef neuron_manager_class
         function b_unique_natural = unique_natural_neuron_ID( self, neuron_ID, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                   	% [class] Array Utilities Class.
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Initialize the unique natural to false.
             b_unique_natural = false;
@@ -275,7 +275,7 @@ classdef neuron_manager_class
             b_unique = self.unique_neuron_ID( neuron_ID, neurons, array_utilities );
             
             % Determine whether this neuron ID is a unique natural.
-            if b_unique && ( neuron_ID > 0 ) && ( round( neuron_ID ) == neuron_ID )                     % If this neuron ID is a unique natural...
+            if b_unique && ( neuron_ID > 0 ) && ( round( neuron_ID ) == neuron_ID )         % If this neuron ID is a unique natural...
                 
                 % Set the unique natural flag to true.
                 b_unique_natural = true;
@@ -289,8 +289,8 @@ classdef neuron_manager_class
         function [ b_uniques, match_logicals, match_indexes ] = unique_neuron_IDs( self, neuron_IDs, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 3, neurons = self.neurons; end                                      % [class] Array of Neuron Class Objects.
             
             % Retrieve all of the existing neuron IDs.
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -308,7 +308,7 @@ classdef neuron_manager_class
         function [ b_unique, match_logicals ] = unique_existing_neuron_IDs( self, neurons )
             
             % Set the default input arguments.
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 2, neurons = self.neurons; end                                                      % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -317,7 +317,7 @@ classdef neuron_manager_class
             neuron_IDs = self.get_all_neuron_IDs( neurons );
             
             % Determine whether all entries are unique.
-            if length( unique( neuron_IDs ) ) == n_neurons                    % If all of the neuron IDs are unique...
+            if length( unique( neuron_IDs ) ) == n_neurons                                                  % If all of the neuron IDs are unique...
                 
                 % Set the unique flag to true.
                 b_unique = true;
@@ -325,7 +325,7 @@ classdef neuron_manager_class
                 % Set the logicals array to true.
                 match_logicals = false( 1, n_neurons );
                 
-            else                                                                     % Otherwise...
+            else                                                                                            % Otherwise...
                 
                 % Set the unique flag to false.
                 b_unique = false;
@@ -334,19 +334,19 @@ classdef neuron_manager_class
                 match_logicals = false( 1, n_neurons );
                 
                 % Determine which neurons have duplicate IDs.
-                for k1 = 1:n_neurons                          % Iterate through each neuron...
+                for k1 = 1:n_neurons                                                                        % Iterate through each neuron...
                     
                     % Initialize the loop variable.
                     k2 = 0;
                     
                     % Determine whether there is another neuron with the same ID.
-                    while ( k2 < n_neurons ) && ( ~match_logicals( k1 ) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the neurons and we haven't found a match.
+                    while ( k2 < n_neurons ) && ( ~match_logicals( k1 ) ) && ( k1 ~= ( k2 + 1 ) )           % While we haven't checked all of the neurons and we haven't found a match.
                         
                         % Advance the loop variable.
                         k2 = k2 + 1;
                         
                         % Determine whether this neuron is a match.
-                        if neurons( k2 ).ID == neuron_IDs( k1 )                              % If this neuron ID is a match...
+                        if neurons( k2 ).ID == neuron_IDs( k1 )                                             % If this neuron ID is a match...
                             
                             % Set this match logical to true.
                             match_logicals( k1 ) = true;
@@ -366,8 +366,8 @@ classdef neuron_manager_class
         function neuron_ID = generate_unique_neuron_ID( self, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 3, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 2, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve the existing neuron IDs.
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -382,8 +382,8 @@ classdef neuron_manager_class
         function neuron_IDs = generate_unique_neuron_IDs( self, num_IDs, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve the existing neuron IDs.
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -392,7 +392,7 @@ classdef neuron_manager_class
             neuron_IDs = zeros( 1, num_IDs );
             
             % Generate each of the new IDs.
-            for k = 1:num_IDs                           % Iterate through each of the new IDs...
+            for k = 1:num_IDs                                                               % Iterate through each of the new IDs...
                 
                 % Generate a unique neuron ID.
                 neuron_IDs( k ) = array_utilities.get_lowest_natural_number( [ existing_neuron_IDs, neuron_IDs( 1:( k - 1 ) ) ] );
@@ -406,9 +406,9 @@ classdef neuron_manager_class
         function [ unique_neuron_IDs, neurons, self ] = make_neuron_IDs_unique( self, neurons, set_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 2, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -417,13 +417,13 @@ classdef neuron_manager_class
             neuron_IDs = self.get_all_neuron_IDs( neurons );
             
             % Determine whether all entries are unique.
-            if length( unique( neuron_IDs ) ) ~= n_neurons                    % If the neuron IDs are not unique...
+            if length( unique( neuron_IDs ) ) ~= n_neurons                                  % If the neuron IDs are not unique...
                 
                 % Preallocate an array to store the unique neuron IDs.
                 unique_neuron_IDs = zeros( 1, n_neurons );
                 
                 % Create an array of unique neuron IDs.
-                for k = 1:n_neurons                  % Iterate through each neuron...
+                for k = 1:n_neurons                                                         % Iterate through each neuron...
                     
                     % Determine whether this neuron ID is non-unique.
                     b_match_found = array_utilities.is_value_in_array( neurons( k ).ID, unique_neuron_IDs );
@@ -458,9 +458,9 @@ classdef neuron_manager_class
         function [ new_neuron_IDs, neurons, self ] = make_neuron_IDs_positive( self, neurons, set_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 2, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -472,10 +472,10 @@ classdef neuron_manager_class
             new_neuron_IDs = zeros( 1, n_neurons );
             
             % Ensure that all of the neuron IDs are positive.
-            for k = 1:n_neurons                          % Iterate through each of the neurons...
+            for k = 1:n_neurons                                                             % Iterate through each of the neurons...
                 
                 % Determine whether this neuron ID is non-positive.
-                if neurons( k ).ID <= 0                               % If this neuron ID is non-positive...
+                if neurons( k ).ID <= 0                                                     % If this neuron ID is non-positive...
                     
                     % Generate a new unique ID for this neuron.
                     new_neuron_IDs( k ) = array_utilities.get_lowest_natural_number( neuron_IDs );
@@ -497,9 +497,9 @@ classdef neuron_manager_class
         function [ new_neuron_IDs, neurons, self ] = make_neuron_IDs_integers( self, neurons, set_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 2, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -511,7 +511,7 @@ classdef neuron_manager_class
             new_neuron_IDs = zeros( 1, n_neurons );
             
             % Ensure that all of the neuron IDs are integers.
-            for k = 1:n_neurons                          % Iterate through each of the neurons...
+            for k = 1:n_neurons                                                             % Iterate through each of the neurons...
                 
                 % Determine whether this neuron ID is an integer.
                 if round( neurons( k ).ID ) ~= neurons( k ).ID                               % If this neuron ID is not an integer...
@@ -536,9 +536,9 @@ classdef neuron_manager_class
         function [ new_neuron_IDs, neurons, self ] = make_neuron_IDs_naturals( self, neurons, set_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                                  % [class] Array Utilities Class.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 2, neurons = self.neurons; end                                                  % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -550,10 +550,10 @@ classdef neuron_manager_class
             new_neuron_IDs = zeros( 1, n_neurons );
             
             % Ensure that all of the neuron IDs are naturals.
-            for k = 1:n_neurons                          % Iterate through each of the neurons...
+            for k = 1:n_neurons                                                                         % Iterate through each of the neurons...
                 
                 % Determine whether this neuron ID is natural.
-                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 )                              % If this neuron ID is not a natural...
+                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 )          % If this neuron ID is not a natural...
                     
                     % Generate a new ID for this neuron.
                     new_neuron_IDs( k ) = array_utilities.get_lowest_natural_number( neuron_IDs );
@@ -575,9 +575,9 @@ classdef neuron_manager_class
         function [ new_neuron_IDs, neurons, self ] = make_neuron_IDs_unique_naturals( self, neurons, set_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 4, array_utilities = self.array_utilities; end                                                  % [class] Array Utilities Class.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 2, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -586,7 +586,7 @@ classdef neuron_manager_class
             new_neuron_IDs = zeros( 1, n_neurons );
             
             % Ensure that all of the neuron IDs are naturals.
-            for k = 1:n_neurons                          % Iterate through each of the neurons...
+            for k = 1:n_neurons                                                                                         % Iterate through each of the neurons...
                 
                 % Retrieve all of the existing neuron IDs.
                 neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -598,7 +598,7 @@ classdef neuron_manager_class
                 b_match_found = array_utilities.is_value_in_array( neurons( k ).ID, neuron_IDs );
                 
                 % Determine whether this neuron ID is natural.
-                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 ) || b_match_found                             % If this neuron ID is not a unique natural...
+                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 ) || b_match_found         % If this neuron ID is not a unique natural...
                     
                     % Generate a new ID for this neuron.
                     new_neuron_IDs( k ) = array_utilities.get_lowest_natural_number( neuron_IDs );
@@ -620,7 +620,7 @@ classdef neuron_manager_class
         function neuron_IDs = get_all_neuron_IDs( self, neurons )
             
             % Set the default input arguments.
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 2, neurons = self.neurons; end      % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -642,7 +642,7 @@ classdef neuron_manager_class
         function neuron_IDs = get_enabled_neuron_IDs( self, neurons )
             
             % Set the default input arguments.
-            if nargin < 2, neurons = self.neurons; end
+            if nargin < 2, neurons = self.neurons; end              % [class] Array of Neuron Class Objects.
             
             % Preallocate an array to store the neuron IDs.
             neuron_IDs = zeros( 1, n_neurons );
@@ -651,10 +651,10 @@ classdef neuron_manager_class
             k2 = 0;
             
             % Retrieve the IDs of the enabled neurons.
-            for k1 = 1:n_neurons                       % Iterate through each of the neurons...
+            for k1 = 1:n_neurons                                    % Iterate through each of the neurons...
                 
                 % Determine whether to store this neuron ID.
-                if neurons( k1 ).b_enabled                        % If this neuron is enabled...
+                if neurons( k1 ).b_enabled                          % If this neuron is enabled...
                     
                     % Advance the counter variable.
                     k2 = k2 + 1;
@@ -678,9 +678,9 @@ classdef neuron_manager_class
         function xs = get_neuron_property( self, neuron_IDs, neuron_property, as_matrix, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, as_matrix = false; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, as_matrix = false; end                                           % [T/F] As Matrix Flag (Determines whether to return the neuron property as a matrix or as a cell.)
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -720,8 +720,8 @@ classdef neuron_manager_class
         function [ neurons, self ] = set_neuron_property( self, neuron_IDs, neuron_property_values, neuron_property, neurons, set_flag )
             
             % Set the default input arguments.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                              % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -791,9 +791,9 @@ classdef neuron_manager_class
         function [ b_enabled, neurons, self ] = enable_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve the index associated with this neuron.
             neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
@@ -811,9 +811,9 @@ classdef neuron_manager_class
         function [ b_enableds, neurons, self ] = enable_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -825,7 +825,7 @@ classdef neuron_manager_class
             b_enableds = false( 1, num_neuron_IDs );
             
             % Enable all of the specified neurons.
-            for k = 1:num_neuron_IDs                      % Iterate through all of the specified neurons...
+            for k = 1:num_neuron_IDs                                                        % Iterate through all of the specified neurons...
                 
                 % Enable this neuron.
                 [ b_enableds( k ), neurons, self ] = self.enable_neuron( neuron_IDs( k ), neurons, set_flag, undetected_option );
@@ -839,9 +839,9 @@ classdef neuron_manager_class
         function [ b_enabled, neurons, self ] = disable_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve the index associated with this neuron.
             neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
@@ -859,9 +859,9 @@ classdef neuron_manager_class
         function [ b_enableds, neurons, self ] = disable_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undected_option_DEFAULT; end            % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -873,7 +873,7 @@ classdef neuron_manager_class
             b_enableds = false( 1, num_neuron_IDs );
             
             % Disable all of the specified neurons.
-            for k = 1:num_neuron_IDs                      % Iterate through all of the specified neurons...
+            for k = 1:num_neuron_IDs                                                        % Iterate through all of the specified neurons...
                 
                 % Disable this neuron.
                 [ b_enableds( k ), neurons, self ] = self.disable_neuron( neuron_IDs( k ), neurons, set_flag, undetected_option );
@@ -887,9 +887,9 @@ classdef neuron_manager_class
         function [ b_enabled, neurons, self ] = toggle_enabled_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve the index associated with this neuron.
             neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
@@ -907,9 +907,9 @@ classdef neuron_manager_class
         function [ b_enableds, neurons, self ] = toggle_enabled_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -921,7 +921,7 @@ classdef neuron_manager_class
             b_enableds = false( 1, num_neuron_IDs );
             
             % Disable all of the specified neurons.
-            for k = 1:num_neuron_IDs                      % Iterate through all of the specified neurons...
+            for k = 1:num_neuron_IDs                                                        % Iterate through all of the specified neurons...
                 
                 % Toggle this neuron.
                 [ b_enableds( k ), neurons, self ] = self.toggle_enabled_neuron( neuron_IDs( k ), neurons, set_flag, undetected_option );
@@ -937,9 +937,9 @@ classdef neuron_manager_class
         function [ values, neurons, self ] = call_neuron_method( self, neuron_IDs, neuron_method, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -951,7 +951,7 @@ classdef neuron_manager_class
             values = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -976,14 +976,14 @@ classdef neuron_manager_class
         function c2 = compute_absolute_multiplication_c2( self, c, c1, epsilon1, epsilon2, R2 )
             
             % Define the default input arguments.
-            if nargin < 6, R2 = self.R_DEFAULT; end
-            if nargin < 5, epsilon2 = self.epsilon_DEFAULT; end
-            if nargin < 4, epsilon1 = self.epsilon_DEFAULT; end
-            if nargin < 3, c1 = self.c_DEFAULT; end
-            if nargin < 2, c = self.c_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end                          	% [V] Maximum Membrane Voltage.
+            if nargin < 5, epsilon2 = self.epsilon_DEFAULT; end                 % [-] Division Subnetwork Offset.
+            if nargin < 4, epsilon1 = self.epsilon_DEFAULT; end                 % [-] Inversion Subnetwork Offset.
+            if nargin < 3, c1 = self.c_DEFAULT; end                             % [-] Inversion Subnetwork Gain.
+            if nargin < 2, c = self.c_DEFAULT; end                              % [-] Multiplication Subnetwork Gain.
             
             % Compute the absolute multiplication subnetwork gain.
-            c2 = ( ( c*R2 )/( R2 + epsilon1 ) )*c1 + c*epsilon2*R2;
+            c2 = ( ( c*R2 )/( R2 + epsilon1 ) )*c1 + c*epsilon2*R2;             % [-] Division Subnetwork Gain.
             
         end
         
@@ -994,9 +994,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_cpg_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1009,7 +1009,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1029,9 +1029,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_dmcpg_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1044,7 +1044,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1064,10 +1064,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_transmission_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1080,7 +1080,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1100,9 +1100,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_modulation_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1115,7 +1115,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1135,10 +1135,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_addition_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end        	% [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1151,7 +1151,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1171,10 +1171,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1187,7 +1187,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1207,10 +1207,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_double_subtraction_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1223,7 +1223,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1243,10 +1243,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_multiplication_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1259,7 +1259,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1279,10 +1279,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_inversion_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1295,7 +1295,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1315,10 +1315,10 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_division_Gna( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1331,7 +1331,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1351,9 +1351,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_derivation_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1366,7 +1366,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1386,9 +1386,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_integration_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1401,7 +1401,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1421,9 +1421,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_vbi_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1436,7 +1436,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1456,9 +1456,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = compute_svbi_Gna( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -1471,7 +1471,7 @@ classdef neuron_manager_class
             Gnas = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1493,23 +1493,23 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_addition_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                         % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                             % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
             
             % Preallocate an array to store the membrane conductances.
             Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1529,17 +1529,17 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_addition_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final addition neuron is the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );          % Only the final addition neuron is the output neuron.
             
             % Compute and set the membrane conductance for the output neuron.
             [ Gm, neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_Gm_output( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -1554,11 +1554,11 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_subtraction_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                         	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1570,7 +1570,7 @@ classdef neuron_manager_class
             Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1590,11 +1590,11 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_subtraction_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1615,11 +1615,11 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_inversion_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end        	% [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                         	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1640,11 +1640,11 @@ classdef neuron_manager_class
         function [ Gm, neurons, self ] = compute_inversion_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1665,11 +1665,11 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_division_Gm_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1681,7 +1681,7 @@ classdef neuron_manager_class
             Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1701,11 +1701,11 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_division_Gm_output( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                  % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1726,13 +1726,13 @@ classdef neuron_manager_class
         function [ Gms, neurons, self ] = compute_derivation_Gm( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, neurons = self.neurons; end
-            if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Safety Factor
-            if nargin < 4, w = self.w_derivation_DEFAULT; end                                               % [Hz?] Derivative Subnetwork Cutoff Frequency
-            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                          % [-] Derivative Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                                          % [-] Neuron IDs
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 6, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end               	% [-] Derivative Subnetwork Safety Factor
+            if nargin < 4, w = self.w_derivation_DEFAULT; end                              	% [Hz?] Derivative Subnetwork Cutoff Frequency
+            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                        	% [-] Derivative Subnetwork Gain
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1744,7 +1744,7 @@ classdef neuron_manager_class
             Gms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1766,11 +1766,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_transmission_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                      	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1782,7 +1782,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1802,14 +1802,14 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_slow_transmission_Cm( self, neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, neurons = self.neurons; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 5, r = self.r_oscillation_DEFAULT; end                                          % [-] Oscillation Decay
-            if nargin < 4, T = self.T_oscillation_DEFAULT; end                                          % [s] Oscillation Period
-            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                          % [#] Number of CPG Neurons
-            if nargin < 2, neuron_IDs = 'all'; end                                                      % [-] Neuron IDs
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 7, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 5, r = self.r_oscillation_DEFAULT; end                            	% [-] Oscillation Decay
+            if nargin < 4, T = self.T_oscillation_DEFAULT; end                            	% [s] Oscillation Period
+            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.             	% [#] Number of CPG Neurons
+            if nargin < 2, neuron_IDs = 'all'; end                                         	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1821,7 +1821,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1841,10 +1841,10 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_modulation_Cm( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 2, neuron_IDs = 'all'; end                                      	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1856,7 +1856,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1876,11 +1876,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_addition_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                         	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1892,7 +1892,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1912,11 +1912,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1928,7 +1928,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                              	% Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1948,11 +1948,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_double_subtraction_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -1964,7 +1964,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -1984,11 +1984,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_multiplication_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2000,7 +2000,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2020,11 +2020,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_inversion_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2036,7 +2036,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2056,11 +2056,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_division_Cm( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2072,7 +2072,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2092,18 +2092,18 @@ classdef neuron_manager_class
         function [ Cm1, neurons, self ] = compute_derivation_Cm1( self, neuron_IDs, k_gain, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                                  % [-] Derivative Subnetwork Gain
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, k_gain = self.c_derivation_DEFAULT; end                        	% [-] Derivative Subnetwork Gain
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the membrane capacitance of the second neuron.
-            Cm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Cm', true, neurons );            % [F] Membrane Capacitance
-            Gm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neurons );            % [S] Membrane Conductance
+            Cm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Cm', true, neurons );       	% [F] Membrane Capacitance
+            Gm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neurons );        	% [S] Membrane Conductance
             
             % Retrieve the index associated with this neuron ID.
             neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );
@@ -2121,10 +2121,10 @@ classdef neuron_manager_class
         function [ Cm2, neurons, self ] = compute_derivation_Cm2( self, neuron_IDs, w, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, w = self.w_derivation_DEFAULT; end                                       % [Hz?] Derivative Subnetwork Cutoff Frequency?
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, w = self.w_derivation_DEFAULT; end                              	% [Hz?] Derivative Subnetwork Cutoff Frequency?
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -2146,10 +2146,10 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_integration_Cm( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                           % [-] Average Integration Mean
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                  	% [-] Average Integration Mean
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -2162,7 +2162,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2182,11 +2182,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_vbi_Cm( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                 	% [-] Average Integration Gain
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2198,7 +2198,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2218,11 +2218,11 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_svbi_Cm1( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                               % [-] Average Integration Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end               	% [-] Average Integration Gain
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2234,7 +2234,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2254,10 +2254,10 @@ classdef neuron_manager_class
         function [ Cms, neurons, self ] = compute_svbi_Cm2( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2269,7 +2269,7 @@ classdef neuron_manager_class
             Cms = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the neurons of interest...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the neurons of interest...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2291,15 +2291,15 @@ classdef neuron_manager_class
         function parameters = process_addition_R_output_parameters( self, parameters, encoding_scheme, neurons )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                       % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                    % If no parameters were provided...
+                if isempty( parameters )                                                    % If no parameters were provided...
                     
                     % Retrieve the maximum membrane voltages of the input neurons.
                     Rs = self.get_neuron_property( neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons );
@@ -2307,10 +2307,10 @@ classdef neuron_manager_class
                     % Store the required parameters in a cell.
                     parameters = { Rs };
                     
-                else                                        % Otherwise...
+                else                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 1                            % If there is anything other than a single parameter entry...
+                    if length( parameters ) ~= 1                                            % If there is anything other than a single parameter entry...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2319,17 +2319,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                   % If the parameters cell is not empty...
+                if ~isempty( parameters )                                                   % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2343,15 +2343,15 @@ classdef neuron_manager_class
         function parameters = process_subtraction_R_output_parameters( self, parameters, encoding_scheme, neurons )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                       % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                    % If no parameters were provided...
+                if isempty( parameters )                                                    % If no parameters were provided...
                     
                     % Set the input signature to the default value.
                     s_ks = self.s_ks_DEFAULT;
@@ -2362,10 +2362,10 @@ classdef neuron_manager_class
                     % Store the required parameters in a cell.
                     parameters = { Rs, s_ks };
                     
-                else                                        % Otherwise...
+                else                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than two parameter entries...
+                    if length( parameters ) ~= 2                                            % If there is anything other than two parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2374,17 +2374,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                   % If the parameters cell is not empty...
+                if ~isempty( parameters )                                                   % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2398,26 +2398,26 @@ classdef neuron_manager_class
         function parameters = process_inversion_R_input_parameters( self, parameters, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                       % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                    % If no parameters were provided...
+                if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    epsilon = self.epsilon_inversion_DEFAULT;               % [V] Inversion Subnetwork Input Offset.
-                    delta = self.delta_inversion_DEFAULT;                   % [V] Inversion Subnetwork Output Offset.
+                    epsilon = self.epsilon_inversion_DEFAULT;                        	% [V] Inversion Subnetwork Input Offset.
+                    delta = self.delta_inversion_DEFAULT;                               % [V] Inversion Subnetwork Output Offset.
                     
                     % Store the required parameters in a cell.
                     parameters = { epsilon, delta };
                     
-                else                                        % Otherwise...
+                else                                                                	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than two parameter entries...
+                    if length( parameters ) ~= 2                                        % If there is anything other than two parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2426,17 +2426,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                   % If the parameters cell is not empty...
+                if ~isempty( parameters )                                               % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                        % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2450,27 +2450,27 @@ classdef neuron_manager_class
         function parameters = process_inversion_R_output_parameters( self, parameters, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                       % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                    % If no parameters were provided...
+                if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
                     c = self.c_inversion_DEFAULT;
-                    epsilon = self.epsilon_inversion_DEFAULT;               % [V] Inversion Subnetwork Input Offset.
-                    delta = self.delta_inversion_DEFAULT;                   % [V] Inversion Subnetwork Output Offset.
+                    epsilon = self.epsilon_inversion_DEFAULT;                           % [V] Inversion Subnetwork Input Offset.
+                    delta = self.delta_inversion_DEFAULT;                               % [V] Inversion Subnetwork Output Offset.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, epsilon, delta };
                     
-                else                                        % Otherwise...
+                else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                            % If there is anything other than three parameter entries...
+                    if length( parameters ) ~= 3                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2479,17 +2479,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                   % If the parameters cell is not empty...
+                if ~isempty( parameters )                                               % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                        % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2503,15 +2503,15 @@ classdef neuron_manager_class
         function parameters = process_division_R_output_parameters( self, parameters, encoding_scheme, neurons )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 4, neurons = self.neurons; end                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                    % If no parameters were provided...
+                if isempty( parameters )                                                                    % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
                     c = self.c_inversion_DEFAULT;                                                           % [-] Inversion Subnetwork Gain.
@@ -2522,10 +2522,10 @@ classdef neuron_manager_class
                     % Store the required parameters in a cell.
                     parameters = { c, alpha, epsilon, R_numerator };
                     
-                else                                        % Otherwise...
+                else                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                            % If there is anything other than four parameter entries...
+                    if length( parameters ) ~= 4                                                            % If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2534,17 +2534,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                   % If the parameters cell is not empty...
+                if ~isempty( parameters )                                                                   % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2558,28 +2558,28 @@ classdef neuron_manager_class
         function [ parameters_inversion, parameters_division, parameters_multiplication ] = process_multiplication_design_parameters( self, parameters, encoding_scheme, neurons )
            
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 4, neurons = self.neurons; end                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                               % [cell] Parameters Cell.
             
             % Determine whether there are multiplication design parameters to process.
-            if ~isempty( parameters )                                   % If parameters were provided...
+            if ~isempty( parameters )                                                           % If parameters were provided...
                 
                 % Determine how to process the multiplication design parameters based on the encoding scheme of this multiplication subnetwork.
-                if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+                if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is absolute...
             
                     % Determine whether there are the correct number of parameters for an absolute multiplication subnetwork.
-                    if length( parameters ) == 8                        % If there are exactly eight parameters...
+                    if length( parameters ) == 8                                                % If there are exactly eight parameters...
                         
                         % Unpack the multiplication parameters.
-                        c = parameters{ 1 };                            % [-] Multiplication Subnetwork Gain.
-                        c1 = parameters{ 2 };                           % [-] Inversion Subnetwork Gain.
-                        alpha = parameters{ 3 };                        % [-] Division Subnetwork Denominator Adjustment.
-                        epsilon1 = parameters{ 4 };                     % [V] Inversion Subnetwork Input Offset.
-                        epsilon2 = parameters{ 5 };                     % [V] Division Subnetwork Input Offset.
-                        delta = parameters{ 6 };                        % [V] Inversion Subnetwork Output Offset.
-                        R1 = parameters{ 7 };                           % [V] Multiplication Subnetwork Neuron 1 Activation Domain.
-                        R2 = parameters{ 8 };                           % [V] Multiplication Subnetwork Neuron 2 Activation Domain.
+                        c = parameters{ 1 };                                                    % [-] Multiplication Subnetwork Gain.
+                        c1 = parameters{ 2 };                                                   % [-] Inversion Subnetwork Gain.
+                        alpha = parameters{ 3 };                                                % [-] Division Subnetwork Denominator Adjustment.
+                        epsilon1 = parameters{ 4 };                                             % [V] Inversion Subnetwork Input Offset.
+                        epsilon2 = parameters{ 5 };                                             % [V] Division Subnetwork Input Offset.
+                        delta = parameters{ 6 };                                                % [V] Inversion Subnetwork Output Offset.
+                        R1 = parameters{ 7 };                                                   % [V] Multiplication Subnetwork Neuron 1 Activation Domain.
+                        R2 = parameters{ 8 };                                                   % [V] Multiplication Subnetwork Neuron 2 Activation Domain.
                         
                         % Compute the required absolute division subnetwork gain.
                         c2 = self.compute_absolute_multiplication_c2( c, c1, epsilon1, epsilon2, R2 );
@@ -2589,37 +2589,37 @@ classdef neuron_manager_class
                         parameters_division = { c2, alpha, epsilon2, R1 };
                         parameters_multiplication = { c, c1, c2, alpha, epsilon1, epsilon2, delta, R1, R2 };
                         
-                    else                                                % Otherwise...
+                    else                                                                        % Otherwise...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )                        
                         
                     end
                     
-                elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is relative...
                 
-                    if length( parameters ) == 5                        % If there are exactly five parameters...
+                    if length( parameters ) == 5                                                % If there are exactly five parameters...
 
                         % Create the inversion, division, and multiplication parameters.
                         parameters_inversion = {  };
                         parameters_division = {  };
                         parameters_multiplication = parameters;
                     
-                    else                                                % Otherwise...
+                    else                                                                        % Otherwise...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )    
                         
                     end
                     
-                else                                                    % Otherwise...
+                else                                                                            % Otherwise...
                     
                     % Throw an error.
                     error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
                     
                 end
                     
-            else                                                        % Otherwise...
+            else                                                                                % Otherwise...
                 
                 % Process the inversion and division parameters.
                 parameters_inversion = self.process_inversion_R_output_parameters( parameters, encoding_scheme );
@@ -2629,15 +2629,15 @@ classdef neuron_manager_class
                 c = self.c_multiplication_DEFAULT; 
                 
                 % Determine how to process encoding scheme specific multiplication parameters.
-                if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+                if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is absolute...
                     
                     % Retrieve the activation domain of the second neuron.
-                    R2 = self.get_neuron_property( neuron_IDs( 2 ), 'R', true, neurons );          % [V] Multiplication Subnetwork Neuron 2 Activation Domain.
+                    R2 = self.get_neuron_property( neuron_IDs( 2 ), 'R', true, neurons );       % [V] Multiplication Subnetwork Neuron 2 Activation Domain.
 
                     % Create the multiplication parameters.
                     parameters_multiplication = { c, parameters_inversion{ 1 }, parameters_division{ 1 }, parameters_division{ 2 }, parameters_inversion{ 2 }, parameters_division{ 3 }, parameters_inversion{ 3 }, parameters_division{ 4 }, R2 };
                 
-                elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is relative...
                 
                     % Set the default multiplication subnetwork parameters.
                     c1 = self.c_inversion_DEFAULT;
@@ -2649,7 +2649,7 @@ classdef neuron_manager_class
                     parameters_multiplication = { c, c1, c2, epsilon1, epsilon2 };
                 
                     
-                else                                                    % Otherwise...
+                else                                                                            % Otherwise...
                     
                     % Throw an error.
                     error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2667,23 +2667,23 @@ classdef neuron_manager_class
         function [ Rs, neurons, self ] = compute_addition_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                         % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                             % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
             
             % Preallocate an array to store the membrane conductances.
             Rs = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2703,12 +2703,12 @@ classdef neuron_manager_class
         function [ R, neurons, self ] = compute_addition_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end      	% [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2717,7 +2717,7 @@ classdef neuron_manager_class
             parameters = self.process_addition_R_output_parameters( parameters, encoding_scheme, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final addition neuron is the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_addition_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2732,23 +2732,23 @@ classdef neuron_manager_class
         function [ Rs, neurons, self ] = compute_subtraction_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                         % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                             % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
             
             % Preallocate an array to store the membrane conductances.
             Rs = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2768,12 +2768,12 @@ classdef neuron_manager_class
         function [ R, neurons, self ] = compute_subtraction_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2782,7 +2782,7 @@ classdef neuron_manager_class
             parameters = self.process_subtraction_R_output_parameters( parameters, encoding_scheme, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final addition neuron is the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_subtraction_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2797,12 +2797,12 @@ classdef neuron_manager_class
         function [ R, neurons, self ] = compute_inversion_R_input( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2811,7 +2811,7 @@ classdef neuron_manager_class
             parameters = self.process_inversion_R_input_parameters( parameters, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );                     % Only the first inversion neuron is an input neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_R_input( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2826,12 +2826,12 @@ classdef neuron_manager_class
         function [ R, neurons, self ] = compute_inversion_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2840,7 +2840,7 @@ classdef neuron_manager_class
             parameters = self.process_inversion_R_output_parameters( parameters, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final inversion neuron is an output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_inversion_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2855,23 +2855,23 @@ classdef neuron_manager_class
         function [ Rs, neurons, self ] = compute_division_R_input( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Determine how many neurons to which we are going to apply the given method.
-            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                         % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
+            num_neurons_to_evaluate = length( neuron_IDs ) - 1;                             % [#] Number of Neurons to Evaluate (All expect the final neuron are inputs.)
             
             % Preallocate an array to store the membrane conductances.
             Rs = zeros( 1, num_neurons_to_evaluate );
             
             % Evaluate the given neuron method for each neuron.
-            for k = 1:num_neurons_to_evaluate               % Iterate through each of the input neurons...
+            for k = 1:num_neurons_to_evaluate                                               % Iterate through each of the input neurons...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2891,12 +2891,12 @@ classdef neuron_manager_class
         function [ R, neurons, self ] = compute_division_R_output( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
@@ -2905,7 +2905,7 @@ classdef neuron_manager_class
             parameters = self.process_division_R_output_parameters( parameters, encoding_scheme, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final division neuron is an output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R_output( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -2920,21 +2920,21 @@ classdef neuron_manager_class
         function [ R, neurons, self ] = compute_relative_multiplication_R_output( self, neuron_IDs, c, c1, c2, epsilon1, epsilon2, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, neurons = self.neurons; end
-            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                         % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                         % [-] Inversion Subnetwork Offset
-            if nargin < 5, c2 = self.c_DEFAULT; end                                                                        % [-] Division Subnetwork Gain
-            if nargin < 4, c1 = self.c_DEFAULT; end                                                                        % [-] Inversion Subnetwork Gain
-            if nargin < 3, c = self.c_DEFAULT; end                                                                         % [-] Multiplication Subnetwork Gain
-            if nargin < 2, neuron_IDs = 'all'; end                                              % [-] Neuron IDs
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end         % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 8, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                         	% [-] Division Subnetwork Offset
+            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                         	% [-] Inversion Subnetwork Offset
+            if nargin < 5, c2 = self.c_DEFAULT; end                                       	% [-] Division Subnetwork Gain
+            if nargin < 4, c1 = self.c_DEFAULT; end                                       	% [-] Inversion Subnetwork Gain
+            if nargin < 3, c = self.c_DEFAULT; end                                      	% [-] Multiplication Subnetwork Gain
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );                     % Only the final neuron is an output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R, neurons( neuron_index ) ] = neurons( neuron_index ).compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2, true, neurons( neuron_index ).neuron_utilities );
@@ -2951,8 +2951,8 @@ classdef neuron_manager_class
         function valid_flag = validate_neuron_properties( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
             
             % Set the default neuron properties.
-            if nargin < 28, array_utilities = self.array_utilities; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 28, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -2989,12 +2989,12 @@ classdef neuron_manager_class
         
         %% Basic Neuron Creation & Deletion Functions.
                 
-        % Implement a function to process mcpg neuron inputs.
+        % Implement a function to process neuron creation inputs.
         function [ n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = process_neuron_creation_inputs( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities )
            
             % Set the default neuron properties.
-            if nargin < 28, array_utilities = self.array_utilities; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 28, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag.
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current.
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current.
@@ -3021,31 +3021,31 @@ classdef neuron_manager_class
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID.
             
             % Convert the neuron parameters from cells to arrays as appropriate.
-            b_enableds = self.cell2array( b_enableds );                                                                 % [T/F] Neuron Enabled Flag.
-            I_totals = self.cell2array( I_totals );                                                                     % [A] Total Current.
-            I_apps = self.cell2array( I_apps );                                                                         % [A] Applied Current.
-            I_tonics = self.cell2array( I_tonics );                                                                     % [A] Tonic Current.
-            I_nas = self.cell2array( I_nas );                                                                           % [A] Sodium Channel Current.
-            I_syns = self.cell2array( I_syns );                                                                         % [A] Synaptic Current.
-            I_leaks = self.cell2array( I_leaks );                                                                     	% [A] Leak Current.
-            Gnas = self.cell2array( Gnas );                                                                             % [S] Sodium Channel Conductance.
-            tauh_maxs = self.cell2array( tauh_maxs );                                                                 	% [s] Maximum Sodium Channel Deactivation Time Constant.
-            dEnas = self.cell2array( dEnas );                                                                           % [V] Sodium Channel Reversal Potential.
-            dEhs = self.cell2array( dEhs );                                                                           	% [V] Sodium Channel Deactivation Reversal Potential.
-            Shs = self.cell2array( Shs );                                                                               % [-] Sodium Channel Deactivation Slope.
-            Ahs = self.cell2array( Ahs  );                                                                              % [-] Sodium Channel Deactivation Amplitude.
-            dEms = self.cell2array( dEms );                                                                             % [-] Sodium Channel Activation Reversal Potential.
-            Sms = self.cell2array( Sms );                                                                               % [-] Sodium Channel Activation Slope.
-            Ams = self.cell2array( Ams );                                                                               % [-] Sodium Channel Activation Amplitude.
-            Rs = self.cell2array( Rs );                                                                               	% [V] Activation Domain.
-            Ers = self.cell2array( Ers );                                                                               % [V] Membrane Equilibrium Potential.
-            Gms = self.cell2array( Gms );                                                                               % [S] Membrane Conductance.
-            Cms = self.cell2array( Cms );                                                                               % [F] Membrane Capacitance.
-            hs = self.cell2array( hs );                                                                                 % [-] Sodium Channel Deactivation Parameter.
-            Us = self.cell2array( Us );                                                                                 % [V] Membrane Voltage.
-            names = self.cell2array( names );                                                                           % [-] Neuron Name.
-            IDs = self.cell2array( IDs );                                                                               % [#] Neuron ID.
-            n_neurons = self.cell2array( n_neurons );
+            b_enableds = array_utilities.cell2array( b_enableds );                                                                 % [T/F] Neuron Enabled Flag.
+            I_totals = array_utilities.cell2array( I_totals );                                                                     % [A] Total Current.
+            I_apps = array_utilities.cell2array( I_apps );                                                                         % [A] Applied Current.
+            I_tonics = array_utilities.cell2array( I_tonics );                                                                     % [A] Tonic Current.
+            I_nas = array_utilities.cell2array( I_nas );                                                                           % [A] Sodium Channel Current.
+            I_syns = array_utilities.cell2array( I_syns );                                                                         % [A] Synaptic Current.
+            I_leaks = array_utilities.cell2array( I_leaks );                                                                     	% [A] Leak Current.
+            Gnas = array_utilities.cell2array( Gnas );                                                                             % [S] Sodium Channel Conductance.
+            tauh_maxs = array_utilities.cell2array( tauh_maxs );                                                                 	% [s] Maximum Sodium Channel Deactivation Time Constant.
+            dEnas = array_utilities.cell2array( dEnas );                                                                           % [V] Sodium Channel Reversal Potential.
+            dEhs = array_utilities.cell2array( dEhs );                                                                           	% [V] Sodium Channel Deactivation Reversal Potential.
+            Shs = array_utilities.cell2array( Shs );                                                                               % [-] Sodium Channel Deactivation Slope.
+            Ahs = array_utilities.cell2array( Ahs  );                                                                              % [-] Sodium Channel Deactivation Amplitude.
+            dEms = array_utilities.cell2array( dEms );                                                                             % [-] Sodium Channel Activation Reversal Potential.
+            Sms = array_utilities.cell2array( Sms );                                                                               % [-] Sodium Channel Activation Slope.
+            Ams = array_utilities.cell2array( Ams );                                                                               % [-] Sodium Channel Activation Amplitude.
+            Rs = array_utilities.cell2array( Rs );                                                                               	% [V] Activation Domain.
+            Ers = array_utilities.cell2array( Ers );                                                                               % [V] Membrane Equilibrium Potential.
+            Gms = array_utilities.cell2array( Gms );                                                                               % [S] Membrane Conductance.
+            Cms = array_utilities.cell2array( Cms );                                                                               % [F] Membrane Capacitance.
+            hs = array_utilities.cell2array( hs );                                                                                 % [-] Sodium Channel Deactivation Parameter.
+            Us = array_utilities.cell2array( Us );                                                                                 % [V] Membrane Voltage.
+            names = array_utilities.cell2array( names );                                                                           % [-] Neuron Name.
+            IDs = array_utilities.cell2array( IDs );                                                                               % [#] Neuron ID.
+            n_neurons = array_utilities.cell2array( n_neurons );
             
             % Ensure that the neuron properties match the required number of neurons.
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Provided neuron properties must be of consistent size.' )
@@ -3057,15 +3057,15 @@ classdef neuron_manager_class
         function [ IDs, neurons ] = process_neuron_creation_outputs( ~, IDs, neurons, as_cell_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 5, array_utilities = self.array_utilities; end
-            if nargin < 4, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
+            if nargin < 4, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Determine whether to embed the new neuron IDs and objects in cells.
-            if as_cell_flag                              % If we want to embed the new neuron IDs and objects into cells...
+            if as_cell_flag                                                                 % If we want to embed the new neuron IDs and objects into cells...
                 
                 % Determine whether to embed the neuron IDs into a cell.
-                if ~iscell( IDs )                   % If the IDs are not already a cell...
+                if ~iscell( IDs )                                                           % If the IDs are not already a cell...
                 
                     % Embed neuron IDs into a cell.
                     IDs = { IDs };
@@ -3073,17 +3073,17 @@ classdef neuron_manager_class
                 end
                 
                 % Determine whether to embed the neuron objects into a cell.
-                if ~iscell( neurons )               % If the neurons are not already a cell...
+                if ~iscell( neurons )                                                       % If the neurons are not already a cell...
                 
                     % Embed neuron objects into a cell.
                     neurons = { neurons };
                     
                 end
                 
-            else
+            else                                                                            % Otherwise...
                 
                 % Determine whether to embed the neuron IDs into an array.
-                if iscell( IDs )                                                        % If the neuron IDs are a cell...
+                if iscell( IDs )                                                            % If the neuron IDs are a cell...
                 
                     % Convert the neuron IDs cell to a regular array.
                     IDs = array_utilities.cell2array( IDs );
@@ -3091,7 +3091,7 @@ classdef neuron_manager_class
                 end
                 
                 % Determine whether to embed the neuron objects into an array.
-                if iscell( neurons )                                                    % If the neuron objects are a cell...
+                if iscell( neurons )                                                        % If the neuron objects are a cell...
                 
                     % Convert the neuron objects cell to a regular array.
                     neurons = array_utilities.cell2array( neurons );
@@ -3108,9 +3108,9 @@ classdef neuron_manager_class
             
             % Set the default neuron properties.
             if nargin < 29, array_utilities = self.array_utilites; end
-            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 27, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 26, neurons = self.neurons; end
+            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 27, set_flag = self.set_flag_DEFAULT; end                                               % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 26, neurons = self.neurons; end                                                         % [class] Array of Neuron Class Objects.
             if nargin < 25, b_enabled = true; end                                                               % [T/F] Neuron Enabled Flag
             if nargin < 24, I_total = self.Itotal_DEFAULT; end                                                  % [A] Total Current
             if nargin < 23, I_app = self.Iapp_DEFFAULT; end                                                     % [A] Applied Current
@@ -3134,7 +3134,7 @@ classdef neuron_manager_class
             if nargin < 5, h = [  ]; end                                                                        % [-] Sodium Channel Deactivation Parameter
             if nargin < 4, U = 0; end                                                                           % [V] Membrane Voltage
             if nargin < 3, name = ''; end                                                                       % [-] Neuron Name
-            if nargin < 2, ID = self.generate_unique_neuron_ID( neurons, array_utilities ); end                                         % [#] Neuron ID
+            if nargin < 2, ID = self.generate_unique_neuron_ID( neurons, array_utilities ); end                 % [#] Neuron ID
             
             % Process the neuron creation properties.
             [ ~, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled ] = self.process_neuron_creation_inputs( 1, ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, b_enabled, neurons, array_utilities );
@@ -3152,15 +3152,7 @@ classdef neuron_manager_class
             ID_new = neuron_new.ID;
             
             % Determine whether to embed the new neuron ID and object in cells.
-            if as_cell_flag                                     % If we want to embed the new neuron IDs and objects in cells...
-                
-                % Embed the new neuron ID in a cell.
-                ID_new = { ID_new };
-                
-                % Embed the neuron neuron object in a cell.
-                neuron_new = { neuron_new };
-            
-            end
+            [ ID_new, neuron_new ] = self.process_neuron_creation_outputs( ID_new, neuron_new, as_cell_flag, array_utilities );
             
             % Append this neuron to the array of existing neurons.
             neurons = [ neurons, neuron_new ];
@@ -3179,10 +3171,10 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_neurons( self, n_neurons_to_create, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default neuron properties.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                             % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                                   % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                             % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, num_neurons_to_create ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, num_neurons_to_create ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, num_neurons_to_create ); end                                        % [A] Applied Current
@@ -3222,7 +3214,7 @@ classdef neuron_manager_class
             neuron_manager = self;
             
             % Create each of the spcified neurons.
-            for k = 1:n_neurons_to_create                         % Iterate through each of the neurons we want to create...
+            for k = 1:n_neurons_to_create                                                                                           % Iterate through each of the neurons we want to create...
                 
                 % Create this neuron.
                 [ IDs_new( k ), neurons_new( k ), neurons, neuron_manager ] = neuron_manager.create_neuron( IDs( k ), names{ k }, Us( k ), hs{ k }, Cms( k ), Gms( k ), Ers( k ), Rs( k ), Ams( k ), Sms( k ), dEms( k ), Ahs( k ), Shs( k ), dEhs( k ), dEnas( k ), tauh_maxs( k ), Gnas( k ), I_leaks( k ), I_syns( k ), I_nas( k ), I_tonics( k ), I_apps( k ), I_totals( k ), b_enableds( k ), neurons, true, false, array_utilities );
@@ -3230,7 +3222,7 @@ classdef neuron_manager_class
             end
             
             % Determine whether to embed the new neuron IDs and objects in cells.
-            if as_cell_flag                     % If we want to embed the new neuron IDs and objects in cells...
+            if as_cell_flag                                                                                                         % If we want to embed the new neuron IDs and objects in cells...
                 
                 % Embed the new neuron IDs in a cell.
                 IDs_new = { IDs_new };
@@ -3250,9 +3242,9 @@ classdef neuron_manager_class
         function [ neurons, self ] = delete_neuron( self, neuron_ID, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Retrieve the index associated with this neuron.
             neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
@@ -3261,7 +3253,7 @@ classdef neuron_manager_class
             neurons( neuron_index ) = [  ];
             
             % Determine whether to update the neuron manager object.
-            if set_flag                                     % If we want to update the neuron manager object...
+            if set_flag                                                                     % If we want to update the neuron manager object...
                 
                 % Update the neuron property.
                 self.neurons = neurons;
@@ -3278,9 +3270,9 @@ classdef neuron_manager_class
         function [ neurons, self ] = delete_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Validate the neuron IDs.
@@ -3290,7 +3282,7 @@ classdef neuron_manager_class
             num_neurons_to_delete = length( neuron_IDs );
             
             % Delete each of the specified neurons.
-            for k = 1:num_neurons_to_delete                      % Iterate through each of the neurons we want to delete...
+            for k = 1:num_neurons_to_delete                                                 % Iterate through each of the neurons we want to delete...
                 
                 % Delete this neuron.
                 [ neurons, self ] = self.delete_neuron( neuron_IDs( k ), neurons, set_flag, undetected_option );
@@ -3304,15 +3296,15 @@ classdef neuron_manager_class
         function [ neurons, self ] = update_neuron_manager( self, neurons, neuron_manager, set_flag )
         
             % Set the default input arguments.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end            % [T/F] Set Flag (Determines whether output self object is updated.)
             
             % Determine whether to update the neuron manager object.
-            if set_flag                     % If we want to update the neuron manager object...
+            if set_flag                                                  	% If we want to update the neuron manager object...
                 
                 % Update the neuron manager object.
                 self = neuron_manager;
             
-            else                            % Otherwise...
+            else                                                            % Otherwise...
                 
                 % Reset the neurons object.
                 neurons = self.neurons;
@@ -3343,7 +3335,7 @@ classdef neuron_manager_class
         function n_mcpg_neurons = compute_num_mcpg_neurons( self, num_cpg_neurons )
         
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.          
             
             % Compute the number of multistate cpg neurons.
             n_mcpg_neurons = num_cpg_neurons;
@@ -3355,7 +3347,7 @@ classdef neuron_manager_class
         function [ n_dmcpg_neurons, n_mcpg_neurons ] = compute_num_dmcpg_neurons( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of multistate cpg neurons.
             n_mcpg_neurons = self.compute_num_mcpg_neurons( num_cpg_neurons );
@@ -3399,6 +3391,9 @@ classdef neuron_manager_class
         % Implement a function to compute the number of dmcpg sll neurons.
         function [ n_dmcpg_sll_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = compute_num_dmcpg_sll_neurons( self, num_cpg_neurons )
             
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            
             % Compute the number of neurons for a driven multistate cpg.
             [ n_dmcpg_neurons, ~ ] = self.compute_num_dmcpg_neurons( num_cpg_neurons );
             
@@ -3417,6 +3412,9 @@ classdef neuron_manager_class
         % Implement a function to compute the number of dmcpg dcll neurons.
         function [ n_dmcpg_dcll_neurons, n_dmcpg_sll_neurons, n_dc_neurons ] = compute_num_dmcpg_dcll_neurons( self, num_cpg_neurons )
             
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            
             % Compute the number of dmcpg sll neurons.
             [ n_dmcpg_sll_neurons, ~, ~, ~ ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
             
@@ -3431,6 +3429,9 @@ classdef neuron_manager_class
         
         % Implement a function to compute the number of open loop driven multistate central pattern generator double centering lead lag error subnetwork.
         function [ n_ol_dmcpg_dclle_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = compute_num_ol_dmcpg_dclle_neurons( self, num_cpg_neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of dmcpg dcll neurons.
             [ n_dmcpg_dcll_neurons, ~, ~ ] = self.compute_num_dmcpg_dcll_neurons( num_cpg_neurons );
@@ -3450,6 +3451,9 @@ classdef neuron_manager_class
         % Implement a function to compute the number of closed loop proportional control driven multistate central pattern generator double centering lead lag subnetwork.
         function [ n_clpc_dmcpg_dcll_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = compute_num_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons )
             
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            
             % Compute the number of closed loop proportional control driven multistate central pattern generator double centering lead lag subnetwork.
             [ n_clpc_dmcpg_dcll_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = self.compute_num_ol_dmcpg_dclle_neurons( num_cpg_neurons );
             
@@ -3462,13 +3466,13 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_mcpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of multistate cpg neurons.
-            if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end
-            
+            if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end                                                % [#] Number of CPG Neurons.
+
             % Set the default neuron properties.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3498,10 +3502,10 @@ classdef neuron_manager_class
             [ n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to update the names.
-            if all( [ names{ : } ] == '' )                                      % If all of the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If all of the names are empty...
                 
                 % Define the neuron names.
-                for k = 1:n_neurons                                             % Iterate through each of the neurons...
+                for k = 1:n_neurons                                                                                     % Iterate through each of the neurons...
                     
                     % Define the name associated with this neuron.
                     names{ k } = sprintf( 'CPG Neuron %0.0f', IDs( k ) );
@@ -3523,16 +3527,16 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of cpg neurons.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Compute the number of drive multistate cpg neurons.
             [ n_neurons, n_mcpg_neurons ] = self.compute_num_dmcpg_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                           	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3577,7 +3581,7 @@ classdef neuron_manager_class
             i_end_d = i_end_mcpg + 1;
             
             % Determine whether to update the default or provided CPG drive neuron name.
-            if isempty( names{ i_start_d:i_end_d } )                  % If the final name is empty...
+            if isempty( names{ i_start_d:i_end_d } )                                                                    % If the final name is empty...
                 
                 % Set the drive neuron name.
                 names{ i_start_d:i_end_d } = 'CPG Drive';
@@ -3603,10 +3607,10 @@ classdef neuron_manager_class
             [ n_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 31, array_utilities = self.array_utilities; end
-            if nargin < 30, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 29, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 28, neurons = self.neurons; end
+            if nargin < 31, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 30, as_cell_flag = self.as_cell_flag_DEFAULT; end                                              	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 29, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 28, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 27, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 26, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 25, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3624,7 +3628,7 @@ classdef neuron_manager_class
             if nargin < 13, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
             if nargin < 12, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
             if nargin < 11, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
-            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                          	% [V] Membrane Equilibrium Potential
             if nargin < 9, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
             if nargin < 8, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
             if nargin < 7, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
@@ -3632,7 +3636,7 @@ classdef neuron_manager_class
             if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
             if nargin < 3, network_type = 'Absolute'; end
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
@@ -3656,7 +3660,7 @@ classdef neuron_manager_class
             [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_dmcpg_neurons( num_cpg_neurons, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), neurons, true, false, array_utilities );
             
             % Create the modulated split subtraction voltage based integration subnetwork neurons for each pair of driven multistate cpg neurons.
-            for k = 1:num_cpg_neurons                               % Iterate through each of the cpg neurons...
+            for k = 1:num_cpg_neurons                                                                                   % Iterate through each of the cpg neurons...
                 
                 % Define the indexes of the neurons for the modulated split subtration voltage based integration subnetwork.
                 i_start3 = i_end2 + ( k - 1 )*n_mssvbi_neurons + 1;
@@ -3672,7 +3676,7 @@ classdef neuron_manager_class
             i_end4 = i_end3 + n_sll_neurons;
             
             % Ensure that there names for the split lead-lag neurons.
-            if isempty( names( i_start4:i_end4 ) )                  % If the sll neuron names are empty...
+            if isempty( names( i_start4:i_end4 ) )                                                                      % If the sll neuron names are empty...
                 
                 % Set the drive neuron name.
                 names( i_start4:i_end4 ) = { 'Fast Lead', 'Fast Lag', 'Slow Lead', 'Slow Lag' };
@@ -3698,10 +3702,10 @@ classdef neuron_manager_class
             [ n_neurons, n_dmcpg_sll_neurons, n_dc_neurons ] = self.compute_num_dmcpg_dcll_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                            	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                    	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3726,7 +3730,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
@@ -3763,9 +3767,9 @@ classdef neuron_manager_class
             
             % Set the default neuron properties.
             if nargin < 29, array_utilities = self.array_utilites; end
-            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 27, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 26, neurons = self.neurons; end
+            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end                                    	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 27, set_flag = self.set_flag_DEFAULT; end                                               % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 26, neurons = self.neurons; end                                                       	% [class] Array of Neuron Class Objects.
             if nargin < 25, b_enabled = true; end                                                               % [T/F] Neuron Enabled Flag
             if nargin < 24, I_total = self.Itotal_DEFAULT; end                                                  % [A] Total Current
             if nargin < 23, I_app = self.Iapp_DEFFAULT; end                                                     % [A] Applied Current
@@ -3807,10 +3811,10 @@ classdef neuron_manager_class
             [ n_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, ~ ] = self.compute_num_ol_dmcpg_dclle_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                            	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3835,7 +3839,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
@@ -3877,10 +3881,10 @@ classdef neuron_manager_class
             [ n_neurons, ~, ~, ~ ] = self.compute_num_clpc_dmcpg_dcll_neurons( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3905,7 +3909,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
@@ -3929,10 +3933,10 @@ classdef neuron_manager_class
             n_neurons = self.num_transmission_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -3963,7 +3967,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Transmission Input' ], [ network_type, ' Transmission Output' ] };
@@ -3983,10 +3987,10 @@ classdef neuron_manager_class
             n_neurons = self.num_modulation_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                            	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4017,7 +4021,7 @@ classdef neuron_manager_class
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities ), 'Modulation subnetworks must contain exactly two neurons.' )
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Modulation Input' ], [ network_type, ' Modulation Output' ] };
@@ -4040,10 +4044,10 @@ classdef neuron_manager_class
             assert( n_neurons > 1, 'Addition subnetworks must consist of at least two neurons.' );
             
             % Set the default input arguments.
-            if nargin < 31, array_utilities = self.array_utilities; end
-            if nargin < 30, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 29, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 28, neurons = self.neurons; end
+            if nargin < 31, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 30, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 29, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 28, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 27, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 26, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 25, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4061,7 +4065,7 @@ classdef neuron_manager_class
             if nargin < 13, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
             if nargin < 12, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
             if nargin < 11, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
-            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                         	% [V] Membrane Equilibrium Potential
             if nargin < 9, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
             if nargin < 8, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
             if nargin < 7, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
@@ -4074,24 +4078,24 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Determine how to specify the names of the addition neurons.
-                if n_neurons ==  2                                              % If this subnetwork has exactly two neurons...
+                if n_neurons ==  2                                                                                    	% If this subnetwork has exactly two neurons...
                     
                     % Define the name of the single input neuron.
                     names{ 1 } = [ network_type, ' Addition Input' ];
                     
-                elseif n_neurons > 2                                            % If this subnetwork has more than two neurons...
+                elseif n_neurons > 2                                                                                    % If this subnetwork has more than two neurons...
                     
-                    for k = 1:( n_neurons - 1 )                                 % Iterate through each of the neurons...
+                    for k = 1:( n_neurons - 1 )                                                                         % Iterate through each of the neurons...
                         
                         % Define the default input neuron names.
                         names{ k } = sprintf( '%s Addition Input %0.0f', network_type, k );
                         
                     end
                     
-                else                                                          	% Otherwise...
+                else                                                                                                    % Otherwise...
                     
                     % Throw an error.
                     error( 'Addition subnetworks must consist of at least two neurons.' )
@@ -4119,10 +4123,10 @@ classdef neuron_manager_class
             assert( n_neurons > 1, 'Subtraction subnetworks must consist of at least two neurons.' );
             
             % Set the default input arguments.
-            if nargin < 31, array_utilities = self.array_utilities; end
-            if nargin < 30, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 29, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 28, neurons = self.neurons; end
+            if nargin < 31, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 30, as_cell_flag = self.as_cell_flag_DEFAULT; end                                              	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 29, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 28, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 27, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 26, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 25, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4140,7 +4144,7 @@ classdef neuron_manager_class
             if nargin < 13, Sms = self.Sm_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Slope
             if nargin < 12, Ams = self.Am_DEFAULT*ones( 1, n_neurons ); end                                             % [-] Sodium Channel Activation Amplitude
             if nargin < 11, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end                                             	% [V] Activation Domain
-            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                              % [V] Membrane Equilibrium Potential
+            if nargin < 10, Ers = self.Er_DEFAULT*ones( 1, n_neurons ); end                                            	% [V] Membrane Equilibrium Potential
             if nargin < 9, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end                                              % [S] Membrane Conductance
             if nargin < 8, Cms = self.Cm_DEFAULT*ones( 1, n_neurons ); end                                              % [F] Membrane Capacitance
             if nargin < 7, hs = repmat( { [  ] }, 1, n_neurons ); end                                                   % [-] Sodium Channel Deactivation Parameter
@@ -4153,24 +4157,24 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Determine how to specify the names of the addition neurons.
-                if n_neurons ==  2                                              % If this subnetwork has exactly two neurons...
+                if n_neurons ==  2                                                                                      % If this subnetwork has exactly two neurons...
                     
                     % Define the name of the single input neuron.
                     names{ 1 } = [ network_type, ' Subtraction Input' ];
                     
-                elseif n_neurons > 2                                            % If this subnetwork has more than two neurons...
+                elseif n_neurons > 2                                                                                    % If this subnetwork has more than two neurons...
                     
-                    for k = 1:( n_neurons - 1 )                                 % Iterate through each of the neurons...
+                    for k = 1:( n_neurons - 1 )                                                                         % Iterate through each of the neurons...
                         
                         % Define the default input neuron names.
                         names{ k } = sprintf( '%s Subtraction Input %0.0f', network_type, k );
                         
                     end
                     
-                else                                                          	% Otherwise...
+                else                                                                                                    % Otherwise...
                     
                     % Throw an error.
                     error( 'Subtraction subnetworks must consist of at least two neurons.' )
@@ -4195,10 +4199,10 @@ classdef neuron_manager_class
             n_neurons = self.num_double_subtraction_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                            	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4229,7 +4233,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the neuron names.
                 names = { [ network_type, ' Subtraction Input 1' ], [ network_type, ' Subtraction Input 2' ], [ network_type, ' Subtraction Output 1' ], [ network_type, ' Subtraction Output 2' ] };
@@ -4249,10 +4253,10 @@ classdef neuron_manager_class
             n_neurons = self.num_centering_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 29, array_utilities = self.array_utilities; end
-            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 27, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 26, neurons = self.neurons; end
+            if nargin < 29, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 27, set_flag = self.set_flag_DEFAULT; end                                                     	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 26, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 25, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 24, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 23, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4282,7 +4286,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the neuron names.
                 names = { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5' };
@@ -4302,10 +4306,10 @@ classdef neuron_manager_class
             n_neurons = self.num_double_centering_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 29, array_utilities = self.array_utilities; end
-            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 27, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 26, neurons = self.neurons; end
+            if nargin < 29, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 28, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 27, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 26, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 25, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 24, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 23, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4335,7 +4339,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the neuron names.
                 names = { 'Center 1', 'Center 2', 'Center 3', 'Center 4', 'Center 5', 'Center 6', 'Center 7' };
@@ -4355,10 +4359,10 @@ classdef neuron_manager_class
             [ n_neurons, n_ds_neurons, n_dc_neurons ] = self.compute_num_cds_neurons(  );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4422,10 +4426,10 @@ classdef neuron_manager_class
             n_neurons = self.num_multiplication_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                              	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4456,7 +4460,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                                      % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the neuron names.
                 names = { [ network_type, ' Multiplication Input 1' ], [ network_type, ' Multiplication Input 2' ], [ network_type, ' Multiplication Interneuron' ], [ network_type, ' Multiplication Output' ] };
@@ -4476,10 +4480,10 @@ classdef neuron_manager_class
             n_neurons = self.num_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4510,7 +4514,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Inversion Input' ], [ network_type, ' Inversion Output' ] };
@@ -4530,10 +4534,10 @@ classdef neuron_manager_class
             n_neurons = self.num_division_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                            	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4564,7 +4568,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Division Input 1' ], [ network_type, ' Division Input 2' ], [ network_type, ' Division Output' ] };
@@ -4584,10 +4588,10 @@ classdef neuron_manager_class
             n_neurons = self.num_derivation_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                            	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4618,7 +4622,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Derivation Input 1' ], [ network_type, ' Derivation Input 2' ], [ network_type, ' Derivation Output' ] };
@@ -4638,10 +4642,10 @@ classdef neuron_manager_class
             n_neurons = self.num_integration_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                              	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4672,7 +4676,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Integration Neuron 1' ], [ network_type, ' Integration Neuron 2' ] };
@@ -4692,10 +4696,10 @@ classdef neuron_manager_class
             n_neurons = self.num_vbi_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4726,7 +4730,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Integration Neuron 1' ], [ network_type, ' Integration Neuron 2' ], [ network_type, ' Interneuron 1' ], [ network_type, ' Interneuron 2' ] };
@@ -4746,10 +4750,10 @@ classdef neuron_manager_class
             n_neurons = self.num_svbi_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4780,7 +4784,7 @@ classdef neuron_manager_class
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, array_utilities );
             
             % Determine whether to use default names.
-            if all( [ names{ : } ] == '' )                              % If the names are empty...
+            if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
                 names = { [ network_type, ' Integration 1' ], [ network_type, ' Integration 2' ], [ network_type, ' Integration 3' ], [ network_type, ' Integration 4' ], [ network_type, ' Subtraction 1' ], [ network_type, ' Subtraction 2' ], [ network_type, ' Subtraction 3' ], [ network_type, ' Subtraction 4' ], [ network_type, ' Equilibrium 1' ] };
@@ -4800,10 +4804,10 @@ classdef neuron_manager_class
             [ n_neurons, n_vsbi_neurons, n_new_msvbi_neurons ] = self.compute_num_msvbi_neurons(  );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                             	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4870,10 +4874,10 @@ classdef neuron_manager_class
             [ n_neurons, n_ds_neurons, n_msvbi_neurons ] = self.compute_num_mssvbi_neurons(  );
             
             % Set the default input arguments.
-            if nargin < 30, array_utilities = self.array_utilities; end
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 28, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 27, neurons = self.neurons; end
+            if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                              	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                       % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 27, neurons = self.neurons; end                                                                 % [class] Array of Neuron Class Objects.
             if nargin < 26, b_enableds = true( 1, n_neurons ); end                                                      % [T/F] Neuron Enabled Flag
             if nargin < 25, I_totals = self.Itotal_DEFAULT*ones( 1, n_neurons ); end                                    % [A] Total Current
             if nargin < 24, I_apps = self.Iapp_DEFAULT*ones( 1, n_neurons ); end                                        % [A] Applied Current
@@ -4936,9 +4940,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = design_mcpg_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Compute the sodium channel conductance required for a multistate cpg subnetwork.
@@ -4951,9 +4955,9 @@ classdef neuron_manager_class
         function [ Gnas, neurons, self ] = design_dmcpg_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Compute the sodium channel conductance required for a driven multistate cpg.
@@ -4966,10 +4970,10 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_transmission_neurons( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Compute the sodium channel conductance of the transmission subnetwork neurons.
@@ -4988,13 +4992,13 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, neurons = self.neurons; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 7, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, T = self.T_oscillation_DEFAULT; end
-            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end              % [#] Number of CPG Neurons.
             
             % Compute the sodium channel conductance of the transmission subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_transmission_Gna( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
@@ -5012,9 +5016,9 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_modulation_neurons( self, neuron_IDs, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Compute the sodium channel conductance of the modulation subnetwork neurons.
@@ -5033,12 +5037,12 @@ classdef neuron_manager_class
         function [ Gnas, Gms, Cms, Rs, neurons, self ] = design_addition_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Define the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                          % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
             % Process the parameters.
             parameters = self.process_addition_R_output_parameters( parameters, encoding_scheme, neurons );
@@ -5069,12 +5073,12 @@ classdef neuron_manager_class
         function [ Gnas, Gms, Cms, Rs, neurons, self ] = design_subtraction_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Define the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 'all'; end                                                          % [-] Neuron IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Process the parameters.
             parameters = self.process_subtraction_R_output_parameters( parameters, encoding_scheme, neurons );
@@ -5105,10 +5109,10 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_double_subtraction_neurons( self, neuron_IDs, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Compute the sodium channel conductance of the double subtraction subnetwork neurons.
@@ -5127,11 +5131,11 @@ classdef neuron_manager_class
         function [ Gnas_multiplication, Gms_multiplication, Cms_multiplication, Rs_multiplication, neurons, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
 
             % Validate the neuron IDs.
@@ -5166,11 +5170,11 @@ classdef neuron_manager_class
         function [ Gnas, Gms, Cms, Rs, neurons, self ] = design_inversion_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Process the parameters.
@@ -5202,11 +5206,11 @@ classdef neuron_manager_class
         function [ Gnas, Gms, Cms, Rs, neurons, self ] = design_division_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
             
             % Process the parameters.
@@ -5238,9 +5242,9 @@ classdef neuron_manager_class
         function [ Gnas, Gms, Cms, neurons, self ] = design_derivation_neurons( self, neuron_IDs, k_gain, w, safety_factor, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, neurons = self.neurons; end
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 6, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end
             if nargin < 4, w = self.w_derivation_DEFAULT; end
             if nargin < 3, k_gain = self.c_derivation_DEFAULT; end
@@ -5266,9 +5270,9 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_integration_neurons( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arugments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Compute the sodium channel conductance of the integration subnetwork.
@@ -5287,9 +5291,9 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_vbi_neurons( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arugments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Compute the sodium channel conductance of the voltage based integration subnetwork.
@@ -5308,9 +5312,9 @@ classdef neuron_manager_class
         function [ Gnas, Cms, neurons, self ] = design_svbi_neurons( self, neuron_IDs, ki_mean, neurons, set_flag, undetected_option )
             
             % Set the default input arugments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [-] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Compute the sodium channel conductance of the split voltage based integration subnetwork.
@@ -5349,7 +5353,7 @@ classdef neuron_manager_class
         function [ data, self ] = load( self, directory, file_name, set_flag )
             
             % Set the default input arguments.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 3, file_name = self.file_name_DEFAULT; end
             if nargin < 2, directory = self.load_directory_DEFAULT; end
             
@@ -5369,8 +5373,8 @@ classdef neuron_manager_class
         function self = load_xlsx( self, file_name, directory, b_append, b_verbose, neurons, set_flag )
             
             % Set the default input arguments.
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, neurons = self.neurons; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 6, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 5, b_verbose = true; end
             if nargin < 4, b_append = false; end
             if nargin < 3, directory = '.'; end
@@ -5392,7 +5396,7 @@ classdef neuron_manager_class
             neurons_to_load = repmat( neuron_class(  ), 1, num_neurons_to_load );
             
             % Create each neuron object.
-            for k = 1:num_neurons_to_load               % Iterate through each of the neurons...
+            for k = 1:num_neurons_to_load                                                   % Iterate through each of the neurons...
                 
                 % Compute the initial sodium channel deactivation parameter.
                 neuron_h0 = neurons_to_load( k ).neuron_utilities.compute_mhinf( neuron_U0s( k ), neuron_Ahs( k ), neuron_Shs( k ), neuron_dEhs( k ) );
@@ -5403,7 +5407,7 @@ classdef neuron_manager_class
             end
             
             % Determine whether to append the neurons we just loaded.
-            if b_append                         % If we want to append the neurons we just loaded...
+            if b_append                                                                     % If we want to append the neurons we just loaded...
                 
                 % Append the neurons we just loaded to the array of existing neurons.
                 neurons = [ neurons neurons_to_load ];
@@ -5411,7 +5415,7 @@ classdef neuron_manager_class
                 % Update the number of neurons.
                 n_neurons = length( neurons );
                 
-            else                                % Otherwise...
+            else                                                                            % Otherwise...
                 
                 % Replace the existing neurons with the neurons we just loaded.
                 neurons = neurons_to_load;
@@ -5422,7 +5426,7 @@ classdef neuron_manager_class
             end
             
             % Determine whether to update the neuron manager properties.
-            if set_flag                                 % If we want to update the neuron manager properties...
+            if set_flag                                                                     % If we want to update the neuron manager properties...
                 
                 % Update the neurons property.
                 self.neurons = neurons;
