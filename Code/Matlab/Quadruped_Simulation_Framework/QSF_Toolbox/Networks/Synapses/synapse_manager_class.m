@@ -139,12 +139,12 @@ classdef synapse_manager_class
         %% General Get & Set Synapse Property Functions.
         
         % Implement a function to retrieve the properties of specific synapses.
-        function xs = get_synapse_property( self, synapse_IDs, synapse_property, as_matrix, synapses, undetected_option )
+        function xs = get_synapse_property( self, synapse_IDs, synapse_property, as_matrix_flag, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, as_matrix = false; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, as_matrix_flag = self.as_matrix_flag_DEFAULT; end                    % [T/F] As Matrix Flag (Determines whether to return the neuron property as a matrix or as a cell.)                                               % [T/F] As Matrix Flag (Determines whether to return the neuron property as a matrix or as a cell.)
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -156,7 +156,7 @@ classdef synapse_manager_class
             xs = cell( 1, num_properties_to_get );
             
             % Retrieve the given synapse property for each synapse.
-            for k = 1:num_properties_to_get                         % Iterate through each of the properties to get...
+            for k = 1:num_properties_to_get                                                     % Iterate through each of the properties to get...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -170,7 +170,7 @@ classdef synapse_manager_class
             end
             
             % Determine whether to convert the network properties to a matrix.
-            if as_matrix                                    % If we want the neuron properties as a matrix instead of a cell...
+            if as_matrix_flag                                                                   % If we want the neuron properties as a matrix instead of a cell...
                
                 % Convert the synapse properties from a cell to a matrix.
                 xs = cell2mat( xs );
@@ -184,8 +184,8 @@ classdef synapse_manager_class
         function [ synapses, self ] = set_synapse_property( self, synapse_IDs, synapse_property_values, synapse_property, synapses, set_flag )
             
             % Set the default input arguments.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
             n_synapses = length( synapses );
@@ -255,9 +255,9 @@ classdef synapse_manager_class
         function [ values, synapses, self ] = call_synapse_method( self, synapse_IDs, synapse_method, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -269,7 +269,7 @@ classdef synapse_manager_class
             values = zeros( 1, num_synapses_to_evaluate );
             
             % Evaluate the given synapse method for each synapse.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -294,11 +294,11 @@ classdef synapse_manager_class
         function synapse_index = get_synapse_index( self, synapse_ID, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
-            n_synapses = length( synapses );                                            % [#] Number of Synapses.
+            n_synapses = length( synapses );                                                 	% [#] Number of Synapses.
             
             % Set a flag variable to indicate whether a matching synapse index has been found.
             b_match_found = false;
@@ -307,13 +307,13 @@ classdef synapse_manager_class
             synapse_index = 0;
             
             % Search for a synapse whose ID matches the target value.
-            while ( synapse_index < n_synapses ) && ( ~b_match_found )                  % While we have not yet checked all of the synapses and have not yet found an ID match...
+            while ( synapse_index < n_synapses ) && ( ~b_match_found )                          % While we have not yet checked all of the synapses and have not yet found an ID match...
                 
                 % Advance the synapse index.
                 synapse_index = synapse_index + 1;
                 
                 % Check whether this synapse index is a match.
-                if self.synapses( synapse_index ).ID == synapse_ID                       % If this synapse has the correct synapse ID...
+                if self.synapses( synapse_index ).ID == synapse_ID                              % If this synapse has the correct synapse ID...
                     
                     % Set the match found flag to true.
                     b_match_found = true;
@@ -323,15 +323,15 @@ classdef synapse_manager_class
             end
             
             % Determine whether to adjust the synapse index.
-            if ~b_match_found                                                           % If a match was not found...
+            if ~b_match_found                                                                   % If a match was not found...
                 
                 % Determine how to handle when a match is not found.
-                if strcmpi( undetected_option, 'error' )                                % If the undetected option is set to 'error'...
+                if strcmpi( undetected_option, 'error' )                                        % If the undetected option is set to 'error'...
                     
                     % Throw an error.
                     error( 'No synapse with ID %0.0f.', synapse_ID )
                     
-                elseif strcmpi( undetected_option, 'warning' )                          % If the undetected option is set to 'warning'...
+                elseif strcmpi( undetected_option, 'warning' )                                  % If the undetected option is set to 'warning'...
                     
                     % Throw a warning.
                     warning( 'No synapse with ID %0.0f.', synapse_ID )
@@ -339,12 +339,12 @@ classdef synapse_manager_class
                     % Set the synapse index to negative one.
                     synapse_index = -1;
                     
-                elseif strcmpi( undetected_option, 'ignore' )                           % If the undetected option is set to 'ignore'...
+                elseif strcmpi( undetected_option, 'ignore' )                                   % If the undetected option is set to 'ignore'...
                     
                     % Set the synapse index to negative one.
                     synapse_index = -1;
                     
-                else                                                                    % Otherwise...
+                else                                                                            % Otherwise...
                     
                     % Throw an error.
                     error( 'Undetected option %s not recognized.', undetected_option )
@@ -360,9 +360,9 @@ classdef synapse_manager_class
         function synapse_indexes = get_synapse_indexes( self, synapse_IDs, synapses, undetected_option )
             
             % Set the default synapse IDs.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -374,20 +374,20 @@ classdef synapse_manager_class
             synapse_indexes = zeros( 1, num_synapse_IDs );
             
             % Retrieve the synapse index of each synapse ID.
-            for k = 1:num_synapse_IDs                           % Iterate through each synapse ID...
+            for k = 1:num_synapse_IDs                                                           % Iterate through each synapse ID...
                 
                 % Determine how to compute the synapse index.
-                if synapse_IDs( k ) >= 0                           % If the synapse ID is positive... (this means that the synapse ID exists...)
+                if synapse_IDs( k ) >= 0                                                        % If the synapse ID is positive... (this means that the synapse ID exists...)
                     
                     % Retrieve the synapse index associated with this synapse ID.
                     synapse_indexes( k ) = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                     
-                elseif synapse_IDs( k ) == -1                     % If the synapse ID is -1... (this means that the synapse ID does not exist...)
+                elseif synapse_IDs( k ) == -1                                                   % If the synapse ID is -1... (this means that the synapse ID does not exist...)
                     
                     % Set the synapse index to negative one (to indicate that it doesn't exist).
                     synapse_indexes( k ) = -1;
                     
-                else                                            % Otherwise...
+                else                                                                            % Otherwise...
                     
                     % Throw an error.
                     error( 'Synapse ID %0.2f not recognized.', synapse_IDs( k ) )
@@ -403,7 +403,7 @@ classdef synapse_manager_class
         function synapse_IDs = get_all_synapse_IDs( self, synapses )
             
             % Set the default input arguments.
-            if nargin < 2, synapses = self.synapses; end
+            if nargin < 2, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
             n_synapses = length( synapses );
@@ -412,7 +412,7 @@ classdef synapse_manager_class
             synapse_IDs = zeros( 1,  n_synapses );
             
             % Retrieve each synapse ID.
-            for k = 1:n_synapses                  % Iterate through each synapse...
+            for k = 1:n_synapses                                                                % Iterate through each synapse...
                 
                 % Retrieve the ID of this synapse.
                 synapse_IDs( k ) = synapses( k ).ID;
@@ -426,7 +426,7 @@ classdef synapse_manager_class
         function synapse_IDs = get_self_connecting_sypnapse_IDs( self, synapses )
             
             % Set the default input arguments.
-            if nargin < 2, synapses = self.synapses; end
+            if nargin < 2, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
             n_synapses = length( synapses );
@@ -438,10 +438,10 @@ classdef synapse_manager_class
             synapse_IDs = zeros( 1, n_synapses );
             
             % Retrieve all self-connecting synapse IDs.
-            for k = 1:n_synapses                         % Iterate through each synapse...
+            for k = 1:n_synapses                                                                % Iterate through each synapse...
                 
                 % Determine whether this synapse is a self-connection.
-                if ( synapses( k ).from_neuron_ID == synapses( k ).to_neuron_ID )             % If this synapse is a self-connection...
+                if ( synapses( k ).from_neuron_ID == synapses( k ).to_neuron_ID )               % If this synapse is a self-connection...
                     
                     % Advance the synapse ID index.
                     index = index + 1;
@@ -465,7 +465,7 @@ classdef synapse_manager_class
         function synapse_IDs = validate_synapse_IDs( self, synapse_IDs, synapses )
             
             % Set the default input arguments.
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 3, synapses = self.synapses; end             	% [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
             n_synapses = length( synapses );
@@ -503,8 +503,8 @@ classdef synapse_manager_class
         function synapse_ID = generate_unique_synapse_ID( self, synapses, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end
-            if nargin < 2, synapses = self.synapses; end
+            if nargin < 3, array_utilities = self.array_utilities; end                          % [class] Array Utilities Class.
+            if nargin < 2, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the existing synapse IDs.
             existing_synapse_IDs = self.get_all_synapse_IDs( synapses );
@@ -519,8 +519,8 @@ classdef synapse_manager_class
         function synapse_IDs = generate_unique_synapse_IDs( self, num_IDs, synapses, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 4, array_utilities = self.array_utilities; end                      	% [class] Array Utilities Class.
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the existing synapse IDs.
             existing_synapse_IDs = self.get_all_synapse_IDs( synapses );
@@ -529,7 +529,7 @@ classdef synapse_manager_class
             synapse_IDs = zeros( 1, num_IDs );
             
             % Generate each of the new IDs.
-            for k = 1:num_IDs                           % Iterate through each of the new IDs...
+            for k = 1:num_IDs                                                                 	% Iterate through each of the new IDs...
                 
                 % Generate a unique synapse ID.
                 synapse_IDs( k ) = array_utilities.get_lowest_natural_number( [ existing_synapse_IDs, synapse_IDs( 1:( k - 1 ) ) ] );
@@ -543,8 +543,8 @@ classdef synapse_manager_class
         function [ b_unique, match_logicals, match_indexes ] = unique_synapse_ID( self, synapse_ID, synapses, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 4, array_utilities = self.array_utilities; end                        	% [class] Array Utilities Class.
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve all of the existing synapse IDs.
             existing_synapse_IDs = self.get_all_synapse_IDs( synapses );
@@ -562,8 +562,8 @@ classdef synapse_manager_class
         function b_unique_natural = unique_natural_synapse_ID( self, synapse_ID, synapses, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if narign < 3, synapses = self.synapses; end
+            if nargin < 4, array_utilities = self.array_utilities; end                          % [class] Array Utilities Class.
+            if narign < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Initialize the unique natural to false.
             b_unique_natural = false;
@@ -572,7 +572,7 @@ classdef synapse_manager_class
             b_unique = self.unique_synapse_ID( synapse_ID, synapses, array_utilities );
             
             % Determine whether this synapse ID is a unique natural.
-            if b_unique && ( synapse_ID > 0 ) && ( round( synapse_ID ) == synapse_ID )                     % If this neuron ID is a unique natural...
+            if b_unique && ( synapse_ID > 0 ) && ( round( synapse_ID ) == synapse_ID )          % If this neuron ID is a unique natural...
                 
                 % Set the unique natural flag to true.
                 b_unique_natural = true;
@@ -586,7 +586,7 @@ classdef synapse_manager_class
         function [ b_unique, match_logicals ] = unique_existing_synapse_IDs( self, synapses )
             
             % Set the default input arguments.
-            if nargin < 2, synapses = self.synapses; end
+            if nargin < 2, synapses = self.synapses; end                                                    % [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
             n_synapses = length( synapses );
@@ -595,7 +595,7 @@ classdef synapse_manager_class
             synapse_IDs = self.get_all_synapse_IDs( synapses );
             
             % Determine whether all entries are unique.
-            if length( unique( synapse_IDs ) ) == n_synapses                    % If all of the synapse IDs are unique...
+            if length( unique( synapse_IDs ) ) == n_synapses                                                % If all of the synapse IDs are unique...
                 
                 % Set the unique flag to true.
                 b_unique = true;
@@ -603,7 +603,7 @@ classdef synapse_manager_class
                 % Set the logicals array to true.
                 match_logicals = false( 1, n_synapses );
                 
-            else                                                                     % Otherwise...
+            else                                                                                            % Otherwise...
                 
                 % Set the unique flag to false.
                 b_unique = false;
@@ -612,19 +612,19 @@ classdef synapse_manager_class
                 match_logicals = false( 1, synapses );
                 
                 % Determine which synapses have duplicate IDs.
-                for k1 = 1:n_synapses                          % Iterate through each synapse...
+                for k1 = 1:n_synapses                                                                       % Iterate through each synapse...
                     
                     % Initialize the loop variable.
                     k2 = 0;
                     
                     % Determine whether there is another synapse with the same ID.
-                    while ( k2 < n_synapses ) && ( ~match_logicals( k1 ) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the synapses and we haven't found a match...
+                    while ( k2 < n_synapses ) && ( ~match_logicals( k1 ) ) && ( k1 ~= ( k2 + 1 ) )          % While we haven't checked all of the synapses and we haven't found a match...
                         
                         % Advance the loop variable.
                         k2 = k2 + 1;
                         
                         % Determine whether this synapse is a match.
-                        if synapses( k2 ).ID == synapse_IDs( k1 )                              % If this synapse ID is a match...
+                        if synapses( k2 ).ID == synapse_IDs( k1 )                                           % If this synapse ID is a match...
                             
                             % Set this match logical to true.
                             match_logicals( k1 ) = true;
@@ -648,8 +648,8 @@ classdef synapse_manager_class
             % NOTE: This function assumes that only one synapse connects each set of neurons.
             
             % Set the default input argument.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, synapses = self.synapses; end                                                                        % [class] Array of Synapse Class Objects.
             
             % Compute the number of synapses.
             n_synapses = length( synapses );
@@ -661,13 +661,13 @@ classdef synapse_manager_class
             k = 0;
             
             % Search for the synapse(s) that connect the specified neurons.
-            while ( ~b_synapse_detected ) && ( k < n_synapses )              % While a matching synapse has not yet been detected and we haven't looked through all of the synapses...
+            while ( ~b_synapse_detected ) && ( k < n_synapses )                                                                 % While a matching synapse has not yet been detected and we haven't looked through all of the synapses...
                 
                 % Advance the loop counter.
                 k = k + 1;
                 
                 % Determine whether this synapse connects the specified neurons.
-                if ( synapses( k ).from_neuron_ID == from_neuron_ID ) && ( synapses( k ).to_neuron_ID == to_neuron_ID )
+                if ( synapses( k ).from_neuron_ID == from_neuron_ID ) && ( synapses( k ).to_neuron_ID == to_neuron_ID )         % If this synapse connects the specified neurons...
                     
                     % Set the synapse detected flag to true.
                     b_synapse_detected = true;
@@ -677,20 +677,20 @@ classdef synapse_manager_class
             end
             
             % Determine whether a matching synapse was detected.
-            if b_synapse_detected                                   % If we found a matching synapse....
+            if b_synapse_detected                                                                                               % If we found a matching synapse....
                 
                 % Retrieve the ID of the matching synapse.
                 synapse_ID = synapses( k ).ID;
                 
-            else                                                    % Otherwise...
+            else                                                                                                                % Otherwise...
                 
                 % Determine how to handle the situation where we can not find a synapse that connects the selected neurons.
-                if strcmpi( undetected_option, 'error' )                                    % If the error option is selected...
+                if strcmpi( undetected_option, 'error' )                                                                      	% If the error option is selected...
                     
                     % Throw an error.
                     error( 'No synapse found that connects neuron %0.0f to neuron %0.0f.', from_neuron_ID, to_neuron_ID )
                     
-                elseif strcmpi( undetected_option, 'warning' )                              % If the warning option is selected...
+                elseif strcmpi( undetected_option, 'warning' )                                                                  % If the warning option is selected...
                     
                     % Throw a warning.
                     warning( 'No synapse found that connects neuron %0.0f to neuron %0.0f.', from_neuron_ID, to_neuron_ID )
@@ -698,12 +698,12 @@ classdef synapse_manager_class
                     % Set the synapse ID to be negative one.
                     synapse_ID = -1;
                     
-                elseif strcmpi( undetected_option, 'ignore' )                               % If the ignore option is selected...
+                elseif strcmpi( undetected_option, 'ignore' )                                                                  	% If the ignore option is selected...
                     
                     % Set the synapse ID to be negative one.
                     synapse_ID = -1;
                     
-                else                                                                        % Otherwise...
+                else                                                                                                            % Otherwise...
                     
                     % Throw an error.
                     error( 'undetected_option %s unrecognized.', undetected_option )
@@ -719,8 +719,8 @@ classdef synapse_manager_class
         function synapse_IDs = from_to_neuron_IDs2synapse_IDs( self, from_neuron_IDs, to_neuron_IDs, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Ensure that the same number of from and to neuron IDs are specified.
             assert( length( from_neuron_IDs ) == length( to_neuron_IDs ), 'length( from_neuron_IDs ) must equal length( to_neuron_IDs ).' )
@@ -732,7 +732,7 @@ classdef synapse_manager_class
             synapse_IDs = zeros( 1, num_synapses_to_find );
             
             % Search for each synapse ID.
-            for k = 1:num_synapses_to_find                              % Iterate through each set of neurons for which we are searching for a connecting synapse...
+            for k = 1:num_synapses_to_find                                                   	% Iterate through each set of neurons for which we are searching for a connecting synapse...
                 
                 % Retrieve the ID of the synapse that connects these neurons.
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( from_neuron_IDs( k ), to_neuron_IDs( k ), synapses, undetected_option );
@@ -746,7 +746,7 @@ classdef synapse_manager_class
         function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2oscillatory_from_to_neuron_IDs( ~, neuron_ID_order )
             
             % Determine whether there are neuron IDs to return.
-            if ~isempty( neuron_ID_order )                                  % If the neuron ID order was specified...
+            if ~isempty( neuron_ID_order )                                              % If the neuron ID order was specified...
                 
                 % Retrieve the number of pairs of neurons.
                 num_pairs = length( neuron_ID_order );
@@ -758,7 +758,7 @@ classdef synapse_manager_class
                 [ from_neuron_IDs, to_neuron_IDs ] = deal( zeros( 1, num_pairs ) );
                 
                 % Retrieve the from and to neuron IDs for each neuron pair.
-                for k = 1:num_pairs                         % Iterate through each pair of neurons...
+                for k = 1:num_pairs                                                     % Iterate through each pair of neurons...
                     
                     % Retrieve the from neuron ID.
                     from_neuron_IDs( k ) = neuron_ID_order( k );
@@ -768,7 +768,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                % Otherwise...
+            else                                                                        % Otherwise...
                 
                 % Set the from and to neuron IDs to be empty.
                 [ from_neuron_IDs, to_neuron_IDs ] = deal( [  ] );
@@ -782,12 +782,12 @@ classdef synapse_manager_class
         function [ from_neuron_IDs, to_neuron_IDs ] = neuron_ID_order2self_from_to_neuron_IDs( ~, neuron_ID_order )
             
             % Determine whether there are neuron IDs to return.
-            if ~isempty( neuron_ID_order )                                  % If the neuron ID order was specified...
+            if ~isempty( neuron_ID_order )                                      % If the neuron ID order was specified...
                 
                 % Set the from-to neuron IDs.
                 [ from_neuron_IDs, to_neuron_IDs ] = deal( neuron_ID_order );
                 
-            else                                                % Otherwise...
+            else                                                                % Otherwise...
                 
                 % Set the from and to neuron IDs to be empty.
                 [ from_neuron_IDs, to_neuron_IDs ] = deal( [  ] );
@@ -814,8 +814,8 @@ classdef synapse_manager_class
                 k3 = 0;
                 
                 % Retrieve the from and to neuron IDs for each neuron pair.
-                for k1 = 1:num_neurons                         % Iterate through each pair of neurons...
-                    for k2 = 1:num_neurons                         % Iterate through each pair of neurons...
+                for k1 = 1:num_neurons                                      % Iterate through each pair of neurons...
+                    for k2 = 1:num_neurons                                 	% Iterate through each pair of neurons...
                         
                         % Advance the counter variable.
                         k3 = k3 + 1;
@@ -829,7 +829,7 @@ classdef synapse_manager_class
                     end
                 end
                 
-            else                                                % Otherwise...
+            else                                                            % Otherwise...
                 
                 % Set the from and to neuron IDs to be empty.
                 [ from_neuron_IDs, to_neuron_IDs ] = deal( [  ] );
@@ -843,8 +843,8 @@ classdef synapse_manager_class
         function synapse_IDs = neuron_IDs2synapse_IDs( self, neuron_IDs, synapses, undetected_option )
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the IDs of all relevant from and to neurons.
             [ from_neuron_IDs, to_neuron_IDs ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_IDs );
@@ -859,8 +859,8 @@ classdef synapse_manager_class
         function b_one_to_one = one_to_one_synapses( self, synapses, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end
-            if nargin < 2, synapses = self.synapses; end
+            if nargin < 3, array_utilities = self.array_utilities; end                                                                                                                              % [class] Array Utilities Class.
+            if nargin < 2, synapses = self.synapses; end                                                                                                                                            % [class] Array of Synapse Class Objects.
             
             % Set the one-to-one flag.
             b_one_to_one = true;
@@ -873,7 +873,7 @@ classdef synapse_manager_class
             b_enableds = false( 1, n_synapses );
             
             % Determine whether there is only one synapse between each neuron.
-            while ( b_one_to_one ) && ( k < n_synapses )                             % While we haven't found a synapse repetition and we haven't checked all of the synpases...
+            while ( b_one_to_one ) && ( k < n_synapses )                                                                                                                                            % While we haven't found a synapse repetition and we haven't checked all of the synpases...
                 
                 % Advance the loop counter.
                 k = k + 1;
@@ -884,14 +884,14 @@ classdef synapse_manager_class
                 b_enableds( k ) = synapses( k ).b_enabled;
                 
                 % Determine whether we need to check this synapse for repetition.
-                if k ~= 1                               % If this is not the first iteration...
+                if k ~= 1                                                                                                                                                                           % If this is not the first iteration...
                     
                     % Determine whether the from and to neuron IDs are unique.
                     [ from_neuron_ID_match, from_neuron_ID_match_logicals ] = array_utilities.is_value_in_array( from_neuron_IDs( k ), from_neuron_IDs( 1:( k  - 1 ) ) );
                     [ to_neuron_ID_match, to_neuron_ID_match_logicals ] = array_utilities.is_value_in_array( to_neuron_IDs( k ), to_neuron_IDs( 1:( k  - 1 ) ) );
                     
                     % Determine whether this synapse is a duplicate.
-                    if from_neuron_ID_match && to_neuron_ID_match && b_enableds( k ) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
+                    if from_neuron_ID_match && to_neuron_ID_match && b_enableds( k ) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )             % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
                         
                         % Set the one-to-one flag to false (this synapse is duplicate).
                         b_one_to_one = false;
@@ -911,12 +911,12 @@ classdef synapse_manager_class
         function [ synapses, self ] = compute_cpg_deltas( self, neuron_IDs, delta_oscillatory, delta_bistable, synapses, set_flag, undetected_option, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 8, array_utilities = self.array_utilities; end
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
+            if nargin < 8, array_utilities = self.array_utilities; end                        	% [class] Array Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end                    % [V] Bistable CPG Bifurcation Parameter.
+            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end              % [V] Oscillatory CPG Bifurcation Parameter.              % [V] Oscillatory CPG Bifurcation Parameter.
             
             % Retrieve the IDs of all relevant from and to neurons.
             [ from_neuron_IDs_all, to_neuron_IDs_all ] = self.neuron_ID_order2all_from_to_neuron_IDs( neuron_IDs );
@@ -969,26 +969,26 @@ classdef synapse_manager_class
         function parameters = process_inversion_dEs_parameters( self, parameters, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    c = self.c_DEFAULT;
-                    delta_offset = self.delta_DEFAULT;
+                    c = self.c_DEFAULT;                                                     % [-] Inversion Subnetwork Gain.
+                    delta_offset = self.delta_DEFAULT;                                      % [-] Inversin Subnetwork Offset.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, delta_offset };
                     
-                else                                                       	% Otherwise...
+                else                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than four parameter entries...
+                    if length( parameters ) ~= 2                                            % If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -997,23 +997,23 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    epsilon = self.epsilon_DEFAULT;
-                    delta_offset = self.delta_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    epsilon = self.epsilon_DEFAULT;                                         % [-] Inversion Subnetwork Offset 1.
+                    delta_offset = self.delta_DEFAULT;                                      % [-] Inversion Subnetwork Offset 2.
+                    R2 = self.R_DEFAULT;                                                    % [V] Maximum Membrane Voltage.
                     
                     % Store the required parameters in a cell.
                     parameters = { epsilon, delta_offset, R2 };
                     
-                else                                                        % Otherwise...
+                else                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                            % If there is anything other than four parameter entries...
+                    if length( parameters ) ~= 3                                            % If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1022,7 +1022,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1036,14 +1036,14 @@ classdef synapse_manager_class
         function parameters = process_division_dEs1_parameters( self, parameters, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
                     c = self.c_DEFAULT;
@@ -1052,10 +1052,10 @@ classdef synapse_manager_class
                     % Store the required parameters in a cell.
                     parameters = { c, alpha };
                     
-                else                                                       	% Otherwise...
+                else                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 2                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1064,10 +1064,10 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
                     c = self.c_DEFAULT;
@@ -1076,10 +1076,10 @@ classdef synapse_manager_class
                     % Store the required parameters in a cell.
                     parameters = { c, alpha };
                     
-                else                                                        % Otherwise...
+                else                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 2                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1088,7 +1088,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1102,34 +1102,34 @@ classdef synapse_manager_class
         function parameters = process_addition_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
                     
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                       % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                                                % If no parameters were provided...
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c = self.c_DEFAULT;
-                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );
-                    Gm_n = self.Gm_DEFAULT;
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
-                    Ia_n = self.Ia_DEFAULT;
+                    c = self.c_DEFAULT;                                                                                 % [-] Subnetwork Gain.
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                    % [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );     % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, R_k, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                       	% Otherwise...
+                else                                                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 5                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 5                                                                        % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1138,26 +1138,26 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                                                % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    c = self.c_DEFAULT;
-                    n = self.num_addition_neurons_DEFAULT;
-                    R_n = self.R_DEFAULT;
-                    Gm_n = self.Gm_DEFAULT;
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
-                    Ia_n = self.Ia_DEFAULT;
+                    c = self.c_DEFAULT;                                                                                 % [-] Subnetwork Gain.
+                    n = self.num_addition_neurons_DEFAULT;                                                              % [#] Number of Neurons.
+                    R_n = self.R_DEFAULT;                                                                               % [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );     % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, n, R_n, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                        % Otherwise...
+                else                                                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 6                                                                        % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1166,7 +1166,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                                                        % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1180,35 +1180,35 @@ classdef synapse_manager_class
         function parameters = process_subtraction_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                               % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                           % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                                                        % If no parameters were provided...
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c = self.c_DEFAULT;
-                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );
-                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );
-                    Gm_n = self.Gm_DEFAULT;
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
-                    Ia_n = self.Ia_DEFAULT;
+                    c = self.c_DEFAULT;                                                                                         % [-] Subnetwork Gain.
+                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );                                                            % [-] Input Signature.
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                            % [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, s_k, R_k, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                       	% Otherwise...
+                else                                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 6                                                                                % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1217,30 +1217,30 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                       % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                                                        % If no parameters were provided... 
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c = self.c_DEFAULT;
-                    npm_k = self.npm_DEFAULT*ones( 1, num_synapse_IDs );
-                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );
-                    R_n = self.R_DEFAULT;
-                    Gm_n = self.Gm_DEFAULT;
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
-                    Ia_n = self.Ia_DEFAULT;
+                    c = self.c_DEFAULT;                                                                                         % [-] Subnetwork Gain.
+                    npm_k = self.npm_DEFAULT*ones( 1, num_synapse_IDs );                                                        % [#] Number of Excitatory & Inhibitory Inputs.
+                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );                                                            % [-] Input Signature.
+                    R_n = self.R_DEFAULT;                                                                                       % [V] Maximum Membrane Voltage. 
+                    Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, npm_k, s_k, R_n, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                        % Otherwise...
+                else                                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 7                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 7                                                                             	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1249,7 +1249,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1263,28 +1263,28 @@ classdef synapse_manager_class
         function parameters = process_inversion_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
-                    Ia2 = self.Ia_DEFAULT;
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { dEs21, Ia2 };
                     
-                else                                                       	% Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 2                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1293,22 +1293,22 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
-                    Ia2 = self.Ia_DEFAULT;
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { dEs21, Ia2 };
                     
-                else                                                        % Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 2                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1317,7 +1317,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1331,30 +1331,30 @@ classdef synapse_manager_class
         function parameters = process_division_gs31_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    alpha = self.alpha_DEFAULT;
-                    epsilon = self.epsilon_DEFAULT;
-                    R1 = self.R_DEFAULT;
-                    Gm3 = self.Gm_DEFAULT;
+                    alpha = self.alpha_DEFAULT;                                                                             % [-] Subnetwork Denominator Adjustment.
+                    epsilon = self.epsilon_DEFAULT;                                                                         % [V] Division Subnetwork Input Offset.
+                    R1 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
                     
                     % Store the required parameters in a cell.
                     parameters = { alpha, epsilon, R1, Gm3 };
                     
-                else                                                       	% Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1363,23 +1363,23 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R3 = self.R_DEFAULT;
-                    Gm3 = self.Gm_DEFAULT;
-                    dEs31 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    R3 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
+                    dEs31 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
                     % Store the required parameters in a cell.
                     parameters = { R3, Gm3, dEs31 };
                     
-                else                                                        % Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1388,7 +1388,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1402,29 +1402,29 @@ classdef synapse_manager_class
         function parameters = process_division_gs32_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                   	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                    % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    epsilon = self.epsilon_DEFAULT;
-                    R2 = self.R_DEFAULT;
-                    Gm3 = self.Gm_DEFAULT;
+                    epsilon = self.epsilon_DEFAULT;                                                                         % [-] Subnetwork Input Offset.
+                    R2 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
                     
                     % Store the required parameters in a cell.
                     parameters = { epsilon, R2, Gm3 };
                     
-                else                                                       	% Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1433,25 +1433,26 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                   % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
-                    c = self.c_DEFAULT;
-                    alpha = self.alpha_DEFAULT;
-                    epsilon = self.epsilon_DEFAULT;
-                    R3 = self.R_DEFAULT;
-                    Gm3 = self.Gm_DEFAULT;
-                    dEs31 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );
+                    % Set the default parameter values.
+                    c = self.c_DEFAULT;                                                                                     % [-] Subnetwork Gain.
+                    alpha = self.alpha_DEFAULT;                                                                             % [-] Subnetwork Denominator Adjustment.
+                    epsilon = self.epsilon_DEFAULT;                                                                         % [-] Subnetwork Input Offset.
+                    R3 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
+                    dEs31 = self.get_synapse_property( synapse_IDs, 'dE_syn', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
                     % Store the required parameters in a cell.
                     parameters = { c, alpha, epsilon, R3, Gm3, dEs31 };
                     
-                else                                                        % Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1460,7 +1461,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                            % Otherwise...
+            else                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1477,7 +1478,7 @@ classdef synapse_manager_class
             n_synapses = length( to_from_neuron_IDs );
             
             % Determine whether to generate to from neuron IDs.
-            if all( to_from_neuron_IDs == -1 )                                 % If the to neuron IDs were not provided...
+            if all( to_from_neuron_IDs == -1 )                                  % If the to neuron IDs were not provided...
                 
                 % Preallocate an array to store the to from neuron IDs.
                 to_from_neuron_IDs = zeros( 1, n_synapses );
@@ -1485,7 +1486,7 @@ classdef synapse_manager_class
                 % Set the to neuron IDs flag to true.
                 to_from_neuron_IDs_flag = true;
                 
-            else                                                        % Otherwise...
+            else                                                                % Otherwise...
                 
                 % Set the to neuron IDs flag to false.
                 to_from_neuron_IDs_flag = false;
@@ -1523,17 +1524,21 @@ classdef synapse_manager_class
         %% Parameter Retrieval Functions.
         
         % Implement a function to retrieve addition subnetwork parameters.
-        function these_parameters = get_addition_gs_parameters( ~, k, parameters, encoding_scheme )
+        function these_parameters = get_addition_gs_parameters( self, k, parameters, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                   % [cell] Parameters Cell.
             
             % Determine how to unpack the parameters for this synapse.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
                 
                 % Unpack the parameters.
-                c = parameters{ 1 };
-                R_ks = parameters{ 2 };
-                Gm_n = parameters{ 3 };
-                dEs_nks = parameters{ 4 };
-                Ia_n = parameters{ 5 };
+                c = parameters{ 1 };                                                % [-] Subnetwork Gain.
+                R_ks = parameters{ 2 };                                             % [V] Maximum Membrane Voltage.
+                Gm_n = parameters{ 3 };                                             % [S] Membrane Conductance.
+                dEs_nks = parameters{ 4 };                                          % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 5 };                                             % [A] Applied Current.
                 
                 % Assemble the parameters for this synapse.
                 these_parameters = { c, R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
@@ -1541,12 +1546,12 @@ classdef synapse_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                c = parameters{ 1 };
-                n = parameters{ 2 };
-                R_n = parameters{ 3 };
-                Gm_n = parameters{ 4 };
-                dEs_nk = parameters{ 5 };
-                Ia_n = parameters{ 6 };
+                c = parameters{ 1 };                                                % [-] Subnetwork Gain.
+                n = parameters{ 2 };                                                % [#] Number of Addition Neurons.
+                R_n = parameters{ 3 };                                              % [V] Maximum Membrane Voltage.
+                Gm_n = parameters{ 4 };                                             % [S] Membrane Conductance.
+                dEs_nk = parameters{ 5 };                                           % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 6 };                                             % [A] Applied Current.
                 
                 % Assemble the parameters for this synapse.
                 these_parameters = { c, n, R_n, Gm_n, dEs_nk( k ), Ia_n };
@@ -1564,16 +1569,20 @@ classdef synapse_manager_class
         % Implement a function to retrieve subtraction subnetwork parameters.
         function these_parameters = get_subtraction_gs_parameters( ~, k, parameters, encoding_scheme )
             
+            % Set the default input arguments.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                   % [cell] Parameters Cell.
+            
             % Determine how to unpack the parameters for this synapse.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
 
                 % Unpack the parameters.
-                c = parameters{ 1 };
-                s_ks = parameters{ 2 };
-                R_ks = parameters{ 3 };
-                Gm_n = parameters{ 4 };
-                dEs_nks = parameters{ 5 };
-                Ia_n = parameters{ 6 }; 
+                c = parameters{ 1 };                                                % [-] Subnetwork Gain.
+                s_ks = parameters{ 2 };                                             % [-1/+1] Input Signature.
+                R_ks = parameters{ 3 };                                             % [V] Maximum Membrane Voltage.
+                Gm_n = parameters{ 4 };                                             % [S] Membrane Conductance.
+                dEs_nks = parameters{ 5 };                                          % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 6 };                                             % [A] Applied Current.
 
                 % Assemble the parameters for this synapse.
                 these_parameters = { c, s_ks( k ), R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
@@ -1581,13 +1590,13 @@ classdef synapse_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
 
                 % Unpack the parameters.
-                c = parameters{ 1 };
-                npm_ks = parameters{ 2 };
-                s_ks = parameters{ 3 };
-                R_n = parameters{ 4 };
-                Gm_n = parameters{ 5 };
-                dEs_nks = parameters{ 6 };
-                Ia_n = parameters{ 7 };
+                c = parameters{ 1 };                                                % [-] Subnetwork Gain.
+                npm_ks = parameters{ 2 };                                           % [#] Number of Inhibitory/Exictatory Inputs.
+                s_ks = parameters{ 3 };                                             % [-] Input Signature.
+                R_n = parameters{ 4 };                                              % [V] Maximum Membrane Voltage.
+                Gm_n = parameters{ 5 };                                             % [S] Membrane Conductance.
+                dEs_nks = parameters{ 6 };                                          % [V} Synaptic Reversal Potential.
+                Ia_n = parameters{ 7 };                                             % [A] Applied Current.
 
                 % Assemble the parameters for this synapse.
                 these_parameters = { c, npm_ks( k ), s_ks( k ), R_n, Gm_n, dEs_nks( k ), Ia_n };
@@ -1608,10 +1617,10 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_dmcpg_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1623,7 +1632,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate );
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1643,11 +1652,11 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_transmission_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = encoding_scheme_DEFAULT; end                       % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1659,7 +1668,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate );
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1679,10 +1688,10 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_modulation_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1694,7 +1703,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate );
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1714,11 +1723,11 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_addition_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = encoding_scheme_DEFAULT; end                       % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1750,11 +1759,11 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_addition_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if anrgin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
+            if anrgin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1766,7 +1775,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1786,11 +1795,11 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_addition_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                             % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1802,7 +1811,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1822,11 +1831,11 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_subtraction_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end     
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.     
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1838,7 +1847,7 @@ classdef synapse_manager_class
             dEs1 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1855,14 +1864,14 @@ classdef synapse_manager_class
         
         
         % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
-        function [ dEs2, synapses, self ] = compute_set_subtraction_dEsyn2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs2, synapses, self ] = compute_subtraction_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1874,7 +1883,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -1894,11 +1903,11 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_subtraction_dEs_excitatory( self, synapse_IDs_excitatory, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs_excitatory = 'all'; end                                                                                                % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                            	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs_excitatory = 'all'; end                                	% [-] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs_excitatory = self.validate_synapse_IDs( synapse_IDs_excitatory, synapses );
@@ -1910,7 +1919,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs_excitatory( k ), synapses, undetected_option );
@@ -1930,11 +1939,11 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_subtraction_dEs_inhibitory( self, synapse_IDs_inhibitory, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs_inhibitory = 'all'; end                                                                                  % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs_inhibitory = 'all'; end                                	% [-] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs_inhibitory = self.validate_synapse_IDs( synapse_IDs_inhibitory, synapses );
@@ -1946,7 +1955,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs_inhibitory( k ), synapses, undetected_option );
@@ -1966,11 +1975,11 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_multiplication_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -1982,7 +1991,7 @@ classdef synapse_manager_class
             dEs1 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2002,11 +2011,11 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_multiplication_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2018,7 +2027,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2038,11 +2047,11 @@ classdef synapse_manager_class
         function [ dEs3, synapses, self ] = compute_multiplication_dEs3( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2054,7 +2063,7 @@ classdef synapse_manager_class
             dEs3 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2074,12 +2083,12 @@ classdef synapse_manager_class
         function [ dEs, synapses, self ] = compute_inversion_dEs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2094,7 +2103,7 @@ classdef synapse_manager_class
             dEs = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2111,15 +2120,15 @@ classdef synapse_manager_class
         
         
         % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
-        function [ dEs, synapses, self ] = compute_division_dEs1( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs1, synapses, self ] = compute_division_dEs1( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2131,16 +2140,16 @@ classdef synapse_manager_class
             num_synapses_to_evaluate = length( synapse_IDs );
             
             % Preallocate an array to store the computed values.
-            dEs = zeros( 1, num_synapses_to_evaluate ); 
+            dEs1 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
-                [ dEs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_dEs1( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                [ dEs1( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_dEs1( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
                 
             end
             
@@ -2154,11 +2163,11 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_division_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2170,7 +2179,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2190,10 +2199,10 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_derivation_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2205,7 +2214,7 @@ classdef synapse_manager_class
             dEs1 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2225,10 +2234,10 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_derivation_dEs2( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2240,7 +2249,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2260,10 +2269,10 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_integration_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2275,7 +2284,7 @@ classdef synapse_manager_class
             dEs1 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2295,10 +2304,10 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_integration_dEs2( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2310,7 +2319,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2330,10 +2339,10 @@ classdef synapse_manager_class
         function [ dEs1, synapses, self ] = compute_vbi_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2345,7 +2354,7 @@ classdef synapse_manager_class
             dEs1 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2365,10 +2374,10 @@ classdef synapse_manager_class
         function [ dEs2, synapses, self ] = compute_vbi_dEs2( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                                 % [-] Synapse IDs
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2380,7 +2389,7 @@ classdef synapse_manager_class
             dEs2 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2402,12 +2411,12 @@ classdef synapse_manager_class
         function [ gs, synapses, self ] = compute_dmcpg_gs( self, synapse_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                                                  % [A] Maximum Drive Current
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                                                      % [V] Oscillatory CPG Equilibrium Offset
-            if nargin < 2, synapse_IDs = 'all'; end                                                                                     % [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                    % [A] Max Drive Current.                                  	% [A] Maximum Drive Current.
+            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end              % [V] Oscillatory CPG Bifurcation Parameter.            	% [V] Oscillatory CPG Equilibrium Offset.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2419,7 +2428,7 @@ classdef synapse_manager_class
             gs = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2439,12 +2448,12 @@ classdef synapse_manager_class
         function [ gs_nk, synapses, self ] = compute_addition_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
-            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
 
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2459,7 +2468,7 @@ classdef synapse_manager_class
             gs_nk = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2482,12 +2491,12 @@ classdef synapse_manager_class
         function [ gs_nk, synapses, self ] = compute_subtraction_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
-            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2502,7 +2511,7 @@ classdef synapse_manager_class
             gs_nk = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2525,12 +2534,12 @@ classdef synapse_manager_class
         function [ gs21, synapses, self ] = compute_inversion_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
-            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2545,7 +2554,7 @@ classdef synapse_manager_class
             gs21 = zeros( 1, num_synapses_to_evaluate ); 
             
             % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate               % Iterate through each of the synapses of interest...
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
                 
                 % Retrieve the index associated with this synapse ID.
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
@@ -2565,12 +2574,12 @@ classdef synapse_manager_class
         function [ gs31, synapses, self ] = compute_division_gs31( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
-            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2594,12 +2603,12 @@ classdef synapse_manager_class
         function [ gs32, synapses, self ] = compute_division_gs32( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                              	% [class] Synapse Utilities.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
-            if nargin < 5, synapses = self.synapses; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme.
-            if nargin < 3, parameters = {  }; end                                       	% [-] Input Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                      	% [-] Synapse IDs
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2625,16 +2634,16 @@ classdef synapse_manager_class
         function valid_flag = validate_synapse_properties( self, n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
         
             % Set the default synapse properties.
-            if nargin < 12, array_utilities = self.array_utilities; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.deltas_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = 2*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = ones( 1, n_synapses ); end
-            if nargin < 6, gs_maxs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end
-            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end
+            if nargin < 12, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.deltas_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = 2*ones( 1, n_synapses ); end                                                     % [#] ID of Neuron At Which Synapse Terminates.
+            if nargin < 7, from_neuron_IDs = ones( 1, n_synapses ); end                                                     % [#] ID of Neuron From Which Synapse Originates.
+            if nargin < 6, gs_maxs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                         % [S] Synaptic Conductances.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                      % [str] Synapse Names.
+            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end             % [#] Synapse IDs.
             
             % Determine whether to convert the names property to a cell.
             if ~iscell( names ), names = { names }; end
@@ -2649,9 +2658,9 @@ classdef synapse_manager_class
         function [ b_enabled, synapses, self ] = enable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
@@ -2669,9 +2678,9 @@ classdef synapse_manager_class
         function [ b_enableds, synapses, self ] = enable_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % SEt the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2683,7 +2692,7 @@ classdef synapse_manager_class
             b_enableds = false( 1, num_synapses_to_enable );
             
             % Enable all of the specified synapses.
-            for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
+            for k = 1:num_synapses_to_enable                                                    % Iterate through all of the specified synapses...
                 
                 % Enable this synapse.
                 [ b_enableds( k ), synapses, self ] = self.enable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
@@ -2697,9 +2706,9 @@ classdef synapse_manager_class
         function [ b_enabled, synapses, self ] = disable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
@@ -2717,9 +2726,9 @@ classdef synapse_manager_class
         function self = disable_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2731,7 +2740,7 @@ classdef synapse_manager_class
             b_enableds = false( 1, num_synapses_to_enable );
             
             % Disable all of the specified synapses.
-            for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
+            for k = 1:num_synapses_to_enable                                                    % Iterate through all of the specified synapses...
                 
                 % Disable this synapse.
                 [ b_enableds( k ), synapses, self ] = self.disable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
@@ -2745,9 +2754,9 @@ classdef synapse_manager_class
         function [ b_enabled, synapses, self ] = toggle_enabled_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
@@ -2765,9 +2774,9 @@ classdef synapse_manager_class
         function [ b_enableds, synapses, self ] = toggle_enabled_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -2779,7 +2788,7 @@ classdef synapse_manager_class
             b_enableds = false( 1, num_synapses_to_enable );
             
             % Disable all of the specified synapses.
-            for k = 1:num_synapses_to_enable                      % Iterate through all of the specified synapses...
+            for k = 1:num_synapses_to_enable                                                    % Iterate through all of the specified synapses...
                 
                 % Toggle this synapse.
                 [ b_enableds( k ), synapses, self ] = self.toggle_enabled_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
@@ -2795,7 +2804,7 @@ classdef synapse_manager_class
         function [ synapses, self ] = update_synapse_manager( self, synapses, synapse_manager, set_flag )
         
             % Set the default input arguments.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end         	% [T/F] Set Flag (Determines whether output self object is updated.)
             
             % Determine whether to update the synapse manager object.
             if set_flag                                                  	% If we want to update the synapse manager object...
@@ -2817,12 +2826,12 @@ classdef synapse_manager_class
         function [ n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = process_synapse_creation_inputs( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
            
             % Set the default synapse properties.
-            if nargin < 13, array_utilities = self.array_utilities; end                                     % [class] Array Utilities Class.
-            if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 13, array_utilities = self.array_utilities; end                                    	% [class] Array Utilities Class.
+            if nargin < 10, synapses = self.synapses; end                                                 	% [class] Array of Synapse Class Objects.
             if nargin < 9, b_enableds = true; end                                                           % [T/F] Synapse Enabled Flag
             if nargin < 8, deltas = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
-            if nargin < 7, to_neuron_IDs = self.to_neuron_IDs_DEFAULT; end                                   % [-] To Neuron ID
-            if nargin < 6, from_neuron_IDs = self.from_neuron_IDs_DEFAULT; end                               % [-] From Neuron ID
+            if nargin < 7, to_neuron_IDs = self.to_neuron_IDs_DEFAULT; end                              	% [-] To Neuron ID
+            if nargin < 6, from_neuron_IDs = self.from_neuron_IDs_DEFAULT; end                          	% [-] From Neuron ID
             if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
             if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
             if nargin < 3, names = ''; end                                                                  % [-] Synapse Name
@@ -2848,8 +2857,8 @@ classdef synapse_manager_class
         function [ IDs, synapses ] = process_synapse_creation_outputs( ~, IDs, synapses, as_cell_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 5, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
-            if nargin < 4, as_cell_flag = self.as_cell_flag_DEFAULT; end                   	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 5, array_utilities = self.array_utilities; end                    	% [class] Array Utilities Class.
+            if nargin < 4, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)                   	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 3, synapses = self.neurons; end                                    	% [class] Array of Synapse Class Objects.
             
             % Determine whether to embed the new synapse IDs and objects in cells.
@@ -2899,17 +2908,17 @@ classdef synapse_manager_class
             
             % Set the default synapse properties.
             if nargin < 13, array_utilities = self.array_utilities; end                                     % [class] Array Utilities Class.
-            if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end                                   % [T/F] As Cell Flag (Determines whether the new synapse IDs and objects should be stored in arrays or cells.)
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                           % [T/F] Set Flag (Determines whether to update the synapse mangaer object.)
+            if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)                                   % [T/F] As Cell Flag (Determines whether the new synapse IDs and objects should be stored in arrays or cells.)
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                          	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag
-            if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
-            if nargin < 7, to_neuron_ID = self.to_neuron_IDs_DEFAULT; end                                    % [-] To Neuron ID
-            if nargin < 6, from_neuron_ID = self.from_neuron_IDs_DEFAULT; end                                % [-] From Neuron ID
-            if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
-            if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
-            if nargin < 3, name = ''; end                                                                   % [-] Synapse Name
-            if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end           % [#] Synapse ID
+            if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag.
+            if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset.
+            if nargin < 7, to_neuron_ID = self.to_neuron_IDs_DEFAULT; end                                  	% [-] To Neuron ID.
+            if nargin < 6, from_neuron_ID = self.from_neuron_IDs_DEFAULT; end                              	% [-] From Neuron ID.
+            if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance.
+            if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential.
+            if nargin < 3, name = ''; end                                                                   % [-] Synapse Name.
+            if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end           % [#] Synapse ID.
             
             % Process the synapse creation properties.
             [ ~, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( 1, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
@@ -2946,18 +2955,18 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_synapses( self, n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default synapse properties.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses_to_create ); end                                                      % [T/F] Synapse Enabled Flag
-            if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses_to_create ); end                            	% [V] Generic CPG Equilibrium Offset
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                         % [-] To Neuron ID
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                     % [-] From Neuron ID
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses_to_create ); end                                  % [S] Maximum Synaptic Conductance
-            if nargin < 5, dEs = self.dEs_minimum_DEFAULT*ones( 1, n_synapses_to_create ); end                                % [V] Synaptic Reversal Potential
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses_to_create ); end                                                 % [-] Synapse Name
-            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses_to_create, synapses, array_utilities ); end        	% [#] Synapse ID
+            if nargin < 14, array_utilities = self.array_utilities; end                                                             % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                                 	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                           % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses_to_create ); end                                                       % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses_to_create ); end                                  % [V] Generic CPG Equilibrium Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                          % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                      % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses_to_create ); end                                            % [S] Maximum Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_minimum_DEFAULT*ones( 1, n_synapses_to_create ); end                                      % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses_to_create ); end                                                   % [-] Synapse Name.
+            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses_to_create, synapses, array_utilities ); end           % [#] Synapse ID.
             
             % Process the synapse creation properties.
             [ n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -2972,7 +2981,7 @@ classdef synapse_manager_class
             synapse_manager = self;
             
             % Create each of the spcified synapses.
-            for k = 1:n_synapses_to_create                         % Iterate through each of the synapses we want to create...
+            for k = 1:n_synapses_to_create                                                                                          % Iterate through each of the synapses we want to create...
                 
                 % Create this synapse.                
                 [ IDs_new{ k }, synapses_new{ k }, synapses, synapse_manager ] = synapse_manager.create_synapse( IDs( k ), names{ k }, dEs( k ), gs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ), synapses, true, false, array_utilities );
@@ -2992,9 +3001,9 @@ classdef synapse_manager_class
         function [ synapses, self ] = delete_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Create an instance of the synpase manager that can be updated.
             synapse_manager = self;
@@ -3019,10 +3028,10 @@ classdef synapse_manager_class
         function [ synapses, self ] = delete_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapses = self.synapses; end
-            if nargin < 2, synapse_IDs = 'all'; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -3031,7 +3040,7 @@ classdef synapse_manager_class
             num_synapses_to_delete = length( synapse_IDs );
             
             % Delete each of the specified synapses.
-            for k = 1:num_synapses_to_delete                      % Iterate through each of the synapses we want to delete...
+            for k = 1:num_synapses_to_delete                                                    % Iterate through each of the synapses we want to delete...
                 
                 % Delete this synapse.
                 [ synapses, self ] = self.delete_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
@@ -3045,9 +3054,9 @@ classdef synapse_manager_class
         function [ synapses, self ] = connect_synapse( self, synapse_ID, from_neuron_ID, to_neuron_ID, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
@@ -3068,12 +3077,12 @@ classdef synapse_manager_class
         function [ synapses, self ] = connect_synapses( self, synapse_IDs, from_neuron_IDs, to_neuron_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapses = self.synapses; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, to_neuron_IDs = 2; end
             if nargin < 3, from_neuron_IDs = 1; end
-            if nargin < 2, synapse_IDs = 'all'; end
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
@@ -3085,7 +3094,7 @@ classdef synapse_manager_class
             assert( ( num_synapses_to_connect == length( from_neuron_IDs ) ) && ( num_synapses_to_connect == length( to_neuron_IDs ) ), 'The number of from and to neuron IDs must match the number of specified synapse IDs.' )
             
             % Connect each of the specified synapses.
-            for k = 1:num_synapses_to_connect                      % Iterate through each of the synapses we want to connect...
+            for k = 1:num_synapses_to_connect                                                   % Iterate through each of the synapses we want to connect...
                 
                 % Connect this synapse.
                 [ synapses, self ] = self.connect_synapse( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), synapses, set_flag, undetected_option );
@@ -3101,7 +3110,7 @@ classdef synapse_manager_class
         function n_mcpg_synapses = compute_num_mcpg_synapses( self, num_cpg_neurons )
            
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                  % [#] Number of CPG Neurons.
             
             % Compute the number of synapses.
             n_mcpg_synapses = num_cpg_neurons^2;
@@ -3113,7 +3122,7 @@ classdef synapse_manager_class
         function [ n_dmcpg_synapses, n_mcpg_synapses ] = compute_num_dmcpg_synapses( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                  % [#] Number of CPG Neurons.
             
             % Compute the number of multistate cpg synapses.
             n_mcpg_synapses = self.compute_num_mcpg_synapses( num_cpg_neurons );
@@ -3128,7 +3137,7 @@ classdef synapse_manager_class
         function n_dmcpg2mssvbi_synapses = compute_num_dmcpg2mssvbi_synapses( self, num_cpg_neurons )
         
             % Set the default input arugments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                  % [#] Number of CPG Neurons.
             
             % Compute the number of driven multistate central pattern generator to modulated split subtraction voltage based integration subnetwork synapses 
             n_dmcpg2mssvbi_synapses = 2*num_cpg_neurons;
@@ -3140,7 +3149,7 @@ classdef synapse_manager_class
         function n_mssvbi2sll_synapses = compute_num_mssvbi2sll_synapses( self, num_cpg_neurons )
         
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                  % [#] Number of CPG Neurons.
             
             % Compute the number of mssbvi2sll synapses.
             n_mssvbi2sll_synapses = 2*num_cpg_neurons + 2;
@@ -3154,25 +3163,25 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_mcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of cpg neurons.
-            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                              % [#] Number of CPG Neurons.
             
             % Compute the number of synapses.
-            n_synapses = self.compute_num_mcpg_synapses( num_cpg_neurons );
+            n_synapses = self.compute_num_mcpg_synapses( num_cpg_neurons );                                                 % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 15, array_utilities = self.array_utilities; end
-            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 12, synapses = self.synapses; end
-            if nargin < 11, b_enableds = true( 1, n_synapses ); end
-            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+            if nargin < 15, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
+            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs. 
+            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end                                                              % [#] Number of CPG Neurons.
             
             % Determine whether it is necessary to generate to and from neuron IDs.
             [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
@@ -3191,8 +3200,8 @@ classdef synapse_manager_class
             k3 = 0;
             
             % Edit the network properties.
-            for k1 = 1:num_cpg_neurons                                  % Iterate through each of the CPG neurons (from which the synapses are starting)...
-                for k2 = 1:num_cpg_neurons                              % Iterate through each of the CPG neurons (to which the synapses are going)...
+            for k1 = 1:num_cpg_neurons                                                                                      % Iterate through each of the CPG neurons (from which the synapses are starting)...
+                for k2 = 1:num_cpg_neurons                                                                                  % Iterate through each of the CPG neurons (to which the synapses are going)...
                     
                     % Advance the counter variable.
                     k3 = k3 + 1;
@@ -3229,18 +3238,18 @@ classdef synapse_manager_class
             [ n_synapses, n_mcpg_synapses ] = self.compute_num_dmcpg_synapses( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 15, array_utilities = self.array_utilities; end
-            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 12, synapses = self.synapses; end
-            if nargin < 11, b_enableds = true( 1, n_synapses ); end
-            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 15, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
+            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
             if nargin < 3, neuron_IDs = 1:( num_cpg_neurons + 1 ); end
             
             % Process the synapse creation inputs.
@@ -3275,10 +3284,10 @@ classdef synapse_manager_class
             [ names( i_start_d:i_end_d ), names_flag ] = self.process_names( names( i_start_d:i_end_d ) );
                 
             % Determine whether to compute the from neuron IDs, to neuron IDs, or names.
-            if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag                             % If we want compute either the from neuron IDs, to neuron IDs, or synapse names...
+            if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag                                                     % If we want compute either the from neuron IDs, to neuron IDs, or synapse names...
                 
                 % Compute the from neuron IDs, to neuron IDs, and synapse names as appropriate.
-                for k = 1:num_drive_synapes                                                         % Iterate through each of the drive synapses...
+                for k = 1:num_drive_synapes                                                                                 % Iterate through each of the drive synapses...
                     
                     % Determine the neuron ID from which this synapse originates.
                     if from_neuron_IDs_flag, from_neuron_IDs( i_end_mcpg + k ) = neuron_IDs( end ); end
@@ -3311,19 +3320,19 @@ classdef synapse_manager_class
             n_synapses = self.compute_num_dmcpg2mssvbi_synapses( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 15, array_utilities = self.array_utilities; end
-            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 12, synapses = self.synapses; end
-            if nargin < 11, b_enableds = true( 1, n_synapses ); end
-            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+            if nargin < 15, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
+            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end                                                              % [#] Number of CPG Neurons.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -3339,10 +3348,10 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from neuron IDs, to neuron IDs, and synapse names.
-            if to_neuron_IDs_flag || from_neuron_IDs_flag || names_flag                 % If we want to compute the from neuron IDs, to neuron IDs, or synapse names...
+            if to_neuron_IDs_flag || from_neuron_IDs_flag || names_flag                                                     % If we want to compute the from neuron IDs, to neuron IDs, or synapse names...
                 
                 % Create the synapses that connect the driven multistate cpg neurons to the modulated split subtraction voltage based integration neurons.
-                for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+                for k = 1:num_cpg_neurons                                                                                   % Iterate through each of the CPG neurons...
                     
                     % Compute the synapse index.
                     synapse_index = 2*( k - 1 ) + 1;
@@ -3356,7 +3365,7 @@ classdef synapse_manager_class
                     mssvbi_index2 = mssvbi_index1 + 1;
                     
                     % Determine whether to compute the neuron ID from which these synapses originate.
-                    if to_neuron_IDs_flag                               % If we want to compute the neuron ID from which these synapses originate...
+                    if to_neuron_IDs_flag                                                                                   % If we want to compute the neuron ID from which these synapses originate...
                         
                         % Determine the neuron ID from which these synapses originate.
                         from_neuron_IDs( synapse_index ) = neuron_IDs( dmcpg_index1 );
@@ -3365,7 +3374,7 @@ classdef synapse_manager_class
                     end
                     
                     % Determine whether to compute the nueron ID at which these synapses terminate.
-                    if from_neuron_IDs_flag                             % If we want to compute the neuron ID at which these synapses terminate...
+                    if from_neuron_IDs_flag                                                                                 % If we want to compute the neuron ID at which these synapses terminate...
                         
                         % Determine the neuron ID at which these synapses terminate.
                         to_neuron_IDs( synapse_index ) = neuron_IDs( mssvbi_index1 );
@@ -3374,7 +3383,7 @@ classdef synapse_manager_class
                     end
                     
                     % Determine whether to compute the nes of these synapses.
-                    if names_flag                                       % If we want to compute the names of these synapses...
+                    if names_flag                                                                                           % If we want to compute the names of these synapses...
                         
                         % Define the synapse names.
                         names{ synapse_index } = sprintf( 'Syn %0.0f%0.0f ', from_neuron_IDs1( synapse_index ), to_neuron_IDs1( synapse_index ) );
@@ -3405,19 +3414,19 @@ classdef synapse_manager_class
 %             n_synapses = self.compute_num_mssvbi2sll_synapses( num_cpg_neurons );
 %             
 %             % Set the default input arguments.
-%             if nargin < 15, array_utilities = self.array_utilities; end
-%             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
-%             if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-%             if nargin < 12, synapses = self.synapses; end
-%             if nargin < 11, b_enableds = true( 1, n_synapses ); end
-%             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-%             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-%             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-%             if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-%             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-%             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
-%             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-%             if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+%             if nargin < 15, array_utilities = self.array_utilities; end                                                       % [class] Array Utilities Class.
+%             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                     % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+%             if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                             % [T/F] Set Flag (Determines whether output self object is updated.)
+%             if nargin < 12, synapses = self.synapses; end                                                                     % [class] Array of Synapse Class Objects.
+%             if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                           % [T/F] Synapse Enabled Flag.
+%             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
+%             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                              % [-] To Neuron ID.
+%             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                          % [-] From Neuron ID.
+%             if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                % [S] Synaptic Conductance.
+%             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                  % [V] Synaptic Reversal Potential.
+%             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                       % [str] Synapse names.
+%             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end       % [#] Synapse IDs.            
+%             if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end                                                                % [#] Number of CPG Neurons.
 %             
 %             % Process the synapse creation inputs.
 %             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -3432,12 +3441,11 @@ classdef synapse_manager_class
 %             % Determine whether it is necessary to generate synapse names.
 %             [ names, names_flag ] = self.process_names( names );
 %             
-%             
 %             % Create the unique synapses.
 %             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
 %             
 %             % Create the addition synapses of the split lead lag subnetwork.
-%             for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+%             for k = 1:num_cpg_neurons                                                                                         % Iterate through each of the CPG neurons...
 %                 
 %                 % Compute the index.
 %                 index = 2*( k - 1 ) + 1;
@@ -3476,12 +3484,11 @@ classdef synapse_manager_class
 %             self = self.connect_synapse( synapse_IDs( end - 1 ), from_neuron_ID1, to_neuron_ID1 );
 %             self = self.connect_synapse( synapse_IDs( end ), from_neuron_ID2, to_neuron_ID2 );
 % 
-%             
 % %             % Create the unique synapses.
 % %             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
 % %             
 % %             % Create the addition synapses of the split lead lag subnetwork.
-% %             for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+% %             for k = 1:num_cpg_neurons                                                                                       % Iterate through each of the CPG neurons...
 % %                 
 % %                 % Compute the index.
 % %                 index = 2*( k - 1 ) + 1;
@@ -3538,7 +3545,7 @@ classdef synapse_manager_class
 %             [ self, synapse_IDs_cell{ 2 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 2 } );
 %             
 %             % Create the synapses for each of the modulated split subtraction voltage based integration synapses.
-%             for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
+%             for k = 1:num_cpg_neurons                                                                                         % Iterate through each of the cpg neurons...
 %                 
 %                 % Create the modulated split subtraction voltage based integration synapses for this subnetwork.
 %                 [ self, synapse_IDs_cell{ k + 2 } ] = self.create_mssvbi_synapses( neuron_IDs_cell{ k + 2 } );
@@ -3568,7 +3575,7 @@ classdef synapse_manager_class
 %             to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];
 %             
 %             % Setup each of the synapses.
-%             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+%             for k = 1:num_unique_synapses                                                                                     % Iterate through each of the unique synapses...
 %                 
 %                 % Set the names of each of the unique synapses.
 %                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
@@ -3613,7 +3620,7 @@ classdef synapse_manager_class
 %             to_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 1 }( 1 ) neuron_IDs_cell{ 2 }{ 1 }( 2 ) ];
 %             
 %             % Setup each of the synapses.
-%             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+%             for k = 1:num_unique_synapses                                                                                     % Iterate through each of the unique synapses...
 %                 
 %                 % Set the names of each of the unique synapses.
 %                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
@@ -3658,7 +3665,7 @@ classdef synapse_manager_class
 %             to_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 1 }{ 2 }( end ) neuron_IDs_cell{ 1 }{ 1 }{ 1 }( end ) ];
 %             
 %             % Setup each of the synapses.
-%             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+%             for k = 1:num_unique_synapses                                                                                     % Iterate through each of the unique synapses...
 %                 
 %                 % Set the names of each of the unique synapses.
 %                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
@@ -3690,23 +3697,23 @@ classdef synapse_manager_class
         function [ ID_new, synapse_new, synapses, self ] = create_transmission_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
         
             % Define the number of neurons and synapses.
-            n_neurons = self.num_transmission_neurons_DEFAULT;
-            n_synapses = self.num_transmission_synapses_DEFAULT;
+            n_neurons = self.num_transmission_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
+            n_synapses = self.num_transmission_synapses_DEFAULT;                                                                % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enabled = true( 1, n_synapses ); end
-            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                         % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                       % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                               % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enabled = true( 1, n_synapses ); end                                                              % [T/F] Enabled Flag.
+            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                                % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                 % [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                             % [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                    % [V] Synaptic Reversal Potential.
+            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                          % [str] Synapse Name.
+            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end          % [#] Synapse ID.     
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
         
             % Process the synapse creation inputs.
             [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
@@ -3744,23 +3751,23 @@ classdef synapse_manager_class
         function [ ID_new, synapse_new, synapses, self ] = create_modulation_synapses( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons and synapses.
-            n_neurons = self.num_modulation_neurons_DEFAULT;
-            n_synapses = self.num_modulation_synapses_DEFAULT;
+            n_neurons = self.num_modulation_neurons_DEFAULT;                                                                % [#] Number of Neurons.
+            n_synapses = self.num_modulation_synapses_DEFAULT;                                                              % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enabled = true( 1, n_synapses ); end
-            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                  	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enabled = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
+            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            	% [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        	% [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                      % [str] Synapse Name.
+            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end      % [#] Synapse ID.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
         
             % Process the synapse creation inputs.
             [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
@@ -3798,25 +3805,25 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_addition_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
-            if nargin < 2, n_neurons = self.num_addition_neurons_DEFAULT; end
+            if nargin < 2, n_neurons = self.num_addition_neurons_DEFAULT; end                                                   % [#]  Number of Neurons.
             
             % Compute the number of addition synapses.
-            n_synapses = n_neurons - 1;
+            n_synapses = n_neurons - 1;                                                                                         % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                         % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                       % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                               % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                               % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                    % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                         % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end         % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -3832,10 +3839,10 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from neuron IDs, to neuron IDs, and synapse names.
-           if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag              % If we want to compute the from neuron IDs, to enuron IDs, or synapse names...
+           if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag                                                          % If we want to compute the from neuron IDs, to enuron IDs, or synapse names...
                
                % Compute the from neuron IDs, to neuron IDs, and synapse names for each synpase as appropriate.
-               for k = 1:n_synapses                 % Iterate througuh each of the synapses...
+               for k = 1:n_synapses                                                                                             % Iterate througuh each of the synapses...
                   
                    % Compute the from and to neuron IDs for this synapse.
                    if from_neuron_IDs_flag, from_neuron_IDs( k ) = neuron_IDs( k ); end
@@ -3864,25 +3871,25 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_subtraction_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
-            if nargin < 2, n_neurons = self.num_subtraction_neurons_DEFAULT; end
+            if nargin < 2, n_neurons = self.num_subtraction_neurons_DEFAULT; end                                                % [#] Number of Neurons.
             
             % Compute the number of addition synapses.
-            n_synapses = n_neurons - 1;
+            n_synapses = n_neurons - 1;                                                                                         % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                         % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                     	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                               % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                               % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                    % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                         % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end         % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -3898,10 +3905,10 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from neuron IDs, to neuron IDs, and synapse names.
-           if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag              % If we want to compute the from neuron IDs, to enuron IDs, or synapse names...
+           if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag                                                        	% If we want to compute the from neuron IDs, to enuron IDs, or synapse names...
                
                % Compute the from neuron IDs, to neuron IDs, and synapse names for each synpase as appropriate.
-               for k = 1:n_synapses                 % Iterate througuh each of the synapses...
+               for k = 1:n_synapses                                                                                             % Iterate througuh each of the synapses...
                   
                    % Compute the from and to neuron IDs for this synapse.
                    if from_neuron_IDs_flag, from_neuron_IDs( k ) = neuron_IDs( k ); end
@@ -3930,23 +3937,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_double_subtraction_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_double_subtraction_neurons_DEFAULT;
-            n_synapses = self.num_double_subtraction_synapses_DEFAULT;
+            n_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                        % [#] Number of Neurons.
+            n_synapses = self.num_double_subtraction_synapses_DEFAULT;                                                      % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                  	% [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                 	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -3966,10 +3973,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 1, 1, 2, 2 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Double Subtraction %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -3994,23 +4001,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_centering_neurons_DEFAULT;
-            n_synapses = self.num_centering_synapses_DEFAULT;
+            n_neurons = self.num_centering_neurons_DEFAULT;                                                                 % [#] Number of Neurons.
+            n_synapses = self.num_centering_synapses_DEFAULT;                                                               % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4030,10 +4037,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 4, 5, 5 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Centering %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4058,23 +4065,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_double_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_double_centering_neurons_DEFAULT;
-            n_synapses = self.num_double_centering_synapses_DEFAULT;
+            n_neurons = self.num_double_centering_neurons_DEFAULT;                                                          % [#] Number of Neurons.
+            n_synapses = self.num_double_centering_synapses_DEFAULT;                                                        % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                 	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4094,10 +4101,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 4, 5, 5, 6, 6, 7, 7 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Double Centering %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4122,26 +4129,26 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_ds2dc_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
-            n_neurons = self.num_ds2dc_neurons_DEFAULT;
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                     % [#] Number of DS Neurons.
+            n_neurons = self.num_ds2dc_neurons_DEFAULT;                                                                     % [#] Number of Neurons.
             
             % Define the number of synapses.
-            n_synapses = self.num_ds2dc_synapses_DEFAULT;
+            n_synapses = self.num_ds2dc_synapses_DEFAULT;                                                                   % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4161,10 +4168,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( n_ds_neurons + 1 ), neuron_IDs( n_ds_neurons + 3 ) ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Double Subtrction -> Double Centering %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4189,29 +4196,29 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_cds_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons from the various subnetworks.
-            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
-            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;
-            n_neurons = n_ds_neurons + n_dc_neurons; 
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                     % [#] Number of DS Neurons.
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;                                                       % [#] Number of DC Neurons.
+            n_neurons = n_ds_neurons + n_dc_neurons;                                                                        % [#] Number of Neurons.
             
             % Define the number of synapses from the various subnetworks.
-            n_ds_synapses = self.num_double_subtraction_synapses_DEFAULT;
-            n_dc_synapses = self.num_double_centering_synapses_DEFAULT;
-            n_synapses = self.num_ds2dc_synapses_DEFAULT;
+            n_ds_synapses = self.num_double_subtraction_synapses_DEFAULT;                                                   % [#] Number of DS Synapses.
+            n_dc_synapses = self.num_double_centering_synapses_DEFAULT;                                                     % [#] Number of DC Synapses.
+            n_synapses = self.num_ds2dc_synapses_DEFAULT;                                                                   % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4257,23 +4264,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_multiplication_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_multiplication_neurons_DEFAULT;
-            n_synapses = self.num_multiplication_synapses_DEFAULT;
+            n_neurons = self.num_multiplication_neurons_DEFAULT;                                                            % [#] Number of Neurons.
+            n_synapses = self.num_multiplication_synapses_DEFAULT;                                                          % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4293,10 +4300,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 3, 4 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                               % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                    % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Multiplcation %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4321,23 +4328,23 @@ classdef synapse_manager_class
         function [ ID_new, synapse_new, synapses, self ] = create_inversion_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons and synapses.
-            n_neurons = self.num_inversion_neurons_DEFAULT;
-            n_synapses = self.num_inversion_synapses_DEFAULT;
+            n_neurons = self.num_inversion_neurons_DEFAULT;                                                                 % [#] Number of Neurons.
+            n_synapses = self.num_inversion_synapses_DEFAULT;                                                               % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enabled = true( 1, n_synapses ); end
-            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enabled = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
+            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                             % [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                         % [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                  	% [str] Synapse Name.
+            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end      % [#] Synapse ID.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
         
             % Process the synapse creation inputs.
             [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
@@ -4375,23 +4382,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_division_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_division_neurons_DEFAULT;
-            n_synapses = self.num_division_synapses_DEFAULT;
-            
+            n_neurons = self.num_division_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
+            n_synapses = self.num_division_synapses_DEFAULT;                                                                % [#] Number of Synpases.
+             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                   	% [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4411,10 +4418,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Division %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4439,23 +4446,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_derivation_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_derivation_neurons_DEFAULT;
-            n_synapses = self.num_derivation_synapses_DEFAULT;
+            n_neurons = self.num_derivation_neurons_DEFAULT;                                                                % [#] Number of Neurons.
+            n_synapses = self.num_derivation_synapses_DEFAULT;                                                              % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                               	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4475,10 +4482,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Derivation %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4503,23 +4510,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_integration_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_integration_neurons_DEFAULT;
-            n_synapses = self.num_integration_synapses_DEFAULT;
+            n_neurons = self.num_integration_neurons_DEFAULT;                                                               % [#] Number of Neurons.
+            n_synapses = self.num_integration_synapses_DEFAULT;                                                             % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4539,10 +4546,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 2, 1 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'Derivation %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4567,23 +4574,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_vbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_vbi_neurons_DEFAULT;
-            n_synapses = self.num_vbi_synapses_DEFAULT;
+            n_neurons = self.num_vbi_neurons_DEFAULT;                                                                       % [#] Number of Neurons.
+            n_synapses = self.num_vbi_synapses_DEFAULT;                                                                     % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4603,10 +4610,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3, 4, 3 ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'VBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4631,23 +4638,23 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_svbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
-            n_neurons = self.num_svbi_neurons_DEFAULT;
-            n_synapses = self.num_svbi_synapses_DEFAULT;
+            n_neurons = self.num_svbi_neurons_DEFAULT;                                                                      % [#] Number of Neurons.
+            n_synapses = self.num_svbi_synapses_DEFAULT;                                                                    % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                  	% [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4667,10 +4674,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 7 ), neuron_IDs( 7 ), neuron_IDs( 8 ), neuron_IDs( 8 ), neuron_IDs( 6 ), neuron_IDs( 5 ) ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'SVBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4695,29 +4702,29 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_msvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons from the various subnetworks.
-            n_svbi_neurons = self.num_svbi_neurons_DEFAULT;
-            n_msvbi_neurons = self.num_msvbi_neurons_DEFAULT;
-            n_neurons = n_svbi_neurons + n_msvbi_neurons; 
+            n_svbi_neurons = self.num_svbi_neurons_DEFAULT;                                                                 % [#] Number of SVBI Neurons.
+            n_msvbi_neurons = self.num_msvbi_neurons_DEFAULT;                                                               % [#] Number of MSVBI Neurons.
+            n_neurons = n_svbi_neurons + n_msvbi_neurons;                                                                   % [#] Number of Neurons.
             
             % Define the number of synapses from the various subnetworks.
-            n_svbi_synapses = self.num_svbi_synapses_DEFAULT;
-            n_msvbi_synapses = self.num_msvbi_synapses_DEFAULT;
-            n_synapses = n_svbi_synapses + n_msvbi_synapses;
+            n_svbi_synapses = self.num_svbi_synapses_DEFAULT;                                                               % [#] Number of SVBI Synapses.
+            n_msvbi_synapses = self.num_msvbi_synapses_DEFAULT;                                                             % [#] Number of MSVBI Synapses.
+            n_synapses = n_svbi_synapses + n_msvbi_synapses;                                                                % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                 	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4751,10 +4758,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 11 ), neuron_IDs( 12 ), neuron_IDs( 11 ), neuron_IDs( 12 ), neuron_IDs( 10 ), neuron_IDs( 10 ) ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                      	% Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'MSVBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4779,31 +4786,31 @@ classdef synapse_manager_class
         function [ IDs_new, synapses_new, synapses, self ] = create_mssvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons from the various subnetworks.
-            n_ds_neurons = self.num_ds_neurons_DEFAULT;
-            n_msvbi_neurons = self.num_msvbi_neurons_DEFAULT;
-            n_mssvbi_neurons = self.num_mssvbi_neurons_DEFAULT;
-            n_neurons = n_ds_neurons + n_msvbi_neurons + n_mssvbi_neurons; 
+            n_ds_neurons = self.num_ds_neurons_DEFAULT;                                                                     % [#] Number of DS Neurons.
+            n_msvbi_neurons = self.num_msvbi_neurons_DEFAULT;                                                               % [#] Number of MSVBI Neurons.
+            n_mssvbi_neurons = self.num_mssvbi_neurons_DEFAULT;                                                             % [#] Number of MSSVBI Neurons.
+            n_neurons = n_ds_neurons + n_msvbi_neurons + n_mssvbi_neurons;                                                  % [#] Number of Neurons.
             
             % Define the number of synapses from the various subnetworks.
-            n_ds_synapses = self.num_ds_synapses_DEFAULT;
-            n_msvbi_synapses = self.num_msvbi_synapses_DEFAULT;
-            n_mssvbi_synapses = self.num_mssvbi_synapses_DEFAULT;
-            n_synapses = n_ds_synapses + n_msvbi_synapses + n_mssvbi_synapses;
+            n_ds_synapses = self.num_ds_synapses_DEFAULT;                                                                   % [#] Number of DS Synapses.
+            n_msvbi_synapses = self.num_msvbi_synapses_DEFAULT;                                                             % [#] Number of MSVBI Synapses.
+            n_mssvbi_synapses = self.num_mssvbi_synapses_DEFAULT;                                                           % [#] Number of MSSVBI Synapses.
+            n_synapses = n_ds_synapses + n_msvbi_synapses + n_mssvbi_synapses;                                              % [#] Number of Synapses.
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
-            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end
-            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 14, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
@@ -4845,10 +4852,10 @@ classdef synapse_manager_class
             if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 5 ), neuron_IDs( 6 ) ]; end
             
             % Determinine whether to compute the synapse names.
-            if names_flag                           % If we want to compute the synapse names...
+            if names_flag                                                                                                   % If we want to compute the synapse names...
 
                 % Compute the synapse names.
-                for k = 1:n_synapses                % Iterate through each of the synpases...
+                for k = 1:n_synapses                                                                                        % Iterate through each of the synpases...
 
                     % Compute the name of this synapse.
                     names{ k } = sprintf( 'MSSVBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
@@ -4872,24 +4879,31 @@ classdef synapse_manager_class
         %% Subnetwork Synapse Design Functions
         
         % Implement a function to design the synapses for a multistate cpg subnetwork.
-        function self = design_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable )
+        function [ synapses, self ] = design_mcpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, synapses, set_flag, undetected_option, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
+            if nargin < 8, array_utilities = self.array_utilities; end                        	% [class] Array Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end                    % [V] Bistable CPG Bifurcation Parameter.
+            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end              % [V] Oscillatory CPG Bifurcation Parameter.
             
-            % Set the synapse delta values.
-            self = self.compute_set_cpg_deltas( neuron_IDs, delta_oscillatory, delta_bistable );
+            % Compute the synapse delta values.
+            [ synapses, self ] = self.compute_cpg_deltas( neuron_IDs, delta_oscillatory, delta_bistable, synapses, set_flag, undetected_option, array_utilities );
             
         end
         
         
         % Implement a function to design the synapses for a driven multistate cpg subnetwork.
-        function self = design_driven_multistate_cpg_synapses( self, neuron_IDs, delta_oscillatory, Id_max )
+        function [ dEs, gs, synapses, self ] = design_dmcpg_synapses( self, neuron_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, Id_max = self.Id_max_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                    % [A] Max Drive Current.
+            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end              % [V] Oscillatory CPG Bifurcation Parameter.
             
             % Retrieve the number of cpg neurons.
             num_cpg_neurons = length( neuron_IDs ) - 1;
@@ -4899,522 +4913,242 @@ classdef synapse_manager_class
             to_neuron_IDs = neuron_IDs( 1:( end - 1 ) );
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( from_neuron_IDs, to_neuron_IDs, synapses, undetected_option );
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_dmcpg_dEs( synapse_IDs );
+            % Compute the synaptic reversal potential.
+            [ dEs, synapses, synapse_manager ] = self.compute_dmcpg_dEs( synapse_IDs, synapses, true, undetected_option );
             
-            % Compute and set the maximum synaptic conductances.
-            self = self.compute_dmcpg_gs( synapse_IDs, delta_oscillatory, Id_max );
+            % Compute the maximum synaptic conductances.
+            [ gs, synapses, synapse_manager ] = synapse_manager.compute_dmcpg_gs( synapse_IDs, delta_oscillatory, Id_max, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
         
         % Implement a function to design the synapses for a transmission subnetwork.
-        function [ self, synapse_ID ] = design_transmission_synapse( self, neuron_IDs )
+        function [ dEs, synapses, self ] = design_transmission_synapse( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 1:self.num_transmission_neurons_DEFAULT; end            % [#] Neuron IDs.
             
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_transmission_dEs( synapse_ID );
+            % Compute the synaptic reversal potential.
+            [ dEs, synapses, self ] = self.compute_transmission_dEs( synapse_ID, encoding_scheme, synapses, set_flag, undetected_option );
             
         end
         
         
         % Implement a function to design the synapses for a modulation subnetwork.
-        function [ self, synapse_ID ] = design_modulation_synapse( self, neuron_IDs )
+        function [ dEs, synapses, self ] = design_modulation_synapse( self, neuron_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_modulation_dEs( synapse_ID );
+            % Compute the synaptic reversal potential.
+            [ dEs, synapses, self ] = self.compute_modulation_dEs( synapse_ID, synapses, set_flag, undetected_option );
             
         end
         
         
         % Implement a function to design the synapses for an addition subnetwork.
-        function [ self, synapse_IDs ] = design_addition_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, synapses, self ] = design_addition_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 1:self.num_addition_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_addition_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_set_addition_dEsyn2( synapse_IDs( 2 ) );
+            % Compute the synaptic reversal potential.
+            [ dEs1, synapses, synapse_manager ] = self.compute_addition_dEs1( synapse_IDs( 1 ), encoding_scheme, synapses, true, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_addition_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design the synapses for an absolute addition subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_addition_synapses( self, neuron_IDs, c, R_ks, Gm_n, Ia_n )
-            
-            % Define the default input arguments.
-            if nargin < 6, Ia_n = self.Ia_absolute_addition_DEFAULT; end
-            if nargin < 5, Gm_n = self.Gm_DEFAULT; end
-            if nargin < 4, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end
-            if nargin < 3, c = self.c_absolute_addition_DEFAULT; end
-            
-            % Compute the number of synapses.
-            num_synapses_to_create = length( neuron_IDs ) - 1;
-            
-            % Preallocate an array to store the synapse IDs.
-            synapse_IDs = zeros( 1, num_synapses_to_create );
-            
-            % Create each of the synapses.
-            for k = 1:num_synapses_to_create                    % Iterate through each of the synapses...
-                
-                % Retrieve the ID associated with this synapse.
-                synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Compute and set the absolute addition synaptic reversal potential.
-                self = self.compute_addition_dEs( synapse_IDs( k ) );
-                
-                % Compute and set the absolute addition maximum synaptic conductance.
-                self = self.compute_addition_gs( synapse_IDs( k ), c, R_ks( k ), Gm_n, Ia_n );
-                
-            end
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
-        
-        % Implement a function to design the synapses for a relative addition subnetwork.
-        function [ self, synapse_IDs ] = design_relative_addition_synapses( self, neuron_IDs, c, n, R_n, Gm_n, Ia_n )
-            
-            % Define the default input arguments.
-            if nargin < 7, Ia_n = self.Ia_relative_addition_DEFAULT; end                                        % [A] Output Applied Current
-            if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-            if nargin < 5, R_n = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
-            if nargin < 4, n = self.num_relative_addition_neurons_DEFAULT; end                                              % [#] Number of Addition Neurons
-            if nargin < 3, c = self.c_relative_addition_DEFAULT; end                                                % [-] Addition Subnetwork Gain
-            
-            % Compute the number of synapses.
-            num_synapses_to_create = length( neuron_IDs ) - 1;
-            
-            % Preallocate an array to store the synapse IDs.
-            synapse_IDs = zeros( 1, num_synapses_to_create );
-            
-            % Create each of the synapses.
-            for k = 1:num_synapses_to_create                    % Iterate through each of the synapses...
-                
-                % Retrieve the ID associated with this synapse.
-                synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Compute and set the relative addition synaptic reversal potential.
-                self = self.compute_set_relative_addition_dEsyn( synapse_IDs( k ) );
-                
-                % Compute and set the relative addition maximum synaptic conductance.
-                self = self.compute_set_relative_addition_gsyn( synapse_IDs( k ), c, n, R_n, Gm_n, Ia_n );
-                
-            end
-            
-        end
-        
-        
+
         % Implement a function to design the synapses for a subtraction subnetwork.
-        function [ self, synapse_IDs ] = design_subtraction_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, synapses, self ] = design_subtraction_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 1:self.num_subtraction_neurons_DEFAULT; end             % [#] Neuron IDs.   
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_subtraction_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_set_subtraction_dEsyn2( synapse_IDs( 2 ) );
+            % Compute the synaptic reversal potentials.
+            [ dEs1, synapses, synapse_manager ] = self.compute_subtraction_dEs1( synapse_IDs( 1 ), encoding_scheme, synapses, true, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_subtraction_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design the synapses for an absolute subtraction subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_subtraction_synapses( self, neuron_IDs, c, s_ks, R_ks, Gm_n, Ia_n )
-            
-            % Define the default input arguments.
-            if nargin < 7, Ia_n = self.Ia_absolute_subtraction_DEFAULT; end                                     % [A] Output Applied Current
-            if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-            if nargin < 5, R_ks = self.R_DEFAULT*ones( 1, length( neuron_IDs ) - 1 ); end                           % [-] Input Activation Domains
-            if nargin < 4, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Signs
-            if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Subtraction Subnetwork Gain
-            
-            % Compute the number of synapses.
-            num_synapses_to_create = length( neuron_IDs ) - 1;
-            
-            % Preallocate an array to store the synapse IDs.
-            synapse_IDs = zeros( 1, num_synapses_to_create );
-            
-            % Create each of the synapses.
-            for k = 1:num_synapses_to_create                    % Iterate through each of the synapses...
-                
-                % Retrieve the ID associated with this synapse.
-                synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Determine how to compute the synaptic reversal potential.
-                if s_ks( k ) == 1                                                                                   % If this is an excitatory synapse...
-                    
-                    % Compute and set the absolute subtraction synaptic reversal potential for an excitatory synapse.
-                    self = self.compute_subtraction_dEs_excitatory( synapse_IDs( k ) );
-                    
-                elseif s_ks( k ) == -1                                                                              % If this is an inhibitory synapse...
-                    
-                    % Compute and set the absolute subtraction synaptic reversal potential for an inhibitory synapse.
-                    self = self.compute_subtraction_dEs_inhibitory( synapse_IDs( k ) );
-                    
-                else                                                                                                % Otherwise... (The synaptic type (excitatory / inhibitory) is undefined...
-                    
-                    % Throw an error.
-                    error( 'The excitatory / inhibitory nature of this synapse can not be determined.' )
-                    
-                end
-                
-                % Compute and set the absolute subtraction maximum synaptic gain.
-                self = self.compute_subtraction_gs( synapse_IDs( k ), c, s_ks( k ), R_ks( k ), Gm_n, Ia_n );
-                
-            end
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
-        
-        
-        % Implement a function to design the synapses for a relative subtraction subnetwork.
-        function [ self, synapse_IDs ] = design_relative_subtraction_synapses( self, neuron_IDs, c, npm_k, s_ks, R_n, Gm_n, Ia_n )
-            
-            % Define the default input arguments.
-            if nargin < 8, Ia_n = self.Ia_relative_subtraction_DEFAULT; end                                     % [A] Output Applied Current
-            if nargin < 7, Gm_n = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-            if nargin < 6, R_n = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
-            if nargin < 5, s_ks = [ 1, -1 ]; end                                                                    % [-] Input Excitatory / Inhibitory Sign
-            if nargin < 4, npm_k = [ 1, 1 ]; end                                                                    % [#] Number of Excitatory / Inhibitory Inputs
-            if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Subtraction Subnetwork Gain
-            
-            % Compute the number of synapses.
-            num_synapses_to_create = length( neuron_IDs ) - 1;
-            
-            % Preallocate an array to store the synapse IDs.
-            synapse_IDs = zeros( 1, num_synapses_to_create );
-            
-            % Create each of the synapses.
-            for k = 1:num_synapses_to_create                                                                        % Iterate through each of the synapses...
-                
-                % Retrieve the ID associated with this synapse.
-                synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Determine how to compute the synaptic reversal potential.
-                if s_ks( k ) == 1                                                                                   % If this is an excitatory synapse...
-                    
-                    % Compute and set the relative subtraction synaptic reversal potential for an excitatory synapse.
-                    self = self.compute_set_relative_subtraction_dEsyn_excitatory( synapse_IDs( k ) );
-                    
-                    % Set the number of relavent input neurons to be those with excitatory connections to the output neuron.
-                    n = npm_k( 1 );
-                    
-                elseif s_ks( k ) == -1                                                                              % If this is an inhibitory synapse...
-                    
-                    % Compute and set the relative subtraction synaptic reversal potential for an inhibitory synapse.
-                    self = self.compute_set_relative_subtraction_dEsyn_inhibitory( synapse_IDs( k ) );
-                    
-                    % Set the number of relavent input neurons to be those with inhibitory connections to the output neuron.
-                    n = npm_k( 2 );
-                    
-                else                                                                                                % Otherwise... (The synaptic type (excitatory / inhibitory) is undefined...
-                    
-                    % Throw an error.
-                    error( 'The excitatory / inhibitory nature of this synapse can not be determined.' )
-                    
-                end
-                
-                % Compute and set the relative subtraction maximum synaptic gain.
-                self = self.compute_set_relative_subtraction_gsyn( synapse_IDs( k ), c, n, s_ks( k ), R_n, Gm_n, Ia_n );
-                
-            end
-            
-        end
-        
+
         
         % Implement a function to design the synapses for a multiplication subnetwork.
-        function [ self, synapse_IDs ] = design_multiplication_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, dEs3, synapses, self ] = design_multiplication_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.
-            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ], synapses, undetected_option );
+            synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 4 ) ], synapses, undetected_option );
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_multiplication_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_multiplication_dEs2( synapse_IDs( 2 ) );
-            self = self.compute_multiplication_dEs3( synapse_IDs( 3 ) );
+            % Compute the synaptic reversal potential.
+            [ dEs1, synapses, synapse_manager ] = self.compute_multiplication_dEs1( synapse_IDs( 1 ), encoding_scheme, synapses, true, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_multiplication_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
+            [ dEs3, synapses, synapse_manager ] = synapse_manager.compute_multiplication_dEs3( synapse_IDs( 3 ), encoding_scheme, synapses, true, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design the synapses for an absolute multiplication subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_1, R_2, R_3, Gm_3, Gm_4, Iapp_3 )
-            
-            % Define the default input arugments.
-            if nargin < 13, Iapp_3 = self.Ia2_absolute_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
-            if nargin < 12, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
-            if nargin < 11, Gm_3 = self.Gm_DEFAULT; end                                                             % [S] Inversion Output Membrane Conductance
-            if nargin < 10, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
-            if nargin < 9, R_2 = self.R_DEFAULT; end                                                                % [V] Inversion Input Activation Domain
-            if nargin < 8, R_1 = self.R_DEFAULT; end                                                                % [V] Division Input Activation Domain
-            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                     % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                     % [-] Inversion Subnetwork Offset
-            if nargin < 5, alpha = self.alpha_DEFAULT; end                                                          % [-] Division Subnetwork Denominator Adjustment
-            if nargin < 4, c2 = self.c_absolute_division_DEFAULT; end                                               % [-] Division Subnetwork Gain
-            if nargin < 3, c1 = self.c_absolute_inversion_DEFAULT; end                                              % [-] Inversion Subnetwork Gain
-            
-            % Design the absolute inversion subnetwork synapse.
-            [ self, synapse_ID_inversion ] = self.design_absolute_inversion_synapse( neuron_IDs( 2:3 ), c1, epsilon1, R_2, Gm_3, Iapp_3 );
-            
-            % Design the absolute division subnetwork synpases.
-            [ self, synapse_IDs_division ] = self.design_absolute_division_synapses( neuron_IDs( [ 1, 3, 4 ] ), c2, alpha, epsilon2, R_1, R_3, Gm_4 );
-            
-            % Concatenate the synapse IDs.
-            synapse_IDs = [ synapse_ID_inversion, synapse_IDs_division ];
-            
-        end
-        
-        
-        % Implement a function to design the synapses for a relative multiplication subnetwork.
-        function [ self, synapse_IDs ] = design_relative_multiplication_synapses( self, neuron_IDs, c1, c2, alpha, epsilon1, epsilon2, R_3, R_4, Gm_3, Gm_4, Iapp_3 )
-            
-            % Define the default input arguments.
-            if nargin < 12, Iapp_3 = self.Ia2_relative_inversion_DEFAULT; end                                     % [A] Inversion Output Applied Current
-            if nargin < 11, Gm_4 = self.Gm_DEFAULT; end                                                             % [S] Division Output Membrane Conductance
-            if nargin < 10, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Inversion Output Membrane Conductance
-            if nargin < 9, R_4 = self.R_DEFAULT; end                                                                % [V] Division Output Activation Domain
-            if nargin < 8, R_3 = self.R_DEFAULT; end                                                                % [V] Inversion Output Activation Domain
-            if nargin < 7, epsilon2 = self.epsilon_DEFAULT; end                                                     % [-] Division Subnetwork Offset
-            if nargin < 6, epsilon1 = self.epsilon_DEFAULT; end                                                     % [-] Inversion Subnetwork Offset
-            if nargin < 5, alpha = self.alpha_DEFAULT; end
-            if nargin < 4, c2 = self.c_relative_division_DEFAULT; end                                               % [-] Division Subnetwork Gain
-            if nargin < 3, c1 = self.c_relative_inversion_DEFAULT; end                                              % [-] Inversion Subnetwork Gain
-            
-            % Design the relative inversion subnetwork synapse.
-            [ self, synapse_ID_inversion ] = self.design_relative_inversion_synapse( neuron_IDs( 2:3 ), c1, epsilon1, R_3, Gm_3, Iapp_3 );
-            
-            % Design the relative division subnetwork synpases.
-            [ self, synapse_IDs_division ] = self.design_relative_division_synapses( neuron_IDs( [ 1, 3, 4 ] ), c2, alpha, epsilon2, R_4, Gm_4 );
-            
-            % Concatenate the synapse IDs.
-            synapse_IDs = [ synapse_ID_inversion, synapse_IDs_division ];
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
         
         % Implement a function to design the synapses for an inversion subnetwork.
-        function [ self, synapse_ID ] = design_inversion_synapse( self, neuron_IDs )
+        function [ dEs, synapses, self ] = design_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 1:self.num_inversion_neurons_DEFAULT; end               % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
             synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ), synapses, undetected_option );
             
             % Compute and set the synapse reversal potential.
-            self = self.compute_inversion_dEs( synapse_ID );
-            
-        end
-        
-        
-        %         % Implement a function to design the synapses for an absolute inversion subnetwork.
-        %         function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, epsilon, R_1, Gm_2, Iapp_2 )
-        %
-        %             % Define the default input arguments.
-        %             if nargin < 7, Iapp_2 = self.Ia2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
-        %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-        %             if nargin < 5, R_1 = self.R_DEFAULT; end                                                                % [V] Input Activation Domain
-        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
-        %             if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Inversion Subnetwork Gain
-        %
-        %             % Retrieve the ID associated with this synapse.
-        %             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-        %
-        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-        % %             self = self.compute_set_absolute_inversion_dEsyn( synapse_ID );
-        %             self = self.compute_set_absolute_inversion_dEsyn( synapse_IDs, epsilon, delta );
-        %
-        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-        % %             self = self.compute_inversion_gs( synapse_ID, c, epsilon, R_1, Gm_2, Iapp_2 );
-        %             self = self.compute_inversion_gs( synapse_IDs, Iapp_2 );
-        %
-        %         end
-        
-        
-        % Implement a function to design the synapses for an absolute inversion subnetwork.
-        function [ self, synapse_ID ] = design_absolute_inversion_synapse( self, neuron_IDs, c, delta, Iapp_2 )
-            
-            % Define the default input arguments.
-            if nargin < 5, Iapp_2 = self.Ia2_absolute_inversion_DEFAULT; end                                      % [A] Output Applied Current
-            if nargin < 4, delta = self.delta_DEFAULT; end                                                          % [V] Inversion Subnetwork Output Offset
-            if nargin < 3, c = self.c_absolute_inversion_DEFAULT; end                                            	% [-] Inversion Subnetwork Gain
-            
-            % Retrieve the ID associated with this synapse.
-            synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-            
-            % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-            self = self.compute_set_absolute_inversion_dEsyn( synapse_ID, c, delta );
-            
-            % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-            self = self.compute_inversion_gs( synapse_ID, Iapp_2 );
-            
-        end
-        
-        
-        %         % Implement a function to design the synapses for a relative inversion subnetwork.
-        %         function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, c, epsilon, R_2, Gm_2, Iapp_2 )
-        %
-        %             % Define the default input arguments.
-        %             if nargin < 7, Iapp_2 = self.Ia2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
-        %             if nargin < 6, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-        %             if nargin < 5, R_2 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
-        %             if nargin < 4, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
-        %             if nargin < 3, c = self.c_DEFAULT; end                                                                  % [-] Inversion Subnetwork Gain
-        %
-        %             % Retrieve the ID associated with this synapse.
-        %             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-        %
-        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-        %             self = self.compute_set_relative_inversion_dEsyn( synapse_ID );
-        %
-        %             % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-        %             self = self.compute_set_relative_inversion_gsyn( synapse_ID, c, epsilon, R_2, Gm_2, Iapp_2 );
-        %
-        %         end
-        
-        
-        % Implement a function to design the synapses for a relative inversion subnetwork.
-        function [ self, synapse_ID ] = design_relative_inversion_synapse( self, neuron_IDs, epsilon, delta, R_2, Iapp_2 )
-            
-            % Define the default input arguments.
-            if nargin < 6, Iapp_2 = self.Ia2_relative_inversion_DEFAULT; end                                      % [A] Output Applied Current
-            if nargin < 5, R_2 = self.R_DEFAULT; end                                                                % [V] Activation Domain
-            if nargin < 4, delta = self.delta_DEFAULT; end                                                          % [V] Inversion Subnetwork Output Offset
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                                                      % [V] Inversion Subnetwork Input Offset
-            
-            % Retrieve the ID associated with this synapse.
-            synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
-            
-            % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-            self = self.compute_set_relative_inversion_dEsyn( synapse_ID, epsilon, delta, R_2 );
-            
-            % Compute and set the synaptic reversal potential of the absolute inversion synapse.
-            self = self.compute_set_relative_inversion_gsyn( synapse_ID, Iapp_2 );
+            [ dEs, synapses, self ] = self.compute_inversion_dEs( synapse_ID, parameters, encoding_scheme, synapses, set_flag, undetected_option );
             
         end
         
         
         % Implement a function to design the synapses for a division subnetwork.
-        function [ self, synapse_IDs ] = design_division_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, synapses, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_division_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_division_dEs2( synapse_IDs( 2 ) );
+            % Compute the synaptic reversal potential.
+            [ dEs1, synapses, synapse_manager ] = self.compute_division_dEs1( synapse_IDs( 1 ), parameters, encoding_scheme, synapses, true, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_division_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design the synapses for an absolute division subnetwork.
-        function [ self, synapse_IDs ] = design_absolute_division_synapses( self, neuron_IDs, c, alpha, epsilon, R_1, R_2, Gm_3 )
-            
-            % Define the default input arguments.
-            if nargin < 8, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-            if nargin < 7, R_2 = self.R_DEFAULT; end                                                                % [V] Second Input Activation Domain
-            if nargin < 6, R_1 = self.R_DEFAULT; end                                                                % [V] First Input Activation Domain
-            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Division Subnetwork Offset
-            if nargin < 4, alpha = self.alpha_DEFAULT; end                                                          % [-] Division Subnetwork Denominator Adjustment
-            if nargin < 3, c = self.c_absolute_division_DEFAULT; end                                                % [-] Division Subnetwork Gain
-            
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
-            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
-            
-            % Compute and set the synaptic reversal potential of the numerator absolute division synapse.
-            self = self.compute_set_absolute_division_dEsyn1( synapse_IDs, c, alpha );
-            
-            % Compute and set the synaptic reversal potential of the denominator absolute division synapse.
-            self = self.compute_set_absolute_division_dEsyn2( synapse_IDs );
-            
-            % Compute and set the maximum synaptic gain of the numerator absolute division synapse.
-            self = self.compute_division_gs31( synapse_IDs, alpha, epsilon, R_1, Gm_3 );
-            
-            % Compute and set the maximum synaptic gain of the denominator absolute division synapse.
-            self = self.compute_division_gs32( synapse_IDs, epsilon, R_2, Gm_3 );
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
-        
-        % Implement a function to design the synapses for a relative division subnetwork.
-        function [ self, synapse_IDs ] = design_relative_division_synapses( self, neuron_IDs, c, alpha, epsilon, R_3, Gm_3 )
-            
-            % Define the default input arguments.
-            if nargin < 7, Gm_3 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
-            if nargin < 6, R_3 = self.R_DEFAULT; end                                                                % [V] Output Activation Domain
-            if nargin < 5, epsilon = self.epsilon_DEFAULT; end                                                      % [-] Inversion Subnetwork Offset
-            if nargin < 4, alpha = self.alpha_DEFAULT; end
-            if nargin < 3, c = self.c_relative_division_DEFAULT; end                                                % [-] Inversion Subnetwork Gain
-            
-            % Get the synapse IDs that connect the first two neurons to the third neuron.
-            synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
-            synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
-            
-            % Compute and set the synaptic reversal potential of the numerator relative division synapse.
-            self = self.compute_set_relative_division_dEsyn1( synapse_IDs, c, alpha );
-            
-            % Compute and set the synaptic reversal potential of the denominator relative division synapse.
-            self = self.compute_set_relative_division_dEsyn2( synapse_IDs );
-            
-            % Compute and set the maximum synaptic gain of the numerator relative division synapse.
-            self = self.compute_set_relative_division_gsyn31( synapse_IDs, R_3, Gm_3 );
-            
-            % Compute and set the maximum synaptic gain of the denominator relative division synapse.
-            self = self.compute_set_relative_division_gsyn32( synapse_IDs, c, alpha, epsilon, R_3, Gm_3 );
-            
-        end
-        
-        
+
         % Implement a function to design the synapses for a derivation subnetwork.
-        function [ self, synapse_IDs ] = design_derivation_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, synapses, self ] = design_derivation_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, neuron_IDs = 1:self.num_derivation_neurons_DEFAULT; end              % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_derivation_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_derivation_dEs2( synapse_IDs( 2 ) );
+            % Compute the synaptic reversal potential.
+            [ dEs1, synapses, synapse_manager ] = self.compute_derivation_dEs1( synapse_IDs( 1 ), synapses, true, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_derivation_dEs2( synapse_IDs( 2 ), synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
         
         % Implement a function to design the synapses for an integration subnetwork.
-        function [ self, synapse_IDs ] = design_integration_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, synapses, self ] = design_integration_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, neuron_IDs = 1:self.num_derivation_neurons_DEFAULT; end              % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID12 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             synapse_ID21 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 1 ) );
-            synapse_IDs = [ synapse_ID12 synapse_ID21 ];
+            synapse_IDs = [ synapse_ID12, synapse_ID21 ];
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_integration_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_integration_dEs2( synapse_IDs( 2 ) );
+            % Compute the synaptic reversal potential.
+            [ dEs1, synapses, synapse_manager ] = self.compute_integration_dEs1( synapse_IDs( 1 ), synapses, set_flag, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_integration_dEs2( synapse_IDs( 2 ), synapses, set_flag, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
         
         % Implement a function to design the synapses for a voltage based integration subnetwork.
-        function [ self, synapse_IDs ] = design_vb_integration_synapses( self, neuron_IDs )
+        function [ dEs1, dEs2, synapses, self ] = design_vbi_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 2, neuron_IDs = 1:self.num_derivation_neurons_DEFAULT; end              % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
             synapse_ID13 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 3 ) );
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
-            synapse_IDs = [ synapse_ID13 synapse_ID23 ];
+            synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Compute and set the synaptic reversal potential.
-            self = self.compute_vbi_dEs1( synapse_IDs( 1 ) );
-            self = self.compute_vbi_dEs2( synapse_IDs( 2 ) );
+            % Compute the synaptic reversal potential.
+            [ dEs1, synapses, synapse_manager ] = self.compute_vbi_dEs1( synapse_IDs( 1 ), synapses, true, undetected_option );
+            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_vbi_dEs2( synapse_IDs( 2 ), synapses, true, undetected_option );
+            
+            % Detemrine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
@@ -5425,8 +5159,8 @@ classdef synapse_manager_class
         function save( self, directory, file_name )
             
             % Set the default input arguments.
-            if nargin < 3, file_name = 'Synapse_Manager.mat'; end
-            if nargin < 2, directory = '.'; end
+            if nargin < 3, file_name = 'Synapse_Manager.mat'; end           % [str] File Name.
+            if nargin < 2, directory = '.'; end                             % [str] Save Directory.
             
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
@@ -5438,11 +5172,12 @@ classdef synapse_manager_class
         
         
         % Implement a function to load synapse manager data as a matlab object.
-        function self = load( ~, directory, file_name )
+        function [ data, self ] = load( self, directory, file_name, set_flag )
             
             % Set the default input arguments.
-            if nargin < 3, file_name = 'Synapse_Manager.mat'; end
-            if nargin < 2, directory = '.'; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, file_name = 'Synapse_Manager.mat'; end           % [str] File Name.
+            if nargin < 2, directory = '.'; end                             % [str] Load Directory.
             
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
@@ -5450,23 +5185,25 @@ classdef synapse_manager_class
             % Load the data.
             data = load( full_path );
             
-            % Retrieve the desired variable from the loaded data structure.
-            self = data.self;
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = data; end
             
         end
         
         
         % Implement a function to load synapse from a xlsx data.
-        function self = load_xlsx( self, file_name, directory, b_append, b_verbose )
+        function [ synapses, self ] = load_xlsx( self, file_name, directory, append_flag, verbose_flag, synapses, set_flag )
             
             % Set the default input arguments.
-            if nargin < 5, b_verbose = true; end
-            if nargin < 4, b_append = false; end
-            if nargin < 3, directory = '.'; end
-            if nargin < 2, file_name = 'Synapse_Data.xlsx'; end
+            if nargin < 7, set_flag  = self.set_flag; end               % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 6, synapses = self.synapses; end                % [class] Array of Synapse Class Objects.
+            if nargin < 5, verbose_flag = true; end                     % [T/F] Verbose Flag.
+            if nargin < 4, append_flag = false; end                   	% [T/F] Append Flag.
+            if nargin < 3, directory = '.'; end                         % [str] Load Directory.
+            if nargin < 2, file_name = 'Synapse_Data.xlsx'; end         % [str] File Name.
             
             % Determine whether to print status messages.
-            if b_verbose, fprintf( 'LOADING SYNAPSE DATA. Please Wait...\n' ), end
+            if verbose_flag, fprintf( 'LOADING SYNAPSE DATA. Please Wait...\n' ), end
             
             % Start a timer.
             tic
@@ -5481,29 +5218,40 @@ classdef synapse_manager_class
             synapses_to_load = repmat( synapse_class(  ), 1, num_synapses_to_load );
             
             % Create each synapse object.
-            for k = 1:num_synapses_to_load               % Iterate through each of the synapses...
+            for k = 1:num_synapses_to_load                            	% Iterate through each of the synapses...
                 
                 % Create this synapse.
-                synapses_to_load( k ) = synapse_class( synapse_IDs( k ), synapse_names{k}, synapse_dEsyns( k ), synapse_gsyn_maxs( k ), synapse_from_neuron_IDs( k ), synapse_to_neuron_IDs( k ) );
+                synapses_to_load( k ) = synapse_class( synapse_IDs( k ), synapse_names{ k }, synapse_dEsyns( k ), synapse_gsyn_maxs( k ), synapse_from_neuron_IDs( k ), synapse_to_neuron_IDs( k ) );
                 
             end
             
             % Determine whether to append the synapses we just loaded.
-            if b_append                         % If we want to append the synapses we just loaded...
+            if append_flag                                            	% If we want to append the synapses we just loaded...
                 
                 % Append the synapses we just loaded to the array of existing synapses.
-                self.synapses = [ self.synapses, synapses_to_load ];
+                synapses = [ synapses, synapses_to_load ];
                 
                 % Update the number of synapses.
-                self.num_synapses = length( self.synapses );
+                n_synapses = length( synapses );
                 
-            else                                % Otherwise...
+            else                                                        % Otherwise...
                 
                 % Replace the existing synapses with the synapses we just loaded.
-                self.synapses = synapses_to_load;
+                synapses = synapses_to_load;
                 
                 % Update the number of synapses.
-                self.num_synapses = length( self.synapses );
+                n_synapses = length( synapses );
+                
+            end
+            
+            % Determine whether to update the synapse manager properties.
+            if set_flag                                             	% If we want to update the synapse manager properties...
+                
+                % Update the neurons property.
+                self.synapses = synapses;
+                
+                % Update the number of neurons.
+                self.num_synapses = n_synapses;
                 
             end
             
@@ -5511,7 +5259,7 @@ classdef synapse_manager_class
             elapsed_time = toc;
             
             % Determine whether to print status messages.
-            if b_verbose, fprintf( 'LOADING SYNAPSE DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
+            if verbose_flag, fprintf( 'LOADING SYNAPSE DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
         
