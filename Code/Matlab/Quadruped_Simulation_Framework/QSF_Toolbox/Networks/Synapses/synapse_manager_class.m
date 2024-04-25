@@ -33,8 +33,8 @@ classdef synapse_manager_class
         dEs_small_negative_DEFAULT = -1e-3;             	% [V] Small Negative Synaptic Reversal Potential.
         
         % Define the synapse identification parameters.
-        to_neuron_ID_DEFAULT = 0;                          	% [#] To Neuron ID.
-        from_neuron_ID_DEFAULT = 0;                       	% [#] From Neuron ID.
+        to_neuron_IDs_DEFAULT = -1;                          	% [#] To Neuron ID.
+        from_neuron_IDs_DEFAULT = -1;                       	% [#] From Neuron ID.
         ID_DEFAULT = 0;                                  	% [#] Synapse ID.
         
         % Define the subnetwork gain parameters.
@@ -55,9 +55,12 @@ classdef synapse_manager_class
         alpha_DEFAULT = 1e-6;                             	% [-] Division Subnetwork Denominator Offset.
         
         % Define the number of subnetwork neurons.
-        num_addition_neurons_DEFAULT = 2;                 	% [#] Number of Addition Neurons.
-        num_absolute_addition_neurons_DEFAULT = 3;        	% [#] Number of Absolute Addition Neurons.
-        num_relative_addition_neurons_DEFAULT = 3;        	% [#] Number of Relative Addition Neurons.
+        num_addition_neurons_DEFAULT = 3;                 	% [#] Number of Addition Neurons.
+        num_subtraction_neurons_DEFAULT = 3;              	% [#] Number of Subtraction Neurons.
+        num_double_subtraction_neurons_DEFAULT = 4;       	% [#] Number of Double Subtraction Neurons.
+        num_centering_neurons_DEFAULT = 4;               	% [#] Number of Centering Neurons.
+        num_double_centering_neurons_DEFAULT = 7;           % [#] Number of Double Centering Neurions.
+        num_ds2dc_neurons_DEFAULT = 11;                     % [#] Number of Double Subtraction to Double Centering Neurons.
         
         % Define the number of subnetwork synapses.
         num_transmission_synapses_DEFAULT = 1;            	% [#] Number of Transmission Synapses.
@@ -76,7 +79,8 @@ classdef synapse_manager_class
         num_svbi_synapses =  10;                          	% [#] Number of Split Voltage Based Integration Synapses.
         num_msvbi_synapses = 6;                          	% [#] Number of Modulated Split Voltage Based Integration Synapses.
         num_mssvbi_synapses = 2;                           	% [#] Number fo Modulated Split Difference Voltage Based Integration Synapses.
-        
+        num_ds2dc_synapses_DEFAULT = 2;                     % [#] Number of Double Subtraction to Double Centering Synapses.
+
         % Define the CPG parameters.
         delta_bistable_DEFAULT = -10e-3;                  	% [V] Bistable CPG Equilibrium Offset.
         delta_oscillatory_DEFAULT = 0.01e-3;              	% [V] Oscillatory CPG Equilibrium Offset.
@@ -2810,15 +2814,15 @@ classdef synapse_manager_class
         
         
         % Implement a function to process synapse creation inputs.
-        function [ n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = process_neuron_creation_inputs( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
+        function [ n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = process_synapse_creation_inputs( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
            
             % Set the default synapse properties.
             if nargin < 13, array_utilities = self.array_utilities; end                                     % [class] Array Utilities Class.
             if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
             if nargin < 9, b_enableds = true; end                                                           % [T/F] Synapse Enabled Flag
             if nargin < 8, deltas = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
-            if nargin < 7, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end                                   % [-] To Neuron ID
-            if nargin < 6, from_neuron_IDs = self.from_neuron_ID_DEFAULT; end                               % [-] From Neuron ID
+            if nargin < 7, to_neuron_IDs = self.to_neuron_IDs_DEFAULT; end                                   % [-] To Neuron ID
+            if nargin < 6, from_neuron_IDs = self.from_neuron_IDs_DEFAULT; end                               % [-] From Neuron ID
             if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
             if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
             if nargin < 3, names = ''; end                                                                  % [-] Synapse Name
@@ -2900,15 +2904,15 @@ classdef synapse_manager_class
             if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
             if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag
             if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
-            if nargin < 7, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                                    % [-] To Neuron ID
-            if nargin < 6, from_neuron_ID = self.from_neuron_ID_DEFAULT; end                                % [-] From Neuron ID
+            if nargin < 7, to_neuron_ID = self.to_neuron_IDs_DEFAULT; end                                    % [-] To Neuron ID
+            if nargin < 6, from_neuron_ID = self.from_neuron_IDs_DEFAULT; end                                % [-] From Neuron ID
             if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
             if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
             if nargin < 3, name = ''; end                                                                   % [-] Synapse Name
             if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end           % [#] Synapse ID
             
             % Process the synapse creation properties.
-            [ ~, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_neuron_creation_inputs( 1, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
+            [ ~, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( 1, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
             
             % Ensure that this synapse ID is a unique natural.
             assert( self.unique_natural_synapse_ID( ID, synapses, array_utilities ), 'Proposed synapse ID %0.2f is not a unique natural number.', ID )
@@ -2939,28 +2943,47 @@ classdef synapse_manager_class
         
         
         % Implement a function to create multiple synapses.
-        function [ IDs, synapses, self ] = create_synapses( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_synapses( self, n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default synapse properties.
-            if nargin < 13, array_utilities = self.array_utilities; end
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end
             if nargin < 11, synapses = self.synapses; end
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                      % [T/F] Synapse Enabled Flag
-            if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses ); end                            	% [V] Generic CPG Equilibrium Offset
-            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [-] To Neuron ID
-            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                     % [-] From Neuron ID
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                  % [S] Maximum Synaptic Conductance
-            if nargin < 5, dEs = self.dEs_minimum_DEFAULT*ones( 1, n_synapses ); end                                % [V] Synaptic Reversal Potential
-            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                 % [-] Synapse Name
-            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end        	% [#] Synapse ID
+            if nargin < 10, b_enableds = true( 1, n_synapses_to_create ); end                                                      % [T/F] Synapse Enabled Flag
+            if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses_to_create ); end                            	% [V] Generic CPG Equilibrium Offset
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                         % [-] To Neuron ID
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                     % [-] From Neuron ID
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses_to_create ); end                                  % [S] Maximum Synaptic Conductance
+            if nargin < 5, dEs = self.dEs_minimum_DEFAULT*ones( 1, n_synapses_to_create ); end                                % [V] Synaptic Reversal Potential
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses_to_create ); end                                                 % [-] Synapse Name
+            if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses_to_create, synapses, array_utilities ); end        	% [#] Synapse ID
+            
+            % Process the synapse creation properties.
+            [ n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Preallocate an array to store the new synapses.
+            synapses_new = repmat( synapse_class(  ), [ 1, n_synapse_to_create ] );
+            
+            % Preallocate an array to store the new synapse IDs.
+            IDs_new = zeros( 1, n_synapses_to_create );
+            
+            % Create an instance of the synapse manager that can be updated.
+            synapse_manager = self;
             
             % Create each of the spcified synapses.
-            for k = 1:n_synapses                         % Iterate through each of the synapses we want to create...
+            for k = 1:n_synapses_to_create                         % Iterate through each of the synapses we want to create...
                 
                 % Create this synapse.                
-                [ ~, synapses, self ] = self.create_synapse( IDs( k ), names{ k }, dEs( k ), gs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ), synapses, set_flag, array_utilities );
+                [ IDs_new{ k }, synapses_new{ k }, synapses, synapse_manager ] = synapse_manager.create_synapse( IDs( k ), names{ k }, dEs( k ), gs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ), synapses, true, false, array_utilities );
                 
             end
+            
+            % Determine whether to embed the new synapse ID and object in cells.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Determine whether to update the synapse manager object.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
@@ -2973,22 +2996,21 @@ classdef synapse_manager_class
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, synapses = self.synapses; end
             
+            % Create an instance of the synpase manager that can be updated.
+            synapse_manager = self;
+            
             % Retrieve the index associated with this synapse.
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Remove this synapse from the array of synapses.
             synapses( synapse_index ) = [  ];
             
-            % Determine whether to update the synapse manager object.
-            if set_flag                                     % If we want to update the synapse manager object...
-                
-                % Update the synapse property.
-                self.synapses = synapses;
-                
-                % Decrease the number of synapses counter.
-                self.num_synapses = self.num_synapses - 1;
-                
-            end
+            % Update the synpase manager to reflect these changes.
+            synapse_manager.synapses = synapses;
+            synapse_manager.num_synapses = length( synapses );
+            
+            % Determine whether to update the synpases and synapse manager objects in the output.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
@@ -3102,10 +3124,34 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute the number of driven multistate central pattern generator to modulated split subtraction voltage based integration subnetwork synapses.
+        function n_dmcpg2mssvbi_synapses = compute_num_dmcpg2mssvbi_synapses( self, num_cpg_neurons )
+        
+            % Set the default input arugments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the number of driven multistate central pattern generator to modulated split subtraction voltage based integration subnetwork synapses 
+            n_dmcpg2mssvbi_synapses = 2*num_cpg_neurons;
+            
+        end
+        
+        
+        % Implement a function to compute the number of modulated split subtraction voltage based integration to split lead lag subnetwork synapses.
+        function n_mssvbi2sll_synapses = compute_num_mssvbi2sll_synapses( self, num_cpg_neurons )
+        
+            % Set the default input arguments.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+            
+            % Compute the number of mssbvi2sll synapses.
+            n_mssvbi2sll_synapses = 2*num_cpg_neurons + 2;
+            
+        end
+        
+        
         %% Subnetwork Synapse Creation Functions.
 
         % Implement a function to create the synapses for a multistate CPG subnetwork.
-        function [ IDs, synapses, self ] = create_mcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_mcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of cpg neurons.
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
@@ -3114,23 +3160,22 @@ classdef synapse_manager_class
             n_synapses = self.compute_num_mcpg_synapses( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 15, array_utilities = self.array_utilities; end
+            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
             if nargin < 13, set_flag = self.set_flag_DEFAULT; end
             if nargin < 12, synapses = self.synapses; end
             if nargin < 11, b_enableds = true( 1, n_synapses ); end
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 9, to_neuron_IDs = -1*ones( 1, n_synapses ); end
-            if nargin < 8, from_neuron_IDs = -1*ones( 1, n_synapses ); end
+            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
             if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
             if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
             
-            % Determine whether it is necessary to generate to neuron IDs.
+            % Determine whether it is necessary to generate to and from neuron IDs.
             [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
-            
-            % Determine whether it is necessary to generate from neuron IDs.
             [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
 
             % Determine whether it is necessary to generate synapse names.
@@ -3139,8 +3184,8 @@ classdef synapse_manager_class
             % Ensure that the neuron properties match the require number of neurons.
             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Ensure that the synapse properties match the required number of synapses.
-            assert( self.validate_synapse_properties( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities ), 'Provided synapse properties must be of consistent size.' )
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
             % Initialize a counter variable.
             k3 = 0;
@@ -3166,327 +3211,468 @@ classdef synapse_manager_class
             end
             
             % Create the multistate cpg subnetwork synapses.            
-            [ IDs, synapses, self ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses_to_create, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a multistate CPG subnetwork.
-        function [ IDs, synapses, self ] = create_dmcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, array_utilities  )
+        function [ IDs_new, synapses_new, synapses, self ] = create_dmcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities  )
             
             % Compute the number of synapses.
-            [ n_dmcpg_synapses, n_mcpg_synapses ] = self.compute_num_dmcpg_synapses( num_cpg_neurons );
+            [ n_synapses, n_mcpg_synapses ] = self.compute_num_dmcpg_synapses( num_cpg_neurons );
             
             % Set the default input arguments.
-            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 15, array_utilities = self.array_utilities; end
+            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
             if nargin < 13, set_flag = self.set_flag_DEFAULT; end
             if nargin < 12, synapses = self.synapses; end
             if nargin < 11, b_enableds = true( 1, n_synapses ); end
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
-            if nargin < 9, to_neuron_IDs = -1*ones( 1, n_synapses ); end
-            if nargin < 8, from_neuron_IDs = -1*ones( 1, n_synapses ); end
+            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
             if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
-            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_dmcpg_synapses, synapses, array_utilities ); end            
-            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 3, neuron_IDs = 1:( num_cpg_neurons + 1 ); end
+            
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Ensure that the synapse properties match the required number of synapses.
-            assert( self.validate_synapse_properties( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities ), 'Provided synapse properties must be of consistent size.' )
+            % Preallocate a cell array to store the new synapse IDs and obejcts.
+            IDs_new = cell( 1, 2 );
+            synapses_new = cell( 1, 2 );
             
             % Define the indexes of the synapses for the multistate cpg synapses.
-            i_start1 = 1;
-            i_end1 = n_mcpg_synapses;
+            i_start_mcpg = 1;
+            i_end_mcpg = n_mcpg_synapses;
             
             % Create the multistate cpg synapses.
-            [ IDs1, synapses, synapse_manager ] = self.create_mcpg_synapses( num_cpg_neurons, neuron_IDs( i_start1:i_end1 ), synapse_IDs( i_start1:i_end1 ), names{ i_start1:i_end1 }, dEs( i_start1:i_end1 ), gs( i_start1:i_end1 ), from_neuron_IDs( i_start1:i_end1 ), to_neuron_IDs( i_start1:i_end1 ), deltas( i_start1:i_end1 ), b_enableds( i_start1:i_end1 ), synapses, true, array_utilities );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_mcpg_synapses( num_cpg_neurons, neuron_IDs( i_start_mcpg:i_end_mcpg ), synapse_IDs( i_start_mcpg:i_end_mcpg ), names{ i_start_mcpg:i_end_mcpg }, dEs( i_start_mcpg:i_end_mcpg ), gs( i_start_mcpg:i_end_mcpg ), from_neuron_IDs( i_start_mcpg:i_end_mcpg ), to_neuron_IDs( i_start_mcpg:i_end_mcpg ), deltas( i_start_mcpg:i_end_mcpg ), b_enableds( i_start_mcpg:i_end_mcpg ), synapses, true, false, array_utilities );
             
             % Compute the number of drive synapses.
-            num_drive_synapses = n_dmcpg_synapses - n_mcpg_synapses;
+            num_drive_synapses = n_synapses - n_mcpg_synapses;
             
             % Define the indexes of the synapses for the drive synapses.
-            i_start2 = i_end1 + 1;
-            i_end2 = i_end1 + num_drive_synapses;
+            i_start_d = i_end_mcpg + 1;
+            i_end_d = i_end_mcpg + num_drive_synapses;
             
-            % Determine whether it is necessary to generate to neuron IDs.
-            [ to_neuron_IDs( i_start2:i_end2 ), to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs( i_start2:i_end2 ) );
-            
-            % Determine whether it is necessary to generate from neuron IDs.
-            [ from_neuron_IDs( i_start2:i_end2 ), from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs( i_start2:i_end2 ) );
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ to_neuron_IDs( i_start_d:i_end_d ), to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs( i_start_d:i_end_d ) );
+            [ from_neuron_IDs( i_start_d:i_end_d ), from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs( i_start_d:i_end_d ) );
             
             % Determine whether it is necessary to generate synapse names.
-            [ names( i_start2:i_end2 ), names_flag ] = self.process_names( names( i_start2:i_end2 ) );
+            [ names( i_start_d:i_end_d ), names_flag ] = self.process_names( names( i_start_d:i_end_d ) );
                 
-            % Set the names of each drive synapse.
-            for k = 1:num_drive_synapes                                                         % Iterate through each of the drive synapses...
-
-                if from_neuron_IDs_flag, from_neuron_IDs( i_end1 + k ) = neuron_IDs( end ); end
-                if to_neuron_IDs_flag, to_neuron_IDs( i_end1 + k ) = neuron_IDs( k ); end
-
-                % Determine the name of this drive synapse.
-                if names_flag, names{ i_end1 + k } = sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ); end
-
+            % Determine whether to compute the from neuron IDs, to neuron IDs, or names.
+            if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag                             % If we want compute either the from neuron IDs, to neuron IDs, or synapse names...
+                
+                % Compute the from neuron IDs, to neuron IDs, and synapse names as appropriate.
+                for k = 1:num_drive_synapes                                                         % Iterate through each of the drive synapses...
+                    
+                    % Determine the neuron ID from which this synapse originates.
+                    if from_neuron_IDs_flag, from_neuron_IDs( i_end_mcpg + k ) = neuron_IDs( end ); end
+                    
+                    % Determine the neuron ID at which this synapse terminates.
+                    if to_neuron_IDs_flag, to_neuron_IDs( i_end_mcpg + k ) = neuron_IDs( k ); end
+                    
+                    % Determine the name of this drive synapse.
+                    if names_flag, names{ i_end_mcpg + k } = sprintf( 'Drive -> CPG %0.0f', neuron_IDs( k ) ); end
+                    
+                end
             end
                 
             % Create the drive synapses.
-            [ IDs2, synapses, synapse_manager ] = synapse_manager.create_synapses( num_drive_synapses, synapse_IDs( i_start2:i_end2 ), names{ i_start2:i_end2 }, dEs( i_start2:i_end2 ), gs( i_start2:i_end2 ), from_neuron_IDs( i_start2:i_end2 ), to_neuron_IDs( i_start2:i_end2 ), deltas( i_start2:i_end2 ), b_enableds( i_start2:i_end2 ), synapses, true, array_utilities );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_synapses( num_drive_synapes, synapse_IDs( i_start_d:i_end_d ), names{ i_start_d:i_end_d }, dEs( i_start_d:i_end_d ), gs( i_start_d:i_end_d ), from_neuron_IDs( i_start_d:i_end_d ), to_neuron_IDs( i_start_d:i_end_d ), deltas( i_start_d:i_end_d ), b_enableds( i_start_d:i_end_d ), synapses, true, false, array_utilities );
                         
-            % Concatenate the synapse IDs.
-            IDs = [ IDs1, IDs2 ];
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
             
-            % Determine whether to update the synpase manager object.
-            if set_flag, self = synapse_manager; end
+            % Update the neuron manager and neurons objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses that connect driven multistate cpg to their respective modulated split subtraction voltage based integration subnetworks.
-        function [ self, synapse_IDs ] = create_dmcpg2mssvbi_synapses( self, neuron_IDs_cell )
+        function [ IDs_new, synapses_new, synapses, self ] = create_dmcpg2mssvbi_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Determine the number of cpg neurons.
-            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
+            % Compute the number of synapses.
+            n_synapses = self.compute_num_dmcpg2mssvbi_synapses( num_cpg_neurons );
             
-            % Define the number of unique synapses.
-            num_unique_synapses = 2*num_cpg_neurons;
+            % Set the default input arguments.
+            if nargin < 15, array_utilities = self.array_utilities; end
+            if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 12, synapses = self.synapses; end
+            if nargin < 11, b_enableds = true( 1, n_synapses ); end
+            if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+            
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from neuron IDs, to neuron IDs, and synapse names.
+            if to_neuron_IDs_flag || from_neuron_IDs_flag || names_flag                 % If we want to compute the from neuron IDs, to neuron IDs, or synapse names...
+                
+                % Create the synapses that connect the driven multistate cpg neurons to the modulated split subtraction voltage based integration neurons.
+                for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+                    
+                    % Compute the synapse index.
+                    synapse_index = 2*( k - 1 ) + 1;
+                    
+                    % Compute the dmcpg indexes.
+                    dmcpg_index1 = k;
+                    dmcpg_index2 = dmcpg_index1 + num_cpg_neurons + 1;
+                    
+                    % Compute the mssvbi indexes.
+                    mssvbi_index1 = 2*( num_cpg_neurons + 1 ) + 2*k - 1;
+                    mssvbi_index2 = mssvbi_index1 + 1;
+                    
+                    % Determine whether to compute the neuron ID from which these synapses originate.
+                    if to_neuron_IDs_flag                               % If we want to compute the neuron ID from which these synapses originate...
+                        
+                        % Determine the neuron ID from which these synapses originate.
+                        from_neuron_IDs( synapse_index ) = neuron_IDs( dmcpg_index1 );
+                        from_neuron_IDs( synapse_index + 1 ) = neuron_IDs( dmcpg_index2 );
+                        
+                    end
+                    
+                    % Determine whether to compute the nueron ID at which these synapses terminate.
+                    if from_neuron_IDs_flag                             % If we want to compute the neuron ID at which these synapses terminate...
+                        
+                        % Determine the neuron ID at which these synapses terminate.
+                        to_neuron_IDs( synapse_index ) = neuron_IDs( mssvbi_index1 );
+                        to_neuron_IDs( synapse_index + 1 ) = neuron_IDs( mssvbi_index2 );
+                        
+                    end
+                    
+                    % Determine whether to compute the nes of these synapses.
+                    if names_flag                                       % If we want to compute the names of these synapses...
+                        
+                        % Define the synapse names.
+                        names{ synapse_index } = sprintf( 'Syn %0.0f%0.0f ', from_neuron_IDs1( synapse_index ), to_neuron_IDs1( synapse_index ) );
+                        names{ synapse_index + 1 } = sprintf( 'Syn %0.0f%0.0f ', from_neuron_IDs2( synapse_index + 1 ), to_neuron_IDs2( synapse_index + 1 ) );
+                        
+                    end
+                    
+                end
+                
+            end
             
             % Create the unique synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
             
-            % Create the synapses that connect the driven multistate cpg neurons to the modulated split subtraction voltage based integration neurons.
-            for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...        %NOTE: While it may seem odd that I have two separate consecutive loops with the same iterator, this is done because we want to create all of the modulated split subtraction voltage based integration synapses first before creating the unique synapses.
-                
-                % Compute the index.
-                index = 2*( k - 1 ) + 1;
-                
-                % Define the from and to neuron IDs.
-                from_neuron_ID1 = neuron_IDs_cell{ 1 }( k ); to_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 1 );
-                from_neuron_ID2 = neuron_IDs_cell{ 2 }( k ); to_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 2 );
-                
-                % Define the synapse names.
-                synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
-                synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
-                
-                % Set the names of these synapses.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name', synapses, set_flag );
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name', synapses, set_flag );
-                
-                % Connect this synapse.
-                self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
-                self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
-                
-            end
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the neuron manager and neurons objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
-        
-        % Implement a function to create the synapses that connect modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
-        function [ self, synapse_IDs ] = create_mssvbi2sll_synapses( self, neuron_IDs_cell )
-            
-            % Determine the number of cpg neurons.
-            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
-            
-            % Define the number of unique synapses.
-            num_unique_synapses = 2*num_cpg_neurons + 2;
-            
-            % Create the unique synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
-            
-            % Create the addition synapses of the split lead lag subnetwork.
-            for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
-                
-                % Compute the index.
-                index = 2*( k - 1 ) + 1;
-                
-                % Define the from and to neuron IDs.
-                from_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 15 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 1 );
-                from_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 16 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 2 );
-                
-                % Define the synapse names.
-                synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
-                synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
-                
-                % Set the names of these synapses.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name', synapses, set_flag );
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name', synapses, set_flag );
-                
-                % Connect this synapse.
-                self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
-                self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
-                
-            end
-            
-            % Define the from and to neuron IDs for the slow tranmission synapses.
-            from_neuron_ID1 = neuron_IDs_cell{ end }( 1 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 3 );
-            from_neuron_ID2 = neuron_IDs_cell{ end }( 2 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 4 );
-            
-            % Define the synapse names for the slow transmission synapses
-            synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
-            synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
-            
-            % Set the names of the slow transmission synapses of the split lead lag subnetwork.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs( end - 1 ), { synapse_name1 }, 'name', synapses, set_flag );
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs( end ), { synapse_name2 }, 'name', synapses, set_flag );
-            
-            % Connect the slow tranmission synapses of the split lead lag subnetwork.
-            self = self.connect_synapse( synapse_IDs( end - 1 ), from_neuron_ID1, to_neuron_ID1 );
-            self = self.connect_synapse( synapse_IDs( end ), from_neuron_ID2, to_neuron_ID2 );
-            
-        end
-        
-        
-        % Implement a function to create the synapses for a driven multistate cpg split lead lag subnetwork.
-        function [ self, synapse_IDs_cell ] = create_dmcpg_sll_synapses( self, neuron_IDs_cell )
-            
-            % Retrieve the number of subnetworks and cpg neurons.
-            num_subnetworks = length( neuron_IDs_cell );
-            num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
-            
-            % Preallocate a cell array to store the synapse IDs.
-            synapse_IDs_cell = cell( 1, num_subnetworks + 1 );
-            
-            % Create the driven multistate cpg synapses.
-            [ self, synapse_IDs_cell{ 1 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 1 } );
-            [ self, synapse_IDs_cell{ 2 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 2 } );
-            
-            % Create the synapses for each of the modulated split subtraction voltage based integration synapses.
-            for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
-                
-                % Create the modulated split subtraction voltage based integration synapses for this subnetwork.
-                [ self, synapse_IDs_cell{ k + 2 } ] = self.create_mod_split_sub_vb_integration_synapses( neuron_IDs_cell{ k + 2 } );
-                
-            end
-            
-            % Create the synapses that connect the driven multistate cpg to the modulated split subtraction voltage based integration subnetworks.
-            [ self, synapse_IDs_cell{ end - 1 } ] = self.create_dmcpg2mssvbi_synapses( neuron_IDs_cell );
-            
-            % Create the synapses that connect the modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
-            [ self, synapse_IDs_cell{ end } ] = self.create_mssvbi2sll_synapses( neuron_IDs_cell );
-            
-        end
-        
-        
-        % Implement a function to create the synapses that connect a driven multistate cpg double centered lead lag subnetwork to a double centered subnetwork.
-        function [ self, synapse_IDs ] = create_dmcpgsll2dc_synapses( self, neuron_IDs_cell )
-            
-            % Define the number of unique synapses.
-            num_unique_synapses = 2;
-            
-            % Create the unique synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
-            
-            % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ end }( end - 1 ) neuron_IDs_cell{ 1 }{ end }( end ) ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];
-            
-            % Setup each of the synapses.
-            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
-                
-                % Set the names of each of the unique synapses.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
-                
-                % Connect the unique synapses.
-                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to create the synapses for a driven multistate cpg double centered lead lag subnetwork.
-        function [ self, synapse_IDs_cell ] = create_dmcpg_dcll_synapses( self, neuron_IDs_cell )
-            
-            % Create the double subtraction subnetwork synapses.
-            [ self, synapse_IDs_dmcpgsll ] = self.create_dmcpg_sll_synapses( neuron_IDs_cell{ 1 } );
-            
-            % Create the double centering subnetwork synapses.
-            [ self, synapse_IDs_dc ] = self.create_double_centering_synapses( neuron_IDs_cell{ 2 } );
-            
-            % Create the driven multistate cpg double centered lead lag to double centering subnetwork synapses.
-            [ self, synapse_IDs_dmcpgsll2dc ] = self.create_dmcpgsll2dc_synapses( neuron_IDs_cell );
-            
-            % Concatenate the synapse IDs.
-            synapse_IDs_cell = { synapse_IDs_dmcpgsll, synapse_IDs_dc, synapse_IDs_dmcpgsll2dc };
-            
-        end
-        
-        
-        % Implement a function to create the synapses that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
-        function [ self, synapse_IDs ] = create_dmcpgdcll2cds_synapses( self, neuron_IDs_cell )
-            
-            % Define the number of unique synapses.
-            num_unique_synapses = 2;
-            
-            % Create the unique synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
-            
-            % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 2 }( end - 1 ) neuron_IDs_cell{ 3 } ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 1 }( 1 ) neuron_IDs_cell{ 2 }{ 1 }( 2 ) ];
-            
-            % Setup each of the synapses.
-            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
-                
-                % Set the names of each of the unique synapses.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
-                
-                % Connect the unique synapses.
-                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork.
-        function [ self, synapse_IDs_cell ] = create_ol_dmcpg_dclle_synapses( self, neuron_IDs_cell )
-            
-            % Create the driven multistate cpg double centered lead lag subnetwork synapses.
-            [ self, synapse_IDs_dmcpgdcll ] = self.create_dmcpg_dcll_synapses( neuron_IDs_cell{ 1 } );
-            
-            % Create the centered double subtraction subnetwork synapses.
-            [ self, synapse_IDs_cds ] = self.create_centered_double_subtraction_synapses( neuron_IDs_cell{ 2 } );
-            
-            % Create the synapses that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
-            [ self, synapse_IDs_dmcpgdcll2cds ] = self.create_dmcpgdcll2cds_synapses( neuron_IDs_cell );
-            
-            % Concatenate the synapse IDs.
-            synapse_IDs_cell = { synapse_IDs_dmcpgdcll, synapse_IDs_cds, synapse_IDs_dmcpgdcll2cds };
-            
-        end
-        
-        
-        % Implement a function to create the synapses that close the open loop driven multistate cpg double centered lead lag error subnetwork using a proportional controller.
-        function [ self, synapse_IDs ] = create_oldmcpgdclle2dmcpg_synapses( self, neuron_IDs_cell )
-            
-            % Define the number of unique synapses.
-            num_unique_synapses = 2;
-            
-            % Create the unique synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
-            
-            % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 2 }( end - 1 ) neuron_IDs_cell{ 2 }{ 2 }( end ) ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 1 }{ 2 }( end ) neuron_IDs_cell{ 1 }{ 1 }{ 1 }( end ) ];
-            
-            % Setup each of the synapses.
-            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
-                
-                % Set the names of each of the unique synapses.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
-                
-                % Connect the unique synapses.
-                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to create the synapses for an closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
-        function [ self, synapse_IDs_cell ] = create_clpc_dmcpg_dcll_synapses( self, neuron_IDs_cell )
+        %{
+%         % Implement a function to create the synapses that connect modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
+%         function [ self, synapse_IDs ] = create_mssvbi2sll_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+%             
+%             % Compute the number of synapses.
+%             n_synapses = self.compute_num_mssvbi2sll_synapses( num_cpg_neurons );
+%             
+%             % Set the default input arguments.
+%             if nargin < 15, array_utilities = self.array_utilities; end
+%             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
+%             if nargin < 13, set_flag = self.set_flag_DEFAULT; end
+%             if nargin < 12, synapses = self.synapses; end
+%             if nargin < 11, b_enableds = true( 1, n_synapses ); end
+%             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+%             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+%             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+%             if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+%             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+%             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end
+%             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+%             if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end
+%             
+%             % Process the synapse creation inputs.
+%             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+%             
+%             % Ensure that the neuron properties match the require number of neurons.
+%             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+%             
+%             % Determine whether it is necessary to generate to and from neuron IDs.
+%             [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+%             [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+%             
+%             % Determine whether it is necessary to generate synapse names.
+%             [ names, names_flag ] = self.process_names( names );
+%             
+%             
+%             % Create the unique synapses.
+%             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+%             
+%             % Create the addition synapses of the split lead lag subnetwork.
+%             for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+%                 
+%                 % Compute the index.
+%                 index = 2*( k - 1 ) + 1;
+%                 
+%                 % Define the from and to neuron IDs.
+%                 from_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 15 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 1 );
+%                 from_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 16 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 2 );
+%                 
+%                 % Define the synapse names.
+%                 synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+%                 synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+%                 
+%                 % Set the names of these synapses.
+%                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name', synapses, set_flag );
+%                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name', synapses, set_flag );
+%                 
+%                 % Connect this synapse.
+%                 self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
+%                 self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
+%                 
+%             end
+%             
+%             % Define the from and to neuron IDs for the slow tranmission synapses.
+%             from_neuron_ID1 = neuron_IDs_cell{ end }( 1 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 3 );
+%             from_neuron_ID2 = neuron_IDs_cell{ end }( 2 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 4 );
+%             
+%             % Define the synapse names for the slow transmission synapses
+%             synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+%             synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+%             
+%             % Set the names of the slow transmission synapses of the split lead lag subnetwork.
+%             [ synapses, self ] = self.set_synapse_property( synapse_IDs( end - 1 ), { synapse_name1 }, 'name', synapses, set_flag );
+%             [ synapses, self ] = self.set_synapse_property( synapse_IDs( end ), { synapse_name2 }, 'name', synapses, set_flag );
+%             
+%             % Connect the slow tranmission synapses of the split lead lag subnetwork.
+%             self = self.connect_synapse( synapse_IDs( end - 1 ), from_neuron_ID1, to_neuron_ID1 );
+%             self = self.connect_synapse( synapse_IDs( end ), from_neuron_ID2, to_neuron_ID2 );
+% 
+%             
+% %             % Create the unique synapses.
+% %             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+% %             
+% %             % Create the addition synapses of the split lead lag subnetwork.
+% %             for k = 1:num_cpg_neurons                   % Iterate through each of the CPG neurons...
+% %                 
+% %                 % Compute the index.
+% %                 index = 2*( k - 1 ) + 1;
+% %                 
+% %                 % Define the from and to neuron IDs.
+% %                 from_neuron_ID1 = neuron_IDs_cell{ k + 2 }( 15 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 1 );
+% %                 from_neuron_ID2 = neuron_IDs_cell{ k + 2 }( 16 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 2 );
+% %                 
+% %                 % Define the synapse names.
+% %                 synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+% %                 synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+% %                 
+% %                 % Set the names of these synapses.
+% %                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( index ), { synapse_name1 }, 'name', synapses, set_flag );
+% %                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( index + 1 ), { synapse_name2 }, 'name', synapses, set_flag );
+% %                 
+% %                 % Connect this synapse.
+% %                 self = self.connect_synapse( synapse_IDs( index ), from_neuron_ID1, to_neuron_ID1 );
+% %                 self = self.connect_synapse( synapse_IDs( index + 1 ), from_neuron_ID2, to_neuron_ID2 );
+% %                 
+% %             end
+% %             
+% %             % Define the from and to neuron IDs for the slow tranmission synapses.
+% %             from_neuron_ID1 = neuron_IDs_cell{ end }( 1 ); to_neuron_ID1 = neuron_IDs_cell{ end }( 3 );
+% %             from_neuron_ID2 = neuron_IDs_cell{ end }( 2 ); to_neuron_ID2 = neuron_IDs_cell{ end }( 4 );
+% %             
+% %             % Define the synapse names for the slow transmission synapses
+% %             synapse_name1 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID1, to_neuron_ID1 );
+% %             synapse_name2 = sprintf( 'Syn %0.0f%0.0f ', from_neuron_ID2, to_neuron_ID2 );
+% %             
+% %             % Set the names of the slow transmission synapses of the split lead lag subnetwork.
+% %             [ synapses, self ] = self.set_synapse_property( synapse_IDs( end - 1 ), { synapse_name1 }, 'name', synapses, set_flag );
+% %             [ synapses, self ] = self.set_synapse_property( synapse_IDs( end ), { synapse_name2 }, 'name', synapses, set_flag );
+% %             
+% %             % Connect the slow tranmission synapses of the split lead lag subnetwork.
+% %             self = self.connect_synapse( synapse_IDs( end - 1 ), from_neuron_ID1, to_neuron_ID1 );
+% %             self = self.connect_synapse( synapse_IDs( end ), from_neuron_ID2, to_neuron_ID2 );
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses for a driven multistate cpg split lead lag subnetwork.
+%         function [ self, synapse_IDs_cell ] = create_dmcpg_sll_synapses( self, neuron_IDs_cell )
+%             
+%             % Retrieve the number of subnetworks and cpg neurons.
+%             num_subnetworks = length( neuron_IDs_cell );
+%             num_cpg_neurons = length( neuron_IDs_cell{ 1 } ) - 1;
+%             
+%             % Preallocate a cell array to store the synapse IDs.
+%             synapse_IDs_cell = cell( 1, num_subnetworks + 1 );
+%             
+%             % Create the driven multistate cpg synapses.
+%             [ self, synapse_IDs_cell{ 1 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 1 } );
+%             [ self, synapse_IDs_cell{ 2 } ] = self.create_dmcpg_synapses( neuron_IDs_cell{ 2 } );
+%             
+%             % Create the synapses for each of the modulated split subtraction voltage based integration synapses.
+%             for k = 1:num_cpg_neurons                   % Iterate through each of the cpg neurons...
+%                 
+%                 % Create the modulated split subtraction voltage based integration synapses for this subnetwork.
+%                 [ self, synapse_IDs_cell{ k + 2 } ] = self.create_mssvbi_synapses( neuron_IDs_cell{ k + 2 } );
+%                 
+%             end
+%             
+%             % Create the synapses that connect the driven multistate cpg to the modulated split subtraction voltage based integration subnetworks.
+%             [ self, synapse_IDs_cell{ end - 1 } ] = self.create_dmcpg2mssvbi_synapses( neuron_IDs_cell );
+%             
+%             % Create the synapses that connect the modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
+%             [ self, synapse_IDs_cell{ end } ] = self.create_mssvbi2sll_synapses( neuron_IDs_cell );
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses that connect a driven multistate cpg double centered lead lag subnetwork to a double centered subnetwork.
+%         function [ self, synapse_IDs ] = create_dmcpgsll2dc_synapses( self, neuron_IDs_cell )
+%             
+%             % Define the number of unique synapses.
+%             num_unique_synapses = 2;
+%             
+%             % Create the unique synapses.
+%             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+%             
+%             % Define the from and to neuron IDs.
+%             from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ end }( end - 1 ) neuron_IDs_cell{ 1 }{ end }( end ) ];
+%             to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];
+%             
+%             % Setup each of the synapses.
+%             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+%                 
+%                 % Set the names of each of the unique synapses.
+%                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
+%                 
+%                 % Connect the unique synapses.
+%                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+%                 
+%             end
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses for a driven multistate cpg double centered lead lag subnetwork.
+%         function [ self, synapse_IDs_cell ] = create_dmcpg_dcll_synapses( self, neuron_IDs_cell )
+%             
+%             % Create the double subtraction subnetwork synapses.
+%             [ self, synapse_IDs_dmcpgsll ] = self.create_dmcpg_sll_synapses( neuron_IDs_cell{ 1 } );
+%             
+%             % Create the double centering subnetwork synapses.
+%             [ self, synapse_IDs_dc ] = self.create_double_centering_synapses( neuron_IDs_cell{ 2 } );
+%             
+%             % Create the driven multistate cpg double centered lead lag to double centering subnetwork synapses.
+%             [ self, synapse_IDs_dmcpgsll2dc ] = self.create_dmcpgsll2dc_synapses( neuron_IDs_cell );
+%             
+%             % Concatenate the synapse IDs.
+%             synapse_IDs_cell = { synapse_IDs_dmcpgsll, synapse_IDs_dc, synapse_IDs_dmcpgsll2dc };
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses that connect the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+%         function [ self, synapse_IDs ] = create_dmcpgdcll2cds_synapses( self, neuron_IDs_cell )
+%             
+%             % Define the number of unique synapses.
+%             num_unique_synapses = 2;
+%             
+%             % Create the unique synapses.
+%             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+%             
+%             % Define the from and to neuron IDs.
+%             from_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 2 }( end - 1 ) neuron_IDs_cell{ 3 } ];
+%             to_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 1 }( 1 ) neuron_IDs_cell{ 2 }{ 1 }( 2 ) ];
+%             
+%             % Setup each of the synapses.
+%             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+%                 
+%                 % Set the names of each of the unique synapses.
+%                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
+%                 
+%                 % Connect the unique synapses.
+%                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+%                 
+%             end
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork.
+%         function [ self, synapse_IDs_cell ] = create_ol_dmcpg_dclle_synapses( self, neuron_IDs_cell )
+%             
+%             % Create the driven multistate cpg double centered lead lag subnetwork synapses.
+%             [ self, synapse_IDs_dmcpgdcll ] = self.create_dmcpg_dcll_synapses( neuron_IDs_cell{ 1 } );
+%             
+%             % Create the centered double subtraction subnetwork synapses.
+%             [ self, synapse_IDs_cds ] = self.create_cds_synapses( neuron_IDs_cell{ 2 } );
+%             
+%             % Create the synapses that assist in connecting the driven multistate cpg double centered lead lag subnetwork to the centered double subtraction subnetwork.
+%             [ self, synapse_IDs_dmcpgdcll2cds ] = self.create_dmcpgdcll2cds_synapses( neuron_IDs_cell );
+%             
+%             % Concatenate the synapse IDs.
+%             synapse_IDs_cell = { synapse_IDs_dmcpgdcll, synapse_IDs_cds, synapse_IDs_dmcpgdcll2cds };
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses that close the open loop driven multistate cpg double centered lead lag error subnetwork using a proportional controller.
+%         function [ self, synapse_IDs ] = create_oldmcpgdclle2dmcpg_synapses( self, neuron_IDs_cell )
+%             
+%             % Define the number of unique synapses.
+%             num_unique_synapses = 2;
+%             
+%             % Create the unique synapses.
+%             [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+%             
+%             % Define the from and to neuron IDs.
+%             from_neuron_IDs = [ neuron_IDs_cell{ 2 }{ 2 }( end - 1 ) neuron_IDs_cell{ 2 }{ 2 }( end ) ];
+%             to_neuron_IDs = [ neuron_IDs_cell{ 1 }{ 1 }{ 2 }( end ) neuron_IDs_cell{ 1 }{ 1 }{ 1 }( end ) ];
+%             
+%             % Setup each of the synapses.
+%             for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
+%                 
+%                 % Set the names of each of the unique synapses.
+%                 [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
+%                 
+%                 % Connect the unique synapses.
+%                 self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+%                 
+%             end
+%             
+%         end
+%         
+%         
+%         % Implement a function to create the synapses for an closed loop P controlled driven multistate cpg double centered lead lag subnetwork.
+%         function [ self, synapse_IDs_cell ] = create_clpc_dmcpg_dcll_synapses( self, neuron_IDs_cell )
             
             % Create the synapses for an open loop driven multistate cpg double centered lead lag error subnetwork synapses.
             [ self, synapse_IDs_oldmcpgdclle ] = self.create_ol_dmcpg_dclle_synapses( neuron_IDs_cell );
@@ -3498,514 +3684,1187 @@ classdef synapse_manager_class
             synapse_IDs_cell = { synapse_IDs_oldmcpgdclle, synapse_IDs_oldmcpgdclle2dmcpg };
             
         end
-        
+        %}
         
         % Implement a function to create the synapses for a transmission subnetwork.
-        function [ self, synapse_ID ] = create_transmission_synapses( self, neuron_IDs )
+        function [ ID_new, synapse_new, synapses, self ] = create_transmission_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
+        
+            % Define the number of neurons and synapses.
+            n_neurons = self.num_transmission_neurons_DEFAULT;
+            n_synapses = self.num_transmission_synapses_DEFAULT;
             
-            % Create the transmission subnetwork synapses.
-            [ self, synapse_ID ] = self.create_synapses( self.num_transmission_synapses_DEFAULT );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enabled = true( 1, n_synapses ); end
+            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+        
+            % Process the synapse creation inputs.
+            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
             
-            % Set the names of the transmission subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_ID, { 'Trans 12' }, 'name', synapses, set_flag );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_ID, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_ID );
+            [ to_neuron_ID, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_ID );
             
-            % Connect the transmission subnetwork synapses to the transmission subnetwork neurons.
-            self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            % Determine whether it is necessary to generate synapse names.
+            [ name, name_flag ] = self.process_names( name );
+            
+            % Determine whether it is necessary to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_ID = neuron_IDs( 1 ); end
+            if to_neuron_IDs_flag, to_neuron_ID = neuron_IDs( 2 ); end
+            
+            % Determine whether it is necessary to comptue the synapse name.
+            if name_flag, name = sprintf( 'Transmission %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
+            
+            % Create the transmission subnetwork synapse.    
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, true, false, array_utilities );
+               
+            % Determine how to format the synapse IDs and objects.
+            [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a modulation subnetwork.
-        function [ self, synapse_ID ] = create_modulation_synapses( self, neuron_IDs )
+        function [ ID_new, synapse_new, synapses, self ] = create_modulation_synapses( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the modulation subnetwork synapses.
-            [ self, synapse_ID ] = self.create_synapses( self.num_modulation_synapses_DEFAULT );
+            % Define the number of neurons and synapses.
+            n_neurons = self.num_modulation_neurons_DEFAULT;
+            n_synapses = self.num_modulation_synapses_DEFAULT;
             
-            % Set the names of the modulation subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_ID, { 'Mod 12' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enabled = true( 1, n_synapses ); end
+            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+        
+            % Process the synapse creation inputs.
+            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
             
-            % Connect the modulation subnetwork synapses to the modulation subnetwork neurons.
-            self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_ID, from_neuron_ID_flag ] = self.process_to_from_neuron_IDs( from_neuron_ID );
+            [ to_neuron_ID, to_neuron_ID_flag ] = self.process_to_from_neuron_IDs( to_neuron_ID );
             
+            % Determine whether it is necessary to generate synapse names.
+            [ name, name_flag ] = self.process_names( name );
+            
+            % Determine whether it is necessary to compute the from and to neuron IDs.
+            if from_neuron_ID_flag, from_neuron_ID = neuron_IDs( 1 ); end
+            if to_neuron_ID_flag, to_neuron_ID = neuron_IDs( 2 ); end
+            
+            % Determine whether it is necessary to comptue the synapse name.
+            if name_flag, name = sprintf( 'Modulation %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
+            
+            % Create the modulation subnetwork synapse.    
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, true, false, array_utilities );
+               
+            % Determine how to format the synapse IDs and objects.
+            [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
+           
         end
         
         
         % Implement a function to create the synapses for an addition subnetwork.
-        function [ self, synapse_IDs ] = create_addition_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_addition_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the addition subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_addition_synapses_DEFAULT );
+            % Set the default number of neurons.
+            if nargin < 2, n_neurons = self.num_addition_neurons_DEFAULT; end
             
-            % Set the names of the addition subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Add 13', 'Add 23' }, 'name', synapses, set_flag );
+            % Compute the number of addition synapses.
+            n_synapses = n_neurons - 1;
             
-            % Connect the addition subnetwork synapses to the addition subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-        end
-        
-        
-        % Implement a function to create the synapses for an absolute addition subnetwork.
-        function [ self, synapse_IDs ] = create_absolute_addition_synapses( self, neuron_IDs )
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-            % Compute the number of neurons.
-            num_neurons = length( neuron_IDs );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Compute the number of synapses.
-            num_synapses_to_create = num_neurons - 1;
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
             
-            % Create the absolute addition subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_synapses_to_create );
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
             
-            % Setup each of the synapses.
-            for k = 1:num_synapses_to_create                  % Iterate through each of the synapses...
-                
-                % Connect this synapse to its input and output neurons.
-                self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Set the name of this synapse.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
-                
-            end
+            % Determine whether to compute the from neuron IDs, to neuron IDs, and synapse names.
+           if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag              % If we want to compute the from neuron IDs, to enuron IDs, or synapse names...
+               
+               % Compute the from neuron IDs, to neuron IDs, and synapse names for each synpase as appropriate.
+               for k = 1:n_synapses                 % Iterate througuh each of the synapses...
+                  
+                   % Compute the from and to neuron IDs for this synapse.
+                   if from_neuron_IDs_flag, from_neuron_IDs( k ) = neuron_IDs( k ); end
+                   if to_neuron_IDs_flag, to_neuron_IDs( k ) = neuron_IDs( end ); end 
+                   
+                   % Compute the name of this synapse.
+                   if names_flag, names{ k } = sprintf( 'Addition %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ); end
+                   
+               end
+               
+           end
             
-        end
-        
-        
-        % Implement a function to create the synapses for a relative addition subnetwork.
-        function [ self, synapse_IDs ] = create_relative_addition_synapses( self, neuron_IDs )
+           % Create the multistate cpg subnetwork synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
             
-            % Compute the number of neurons.
-            num_neurons = length( neuron_IDs );
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
             
-            % Compute the number of synapses.
-            num_synapses_to_create = num_neurons - 1;
-            
-            % Create the absolute addition subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_synapses_to_create );
-            
-            % Setup each of the synapses.
-            for k = 1:num_synapses_to_create                  % Iterate through each of the synapses...
-                
-                % Connect this synapse to its input and output neurons.
-                self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Set the name of this synapse.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Addition Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
-                
-            end
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag ); 
             
         end
         
         
         % Implement a function to create the synapses for a subtraction subnetwork.
-        function [ self, synapse_IDs ] = create_subtraction_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_subtraction_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the subtraction subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_subtraction_synapses_DEFAULT );
+            % Set the default number of neurons.
+            if nargin < 2, n_neurons = self.num_subtraction_neurons_DEFAULT; end
             
-            % Set the names of the subtraction subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23' }, 'name', synapses, set_flag );
+            % Compute the number of addition synapses.
+            n_synapses = n_neurons - 1;
             
-            % Connect the subtraction subnetwork synapses to the subtraction subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-        end
-        
-        
-        % Implement a function to create the synapses for an absolute subtraction subnetwork.
-        function [ self, synapse_IDs ] = create_absolute_subtraction_synapses( self, neuron_IDs )
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-            % Compute the number of neurons.
-            num_neurons = length( neuron_IDs );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Compute the number of synapses.
-            num_synapses_to_create = num_neurons - 1;
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
             
-            % Create the absolute subtraction subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_synapses_to_create );
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
             
-            % Setup each of the synapses.
-            for k = 1:num_synapses_to_create                  % Iterate through each of the synapses...
-                
-                % Connect this synapse to its input and output neurons.
-                self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Set the name of this synapse.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Absolute Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
-                
-            end
+            % Determine whether to compute the from neuron IDs, to neuron IDs, and synapse names.
+           if from_neuron_IDs_flag || to_neuron_IDs_flag || names_flag              % If we want to compute the from neuron IDs, to enuron IDs, or synapse names...
+               
+               % Compute the from neuron IDs, to neuron IDs, and synapse names for each synpase as appropriate.
+               for k = 1:n_synapses                 % Iterate througuh each of the synapses...
+                  
+                   % Compute the from and to neuron IDs for this synapse.
+                   if from_neuron_IDs_flag, from_neuron_IDs( k ) = neuron_IDs( k ); end
+                   if to_neuron_IDs_flag, to_neuron_IDs( k ) = neuron_IDs( end ); end 
+                   
+                   % Compute the name of this synapse.
+                   if names_flag, names{ k } = sprintf( 'Subtraciton %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ); end
+                   
+               end
+               
+           end
             
-        end
-        
-        
-        % Implement a function to create the synapses for a relative subtraction subnetwork.
-        function [ self, synapse_IDs ] = create_relative_subtraction_synapses( self, neuron_IDs )
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
             
-            % Compute the number of neurons.
-            num_neurons = length( neuron_IDs );
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
             
-            % Compute the number of synapses.
-            num_synapses_to_create = num_neurons - 1;
-            
-            % Create the relative subtraction subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_synapses_to_create );
-            
-            % Setup each of the synapses.
-            for k = 1:num_synapses_to_create                  % Iterate through each of the synapses...
-                
-                % Connect this synapse to its input and output neurons.
-                self = self.connect_synapses( synapse_IDs( k ), neuron_IDs( k ), neuron_IDs( end ) );
-                
-                % Set the name of this synapse.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Relative Subtraction Synapse %0.0f%0.0f', neuron_IDs( k ), neuron_IDs( end ) ) }, 'name', synapses, set_flag );
-                
-            end
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag ); 
             
         end
         
         
         % Implement a function to create the synapses for a double subtraction subnetwork.
-        function [ self, synapse_IDs ] = create_double_subtraction_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_double_subtraction_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the double subtraction subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_double_subtraction_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_double_subtraction_neurons_DEFAULT;
+            n_synapses = self.num_double_subtraction_synapses_DEFAULT;
             
-            % Set the names of the double subtraction subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the double subtraction subnetwork synapses to the subtraction subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 4 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 1, 2 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 1, 1, 2, 2 ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Double Subtraction %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a centering subnetwork.
-        function [ self, synapse_IDs ] = create_centering_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the centering subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_centering_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_centering_neurons_DEFAULT;
+            n_synapses = self.num_centering_synapses_DEFAULT;
             
-            % Set the names of the centering subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { '14', '24', '45', '35' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the centering subnetwork synapses.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 4, 3 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 4, 5, 5 ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Centering %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a double centering subnetwork.
-        function [ self, synapse_IDs ] = create_double_centering_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_double_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the centering subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_double_centering_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_double_centering_neurons_DEFAULT;
+            n_synapses = self.num_double_centering_synapses_DEFAULT;
             
-            % Set the names of the centering subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { '14', '24', '25', '35', '46', '36', '57', '17' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Set the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 5 ) neuron_IDs( 1 ) ];
-            to_neuron_IDs = [ neuron_IDs( 4 ) neuron_IDs( 4 ) neuron_IDs( 5 ) neuron_IDs( 5 ) neuron_IDs( 6 ) neuron_IDs( 6 ) neuron_IDs( 7 ) neuron_IDs( 7 ) ];
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-            % Connect the centering subnetwork synapses.
-            self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 2, 3, 4, 3, 5, 1 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 4, 5, 5, 6, 6, 7, 7 ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Double Centering %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses that connect a double subtraction subnetwork to a double centering subnetwork.
-        function [ self, synapse_IDs ] = create_ds2dc_synapses( self, neuron_IDs_cell )
+        function [ IDs_new, synapses_new, synapses, self ] = create_ds2dc_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Define the number of unique synapses.
-            num_unique_synapses = 2;
+            % Define the number of neurons.
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
+            n_neurons = self.num_ds2dc_neurons_DEFAULT;
             
-            % Create the unique synapses.
-            [ self, synapse_IDs ] = self.create_synapses( num_unique_synapses );
+            % Define the number of synapses.
+            n_synapses = self.num_ds2dc_synapses_DEFAULT;
             
-            % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs_cell{ 1 }( 3 ) neuron_IDs_cell{ 1 }( 4 ) ];
-            to_neuron_IDs = [ neuron_IDs_cell{ 2 }( 1 ) neuron_IDs_cell{ 2 }( 3 ) ];
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Setup each of the synapses.
-            for k = 1:num_unique_synapses               % Iterate through each of the unique synapses...
-                
-                % Set the names of each of the unique synapses.
-                [ synapses, self ] = self.set_synapse_property( synapse_IDs( k ), { sprintf( 'Neuron %0.0f -> Neuron %0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) ) }, 'name', synapses, set_flag );
-                
-                % Connect the unique synapses.
-                self = self.connect_synapses( synapse_IDs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ) );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 4 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( n_ds_neurons + 1 ), neuron_IDs( n_ds_neurons + 3 ) ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Double Subtrction -> Double Centering %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
                 
             end
+            
+            % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a centered double subtraction subnetwork.
-        function [ self, synapse_IDs_cell ] = create_centered_double_subtraction_synapses( self, neuron_IDs_cell )
+        function [ IDs_new, synapses_new, synapses, self ] = create_cds_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+            
+            % Define the number of neurons from the various subnetworks.
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;
+            n_neurons = n_ds_neurons + n_dc_neurons; 
+            
+            % Define the number of synapses from the various subnetworks.
+            n_ds_synapses = self.num_double_subtraction_synapses_DEFAULT;
+            n_dc_synapses = self.num_double_centering_synapses_DEFAULT;
+            n_synapses = self.num_ds2dc_synapses_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+                        
+            % Preallocate a cell array to store the synapse IDs and objects.
+            IDs_new = cell( 1, 3 );
+            synapses_new = cell( 1, 3 );
+            
+            % Define the starting and ending indexes for the double subtraction information.
+            i_start_ds_neurons = 1; i_end_ds_neurons = n_ds_neurons;
+            i_start_ds_synapses = 1; i_end_ds_synapses = n_ds_synapses;
             
             % Create the double subtraction subnetwork synapses.
-            [ self, synapse_IDs_double_subtraction ] = self.create_double_subtraction_synapses( neuron_IDs_cell{ 1 } );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_double_subtraction_synapses( neuron_IDs( i_start_ds_neurons:i_end_ds_neurons ), synapse_IDs( i_start_ds_synapses:i_end_ds_synapses ), names{ i_start_ds_synapses:i_end_ds_synapses }, dEs( i_start_ds_synapses:i_end_ds_synapses ), gs( i_start_ds_synapses:i_end_ds_synapses ), from_neuron_IDs( i_start_ds_synapses:i_end_ds_synapses ), to_neuron_IDs( i_start_ds_synapses:i_end_ds_synapses ), deltas( i_start_ds_synapses:i_end_ds_synapses ), b_enableds( i_start_ds_synapses:i_end_ds_synapses ), synapses, true, false, array_utilities );
+            
+            % Define the starting and ending indexes for the double centering information.
+            i_start_dc_neurons = i_end_ds_neurons + 1; i_end_dc_neurons = i_end_ds_neurons + n_dc_neurons;
+            i_start_dc_synapses = i_end_ds_synapses + 1; i_end_dc_synapses = i_end_ds_synapses + n_dc_synapses;
             
             % Create the double centering subnetwork synapses.
-            [ self, synapse_IDs_double_centering ] = self.create_double_centering_synapses( neuron_IDs_cell{ 2 } );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_double_centering_synapses( neuron_IDs( i_start_dc_neurons:i_end_dc_neurons ), synapse_IDs( i_start_dc_synapses:i_end_dc_synapses ), names{ i_start_dc_synapses:i_end_dc_synapses }, dEs( i_start_dc_synapses:i_end_dc_synapses ), gs( i_start_dc_synapses:i_end_dc_synapses ), from_neuron_IDs( i_start_dc_synapses:i_end_dc_synapses ), to_neuron_IDs( i_start_dc_synapses:i_end_dc_synapses ), deltas( i_start_dc_synapses:i_end_dc_synapses ), b_enableds( i_start_dc_synapses:i_end_dc_synapses ), synapses, true, false, array_utilities );
+            
+            % Define the starting and ending indexes for the ds to dc information.
+            i_start_ds2dc_neurons = 1; i_end_ds2dc_neurons = n_neurons;
+            i_start_ds2dc_synapses = i_end_dc_synapses + 1; i_end_ds2dc_synapses = i_end_dc_synapses + n_synapses;
             
             % Create the double subtraction subnetwork to double centering subnetwork synapses.
-            [ self, synapse_IDs_ds2dc ] = self.create_ds2dc_synapses( neuron_IDs_cell );
+            [ IDs_new{ 3 }, synapses_new{ 3 }, synapses, synapse_manager ] = synapse_manager.create_ds2dc_synapses( neuron_IDs( i_start_ds2dc_neurons:i_end_ds2dc_neurons ), synapse_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), names{ i_start_ds2dc_synapses:i_end_ds2dc_synapses }, dEs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), gs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), from_neuron_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), to_neuron_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), deltas( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), b_enableds( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), synapses, true, false, array_utilities );
             
-            % Concatenate the synapse IDs.
-            synapse_IDs_cell = { synapse_IDs_double_subtraction, synapse_IDs_double_centering, synapse_IDs_ds2dc };
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a multiplication subnetwork.
-        function [ self, synapse_IDs ] = create_multiplication_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_multiplication_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the multiplication subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_multiplication_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_multiplication_neurons_DEFAULT;
+            n_synapses = self.num_multiplication_synapses_DEFAULT;
             
-            % Set the names of the multiplication subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Mult 14', 'Mult 23', 'Mult 34' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-        end
-        
-        
-        % Implement a function to create the synapses for an absolute multiplication subnetwork.
-        function [ self, synapse_IDs ] = create_absolute_multiplication_synapses( self, neuron_IDs )
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Create the multiplication subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_multiplication_synapses_DEFAULT );
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
             
-            % Set the names of the multiplication subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Absolute Multiplication Synapse 14', 'Absolute Multiplication Synapse 23', 'Absolute Multiplication Synapse 34' }, 'name', synapses, set_flag );
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
             
-            % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 3 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 3, 4 ]; end
             
-        end
-        
-        
-        % Implement a function to create the synapses for a relative multiplication subnetwork.
-        function [ self, synapse_IDs ] = create_relative_multiplication_synapses( self, neuron_IDs )
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Multiplcation %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
             
-            % Create the multiplication subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_multiplication_synapses_DEFAULT );
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
             
-            % Set the names of the multiplication subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Relative Multiplication Synapse 14', 'Relative Multiplication Synapse 23', 'Relative Multiplication Synapse 34' }, 'name', synapses, set_flag );
-            
-            % Connect the multiplication subnetwork synapses to the multiplication subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) ], [ neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ] );
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapse for an inversion subnetwork.
-        function [ self, synapse_ID ] = create_inversion_synapse( self, neuron_IDs )
+        function [ ID_new, synapse_new, synapses, self ] = create_inversion_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the inversion subnetwork synapses.
-            [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
+            % Define the number of neurons and synapses.
+            n_neurons = self.num_inversion_neurons_DEFAULT;
+            n_synapses = self.num_inversion_synapses_DEFAULT;
             
-            % Set the name of the inversion subnetwork synapse.
-            [ synapses, self ] = self.set_synapse_property( synapse_ID, { 'Inv 12' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enabled = true( 1, n_synapses ); end
+            if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+        
+            % Process the synapse creation inputs.
+            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
             
-            % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
-            self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_ID, from_neuron_ID_flag ] = self.process_to_from_neuron_IDs( from_neuron_ID );
+            [ to_neuron_ID, to_neuron_ID_flag ] = self.process_to_from_neuron_IDs( to_neuron_ID );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ name, name_flag ] = self.process_names( name );
+            
+            % Determine whether it is necessary to compute the from and to neuron IDs.
+            if from_neuron_ID_flag, from_neuron_ID = neuron_IDs( 1 ); end
+            if to_neuron_ID_flag, to_neuron_ID = neuron_IDs( 2 ); end
+            
+            % Determine whether it is necessary to comptue the synapse name.
+            if name_flag, name = sprintf( 'Modulation %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
+            
+            % Create the modulation subnetwork synapse.    
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, true, false, array_utilities );
+               
+            % Determine how to format the synapse IDs and objects.
+            [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
-        
-        
-        % Implement a function to create the synapse for an absolute inversion subnetwork.
-        function [ self, synapse_ID ] = create_absolute_inversion_synapses( self, neuron_IDs )
-            
-            % Create the inversion subnetwork synapses.
-            [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
-            
-            % Set the name of the inversion subnetwork synapse.
-            [ synapses, self ] = self.set_synapse_property( synapse_ID, { 'Absolute Inversion Synapse 12' }, 'name', synapses, set_flag );
-            
-            % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
-            self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
-            
-        end
-        
-        
-        % Implement a function to create the synapse for a relative inversion subnetwork.
-        function [ self, synapse_ID ] = create_relative_inversion_synapses( self, neuron_IDs )
-            
-            % Create the inversion subnetwork synapses.
-            [ self, synapse_ID ] = self.create_synapse( self.num_inversion_synapses_DEFAULT );
-            
-            % Set the name of the inversion subnetwork synapse.
-            [ synapses, self ] = self.set_synapse_property( synapse_ID, { 'Relative Inversion Synapse 12' }, 'name', synapses, set_flag );
-            
-            % Connect the inversion subnetwork synapse to the inversion subnetwork neurons.
-            self = self.connect_synapses( synapse_ID, neuron_IDs( 1 ), neuron_IDs( 2 ) );
-            
-        end
-        
+
         
         % Implement a function to create the synpases for a division subnetwork.
-        function [ self, synapse_IDs ] = create_division_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_division_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the division subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_division_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_division_neurons_DEFAULT;
+            n_synapses = self.num_division_synapses_DEFAULT;
             
-            % Set the names of the division subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Div 13', 'Div 23' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the division subnetwork synapses to the division subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-        end
-        
-        
-        % Implement a function to create the synpases for an absolute division subnetwork.
-        function [ self, synapse_IDs ] = create_absolute_division_synapses( self, neuron_IDs )
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Create the division subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_division_synapses_DEFAULT );
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
             
-            % Set the names of the division subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Absolute Division Synapse 13', 'Absolute Division Synapse 23' }, 'name', synapses, set_flag );
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
             
-            % Connect the division subnetwork synapses to the division subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3 ]; end
             
-        end
-        
-        
-        % Implement a function to create the synpases for a relative division subnetwork.
-        function [ self, synapse_IDs ] = create_relative_division_synapses( self, neuron_IDs )
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Division %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
             
-            % Create the division subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_division_synapses_DEFAULT );
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
             
-            % Set the names of the division subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Relative Division Synapse 13', 'Relative Division Synapse 23' }, 'name', synapses, set_flag );
-            
-            % Connect the division subnetwork synapses to the division subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synpases for a derivation subnetwork.
-        function [ self, synapse_IDs ] = create_derivation_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_derivation_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the derivation subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_derivation_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_derivation_neurons_DEFAULT;
+            n_synapses = self.num_derivation_synapses_DEFAULT;
             
-            % Set the names of the derivation subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Der 13', 'Der 23' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the derivation subnetwork synapses to the derivation subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3 ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Derivation %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for an integration subnetwork.
-        function [ self, synapse_IDs ] = create_integration_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_integration_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the integration subnetwork synapses.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_integration_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_integration_neurons_DEFAULT;
+            n_synapses = self.num_integration_synapses_DEFAULT;
             
-            % Set the names of the integration subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Int 12', 'Int 21' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the integration subnetwork synapses to the integration subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) ], [ neuron_IDs( 2 ) neuron_IDs( 1 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 2, 1 ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'Derivation %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a voltage based integration subnetwork.
-        function [ self, synapse_IDs ] = create_vb_integration_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_vbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the voltage based integetration subnetwork synpases.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_vbi_synapses_DEFAULT );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_vbi_neurons_DEFAULT;
+            n_synapses = self.num_vbi_synapses_DEFAULT;
             
-            % Set the names of the voltage based integration subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Connect the voltage based integration subnetwork synapses to the integration subnetwrok neurons.
-            self = self.connect_synapses( synapse_IDs, [ neuron_IDs( 1 ) neuron_IDs( 2 ) neuron_IDs( 3 ) neuron_IDs( 4 ) ], [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) ] );
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 3, 4 ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3, 4, 3 ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'VBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         
         
         % Implement a function to create the synapses for a split voltage based integration subnetwork.
-        function [ self, synapse_IDs ] = create_split_vb_integration_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_svbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the voltage based integetration subnetwork synpases.
-            [ self, synapse_IDs ] = self.create_synapses( self.num_svbi_synapses );
+            % Set the number of neurons and synapses.
+            n_neurons = self.num_svbi_neurons_DEFAULT;
+            n_synapses = self.num_svbi_synapses_DEFAULT;
             
-            % Set the names of the voltage based integration subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs, { 'Int 13', 'Int 23', 'Int 34', 'Int 43', 'Sub 13', 'Sub 23', 'Sub 14', 'Sub 24', 'Eq 1 -> Sub 2', 'Int 3 -> Sub 1' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Define the from and to neuron IDs.  NOTE: Neuron IDs are in this order: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1' }
-            from_neuron_IDs = [ neuron_IDs( 1:4 ) neuron_IDs( 5:6 ) neuron_IDs( 5:6 ) neuron_IDs( 9 ) neuron_IDs( 3 ) ];
-            to_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 3 ) neuron_IDs( 4 ) neuron_IDs( 3 ) neuron_IDs( 7 ) neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 8 ) neuron_IDs( 6 ) neuron_IDs( 5 ) ];
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-            % Connect the voltage based integration subnetwork synapses to the integration subnetwork neurons.
-            self = self.connect_synapses( synapse_IDs, from_neuron_IDs, to_neuron_IDs );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ from_neuron_IDs, from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs );
+            [ to_neuron_IDs, to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs );
+            
+            % Determine whether it is necessary to generate synapse names.
+            [ names, names_flag ] = self.process_names( names );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 5 ), neuron_IDs( 6 ), neuron_IDs( 5 ), neuron_IDs( 6 ), neuron_IDs( 9 ), neuron_IDs( 3 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 7 ), neuron_IDs( 7 ), neuron_IDs( 8 ), neuron_IDs( 8 ), neuron_IDs( 6 ), neuron_IDs( 5 ) ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'SVBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+           % Create the synapses.            
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
+                        
         end
         
         
         % Implement a function to create the synapses for a modulated split voltage based integration subnetwork.
-        function [ self, synapse_IDs ] = create_mod_split_vb_integration_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_msvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
             
-            % Create the split voltage based integration subnetwork synapses.
-            [ self, synapse_IDs1 ] = self.create_split_vb_integration_synapses( neuron_IDs( 1:9 ) );
+            % Define the number of neurons from the various subnetworks.
+            n_svbi_neurons = self.num_svbi_neurons_DEFAULT;
+            n_msvbi_neurons = self.num_msvbi_neurons_DEFAULT;
+            n_neurons = n_svbi_neurons + n_msvbi_neurons; 
             
-            % Create the synapses that are unique to the modulated split voltage based integration subnetwork.
-            [ self, synapse_IDs2 ] = self.create_synapses( self.num_msvbi_synapses );
+            % Define the number of synapses from the various subnetworks.
+            n_svbi_synapses = self.num_svbi_synapses_DEFAULT;
+            n_msvbi_synapses = self.num_msvbi_synapses_DEFAULT;
+            n_synapses = n_svbi_synapses + n_msvbi_synapses;
             
-            % Set the names of the modulated split voltage based integration subnetwork synapses.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs2, { 'Sub 3 -> Mod 2', 'Sub 4 -> Mod 3', 'Mod 1 -> Mod 2', 'Mod 1 -> Mod 3', 'Int 1 -> Mod 1', 'Int 2 -> Mod 1' }, 'name', synapses, set_flag );
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Define the from and to neuron IDs. NOTE: Neurons are organized as follows: { 'Int 1', 'Int 2', 'Int 3', 'Int 4' 'Sub 1', 'Sub 2', 'Sub 3', 'Sub 4', 'Eq 1', 'Mod 1', 'Mod 2', 'Mod 3' }
-            from_neuron_IDs = [ neuron_IDs( 7 ) neuron_IDs( 8 ) neuron_IDs( 10 ) neuron_IDs( 10 ) neuron_IDs( 1 ) neuron_IDs( 2 ) ];
-            to_neuron_IDs = [ neuron_IDs( 11 ) neuron_IDs( 12 ) neuron_IDs( 11 ) neuron_IDs( 12 ) neuron_IDs( 10 ) neuron_IDs( 10 ) ];
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
             
-            % Connect the modulated split voltage based integration subnetwork synapses.
-            self = self.connect_synapses( synapse_IDs2, from_neuron_IDs, to_neuron_IDs );
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
-            % Concatenate the synapse IDs.
-            synapse_IDs = [ synapse_IDs1, synapse_IDs2 ];
+            % Preallocate a cell array to store the synapse IDs and objects.
+            IDs_new = cell( 1, 2 );
+            synapses_new = cell( 1, 2 );
             
+            % Define the starting and ending indexes for the double subtraction information.
+            i_start_svbi_neurons = 1; i_end_svbi_neurons = n_svbi_neurons;
+            i_start_svbi_synapses = 1; i_end_svbi_synapses = n_svbi_synapses;
+            
+            % Create the double subtraction subnetwork synapses.
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_svbi_synapses( neuron_IDs( i_start_svbi_neurons:i_end_svbi_neurons ), synapse_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), names{ i_start_svbi_synapses:i_end_svbi_synapses }, dEs( i_start_svbi_synapses:i_end_svbi_synapses ), gs( i_start_svbi_synapses:i_end_svbi_synapses ), from_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), to_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), deltas( i_start_svbi_synapses:i_end_svbi_synapses ), b_enableds( i_start_svbi_synapses:i_end_svbi_synapses ), synapses, true, false, array_utilities );
+            
+            % Define the starting and ending indexes for the double centering information.
+            i_start_msvbi_synapses = i_end_svbi_synapses + 1; i_end_msvbi_synapses = i_end_svbi_synapses + n_msvbi_synapses;
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ) );
+            [ from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ) );
+
+            % Determine whether it is necessary to generate synapse names.
+            [ names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, names_flag ] = self.process_names( names{ i_start_msvbi_synapses:i_end_msvbi_synapses } );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 7 ), neuron_IDs( 8 ), neuron_IDs( 10 ), neuron_IDs( 10 ), neuron_IDs( 1 ), neuron_IDs( 2 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 11 ), neuron_IDs( 12 ), neuron_IDs( 11 ), neuron_IDs( 12 ), neuron_IDs( 10 ), neuron_IDs( 10 ) ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'MSVBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
+            
+            % Create the msvbi synapses.            
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_synapses( n_msvbi_synapses, synapse_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, dEs( i_start_msvbi_synapses:i_end_msvbi_synapses ), gs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), deltas( i_start_msvbi_synapses:i_end_msvbi_synapses ), b_enableds( i_start_msvbi_synapses:i_end_msvbi_synapses ), synapses, true, false, array_utilities );
+            
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
+            
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
+                        
         end
         
         
         % Implement a function to create the synapses for a modulated split difference voltage based integration subnetwork.
-        function [ self, synapse_IDs ] = create_mod_split_sub_vb_integration_synapses( self, neuron_IDs )
+        function [ IDs_new, synapses_new, synapses, self ] = create_mssvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+            
+            % Define the number of neurons from the various subnetworks.
+            n_ds_neurons = self.num_ds_neurons_DEFAULT;
+            n_msvbi_neurons = self.num_msvbi_neurons_DEFAULT;
+            n_mssvbi_neurons = self.num_mssvbi_neurons_DEFAULT;
+            n_neurons = n_ds_neurons + n_msvbi_neurons + n_mssvbi_neurons; 
+            
+            % Define the number of synapses from the various subnetworks.
+            n_ds_synapses = self.num_ds_synapses_DEFAULT;
+            n_msvbi_synapses = self.num_msvbi_synapses_DEFAULT;
+            n_mssvbi_synapses = self.num_mssvbi_synapses_DEFAULT;
+            n_synapses = n_ds_synapses + n_msvbi_synapses + n_mssvbi_synapses;
+            
+            % Set the default input arguments.
+            if nargin < 14, array_utilities = self.array_utilities; end
+            if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, synapses = self.synapses; end
+            if nargin < 10, b_enableds = true( 1, n_synapses ); end
+            if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end
+            if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end
+            if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end            
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the synapse creation inputs.
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Preallocate a cell array to store the synapse IDs and objects.
+            IDs_new = cell( 1, 3 );
+            synapses_new = cell( 1, 3 );            
+            
+            % Define the starting and ending indexes for the double subtraction information.
+            i_start_svbi_neurons = 1; i_end_svbi_neurons = n_svbi_neurons;
+            i_start_svbi_synapses = 1; i_end_svbi_synapses = n_svbi_synapses;
             
             % Create the double subtraction subnetwork synapses.
-            [ self, synapse_IDs1 ] = self.create_double_subtraction_synapses( neuron_IDs( 1:4 ) );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_double_subtraction_synapses( neuron_IDs( i_start_svbi_neurons:i_end_svbi_neurons ), synapse_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), names{ i_start_svbi_synapses:i_end_svbi_synapses }, dEs( i_start_svbi_synapses:i_end_svbi_synapses ), gs( i_start_svbi_synapses:i_end_svbi_synapses ), from_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), to_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), deltas( i_start_svbi_synapses:i_end_svbi_synapses ), b_enableds( i_start_svbi_synapses:i_end_svbi_synapses ), synapses, true, false, array_utilities );
+            
+            % Define the starting and ending indexes for the double subtraction information.
+            i_start_msvbi_neurons = i_end_svbi_neurons + 1; i_end_msvbi_neurons = i_start_msvbi_neurons + n_msvbi_neurons;
+            i_start_msvbi_synapses = i_end_svbi_synapses + 1; i_end_msvbi_synapses = i_start_msvbi_synapses + n_msvbi_synapses;
             
             % Create the modulated split voltage based integration subnetwork synapses.
-            [ self, synapse_IDs2 ] = self.create_mod_split_vb_integration_synapses( neuron_IDs( 5:end ) );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_msvbi_synapses( neuron_IDs( i_start_msvbi_neurons:i_end_msvbi_neurons ), synapse_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, dEs( i_start_msvbi_synapses:i_end_msvbi_synapses ), gs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), deltas( i_start_msvbi_synapses:i_end_msvbi_synapses ), b_enableds( i_start_msvbi_synapses:i_end_msvbi_synapses ), synapses, true, false, array_utilities );
+            
+            % Define the starting and ending indexes for the double subtraction information.
+            i_start_mssvbi_neurons = i_end_msvbi_neurons + 1; i_end_mssvbi_neurons = i_start_mssvbi_neurons + n_mssvbi_neurons;
+            i_start_mssvbi_synapses = i_end_msvbi_synapses + 1; i_end_mssvbi_synapses = i_start_mssvbi_synapses + n_mssvbi_synapses;
+            
+            % Determine whether it is necessary to generate to and from neuron IDs.
+            [ to_neuron_IDs( i_start_mssvbi_neurons:i_end_mssvbi_neurons ), to_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( to_neuron_IDs( i_start_mssvbi_neurons:i_end_mssvbi_neurons ) );
+            [ from_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), from_neuron_IDs_flag ] = self.process_to_from_neuron_IDs( from_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ) );
+
+            % Determine whether it is necessary to generate synapse names.
+            [ names{ i_start_mssvbi_synapses:i_end_mssvbi_synapses }, names_flag ] = self.process_names( names{ i_start_mssvbi_synapses:i_end_mssvbi_synapses } );
+            
+            % Determine whether to compute the from and to neuron IDs.
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 4 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 5 ), neuron_IDs( 6 ) ]; end
+            
+            % Determinine whether to compute the synapse names.
+            if names_flag                           % If we want to compute the synapse names...
+
+                % Compute the synapse names.
+                for k = 1:n_synapses                % Iterate through each of the synpases...
+
+                    % Compute the name of this synapse.
+                    names{ k } = sprintf( 'MSSVBI %0.0f%0.0f', from_neuron_IDs( k ), to_neuron_IDs( k ) );
+
+                end
+                
+            end
             
             % Create the synapses unique to this subnetwork.
-            [ self, synapse_IDs3 ] = self.create_synapses( self.num_mssvbi_synapses );
+            [ IDs_new{ 3 }, synapses_new{ 3 }, synapses, synapse_manager ] = synapse_manager.create_synapses( n_mssvbi_synapses, synapse_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), names{ i_start_mssvbi_synapses:i_end_mssvbi_synapses }, dEs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), gs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), from_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), to_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), deltas( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), b_enableds( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), synapses, true, false, array_utilities );
             
-            % Set the names of the synapses that are unique to this subnetwork.
-            [ synapses, self ] = self.set_synapse_property( synapse_IDs3, { 'Sub 3 -> Int 1', 'Sub 4 -> Int 2' }, 'name', synapses, set_flag );
+            % Determine how to format the synapse IDs and objects.
+            [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
             
-            % Define the from and to neuron IDs.
-            from_neuron_IDs = [ neuron_IDs( 3 ) neuron_IDs( 4 ) ];
-            to_neuron_IDs = [ neuron_IDs( 5 ) neuron_IDs( 6 ) ];
-            
-            % Connect the synapses that are unique to this subnetwork.
-            self = self.connect_synapses( synapse_IDs3, from_neuron_IDs, to_neuron_IDs );
-            
-            % Concatenate the synapse IDs.
-            synapse_IDs = [ synapse_IDs1, synapse_IDs2, synapse_IDs3 ];
+            % Update the synapse manager and synapses objects as appropriate.
+            [ synapses, self ] = self.update_synapse_manager( synapses, synapse_manager, set_flag );
             
         end
         

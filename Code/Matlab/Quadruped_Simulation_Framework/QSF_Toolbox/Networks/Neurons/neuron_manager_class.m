@@ -3221,16 +3221,8 @@ classdef neuron_manager_class
                 
             end
             
-            % Determine whether to embed the new neuron IDs and objects in cells.
-            if as_cell_flag                                                                                                         % If we want to embed the new neuron IDs and objects in cells...
-                
-                % Embed the new neuron IDs in a cell.
-                IDs_new = { IDs_new };
-                
-                % Embed the new neuron objects in a cell.
-                neurons_new = { neurons_new };
-                
-            end
+            % Determine whether to embed the new neuron ID and object in cells.
+            [ IDs_new, neurons_new ] = self.process_neuron_creation_outputs( IDs_new, neurons_new, as_cell_flag, array_utilities );
             
             % Determine whether to update the neuron manager object.
             [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
@@ -3246,22 +3238,21 @@ classdef neuron_manager_class
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
+            % Create an instance of the neuron manager that can be updated.
+            neuron_manager = self;
+            
             % Retrieve the index associated with this neuron.
             neuron_index = self.get_neuron_index( neuron_ID, neurons, undetected_option );
             
             % Remove this neuron from the array of neurons.
             neurons( neuron_index ) = [  ];
             
-            % Determine whether to update the neuron manager object.
-            if set_flag                                                                     % If we want to update the neuron manager object...
-                
-                % Update the neuron property.
-                self.neurons = neurons;
-                
-                % Decrease the number of neurons counter.
-                self.num_neurons = self.num_neurons - 1;
-                
-            end
+            % Update the neuron manager to reflect these changes.
+            neuron_manager.neurons = neurons;
+            neuron_manager.num_neurons = length( neurons );
+            
+            % Determine whether to update the neurons and neuron manager objects.
+            [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
         end
         
@@ -3515,8 +3506,11 @@ classdef neuron_manager_class
             end
             
             % Create the multistate cpg subnetwork neurons.
-            [ IDs_new, neurons_new, neurons, neuron_manager ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, true, as_cell_flag, array_utilities );
+            [ IDs_new, neurons_new, neurons, neuron_manager ] = self.create_neurons( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, b_enableds, neurons, true, false, array_utilities );
  
+            % Determine how to format the neuron IDs and objects.
+            [ IDs_new, neurons_new ] = self.process_neuron_creation_outputs( IDs_new, neurons_new, as_cell_flag, array_utilities );
+            
             % Update the neuron manager and neurons objects as appropriate.
             [ neurons, self ] = self.update_neuron_manager( neurons, neuron_manager, set_flag );
             
