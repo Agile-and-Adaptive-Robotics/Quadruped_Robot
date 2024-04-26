@@ -21,22 +21,29 @@ classdef applied_current_manager_class
     properties ( Access = private, Constant = true )
         
         % Define the neuron parameters.
-        R_DEFAULT = 20e-3;                                                                                                      % [V] Activation Domain
-        Gm_DEFAULT = 1e-6;                                                                                                      % [S] Membrane Conductance
+        R_DEFAULT = 20e-3;                                                                                  	% [V] Activation Domain
+        Gm_DEFAULT = 1e-6;                                                                                   	% [S] Membrane Conductance
         
         % Define subnetwork neuron quantities.
-        num_multistate_cpg_applied_currents_DEFAULT = 1;                                                                        % [#] Number of Multistate CPG Applied Currents.
-        num_centering_applied_currents_DEFAULT = 1;                                                                             % [#] Number of Centering Applied Currents.
-        num_double_centering_applied_currents_DEFAULT = 1;                                                                      % [#] Number of Double Centering Applied Currents.
-        num_inversion_applied_currents_DEFAULT = 1;                                                                             % [#] Number of Inversion Applied Currents.
-        num_multiplication_applied_currents_DEFAULT = 1;                                                                        % [#] Number of Multiplication Applied Currents.
-        num_integration_applied_currents_DEFAULT = 2;                                                                           % [#] Number of Integration Applied Currents.
-        num_vb_integration_applied_currents = 2;                                                                                % [#] Number of Voltage Based Integration Applied Currents.
-        num_split_vb_integration_applied_currents_DEFAULT = 3;                                                                  % [#] Number of Split Voltage Based Integration Applied Currents.
+        num_mcpg_applied_currents_DEFAULT = 1;                                                                	% [#] Number of Multistate CPG Applied Currents.
+        num_centering_applied_currents_DEFAULT = 1;                                                         	% [#] Number of Centering Applied Currents.
+        num_dc_applied_currents_DEFAULT = 1;                                                                   	% [#] Number of Double Centering Applied Currents.
+        num_inversion_applied_currents_DEFAULT = 1;                                                           	% [#] Number of Inversion Applied Currents.
+        num_multiplication_applied_currents_DEFAULT = 1;                                                      	% [#] Number of Multiplication Applied Currents.
+        num_integration_applied_currents_DEFAULT = 2;                                                          	% [#] Number of Integration Applied Currents.
+        num_vbi_applied_currents = 2;                                                                        	% [#] Number of Voltage Based Integration Applied Currents.
+        num_svbi_applied_currents_DEFAULT = 3;                                                                  % [#] Number of Split Voltage Based Integration Applied Currents.
         
         % Define the simulation parameters.
-        dt_DEFAULT = 1e-3;                                                                                                      % [s] Simulation Time Step
-        tf_DEFAULT = 1;                                                                                                         % [s] Simulation Duration
+        dt_DEFAULT = 1e-3;                                                                                  	% [s] Simulation Time Step
+        tf_DEFAULT = 1;                                                                                        	% [s] Simulation Duration
+        
+        % Define the option defaults.
+        undetected_option_DEFAULT = 'error';                                                                  	% [str] Undetected Option (Either 'error', 'warning', or 'ignore'.) (Determines how to handle situations where applied current IDs are provided that do not match an existing IDs.)
+        process_option_DEFAULT = 'none';                                                                      	% [str] Process Option (Either 'max', 'min', 'mean', or 'none'.) (Determines the type of post processing that should be done to applied current properties when they are retrieved.)
+        
+        % Define the flag defaults.
+        filter_disabled_flag_DEFAULT = true;                                                                  	% [T/F] Filter Disabled Flag. (Determines whether 
         
     end
     
@@ -47,20 +54,22 @@ classdef applied_current_manager_class
     methods
         
         % Implement the class constructor.
-        function self = applied_current_manager_class( applied_currents )
+        function self = applied_current_manager_class( applied_currents, data_loader_utilities, array_utilities )
             
-            % Create an instance of the data loader utilities class.
-            self.data_loader_utilities = data_loader_utilities_class(  );
+            % Set the default input arguments.
+            if nargin < 3, array_utilities = array_utilities_class(  ); end
+            if nargin < 2, data_loader_utilities = data_loader_utilities_class(  ); end
+            if nargin < 1, applied_currents = [  ]; end
             
-            % Create an instance of the array manager class.
-            self.array_utilities = array_utilities_class(  );
+            % Store the utility class properties.
+            self.array_utilities = array_utilities;
+            self.data_loader_utilities = data_loader_utilities(  );
             
-            % Set the default properties.
-            %             if nargin < 1, self.applied_currents = applied_current_class(  ); else, self.applied_currents = applied_currents; end
-            if nargin < 1, self.applied_currents = [  ]; else, self.applied_currents = applied_currents; end
+            % Store the applied currents property.
+            self.applied_currents = applied_currents;
             
             % Compute the number of applied currents.
-            self.num_applied_currents = length( self.applied_currents );
+            self.num_applied_currents = length( applied_currents );
             
         end
         
@@ -68,10 +77,15 @@ classdef applied_current_manager_class
         %% General Get & Set Applied Current Property Functions
         
         % Implement a function to retrieve the properties of specific applied currents.
-        function xs = get_applied_current_property( self, applied_current_IDs, applied_current_property )
+        function xs = get_applied_current_property( self, applied_current_IDs, applied_current_property, as_matrix_flag, applied_currents, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, applied_currents = self.applied_currents; end                   	% [class] Array of Neuron Class Objects.
+            if nargin < 4, as_matrix_flag = self.as_matrix_flag_DEFAULT; end             	% [T/F] As Matrix Flag (Determines whether to return the neuron property as a matrix or as a cell.)
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_properties_to_get = length( applied_current_IDs );
@@ -83,13 +97,21 @@ classdef applied_current_manager_class
             for k = 1:num_properties_to_get                                                                         % Iterate through each of the properties to get...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Define the eval string.
-                eval_str = sprintf( 'xs{k} = self.applied_currents(%0.0f).%s;', applied_current_index, applied_current_property );
+                eval_str = sprintf( 'xs{ k } = applied_currents( %0.0f ).%s;', applied_current_index, applied_current_property );
                 
                 % Evaluate the given applied current property.
                 eval( eval_str );
+                
+            end
+            
+            % Determine whether to convert the network properties to a matrix.
+            if as_matrix_flag                                    % If we want the neuron properties as a matrix instead of a cell...
+                
+                % Convert the applied current properties from a cell to a matrix.
+                xs = cell2mat( xs );
                 
             end
             
@@ -97,10 +119,17 @@ classdef applied_current_manager_class
         
         
         % Implement a function to set the properties of specific applied currents.
-        function self = set_applied_current_property( self, applied_current_IDs, applied_current_property_values, applied_current_property )
+        function [ applied_currents, self ] = set_applied_current_property( self, applied_current_IDs, applied_current_property_values, applied_current_property, applied_currents, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 5, applied_currents = self.applied_currents; end
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Validate the applied current property values.
             if ~isa( applied_current_property_values, 'cell' )                    % If the applied current property values are not a cell array...
@@ -138,16 +167,16 @@ classdef applied_current_manager_class
             
             
             % Set the properties of each applied current.
-            for k = 1:self.num_applied_currents                   % Iterate through each applied current...
+            for k = 1:n_applied_currents                   % Iterate through each applied current...
                 
                 % Determine the index of the applied current property value that we want to apply to this applied current (if we want to set a property of this applied current).
-                index = find( self.applied_currents( k ).ID == applied_current_IDs, 1 );
+                index = find( applied_currents( k ).ID == applied_current_IDs, 1 );
                 
                 % Determine whether to set a property of this applied current.
                 if ~isempty( index )                         % If a matching applied current ID was detected...
                     
                     % Create an evaluation string that sets the desired applied current property.
-                    eval_string = sprintf( 'self.applied_currents(%0.0f).%s = applied_current_property_values{%0.0f};', k, applied_current_property, index );
+                    eval_string = sprintf( 'applied_currents( %0.0f ).%s = applied_current_property_values{ %0.0f };', k, applied_current_property, index );
                     
                     % Evaluate the evaluation string.
                     eval( eval_string );
@@ -155,22 +184,31 @@ classdef applied_current_manager_class
                 end
             end
             
+            % Determine whether to update the applied currents manager object.
+            if set_flag, self.applied_currents = applied_currents; end
+            
         end
         
         
-        %% Specific Get & Set Functions
+        %% Specific Get & Set Functions.
         
         % Implement a function to retrieve all of the neuron IDs.
-        function applied_current_IDs = get_all_applied_current_IDs( self )
+        function applied_current_IDs = get_all_applied_current_IDs( self, applied_currents )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_currents = self.applied_currents; end
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Preallocate a variable to store the applied current IDs.
-            applied_current_IDs = zeros( 1, self.num_applied_currents );
+            applied_current_IDs = zeros( 1, n_applied_currents );
             
             % Retrieve the ID associated with each applied current.
-            for k = 1:self.num_applied_currents                             % Iterate through each of the applied currents...
+            for k = 1:n_applied_currents                             % Iterate through each of the applied currents...
                 
                 % Retrieve this applied current ID.
-                applied_current_IDs(k) = self.applied_currents(k).ID;
+                applied_current_IDs( k ) = applied_currents( k ).ID;
                 
             end
             
@@ -178,10 +216,13 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the number of time steps of the specified applied currents.
-        function num_timesteps = get_num_timesteps( self, applied_current_IDs, process_option )
+        function num_timesteps = get_num_timesteps( self, applied_current_IDs, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 3, process_option = 'none'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, process_option = self.process_option_DEFAULT; end
+            if nargin < 4, filter_disabled_flag = self.filter_distabled_flag_DEFAULT; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Determine how to compute the number of timesteps.
             if all( applied_current_IDs == -1 )                         % If all of the applied current IDs are invalid...
@@ -195,10 +236,10 @@ classdef applied_current_manager_class
                 applied_current_IDs( applied_current_IDs == -1 ) = [  ];
                 
                 % Remove IDs associated with disabled applied currents (if desired).
-                if b_filter_disabled, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs ); end
+                if filter_disabled_flag, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs, applied_currents, undetected_option ); end
                 
                 % Retrieve the number of timesteps associated with each applied current.
-                num_timesteps = cell2mat( self.get_applied_current_property( applied_current_IDs, 'num_timesteps' ) );
+                num_timesteps = self.get_applied_current_property( applied_current_IDs, 'num_timesteps', true, applied_currents, undetected_option );
                 
                 % Determine how to process the number of timesteps.
                 if strcmpi( process_option, 'average' )                     % If we want the average time step...
@@ -233,11 +274,13 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the step size of the specified applied currents.
-        function dt = get_dts( self, applied_current_IDs, process_option, b_filter_disabled )
+        function dt = get_dts( self, applied_current_IDs, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, b_filter_disabled = false; end
-            if nargin < 3, process_option = 'none'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, process_option = self.process_option_DEFAULT; end
+            if nargin < 4, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Determine how to compute the step size.
             if all( applied_current_IDs == -1 )                         % If all of the applied current IDs are invalid...
@@ -251,10 +294,10 @@ classdef applied_current_manager_class
                 applied_current_IDs( applied_current_IDs == -1 ) = [  ];
                 
                 % Remove IDs associated with disabled applied currents (if desired).
-                if b_filter_disabled, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs ); end
+                if filter_disabled_flag, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs, applied_currents, undetected_option ); end
                 
                 % Retrieve the step size associated with each applied current.
-                dt = cell2mat( self.get_applied_current_property( applied_current_IDs, 'dt' ) );
+                dt = self.get_applied_current_property( applied_current_IDs, 'dt', true, applied_currents, undetected_option );
                 
                 % Determine whether the step size needs to be set.
                 if isempty( dt ), dt = 1e-3; end
@@ -292,11 +335,13 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the final time of the specified applied currents.
-        function tf = get_tfs( self, applied_current_IDs, process_option, b_filter_disabled )
+        function tf = get_tfs( self, applied_current_IDs, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, b_filter_disabled = false; end
-            if nargin < 3, process_option = 'none'; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, process_option = self.process_option_DEFAULT; end
+            if nargin < 4, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Determine how to compute the final time.
             if all( applied_current_IDs == -1 )             % If all of the applied current IDs are invalid...
@@ -310,10 +355,10 @@ classdef applied_current_manager_class
                 applied_current_IDs( applied_current_IDs == -1 ) = [  ];
                 
                 % Remove IDs associated with disabled applied currents (if desired).
-                if b_filter_disabled, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs ); end
+                if filter_disabled_flag, applied_current_IDs = self.remove_disabled_applied_current_IDs( applied_current_IDs, applied_currents, undetected_option ); end
                 
                 % Retrieve the final time associated with each applied current.
-                tf = cell2mat( self.get_applied_current_property( applied_current_IDs, 'tf' ) );
+                tf = self.get_applied_current_property( applied_current_IDs, 'tf', true, applied_currents, undetected_option );
                 
                 % Determine how to process the final time.
                 if strcmpi( process_option, 'average' )                     % If we want the average final time...
@@ -348,14 +393,18 @@ classdef applied_current_manager_class
         
         
         % Implement a function to retrieve the applied currents.
-        function I_apps = get_Iapps( self, applied_current_IDs, dt, tf )
+        function Ias = get_Ias( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, process_option = self.process_option_DEFAULT; end
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 5, applied_currents = self.applied_currents; end
             if nargin < 4, tf = [  ]; end
             if nargin < 3, dt = [  ]; end
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to get.
             num_applied_currents_to_get = length( applied_current_IDs );
@@ -364,7 +413,7 @@ classdef applied_current_manager_class
             if isempty( tf )                                                                % If the final time is empty...
                 
                 % Compute the maximum final time among the given applied currents.
-                tf = self.get_tfs( applied_current_IDs, 'max' );
+                tf = self.get_tfs( applied_current_IDs, 'max', filter_disabled_flag, process_option, undetected_option );
                 
             end
             
@@ -372,7 +421,7 @@ classdef applied_current_manager_class
             if isempty( dt )                                                                % If the step size is empty...
                 
                 % Compute the minimum step size among the given applied currents.
-                dt = self.get_dts( applied_current_IDs, 'min' );
+                dt = self.get_dts( applied_current_IDs, 'min', filter_disabled_flag, process_option, undetected_option );
                 
             end
             
@@ -380,29 +429,29 @@ classdef applied_current_manager_class
             num_timesteps = floor( round( tf/dt, 8 ) ) + 1;
             
             % Preallocate a variable to store the applied current properties.
-            I_apps = zeros( num_timesteps, num_applied_currents_to_get );
+            Ias = zeros( num_timesteps, num_applied_currents_to_get );
             
             % Retrieve the given neuron property for each applied current.
             for k = 1:num_applied_currents_to_get                           % Iterate through each of the currents to retrieve...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k), 'ignore' );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );            % Undetected option hard set to 'ignore' before revisions.
                 
                 % Determine how to retrieve this applied current.
-                if ( applied_current_index >= 0 ) && ( self.applied_currents( applied_current_index ).b_enabled )                                                      % If the applied current ID is greater than or equal to zero...
+                if ( applied_current_index >= 0 ) && ( applied_currents( applied_current_index ).b_enabled )                                                      % If the applied current ID is greater than or equal to zero...
                     
                     % Retrieve the applied currents.
-                    I_apps( :, k ) = self.applied_currents( applied_current_index ).sample_Iapp( dt, tf );
+                    Ias( :, k ) = applied_currents( applied_current_index ).sample_Ia( dt, tf );
                     
-                elseif ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                                                % If the applied current ID is negative one...
+                elseif ( applied_current_index == -1 ) || ( ~applied_currents( applied_current_index ).b_enabled )                                                % If the applied current ID is negative one...
                     
                     % Set the applied current to zero.
-                    I_apps( :, k ) = zeros( num_timesteps, 1 );
+                    Ias( :, k ) = zeros( num_timesteps, 1 );
                     
                 else                                                                                    % Otherwise...
                     
                     % Throw an error.
-                    error( 'Applied current ID %0.2f not recognized.', applied_current_IDs(k) )
+                    error( 'Applied current ID %0.2f not recognized.', applied_current_IDs( k ) )
                     
                 end
                 
@@ -411,13 +460,17 @@ classdef applied_current_manager_class
         end
         
         
-        %% Applied Current Index & ID Functions
+        %% Applied Current Index & ID Functions.
         
         % Implement a function to retrieve the index associated with a given applied_current ID.
-        function applied_current_index = get_applied_current_index( self, applied_current_ID, undetected_option )
+        function applied_current_index = get_applied_current_index( self, applied_current_ID, applied_currents, undetected_option )
             
             % Set the default input argument.
-            if nargin < 3, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 3, applied_currents = self.applied_currents; end
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Set a flag variable to indicate whether a matching applied_current index has been found.
             b_match_found = false;
@@ -425,13 +478,13 @@ classdef applied_current_manager_class
             % Initialize the applied_current index.
             applied_current_index = 0;
             
-            while ( applied_current_index < self.num_applied_currents ) && ( ~b_match_found )
+            while ( applied_current_index < n_applied_currents ) && ( ~b_match_found )                          % While we have not yet checked all of the applied currenst and have not yet found an ID match...
                 
                 % Advance the applied_current index.
                 applied_current_index = applied_current_index + 1;
                 
                 % Check whether this applied_current index is a match.
-                if self.applied_currents( applied_current_index ).ID == applied_current_ID                       % If this applied_current has the correct applied_current ID...
+                if applied_currents( applied_current_index ).ID == applied_current_ID                       % If this applied_current has the correct applied_current ID...
                     
                     % Set the match found flag to true.
                     b_match_found = true;
@@ -475,26 +528,32 @@ classdef applied_current_manager_class
         
         
         % Implement a function to validate applied_current IDs.
-        function applied_current_IDs = validate_applied_current_IDs( self, applied_current_IDs )
+        function applied_current_IDs = validate_applied_current_IDs( self, applied_current_IDs, applied_currents )
+            
+            % Set the defaultinput arguments.
+            if nargin < 3, applied_currents = self.applied_currents; end            % [class] Array of Applied Current Class Objects.
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Determine whether we want get the desired applied_current property from all of the applied_currents.
-            if isa( applied_current_IDs, 'char' )                                                      % If the applied_current IDs variable is a character array instead of an integer srray...
+            if isa( applied_current_IDs, 'char' )                                 	% If the applied_current IDs variable is a character array instead of an integer srray...
                 
                 % Determine whether this is a valid character array.
-                if  strcmpi( applied_current_IDs, 'all' )                  % If the character array is either 'all' or 'All'...
+                if  strcmpi( applied_current_IDs, 'all' )                           % If the character array is either 'all' or 'All'...
                     
                     % Preallocate an array to store the applied_current IDs.
-                    applied_current_IDs = zeros( 1, self.num_applied_currents );
+                    applied_current_IDs = zeros( 1, n_applied_currents );
                     
                     % Retrieve the applied_current ID associated with each applied_current.
-                    for k = 1:self.num_applied_currents                   % Iterate through each applied_current...
+                    for k = 1:n_applied_currents                                  	% Iterate through each applied_current...
                         
                         % Store the applied_current ID associated with the current applied_current.
-                        applied_current_IDs(k) = self.applied_currents(k).ID;
+                        applied_current_IDs( k ) = applied_currents( k ).ID;
                         
                     end
                     
-                else                                                                        % Otherwise...
+                else                                                             	% Otherwise...
                     
                     % Throw an error.
                     error( 'Applied current ID must be either an array of valid applied_current IDs or one of the strings: ''all'' or ''All''.' )
@@ -507,19 +566,25 @@ classdef applied_current_manager_class
         
         
         % Implement a function to check if the existing applied current IDs are unique.
-        function [ b_unique, match_logicals ] = unique_existing_applied_current_IDs( self )
+        function [ b_unique, match_logicals ] = unique_existing_applied_current_IDs( self, applied_currents )
+            
+            % Set the default input arguments.
+            if nargin < 2, applied_currents = self.applied_currents; end
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Retrieve all of the existing applied current IDs.
-            applied_current_IDs = self.get_all_applied_current_IDs(  );
+            applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
             
             % Determine whether all entries are unique.
-            if length( unique( applied_current_IDs ) ) == self.num_applied_currents                    % If all of the applied current IDs are unique...
+            if length( unique( applied_current_IDs ) ) == n_applied_currents                    % If all of the applied current IDs are unique...
                 
                 % Set the unique flag to true.
                 b_unique = true;
                 
                 % Set the logicals array to true.
-                match_logicals = false( 1, self.num_applied_currents );
+                match_logicals = false( 1, n_applied_currents );
                 
             else                                                                     % Otherwise...
                 
@@ -527,25 +592,25 @@ classdef applied_current_manager_class
                 b_unique = false;
                 
                 % Set the logicals array to true.
-                match_logicals = false( 1, self.num_applied_currents );
+                match_logicals = false( 1, n_applied_currents );
                 
                 % Determine which applied currents have duplicate IDs.
-                for k1 = 1:self.num_applied_currents                          % Iterate through each applied current...
+                for k1 = 1:n_applied_currents                          % Iterate through each applied current...
                     
                     % Initialize the loop variable.
                     k2 = 0;
                     
                     % Determine whether there is another applied current with the same ID.
-                    while ( k2 < self.num_applied_currents ) && ( ~match_logicals(k1) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the applied currents and we haven't found a match...
+                    while ( k2 < n_applied_currents ) && ( ~match_logicals( k1 ) ) && ( k1 ~= ( k2 + 1 ) )                    % While we haven't checked all of the applied currents and we haven't found a match...
                         
                         % Advance the loop variable.
                         k2 = k2 + 1;
                         
                         % Determine whether this applied current is a match.
-                        if self.applied_currents(k2).ID == applied_current_IDs(k1)                              % If this applied current ID is a match...
+                        if applied_currents( k2 ).ID == applied_current_IDs( k1 )                              % If this applied current ID is a match...
                             
                             % Set this match logical to true.
-                            match_logicals(k1) = true;
+                            match_logicals( k1 ) = true;
                             
                         end
                         
@@ -559,13 +624,17 @@ classdef applied_current_manager_class
         
         
         % Implement a function to check if a proposed applied current ID is unique.
-        function [ b_unique, match_logicals, match_indexes ] = unique_applied_current_ID( self, applied_current_ID )
+        function [ b_unique, match_logicals, match_indexes ] = unique_applied_current_ID( self, applied_current_ID, applied_currents, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, array_utilities = self.array_utilities; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Retrieve all of the existing applied current IDs.
-            applied_current_IDs = self.get_all_applied_current_IDs(  );
+            applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
             
             % Determine whether the given applied current ID is one of the existing applied current IDs ( if so, provide the matching logicals and indexes ).
-            [ b_match_found, match_logicals, match_indexes ] = self.array_utilities.is_value_in_array( applied_current_ID, applied_current_IDs );
+            [ b_match_found, match_logicals, match_indexes ] = array_utilities.is_value_in_array( applied_current_ID, applied_current_IDs );
             
             % Define the uniqueness flag.
             b_unique = ~b_match_found;
@@ -574,22 +643,30 @@ classdef applied_current_manager_class
         
         
         % Implement a function to generate a unique applied current ID.
-        function applied_current_ID = generate_unique_applied_current_ID( self )
+        function applied_current_ID = generate_unique_applied_current_ID( self, applied_currents, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 3, array_utilities = self.array_utilities; end
+            if nargin < 2, applied_currents = self.applied_currents; end
             
             % Retrieve the existing applied current IDs.
-            existing_applied_current_IDs = self.get_all_applied_current_IDs(  );
+            existing_applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
             
             % Generate a unique applied current ID.
-            applied_current_ID = self.array_utilities.get_lowest_natural_number( existing_applied_current_IDs );
+            applied_current_ID = array_utilities.get_lowest_natural_number( existing_applied_current_IDs );
             
         end
         
         
         % Implement a function to generate multiple unique applied current IDs.
-        function applied_current_IDs = generate_unique_applied_current_IDs( self, num_IDs )
+        function applied_current_IDs = generate_unique_applied_current_IDs( self, num_IDs, applied_currents, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, array_utilities = self.array_utilities; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Retrieve the existing applied current IDs.
-            existing_applied_current_IDs = self.get_all_applied_current_IDs(  );
+            existing_applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
             
             % Preallocate an array to store the newly generated applied current IDs.
             applied_current_IDs = zeros( 1, num_IDs );
@@ -598,7 +675,7 @@ classdef applied_current_manager_class
             for k = 1:num_IDs                           % Iterate through each of the new IDs...
                 
                 % Generate a unique applied current ID.
-                applied_current_IDs(k) = self.array_utilities.get_lowest_natural_number( [ existing_applied_current_IDs, applied_current_IDs( 1:(k - 1) ) ] );
+                applied_current_IDs( k ) = array_utilities.get_lowest_natural_number( [ existing_applied_current_IDs, applied_current_IDs( 1:( k - 1 ) ) ] );
                 
             end
             
@@ -606,13 +683,17 @@ classdef applied_current_manager_class
         
         
         % Implement a function to check whether a proposed applied current ID is a unique natural.
-        function b_unique_natural = unique_natural_applied_current_ID( self, applied_current_ID )
+        function b_unique_natural = unique_natural_applied_current_ID( self, applied_current_ID, applied_currents, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, array_utilities = self.array_utilities; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Initialize the unique natural to false.
             b_unique_natural = false;
             
             % Determine whether this applied current ID is unique.
-            b_unique = self.unique_applied_current_ID( applied_current_ID );
+            b_unique = self.unique_applied_current_ID( applied_current_ID, applied_currents, array_utilities );
             
             % Determine whether this applied current ID is a unique natural.
             if b_unique && ( applied_current_ID > 0 ) && ( round( applied_current_ID ) == applied_current_ID )                     % If this applied current ID is a unique natural...
@@ -626,10 +707,14 @@ classdef applied_current_manager_class
         
         
         % Implement a function to remove disabled applied current IDs.
-        function applied_current_IDs = remove_disabled_applied_current_IDs( self, applied_current_IDs )
+        function applied_current_IDs = remove_disabled_applied_current_IDs( self, applied_current_IDs, applied_currents, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Retrieve the number of applied current IDs.
             num_applied_current_IDs = length( applied_current_IDs );
@@ -641,13 +726,13 @@ classdef applied_current_manager_class
             for k = 1:num_applied_current_IDs                       % Iterate through each of the applied current IDs...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k), 'ignore' );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );             % Undetected option was hard set to 'ignore' before revisions.
                 
                 % Determine whether to remove this applied current ID.
-                if ( applied_current_index == -1 ) || ( ~self.applied_currents( applied_current_index ).b_enabled )                         % If this applied current index is invalid or this applied current is disabled...
+                if ( applied_current_index == -1 ) || ( ~applied_currents( applied_current_index ).b_enabled )                         % If this applied current index is invalid or this applied current is disabled...
                     
                     % Store the indexes to remove.
-                    remove_indexes(k) = k;
+                    remove_indexes( k ) = k;
                     
                 end
                 
@@ -665,12 +750,16 @@ classdef applied_current_manager_class
         %% Neuron ID Functions.
         
         % Implement a function to return the applied current ID associated with a given neuron ID.
-        function applied_current_ID = neuron_ID2applied_current_ID( self, neuron_ID, undetected_option )
+        function applied_current_ID = neuron_ID2applied_current_ID( self, neuron_ID, applied_currents, undetected_option )
             
             % NOTE: This function assumes that only one applied current applies to each neuron.
             
             % Set the default input argument.
-            if nargin < 3, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 3, applied_currents = self.applied_currents; end
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Initialize the applied current detected flag.
             b_applied_current_detected = false;
@@ -679,13 +768,13 @@ classdef applied_current_manager_class
             k = 0;
             
             % Search for the applied current(s) that connect the specified neurons.
-            while ( ~b_applied_current_detected ) && ( k < self.num_applied_currents )              % While a matching applied current has not yet been detected and we haven't looked through all of the applied currents...
+            while ( ~b_applied_current_detected ) && ( k < n_applied_currents )              % While a matching applied current has not yet been detected and we haven't looked through all of the applied currents...
                 
                 % Advance the loop counter.
                 k = k + 1;
                 
                 % Determine whether this applied current connects the specified neurons.
-                if ( self.applied_currents(k).neuron_ID == neuron_ID )
+                if ( applied_currents( k ).neuron_ID == neuron_ID )
                     
                     % Set the applied current detected flag to true.
                     b_applied_current_detected = true;
@@ -698,7 +787,7 @@ classdef applied_current_manager_class
             if b_applied_current_detected                                   % If we found a matching applied current....
                 
                 % Retrieve the ID of the matching applied current.
-                applied_current_ID = self.applied_currents(k).ID;
+                applied_current_ID = applied_currents( k ).ID;
                 
             else                                                    % Otherwise...
                 
@@ -734,10 +823,11 @@ classdef applied_current_manager_class
         
         
         % Implement a function return the applied current IDs associated with given neuron IDs.
-        function applied_current_IDs = neuron_IDs2applied_current_IDs( self, neuron_IDs, undetected_option )
+        function applied_current_IDs = neuron_IDs2applied_current_IDs( self, neuron_IDs, applied_currents, undetected_option )
             
             % Set the default input argument.
-            if nargin < 3, undetected_option = 'error'; end
+            if nargin < 4, undetected_option = 'error'; end
+            if nargin < 3, applied_currents = self.applied_currents; end
             
             % Retrieve the number of applied currents to find.
             num_applied_currents_to_find = length( neuron_IDs );
@@ -749,7 +839,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_find                              % Iterate through each set of neurons for which we are searching for a connecting applied current...
                 
                 % Retrieve the ID of the applied current that connects to this neuron.
-                applied_current_IDs(k) = self.neuron_ID2applied_current_ID( neuron_IDs(k), undetected_option );
+                applied_current_IDs( k ) = self.neuron_ID2applied_current_ID( neuron_IDs( k ), applied_currents, undetected_option );
                 
             end
             
@@ -757,128 +847,213 @@ classdef applied_current_manager_class
         
         
         % Implement a function to return the applied currents associated with given neuron IDs.
-        function I_apps = neuron_IDs2Iapps( self, neuron_IDs, dt, tf, undetected_option )
+        function Ias = neuron_IDs2Ias( self, neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = 'ignore'; end
+            if nargin < 8, undetected_option = 'ignore'; end
+            if nargin < 7, process_option = self.process_option_DEFAULT; end
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 5, applied_currents = self.applied_currents_DEFAULT; end
             if nargin < 4, tf = [  ]; end
             if nargin < 3, dt = [  ]; end
             
             % Retrieve the applied current IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, undetected_option );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Retrieve the applied currents.
-            I_apps = self.get_Iapps( applied_current_IDs, dt, tf );
+            Ias = self.get_Ias( applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option );
+
+        end
+        
+        
+        %% Enable & Disable Functions.
+        
+        % Implement a function to enable an applied current.
+        function [ enabled_flag, applied_currents, self ] = enable_applied_current( self, applied_current_ID, applied_currents, set_flag, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, applied_currents = self.applied_currents; end
+            
+            % Retrieve the index associated with this applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_ID, applied_currents, undetected_option );
+            
+            % Enable this applied current.
+            [ enabled_flag, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).enable( true );
+            
+            % Determine whether to update the applied current manager object.
+            if set_flag, self.applied_currents = applied_currents; end
             
         end
         
         
-        %% Enable & Disable Functions
-        
         % Implement a function to enable applied currents.
-        function self = enable_applied_currents( self, applied_current_IDs )
+        function self = enable_applied_currents( self, applied_current_IDs, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, applied_currents = self.applied_currents; end                   	% [class] Array of Applied Current Class Objects.
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine the number of applied currents to enable.
             num_applied_currents_to_enable = length( applied_current_IDs );
             
+            % Preallocate an array to store the enabled flags.
+            enabled_flags = false( 1, num_applied_currents_to_enable );
+            
             % Enable all of the specified applied currents.
             for k = 1:num_applied_currents_to_enable                      % Iterate through all of the specified applied currents...
                 
-                % Retrieve this applied current index.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k) );
-                
                 % Enable this applied current.
-                self.applied_currents( applied_current_index ).b_enabled = true;
+                [ enabled_flags( k ), applied_currents, self ] = self.enable_applied_current( applied_current_IDs( k ), applied_currents, set_flag, undetected_option );
                 
             end
+            
+        end
+        
+        
+        % Implement a function to disable an applied current.
+        function [ enabled_flag, applied_currents, self ] = disable_applied_current( self, applied_current_ID, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, applied_currents = self.applied_currents; end                 	% [class] Array of Neuron Class Objects.
+            
+            % Retrieve the index associated with this applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_ID, applied_currents, undetected_option );
+            
+            % Disable this applied current.
+            [ enabled_flag, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).disable( true );
+            
+            % Determine whether to update the applied current manager object.
+            if set_flag, self.applied_currents = applied_currents; end
             
         end
         
         
         % Implement a function to disable applied currents.
-        function self = disable_applied_currents( self, applied_current_IDs )
+        function [ enabled_flags, applied_currents, self ] = disable_applied_currents( self, applied_current_IDs, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undected_option_DEFAULT; end            % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, applied_currents = self.applied_currents; end                           	% [class] Array of Neuron Class Objects.
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_synapse_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_currents_IDs( applied_current_IDs, applied_currents );
             
             % Determine the number of applied currents to disable.
-            num_applied_currents_to_enable = length( applied_current_IDs );
+            num_applied_currents_IDs = length( applied_current_IDs );
+            
+            % Preallocate an array to store the enabled flags.
+            enabled_flags = false( 1, num_applied_currents_IDs );
             
             % Disable all of the specified applied currents.
-            for k = 1:num_applied_currents_to_enable                      % Iterate through all of the specified applied currents...
-                
-                % Retrieve this applied current index.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k) );
+            for k = 1:num_applied_current_IDs                                               % Iterate through all of the specified applied currents...
                 
                 % Disable this applied current.
-                self.applied_currents( applied_current_index ).b_enabled = false;
+                [ enabled_flags( k ), applied_currents, self ] = self.disable_neuron( applied_current_IDs( k ), applied_currents, set_flag, undetected_option );
                 
             end
             
         end
         
         
-        % Implement a function to toggle applied current enable state.
-        function self = toggle_enabled_applied_currents( self, applied_current_IDs )
+        % Implement a function to toggle an applied current's enabled flag.
+        function [ enabled_flag, applied_currents, self ] = toggle_enabled_applied_current( self, applied_current_ID, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, applied_currents = self.applied_currents; end                   	% [class] Array of Neuron Class Objects.
+            
+            % Retrieve the index associated with this applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_ID, applied_currents, undetected_option );
+            
+            % Toggle whether this applied current is enabled.
+            [ enabled_flag, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).toggle_enabled( applied_currents( applied_current_index ).enabled_flag, true );
+            
+            % Determine whether to update the applied current manager object.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+        
+        
+        % Implement a function to toggle multiple applied current enable states.
+        function [ enabled_flags, applied_currents, self ] = toggle_enabled_applied_currents( self, applied_current_IDs, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, applied_currents = self.applied_currents; end                    % [class] Array of Applied Current Class Objects.
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_neuron_IDs( applied_current_IDs, applied_currents );
             
-            % Determine the number of applied currents to disable.
-            num_applied_currents_to_enable = length( applied_current_IDs );
+            % Determine the number of applied_currents to disable.
+            num_applied_current_IDs = length( applied_current_IDs );
+            
+            % Preallocate an array to store the enabled flags.
+            enabled_flags = false( 1, num_applied_current_IDs );
             
             % Disable all of the specified applied currents.
-            for k = 1:num_applied_currents_to_enable                      % Iterate through all of the specified applied currents...
-                
-                % Retrieve this applied current index.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs(k) );
+            for k = 1:num_applied_current_IDs                                                        % Iterate through all of the specified applied currents...
                 
                 % Toggle this applied current.
-                self.applied_currents( applied_current_index ).b_enabled = ~self.applied_currents( applied_current_index ).b_enabled;
+                [ enabled_flags( k ), applied_currents, self ] = self.toggle_enabled_applied_current( applied_current_IDs( k ), applied_currents, set_flag, undetected_option );
                 
             end
             
         end
         
         
-        %% Validation Functions
+        %% Validation Functions.
         
         % Ensure that each neuron has only one applied current.
-        function b_one_to_one = one_to_one_applied_currents( self )
+        function one_to_one_flag = one_to_one_applied_currents( self, applied_currents, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 3, array_utilities = self.array_utilities; end
+            if nargin < 2, applied_currents = self.applied_currents; end
+            
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
             
             % Set the one-to-one flag.
-            b_one_to_one = true;
+            one_to_one_flag = true;
             
             % Initialize a counter variable.
             k = 0;
             
             % Preallocate arrays to store the neuron IDs.
-            neuron_IDs = zeros( 1, self.num_applied_currents );
-            b_enableds = false( 1, self.num_applied_currents );
+            neuron_IDs = zeros( 1, n_applied_currents );
+            b_enableds = false( 1, n_applied_currents );
             
             % Determine whether there is only one synapse between each neuron.
-            while ( b_one_to_one ) && ( k < self.num_applied_currents )                             % While we haven't found an applied current repetition and we haven't checked all of the applied currents...
+            while ( one_to_one_flag ) && ( k < n_applied_currents )                             % While we haven't found an applied current repetition and we haven't checked all of the applied currents...
                 
                 % Advance the loop counter.
                 k = k + 1;
                 
                 % Store these from neuron and to neuron IDs.
-                neuron_IDs(k) = self.applied_currents(k).neuron_ID;
+                neuron_IDs( k ) = applied_currents( k ).neuron_ID;
                 
                 % Determine whether we need to check this synapse for repetition.
                 if k ~= 1                               % If this is not the first iteration...
                     
                     % Determine whether this neuron ID is unique.
-                    [ neuron_ID_match, neuron_ID_match_logicals ] = self.array_utilities.is_value_in_array( neuron_IDs(k), neuron_IDs( 1:( k  - 1) ) );
+                    [ neuron_ID_match, neuron_ID_match_logicals ] = array_utilities.is_value_in_array( neuron_IDs( k ), neuron_IDs( 1:( k  - 1 ) ) );
                     
                     % Determine whether this applied current is a duplicate.
-                    if neuron_ID_match && b_enableds(k) && any( neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If this neuron ID is a match, this applied current is enabled, and the matching applied current is enabled...
+                    if neuron_ID_match && b_enableds( k ) && any( neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )                           % If this neuron ID is a match, this applied current is enabled, and the matching applied current is enabled...
                         
                         % Set the one-to-one flag to false (this applied current is a duplicate).
-                        b_one_to_one = false;
+                        one_to_one_flag = false;
                         
                     end
                     
@@ -889,7 +1064,7 @@ classdef applied_current_manager_class
         end
         
         
-        %% Compute-Set Functions
+        %% Compute Functions.
         
         % Implement a function to compute and set the time vector of multistate cpg applied currents.
         function self = compute_set_multistate_cpg_ts( self, applied_current_IDs, dt, tf )
@@ -900,7 +1075,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -909,7 +1084,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the time vector for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multistate_cpg_ts( dt, tf );
@@ -928,7 +1103,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -937,7 +1112,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the time vector for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multistate_cpg_Iapps( dt, tf );
@@ -956,7 +1131,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -965,7 +1140,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the time vector for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_driven_multistate_cpg_Iapps( Gm, R );
@@ -984,7 +1159,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -993,7 +1168,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the time vector for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_dmcpgdcll2cds_Iapps( Gm, R );
@@ -1012,7 +1187,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1021,7 +1196,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_centering_Iapps( Gm, R );
@@ -1038,7 +1213,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1047,7 +1222,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_addition_Iapps(  );
@@ -1064,7 +1239,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1073,7 +1248,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_addition_Iapps(  );
@@ -1090,7 +1265,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1099,7 +1274,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_subtraction_Iapps(  );
@@ -1116,7 +1291,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1125,7 +1300,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_subtraction_Iapps(  );
@@ -1144,7 +1319,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
                         
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1153,7 +1328,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_inversion_Iapps( Gm, R );
@@ -1170,10 +1345,10 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Retrieve the index associated with the input applied current.
-            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ) );
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ), applied_currents, undetected_option );
 
             % Compute and set the magnitude for the input applied current.
             self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_inversion_Iapps_input(  );
@@ -1190,10 +1365,10 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Retrieve the index associated with the output applied current.
-            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ) );
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ), applied_currents, undetected_option );
 
             % Compute and set the magnitude for the output applied current.
             self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_inversion_Iapps_output( Gm, R );
@@ -1208,10 +1383,10 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
 
             % Retrieve the index associated with the input applied current.
-            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ) );
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ), applied_currents, undetected_option );
 
             % Compute and set the magnitude for the input applied current.
             self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_inversion_Iapps_input(  );
@@ -1228,10 +1403,10 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
 
             % Retrieve the index associated with this applied current ID.
-            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ) );
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ), applied_currents, undetected_option );
 
             % Compute and set the magnitude for this applied current.
             self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_inversion_Iapps_output( Gm, R );
@@ -1246,7 +1421,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1255,7 +1430,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_absolute_division_Iapps(  );
@@ -1272,7 +1447,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1281,7 +1456,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_relative_division_Iapps(  );
@@ -1300,7 +1475,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1309,7 +1484,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_multiplication_Iapps( Gm, R );
@@ -1328,7 +1503,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1337,7 +1512,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_integration_Iapps( Gm, R );
@@ -1356,7 +1531,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1365,7 +1540,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_vb_integration_Iapps( Gm, R );
@@ -1384,7 +1559,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1393,7 +1568,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_split_vb_integration_Iapps1( Gm, R );
@@ -1412,7 +1587,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1421,7 +1596,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
                 % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ) );
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute and set the magnitude for this applied current.
                 self.applied_currents( applied_current_index ) = self.applied_currents( applied_current_index ).compute_set_split_vb_integration_Iapps2( Gm, R );
@@ -1442,10 +1617,10 @@ classdef applied_current_manager_class
             if nargin < 5, ts = 0; end
             if nargin < 4, neuron_ID = 0; end
             if nargin < 3, name = ''; end
-            if nargin < 2, ID = self.generate_unique_applied_current_ID(  ); end
+            if nargin < 2, ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
             
             % Ensure that this neuron ID is a unique natural.
-            assert( self.unique_natural_applied_current_ID( ID ), 'Proposed applied current ID %0.2f is not a unique natural number.', ID )
+            assert( self.unique_natural_applied_current_ID( ID, applied_currents, array_utilities ), 'Proposed applied current ID %0.2f is not a unique natural number.', ID )
             
             % Create an instance of the applied current class.
             applied_current = applied_current_class( ID, name, neuron_ID, ts, I_apps, b_enabled );
@@ -1480,7 +1655,7 @@ classdef applied_current_manager_class
                     num_applied_currents_to_create = IDs;
                     
                     % Preallocate an array of IDs.
-                    IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create );
+                    IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create, applied_currents, array_utilities );
                     
                 else                                                % Otherwise... ( More than one ID was provided... )
                     
@@ -1502,13 +1677,13 @@ classdef applied_current_manager_class
             if nargin < 5, tss = zeros( 1, num_applied_currents_to_create ); end
             if nargin < 4, neuron_IDs = zeros( 1, num_applied_currents_to_create ); end
             if nargin < 3, names = repmat( { '' }, 1, num_applied_currents_to_create ); end
-            if nargin < 2, IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create ); end
+            if nargin < 2, IDs = self.generate_unique_applied_current_IDs( num_applied_currents_to_create, applied_currents, array_utilities ); end
             
             % Create each of the spcified applied currents.
             for k = 1:num_applied_currents_to_create                         % Iterate through each of the applied currents we want to create...
                 
                 % Create this applied current.
-                self = self.create_applied_current( IDs(k), names{k}, neuron_IDs(k), tss( :, k ), I_apps( :, k ), b_enableds(k) );
+                self = self.create_applied_current( IDs( k ), names{ k }, neuron_IDs( k ), tss( :, k ), I_apps( :, k ), b_enableds( k ) );
                 
             end
             
@@ -1519,7 +1694,7 @@ classdef applied_current_manager_class
         function self = delete_applied_current( self, applied_current_ID )
             
             % Retrieve the index associated with this applied current.
-            applied_current_index = self.get_applied_current_index( applied_current_ID );
+            applied_current_index = self.get_applied_current_index( applied_current_ID, applied_currents, undetected_option );
             
             % Remove this applied current from the array of applied currents.
             self.applied_currents( applied_current_index ) = [  ];
@@ -1537,7 +1712,7 @@ classdef applied_current_manager_class
             if nargin < 2, applied_current_IDs = 'all'; end
             
             % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs );
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Retrieve the number of applied currents to delete.
             num_applied_currents_to_delete = length( applied_current_IDs );
@@ -1546,7 +1721,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_delete                      % Iterate through each of the applied currents we want to delete...
                 
                 % Delete this applied current.
-                self = self.delete_applied_current( applied_current_IDs(k) );
+                self = self.delete_applied_current( applied_current_IDs( k ) );
                 
             end
             
@@ -1559,13 +1734,16 @@ classdef applied_current_manager_class
         function [ self, applied_current_ID ] = create_multistate_cpg_applied_currents( self, neuron_IDs )
             
             % Create an applied current for the third neuron.
-            [ self, applied_current_ID ] = self.create_applied_currents( self.num_multistate_cpg_applied_currents_DEFAULT );
+            [ self, applied_current_ID ] = self.create_applied_currents( self.num_mcpg_applied_currents_DEFAULT );
             
             % Set the applied current name.
-            self = self.set_applied_current_property( applied_current_ID, { sprintf( 'CPG %0.0f', applied_current_ID ) }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_ID, { sprintf( 'CPG %0.0f', applied_current_ID ) }, 'name', applied_currents, true );
             
             % Connect the applied current to the final neuron.
-            self = self.set_applied_current_property( applied_current_ID, neuron_IDs( end ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_ID, neuron_IDs( end ), 'neuron_ID', applied_currents, true );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1580,13 +1758,16 @@ classdef applied_current_manager_class
             [ self, applied_current_ID_drive ] = self.create_applied_currents(  );
 
             % Set the drive applied current name.
-            self = self.set_applied_current_property( applied_current_ID_drive, { 'Drive' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_ID_drive, { 'Drive' }, 'name', applied_currents, true );
             
             % Connect the drive applied current to the drive neuron.
-            self = self.set_applied_current_property( applied_current_ID_drive, neuron_IDs( end ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_ID_drive, neuron_IDs( end ), 'neuron_ID', applied_currents, true );
             
             % Concatenate the applied current IDs.
-            applied_current_IDs = [ applied_current_ID_cpg applied_current_ID_drive ];
+            applied_current_IDs = [ applied_current_ID_cpg, applied_current_ID_drive ];
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1638,10 +1819,13 @@ classdef applied_current_manager_class
             [ self, applied_current_ID ] = self.create_applied_current(  );
             
             % Set the name of the applied current.
-            self = self.set_applied_current_property( applied_current_ID, { 'Desired Lead / Lag' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_ID, { 'Desired Lead / Lag' }, 'name', applied_currents, true );
             
             % Attach this applied current to a neuron.
-            self = self.set_applied_current_property( applied_current_ID, neuron_IDs_cell{ 3 }, 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_ID, neuron_IDs_cell{ 3 }, 'neuron_ID', applied_currents, true );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1678,20 +1862,26 @@ classdef applied_current_manager_class
             
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
+
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
             
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
-
+            
             % Setup each of the applied currents.
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Addition Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Addition Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1702,6 +1892,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1709,12 +1902,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Addition Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Addition Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1725,6 +1921,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1732,12 +1931,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Subtraction Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Subtraction Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1748,6 +1950,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1755,12 +1960,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Subtraction Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Subtraction Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1768,14 +1976,20 @@ classdef applied_current_manager_class
         % Implement a function to create the applied currents for a centering subnetwork.
         function [ self, applied_current_IDs ] = create_centering_applied_currents( self, neuron_IDs )
        
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the centering applied current.
             [ self, applied_current_IDs ] = self.create_applied_currents( self.num_centering_applied_currents_DEFAULT );
 
             % Set the name of this applied current.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name', applied_currents, true );
             
             % Connect the centering applied current to the centering neuron.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID', applied_currents, true );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
             
@@ -1784,13 +1998,16 @@ classdef applied_current_manager_class
         function [ self, applied_current_IDs ] = create_double_centering_applied_currents( self, neuron_IDs )
        
             % Create the centering applied current.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_double_centering_applied_currents_DEFAULT );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_dc_applied_currents_DEFAULT );
 
             % Set the name of this applied current.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_IDs, { 'Centering' }, 'name', applied_currents, true );
             
             % Connect the centering applied current to the centering neuron.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID', applied_currents, true );
+            
+             % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1814,10 +2031,13 @@ classdef applied_current_manager_class
             [ self, applied_current_ID ] = self.create_applied_currents( self.num_inversion_applied_currents_DEFAULT );
             
             % Set the name of the applied current.
-            self = self.set_applied_current_property( applied_current_ID, { 'Inv Out' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_ID, { 'Inv Out' }, 'name', applied_currents, true );
             
             % Connect the inversion subnetwork applied current to the inversion subnetwork output neuron.
-            self = self.set_applied_current_property( applied_current_ID, { neuron_IDs( 2 ) }, 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_ID, { neuron_IDs( 2 ) }, 'neuron_ID', applied_currents, true );
+            
+             % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
            
@@ -1828,6 +2048,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1835,12 +2058,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Inversion Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Inversion Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1851,6 +2077,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1858,12 +2087,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Inversion Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Inversion Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1874,6 +2106,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1881,12 +2116,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Division Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Division Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1897,6 +2135,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1904,12 +2145,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Division Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Division Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1921,10 +2165,13 @@ classdef applied_current_manager_class
             [ self, applied_current_IDs ] = self.create_applied_currents( self.num_multiplication_applied_currents_DEFAULT );
             
             % Set the name of the applied current.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Inter' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_IDs, { 'Inter' }, 'name', applied_currents, true );
             
             % Connect the multiplication subnetwork applied currents to the multiplication subnetwork neurons.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 3 ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs( 3 ), 'neuron_ID', applied_currents, true );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1935,6 +2182,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1942,12 +2192,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Multiplication Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Absolute Multiplication Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1958,6 +2211,9 @@ classdef applied_current_manager_class
             % Compute the number of applied currents.
             num_applied_currents_to_create = length( neuron_IDs );
             
+            % Create an instance of the applied current manager that can be updated.
+            applied_current_manager = self;
+            
             % Create the applied currents.
             [ self, applied_current_IDs ] = self.create_applied_currents( num_applied_currents_to_create );
 
@@ -1965,12 +2221,15 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_create                                                                  % Iterate through each of the applied currents...
             
                 % Set the names of the applied currents.
-                self = self.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Multiplication Applied Current %0.0f', k ) }, 'name' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), { sprintf( 'Relative Multiplication Applied Current %0.0f', k ) }, 'name', applied_currents, true );
 
                 % Connect the applied currents to their associated neurons.
-                self = self.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID' );
+                [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( k ), neuron_IDs( k ), 'neuron_ID', applied_currents, true );
 
             end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1982,10 +2241,13 @@ classdef applied_current_manager_class
             [ self, applied_current_IDs ] = self.create_applied_currents( self.num_integration_applied_currents_DEFAULT );
             
             % Set the name of the applied currents.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name', applied_currents, true );
             
             % Connect the integration subnetwork applied currents to the integration subnetwork neurons.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs( 2 ), 'neuron_ID', applied_currents, true );
+           
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -1994,13 +2256,16 @@ classdef applied_current_manager_class
         function [ self, applied_current_IDs ] = create_vb_integration_applied_currents( self, neuron_IDs )
             
             % Create applied currents for the two integration neurons.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_vb_integration_applied_currents );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_vbi_applied_currents );
             
             % Set the name of the applied currents.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2' }, 'name', applied_currents, true );
             
             % Connect the voltage based integration subnetwork applied currents to the subnetwork neurons.
-            self = self.set_applied_current_property( applied_current_IDs, neuron_IDs( 3:4 ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs, neuron_IDs( 3:4 ), 'neuron_ID', applied_currents, true );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -2009,14 +2274,17 @@ classdef applied_current_manager_class
         function [ self, applied_current_IDs ] = create_split_vb_integration_applied_currents( self, neuron_IDs )
             
             % Create applied currents for the two integration neurons.
-            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_split_vb_integration_applied_currents_DEFAULT );
+            [ self, applied_current_IDs ] = self.create_applied_currents( self.num_svbi_applied_currents_DEFAULT );
             
             % Set the name of the applied currents.
-            self = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2', 'Eq 1' }, 'name' );
+            [ applied_currents, applied_current_manager ] = self.set_applied_current_property( applied_current_IDs, { 'Int 1', 'Int 2', 'Eq 1' }, 'name', applied_currents, true );
             
             % Connect the voltage based integration subnetwork applied currents to the subnetwork neurons.
-            self = self.set_applied_current_property( applied_current_IDs( 1:2 ), neuron_IDs( 3:4 ), 'neuron_ID' );
-            self = self.set_applied_current_property( applied_current_IDs( 3 ), neuron_IDs( 9 ), 'neuron_ID' );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( 1:2 ), neuron_IDs( 3:4 ), 'neuron_ID', applied_currents, true );
+            [ applied_currents, applied_current_manager ] = applied_current_manager.set_applied_current_property( applied_current_IDs( 3 ), neuron_IDs( 9 ), 'neuron_ID', applied_currents, true );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end
             
         end
         
@@ -2044,7 +2312,7 @@ classdef applied_current_manager_class
         function self = design_multistate_cpg_applied_current( self, neuron_IDs, dt, tf )
             
             % Retrieve the applied current ID associated with the given final neuron ID.
-            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( end ) );
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( end ), applied_currents, undetected_option );
             
             % Compute and set the applied current time vector.
             self = self.compute_set_multistate_cpg_ts( applied_current_ID, dt, tf );
@@ -2059,7 +2327,7 @@ classdef applied_current_manager_class
         function self = design_driven_multistate_cpg_applied_current( self, neuron_ID, Gm, R )
             
             % Retrieve the applied current ID associated with the neuron ID.
-            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_ID );
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_ID, applied_currents, undetected_option );
             
             % Set the applied current magnitude vector.
             self = self.compute_set_driven_multistate_cpg_Iapps( applied_current_ID, Gm, R );
@@ -2071,7 +2339,7 @@ classdef applied_current_manager_class
         function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID, Gm, R )
             
             % Retrieve the applied current ID associated with the neuron ID.
-            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_ID );
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_ID, applied_currents, undetected_option );
             
             % Set the applied current magnitude vector.
             self = self.compute_set_dmcpgdcll2cds_Iapps( applied_current_ID, Gm, R );
@@ -2083,7 +2351,7 @@ classdef applied_current_manager_class
         function self = design_absolute_addition_applied_currents( self, neuron_IDs )
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the absolute addition applied currents
             self = self.compute_set_absolute_addition_Iapps( applied_current_IDs );
@@ -2095,7 +2363,7 @@ classdef applied_current_manager_class
         function self = design_relative_addition_applied_currents( self, neuron_IDs )
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the relative addition applied currents
             self = self.compute_set_relative_addition_Iapps( applied_current_IDs );
@@ -2107,7 +2375,7 @@ classdef applied_current_manager_class
         function self = design_absolute_subtraction_applied_currents( self, neuron_IDs )
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the absolute subtraction applied currents
             self = self.compute_set_absolute_subtraction_Iapps( applied_current_IDs );
@@ -2119,7 +2387,7 @@ classdef applied_current_manager_class
         function self = design_relative_subtraction_applied_currents( self, neuron_IDs )
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the relative subtraction applied currents
             self = self.compute_set_relative_subtraction_Iapps( applied_current_IDs );
@@ -2131,7 +2399,7 @@ classdef applied_current_manager_class
         function self = design_centering_applied_current( self, neuron_IDs, Gm2, R2 )
             
             % Get the applied currents IDs that comprise this multiplication subnetwork.
-            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), 'ignore' );
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), applied_currents, 'ignore' );
             
             % Compute and set the applied current magnitude.
             self = self.compute_set_centering_Iapps( applied_current_ID, Gm2, R2 );
@@ -2143,7 +2411,7 @@ classdef applied_current_manager_class
         function self = design_inversion_applied_current( self, neuron_IDs, Gm_2, R_2 )
         
             % Get the applied current ID of interest.
-            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), 'ignore' );
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 2 ), applied_currents, 'ignore' );
             
             % Compute and set the applied current magnitude.
             self = self.compute_set_inversion_Iapps( applied_current_ID, Gm_2, R_2 );
@@ -2159,7 +2427,7 @@ classdef applied_current_manager_class
             if nargin < 3, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the absolute inversion applied currents
             self = self.compute_set_absolute_inversion_Iapps_input( applied_current_IDs( 1 ) );
@@ -2176,7 +2444,7 @@ classdef applied_current_manager_class
             if nargin < 3, Gm_2 = self.Gm_DEFAULT; end                                                              % [S] Output Membrane Conductance
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the relative inversion applied currents
             self = self.compute_set_relative_inversion_Iapps_input( applied_current_IDs( 1 ) );
@@ -2189,7 +2457,7 @@ classdef applied_current_manager_class
         function self = design_absolute_division_applied_currents( self, neuron_IDs )
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the absolute division applied currents
             self = self.compute_set_absolute_division_Iapps( applied_current_IDs );
@@ -2201,7 +2469,7 @@ classdef applied_current_manager_class
         function self = design_relative_division_applied_currents( self, neuron_IDs )
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute and set the relative division applied currents
             self = self.compute_set_relative_division_Iapps( applied_current_IDs );
@@ -2213,7 +2481,7 @@ classdef applied_current_manager_class
         function self = design_multiplication_applied_current( self, neuron_IDs, Gm3, R3 )
             
             % Get the applied currents IDs that comprise this multiplication subnetwork.
-            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 3 ), 'ignore' );
+            applied_current_ID = self.neuron_ID2applied_current_ID( neuron_IDs( 3 ), applied_currents, 'ignore' );
             
             % Compute and set the applied current magnitude.
             self = self.compute_set_multiplication_Iapps( applied_current_ID, Gm3, R3 );
@@ -2257,7 +2525,7 @@ classdef applied_current_manager_class
         function self = design_integration_applied_currents( self, neuron_IDs, Gm, R )
             
             % Get the applied current IDs that comprise this integration subnetwork.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, 'ignore' );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, 'ignore' );
             
             % Compute Set the applied current magnitude.
             self = self.compute_set_integration_Iapps( applied_current_IDs, Gm, R );
@@ -2269,7 +2537,7 @@ classdef applied_current_manager_class
         function self = design_vb_integration_applied_currents( self, neuron_IDs, Gm, R )
             
             % Get the applied current IDs that comprise this voltage based integration subnetwork.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, 'ignore' );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, 'ignore' );
             
             % Compute and set the applied current magnitude.
             self = self.compute_set_vb_integration_Iapps( applied_current_IDs, Gm, R );
@@ -2281,7 +2549,7 @@ classdef applied_current_manager_class
         function self = design_split_vb_integration_applied_currents( self, neuron_IDs, Gms, Rs )
             
             % Get the applied current IDs that comprise this split voltage based integration subnetwork.
-            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, 'ignore' );
+            applied_current_IDs = self.neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, 'ignore' );
             
             % Set the applied current magnitude.
             self = self.compute_set_split_vb_integration_Iapps1( applied_current_IDs( 1:2 ), Gms( 1 ), Rs( 1 ) );
@@ -2356,7 +2624,7 @@ classdef applied_current_manager_class
             for k = 1:num_applied_currents_to_load               % Iterate through each of the applied currents...
                 
                 % Create this applied current.
-                applied_currents_to_load(k) = applied_current_class( applied_current_IDs(k), applied_current_names{k}, applied_current_neuron_IDs(k), applied_current_ts( :, k ), applied_current_I_apps( :, k ) );
+                applied_currents_to_load( k ) = applied_current_class( applied_current_IDs( k ), applied_current_names{ k }, applied_current_neuron_IDs( k ), applied_current_ts( :, k ), applied_current_I_apps( :, k ) );
                 
             end
             
