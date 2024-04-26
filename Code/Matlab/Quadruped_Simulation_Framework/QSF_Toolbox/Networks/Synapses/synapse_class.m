@@ -19,7 +19,7 @@ classdef synapse_class
         
         delta                                                 	% [V] CPG Equilibrium Offset.
         
-        b_enabled                                               % [T/F] Synapse Enabled Flag.
+        enabled_flag                                            % [T/F] Synapse Enabled Flag.
         
         synapse_utilities                                       % [-] Synapse Utilities Class.
         
@@ -89,6 +89,10 @@ classdef synapse_class
         % Define the default encoding scheme.
         encoding_scheme_DEFAULT = 'Absolute';               	% [-] Encoding Scheme.
         
+        % Set the default flag values.
+        enabled_flag_DEFAULT = true;                            % [T/F] Enabled Flag (Determines whether this synapse is used when simulating.)
+        set_flag_DEFAULT = true;                                % [T/F] Set Flag (Determines whther to update the synapse object.)
+        
     end
     
     
@@ -98,20 +102,37 @@ classdef synapse_class
     methods
         
         % Implement the class constructor.
-        function self = synapse_class( ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, b_enabled )
-            
-            % Create an instance of the synapse utilities class.
-            self.synapse_utilities = synapse_utilities_class(  );
+        function self = synapse_class( ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapse_utilities )
             
             % Set the default synapse properties.
-            if nargin < 8, self.b_enabled = true; else, self.b_enabled = b_enabled; end                                                     % [T/F] Synapse Enabled Flag.
-            if nargin < 7, self.delta = self.delta_noncpg_DEFAULT; else, self.delta = delta; end                                            % [V] CPG Equilibrium Offset.
-            if nargin < 6, self.to_neuron_ID = self.to_neuron_ID_DEFAULT; else, self.to_neuron_ID = to_neuron_ID; end                       % [#] To Neuron ID.
-            if nargin < 5, self.from_neuron_ID = self.from_neuron_ID_DEFAULT; else, self.from_neuron_ID = from_neuron_ID; end             	% [S] Synaptic Conductance.
-            if nargin < 4, self.g_syn_max = self.gs_DEFAULT; else, self.g_syn_max = g_syn_max; end                                          % [S] Maximum Synaptic Conductance.
-            if nargin < 3, self.dE_syn = self.dEs_minimum_DEFAULT; else, self.dE_syn = dE_syn; end                                          % [V] Synaptic Reversal Potential.
-            if nargin < 2, self.name = ''; else, self.name = name; end                                                                      % [-] Synapse Name.
-            if nargin < 1, self.ID = self.ID_DEFAULT; else, self.ID = ID; end                                                               % [#] Synapse ID.
+            if nargin < 9, synapse_utilities = synapse_utilities_class(  ); end             % [class] Synapse Utiliities.
+            if nargin < 8, enabled_flag = self.enabled_flag_DEFAULT; end                   	% [T/F] Synapse Enabled Flag.
+            if nargin < 7, delta = self.delta_noncpg_DEFAULT; end                           % [V] CPG Equilibrium Offset.
+            if nargin < 6, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                  	% [#] To Neuron ID.
+            if nargin < 5, from_neuron_ID = self.from_neuron_ID_DEFAULT; end             	% [S] Synaptic Conductance.
+            if nargin < 4, g_syn_max = self.gs_DEFAULT; end                             	% [S] Maximum Synaptic Conductance.
+            if nargin < 3, dE_syn = self.dEs_minimum_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 2, name = ''; end                                                 	% [-] Synapse Name.
+            if nargin < 1, ID = self.ID_DEFAULT; end                                      	% [#] Synapse ID.
+            
+            % Store an instance of the synapse utilities class.
+            self.synapse_utilities = synapse_utilities;
+            
+            % Store whether this synapse is active.
+            self.enabled_flag = enabled_flag;
+            
+            % Store the synapse connectivity information.
+            self.from_neuron_ID = from_neuron_ID;
+            self.to_neuron_ID = to_neuron_ID;
+            
+            % Store the synapse properties.
+            self.delta = delta;
+            self.g_syn_max = g_syn_max;
+            self.dE_syn = dE_syn;
+            
+            % Store the synapse identification information.
+            self.name = name;
+            self.ID = ID;
             
         end
         
@@ -1385,47 +1406,47 @@ classdef synapse_class
         %% Enable & Disable Functions
         
         % Implement a function to toogle whether this syanpse is enabled.
-        function [ b_enabled, self ] = toggle_enabled( self, b_enabled, set_flag )
+        function [ enabled_flag, self ] = toggle_enabled( self, enabled_flag, set_flag )
             
             % Set the default input arguments.
             if nargin < 3, set_flag = true; end                     % [T/F] Set Flag.
-            if narign < 2, b_enabled = self.b_enabled; end          % [T/F] Enabled Flag.
+            if narign < 2, enabled_flag = self.enabled_flag; end          % [T/F] Enabled Flag.
             
             % Toggle whether the neuron is enabled.
-            b_enabled = ~b_enabled;                                 % [T/F] Synapse Enabled Flag.
+            enabled_flag = ~enabled_flag;                                 % [T/F] Synapse Enabled Flag.
             
             % Determine whether to update the neuron object.
-            if set_flag, self.b_enabled = b_enabled; end
+            if set_flag, self.enabled_flag = enabled_flag; end
             
         end
         
         
         % Implement a function to enable this neuron.
-        function [ b_enabled, self ] = enable( self, set_flag )
+        function [ enabled_flag, self ] = enable( self, set_flag )
             
             % Set the default input arguments.
             if nargin < 2, set_flag = true; end                     % [T/F] Set Flag.
             
             % Enable this neuron.
-            b_enabled = true;                                   	% [T/F] Synapse Enabled Flag.
+            enabled_flag = true;                                   	% [T/F] Synapse Enabled Flag.
             
             % Determine whether to update the neuron object.
-            if set_flag, self.b_enabled = b_enabled; end
+            if set_flag, self.enabled_flag = enabled_flag; end
             
         end
         
         
         % Implement a function to disable this neuron.
-        function [ b_enabled, self ] = disable( self, set_flag )
+        function [ enabled_flag, self ] = disable( self, set_flag )
             
             % Set the default input arguments.
             if anrgin < 2, set_flag = true; end                     % [T/F] Set Flag.
             
             % Disable this neuron.
-            b_enabled = false;                                  	% [T/F] Synapse Enabled Flag.
+            enabled_flag = false;                                  	% [T/F] Synapse Enabled Flag.
             
             % Determine wehther to update the neuron object.
-            if set_flag, self.b_enabled = b_enabled; end
+            if set_flag, self.enabled_flag = enabled_flag; end
             
         end
         
@@ -1450,7 +1471,7 @@ classdef synapse_class
         
         
         % Implement a function to load synapse data as a matlab object.
-        function [ synapse, self ] = load( self, directory, file_name )
+        function synapse = load( ~, directory, file_name )
             
             % Set the default input arguments.
             if nargin < 3, file_name = 'Synapse.mat'; end           % [str] File Name to Load.

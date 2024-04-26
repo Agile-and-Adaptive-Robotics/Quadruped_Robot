@@ -8,21 +8,21 @@ classdef applied_current_class
     % Define the class properties.
     properties
         
-        ID
-        name
-        neuron_ID
+        ID                                          % [#] Applied Current ID.
+        name                                        % [str] Applied Current Name.
+        neuron_ID                                   % [#] Neuron ID.
         
-        ts
-        I_apps
+        ts                                          % [s] Time Vector.
+        I_apps                                      % [A] Applied Current Vector.
         
-        num_timesteps
-        dt
-        tf
+        num_timesteps                               % [#] Number of Timesteps.
+        dt                                          % [s] Time Step Duration.
+        tf                                          % [s] Simulation Duration.
         
-        b_enabled
+        enabled_flag                                   % [T/F] Enabled Flag.
         
-        array_utilities
-        applied_current_utilities
+        array_utilities                             % [class] Array Utilities.
+        applied_current_utilities                   % [class] Applied Current Utilities.
         
     end
     
@@ -31,12 +31,18 @@ classdef applied_current_class
     properties ( Access = private, Constant = true )
         
         % Define the neuron parameters.
-        R_DEFAULT = 20e-3;                                                                                              % [V] Activation Domain
-        Gm_DEFAULT = 1e-6;                                                                                              % [S] Membrane Conductance
+        R_DEFAULT = 20e-3;                          % [V] Activation Domain.
+        Gm_DEFAULT = 1e-6;                          % [S] Membrane Conductance.
         
         % Define the applied current properties.
-        Iapp_DEFAULT = 0e-9;                                                                                            % [A] Applied Current Magnitudes
-        ts_DEFAULT = 0;                                                                                                 % [s] Applied Current Times
+        Ia_DEFAULT = 0e-9;                      	% [A] Applied Current Magnitudes.
+        ts_DEFAULT = 0;                             % [s] Applied Current Times.
+        
+        % Set the default encoding scheme.
+        encoding_scheme_DEFAULT = 'absolute';       % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+        
+        % Set the default flag values.
+        enabled_flag_DEFAULT = true;                % [T/F] Enabled Flag (Determines whether this applied current is active during simulations). 
         
     end
     
@@ -47,676 +53,679 @@ classdef applied_current_class
     methods
         
         % Implement the class constructor.
-        function self = applied_current_class( ID, name, neuron_ID, ts, I_apps, b_enabled )
-            
-            % Create an instance of the array manager class.
-            self.array_utilities = array_utilities_class(  );
-            
-            % Create an instance of the array manager class.
-            self.applied_current_utilities = applied_current_utilities_class(  );
+        function self = applied_current_class( ID, name, neuron_ID, ts, Ias, enabled_flag, applied_current_utilities, array_utilities )
             
             % Set the default properties.
-            if nargin < 6, self.b_enabled = true; else, self.b_enabled = b_enabled; end                                     % [T/F] Applied Current Enabled Flag
-            if nargin < 5, self.I_apps = self.Iapp_DEFAULT; else, self.I_apps = I_apps; end                                 % [A] Applied Current Magnitudes
-            if nargin < 4, self.ts = self.ts_DEFAULT; else, self.ts = ts; end                                               % [s] Applied Current Times
-            if nargin < 3, self.neuron_ID = 0; else, self.neuron_ID = neuron_ID; end                                        % [#] Application Neuron ID
-            if nargin < 2, self.name = ''; else, self.name = name; end                                                      % [-] Applied Current Name
-            if nargin < 1, self.ID = 0; else, self.ID = ID; end                                                             % [#] Applied Current ID
+            if nargin < 8, array_utilities = array_utitlies_class(  ); end                                  % [class] Array Utilities.
+            if nargin < 7, applied_current_utilities = applied_current_utilities_class(  ); end             % [class] Applied Current Utilities.
+            if nargin < 6, enabled_flag = self.enabled_flag_DEFAULT; end                                    % [T/F] Applied Current Enabled Flag.
+            if nargin < 5, Ias = self.Ia_DEFAULT; end                                                       % [A] Applied Current Magnitudes.
+            if nargin < 4, ts = self.ts_DEFAULT; end                                                        % [s] Applied Current Times.
+            if nargin < 3, neuron_ID = 0; end                                                               % [#] Application Neuron ID.
+            if nargin < 2, name = ''; end                                                                   % [-] Applied Current Name.
+            if nargin < 1, ID = 0; end                                                                      % [#] Applied Current ID.
             
-            % Validate the applied current.
-            self.validate_applied_current(  )
+            % Store an instance of the utility classes.
+            self.array_utilities = array_utilities;
+            self.applied_current_utilities = applied_current_utilities;
             
-            % Compute the number of timesteps.
-            self = self.compute_set_num_timesteps(  );
+            % Store the applied current flags.
+            self.enabled_flag = enabled_flag;
             
-            % Compute and set the step size.
-            self = self.compute_set_dt(  );
-            
-            % Compute and set the final time.
-            self = self.compute_set_tf(  );
-            
-        end
-        
-        
-        %% Get & Set Functions
-        
-        % Implement a function to set the applied current vector.
-        function self = set_applied_current( self, ts, I_apps )
-            
-            % Set the default input arugments.
-            if nargin < 3, I_apps = self.Iapp_DEFAULT; end                                                                  % [A] Applied Current Magnitudes
-            if nargin < 2, ts = self.ts_DEFAULT; end                                                                        % [s] Applied Current Times
-            
-            % Ensure that there are the same number of time steps as applied currents.
-            assert( length( ts ) == length( I_apps ), 'The lengths of the time vector and applied current vectors must be equal.' )
-            
-            % Set the time vector.
+            % Store the applied current properties.
+            self.I_apps = Ias;
             self.ts = ts;
             
-            % Set the applied currents.
-            self.I_apps;
+            % Store the applied current information.
+            self.neuron_ID = neuron_ID;
+            self.name = name;
+            self.ID = ID;
             
-            % Set the number of time steps.
-            self.num_timesteps = length( self.ts );    
+            % Validate the applied current.
+            assert( self.is_applied_current_valid( ts, Ias ), 'The lengths of the time vector and applied current vectors must be equal.' )
+
+            % Compute the number of timesteps.
+            [ ~, self ] = self.compute_num_timesteps( ts, true );
+            
+            % Compute the step size.
+            [ ~, self ] = self.compute_dt( ts, true, array_utilities );
+                        
+            % Compute the final time.
+            [ ~, self ] = self.compute_tf( ts, true );
             
         end
         
-        
-        %% Validation Functions
+
+        %% Validation Functions.
         
         % Implement a function to validate the applied current.
-        function validate_applied_current( self )
+        function valid_flag = is_applied_current_valid( self, ts, Ias )
            
+            % Set the default input arguments.
+            if nargin < 3, Ias = self.I_apps; end
+            if nargin < 2, ts = self.ts; end
+            
             % Validate the applied current.
-            assert( length( self.ts ) == length( self.I_apps ), 'The lengths of the time vector and applied current vectors must be equal.' )
+            valid_flag = length( ts ) == length( Ias );
             
         end
         
         
-        %% Compute Time Functions
+        %% Compute Time Functions.
         
         % Implement a function to compute the number of time steps.
-        function num_timesteps = compute_num_timesteps( self )
+        function [ n_timesteps, self ] = compute_num_timesteps( self, ts, set_flag )
            
+            % Set the default input arguments.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, ts = self.ts; end
+            
             % Compute the number of time steps.
-            num_timesteps = length( self.ts );                                                                              % [#] Number of Simulation Timesteps
+            n_timesteps = length( ts );                                                                              % [#] Number of Simulation Timesteps
+            
+            % Determine whether to update the applied current object.
+            if set_flag, self.num_timesteps = n_timesteps; end
             
         end
         
         
         % Implement a function to compute the time step.
-        function dt = compute_dt( self )
+        function [ dt, self ] = compute_dt( self, ts, set_flag, array_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, array_utilities = self.array_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, ts = self.ts; end
             
             % Compute the step size.
-            dt = self.array_utilities.compute_step_size( self.ts );                                                         % [s] Simulation Time Step Size
+            dt = array_utilities.compute_step_size( ts );                                                         % [s] Simulation Time Step Size
+            
+            % Determine whether to update the synapse object.
+            if set_flag, self.dt = dt; end
             
         end
         
         
         % Implement a function to compute the final time.
-        function tf = compute_tf( self )
+        function [ tf, self ]= compute_tf( self, ts, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, ts = self.ts; end
             
             % Compute the final time.
-           tf = max( self.ts );                                                                                             % [s] Final Simulation Time
+            tf = max( ts );                                         % [s] Final Simulation Time.
+            
+           % Determine whether to update the synapse object.
+            if set_flag, self.tf = tf; end
+           
+        end
+        
+        
+        % Implement a function to compute the properties associated with an applied current vector.
+        function [ n_timesteps, dt, tf, self ] = compute_applied_current_properties( self, ts, Ias, set_flag, array_utilities )
+            
+            % Set the default input arugments.
+            if nargin < 5, array_utilities = self.array_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, Ias = self.Ia_DEFAULT; end                                                                  % [A] Applied Current Magnitudes
+            if nargin < 2, ts = self.ts_DEFAULT; end                                                                        % [s] Applied Current Times
+            
+            % Ensure that there are the same number of time steps as applied currents.
+            assert( self.is_applied_current_valid( ts, Ias ), 'The lengths of the time vector and applied current vectors must be equal.' )
+            
+            % Create an instance of the applied current object that can be updated.
+            applied_current = self;
+            
+            % Update the applied current time and magnitude vectors.
+            applied_current.ts = ts;
+            applied_current.I_apps = Ias;
+            
+            % Compute the number of timesteps.
+            [ n_timesteps, applied_current ] = applied_current.compute_num_timesteps( ts, true );
+            
+            % Compute the step size.
+            [ dt, applied_current ] = applied_current.compute_dt( ts, true, array_utilities );
+                        
+            % Compute the final time.
+            [ tf, applied_current ] = applied_current.compute_tf( ts, true );
+            
+            % Determine whether to update the applied current object.
+            if set_flag, self = applied_current; end
             
         end
         
         
         % Implement a function to compute the time vector of multistate cpg subnetwork applied currents.
-        function ts = compute_multistate_cpg_ts( self, dt, tf )
+        function [ ts, self ] = compute_mcpg_ts( self, dt, tf, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if anrgin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, tf = self.tf; end
+            if nargin < 2, dt = self.dt; end
             
            % Compute the time vector of multistate cpg subnetwork applied currents.
-           ts = self.applied_current_utilities.compute_multistate_cpg_ts( dt, tf );                                         % [s] Applied Current Times
+           ts = applied_current_utilities.compute_mcpg_ts( dt, tf );                                         % [s] Applied Current Times.
+            
+           % Determine whether to update the applied current object.
+           if set_flag, self.ts = ts; end
+           
+        end
+        
+        %% Parameter Unpacking Functions.
+        
+        % Implement a function to unpack the parameters required to compute the absolute inversion applied current magnitudes.
+        function [ Gm, R ] = unpack_absolute_inversion_Ia_output_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm = self.Gm_DEFAULT;
+                R = self.R_DEFAULT;
+                
+            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm = parameters{ 1 };
+                R = parameters{ 2 };
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
             
         end
         
         
-        %% Compute Applied Current Functions
+        % Implement a function to unpack the parameters required to compute the relative inversion applied current magnitudes.
+        function [ Gm, R ] = unpack_relative_inversion_Ia_output_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm = self.Gm_DEFAULT;
+                R = self.R_DEFAULT;
+                
+            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm = parameters{ 1 };
+                R = parameters{ 2 };
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        %% Compute Applied Current Functions.
         
         % Implement a function to compute the magnitude of multistate cpg subnetwork applied currents.
-        function I_apps = compute_multistate_cpg_Iapps( self, dt, tf )
+        function [ Ias, self ] = compute_mcpg_Ias( self, dt, tf, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, tf = self.tf; end
+            if nargin < 2, dt = self.dt; end
             
            % Compute the magnitude of multistate cpg subnetwork applied currents.
-           I_apps = self.applied_current_utilities.compute_multistate_cpg_Iapps( dt, tf );
+           Ias = applied_current_utilities.compute_mcpg_Ias( dt, tf );
             
+           % Determine whether to update the applied current object.
+           if set_flag, self.I_apps = Ias; end
+           
         end
         
         
         % Implement a function to compute the magnitude of driven multistate cpg subnetwork applied currents.
-        function I_apps = compute_driven_multistate_cpg_Iapps( self, Gm, R )
+        function [ Ias, self ] = compute_dmcpg_Ias( self, Gm, R, set_flag, applied_current_utilities )
             
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
             
            % Compute the magnitude of driven multistate cpg subnetwork applied currents.
-           I_apps = self.applied_current_utilities.compute_driven_multistate_cpg_Iapps( Gm, R );
+           Ias = applied_current_utilities.compute_dmcpg_Ias( Gm, R );
             
+           % Determine whether to update the applied current object.
+           if set_flag, self.I_apps = Ias; end
+           
         end
         
         
         % Implement a function to compute the applied current magnitude that connects the dmcpgdcll and cds subnetworks.
-        function I_apps = compute_dmcpgdcll2cds_Iapps( self, Gm, R )
+        function [ Ias, self ] = compute_dmcpgdcll2cds_Ias( self, Gm, R, set_flag, applied_current_utilities )
             
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
             
            % Compute the magnitude of these applied currents.
-           I_apps = self.applied_current_utilities.compute_dmcpgdcll2cds_Iapps( Gm, R );
+           Ias = applied_current_utilities.compute_dmcpgdcll2cds_Ias( Gm, R );
             
+           % Determine whether to update the applied current object.
+           if set_flag, self.I_apps = Ias; end
+           
         end
                 
         
         % Implement a function to compute the magnitude of centering subnetwork applied currents.
-        function I_apps = compute_centering_Iapps( self, Gm, R )
+        function [ Ias, self ] = compute_centering_Ias( self, Gm, R, set_flag, applied_current_utilities )
             
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
             
             % Compute the magnitude of centering subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_centering_Iapps( Gm, R );
+            Ias = applied_current_utilities.compute_centering_Ias( Gm, R );
+            
+            % Determine whether to update the applied current object.
+           if set_flag, self.I_apps = Ias; end
             
         end
         
         
-        % Implement a function to compute the magnitude of absolute addition applied currents.
-        function I_apps = compute_absolute_addition_Iapps( self )
+        % Implement a function to compute the magnitude of addition applied currents.
+        function [ Ias, self ] = compute_addition_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
             
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_absolute_addition_Iapps(  );
+            % Set the default input arguments.
+            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-        end
-        
-        
-        % Implement a function to compute the magnitude of relative addition applied currents.
-        function I_apps = compute_relative_addition_Iapps( self )
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
             
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_relative_addition_Iapps(  );
-            
-        end        
-        
-        
-        % Implement a function to compute the magnitude of absolute subtraction applied currents.
-        function I_apps = compute_absolute_subtraction_Iapps( self )
-            
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_absolute_subtraction_Iapps(  );
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of relative subtraction applied currents.
-        function I_apps = compute_relative_subtraction_Iapps( self )
-            
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_relative_subtraction_Iapps(  );
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_addition_Ias(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_relative_addition_Iapps(  );
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
         
-        % Implement a function to compute the magnitude of inversion subnetwork applied currents.
-        function I_apps = compute_inversion_Iapps( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
+        % Implement a function to compute the magnitude of subtraction applied currents.
+        function [ Ias, self ] = compute_subtraction_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
             
-            % Compute the magnitude of the inversion subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_inversion_Iapps( Gm, R ); 
+            % Set the default input arguments.
+            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-        end
-        
-        
-        % Implement a function to compute the magnitude of absolute inversion input applied currents.
-        function I_apps = compute_absolute_inversion_Iapps_input( self )
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
             
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_absolute_inversion_Iapps_input(  );
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of absolute inversion output applied currents.
-        function I_apps = compute_absolute_inversion_Iapps_output( self, Gm, R )
-            
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
-            
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_absolute_inversion_Iapps_output( Gm, R );
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_subtraction_Ias(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Compute the applied current magnitudes.
+                Ias = self.applied_current_utilities.compute_relative_subtraction_Ias(  );  
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
         
-        % Implement a function to compute the magnitude of relative inversion input applied currents.
-        function I_apps = compute_relative_inversion_Iapps_input( self )
+        % Implement a function to compute the magnitude of inversion input applied currents.
+        function [ Ias, self ] = compute_inversion_Ias_input( self, encoding_scheme, set_flag, applied_current_utilities )
             
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_relative_inversion_Iapps_input(  );
+            % Set the default input arguments.
+            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-        end
-        
-        
-        % Implement a function to compute the magnitude of relative inversion output applied currents.
-        function I_apps = compute_relative_inversion_Iapps_output( self, Gm, R )
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
             
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
-            
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_absolute_inversion_Iapps_output( Gm, R );
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of absolute division applied currents.
-        function I_apps = compute_absolute_division_Iapps( self )
-            
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_absolute_division_Iapps(  );
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of relative division applied currents.
-        function I_apps = compute_relative_division_Iapps( self )
-            
-            % Compute the applied current.
-            I_apps = self.applied_current_utilities.compute_relative_division_Iapps(  );
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_inversion_Ias_input(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_relative_inversion_Ias_input(  );  
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
+        
+        % Implement a function to compute the magnitude of inversion output applied currents.
+        function [ Ias, self ] = compute_inversion_Ias_output( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, parameters = {  }; end 
+            
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
+            
+                % Unpack the parameters required to compute the absolute inversion applied current magnitudes.
+                [ Gm, R ] = self.unpack_absolute_inversion_Ia_output_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_inversion_Ias_output( Gm, R );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Unpack the parameters required to compute the relative inversion applied current magnitudes.
+                [ Gm, R ] = self.unpack_relative_inversion_Ia_output_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_relative_inversion_Ias_output( Gm, R );  
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
+
+        end
+        
+        
+        % Implement a function to compute the magnitude of division applied currents.
+        function [ Ias, self ] = compute_division_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
+            
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_division_Ias(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_relative_division_Ias(  );  
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
+            
+        end
+
         
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
-        function I_apps = compute_multiplication_Iapps( self, Gm, R )
+        function [ Ias, self ] = compute_multiplication_Iapps( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
             
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, parameters = {  }; end 
             
-            % Compute the magnitude of multiplication subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_multiplication_Iapps( Gm, R );
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
+            
+                % Unpack the parameters required to compute the absolute multiplication applied current magnitudes.
+                [ Gm, R ] = self.unpack_absolute_multiplicatio_Ia_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_multiplication_Ias( Gm, R );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Unpack the parameters required to compute the relative multiplication applied current magnitudes.
+                [ Gm, R ] = self.unpack_relative_multiplication_Ia_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_relative_multiplication_Ias( Gm, R );  
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
         
         % Implement a function to compute the magnitude of integration subnetwork applied currents.
-        function I_apps = compute_integration_Iapps( self, Gm, R )
+        function [ Ias, self ] = compute_integration_Ias( self, Gm, R, set_flag, applied_current_utilities )
         
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
             
             % Compute the magnitude of integration subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_integration_Iapps( Gm, R );
+            Ias = applied_current_utilities.compute_integration_Iapps( Gm, R );
+           
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
             
         
         % Implement a function to compute the magnitude of voltage based integration subnetwork applied currents.
-        function I_apps = compute_vb_integration_Iapps( self, Gm, R )
+        function [ Ias, self ] = compute_vbi_Ias( self, Gm, R, set_flag, applied_current_utilities )
         
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                      % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                    % [S] Membrane Conductance
             
             % Compute the magnitude of voltage based integration subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_vb_integration_Iapps( Gm, R );
+            Ias = applied_current_utilities.compute_vb_integration_Iapps( Gm, R );
+            
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
         
         % Implement a function to compute the first magnitude of split voltage based integration subnetwork applied currents.
-        function I_apps = compute_split_vb_integration_Iapps1( self, Gm, R )
+        function [ Ias, self ] = compute_svbi_Ias1( self, Gm, R, set_flag, applied_current_utilities )
         
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                                                          % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                                                        % [S] Membrane Conductance
             
             % Compute the first magnitude of split voltage based integration subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_split_vb_integration_Iapps1( Gm, R );           % [A] Applied Current
+            Ias = applied_current_utilities.compute_svbi_Ias1( Gm, R );           % [A] Applied Current
+            
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
         
         % Implement a function to compute the second magnitude of split voltage based integration subnetwork applied currents.
-        function I_apps = compute_split_vb_integration_Iapps2( self, Gm, R )
+        function [ Ias, self ] = compute_svbi_Ias2( self, Gm, R, set_flag, applied_current_utilities )
         
             % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
             if nargin < 3, R = self.R_DEFAULT; end                                                          % [V] Activation Domain
             if nargin < 2, Gm = self.Gm_DEFAULT; end                                                        % [S] Membrane Conductance
             
             % Compute the second magnitude of split voltage based integration subnetwork applied currents.
-            I_apps = self.applied_current_utilities.compute_split_vb_integration_Iapps2( Gm, R );           % [A] Applied Current
+            Ias = applied_current_utilities.compute_svbi_Ias2( Gm, R );           % [A] Applied Current
             
-        end
-        
-                
-        %% Compute-Set Time Functions
-        
-        % Implement a function to compute and set the number of time steps.
-        function self = compute_set_num_timesteps( self )
-           
-            % Compute and set the number of time steps.
-            self.num_timesteps = self.compute_num_timesteps(  );
+            % Determine whether to update the applied current object.
+            if set_flag, self.I_apps = Ias; end
             
         end
         
         
-        % Implement a function to compute and set the step size.
-        function self = compute_set_dt( self )
-            
-            % Compute the step size.
-            self.dt = self.compute_dt(  );
-            
-        end
-        
-        
-        % Implement a function to compute and set the final time.
-        function self = compute_set_tf( self )
-            
-            % Compute and set the final time.
-            self.tf = self.compute_tf(  );
-            
-        end
-        
-        
-        % Implement a function to compute and set the time vector of multistate cpg subnetwork applied currents.
-        function self = compute_set_multistate_cpg_ts( self, dt, tf )
-            
-           % Compute and set the time vector of multistate cpg subnetwork applied currents.
-            self.ts = self.compute_multistate_cpg_ts( dt, tf );
-            
-        end
-        
-        
-        %% Compute-Set Applied Current Functions
-        
-        % Implement a function to compute and set the magnitude of multistate cpg subnetwork applied currents.
-        function self = compute_set_multistate_cpg_Iapps( self, dt, tf )
-            
-           % Compute and set the magnitude of multistate cpg subnetwork applied currents.
-            self.I_apps = self.compute_multistate_cpg_Iapps( dt, tf );                              % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of driven multistate cpg subnetwork applied currents.
-        function self = compute_set_driven_multistate_cpg_Iapps( self, Gm, R )
-            
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-           % Compute and set the magnitude of driven multistate cpg subnetwork applied currents.
-            self.I_apps = self.compute_driven_multistate_cpg_Iapps( Gm, R );                    	% [A] Applied Current
-            
-        end
-       
-        
-        % Implement a function to compute and set the applied current magnitude that connects the dmcpgdcll and cds subnetworks.
-        function self = compute_set_dmcpgdcll2cds_Iapps( self, Gm, R )
-            
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-           % Compute and set the magnitude of this applied current.
-            self.I_apps = self.compute_dmcpgdcll2cds_Iapps( Gm, R );                                % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of centering subnetwork applied currents.
-        function self = compute_set_centering_Iapps( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the magnitude of centering subnetwork applied currents.
-            self.I_apps = self.compute_centering_Iapps( Gm, R );                                    % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of absolute addition applied currents.
-        function self = compute_set_absolute_addition_Iapps( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_absolute_addition_Iapps(  );                                 % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of relative addition applied currents.
-        function self = compute_set_relative_addition_Iapps( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_relative_addition_Iapps(  );                                 % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of absolute subtraction applied currents.
-        function self = compute_set_absolute_subtraction_Iapps( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_absolute_subtraction_Iapps(  );                              % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of relative subtraction applied currents.
-        function self = compute_set_relative_subtraction_Iapps( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_relative_subtraction_Iapps(  );                              % [A] Applied Current
-            
-        end  
-        
-        
-        % Implement a function to compute and set the magnitude of inversion subnetwork applied currents.
-        function self = compute_set_inversion_Iapps( self, Gm, R )
-            
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the magnitude of inversion subnetwork applied currents.
-            self.I_apps = self.compute_inversion_Iapps( Gm, R );                                    % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of absolute inversion input applied currents.
-        function self = compute_set_absolute_inversion_Iapps_input( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_absolute_inversion_Iapps_input(  );                          % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of absolute inversion output applied currents.
-        function self = compute_set_absolute_inversion_Iapps_output( self, Gm, R )
-            
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_absolute_inversion_Iapps_output( Gm, R );                    % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of relative inversion input applied currents.
-        function self = compute_set_relative_inversion_Iapps_input( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_relative_inversion_Iapps_input(  );                          % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of relative inversion output applied currents.        
-        function self = compute_set_relative_inversion_Iapps_output( self, Gm, R )
-            
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_relative_inversion_Iapps_output( Gm, R );                  	% [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of absolute division applied currents.
-        function self = compute_set_absolute_division_Iapps( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_absolute_division_Iapps(  );                                 % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of relative division applied currents.
-        function self = compute_set_relative_division_Iapps( self )
-            
-            % Compute the applied current.
-            self.I_apps = self.compute_relative_division_Iapps(  );                                 % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of multiplication subnetwork applied currents.
-        function self = compute_set_multiplication_Iapps( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the magnitude of multiplication subnetwork applied currents.
-            self.I_apps = self.compute_multiplication_Iapps( Gm, R );                               % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of integration subnetwork applied currents.
-        function self = compute_set_integration_Iapps( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the magnitude of integration subnetwork applied currents.
-            self.I_apps = self.compute_integration_Iapps( Gm, R );                                  % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the magnitude of voltage based integration subnetwork applied currents.
-        function self = compute_set_vb_integration_Iapps( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the magnitude of voltage based integration subnetwork applied currents.
-            self.I_apps = self.compute_vb_integration_Iapps( Gm, R );                               % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the first magnitude of split voltage based integration subnetwork applied currents.
-        function self = compute_set_split_vb_integration_Iapps1( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the first magnitude of split voltage based integration subnetwork applied currents.
-            self.I_apps = self.compute_split_vb_integration_Iapps1( Gm, R );                        % [A] Applied Current
-            
-        end
-        
-        
-        % Implement a function to compute and set the second magnitude of split voltage based integration subnetwork applied currents.
-        function self = compute_set_split_vb_integration_Iapps2( self, Gm, R )
-        
-            % Define the default input arguments.
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance
-            
-            % Compute and set the second magnitude of split voltage based integration subnetwork applied currents.
-            self.I_apps = self.compute_split_vb_integration_Iapps2( Gm, R );                        % [A] Applied Current
-            
-        end
-        
-        
-        %% Sampling Functions
+        %% Sampling Functions.
         
         % Implement a function to sample an applied current.
-        function [ I_apps_sample, ts_sample ] = sample_Iapp( self, dt, tf )
+        function [ ts_sample, Ias_sample ] = sample_Ia( self, dt_sample, tf_sample, ts_reference, Ias_reference )
             
             % Set the default input arguments.
-            if nargin < 3, tf = max( self.ts ); end
-            if nargin < 2, dt = [  ]; end
+            if nargin < 5, Ias_reference = self.Ias; end
+            if nargin < 4, ts_reference = self.ts; end
+            if nargin < 3, tf_sample = self.tf; end
+            if nargin < 2, dt_sample = self.ts; end
+            
+            % Compute the number of reference timesteps.
+            n_timesteps_reference = length( Ias_reference );
             
             % Determine how to sample the applied current.
-            if ~isempty( dt ) && ( self.num_timesteps > 0 )                          % If the sample spacing and existing applied current data is not empty...
+            if ~isempty( dt_sample ) && ( n_timesteps_reference > 0 )                          % If the sample spacing and existing applied current data is not empty...
                 
                 % Create the sampled time vector.
-                ts_sample = ( 0:dt:tf )';
+                ts_sample = ( 0:dt_sample:tf_sample )';
                 
                 % Determine how to sample the applied current.
-                if self.num_timesteps == 1                                           % If the number of timesteps is one.. ( The applied current is constant. )
+                if n_timesteps_reference == 1                                           % If the number of timesteps is one.. ( The applied current is constant. )
                     
                     % Create the applied current sample as a constant vector.
-                    I_apps_sample = self.I_apps*ones( self.num_timesteps, 1 );
+                    Ias_sample = Ias_reference*ones( n_timesteps_reference, 1 );
                     
                 else                                                                % Otherwise...
                     
                     % Create the applied current sample via interpolation.
-                    I_apps_sample = interp1( self.ts, self.I_apps, ts_sample );
+                    Ias_sample = interp1( ts_reference, Ias_reference, ts_sample );
                     
                 end
                 
             else                                                                    % Otherwise...
                 
                 % Set the sampled time vector to be the existing time vector (perhaps empty, perhaps a complete time vector).
-                ts_sample = self.ts;
+                ts_sample = ts_reference;
                 
                 % Set the sampled applied current vector to be the existing time vector (perhaps empty, perhaps a complete time vector).
-                I_apps_sample = self.I_apps;
+                Ias_sample = Ias_reference;
                 
             end
             
         end
         
         
-        %% Enable & Disable Functions
+        %% Enable & Disable Functions.
         
         % Implement a function to toogle whether this applied current is enabled.
-        function self = toggle_enabled( self )
+        function [ enabled_flag, self ] = toggle_enabled( self, enabled_flag, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+            if narign < 2, enabled_flag = self.enabled_flag; end                                        % [T/F] Enabled Flag.
             
             % Toggle whether the applied current is enabled.
-            self.b_enabled = ~self.b_enabled;
+            enabled_flag = ~enabled_flag;                                                            	% [T/F] Applied Current Enabled Flag.
+            
+            % Determine whether to update the applied current object.
+            if set_flag, self.enabled_flag = enabled_flag; end
             
         end
         
         
         % Implement a function to enable this applied current.
-        function self = enable( self )
+        function [ enabled_flag, self ] = enable( self, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 2, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             
             % Enable this applied current.
-            self.b_enabled = true;
+            enabled_flag = true;                                                                        % [T/F] Applied Current Enabled Flag.
+            
+            % Determine whether to update the applied current object.
+            if set_flag, self.enabled_flag = enabled_flag; end
             
         end
         
         
         % Implement a function to disable this applied current.
-        function self = disable( self )
+        function [ enabled_flag, self ] = disable( self, set_flag )
+            
+            % Set the default input arguments.
+            if nargin < 2, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             
             % Disable this applied current.
-            self.b_enabled = false;
+            enabled_flag = false;                                                                   	% [T/F] Applied Current Enabled Flag.
+            
+            % Determine wehther to update the applied current object.
+            if set_flag, self.enabled_flag = enabled_flag; end
             
         end
         
         
-        %% Save & Load Functions
+        %% Save & Load Functions.
         
         % Implement a function to save applied current data as a matlab object.
-        function save( self, directory, file_name )
+        function save( self, directory, file_name, applied_current )
             
             % Set the default input arguments.
+            if nargin < 4, applied_current = self; end
             if nargin < 3, file_name = 'Applied_Current.mat'; end
             if nargin < 2, directory = '.'; end
             
@@ -724,13 +733,13 @@ classdef applied_current_class
             full_path = [ directory, '\', file_name ];
             
             % Save the neuron data.
-            save( full_path, self )
+            save( full_path, applied_current )
             
         end
         
         
         % Implement a function to load applied current data as a matlab object.
-        function self = load( ~, directory, file_name )
+        function applied_current = load( ~, directory, file_name )
             
             % Set the default input arguments.
             if nargin < 3, file_name = 'Applied_Current.mat'; end
@@ -743,7 +752,7 @@ classdef applied_current_class
             data = load( full_path );
             
             % Retrieve the desired variable from the loaded data structure.
-            self = data.self;
+            applied_current = data.applied_current;
             
         end
         
