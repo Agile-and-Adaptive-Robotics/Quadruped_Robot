@@ -3499,7 +3499,7 @@ classdef neuron_manager_class
                 for k = 1:n_neurons                                                                                     % Iterate through each of the neurons...
                     
                     % Define the name associated with this neuron.
-                    names{ k } = sprintf( 'CPG Neuron %0.0f', IDs( k ) );
+                    names{ k } = sprintf( 'MCPG Neuron %0.0f', IDs( k ) );
                     
                 end
                 

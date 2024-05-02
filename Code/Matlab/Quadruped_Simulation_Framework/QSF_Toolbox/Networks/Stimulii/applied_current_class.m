@@ -10,10 +10,10 @@ classdef applied_current_class
         
         ID                                          % [#] Applied Current ID.
         name                                        % [str] Applied Current Name.
-        neuron_ID                                   % [#] Neuron ID.
+        to_neuron_ID                                   % [#] Neuron ID.
         
         ts                                          % [s] Time Vector.
-        I_apps                                      % [A] Applied Current Vector.
+        Ias                                         % [A] Applied Current Vector.
         
         num_timesteps                               % [#] Number of Timesteps.
         dt                                          % [s] Time Step Duration.
@@ -53,31 +53,31 @@ classdef applied_current_class
     methods
         
         % Implement the class constructor.
-        function self = applied_current_class( ID, name, neuron_ID, ts, Ias, enabled_flag, applied_current_utilities, array_utilities )
+        function self = applied_current_class( ID, name, to_neuron_ID, ts, Ias, enabled_flag, array_utilities, applied_current_utilities )
             
             % Set the default properties.
-            if nargin < 8, array_utilities = array_utitlies_class(  ); end                                  % [class] Array Utilities.
-            if nargin < 7, applied_current_utilities = applied_current_utilities_class(  ); end             % [class] Applied Current Utilities.
+            if nargin < 8, applied_current_utilities = applied_current_utilities_class(  ); end             % [class] Applied Current Utilities.
+            if nargin < 7, array_utilities = array_utitlies_class(  ); end                                  % [class] Array Utilities.
             if nargin < 6, enabled_flag = self.enabled_flag_DEFAULT; end                                    % [T/F] Applied Current Enabled Flag.
             if nargin < 5, Ias = self.Ia_DEFAULT; end                                                       % [A] Applied Current Magnitudes.
             if nargin < 4, ts = self.ts_DEFAULT; end                                                        % [s] Applied Current Times.
-            if nargin < 3, neuron_ID = 0; end                                                               % [#] Application Neuron ID.
+            if nargin < 3, to_neuron_ID = 0; end                                                               % [#] Application Neuron ID.
             if nargin < 2, name = ''; end                                                                   % [-] Applied Current Name.
             if nargin < 1, ID = 0; end                                                                      % [#] Applied Current ID.
             
             % Store an instance of the utility classes.
-            self.array_utilities = array_utilities;
             self.applied_current_utilities = applied_current_utilities;
+            self.array_utilities = array_utilities;
             
             % Store the applied current flags.
             self.enabled_flag = enabled_flag;
             
             % Store the applied current properties.
-            self.I_apps = Ias;
+            self.Ias = Ias;
             self.ts = ts;
             
             % Store the applied current information.
-            self.neuron_ID = neuron_ID;
+            self.to_neuron_ID = to_neuron_ID;
             self.name = name;
             self.ID = ID;
             
@@ -102,7 +102,7 @@ classdef applied_current_class
         function valid_flag = is_applied_current_valid( self, ts, Ias )
            
             % Set the default input arguments.
-            if nargin < 3, Ias = self.I_apps; end
+            if nargin < 3, Ias = self.Ias; end
             if nargin < 2, ts = self.ts; end
             
             % Validate the applied current.
@@ -179,7 +179,7 @@ classdef applied_current_class
             
             % Update the applied current time and magnitude vectors.
             applied_current.ts = ts;
-            applied_current.I_apps = Ias;
+            applied_current.Ias = Ias;
             
             % Compute the number of timesteps.
             [ n_timesteps, applied_current ] = applied_current.compute_num_timesteps( ts, true );
@@ -288,7 +288,7 @@ classdef applied_current_class
            Ias = applied_current_utilities.compute_mcpg_Ias( dt, tf );
             
            % Determine whether to update the applied current object.
-           if set_flag, self.I_apps = Ias; end
+           if set_flag, self.Ias = Ias; end
            
         end
         
@@ -306,7 +306,7 @@ classdef applied_current_class
            Ias = applied_current_utilities.compute_dmcpg_Ias( Gm, R );
             
            % Determine whether to update the applied current object.
-           if set_flag, self.I_apps = Ias; end
+           if set_flag, self.Ias = Ias; end
            
         end
         
@@ -324,7 +324,7 @@ classdef applied_current_class
            Ias = applied_current_utilities.compute_dmcpgdcll2cds_Ias( Gm, R );
             
            % Determine whether to update the applied current object.
-           if set_flag, self.I_apps = Ias; end
+           if set_flag, self.Ias = Ias; end
            
         end
                 
@@ -342,7 +342,39 @@ classdef applied_current_class
             Ias = applied_current_utilities.compute_centering_Ias( Gm, R );
             
             % Determine whether to update the applied current object.
-           if set_flag, self.I_apps = Ias; end
+           if set_flag, self.Ias = Ias; end
+            
+        end
+        
+        
+        % Implement a function to compute the magnitude of transmission applied currents.
+        function [ Ias, self ] = compute_transmission_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is absolute...
+            
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_absolute_transmission_Ias(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is relative...
+               
+                % Compute the applied current magnitudes.
+                Ias = applied_current_utilities.compute_relative_transmission_Ias(  );
+                
+            else                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -374,7 +406,7 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -406,7 +438,7 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -438,7 +470,7 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -477,7 +509,7 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
 
         end
         
@@ -509,13 +541,13 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
 
         
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
-        function [ Ias, self ] = compute_multiplication_Iapps( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
+        function [ Ias, self ] = compute_multiplication_Ias( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
             
             % Set the default input arguments.
             if nargin < 5, applied_current_utilities = self.applied_current_utilities; end
@@ -548,7 +580,7 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -566,7 +598,7 @@ classdef applied_current_class
             Ias = applied_current_utilities.compute_integration_Iapps( Gm, R );
            
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
             
@@ -584,7 +616,7 @@ classdef applied_current_class
             Ias = applied_current_utilities.compute_vb_integration_Iapps( Gm, R );
             
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -602,7 +634,7 @@ classdef applied_current_class
             Ias = applied_current_utilities.compute_svbi_Ias1( Gm, R );           % [A] Applied Current
             
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -620,7 +652,7 @@ classdef applied_current_class
             Ias = applied_current_utilities.compute_svbi_Ias2( Gm, R );           % [A] Applied Current
             
             % Determine whether to update the applied current object.
-            if set_flag, self.I_apps = Ias; end
+            if set_flag, self.Ias = Ias; end
             
         end
         
@@ -628,7 +660,7 @@ classdef applied_current_class
         %% Sampling Functions.
         
         % Implement a function to sample an applied current.
-        function [ ts_sample, Ias_sample ] = sample_Ia( self, dt_sample, tf_sample, ts_reference, Ias_reference )
+        function [ ts_sample, Ias_sample ] = sample_Ias( self, dt_sample, tf_sample, ts_reference, Ias_reference )
             
             % Set the default input arguments.
             if nargin < 5, Ias_reference = self.Ias; end

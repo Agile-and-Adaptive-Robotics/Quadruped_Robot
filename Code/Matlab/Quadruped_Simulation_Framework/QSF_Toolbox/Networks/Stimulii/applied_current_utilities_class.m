@@ -101,6 +101,24 @@ classdef applied_current_utilities_class
         end
         
         
+        % Implement a function to comptue the magnitude of absolute tranmission applied currents.
+        function Ias = compute_absolute_transmission_Ias( self )
+            
+            % Define the applied current.
+            Ias = self.Ia_no_current_DEFAULT;                         % [A] Applied Current
+            
+        end
+        
+        
+        % Implement a function to comptue the magnitude of relative tranmission applied currents.
+        function Ias = compute_relative_transmission_Ias( self )
+            
+            % Define the applied current.
+            Ias = self.Ia_no_current_DEFAULT;                         % [A] Applied Current
+            
+        end
+                
+        
         % Implement a function to compute the magnitude of absolute addition applied currents.
         function Ias = compute_absolute_addition_Ias( self )
             

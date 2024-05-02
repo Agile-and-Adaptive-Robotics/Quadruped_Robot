@@ -4033,8 +4033,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 4, 3 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 4, 5, 5 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ), neuron_IDs( 3 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 4 ), neuron_IDs( 4 ), neuron_IDs( 5 ), neuron_IDs( 5 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                                   % If we want to compute the synapse names...
@@ -4097,8 +4097,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 2, 3, 4, 3, 5, 1 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 4, 5, 5, 6, 6, 7, 7 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 2 ), neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 5 ), neuron_IDs( 1 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 4 ), neuron_IDs( 4 ), neuron_IDs( 5 ), neuron_IDs( 5 ), neuron_IDs( 6 ), neuron_IDs( 6 ), neuron_IDs( 7 ), neuron_IDs( 7 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                                   % If we want to compute the synapse names...
@@ -4296,8 +4296,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 3 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 4, 3, 4 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 3 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 4 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                               % If we want to compute the synapse names...
@@ -4414,8 +4414,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 3 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                                   % If we want to compute the synapse names...
@@ -4478,8 +4478,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 3 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                                   % If we want to compute the synapse names...
@@ -4542,8 +4542,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 2, 1 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 2 ), neuron_IDs( 1 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                                   % If we want to compute the synapse names...
@@ -4606,8 +4606,8 @@ classdef synapse_manager_class
             [ names, names_flag ] = self.process_names( names );
             
             % Determine whether to compute the from and to neuron IDs.
-            if from_neuron_IDs_flag, from_neuron_IDs = [ 1, 2, 3, 4 ]; end
-            if to_neuron_IDs_flag, to_neuron_IDs = [ 3, 3, 4, 3 ]; end
+            if from_neuron_IDs_flag, from_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 3 ), neuron_IDs( 4 ) ]; end
+            if to_neuron_IDs_flag, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 3 ) ]; end
             
             % Determinine whether to compute the synapse names.
             if names_flag                                                                                                   % If we want to compute the synapse names...
@@ -5192,15 +5192,16 @@ classdef synapse_manager_class
         
         
         % Implement a function to load synapse from a xlsx data.
-        function [ synapses, self ] = load_xlsx( self, file_name, directory, append_flag, verbose_flag, synapses, set_flag )
+        function [ synapses, self ] = load_xlsx( self, file_name, directory, append_flag, verbose_flag, synapses, set_flag, data_loader_utilities )
             
             % Set the default input arguments.
-            if nargin < 7, set_flag  = self.set_flag; end               % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 6, synapses = self.synapses; end                % [class] Array of Synapse Class Objects.
-            if nargin < 5, verbose_flag = true; end                     % [T/F] Verbose Flag.
-            if nargin < 4, append_flag = false; end                   	% [T/F] Append Flag.
-            if nargin < 3, directory = '.'; end                         % [str] Load Directory.
-            if nargin < 2, file_name = 'Synapse_Data.xlsx'; end         % [str] File Name.
+            if nargin < 8, data_loader_utilities = self.data_loader_utilities; end          % [class] Data Load Utilities Class.
+            if nargin < 7, set_flag  = self.set_flag; end                                   % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 6, synapses = self.synapses; end                                    % [class] Array of Synapse Class Objects.
+            if nargin < 5, verbose_flag = true; end                                         % [T/F] Verbose Flag.
+            if nargin < 4, append_flag = false; end                                         % [T/F] Append Flag.
+            if nargin < 3, directory = '.'; end                                             % [str] Load Directory.
+            if nargin < 2, file_name = 'Synapse_Data.xlsx'; end                             % [str] File Name.
             
             % Determine whether to print status messages.
             if verbose_flag, fprintf( 'LOADING SYNAPSE DATA. Please Wait...\n' ), end
@@ -5209,7 +5210,7 @@ classdef synapse_manager_class
             tic
             
             % Load the synapse data.
-            [ synapse_IDs, synapse_names, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = self.data_loader_utilities.load_synapse_data( file_name, directory );
+            [ synapse_IDs, synapse_names, synapse_dEsyns, synapse_gsyn_maxs, synapse_from_neuron_IDs, synapse_to_neuron_IDs ] = data_loader_utilities.load_synapse_data( file_name, directory );
             
             % Define the number of synapses.
             num_synapses_to_load = length( synapse_IDs );
@@ -5247,10 +5248,10 @@ classdef synapse_manager_class
             % Determine whether to update the synapse manager properties.
             if set_flag                                             	% If we want to update the synapse manager properties...
                 
-                % Update the neurons property.
+                % Update the synapses property.
                 self.synapses = synapses;
                 
-                % Update the number of neurons.
+                % Update the number of synapses.
                 self.num_synapses = n_synapses;
                 
             end
