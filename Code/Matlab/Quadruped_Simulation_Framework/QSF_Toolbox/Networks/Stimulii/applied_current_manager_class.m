@@ -21,9 +21,9 @@ classdef applied_current_manager_class
     properties ( Access = private, Constant = true )
         
         % Define the neuron parameters.
-        R_DEFAULT = 20e-3;                                                                                  	% [V] Activation Domain
-        Gm_DEFAULT = 1e-6;                                                                                   	% [S] Membrane Conductance
-        to_neuron_ID_DEFAULT = -1;                                                                               	% [#] Neuron ID
+        R_DEFAULT = 20e-3;                                                                                  	% [V] Activation Domain.
+        Gm_DEFAULT = 1e-6;                                                                                   	% [S] Membrane Conductance.
+        to_neuron_ID_DEFAULT = -1;                                                                            	% [#] Neuron ID.
         
         % Define subnetwork neuron quantities.
         num_mcpg_applied_currents_DEFAULT = 1;                                                                	% [#] Number of Multistate CPG Applied Currents.
@@ -40,15 +40,15 @@ classdef applied_current_manager_class
         ts_DEFAULT = 0;
         
         % Define the simulation parameters.
-        dt_DEFAULT = 1e-3;                                                                                  	% [s] Simulation Time Step
-        tf_DEFAULT = 1;                                                                                        	% [s] Simulation Duration
+        dt_DEFAULT = 1e-3;                                                                                  	% [s] Simulation Time Step.
+        tf_DEFAULT = 1;                                                                                        	% [s] Simulation Duration.
         
         % Define the option defaults.
         undetected_option_DEFAULT = 'error';                                                                  	% [str] Undetected Option (Either 'error', 'warning', or 'ignore'.) (Determines how to handle situations where applied current IDs are provided that do not match an existing IDs.)
         process_option_DEFAULT = 'none';                                                                      	% [str] Process Option (Either 'max', 'min', 'mean', or 'none'.) (Determines the type of post processing that should be done to applied current properties when they are retrieved.)
         
         % Define the flag defaults.
-        filter_disabled_flag_DEFAULT = true;                                                                  	% [T/F] Filter Disabled Flag. (Determines whether 
+        filter_disabled_flag_DEFAULT = true;                                                                  	% [T/F] Filter Disabled Flag. (Determines whether to filter out disabled applied currents.)
         
     end
     
@@ -62,12 +62,12 @@ classdef applied_current_manager_class
         function self = applied_current_manager_class( applied_currents, data_loader_utilities, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = array_utilities_class(  ); end
-            if nargin < 2, data_loader_utilities = data_loader_utilities_class(  ); end
-            if nargin < 1, applied_currents = [  ]; end
+            if nargin < 3, array_utilities = array_utilities_class(  ); end                         % [class] Array Utilities Class.
+            if nargin < 2, data_loader_utilities = data_loader_utilities_class(  ); end             % [class] Data Loader Utilities Class.
+            if nargin < 1, applied_currents = [  ]; end                                             % [class] Array of Applied Current Class Objects.
             
             % Store the utility class properties.
-            self.array_utilities = array_utilities;
+            self.array_utilities = array_utilities;                                                 
             self.data_loader_utilities = data_loader_utilities;
             
             % Store the applied currents property.
@@ -87,7 +87,7 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, applied_currents = self.applied_currents; end                   	% [class] Array of Neuron Class Objects.
-            if nargin < 4, as_matrix_flag = self.as_matrix_flag_DEFAULT; end             	% [T/F] As Matrix Flag (Determines whether to return the neuron property as a matrix or as a cell.)
+            if nargin < 4, as_matrix_flag = self.as_matrix_flag_DEFAULT; end             	% [T/F] As Matrix Flag. (Determines whether to return the neuron property as a matrix or as a cell.)
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
@@ -99,7 +99,7 @@ classdef applied_current_manager_class
             xs = cell( 1, num_properties_to_get );
             
             % Retrieve the given applied current property for each applied current.
-            for k = 1:num_properties_to_get                                                                         % Iterate through each of the properties to get...
+            for k = 1:num_properties_to_get                                                 % Iterate through each of the properties to get...
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
@@ -113,7 +113,7 @@ classdef applied_current_manager_class
             end
             
             % Determine whether to convert the network properties to a matrix.
-            if as_matrix_flag                                    % If we want the applied current properties as a matrix instead of a cell...
+            if as_matrix_flag                                                               % If we want the applied current properties as a matrix instead of a cell...
                 
                 % Convert the applied current properties from a cell to a matrix.
                 xs = cell2mat( xs );
@@ -127,8 +127,8 @@ classdef applied_current_manager_class
         function [ applied_currents, self ] = set_applied_current_property( self, applied_current_IDs, applied_current_property_values, applied_current_property, applied_currents, set_flag )
             
             % Set the default input arguments.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                         	% [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                    % [class] Array of Applied Current Class Objects.
             
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
@@ -137,7 +137,7 @@ classdef applied_current_manager_class
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Validate the applied current property values.
-            if ~isa( applied_current_property_values, 'cell' )                    % If the applied current property values are not a cell array...
+            if ~isa( applied_current_property_values, 'cell' )                              % If the applied current property values are not a cell array...
                 
                 % Convert the applied current property values to a cell array.
                 applied_current_property_values = num2cell( applied_current_property_values );
@@ -152,16 +152,16 @@ classdef applied_current_manager_class
             num_applied_current_property_values = length( applied_current_property_values );
             
             % Ensure that the provided neuron property values have the same length as the provided applied current IDs.
-            if ( num_applied_current_IDs ~= num_applied_current_property_values )                                     % If the number of provided applied current IDs does not match the number of provided property values...
+            if ( num_applied_current_IDs ~= num_applied_current_property_values )           % If the number of provided applied current IDs does not match the number of provided property values...
                 
                 % Determine whether to agument the property values.
-                if num_applied_current_property_values == 1                                                  % If there is only one provided property value...
+                if num_applied_current_property_values == 1                                 % If there is only one provided property value...
                     
                     % Augment the property value length to match the ID length.
                     %                     applied_current_property_values = applied_current_property_values*ones( 1, num_applied_current_IDs );
                     applied_current_property_values = repmat( applied_current_property_values, [ 1, num_applied_current_IDs ] );
                     
-                else                                                                                % Otherwise...
+                else                                                                    	% Otherwise...
                     
                     % Throw an error.
                     error( 'The number of provided applied current propety values must match the number of provided applied current IDs, unless a single applied current property value is provided.' )
@@ -170,15 +170,14 @@ classdef applied_current_manager_class
                 
             end
             
-            
             % Set the properties of each applied current.
-            for k = 1:n_applied_currents                   % Iterate through each applied current...
+            for k = 1:n_applied_currents                                                    % Iterate through each applied current...
                 
                 % Determine the index of the applied current property value that we want to apply to this applied current (if we want to set a property of this applied current).
                 index = find( applied_currents( k ).ID == applied_current_IDs, 1 );
                 
                 % Determine whether to set a property of this applied current.
-                if ~isempty( index )                         % If a matching applied current ID was detected...
+                if ~isempty( index )                                                        % If a matching applied current ID was detected...
                     
                     % Create an evaluation string that sets the desired applied current property.
                     eval_string = sprintf( 'applied_currents( %0.0f ).%s = applied_current_property_values{ %0.0f };', k, applied_current_property, index );
@@ -202,7 +201,7 @@ classdef applied_current_manager_class
         function applied_current_IDs = get_all_applied_current_IDs( self, applied_currents )
             
             % Set the default input arguments.
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_currents = self.applied_currents; end            % [class] Array of Applied Current Class Objects.
             
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
@@ -211,7 +210,7 @@ classdef applied_current_manager_class
             applied_current_IDs = zeros( 1, n_applied_currents );
             
             % Retrieve the ID associated with each applied current.
-            for k = 1:n_applied_currents                             % Iterate through each of the applied currents...
+            for k = 1:n_applied_currents                                            % Iterate through each of the applied currents...
                 
                 % Retrieve this applied current ID.
                 applied_current_IDs( k ) = applied_currents( k ).ID;
@@ -225,18 +224,18 @@ classdef applied_current_manager_class
         function num_timesteps = get_num_timesteps( self, applied_current_IDs, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, process_option = self.process_option_DEFAULT; end
-            if nargin < 4, filter_disabled_flag = self.filter_distabled_flag_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option. (Must be either 'error', 'warning', or 'ignore'.)
+            if nargin < 5, process_option = self.process_option_DEFAULT; end                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 4, filter_disabled_flag = self.filter_distabled_flag_DEFAULT; end           % [T/F] Filter Disabled Flag. (Determines whether disabled applied currents are considered.)
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to compute the number of timesteps.
-            if all( applied_current_IDs == -1 )                         % If all of the applied current IDs are invalid...
+            if all( applied_current_IDs == -1 )                                                     % If all of the applied current IDs are invalid...
                 
                 % Set the number of timesteps to zero.
                 num_timesteps = 0;
                 
-            else                                                        % Otherwise...
+            else                                                                                    % Otherwise...
                 
                 % Remove any invalid applied current IDs.
                 applied_current_IDs( applied_current_IDs == -1 ) = [  ];
@@ -248,26 +247,26 @@ classdef applied_current_manager_class
                 num_timesteps = self.get_applied_current_property( applied_current_IDs, 'num_timesteps', true, applied_currents, undetected_option );
                 
                 % Determine how to process the number of timesteps.
-                if strcmpi( process_option, 'average' )                     % If we want the average time step...
+                if strcmpi( process_option, 'average' )                                             % If we want the average time step...
                     
                     % Set the number of timesteps to be the average number of timesteps.
                     num_timesteps = mean( num_timesteps );
                     
-                elseif strcmpi( process_option, 'max' )                    % If we want the maximum time step...
+                elseif strcmpi( process_option, 'max' )                                             % If we want the maximum time step...
                     
                     % Set the number of timesteps to be the largest number of timesteps.
                     num_timesteps = max( num_timesteps );
                     
-                elseif strcmpi( process_option, 'min' )                    % If we want the minimum time step...
+                elseif strcmpi( process_option, 'min' )                                             % If we want the minimum time step...
                     
                     % Set the number of timesteps to be the smallest number of timesteps.
                     num_timesteps = min( num_timesteps );
                     
-                elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                elseif strcmpi( process_option, 'none' )                                            % If we have selected no process options...
                     
                     % Do nothing.
                     
-                else                                                        % Otherwise...
+                else                                                                                % Otherwise...
                     
                     % Throw an error.
                     error( 'Process option %s not recognized.', process_option )
@@ -283,18 +282,18 @@ classdef applied_current_manager_class
         function dt = get_dts( self, applied_current_IDs, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, process_option = self.process_option_DEFAULT; end
-            if nargin < 4, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option. (Must be either 'error', 'warning', or 'ignore'.)
+            if nargin < 5, process_option = self.process_option_DEFAULT; end                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 4, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to compute the step size.
-            if all( applied_current_IDs == -1 )                         % If all of the applied current IDs are invalid...
+            if all( applied_current_IDs == -1 )                                                     % If all of the applied current IDs are invalid...
                 
                 % Set the step size to zero.
                 dt = 1e-3;
                 
-            else                                                        % Otherwise...
+            else                                                                                    % Otherwise...
                 
                 % Remove any invalid applied current IDs.
                 applied_current_IDs( applied_current_IDs == -1 ) = [  ];
@@ -309,26 +308,26 @@ classdef applied_current_manager_class
                 if isempty( dt ), dt = 1e-3; end
                 
                 % Determine how to process the step size.
-                if strcmpi( process_option, 'average' )                     % If we want the average step size...
+                if strcmpi( process_option, 'average' )                                             % If we want the average step size...
                     
                     % Set the step size to be the average step size.
                     dt = mean( dt );
                     
-                elseif strcmpi( process_option, 'max' )                    % If we want the maximum step size...
+                elseif strcmpi( process_option, 'max' )                                             % If we want the maximum step size...
                     
                     % Set the step size to be the largest step size.
                     dt = max( dt );
                     
-                elseif strcmpi( process_option, 'min' )                    % If we want the minimum step size...
+                elseif strcmpi( process_option, 'min' )                                             % If we want the minimum step size...
                     
                     % Set the step size to be the smallest step size.
                     dt = min( dt );
                     
-                elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                elseif strcmpi( process_option, 'none' )                                            % If we have selected no process options...
                     
                     % Do nothing.
                     
-                else                                                        % Otherwise...
+                else                                                                                % Otherwise...
                     
                     % Throw an error.
                     error( 'Process option %s not recognized.', process_option )
@@ -344,18 +343,18 @@ classdef applied_current_manager_class
         function tf = get_tfs( self, applied_current_IDs, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, process_option = self.process_option_DEFAULT; end
-            if nargin < 4, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option. (Must be either 'error', 'warning', or 'ignore'.)
+            if nargin < 5, process_option = self.process_option_DEFAULT; end                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 4, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)    
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to compute the final time.
-            if all( applied_current_IDs == -1 )             % If all of the applied current IDs are invalid...
+            if all( applied_current_IDs == -1 )                                                     % If all of the applied current IDs are invalid...
                 
                 % Set the final time to zero.
                 tf = 0;
                 
-            else                                            % Otherwise...
+            else                                                                                    % Otherwise...
                 
                 % Remove any invalid applied current IDs.
                 applied_current_IDs( applied_current_IDs == -1 ) = [  ];
@@ -367,26 +366,26 @@ classdef applied_current_manager_class
                 tf = self.get_applied_current_property( applied_current_IDs, 'tf', true, applied_currents, undetected_option );
                 
                 % Determine how to process the final time.
-                if strcmpi( process_option, 'average' )                     % If we want the average final time...
+                if strcmpi( process_option, 'average' )                                             % If we want the average final time...
                     
                     % Set the step size to be the average final time.
                     tf = mean( tf );
                     
-                elseif strcmpi( process_option, 'max' )                    % If we want the maximum final time...
+                elseif strcmpi( process_option, 'max' )                                             % If we want the maximum final time...
                     
                     % Set the step size to be the largest final time.
                     tf = max( tf );
                     
-                elseif strcmpi( process_option, 'min' )                    % If we want the minimum final time...
+                elseif strcmpi( process_option, 'min' )                                             % If we want the minimum final time...
                     
                     % Set the step size to be the smallest final time.
                     tf = min( tf );
                     
-                elseif strcmpi( process_option, 'none' )                   % If we have selected no process options...
+                elseif strcmpi( process_option, 'none' )                                            % If we have selected no process options...
                     
                     % Do nothing.
                     
-                else                                                        % Otherwise...
+                else                                                                                % Otherwise...
                     
                     % Throw an error.
                     error( 'Process option %s not recognized.', process_option )
@@ -402,11 +401,11 @@ classdef applied_current_manager_class
         function [ ts, Ias ] = get_Ias( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
-            if nargin < 4, tf = [  ]; end
-            if nargin < 3, dt = [  ]; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option. (Must be either 'error', 'warning', or 'ignore'.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, tf = [  ]; end                                                           % [s] Final Simulation Time.
+            if nargin < 3, dt = [  ]; end                                                           % [s] Simulation Timestep.
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
@@ -473,8 +472,8 @@ classdef applied_current_manager_class
         function applied_current_index = get_applied_current_index( self, applied_current_ID, applied_currents, undetected_option )
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = 'error'; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, undetected_option = 'error'; end                                         % [str] Undetected Option. (Must be either 'error', 'warning', or 'ignore'.)
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
@@ -576,7 +575,7 @@ classdef applied_current_manager_class
         function [ unique_flag, match_logicals ] = unique_existing_applied_current_IDs( self, applied_currents )
             
             % Set the default input arguments.
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
@@ -634,8 +633,8 @@ classdef applied_current_manager_class
         function [ unique_flag, match_logicals, match_indexes ] = unique_applied_current_ID( self, applied_current_ID, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Retrieve all of the existing applied current IDs.
             applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
@@ -653,8 +652,8 @@ classdef applied_current_manager_class
         function applied_current_ID = generate_unique_applied_current_ID( self, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 3, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Retrieve the existing applied current IDs.
             existing_applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
@@ -669,8 +668,8 @@ classdef applied_current_manager_class
         function applied_current_IDs = generate_unique_applied_current_IDs( self, num_IDs, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Retrieve the existing applied current IDs.
             existing_applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
@@ -693,8 +692,8 @@ classdef applied_current_manager_class
         function unique_flag_natural = unique_natural_applied_current_ID( self, applied_current_ID, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 3, applied_currents = self.applied_currents; end                                                    % [class] Array of Applied Current Class Objects.
             
             % Initialize the unique natural to false.
             unique_flag_natural = false;
@@ -703,7 +702,7 @@ classdef applied_current_manager_class
             unique_flag = self.unique_applied_current_ID( applied_current_ID, applied_currents, array_utilities );
             
             % Determine whether this applied current ID is a unique natural.
-            if unique_flag && ( applied_current_ID > 0 ) && ( round( applied_current_ID ) == applied_current_ID )                     % If this applied current ID is a unique natural...
+            if unique_flag && ( applied_current_ID > 0 ) && ( round( applied_current_ID ) == applied_current_ID )           % If this applied current ID is a unique natural...
                 
                 % Set the unique natural flag to true.
                 unique_flag_natural = true;
@@ -717,8 +716,8 @@ classdef applied_current_manager_class
         function applied_current_IDs = remove_disabled_applied_current_IDs( self, applied_current_IDs, applied_currents, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 3, applied_currents = self.applied_currents; end                   	% [class] Array of Applied Current Class Objects.
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
@@ -762,8 +761,8 @@ classdef applied_current_manager_class
             % NOTE: This function assumes that only one applied current applies to each neuron.
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 3, applied_currents = self.applied_currents; end                   	% [class] Array of Applied Current Class Objects.
             
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
@@ -833,8 +832,8 @@ classdef applied_current_manager_class
         function applied_current_IDs = to_neuron_IDs2applied_current_IDs( self, to_neuron_IDs, applied_currents, undetected_option )
             
             % Set the default input argument.
-            if nargin < 4, undetected_option = 'error'; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected option. (Must be either 'error', 'warning', or 'ignore'.)
+            if nargin < 3, applied_currents = self.applied_currents; end                    % [class] Array of Applied Current Class Objects.
             
             % Retrieve the number of applied currents to find.
             num_applied_currents_to_find = length( to_neuron_IDs );
@@ -843,7 +842,7 @@ classdef applied_current_manager_class
             applied_current_IDs = zeros( 1, num_applied_currents_to_find );
             
             % Search for each applied current ID.
-            for k = 1:num_applied_currents_to_find                              % Iterate through each set of neurons for which we are searching for a connecting applied current...
+            for k = 1:num_applied_currents_to_find                                          % Iterate through each set of neurons for which we are searching for a connecting applied current...
                 
                 % Retrieve the ID of the applied current that connects to this neuron.
                 applied_current_IDs( k ) = self.to_neuron_ID2applied_current_ID( to_neuron_IDs( k ), applied_currents, undetected_option );
@@ -857,12 +856,12 @@ classdef applied_current_manager_class
         function [ ts, Ias ] = to_neuron_IDs2Ias( self, to_neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, process_option = self.process_option_DEFAULT; end
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents_DEFAULT; end
-            if nargin < 4, tf = [  ]; end
-            if nargin < 3, dt = [  ]; end
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 7, process_option = self.process_option_DEFAULT; end                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents_DEFAULT; end                    % [class] Array of Applied Current Class Objects.
+            if nargin < 4, tf = [  ]; end                                                           % [s] Final Simulation Time.
+            if nargin < 3, dt = [  ]; end                                                           % [s] Simulation Timestep.
             
             % Retrieve the applied current IDs.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( to_neuron_IDs, applied_currents, undetected_option );
@@ -879,9 +878,9 @@ classdef applied_current_manager_class
         function [ enabled_flag, applied_currents, self ] = enable_applied_current( self, applied_current_ID, applied_currents, set_flag, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Retrieve the index associated with this applied current.
             applied_current_index = self.get_applied_current_index( applied_current_ID, applied_currents, undetected_option );
@@ -949,7 +948,7 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undected_option_DEFAULT; end            % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 3, applied_currents = self.applied_currents; end                           	% [class] Array of Neuron Class Objects.
+            if nargin < 3, applied_currents = self.applied_currents; end                   	% [class] Array of Neuron Class Objects.
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_currents_IDs( applied_current_IDs, applied_currents );
@@ -1025,8 +1024,8 @@ classdef applied_current_manager_class
         function one_to_one_flag = one_to_one_applied_currents( self, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 3, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
@@ -1143,7 +1142,7 @@ classdef applied_current_manager_class
         function parameters = process_multiplication_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
            
@@ -1213,7 +1212,7 @@ classdef applied_current_manager_class
         function parameters = process_integration_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
            
@@ -1283,7 +1282,7 @@ classdef applied_current_manager_class
         function parameters = process_vbi_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
            
@@ -1353,7 +1352,7 @@ classdef applied_current_manager_class
         function parameters = process_svbi_Ias1_parameters( self, parameters, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
            
@@ -1423,7 +1422,7 @@ classdef applied_current_manager_class
         function parameters = process_svbi_Ias2_parameters( self, parameters, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
            
@@ -1495,11 +1494,11 @@ classdef applied_current_manager_class
         function [ ts, applied_currents, self ] = compute_mcpg_ts( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, process_option = self.process_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, process_option = self.process_option_DEFAULT; end                                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
             if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1537,11 +1536,11 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_mcpg_Ias( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, process_option = self.process_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, process_option = self.process_option_DEFAULT; end                                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
             if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1579,9 +1578,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_dmcpg_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
             if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1616,9 +1615,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_dmcpgdcll2cds_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
             if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1653,9 +1652,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_centering_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
             if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1690,9 +1689,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_transmission_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
@@ -1726,9 +1725,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_addition_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
@@ -1762,9 +1761,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_subtraction_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
@@ -1798,9 +1797,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_inversion_Ias_input( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
@@ -1823,9 +1822,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_inversion_Ias_output( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1852,9 +1851,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_division_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
@@ -1888,9 +1887,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_multiplication_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1931,9 +1930,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_integration_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -1974,9 +1973,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_vbi_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -2017,9 +2016,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_svbi_Ias1( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -2060,9 +2059,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = compute_svbi_Ias2( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
@@ -2105,8 +2104,8 @@ classdef applied_current_manager_class
         function valid_flag = validate_applied_current_properties( self, n_applied_currents, IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, array_utilities = self.array_utilities; end
-            if nargin < 9, applied_currents = self.applied_currents; end
+            if nargin < 10, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 9, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 8, enabled_flags = true( 1, n_applied_currents ); end
             if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
             if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
@@ -2129,8 +2128,8 @@ classdef applied_current_manager_class
         function [ n_applied_currents, IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = process_applied_current_creation_inputs( self, n_applied_currents, IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities )
         
             % Set the default input arguments.
-            if nargin < 10, array_utilities = self.array_utilities; end
-            if nargin < 9, applied_currents = self.applied_currents; end
+            if nargin < 10, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 9, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 8, enabled_flags = true( 1, n_applied_currents ); end
             if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
             if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
@@ -2231,10 +2230,10 @@ classdef applied_current_manager_class
         function [ ID_new, applied_current_new, applied_currents, self ] = create_applied_current( self, ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, array_utilities = self.array_utilities; end
+            if nargin < 11, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_currents = self.applied_currents; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 8, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 7, enabled_flag = self.enabled_flag_DEFAULT; end
             if nargin < 6, Ias = self.Ias_DEFAULT; end
             if nargin < 5, ts = self.ts_DEFAULT; end
@@ -2317,9 +2316,9 @@ classdef applied_current_manager_class
         function [ applied_currents, self ] = delete_applied_current( self, applied_current_ID, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Create an instance of the applied current manager.
             applied_current_manager = self;
@@ -2346,7 +2345,7 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 3, applied_currents = self.applied_currents; end                   	% [class] Array of Applied Current Class Objects.
+            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 2, applied_current_IDs = 'all'; end
             
             % Validate the applied current IDs.
@@ -2547,7 +2546,7 @@ classdef applied_current_manager_class
         
             % Set the default input arguments.
             if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to generate the applied current IDs and objects.
             if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
@@ -2572,7 +2571,7 @@ classdef applied_current_manager_class
         
             % Set the default input arguments.
             if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to generate the applied current IDs and objects.
             if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
@@ -2597,7 +2596,7 @@ classdef applied_current_manager_class
         
             % Set the default input arguments.
             if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to generate the applied current IDs and objects.
             if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
@@ -2755,7 +2754,7 @@ classdef applied_current_manager_class
             
             % Set the default input arguments.
             if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             
             % Determine how to generate the applied current IDs and objects.
             if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
@@ -2947,11 +2946,11 @@ classdef applied_current_manager_class
             n_neurons = self.num_mcpg_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, process_option = self.process_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, process_option = self.process_option_DEFAULT; end                                    % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
             if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
@@ -2981,9 +2980,9 @@ classdef applied_current_manager_class
             n_dmcpg_neurons = self.num_dmcpg_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
             if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
             if nargin < 2, neuron_IDs = 1:n_dmcpg_neurons; end                                                         % [#] Neuron IDs
@@ -3024,9 +3023,9 @@ classdef applied_current_manager_class
         function [ Ias, applied_currents, self ] = design_dmcpgdcll2cds_applied_current( self, neuron_ID, Gm, R, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
             if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
             if nargin < 2, neuron_ID = 1; end                                                         % [#] Neuron ID.
@@ -3047,9 +3046,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_transmission_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
@@ -3069,9 +3068,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_addition_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
@@ -3091,9 +3090,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_subtraction_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
@@ -3113,9 +3112,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_centering_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
             % Get the applied currents IDs associated with the provided neuron IDs.
@@ -3134,9 +3133,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_inversion_neurons;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
@@ -3169,9 +3168,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_division_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_currents = self.applied_currents; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
@@ -3191,9 +3190,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_multiplication_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
@@ -3227,9 +3226,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_integration_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
@@ -3253,9 +3252,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_vbi_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
@@ -3279,9 +3278,9 @@ classdef applied_current_manager_class
             n_neurons = self.num_svbi_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_currents = self.applied_currents; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
@@ -3332,7 +3331,7 @@ classdef applied_current_manager_class
         function [ data, self ] = load( self, directory, file_name, set_flag )
             
             % Set the default input arguments.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 3, file_name = 'Applied_Current_Manager.mat'; end
             if nargin < 2, directory = '.'; end
             
@@ -3354,7 +3353,7 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 8, data_loader_utilities = self.data_loader_utilities; end          % [class] Data Load Utilities Class.
             if nargin < 7, set_flag  = self.set_flag; end                                   % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 6, applied_currents = self.applied_currents; end                                    % [class] Array of Applied Current Class Objects.
+            if nargin < 6, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 5, verbose_flag = true; end
             if nargin < 4, append_flag = false; end
             if nargin < 3, directory = '.'; end
