@@ -4896,7 +4896,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a driven multistate cpg subnetwork.
-        function [ dEs, gs, synapses, self ] = design_dmcpg_synapses( self, neuron_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, self ] = design_dmcpg_synapses( self, neuron_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -4926,7 +4926,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a transmission subnetwork.
-        function [ dEs, synapses, self ] = design_transmission_synapse( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_ID, synapses, self ] = design_transmission_synapse( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -4945,7 +4945,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a modulation subnetwork.
-        function [ dEs, synapses, self ] = design_modulation_synapse( self, neuron_IDs, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_ID, synapses, self ] = design_modulation_synapse( self, neuron_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -4962,7 +4962,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for an addition subnetwork.
-        function [ dEs1, dEs2, synapses, self ] = design_addition_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_addition_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -4980,6 +4980,9 @@ classdef synapse_manager_class
             [ dEs1, synapses, synapse_manager ] = self.compute_addition_dEs1( synapse_IDs( 1 ), encoding_scheme, synapses, true, undetected_option );
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_addition_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2 ];
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -4987,7 +4990,7 @@ classdef synapse_manager_class
         
 
         % Implement a function to design the synapses for a subtraction subnetwork.
-        function [ dEs1, dEs2, synapses, self ] = design_subtraction_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_subtraction_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5005,6 +5008,9 @@ classdef synapse_manager_class
             [ dEs1, synapses, synapse_manager ] = self.compute_subtraction_dEs1( synapse_IDs( 1 ), encoding_scheme, synapses, true, undetected_option );
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_subtraction_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2 ];
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -5012,7 +5018,7 @@ classdef synapse_manager_class
 
         
         % Implement a function to design the synapses for a multiplication subnetwork.
-        function [ dEs1, dEs2, dEs3, synapses, self ] = design_multiplication_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_multiplication_synapses( self, neuron_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5029,6 +5035,9 @@ classdef synapse_manager_class
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_multiplication_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             [ dEs3, synapses, synapse_manager ] = synapse_manager.compute_multiplication_dEs3( synapse_IDs( 3 ), encoding_scheme, synapses, true, undetected_option );
             
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2, dEs3 ];
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -5036,7 +5045,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for an inversion subnetwork.
-        function [ dEs, synapses, self ] = design_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_ID, synapses, self ] = design_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5056,7 +5065,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a division subnetwork.
-        function [ dEs1, dEs2, synapses, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5075,6 +5084,9 @@ classdef synapse_manager_class
             [ dEs1, synapses, synapse_manager ] = self.compute_division_dEs1( synapse_IDs( 1 ), parameters, encoding_scheme, synapses, true, undetected_option );
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_division_dEs2( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
             
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2 ];
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -5082,7 +5094,7 @@ classdef synapse_manager_class
         
 
         % Implement a function to design the synapses for a derivation subnetwork.
-        function [ dEs1, dEs2, synapses, self ] = design_derivation_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_derivation_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5099,6 +5111,9 @@ classdef synapse_manager_class
             [ dEs1, synapses, synapse_manager ] = self.compute_derivation_dEs1( synapse_IDs( 1 ), synapses, true, undetected_option );
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_derivation_dEs2( synapse_IDs( 2 ), synapses, true, undetected_option );
             
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2 ];
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -5106,7 +5121,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for an integration subnetwork.
-        function [ dEs1, dEs2, synapses, self ] = design_integration_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_integration_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5123,6 +5138,9 @@ classdef synapse_manager_class
             [ dEs1, synapses, synapse_manager ] = self.compute_integration_dEs1( synapse_IDs( 1 ), synapses, set_flag, undetected_option );
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_integration_dEs2( synapse_IDs( 2 ), synapses, set_flag, undetected_option );
             
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2 ];
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -5130,7 +5148,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to design the synapses for a voltage based integration subnetwork.
-        function [ dEs1, dEs2, synapses, self ] = design_vbi_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
+        function [ dEs, synapse_IDs, synapses, self ] = design_vbi_synapses( self, neuron_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5146,6 +5164,9 @@ classdef synapse_manager_class
             % Compute the synaptic reversal potential.
             [ dEs1, synapses, synapse_manager ] = self.compute_vbi_dEs1( synapse_IDs( 1 ), synapses, true, undetected_option );
             [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_vbi_dEs2( synapse_IDs( 2 ), synapses, true, undetected_option );
+            
+            % Store the synaptic reversal potentials in an array.
+            dEs = [ dEs1, dEs2 ];
             
             % Detemrine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end

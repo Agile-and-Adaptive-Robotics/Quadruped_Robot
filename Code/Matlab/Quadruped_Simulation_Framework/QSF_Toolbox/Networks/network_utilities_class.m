@@ -63,7 +63,7 @@ classdef network_utilities_class
         %% Synapse Functions.
         
         % Implement a function to compute the synpatic conductance of a synapse leaving this neuron.
-        function Gs = compute_Gsyn( ~, U, R, gs )
+        function Gs = compute_Gs( ~, U, R, gs )
                     
             %{
             Input(s):
@@ -117,7 +117,7 @@ classdef network_utilities_class
             %}
             
             % Compute the synaptic conductance of this synapse leaving this neuron.
-            Gs = self.compute_Gsyn( U, R, gs );
+            Gs = self.compute_Gs( U, R, gs );
             
             % Compute the synaptic current for this neuron.
             Is = self.compute_Isyn( U, Gs, dEs );
@@ -128,7 +128,7 @@ classdef network_utilities_class
         %% Multistate CPG Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductance.
-        function gs_vector = compute_cpg_gsynmax_vector( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities )
+        function gs_vector = compute_cpg_gs_vector( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities )
             
             %{
             Input(s):
@@ -245,7 +245,7 @@ classdef network_utilities_class
         
         
         % Implement a function to convert a maximum synaptic conductance vector to a maximum synaptic conductance matrix.
-        function gs_matrix = gsynmax_vector2gsynmax_matrix( ~, gs_vector, num_neurons )
+        function gs_matrix = gs_vector2gs_matrix( ~, gs_vector, num_neurons )
             
             %{
             Input(s):
@@ -303,7 +303,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance matrix.
-        function gs_matrix = compute_cpg_gsynmax_matrix( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities )
+        function gs_matrix = compute_cpg_gs_matrix( self, deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities )
             
             %{
             Input(s):
@@ -329,13 +329,13 @@ classdef network_utilities_class
             if nargin < 15, neuron_utilities = self.neuron_utilities; end
             
             % Compute the maximum synaptic conductance vector.
-            gs_vector = self.compute_cpg_gsynmax_vector( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities );
+            gs_vector = self.compute_cpg_gs_vector( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Ias, neuron_utilities );
             
             % Retrieve the number of neurons.
             num_neurons = length( Gms );
             
             % Compute the maximum synaptic conductance matrix.
-            gs_matrix = self.gsynmax_vector2gsynmax_matrix( gs_vector, num_neurons );
+            gs_matrix = self.gs_vector2gs_matrix( gs_vector, num_neurons );
             
         end
         
@@ -365,7 +365,7 @@ classdef network_utilities_class
         %% Basic Transmission / Modulation Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductance for a signal transmission pathway.
-        function gs12 = compute_transmission_gsynmax( ~, Gm2, R1, dEs12, Ia2, k )
+        function gs12 = compute_transmission_gs( ~, Gm2, R1, dEs12, Ia2, k )
             
             %{
             Input(s):
@@ -408,7 +408,7 @@ classdef network_utilities_class
 
         
         % Implement a function to compute the maximum synaptic conductance for a signal modulation pathway.
-        function gs12 = compute_modulation_gsynmax( ~, Gm2, R1, R2, dEs12, Ia2, c )
+        function gs12 = compute_modulation_gs( ~, Gm2, R1, R2, dEs12, Ia2, c )
             
             %{
             Input(s):
@@ -439,7 +439,7 @@ classdef network_utilities_class
         %% Arithmetic Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
-        function [ gs13, gs23 ] = compute_addition_gsynmax( self, Gm3, R1, R2, dEs13, dEs23, Ia3, k )
+        function [ gs13, gs23 ] = compute_addition_gs( self, Gm3, R1, R2, dEs13, dEs23, Ia3, k )
             
             %{
             Input(s):
@@ -460,14 +460,14 @@ classdef network_utilities_class
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             
             % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
-            gs13 = self.compute_transmission_gsynmax( Gm3, R1, dEs13, Ia3, k );
-            gs23 = self.compute_transmission_gsynmax( Gm3, R2, dEs23, Ia3, k );
+            gs13 = self.compute_transmission_gs( Gm3, R1, dEs13, Ia3, k );
+            gs23 = self.compute_transmission_gs( Gm3, R2, dEs23, Ia3, k );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances for a relative addition subnetwork.
-        function [ gs13, gs23 ] = compute_relative_addition_gsynmax( self, Gm3, R1, R2, dEs13, dEs23, Ia3, k )
+        function [ gs13, gs23 ] = compute_relative_addition_gs( self, Gm3, R1, R2, dEs13, dEs23, Ia3, k )
             
             %{
             Input(s):
@@ -489,14 +489,14 @@ classdef network_utilities_class
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             
             % Compute the maximum synaptic conductances in the same way as for a transmission subnetwork.
-            gs13 = self.compute_transmission_gsynmax( Gm3, R1, dEs13, Ia3, k );
-            gs23 = self.compute_transmission_gsynmax( Gm3, R2, dEs23, Ia3, k );
+            gs13 = self.compute_transmission_gs( Gm3, R1, dEs13, Ia3, k );
+            gs23 = self.compute_transmission_gs( Gm3, R2, dEs23, Ia3, k );
             
         end
         
 
         % Implement a function to compute the maximum synaptic conductances for a subtraction subnetwork.
-        function [ gs13, gs23 ] = compute_subtraction_gsynmax( self, Gm3, R1, dEs13, dEs23, Ia3, k )
+        function [ gs13, gs23 ] = compute_subtraction_gs( self, Gm3, R1, dEs13, dEs23, Ia3, k )
             
             %{
             Input(s):
@@ -517,7 +517,7 @@ classdef network_utilities_class
             if nargin < 6, Ia3 = self.Ia_DEFAULT; end
             
             % Compute the maximum synaptic conductances for the first neuron of the substraction subnetwork.            
-            gs13 = self.compute_transmission_gsynmax( Gm3, R1, dEs13, Ia3, k );
+            gs13 = self.compute_transmission_gs( Gm3, R1, dEs13, Ia3, k );
 
             % Compute the maximum synaptic conductances for the second neuron of the subtraction subnetwork.
             gs23 = -( dEs13*gs13 + Ia3 )./dEs23;
@@ -529,7 +529,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance for an inversion subnetwork.
-        function gs = compute_inversion_gsynmax( self, Gm2, R1, Ia2, k, epsilon )
+        function gs = compute_inversion_gs( self, Gm2, R1, Ia2, k, epsilon )
             
             %{
             Input(s):
@@ -595,7 +595,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductances for a division subnetwork.
-        function [ gs13, gs23 ] = compute_division_gsynmax( self, Gm3, R1, R2, R3, dEs13, dEs23, Ia3, k, c )
+        function [ gs13, gs23 ] = compute_division_gs( self, Gm3, R1, R2, R3, dEs13, dEs23, Ia3, k, c )
         
             %{
             Input(s):
@@ -620,16 +620,16 @@ classdef network_utilities_class
             if nargin < 8, Ia3 = self.Ia_DEFAULT; end
             
             % Compute the maximum synaptic conductance for the first synapse.
-            gs13 = self.compute_transmission_gsynmax( Gm3, R1, dEs13, Ia3, k );
+            gs13 = self.compute_transmission_gs( Gm3, R1, dEs13, Ia3, k );
             
             % Compute the maximum synaptic conductance for the second synapse.
-            gs23 = self.compute_modulation_gsynmax( Gm3, R2, R3, dEs23, Ia3, c );
+            gs23 = self.compute_modulation_gs( Gm3, R2, R3, dEs23, Ia3, c );
             
         end
             
         
         % Implement a function to compute the maximum synaptic conductances for a multiplication subnetwork.
-        function [ gs14, gs23, gs34 ] = compute_multiplication_gsynmax( self, Gm3, Gm4, R1, R2, R3, R4, dEs14, dEs23, dEs34, Ia3, Ia4, k )
+        function [ gs14, gs23, gs34 ] = compute_multiplication_gs( self, Gm3, Gm4, R1, R2, R3, R4, dEs14, dEs23, dEs34, Ia3, Ia4, k )
         
             %{
             Input(s):
@@ -658,16 +658,16 @@ classdef network_utilities_class
             if nargin < 11, Ia3 = self.Ia_DEFAULT; end
             
             % Compute the maximum synaptic conductance for the first synapse.
-            gs14 = self.compute_transmission_gsynmax( Gm4, R1, dEs14, Ia4, k );
+            gs14 = self.compute_transmission_gs( Gm4, R1, dEs14, Ia4, k );
             
             % Set the synaptic modulation parameter to zero.
             c = 0;
             
             % Compute the maximum synaptic conductance for the second synapse.
-            gs23 = self.compute_modulation_gsynmax( Gm3, R2, R3, dEs23, Ia3, c );
+            gs23 = self.compute_modulation_gs( Gm3, R2, R3, dEs23, Ia3, c );
             
             % Compute the maximum synaptic conductance for the third synapse.
-            gs34 = self.compute_modulation_gsynmax( Gm4, R3, R4, dEs34, Ia4, c );
+            gs34 = self.compute_modulation_gs( Gm4, R3, R4, dEs34, Ia4, c );
             
         end
         
@@ -675,7 +675,7 @@ classdef network_utilities_class
         %% Derivation Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
-        function [ gs13, gs23 ] = compute_derivation_gsynmax( self, Gm3, R1, dEs13, dEs23, Ia3, k )
+        function [ gs13, gs23 ] = compute_derivation_gs( self, Gm3, R1, dEs13, dEs23, Ia3, k )
             
             %{
             Input(s):
@@ -692,7 +692,7 @@ classdef network_utilities_class
             %}
             
             % Compute the maximum synaptic conductances for a derivative subnetwork in the same way as for a subtraction subnetwork.
-            [ gs13, gs23 ] = self.compute_subtraction_gsynmax( Gm3, R1, dEs13, dEs23, Ia3, k );
+            [ gs13, gs23 ] = self.compute_subtraction_gs( Gm3, R1, dEs13, dEs23, Ia3, k );
             
         end
         
@@ -775,7 +775,7 @@ classdef network_utilities_class
             
         
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
-        function gs = compute_integration_gsynmax( ~, Gm, Cm, ki_range )
+        function gs = compute_integration_gs( ~, Gm, Cm, ki_range )
         
             %{
             Input(s):
@@ -797,7 +797,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
-        function dEs = compute_integration_dEsyn( ~, Gm, R, gs )
+        function dEs = compute_integration_dEs( ~, Gm, R, gs )
         
             %{
             Input(s):
@@ -816,7 +816,7 @@ classdef network_utilities_class
             
         
         % Implement a function to compute the applied current for an integration subnetwork.
-        function Ia = compute_integration_Iapp( ~, Gm, R )
+        function Ia = compute_integration_Ia( ~, Gm, R )
             
             %{
             Input(s):
@@ -836,34 +836,34 @@ classdef network_utilities_class
         %% Voltage Based Integration Design Functions.
         
         % Implement a function to compute the desired intermediate synaptic current for a voltage based integration subnetwork.
-        function Is12 = compute_vb_integration_Isyn( ~, R2, Ta, ki_mean, b_inhibition )
+        function Is12 = compute_vbi_Is( ~, R2, Ta, ki_mean, inhibition_flag )
 
             %{
             Input(s):
                 R2              =   [V] Maximum Membrane Voltage.
                 Ta              =   [s] Activation Period.
                 ki_mean         =   [-] Integration Subnetwork Gain.
-                b_inhibition    =   [T/F] Inhibition Flag.
+                inhibition_flag    =   [T/F] Inhibition Flag.
             
             Output(s):
                 Is12            =   [A] Synaptic Current (Synapse 12).
             %}
             
             % Set the default input arguments.
-            if nargin < 5, b_inhibition = false; end
+            if nargin < 5, inhibition_flag = false; end
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Compute the intermediate synaptic current.
             Is12 = R2./( 2*Ta.*ki_mean );    
             
             % Determine whether to switch the sign on the intermediate synaptic current.
-            if b_inhibition, Is12 = - Is12; end
+            if inhibition_flag, Is12 = - Is12; end
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductances for a voltage based integration subnetwork.
-        function gs12 = compute_vb_integration_gsynmax( ~, R2, dEs12, Is12 )
+        function gs12 = compute_vbi_gs( ~, R2, dEs12, Is12 )
                     
             %{
             Input(s):
@@ -884,7 +884,7 @@ classdef network_utilities_class
         %% Steady State Formulations.
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
-        function U2s = compute_desired_absolute_transmission_steady_state_output( ~, U1s, c )
+        function U2s = compute_da_transmission_sso( ~, U1s, c )
             
             %{
             Input(s):
@@ -906,7 +906,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative transmission subnetwork.
-        function U2s = compute_desired_relative_transmission_steady_state_output( ~, U1s, c, R1, R2 )
+        function U2s = compute_dr_transmission_sso( ~, U1s, c, R1, R2 )
             
             %{
             Input(s):
@@ -932,7 +932,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a transmission subnetwork.
-        function U2s = compute_achieved_transmission_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        function U2s = compute_achieved_transmission_sso( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
         
             % Set the default input arguments.
             if nargin < 7, dEs21 = 194e-3; end                                  % [V] Synaptic Reversal Potential (Synapse 21).
@@ -948,7 +948,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
-        function U_outputs = compute_desired_absolute_addition_steady_state_output( ~, U_inputs, c )
+        function U_outputs = compute_da_addition_sso( ~, U_inputs, c )
             
             %{
             Input(s):
@@ -970,7 +970,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative addition subnetwork.
-        function U_outputs = compute_desired_relative_addition_steady_state_output( ~, U_inputs, Rs, c )
+        function U_outputs = compute_dr_addition_sso( ~, U_inputs, Rs, c )
             
             %{
             Input(s):
@@ -997,7 +997,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of an addition subnetwork.
-        function U_outputs = compute_achieved_addition_steady_state_output( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
+        function U_outputs = compute_achieved_addition_sso( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
             
             %{
             Input(s):
@@ -1020,7 +1020,7 @@ classdef network_utilities_class
             
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute subtraction subnetwork.
-        function U_outputs = compute_desired_absolute_subtraction_steady_state_output( ~, U_inputs, c, ss )
+        function U_outputs = compute_da_subtraction_sso( ~, U_inputs, c, ss )
             
             %{
             Input(s):
@@ -1044,7 +1044,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative subtraction subnetwork.
-        function U_outputs = compute_desired_relative_subtraction_steady_state_output( ~, U_inputs, Rs, c, ss )
+        function U_outputs = compute_dr_subtraction_sso( ~, U_inputs, Rs, c, ss )
             
             %{
             Input(s):
@@ -1078,7 +1078,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a subtraction subnetwork.
-        function U_outputs = compute_achieved_subtraction_steady_state_output( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
+        function U_outputs = compute_achieved_subtraction_sso( ~, U_inputs, Rs, Gms, Ias, gs, dEs )
             
             %{
             Input(s):
@@ -1100,7 +1100,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute inversion subnetwork.
-        function U2s = compute_desired_absolute_inversion_steady_state_output( ~, U1s, c1, c2, c3 )
+        function U2s = compute_da_inversion_sso( ~, U1s, c1, c2, c3 )
             
             %{
             Input(s):
@@ -1125,7 +1125,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
-        function U2s = compute_desired_reduced_absolute_inversion_steady_state_output( ~, U1s, c1, c2 )
+        function U2s = compute_dra_inversion_sso( ~, U1s, c1, c2 )
            
             %{
             Input(s):
@@ -1148,7 +1148,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative inversion subnetwork.
-        function U2s = compute_desired_relative_inversion_steady_state_output( ~, Us1, c1, c2, c3, R1, R2 )
+        function U2s = compute_dr_inversion_sso( ~, Us1, c1, c2, c3, R1, R2 )
         
             %{
             Input(s):
@@ -1177,7 +1177,7 @@ classdef network_utilities_class
            
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
-        function U2s = compute_desired_reduced_relative_inversion_steady_state_output( ~, Us1, c1, c2, R1, R2 )
+        function U2s = compute_drr_inversion_sso( ~, Us1, c1, c2, R1, R2 )
         
             %{
             Input(s):
@@ -1204,7 +1204,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
-        function U2s = compute_achieved_inversion_steady_state_output( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        function U2s = compute_achieved_inversion_sso( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
         
             %{
             Input(s):
@@ -1233,7 +1233,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
-        function U3s = compute_desired_absolute_division_steady_state_output( ~, U_inputs, c1, c2, c3 )
+        function U3s = compute_da_division_sso( ~, U_inputs, c1, c2, c3 )
         
             %{
             Input(s):
@@ -1262,7 +1262,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute division subnetwork.
-        function U3s = compute_desired_reduced_absolute_division_steady_state_output( ~, U_inputs, c1, c2 )
+        function U3s = compute_dra_division_sso( ~, U_inputs, c1, c2 )
         
             %{
             Input(s):
@@ -1289,7 +1289,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative division subnetwork.
-        function U3s = compute_desired_relative_division_steady_state_output( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
+        function U3s = compute_dr_division_sso( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
         
             %{
             Input(s):
@@ -1324,7 +1324,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division subnetwork.
-        function U3s = compute_desired_reduced_relative_division_steady_state_output( ~, U_inputs, c1, c2, R1, R2, R3 )
+        function U3s = compute_drr_division_sso( ~, U_inputs, c1, c2, R1, R2, R3 )
         
             %{
             Input(s):
@@ -1358,7 +1358,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
-        function U3s = compute_achieved_division_steady_state_output( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
+        function U3s = compute_achieved_division_sso( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
         
             %{
             Input(s):
@@ -1387,7 +1387,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6 )
+        function [ U4s, U3s ] = compute_da_multiplication_sso( self, U_inputs, c1, c2, c3, c4, c5, c6 )
         
             %{
             Input(s):
@@ -1409,16 +1409,16 @@ classdef network_utilities_class
             U2s = U_inputs( :, 2 );
             
             % Compute the desired absolute inversion steady state output.
-            U3s = self.compute_desired_absolute_inversion_steady_state_output( U2s, c1, c2, c3 );
+            U3s = self.compute_da_inversion_sso( U2s, c1, c2, c3 );
             
             % Compute the desired absolute division steady state output.
-            U4s = self.compute_desired_absolute_division_steady_state_output( [ U1s, U3s ], c4, c5, c6 );
+            U4s = self.compute_da_division_sso( [ U1s, U3s ], c4, c5, c6 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_red_abs_mult_ss_output( self, U_inputs, c1, c2, c3, c4 )
+        function [ U4s, U3s ] = compute_dra_multiplication_sso( self, U_inputs, c1, c2, c3, c4 )
         
             %{
             Input(s):
@@ -1438,16 +1438,16 @@ classdef network_utilities_class
             U2s = U_inputs( :, 2 );
             
             % Compute the desired absolute inversion steady state output.            
-            U3s = self.compute_desired_reduced_absolute_inversion_steady_state_output( U2s, c1, c2 );
+            U3s = self.compute_dra_inversion_sso( U2s, c1, c2 );
             
             % Compute the desired absolute division steady state output.
-            U4s = self.compute_desired_reduced_absolute_division_steady_state_output( [ U1s, U3s ], c3, c4 );
+            U4s = self.compute_dra_division_sso( [ U1s, U3s ], c3, c4 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
+        function [ U4s, U3s ] = compute_dr_multiplication_sso( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 )
    
             %{
             Input(s):
@@ -1473,16 +1473,16 @@ classdef network_utilities_class
             U2s = U_inputs( :, 2 );
             
             % Compute the desired relative inversion steady state output.
-            U3s = self.compute_desired_relative_inversion_steady_state_output( U2s, c1, c2, c3, R2, R3 );
+            U3s = self.compute_dr_inversion_sso( U2s, c1, c2, c3, R2, R3 );
 
             % Compute the desired relative division steady state output.
-            U4s = self.compute_desired_relative_division_steady_state_output( [ U1s, U3s ], c4, c5, c6, R1, R3, R4 );
+            U4s = self.compute_dr_division_sso( [ U1s, U3s ], c4, c5, c6, R1, R3, R4 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_red_rel_mult_ss_output( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 )
+        function [ U4s, U3s ] = compute_drr_multiplication_sso( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 )
            
            %{
             Input(s):
@@ -1506,16 +1506,16 @@ classdef network_utilities_class
             U2s = U_inputs( :, 2 );
             
             % Compute the desired relative inversion steady state output.
-            U3s = self.compute_desired_reduced_relative_inversion_steady_state_output( U2s, c1, c2, R2, R3 );
+            U3s = self.compute_drr_inversion_sso( U2s, c1, c2, R2, R3 );
 
             % Compute the desired relative division steady state output.
-            U4s = self.compute_desired_reduced_relative_division_steady_state_output( [ U1s, U3s ], c3, c4, R1, R3, R4 );
+            U4s = self.compute_drr_division_sso( [ U1s, U3s ], c3, c4, R1, R3, R4 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
-        function [ U4s, U3s ] = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
+        function [ U4s, U3s ] = compute_achieved_multiplication_sso( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 )
         
             %{
             Input(s):
@@ -1544,16 +1544,16 @@ classdef network_utilities_class
             U2s = U_inputs( :, 2 );
             
             % Compute the achieved inversion steady state output.
-            U3s = self.compute_achieved_inversion_steady_state_output( U2s, R2, Gm3, Ia3, gs32, dEs32 );            
+            U3s = self.compute_achieved_inversion_sso( U2s, R2, Gm3, Ia3, gs32, dEs32 );            
                         
             % Compute the achieved division steady state output.
-            U4s = self.compute_achieved_division_steady_state_output( [ U1s, U3s ], R1, R3, Gm4, Ia4, gs41, gs43, dEs41, dEs43 );
+            U4s = self.compute_achieved_division_sso( [ U1s, U3s ], R1, R3, Gm4, Ia4, gs41, gs43, dEs41, dEs43 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute linear combination subnetwork.
-        function Us_output = compute_desired_absolute_linear_combination_steady_state_output( ~, Us_inputs, cs, ss )
+        function Us_output = compute_da_linear_combination_sso( ~, Us_inputs, cs, ss )
         
             %{
             Input(s):
@@ -1577,7 +1577,7 @@ classdef network_utilities_class
         
             
         % Implement a function to compute the steady state output associated with the desired formulation of a relative linear combination subnetwork.
-        function Us_output = compute_desired_relative_linear_combination_steady_state_output( ~, Us_inputs, Rs, cs, ss )
+        function Us_output = compute_dr_linear_combination_sso( ~, Us_inputs, Rs, cs, ss )
         
             %{
             Input(s):
@@ -1603,7 +1603,7 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
-        function Us_output = compute_achieved_linear_combination_ss_output( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
+        function Us_output = compute_achieved_linear_combination_sso( ~, Us_inputs, Rs, Gms, Ias, gs, dEs )
         
             %{
             Input(s):

@@ -171,11 +171,11 @@ classdef neuron_utilities_class
         function Ileak = compute_Ileak( self, U, Gm )
             
             % Define the default input arguments.
-            if nargin < 3, Gm = self.Gm_DEFAULT; end                % [S] Membrane Conductance
-            if nargin < 2, U = 0; end                               % [V] Membrane Voltage
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                % [S] Membrane Conductance.
+            if nargin < 2, U = 0; end                               % [V] Membrane Voltage.
             
             % Compute the leak current.
-            Ileak = -Gm.*U;                                        % [A] Leak Current
+            Ileak = -Gm.*U;                                         % [A] Leak Current.
             
         end
         
@@ -184,15 +184,15 @@ classdef neuron_utilities_class
         function Ina = compute_Ina( self, U, h, minf, Gna, dEna, Am, Sm, dEm )
             
             % Define the default input arguments.
-            if nargin < 9, dEm = self.dEm_DEFAULT; end                              % [V] Sodium Channel Activation Reversal Potential
-            if nargin < 8, Sm = self.Sm_DEFAULT; end                                % [-] Sodium Channel Activation Slope
-            if nargin < 7, Am = self.Am_DEFAULT; end                                % [-] Sodium Channel Activation Amplitude
-            if nargin < 6, dEna = self.dEna_DEFAULT; end                            % [V] Sodium Channel Reversal Potential
-            if nargin < 5, Gna = self.Gna_DEFAULT; end                              % [S] Sodium Channel Conductance
-            if nargin < 4, minf = self.compute_mhinf( U, Am, Sm, dEm ); end        % [-] Steady State Sodium Channel Activation Parameter
+            if nargin < 9, dEm = self.dEm_DEFAULT; end                              % [V] Sodium Channel Activation Reversal Potential.
+            if nargin < 8, Sm = self.Sm_DEFAULT; end                                % [-] Sodium Channel Activation Slope.
+            if nargin < 7, Am = self.Am_DEFAULT; end                                % [-] Sodium Channel Activation Amplitude.
+            if nargin < 6, dEna = self.dEna_DEFAULT; end                            % [V] Sodium Channel Reversal Potential.
+            if nargin < 5, Gna = self.Gna_DEFAULT; end                              % [S] Sodium Channel Conductance.
+            if nargin < 4, minf = self.compute_mhinf( U, Am, Sm, dEm ); end         % [-] Steady State Sodium Channel Activation Parameter.
             
             % Compute the sodium current.
-            Ina = Gna.*minf.*h.*( dEna - U );                                     % [A] Sodium Channel Current
+            Ina = Gna.*minf.*h.*( dEna - U );                                       % [A] Sodium Channel Current.
             
         end
         
@@ -222,14 +222,14 @@ classdef neuron_utilities_class
         function Itotal = compute_Itotal( self, Ileak, Isyn, Ina, Itonic, Iapp )
             
             % Define the default input arguments.
-            if nargin < 6, Iapp = self.Iapp_DEFAULT; end                           % [A] Applied Current
-            if nargin < 5, Itonic = self.Itonic_DEFAULT; end                       % [A] Tonic Current
-            if nargin < 4, Ina = self.Ina_DEFAULT; end                             % [A] Sodium Channel Current
-            if nargin < 3, Isyn = self.Isyn_DEFAULT; end                           % [A] Synaptic Current
-            if nargin < 2, Ileak = self.Ileak_DEFAULT; end                         % [A] Leak Current
+            if nargin < 6, Iapp = self.Iapp_DEFAULT; end                            % [A] Applied Current.
+            if nargin < 5, Itonic = self.Itonic_DEFAULT; end                        % [A] Tonic Current.
+            if nargin < 4, Ina = self.Ina_DEFAULT; end                              % [A] Sodium Channel Current.
+            if nargin < 3, Isyn = self.Isyn_DEFAULT; end                            % [A] Synaptic Current.
+            if nargin < 2, Ileak = self.Ileak_DEFAULT; end                          % [A] Leak Current.
             
             % Compute the the total current.
-            Itotal = Ileak + Isyn + Ina + Itonic + Iapp;                      % [A] Total Current
+            Itotal = Ileak + Isyn + Ina + Itonic + Iapp;                         	% [A] Total Current.
             
         end
         

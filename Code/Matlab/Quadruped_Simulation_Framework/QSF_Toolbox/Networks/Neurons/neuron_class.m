@@ -31,15 +31,15 @@ classdef neuron_class
         tauh                                                                                                            % [s] Sodium Channel Deactivation Time Constant
         Gna                                                                                                             % [S] Sodium Channel Conductance
         
-        m_inf                                                                                                           % [-] Steady State Sodium Channel Activation Parameter
-        h_inf                                                                                                           % [-] Steady State Sodium Channel Deactivation Parameter
+        minf                                                                                                           % [-] Steady State Sodium Channel Activation Parameter
+        hinf                                                                                                           % [-] Steady State Sodium Channel Deactivation Parameter
         
-        I_leak                                                                                                          % [A] Leak Current
-        I_syn                                                                                                           % [A] Synaptic Current
-        I_na                                                                                                            % [A] Sodium Channel Current
-        I_tonic                                                                                                         % [A] Tonic Current
-        I_app                                                                                                           % [A] Applied Current
-        I_total                                                                                                         % [A] Total Current
+        Ileak                                                                                                          % [A] Leak Current
+        Isyn                                                                                                           % [A] Synaptic Current
+        Ina                                                                                                            % [A] Sodium Channel Current
+        Itonic                                                                                                         % [A] Tonic Current
+        Iapp                                                                                                           % [A] Applied Current
+        Itotal                                                                                                         % [A] Total Current
         
         enabled_flag                                                                                                       % [-] [T/F] Enable Flag
         
@@ -110,17 +110,17 @@ classdef neuron_class
     methods
         
         % Implement the class constructor.
-        function self = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, I_leak, I_syn, I_na, I_tonic, I_app, I_total, enabled_flag, neuron_utilities )
+        function self = neuron_class( ID, name, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, Ileak, Isyn, Ina, Itonic, Iapp, Itotal, enabled_flag, neuron_utilities )
             
             % Set the default neuron properties.
             if nargin < 25, neuron_utilities = neuron_utilities_class(  ); end      % [class] Neuron Utilities Class.
             if nargin < 24, enabled_flag = self.enabled_flag_DEFAULT; end           % [T/F] Enable Flag.
-            if nargin < 23, I_total = self.Itotal_DEFAULT; end                      % [A] Total Current.
-            if nargin < 22, I_app = self.Iapp_DEFAULT; end                          % [A] Applied Current.
-            if nargin < 21, I_tonic = self.Itonic_DEFAULT; end                      % [A] Tonic Current.
-            if nargin < 20, I_na = self.Ina_DEFAULT; end                            % [A] Sodium Channel Current.
-            if nargin < 19, I_syn = self.Isyn_DEFAULT; end                         	% [A] Synaptic Current.
-            if nargin < 18, I_leak = self.Ileak_DEFAULT; end                        % [A] Leak Current.
+            if nargin < 23, Itotal = self.Itotal_DEFAULT; end                      % [A] Total Current.
+            if nargin < 22, Iapp = self.Iapp_DEFAULT; end                          % [A] Applied Current.
+            if nargin < 21, Itonic = self.Itonic_DEFAULT; end                      % [A] Tonic Current.
+            if nargin < 20, Ina = self.Ina_DEFAULT; end                            % [A] Sodium Channel Current.
+            if nargin < 19, Isyn = self.Isyn_DEFAULT; end                         	% [A] Synaptic Current.
+            if nargin < 18, Ileak = self.Ileak_DEFAULT; end                        % [A] Leak Current.
             if nargin < 17, Gna = self.Gna_DEFAULT; end                             % [S] Sodium Channel Conductance.
             if nargin < 16, tauh_max = self.tauh_max_DEFAULT; end                   % [s] Maximum Sodium Channel Deactivation Time Constant.
             if nargin < 15, dEna = self.dEna_DEFAULT; end                           % [V] Sodium Channel Reveral Potential.
@@ -146,12 +146,12 @@ classdef neuron_class
             self.enabled_flag = enabled_flag;
             
             % Store the current properties.
-            self.I_total = I_total;
-            self.I_app = I_app;
-            self.I_tonic = I_tonic;
-            self.I_na = I_na;
-            self.I_syn = I_syn;
-            self.I_leak = I_leak;
+            self.Itotal = Itotal;
+            self.Iapp = Iapp;
+            self.Itonic = Itonic;
+            self.Ina = Ina;
+            self.Isyn = Isyn;
+            self.Ileak = Ileak;
             
             % Store the ion channel properties.
             self.Gna = Gna;
@@ -180,13 +180,13 @@ classdef neuron_class
             
             % Compute the steady state sodium channel activation and deactivation parameters.
             [ ~, self ] = self.compute_minf( U, Am, Sm, dEm, true, neuron_utilities );                      % [-] Steady State Sodium Channel Activation Parameter
-            [ h_inf, self ] = self.compute_hinf( U, Ah, Sh, dEh, true, neuron_utilities );                  % [-] Steady State Sodium Channel Deactivation Parameter
+            [ hinf, self ] = self.compute_hinf( U, Ah, Sh, dEh, true, neuron_utilities );                  % [-] Steady State Sodium Channel Deactivation Parameter
             
             % Determine whether to set the sodium channel activation parameter to its steady state value.
-            if isempty( self.h ), self.h = h_inf; end                                                     	% [-] Steady State Sodium Channel Deactivation Parameter
+            if isempty( self.h ), self.h = hinf; end                                                     	% [-] Steady State Sodium Channel Deactivation Parameter
             
             % Compute and set the sodium channel deactivation time constant.
-            [ ~, self ] = self.compute_tauh( U, tauh_max, h_inf, Ah, Sh, dEh, true, neuron_utilities );     % [-] Sodium Channel Deactivation Time Constant                                                                         
+            [ ~, self ] = self.compute_tauh( U, tauh_max, hinf, Ah, Sh, dEh, true, neuron_utilities );     % [-] Sodium Channel Deactivation Time Constant                                                                         
             
         end
         
@@ -194,7 +194,7 @@ classdef neuron_class
         %% Sodium Channel Activation & Deactivation Compute Functions.
         
         % Implement a function to compute the steady state sodium channel activation parameter.
-        function [ m_inf, self ] = compute_minf( self, U, Am, Sm, dEm, set_flag, neuron_utilities )
+        function [ minf, self ] = compute_minf( self, U, Am, Sm, dEm, set_flag, neuron_utilities )
             
             % Define the default input arguments.
             if nargin < 7, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
@@ -205,16 +205,16 @@ classdef neuron_class
             if nargin < 2, U = self.U; end                                                           	% [V] Membrane Voltage.
             
             % Compute the steady state sodium channel activation parameter.
-            m_inf = neuron_utilities.compute_mhinf( U, Am, Sm, dEm );                                	% [-] Sodium Channel Activation Parameter.
+            minf = neuron_utilities.compute_mhinf( U, Am, Sm, dEm );                                	% [-] Sodium Channel Activation Parameter.
             
             % Determine whether to update the neuron object.
-            if set_flag, self.m_inf = m_inf; end
+            if set_flag, self.minf = minf; end
             
         end
         
         
         % Implement a function to compute the steady state sodium channel deactivation parameter.
-        function [ h_inf, self ] = compute_hinf( self, U, Ah, Sh, dEh, set_flag, neuron_utilities )
+        function [ hinf, self ] = compute_hinf( self, U, Ah, Sh, dEh, set_flag, neuron_utilities )
             
             % Define the default input arguments.
             if nargin < 7, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
@@ -225,16 +225,16 @@ classdef neuron_class
             if nargin < 2, U = self.U; end                                                                              % [V] Membrane Voltage
             
             % Compute the steady state sodium channel deactivaiton parameter.
-            h_inf = neuron_utilities.compute_mhinf( U, Ah, Sh, dEh );                                              % [-] Sodium Channel Deactivation Parameter
+            hinf = neuron_utilities.compute_mhinf( U, Ah, Sh, dEh );                                              % [-] Sodium Channel Deactivation Parameter
             
             % Determine whether to update the neuron object.
-            if set_flag, self.h_inf = h_inf; end
+            if set_flag, self.hinf = hinf; end
             
         end
         
         
         % Implement a function to compute the sodium channel deactivation time constant.
-        function [ tauh, self ] = compute_tauh( self, U, tauh_max, h_inf, Ah, Sh, dEh, set_flag, neuron_utilities )
+        function [ tauh, self ] = compute_tauh( self, U, tauh_max, hinf, Ah, Sh, dEh, set_flag, neuron_utilities )
             
             % Define the default input arguments.
             if nargin < 9, neuron_utilities = self.neuron_utilities; end                     	% [class] Neuron Utilities.
@@ -242,12 +242,12 @@ classdef neuron_class
             if nargin < 7, dEh = self.dEh; end                                              	% [V] Sodium Channel Deactivation Reversal Potential.
             if nargin < 6, Sh = self.Sh; end                                                	% [-] Sodium Channel Deactivation Slope.
             if nargin < 5, Ah = self.Ah; end                                                    % [-] Sodium Channel Deactivation Amplitude.
-            if nargin < 4, h_inf = self.h_inf; end                                              % [-] Steady State Sodium Channel Deactivation Parameter.
+            if nargin < 4, hinf = self.hinf; end                                              % [-] Steady State Sodium Channel Deactivation Parameter.
             if nargin < 3, tauh_max = self.tauh_max; end                                        % [s] Maximum Sodium Channel Deactivation Time Constant.
             if nargin < 2, U = self.U; end                                                      % [V] Membrane Voltage.
             
             % Compute the sodium channel deactivation time constant.
-            tauh = neuron_utilities.compute_tauh( U, tauh_max, h_inf, Ah, Sh, dEh );            % [s] Sodium Channel Deactivation Time Constant.
+            tauh = neuron_utilities.compute_tauh( U, tauh_max, hinf, Ah, Sh, dEh );            % [s] Sodium Channel Deactivation Time Constant.
             
             % Determine whether to update the neuron object.
             if set_flag, self.tauh = tauh; end
@@ -1714,7 +1714,7 @@ classdef neuron_class
         %% Current Compute Functions.
         
         % Implement a function to compute the leak current associated with this neuron.
-        function [ I_leak, self ] = compute_Ileak( self, U, Gm, set_flag, neuron_utilities )
+        function [ Ileak, self ] = compute_Ileak( self, U, Gm, set_flag, neuron_utilities )
             
             % Define the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end            % [class] Neuron Utilities.
@@ -1723,16 +1723,16 @@ classdef neuron_class
             if nargin < 2, U = self.U; end                                         	% [V] Membrane Voltage.
             
             % Compute the leak current associated with this neuron.
-            I_leak = neuron_utilities.compute_Ileak( U, Gm );                     	% [A] Leak Current.
+            Ileak = neuron_utilities.compute_Ileak( U, Gm );                     	% [A] Leak Current.
             
             % Determine whether to update the neuron object.
-            if set_flag, self.I_leak = I_leak; end
+            if set_flag, self.Ileak = Ileak; end
             
         end
         
         
         % Implement a function to compute the sodium channel current associated with this neuron.
-        function [ I_na, self ] = compute_Ina( self, U, Gna, Am, Sm, dEm, Ah, Sh, dEh, dEna, set_flag, neuron_utilities )
+        function [ Ina, self ] = compute_Ina( self, U, Gna, Am, Sm, dEm, Ah, Sh, dEh, dEna, set_flag, neuron_utilities )
             
             % Define the default input arguments.
             if nargin < 12, neuron_utilities = self.neuron_utilities; end                       	% [class] Neuron Utilities.
@@ -1748,31 +1748,31 @@ classdef neuron_class
             if nargin < 2, U = self.U; end                                                       	% [V] Membrane Voltage.
             
             % Compute the sodium channel current associated with this neuron.
-            I_na = neuron_utilities.compute_Ina( U, Gna, Am, Sm, dEm, Ah, Sh, dEh, dEna );          % [A] Sodium Channel Current.
+            Ina = neuron_utilities.compute_Ina( U, Gna, Am, Sm, dEm, Ah, Sh, dEh, dEna );          % [A] Sodium Channel Current.
             
             % Determine whether to update the neuron object.
-            if set_flag, self.I_na = I_na; end
+            if set_flag, self.Ina = Ina; end
             
         end
         
         
         % Implement a function to compute the total current associated with this neuron.
-        function [ I_total, self ] = compute_Itotal( self, I_leak, I_syn, I_na, I_tonic, I_app, set_flag, neuron_utilities )
+        function [ Itotal, self ] = compute_Itotal( self, Ileak, Isyn, Ina, Itonic, Iapp, set_flag, neuron_utilities )
             
             % Define the default input arguments.
             if narign < 8, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
             if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 6, I_app = self.I_app; end                                                    	% [A] Applied Currents
-            if nargin < 5, I_tonic = self.I_tonic; end                                               	% [A] Tonic Current
-            if nargin < 4, I_na = self.I_na; end                                                     	% [A] Sodium Channel Current
-            if nargin < 3, I_syn = self.I_syn; end                                                     	% [A] Synaptic Current
-            if nargin < 2, I_leak = self.I_leak; end                                                 	% [A] Leak Current
+            if nargin < 6, Iapp = self.Iapp; end                                                    	% [A] Applied Currents
+            if nargin < 5, Itonic = self.Itonic; end                                               	% [A] Tonic Current
+            if nargin < 4, Ina = self.Ina; end                                                     	% [A] Sodium Channel Current
+            if nargin < 3, Isyn = self.Isyn; end                                                     	% [A] Synaptic Current
+            if nargin < 2, Ileak = self.Ileak; end                                                 	% [A] Leak Current
             
             % Compute the total current.
-            I_total = neuron_utilities.compute_Itotal( I_leak, I_syn, I_na, I_tonic, I_app );           % [A] Total Current
+            Itotal = neuron_utilities.compute_Itotal( Ileak, Isyn, Ina, Itonic, Iapp );           % [A] Total Current
             
             % Determine whether to update the neuron object.
-            if set_flag, self.I_total = I_total; end
+            if set_flag, self.Itotal = Itotal; end
             
         end
   

@@ -10,9 +10,9 @@ classdef synapse_class
         ID                                                    	% [#] Synapse ID.
         name                                                  	% [-] Synapse Name.
         
-        dE_syn                                                	% [V] Synaptic Reversal Potential.
-        g_syn_max                                             	% [S] Maximum Synaptic Conductance.
-        G_syn                                                   % [S] Synaptic Conductance.
+        dEs                                                 	% [V] Synaptic Reversal Potential.
+        gs                                                      % [S] Maximum Synaptic Conductance.
+        Gs                                                      % [S] Synaptic Conductance.
         
         from_neuron_ID                                       	% [#] From Neuron ID.
         to_neuron_ID                                           	% [#] To Neuron ID.
@@ -102,7 +102,7 @@ classdef synapse_class
     methods
         
         % Implement the class constructor.
-        function self = synapse_class( ID, name, dE_syn, g_syn_max, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapse_utilities )
+        function self = synapse_class( ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapse_utilities )
             
             % Set the default synapse properties.
             if nargin < 9, synapse_utilities = synapse_utilities_class(  ); end             % [class] Synapse Utiliities.
@@ -110,8 +110,8 @@ classdef synapse_class
             if nargin < 7, delta = self.delta_noncpg_DEFAULT; end                           % [V] CPG Equilibrium Offset.
             if nargin < 6, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                  	% [#] To Neuron ID.
             if nargin < 5, from_neuron_ID = self.from_neuron_ID_DEFAULT; end             	% [S] Synaptic Conductance.
-            if nargin < 4, g_syn_max = self.gs_DEFAULT; end                             	% [S] Maximum Synaptic Conductance.
-            if nargin < 3, dE_syn = self.dEs_minimum_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 4, gs = self.gs_DEFAULT; end                             	% [S] Maximum Synaptic Conductance.
+            if nargin < 3, dEs = self.dEs_minimum_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 2, name = ''; end                                                 	% [-] Synapse Name.
             if nargin < 1, ID = self.ID_DEFAULT; end                                      	% [#] Synapse ID.
             
@@ -127,8 +127,8 @@ classdef synapse_class
             
             % Store the synapse properties.
             self.delta = delta;
-            self.g_syn_max = g_syn_max;
-            self.dE_syn = dE_syn;
+            self.gs = gs;
+            self.dEs = dEs;
             
             % Store the synapse identification information.
             self.name = name;
@@ -270,7 +270,7 @@ classdef synapse_class
                 c = self.c_absolute_addition_DEFAULT;          	% [-] Absolute Addition Subnetwork Gain.
                 R_k = self.R_DEFAULT;                          	% [V] Activation Domain.
                 Gm_n = self.Gm_DEFAULT;                        	% [S] Membrane Conductance.
-                dEs_nk = self.dE_syn;                         	% [V] Synaptic Reversal Potential.
+                dEs_nk = self.dEs;                         	% [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_absolute_addition_DEFAULT;       % [A] Applied Current.
             
             elseif length( parameters ) == 5                    % If there are a specific number of parameters...
@@ -306,7 +306,7 @@ classdef synapse_class
                 n = self.num_addition_neurons_DEFAULT;          % [#] Number of Addition Neurons.
                 R_k = self.R_DEFAULT;                          	% [V] Activation Domain.
                 Gm_n = self.Gm_DEFAULT;                        	% [S] Membrane Conductance.
-                dEs_nk = self.dE_syn;                         	% [V] Synaptic Reversal Potential.
+                dEs_nk = self.dEs;                         	% [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_absolute_addition_DEFAULT;       % [A] Applied Current.
             
             elseif length( parameters ) == 6                    % If there are a specific number of parameters...
@@ -344,7 +344,7 @@ classdef synapse_class
                 s_k = 1;                                          	% [-] Excitation / Inhibition Sign.
                 R_k = self.R_DEFAULT;                             	% [V] Activation Domain.
                 Gm_n = self.Gm_DEFAULT;                          	% [S] Membrane Conductance.
-                dEs_nk = self.dE_syn;                               % [V] Synaptic Reversal Potential.
+                dEs_nk = self.dEs;                               % [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_absolute_subtraction_DEFAULT;        % [A] Applied Current.
                 
             elseif length( parameters ) == 6                        % If there are a specific number of parameters...
@@ -382,7 +382,7 @@ classdef synapse_class
                 s_k = 1;                                          	% [-] Excitation / Inhibition Sign.
                 R_n = self.R_DEFAULT;                             	% [V] Activation Domain.
                 Gm_n = self.Gm_DEFAULT;                          	% [S] Membrane Conductance.
-                dEs_nk = self.dE_syn;                               % [V] Synaptic Reversal Potential.
+                dEs_nk = self.dEs;                               % [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_relative_subtraction_DEFAULT;        % [A] Applied Current.
 
             elseif length( parameters ) == 7                        % If there are a specific number of parameters...
@@ -509,7 +509,7 @@ classdef synapse_class
                 % Set the parameters to default values.
                 R3 = self.R_DEFAULT;                                % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                              % [S] Membrane Conductance.
-                dEs31 = self.dE_syn;                                % [V] Synaptic Reversal Potential.
+                dEs31 = self.dEs;                                % [V] Synaptic Reversal Potential.
 
             elseif length( parameters ) == 3                        % If there are a specific number of parameters...
                 
@@ -574,7 +574,7 @@ classdef synapse_class
                 epsilon = self.epsilon_DEFAULT;                     % [-] Relative Division Subnetwork Offset.
                 R3 = self.R_DEFAULT;                                % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                              % [S] Membrane Conductance.
-                dEs31 = self.dE_syn;                                % [V] Synaptic Reversal Potential.
+                dEs31 = self.dEs;                                % [V] Synaptic Reversal Potential.
                 
             elseif length( parameters ) == 6                        % If there are a specific number of parameters...
                 
@@ -609,7 +609,7 @@ classdef synapse_class
             dEs = synapse_utilities.compute_dmcpg_dEs(  );                          % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
             
         end
         
@@ -641,7 +641,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
             
         end
         
@@ -657,7 +657,7 @@ classdef synapse_class
             dEs = synapse_utilities.compute_modulation_dEs(  );                     % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
             
         end
         
@@ -689,7 +689,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -721,7 +721,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -753,7 +753,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
             
         end
 
@@ -785,7 +785,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -817,7 +817,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -849,7 +849,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
             
         end
         
@@ -881,7 +881,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
             
         end
         
@@ -913,7 +913,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -945,7 +945,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -977,7 +977,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs3; end
+            if set_flag, self.dEs = dEs3; end
 
         end
         
@@ -1016,7 +1016,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs; end
+            if set_flag, self.dEs = dEs; end
 
         end
         
@@ -1055,7 +1055,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -1087,7 +1087,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -1103,7 +1103,7 @@ classdef synapse_class
             dEs1 = synapse_utilities.compute_derivation_dEs1(  );                   % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -1119,7 +1119,7 @@ classdef synapse_class
             dEs2 = synapse_utilities.compute_derivation_dEs2(  );                   % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -1135,7 +1135,7 @@ classdef synapse_class
             dEs1 = synapse_utilities.compute_integration_dEs1(  );                  % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -1151,7 +1151,7 @@ classdef synapse_class
             dEs2 = synapse_utilities.compute_integration_dEs2(  );                  % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -1167,7 +1167,7 @@ classdef synapse_class
             dEs1 = synapse_utilities.compute_vbi_dEs1(  );                          % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs1; end
+            if set_flag, self.dEs = dEs1; end
             
         end
         
@@ -1183,7 +1183,7 @@ classdef synapse_class
             dEs2 = synapse_utilities.compute_vbi_dEs2(  );                          % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.dE_syn = dEs2; end
+            if set_flag, self.dEs = dEs2; end
             
         end
         
@@ -1197,13 +1197,13 @@ classdef synapse_class
             if nargin < 5, synapse_utilities = self.synapse_utilities; end                              % [class] Synapse Utilities.
             if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                            % [A] Maximum Drive Current.
             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                      % [-] Oscillatory Delta.
-            if nargin < 2, dEs = self.dE_syn; end                                                     	% [V] Synaptic Reversal Potential.
+            if nargin < 2, dEs = self.dEs; end                                                     	% [V] Synaptic Reversal Potential.
             
             % Compute the maximum synaptic conductance.
             gs = synapse_utilities.compute_dmcpg_gsynmax( dEs, delta_oscillatory, Id_max );             % [S] Maximum Synaptic Conductance
             
             % Determine whether to update the synapse object.
-            if set_flag, self.g_syn_max = gs; end
+            if set_flag, self.gs = gs; end
             
         end
         
@@ -1242,7 +1242,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.g_syn_max = gs_nk; end
+            if set_flag, self.gs = gs_nk; end
 
         end
         
@@ -1281,7 +1281,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.g_syn_max = gs_nk; end
+            if set_flag, self.gs = gs_nk; end
             
         end
         
@@ -1320,7 +1320,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.g_syn_max = gs21; end
+            if set_flag, self.gs = gs21; end
 
         end
 
@@ -1359,7 +1359,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.g_syn_max = gs31; end
+            if set_flag, self.gs = gs31; end
             
         end
 
@@ -1398,7 +1398,7 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.g_syn_max = gs32; end
+            if set_flag, self.gs = gs32; end
            
         end
 

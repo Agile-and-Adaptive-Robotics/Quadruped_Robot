@@ -5122,7 +5122,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to design the neurons for a multiplication subnetwork.
-        function [ Gnas_multiplication, Gms_multiplication, Cms_multiplication, Rs_multiplication, neurons, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ Gnas, Gms, Cms, Rs, neurons, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -5149,10 +5149,10 @@ classdef neuron_manager_class
             [ Gnas_division, Gms_division, Cms_division, Rs_division, neurons, neuron_manager ] = neuron_manager.design_division_neurons( neuron_IDs_division, parameters_division, encoding_scheme, neurons, true, undetected_option );
             
             % Create the multiplication subnetwork property arrays.
-            Gnas_multiplication = [ Gnas_division( 1 ), Gnas_inversion( 1 ), Gnas_division( 2 ), Gnas_division ( 3 ) ];
-            Gms_multiplication = [ Gms_division( 1 ), Gms_inversion( 1 ), Gms_division( 2 ), Gms_division ( 3 ) ];
-            Cms_multiplication = [ Cms_division( 1 ), Cms_inversion( 1 ), Cms_division( 2 ), Cms_division ( 3 ) ];
-            Rs_multiplication = [ Rs_division( 1 ), Rs_inversion( 1 ), Rs_division( 2 ), Rs_division ( 3 ) ];
+            Gnas = [ Gnas_division( 1 ), Gnas_inversion( 1 ), Gnas_division( 2 ), Gnas_division ( 3 ) ];
+            Gms = [ Gms_division( 1 ), Gms_inversion( 1 ), Gms_division( 2 ), Gms_division ( 3 ) ];
+            Cms = [ Cms_division( 1 ), Cms_inversion( 1 ), Cms_division( 2 ), Cms_division ( 3 ) ];
+            Rs = [ Rs_division( 1 ), Rs_inversion( 1 ), Rs_division( 2 ), Rs_division ( 3 ) ];
 
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end
