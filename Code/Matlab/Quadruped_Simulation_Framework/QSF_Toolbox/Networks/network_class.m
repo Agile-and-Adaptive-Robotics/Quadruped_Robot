@@ -3243,396 +3243,444 @@ classdef network_class
         end
         
         
-        %% Subnetwork Design Functions
+        %% Subnetwork Design Functions.
         
         % Implement a function to design a multistate CPG oscillator subnetwork using existing neurons.
-        function self = design_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable, neuron_manager, applied_current_manager )
+        function [ Gnas, gs, ts, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_mcpg_subnetwork( self, neuron_IDs, dt, tf, delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+            if nargin < 14, network_utilities = self.network_utilities; end
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, process_option = self.process_option_DEFAULT; end
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end
+            if nargin < 8, synapse_manager = self.synapse_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 6, delta_bistable = self.delta_bistable_DEFAULT; end
+            if nargin < 5, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
+            % Create an instance of the network class.
+            network = self;
+            
             % Design the multistate cpg subnetwork neurons.
-            self = self.design_mcpg_neurons( neuron_IDs, neuron_manager );
+            [ Gnas, neurons, neuron_manager, network ] = network.design_mcpg_neurons( neuron_IDs, neuron_manager, true, undetected_option );
             
-            % Design the multistate cpg subnetwork applied current.
-            self = self.design_mcpg_applied_currents( neuron_IDs, applied_current_manager );
+            % Design the multistate cpg subnetwork applied current.            
+            [ ts, Ias, applied_currents, applied_current_manager, network ] = network.design_mcpg_applied_currents( neuron_IDs, dt, tf, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option );
             
-            % Design the multistate cpg subnetwork synapses.
-            self = self.design_mcpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable );
+            % Design the multistate cpg subnetwork synapses.            
+            [ gs, synapses, synapse_manager, network ] = network.design_mcpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, true, undetected_option, network_utilities );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design a driven multistate CPG oscillator subnetwork using existing neurons.
-        function self = design_driven_multistate_cpg_subnetwork( self, neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max, neuron_manager )
+        function [ Gnas, dEs, gs, ts, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_dmcpg_subnetwork( self, neuron_IDs, dt, tf, delta_oscillatory, delta_bistable, Id_max, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+            if nargin < 15, network_utilities = self.network_utilities; end
+            if anrgin < 14, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, process_option = self.process_option_DEFAULT; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, synapse_manager = self.synapse_manager; end
+            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 7, Id_max = self.Id_max_DEFAULT; end
+            if nargin < 6, delta_bistable = self.delta_bistable_DEFAULT; end
+            if nargin < 5, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+            if nargin < 4, tf = self.tf; end
+            if nargin < 3, dt = self.dt; end
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
+            % Create an instance of the network object.
+            network = self;
+            
             % Design the driven multistate cpg subnetwork neurons.
-            self = self.design_dmcpg_neurons( neuron_IDs, neuron_manager );
+            [ Gnas, neurons, neuron_manager, network ] = network.design_dmcpg_neurons( neuron_IDs, neuron_manager, true, undetected_option );
             
-            % Design the driven multistate cpg subnetwork applied current.
-            self = self.design_dmcpg_applied_currents( neuron_IDs );
+            % Design the driven multistate cpg subnetwork applied current.            
+            [ ts, Ias, applied_currents, applied_current_manager, network ] = network.design_dmcpg_applied_currents( neuron_IDs, dt, tf, neuron_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option );
             
-            % Design the driven multistate cpg subnetwork synapses.
-            self = self.design_dmcpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max );
+            % Design the driven multistate cpg subnetwork synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_dmcpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable, Id_max, neuron_manager, synapse_manager, network_utilities );
             
-        end
-        
-        
-        % Implement a function to design a driven multistate CPG split lead lag subnetwork using existing neurons.
-        function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r, dt, tf, neuron_manager, applied_current_manager )
-            
-            % Set the default input arguments.
-            if nargin < 16, applied_current_manager = self.applied_current_manager; end
-            if nargin < 15, neuron_manager = self.neuron_manager; end
-            if nargin < 14, tf = self.tf; end
-            if nargin < 13, dt = self.dt; end
-            if nargin < 12, r = self.r_oscillation_DEFAULT; end
-            if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
-            if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-            if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
-            if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
-            if nargin < 6, T = self.T_oscillation_DEFAULT; end
-            if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-            
-            % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
-            
-            % Design the driven multistate CPG split lead lag subnetwork neurons.
-            self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
-            
-            % Design the driven multistate CPG split lead lag subnetwork applied currents.
-            self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager );
-            
-            % Design the driven multistate CPG split lead lag subnetwork synapses.
-            self = self.design_dmcpg_sll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
-        
-        % Implement a function to design a driven multistate CPG double centered lead lag subnetwork using existing neurons.
-        function self = design_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r, neuron_manager )
-            
-            % Set the default input arguments.
-            if nargin < 15, neuron_manager = self.neuron_manager; end
-            if nargin < 14, r = self.r_oscillation_DEFAULT; end
-            if nargin < 13, c_mod = self.c_modulation_DEFAULT; end
-            if nargin < 12, k_add = self.c_addition_DEFAULT; end
-            if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-            if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-            if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
-            if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
-            if nargin < 6, T = self.T_oscillation_DEFAULT; end
-            if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-            
-            % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
-            
-            % Design the driven multistate CPG double centered lead lag subnetwork neurons.
-            self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
-            
-            % Design the driven multistate CPG double centered lead lag subnetwork applied currents.
-            self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell );
-            
-            % Design the driven multistate CPG double centered lead lag subnetwork synapses.
-            self = self.design_dmcpg_dcll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod );
-            
-        end
-        
-        
-        % Implement a function to design an open loop driven multistate CPG double centered lead lag error subnetwork using existing neurons.
-        function self = design_ol_dmcpg_dclle_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, neuron_manager )
-            
-            % Set the default input arguments.
-            if nargin < 18, neuron_manager = self.neuron_manager; end
-            if nargin < 17, r = self.r_oscillation_DEFAULT; end
-            if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-            if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-            if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-            if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-            if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-            if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-            if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-            if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
-            if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
-            if nargin < 6, T = self.T_oscillation_DEFAULT; end
-            if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-            
-            % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
-            
-            % Design the open loop driven multistate cpg double centered lead lag error subnetwork neurons.
-            self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
-            
-            % Design the open loop driven multistate cpg double centered lead lag error subnetwork applied currents.
-            self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );
-            
-            % Design the open loop driven multistate cpg double centered lead lag error subnetwork synapses.
-            self = self.design_ol_dmcpg_dclle_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod );
-            
-        end
-        
-        
-        % Implement a function to design a closed loop P controlled driven multistate CPG double centered lead lag subnetwork using existing neurons.
-        function self = design_clpc_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, kp_gain, neuron_manager, applied_current_manager )
-            
-            % Set the default input arguments.
-            if nargin < 20, applied_current_manager = self.applied_current_manager; end
-            if nargin < 19, neuron_manager = self.neuron_manager; end
-            if nargin < 18, kp_gain = self.kp_gain_DEFAULT; end
-            if nargin < 17, r = self.r_oscillation_DEFAULT; end
-            if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-            if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-            if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-            if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-            if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-            if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-            if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-            if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
-            if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
-            if nargin < 6, T = self.T_oscillation_DEFAULT; end
-            if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
-            if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-            
-            % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
-            
-            % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork neurons.
-            self = self.design_clpc_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
-            
-            % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork applied currents.
-            self = self.design_clpc_dmcpg_dcll_applied_currents( neuron_IDs_cell, neuron_manager, applied_current_manager );
-            
-            % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork synapses.
-            self = self.design_clpc_dmcpg_dcll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, kp_gain );
-            
-        end
-        
+      %{  
+%         % Implement a function to design a driven multistate CPG split lead lag subnetwork using existing neurons.
+%         function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r, dt, tf, neuron_manager, applied_current_manager )
+%             
+%             % Set the default input arguments.
+%             if nargin < 16, applied_current_manager = self.applied_current_manager; end
+%             if nargin < 15, neuron_manager = self.neuron_manager; end
+%             if nargin < 14, tf = self.tf; end
+%             if nargin < 13, dt = self.dt; end
+%             if nargin < 12, r = self.r_oscillation_DEFAULT; end
+%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 6, T = self.T_oscillation_DEFAULT; end
+%             if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
+%             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
+%             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+%             
+%             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+%             
+%             % Design the driven multistate CPG split lead lag subnetwork neurons.
+%             self = self.design_dmcpg_sll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
+%             
+%             % Design the driven multistate CPG split lead lag subnetwork applied currents.
+%             self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager );
+%             
+%             % Design the driven multistate CPG split lead lag subnetwork synapses.
+%             self = self.design_dmcpg_sll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+%             
+%         end
+%         
+%         
+%         % Implement a function to design a driven multistate CPG double centered lead lag subnetwork using existing neurons.
+%         function self = design_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r, neuron_manager )
+%             
+%             % Set the default input arguments.
+%             if nargin < 15, neuron_manager = self.neuron_manager; end
+%             if nargin < 14, r = self.r_oscillation_DEFAULT; end
+%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end
+%             if nargin < 12, k_add = self.c_addition_DEFAULT; end
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 6, T = self.T_oscillation_DEFAULT; end
+%             if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
+%             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
+%             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+%             
+%             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+%             
+%             % Design the driven multistate CPG double centered lead lag subnetwork neurons.
+%             self = self.design_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
+%             
+%             % Design the driven multistate CPG double centered lead lag subnetwork applied currents.
+%             self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell );
+%             
+%             % Design the driven multistate CPG double centered lead lag subnetwork synapses.
+%             self = self.design_dmcpg_dcll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod );
+%             
+%         end
+%         
+%         
+%         % Implement a function to design an open loop driven multistate CPG double centered lead lag error subnetwork using existing neurons.
+%         function self = design_ol_dmcpg_dclle_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, neuron_manager )
+%             
+%             % Set the default input arguments.
+%             if nargin < 18, neuron_manager = self.neuron_manager; end
+%             if nargin < 17, r = self.r_oscillation_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 6, T = self.T_oscillation_DEFAULT; end
+%             if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
+%             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
+%             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+%             
+%             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+%             
+%             % Design the open loop driven multistate cpg double centered lead lag error subnetwork neurons.
+%             self = self.design_ol_dmcpg_dclle_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
+%             
+%             % Design the open loop driven multistate cpg double centered lead lag error subnetwork applied currents.
+%             self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell );
+%             
+%             % Design the open loop driven multistate cpg double centered lead lag error subnetwork synapses.
+%             self = self.design_ol_dmcpg_dclle_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod );
+%             
+%         end
+%         
+%         
+%         % Implement a function to design a closed loop P controlled driven multistate CPG double centered lead lag subnetwork using existing neurons.
+%         function self = design_clpc_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, kp_gain, neuron_manager, applied_current_manager )
+%             
+%             % Set the default input arguments.
+%             if nargin < 20, applied_current_manager = self.applied_current_manager; end
+%             if nargin < 19, neuron_manager = self.neuron_manager; end
+%             if nargin < 18, kp_gain = self.kp_gain_DEFAULT; end
+%             if nargin < 17, r = self.r_oscillation_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 6, T = self.T_oscillation_DEFAULT; end
+%             if nargin < 5, I_drive_max = self.Id_max_DEFAULT; end
+%             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
+%             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
+%             
+%             % ENSURE THAT THE SPECIFIED NEURON IDS ARE CONNECTED CORRECTLY BEFORE CONTINUING.  THROW AN ERROR IF NOT.
+%             
+%             % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork neurons.
+%             self = self.design_clpc_dmcpg_dcll_neurons( neuron_IDs_cell, T, ki_mean, r, neuron_manager );
+%             
+%             % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork applied currents.
+%             self = self.design_clpc_dmcpg_dcll_applied_currents( neuron_IDs_cell, neuron_manager, applied_current_manager );
+%             
+%             % Design the closed loop P controlled driven multistate CPG double centered lead lag subnetwork synapses.
+%             self = self.design_clpc_dmcpg_dcll_synapses( neuron_IDs_cell, delta_oscillatory, delta_bistable, I_drive_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, kp_gain );
+%             
+%         end
+        %}
         
         % Implement a function to design a transmission subnetwork using existing neurons.
-        function self = design_transmission_subnetwork( self, neuron_IDs, k )
+        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_transmission_subnetwork( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 12, network_utilities = self.network_utilites; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, process_option = self.process_option_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, k = self.c_transmission_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
-            % Design the transmission subnetwork neurons.
-            self = self.design_transmission_neurons( neuron_IDs );
+            % Create an instance of the network object.
+            network = self;
             
-            % Design the tranmission subnetwork synapses.
-            self = self.design_transmission_synapse( neuron_IDs, k, true, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Design the transmission subnetwork neurons.            
+            [ Gnas, Cms, neurons, neuron_manager, network ] = network.design_transmission_neurons( neuron_IDs, neuron_manager, encoding_scheme, true, undetected_option );
+            
+            % Design the tranmission subnetwork synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_transmission_synapse( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, true, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design a modulation subnetwork using existing neurons.
-        function self = design_modulation_subnetwork( self, neuron_IDs, c, neuron_manager )
+        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_modulation_subnetwork( self, neuron_IDs, c, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
+            if nargin < 11, network_utilities = self.network_utilities; end
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, process_option = self.process_option_DEFAULT; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, c = self.c_modulation_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
-            % Design the modulation neurons.
-            self = self.design_modulation_neurons( neuron_IDs, neuron_manager );
+            % Create an instance of the network object.
+            network = self;
             
-            % Design the modulation synapses.
-            self = self.design_modulation_synapses( neuron_IDs, c );
+            % Design the modulation neurons.            
+            [ Gnas, Cms, neurons, neuron_manager, network ] = network.design_modulation_neurons( neuron_IDs, neuron_manager, true, undetected_option );
+            
+            % Design the modulation synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_modulation_synapses( neuron_IDs, c, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design an addition subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_addition_subnetwork( self, neuron_IDs, k, neuron_manager )
+        function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_addition_subnetwork( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 12, network_utilities = self.network_utilities; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, process_option = self.process_option_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, k = self.c_addition_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
-            % Design the addition subnetwork neurons.
-            self = self.design_addition_neurons( neuron_IDs, neuron_manager );
+            % Create an instance of the network object.
+            network = self;
             
-            % Design the addition subnetwork synapses.
-            self = self.design_addition_synapses( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Design the addition subnetwork neurons.            
+            [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, network ] = network.design_addition_neurons( neuron_IDs, neuron_manager, encoding_scheme, true, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design an absolute addition subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_absolute_addition_subnetwork( self, neuron_IDs, c )
+            % Design the addition subnetwork synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_addition_synapses( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
             
-            % Define the default input arguments.
-            if nargin < 3, c = self.c_addition_DEFAULT; end                     % [-] Absolute Addition Subnetwork Gain
-            
-            % Design the absolute addition neurons.
-            self = self.design_absolute_addition_neurons( neuron_IDs );
-            
-            % Design the absolute addition applied currents.
-            self = self.design_absolute_addition_applied_currents( neuron_IDs );
-            
-            % Design the absolute addition synapses.
-            self = self.design_absolute_addition_synapses( neuron_IDs, c );
-            
-        end
-        
-        
-        % Implement a function to design a relative addition subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_relative_addition_subnetwork( self, neuron_IDs, c )
-            
-            % Define the default input arguments.
-            if nargin < 3, c = self.c_addition_DEFAULT; end                     % [-] Relative Addition Subnetwork Gain
-            
-            % Design the relative addition neurons.
-            self = self.design_relative_addition_neurons( neuron_IDs );
-            
-            % Design the relative addition applied currents.
-            self = self.design_relative_addition_applied_currents( neuron_IDs );
-            
-            % Design the relative addition synapses.
-            self = self.design_relative_addition_synapses( neuron_IDs, c );
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design a subtraction subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_subtraction_subnetwork( self, neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
+        function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_subtraction_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 7, network_utilities = self.network_utilities; end
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 13, network_utilities = self.network_utilities; end
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 11, process_option = self.process_option_DEFAULT; end
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, parameters = {  }; end
             if nargin < 3, k = self.c_subtraction_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
-            % Design the subtraction subnetwork neurons.
-            self = self.design_subtraction_neurons( neuron_IDs, neuron_manager );
+            % Create an instance of the network object.
+            network = self;
             
-            % Design the subtraction subnetwork synapses.
-            self = self.design_subtraction_synapses( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Design the subtraction subnetwork neurons.            
+            [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, network ] = network.design_subtraction_neurons( neuron_IDs, neuron_manager, parameters, encoding_scheme, true, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design an absolute subtraction subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_absolute_subtraction_subnetwork( self, neuron_IDs, c, s_ks )
+            % Design the subtraction subnetwork synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_subtraction_synapses( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
             
-            % Define the default input arguments.
-            if nargin < 4, s_ks = [ 1, -1 ]; end                        % [-] Excitatory / Inhibitory Signs
-            if nargin < 3, c = self.c_subtraction_DEFAULT; end                     % [-] Absolute Subtraction Subnetwork Gain
-            
-            % Design the absolute subtraction neurons.
-            self = self.design_absolute_subtraction_neurons( neuron_IDs, s_ks );
-            
-            % Design the absolute subtraction applied currents.
-            self = self.design_absolute_subtraction_applied_currents( neuron_IDs );
-            
-            % Design the absolute subtraction synapses.
-            self = self.design_absolute_subtraction_synapses( neuron_IDs, c, s_ks );
-            
-        end
-        
-        
-        % Implement a function to design a relative subtraciton subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_relative_subtraction_subnetwork( self, neuron_IDs, c, npm_k, s_ks )
-            
-            % Define the default input arguments.
-            if nargin < 5, s_ks = [ 1, -1 ]; end                            % [-] Excitatory / Inhibitory Signs
-            if nargin < 4, npm_k = [ 1, 1 ]; end                            % [#] Number of Excitatory / Inhibitory Inputs
-            if nargin < 3, c = self.c_subtraction_DEFAULT; end                      % [-] Absolute Subtraction Subnetwork Gain
-            
-            % Design the relative subtraction neurons.
-            self = self.design_relative_subtraction_neurons( neuron_IDs );
-            
-            % Design the relative subtraction applied currents.
-            self = self.design_relative_subtraction_applied_currents( neuron_IDs );
-            
-            % Design the relative subtraction synapses.
-            self = self.design_relative_subtraction_synapses( neuron_IDs, c, npm_k, s_ks );
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design a double subtraction subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_double_subtraction_subnetwork( self, neuron_IDs, k, neuron_manager )
+        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_double_subtraction_subnetwork( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 12, network_utilities = self.network_utilities; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, process_option = self.process_option_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, k = self.c_subtraction_DEFAULT; end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
-            % Design the double subtraction subnetwork neurons.
-            self = self.design_double_subtraction_neurons( neuron_IDs, neuron_manager );
+            % Create an instance of the network object.
+            network = self;
             
-            % Design the double subtraction subnetwork synapses.
-            self = self.design_double_subtraction_synapses( neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Design the double subtraction subnetwork neurons.            
+            [ Gnas, Cms, neurons, neuron_manager, network ] = network.design_double_subtraction_neurons( neuron_IDs, neuron_manager, encoding_scheme, true, undetected_option );
+            
+            % Design the double subtraction subnetwork synapses.           
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_double_subtraction_synapses( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design a centering subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_centering_subnetwork( self, neuron_IDs, k_add, k_sub, neuron_manager, applied_current_manager )
+        function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_centering_subnetwork( self, neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, k_sub = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_add = self.c_addition_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 11, process_option = self.process_option_DEFAULT; end
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end
+            if nargin < 3, k_addition = self.c_addition_DEFAULT; end
             
-            % Design the centering subnetwork neurons.
-            self = self.design_centering_neurons( neuron_IDs );
+            % Create an instance of the network object.
+            network = self;
             
-            % Design the centering subnetwork applied currents.
-            self = self.design_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
+            % Design the centering subnetwork neurons.            
+            [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, network ] = network.design_centering_neurons( neuron_IDs, neuron_manager, parameters, encoding_scheme, true, undetected_option );
             
-            % Design the centering subnetwork synapses.
-            self = self.design_centering_synapses( neuron_IDs, k_add, k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Design the centering subnetwork applied currents.            
+            [ Ias, applied_currents, applied_current_manager, network ] = network.design_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager, true, undetected_option );
+            
+            % Design the centering subnetwork synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, self ] = design_centering_synapses( neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to design a double centering subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function self = design_double_centering_subnetwork( self, neuron_IDs, k_add, k_sub, neuron_manager, applied_current_manager )
+        function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_double_centering_subnetwork( self, neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, k_sub = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_add = self.c_addition_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 11, process_option = self.process_option_DEFAULT; end
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end
+            if nargin < 3, k_addition = self.c_addition_DEFAULT; end
+            
+            % Create an instance of the network object.
+            network = self;
             
             % Design the double centering subnetwork neurons.
-            self = self.design_double_centering_neurons( neuron_IDs, neuron_manager );
+            [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, network ] = network.design_double_centering_neurons( neuron_IDs, neuron_manager, parameters, encoding_scheme, true, undetected_option );
             
             % Design the double centering subnetwork applied currents.
-            self = self.design_double_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager );
+            [ Ias, applied_currents, applied_current_manager, network ] = network.design_double_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager, true, undetected_option );
             
-            % Design the double centering subnetwork synapses.
-            self = self.design_double_centering_synapses( neuron_IDs, k_add, k_sub, neuron_manager, synapse_manager, applied_current_manager, network_utilities );
+            % Design the double centering subnetwork synapses.            
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_double_centering_synapses( neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+            
+             % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
@@ -4518,7 +4566,7 @@ classdef network_class
             [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = self.create_multistate_cpg_subnetwork_components( num_cpg_neurons );
             
             % Design the multistate cpg subnetwork.
-            self = self.design_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
+            self = self.design_mcpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable );
             
         end
         
@@ -4536,7 +4584,7 @@ classdef network_class
             [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = self.create_driven_multistate_cpg_subnetwork_components( num_cpg_neurons );
             
             % Design the driven multistate cpg subnetwork.
-            self = self.design_driven_multistate_cpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max );
+            self = self.design_dmcpg_subnetwork( neuron_IDs, delta_oscillatory, delta_bistable, I_drive_max );
             
         end
         
