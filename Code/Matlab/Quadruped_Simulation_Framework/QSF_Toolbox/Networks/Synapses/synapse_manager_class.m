@@ -870,7 +870,7 @@ classdef synapse_manager_class
             
             % Preallocate arrays to store the from and to neuron IDs.
             [ from_neuron_IDs, to_neuron_IDs ] = deal( zeros( 1, n_synapses ) );
-            b_enableds = false( 1, n_synapses );
+            enabled_flags = false( 1, n_synapses );
             
             % Determine whether there is only one synapse between each neuron.
             while ( b_one_to_one ) && ( k < n_synapses )                                                                                                                                            % While we haven't found a synapse repetition and we haven't checked all of the synpases...
@@ -881,7 +881,7 @@ classdef synapse_manager_class
                 % Store these from neuron and to neuron IDs.
                 from_neuron_IDs( k ) = synapses( k ).from_neuron_ID;
                 to_neuron_IDs( k ) = synapses( k ).to_neuron_ID;
-                b_enableds( k ) = synapses( k ).b_enabled;
+                enabled_flags( k ) = synapses( k ).enabled_flag;
                 
                 % Determine whether we need to check this synapse for repetition.
                 if k ~= 1                                                                                                                                                                           % If this is not the first iteration...
@@ -891,7 +891,7 @@ classdef synapse_manager_class
                     [ to_neuron_ID_match, to_neuron_ID_match_logicals ] = array_utilities.is_value_in_array( to_neuron_IDs( k ), to_neuron_IDs( 1:( k  - 1 ) ) );
                     
                     % Determine whether this synapse is a duplicate.
-                    if from_neuron_ID_match && to_neuron_ID_match && b_enableds( k ) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & b_enableds( 1:( k  - 1 ) ) )             % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
+                    if from_neuron_ID_match && to_neuron_ID_match && enabled_flags( k ) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & enabled_flags( 1:( k  - 1 ) ) )             % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
                         
                         % Set the one-to-one flag to false (this synapse is duplicate).
                         b_one_to_one = false;
@@ -2631,12 +2631,12 @@ classdef synapse_manager_class
         %% Enable & Disable Functions.
         
         % Implement a function to verify the compatibility of synapse properties.
-        function valid_flag = validate_synapse_properties( self, n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
+        function valid_flag = validate_synapse_properties( self, n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities )
         
             % Set the default synapse properties.
             if nargin < 12, array_utilities = self.array_utilities; end                                                     % [class] Array Utilities Class.
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.deltas_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = 2*ones( 1, n_synapses ); end                                                     % [#] ID of Neuron At Which Synapse Terminates.
             if nargin < 7, from_neuron_IDs = ones( 1, n_synapses ); end                                                     % [#] ID of Neuron From Which Synapse Originates.
@@ -2649,13 +2649,13 @@ classdef synapse_manager_class
             if ~iscell( names ), names = { names }; end
             
             % Determine whether the synapse properties are relevant.
-            valid_flag = ( n_synapes == length( IDs ) ) && ( n_synapes == length( names ) ) && ( n_synapes == length( dEs ) ) && ( n_synapes == length( gs_maxs ) ) && ( n_synapes == length( from_neuron_IDs ) ) && ( n_synapes == length( to_neuron_IDs ) ) && ( n_synapes == length( deltas ) ) && ( n_synapes == length( b_enableds ) );
+            valid_flag = ( n_synapes == length( IDs ) ) && ( n_synapes == length( names ) ) && ( n_synapes == length( dEs ) ) && ( n_synapes == length( gs_maxs ) ) && ( n_synapes == length( from_neuron_IDs ) ) && ( n_synapes == length( to_neuron_IDs ) ) && ( n_synapes == length( deltas ) ) && ( n_synapes == length( enabled_flags ) );
                 
         end
         
             
         % Implement a function to enable a synapse.
-        function [ b_enabled, synapses, self ] = enable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+        function [ enabled_flag, synapses, self ] = enable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
         
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -2666,7 +2666,7 @@ classdef synapse_manager_class
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Enable this synapse.
-            [ b_enabled, synapses( synapse_index ) ] = synapses( synapse_index ).enable( true );
+            [ enabled_flag, synapses( synapse_index ) ] = synapses( synapse_index ).enable( true );
             
             % Determine whether to update the synapse maanger object.
             if set_flag, self.synapses = synapses; end
@@ -2675,7 +2675,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to enable synapses.
-        function [ b_enableds, synapses, self ] = enable_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
+        function [ enabled_flags, synapses, self ] = enable_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % SEt the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -2689,13 +2689,13 @@ classdef synapse_manager_class
             num_synapses_to_enable = length( synapse_IDs );
             
             % Preallocate an array to store the enabled flags.
-            b_enableds = false( 1, num_synapses_to_enable );
+            enabled_flags = false( 1, num_synapses_to_enable );
             
             % Enable all of the specified synapses.
             for k = 1:num_synapses_to_enable                                                    % Iterate through all of the specified synapses...
                 
                 % Enable this synapse.
-                [ b_enableds( k ), synapses, self ] = self.enable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
+                [ enabled_flags( k ), synapses, self ] = self.enable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
             
@@ -2703,7 +2703,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to disable a synapse.
-        function [ b_enabled, synapses, self ] = disable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+        function [ enabled_flag, synapses, self ] = disable_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -2714,7 +2714,7 @@ classdef synapse_manager_class
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Disable this synapse.
-            [ b_enabled, synapses( synapse_index ) ] = synapses( synapse_index ).disable( true );
+            [ enabled_flag, synapses( synapse_index ) ] = synapses( synapse_index ).disable( true );
             
             % Determine whether to update the synapse manager object.
             if set_flag, self.synapses = synapses; end
@@ -2737,13 +2737,13 @@ classdef synapse_manager_class
             num_synapses_to_enable = length( synapse_IDs );
             
             % Preallocate an array to store the enabled flags.
-            b_enableds = false( 1, num_synapses_to_enable );
+            enabled_flags = false( 1, num_synapses_to_enable );
             
             % Disable all of the specified synapses.
             for k = 1:num_synapses_to_enable                                                    % Iterate through all of the specified synapses...
                 
                 % Disable this synapse.
-                [ b_enableds( k ), synapses, self ] = self.disable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
+                [ enabled_flags( k ), synapses, self ] = self.disable_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
             
@@ -2751,7 +2751,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to toggle a synapses enabled flag.
-        function [ b_enabled, synapses, self ] = toggle_enabled_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
+        function [ enabled_flag, synapses, self ] = toggle_enabled_synapse( self, synapse_ID, synapses, set_flag, undetected_option )
         
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -2762,7 +2762,7 @@ classdef synapse_manager_class
             synapse_index = self.get_synapse_index( synapse_ID, synapses, undetected_option );
             
             % Toggle whether this synapse is enabled.
-            [ b_enabled, synapses( synapse_index ) ] = synapses( synapse_index ).toogle_enabled( synapses( synapse_index ).b_enabled, true );
+            [ enabled_flag, synapses( synapse_index ) ] = synapses( synapse_index ).toogle_enabled( synapses( synapse_index ).enabled_flag, true );
             
             % Determine whether to update the synapse manager object.
             if set_flag, self.synapses = synapses; end
@@ -2771,7 +2771,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to toggle synapse enable state.
-        function [ b_enableds, synapses, self ] = toggle_enabled_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
+        function [ enabled_flags, synapses, self ] = toggle_enabled_synapses( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -2785,13 +2785,13 @@ classdef synapse_manager_class
             num_synapses_to_enable = length( synapse_IDs );
             
             % Preallocate an array to store the enabled flags.
-            b_enableds = false( 1, num_synapses_to_enable );
+            enabled_flags = false( 1, num_synapses_to_enable );
             
             % Disable all of the specified synapses.
             for k = 1:num_synapses_to_enable                                                    % Iterate through all of the specified synapses...
                 
                 % Toggle this synapse.
-                [ b_enableds( k ), synapses, self ] = self.toggle_enabled_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
+                [ enabled_flags( k ), synapses, self ] = self.toggle_enabled_synapse( synapse_IDs( k ), synapses, set_flag, undetected_option );
                 
             end
             
@@ -2823,12 +2823,12 @@ classdef synapse_manager_class
         
         
         % Implement a function to process synapse creation inputs.
-        function [ n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = process_synapse_creation_inputs( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities )
+        function [ n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = process_synapse_creation_inputs( self, n_synapses, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities )
            
             % Set the default synapse properties.
             if nargin < 13, array_utilities = self.array_utilities; end                                    	% [class] Array Utilities Class.
             if nargin < 10, synapses = self.synapses; end                                                 	% [class] Array of Synapse Class Objects.
-            if nargin < 9, b_enableds = true; end                                                           % [T/F] Synapse Enabled Flag
+            if nargin < 9, enabled_flags = true; end                                                           % [T/F] Synapse Enabled Flag
             if nargin < 8, deltas = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
             if nargin < 7, to_neuron_IDs = self.to_neuron_IDs_DEFAULT; end                              	% [-] To Neuron ID
             if nargin < 6, from_neuron_IDs = self.from_neuron_IDs_DEFAULT; end                          	% [-] From Neuron ID
@@ -2838,7 +2838,7 @@ classdef synapse_manager_class
             if nargin < 2, IDs = self.generate_unique_synapse_ID( synapses, array_utilities ); end          % [#] Synapse ID
            
             % Convert the synpase parmaeters from cells to arrays as appropriate.
-            b_enableds = array_utilities.cell2array( b_enableds );                                          % [T/F] Synapse Enabled Flag
+            enabled_flags = array_utilities.cell2array( enabled_flags );                                          % [T/F] Synapse Enabled Flag
             deltas = array_utilities.cell2array( deltas );                                                  % [V] Generic CPG Equilibrium Offset
             to_neuron_IDs = array_utilities.cell2array( to_neuron_IDs );                                    % [-] To Neuron ID
             from_neuron_IDs = array_utilities.cell2array( from_neuron_IDs );                                % [-] From Neuron ID
@@ -2848,7 +2848,7 @@ classdef synapse_manager_class
             IDs = array_utilities.cell2array( IDs );                                                        % [#] Synapse ID
             
             % Ensure that the synapse properties match the required number of synapses.
-            assert( self.validate_synapse_properties( n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities ), 'Provided neuron properties must be of consistent size.' )
+            assert( self.validate_synapse_properties( n_synapses, IDs, names, dEs, gs_maxs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities ), 'Provided neuron properties must be of consistent size.' )
             
         end
         
@@ -2904,14 +2904,14 @@ classdef synapse_manager_class
         
         
         % Implement a function to create a new synapse.
-        function [ ID_new, synapse_new, synapses, self ] = create_synapse( self, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ ID_new, synapse_new, synapses, self ] = create_synapse( self, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default synapse properties.
             if nargin < 13, array_utilities = self.array_utilities; end                                     % [class] Array Utilities Class.
             if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)                                   % [T/F] As Cell Flag (Determines whether the new synapse IDs and objects should be stored in arrays or cells.)
             if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                          	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 9, b_enabled = true; end                                                            % [T/F] Synapse Enabled Flag.
+            if nargin < 9, enabled_flag = true; end                                                            % [T/F] Synapse Enabled Flag.
             if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset.
             if nargin < 7, to_neuron_ID = self.to_neuron_IDs_DEFAULT; end                                  	% [-] To Neuron ID.
             if nargin < 6, from_neuron_ID = self.from_neuron_IDs_DEFAULT; end                              	% [-] From Neuron ID.
@@ -2921,7 +2921,7 @@ classdef synapse_manager_class
             if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end           % [#] Synapse ID.
             
             % Process the synapse creation properties.
-            [ ~, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( 1, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
+            [ ~, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag ] = self.process_synapse_creation_inputs( 1, ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, array_utilities );
             
             % Ensure that this synapse ID is a unique natural.
             assert( self.unique_natural_synapse_ID( ID, synapses, array_utilities ), 'Proposed synapse ID %0.2f is not a unique natural number.', ID )
@@ -2930,7 +2930,7 @@ classdef synapse_manager_class
             synapse_manager = self;
             
             % Create an instance of the synapse class.
-            synapse_new = synapse_class( ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled );
+            synapse_new = synapse_class( ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag );
             
             % Retrieve the new synapse ID.
             ID_new = synapse_new.ID; 
@@ -2952,14 +2952,14 @@ classdef synapse_manager_class
         
         
         % Implement a function to create multiple synapses.
-        function [ IDs_new, synapses_new, synapses, self ] = create_synapses( self, n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_synapses( self, n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default synapse properties.
             if nargin < 14, array_utilities = self.array_utilities; end                                                             % [class] Array Utilities Class.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                                 	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                           % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses_to_create ); end                                                       % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses_to_create ); end                                                       % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses_to_create ); end                                  % [V] Generic CPG Equilibrium Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                          % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                      % [-] From Neuron ID.
@@ -2969,7 +2969,7 @@ classdef synapse_manager_class
             if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses_to_create, synapses, array_utilities ); end           % [#] Synapse ID.
             
             % Process the synapse creation properties.
-            [ n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses_to_create, IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Preallocate an array to store the new synapses.
             synapses_new = repmat( synapse_class(  ), [ 1, n_synapse_to_create ] );
@@ -2984,7 +2984,7 @@ classdef synapse_manager_class
             for k = 1:n_synapses_to_create                                                                                          % Iterate through each of the synapses we want to create...
                 
                 % Create this synapse.                
-                [ IDs_new{ k }, synapses_new{ k }, synapses, synapse_manager ] = synapse_manager.create_synapse( IDs( k ), names{ k }, dEs( k ), gs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), b_enableds( k ), synapses, true, false, array_utilities );
+                [ IDs_new{ k }, synapses_new{ k }, synapses, synapse_manager ] = synapse_manager.create_synapse( IDs( k ), names{ k }, dEs( k ), gs( k ), from_neuron_IDs( k ), to_neuron_IDs( k ), deltas( k ), enabled_flags( k ), synapses, true, false, array_utilities );
                 
             end
             
@@ -3160,7 +3160,7 @@ classdef synapse_manager_class
         %% Subnetwork Synapse Creation Functions.
 
         % Implement a function to create the synapses for a multistate CPG subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_mcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_mcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of cpg neurons.
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                              % [#] Number of CPG Neurons.
@@ -3173,7 +3173,7 @@ classdef synapse_manager_class
             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -3194,7 +3194,7 @@ classdef synapse_manager_class
             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Initialize a counter variable.
             k3 = 0;
@@ -3220,7 +3220,7 @@ classdef synapse_manager_class
             end
             
             % Create the multistate cpg subnetwork synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses_to_create, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses_to_create, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -3232,7 +3232,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a multistate CPG subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_dmcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities  )
+        function [ IDs_new, synapses_new, synapses, self ] = create_dmcpg_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities  )
             
             % Compute the number of synapses.
             [ n_synapses, n_mcpg_synapses ] = self.compute_num_dmcpg_synapses( num_cpg_neurons );
@@ -3242,7 +3242,7 @@ classdef synapse_manager_class
             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -3253,7 +3253,7 @@ classdef synapse_manager_class
             if nargin < 3, neuron_IDs = 1:( num_cpg_neurons + 1 ); end
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3267,7 +3267,7 @@ classdef synapse_manager_class
             i_end_mcpg = n_mcpg_synapses;
             
             % Create the multistate cpg synapses.
-            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_mcpg_synapses( num_cpg_neurons, neuron_IDs( i_start_mcpg:i_end_mcpg ), synapse_IDs( i_start_mcpg:i_end_mcpg ), names{ i_start_mcpg:i_end_mcpg }, dEs( i_start_mcpg:i_end_mcpg ), gs( i_start_mcpg:i_end_mcpg ), from_neuron_IDs( i_start_mcpg:i_end_mcpg ), to_neuron_IDs( i_start_mcpg:i_end_mcpg ), deltas( i_start_mcpg:i_end_mcpg ), b_enableds( i_start_mcpg:i_end_mcpg ), synapses, true, false, array_utilities );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_mcpg_synapses( num_cpg_neurons, neuron_IDs( i_start_mcpg:i_end_mcpg ), synapse_IDs( i_start_mcpg:i_end_mcpg ), names{ i_start_mcpg:i_end_mcpg }, dEs( i_start_mcpg:i_end_mcpg ), gs( i_start_mcpg:i_end_mcpg ), from_neuron_IDs( i_start_mcpg:i_end_mcpg ), to_neuron_IDs( i_start_mcpg:i_end_mcpg ), deltas( i_start_mcpg:i_end_mcpg ), enabled_flags( i_start_mcpg:i_end_mcpg ), synapses, true, false, array_utilities );
             
             % Compute the number of drive synapses.
             num_drive_synapses = n_synapses - n_mcpg_synapses;
@@ -3302,7 +3302,7 @@ classdef synapse_manager_class
             end
                 
             % Create the drive synapses.
-            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_synapses( num_drive_synapes, synapse_IDs( i_start_d:i_end_d ), names{ i_start_d:i_end_d }, dEs( i_start_d:i_end_d ), gs( i_start_d:i_end_d ), from_neuron_IDs( i_start_d:i_end_d ), to_neuron_IDs( i_start_d:i_end_d ), deltas( i_start_d:i_end_d ), b_enableds( i_start_d:i_end_d ), synapses, true, false, array_utilities );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_synapses( num_drive_synapes, synapse_IDs( i_start_d:i_end_d ), names{ i_start_d:i_end_d }, dEs( i_start_d:i_end_d ), gs( i_start_d:i_end_d ), from_neuron_IDs( i_start_d:i_end_d ), to_neuron_IDs( i_start_d:i_end_d ), deltas( i_start_d:i_end_d ), enabled_flags( i_start_d:i_end_d ), synapses, true, false, array_utilities );
                         
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -3314,7 +3314,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses that connect driven multistate cpg to their respective modulated split subtraction voltage based integration subnetworks.
-        function [ IDs_new, synapses_new, synapses, self ] = create_dmcpg2mssvbi_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_dmcpg2mssvbi_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Compute the number of synapses.
             n_synapses = self.compute_num_dmcpg2mssvbi_synapses( num_cpg_neurons );
@@ -3324,7 +3324,7 @@ classdef synapse_manager_class
             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -3335,7 +3335,7 @@ classdef synapse_manager_class
             if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end                                                              % [#] Number of CPG Neurons.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3396,7 +3396,7 @@ classdef synapse_manager_class
             end
             
             % Create the unique synapses.
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -3408,7 +3408,7 @@ classdef synapse_manager_class
         
         %{
 %         % Implement a function to create the synapses that connect modulated split subtraction voltage based integration subnetworks to the split lead lag subnetwork.
-%         function [ self, synapse_IDs ] = create_mssvbi2sll_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+%         function [ self, synapse_IDs ] = create_mssvbi2sll_synapses( self, num_cpg_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
 %             
 %             % Compute the number of synapses.
 %             n_synapses = self.compute_num_mssvbi2sll_synapses( num_cpg_neurons );
@@ -3418,7 +3418,7 @@ classdef synapse_manager_class
 %             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                     % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
 %             if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                             % [T/F] Set Flag (Determines whether output self object is updated.)
 %             if nargin < 12, synapses = self.synapses; end                                                                     % [class] Array of Synapse Class Objects.
-%             if nargin < 11, b_enableds = true( 1, n_synapses ); end                                                           % [T/F] Synapse Enabled Flag.
+%             if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                           % [T/F] Synapse Enabled Flag.
 %             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
 %             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                              % [-] To Neuron ID.
 %             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                          % [-] From Neuron ID.
@@ -3429,7 +3429,7 @@ classdef synapse_manager_class
 %             if nargin < 3, neuron_IDs = 1:num_cpg_neurons; end                                                                % [#] Number of CPG Neurons.
 %             
 %             % Process the synapse creation inputs.
-%             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+%             [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
 %             
 %             % Ensure that the neuron properties match the require number of neurons.
 %             assert( num_cpg_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3694,7 +3694,7 @@ classdef synapse_manager_class
         %}
         
         % Implement a function to create the synapses for a transmission subnetwork.
-        function [ ID_new, synapse_new, synapses, self ] = create_transmission_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ ID_new, synapse_new, synapses, self ] = create_transmission_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, set_flag, as_cell_flag, array_utilities )
         
             % Define the number of neurons and synapses.
             n_neurons = self.num_transmission_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
@@ -3705,7 +3705,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                       % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                               % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enabled = true( 1, n_synapses ); end                                                              % [T/F] Enabled Flag.
+            if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                              % [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                                % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                 % [#] To Neuron ID.
             if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                             % [#] From Neuron ID.
@@ -3716,7 +3716,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
         
             % Process the synapse creation inputs.
-            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
+            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3736,7 +3736,7 @@ classdef synapse_manager_class
             if name_flag, name = sprintf( 'Transmission %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
             
             % Create the transmission subnetwork synapse.    
-            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, true, false, array_utilities );
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, true, false, array_utilities );
                
             % Determine how to format the synapse IDs and objects.
             [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
@@ -3748,7 +3748,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a modulation subnetwork.
-        function [ ID_new, synapse_new, synapses, self ] = create_modulation_synapses( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ ID_new, synapse_new, synapses, self ] = create_modulation_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons and synapses.
             n_neurons = self.num_modulation_neurons_DEFAULT;                                                                % [#] Number of Neurons.
@@ -3759,7 +3759,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                  	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enabled = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
+            if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            	% [#] To Neuron ID.
             if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        	% [#] From Neuron ID.
@@ -3770,7 +3770,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
         
             % Process the synapse creation inputs.
-            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
+            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3790,7 +3790,7 @@ classdef synapse_manager_class
             if name_flag, name = sprintf( 'Modulation %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
             
             % Create the modulation subnetwork synapse.    
-            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, true, false, array_utilities );
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, true, false, array_utilities );
                
             % Determine how to format the synapse IDs and objects.
             [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
@@ -3802,7 +3802,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for an addition subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_addition_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_addition_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
             if nargin < 2, n_neurons = self.num_addition_neurons_DEFAULT; end                                                   % [#]  Number of Neurons.
@@ -3815,7 +3815,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                       % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                               % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                               % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
@@ -3826,7 +3826,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3856,7 +3856,7 @@ classdef synapse_manager_class
            end
             
            % Create the multistate cpg subnetwork synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -3868,7 +3868,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a subtraction subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_subtraction_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_subtraction_synapses( self, n_neurons, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
             if nargin < 2, n_neurons = self.num_subtraction_neurons_DEFAULT; end                                                % [#] Number of Neurons.
@@ -3881,7 +3881,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                     	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                               % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                               % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
@@ -3892,7 +3892,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3922,7 +3922,7 @@ classdef synapse_manager_class
            end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -3934,7 +3934,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a double subtraction subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_double_subtraction_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_double_subtraction_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                        % [#] Number of Neurons.
@@ -3945,7 +3945,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                 	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -3956,7 +3956,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -3986,7 +3986,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -3998,7 +3998,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a centering subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_centering_neurons_DEFAULT;                                                                 % [#] Number of Neurons.
@@ -4009,7 +4009,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4020,7 +4020,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4050,7 +4050,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4062,7 +4062,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a double centering subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_double_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_double_centering_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_double_centering_neurons_DEFAULT;                                                          % [#] Number of Neurons.
@@ -4073,7 +4073,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                 	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4084,7 +4084,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4114,7 +4114,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4126,7 +4126,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses that connect a double subtraction subnetwork to a double centering subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_ds2dc_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_ds2dc_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                     % [#] Number of DS Neurons.
@@ -4140,7 +4140,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4151,7 +4151,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4181,7 +4181,7 @@ classdef synapse_manager_class
             end
             
             % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4193,7 +4193,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a centered double subtraction subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_cds_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_cds_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons from the various subnetworks.
             n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                     % [#] Number of DS Neurons.
@@ -4210,7 +4210,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4221,7 +4221,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4235,21 +4235,21 @@ classdef synapse_manager_class
             i_start_ds_synapses = 1; i_end_ds_synapses = n_ds_synapses;
             
             % Create the double subtraction subnetwork synapses.
-            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_double_subtraction_synapses( neuron_IDs( i_start_ds_neurons:i_end_ds_neurons ), synapse_IDs( i_start_ds_synapses:i_end_ds_synapses ), names{ i_start_ds_synapses:i_end_ds_synapses }, dEs( i_start_ds_synapses:i_end_ds_synapses ), gs( i_start_ds_synapses:i_end_ds_synapses ), from_neuron_IDs( i_start_ds_synapses:i_end_ds_synapses ), to_neuron_IDs( i_start_ds_synapses:i_end_ds_synapses ), deltas( i_start_ds_synapses:i_end_ds_synapses ), b_enableds( i_start_ds_synapses:i_end_ds_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_double_subtraction_synapses( neuron_IDs( i_start_ds_neurons:i_end_ds_neurons ), synapse_IDs( i_start_ds_synapses:i_end_ds_synapses ), names{ i_start_ds_synapses:i_end_ds_synapses }, dEs( i_start_ds_synapses:i_end_ds_synapses ), gs( i_start_ds_synapses:i_end_ds_synapses ), from_neuron_IDs( i_start_ds_synapses:i_end_ds_synapses ), to_neuron_IDs( i_start_ds_synapses:i_end_ds_synapses ), deltas( i_start_ds_synapses:i_end_ds_synapses ), enabled_flags( i_start_ds_synapses:i_end_ds_synapses ), synapses, true, false, array_utilities );
             
             % Define the starting and ending indexes for the double centering information.
             i_start_dc_neurons = i_end_ds_neurons + 1; i_end_dc_neurons = i_end_ds_neurons + n_dc_neurons;
             i_start_dc_synapses = i_end_ds_synapses + 1; i_end_dc_synapses = i_end_ds_synapses + n_dc_synapses;
             
             % Create the double centering subnetwork synapses.
-            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_double_centering_synapses( neuron_IDs( i_start_dc_neurons:i_end_dc_neurons ), synapse_IDs( i_start_dc_synapses:i_end_dc_synapses ), names{ i_start_dc_synapses:i_end_dc_synapses }, dEs( i_start_dc_synapses:i_end_dc_synapses ), gs( i_start_dc_synapses:i_end_dc_synapses ), from_neuron_IDs( i_start_dc_synapses:i_end_dc_synapses ), to_neuron_IDs( i_start_dc_synapses:i_end_dc_synapses ), deltas( i_start_dc_synapses:i_end_dc_synapses ), b_enableds( i_start_dc_synapses:i_end_dc_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_double_centering_synapses( neuron_IDs( i_start_dc_neurons:i_end_dc_neurons ), synapse_IDs( i_start_dc_synapses:i_end_dc_synapses ), names{ i_start_dc_synapses:i_end_dc_synapses }, dEs( i_start_dc_synapses:i_end_dc_synapses ), gs( i_start_dc_synapses:i_end_dc_synapses ), from_neuron_IDs( i_start_dc_synapses:i_end_dc_synapses ), to_neuron_IDs( i_start_dc_synapses:i_end_dc_synapses ), deltas( i_start_dc_synapses:i_end_dc_synapses ), enabled_flags( i_start_dc_synapses:i_end_dc_synapses ), synapses, true, false, array_utilities );
             
             % Define the starting and ending indexes for the ds to dc information.
             i_start_ds2dc_neurons = 1; i_end_ds2dc_neurons = n_neurons;
             i_start_ds2dc_synapses = i_end_dc_synapses + 1; i_end_ds2dc_synapses = i_end_dc_synapses + n_synapses;
             
             % Create the double subtraction subnetwork to double centering subnetwork synapses.
-            [ IDs_new{ 3 }, synapses_new{ 3 }, synapses, synapse_manager ] = synapse_manager.create_ds2dc_synapses( neuron_IDs( i_start_ds2dc_neurons:i_end_ds2dc_neurons ), synapse_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), names{ i_start_ds2dc_synapses:i_end_ds2dc_synapses }, dEs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), gs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), from_neuron_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), to_neuron_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), deltas( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), b_enableds( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 3 }, synapses_new{ 3 }, synapses, synapse_manager ] = synapse_manager.create_ds2dc_synapses( neuron_IDs( i_start_ds2dc_neurons:i_end_ds2dc_neurons ), synapse_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), names{ i_start_ds2dc_synapses:i_end_ds2dc_synapses }, dEs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), gs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), from_neuron_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), to_neuron_IDs( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), deltas( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), enabled_flags( i_start_ds2dc_synapses:i_end_ds2dc_synapses ), synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4261,7 +4261,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a multiplication subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_multiplication_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_multiplication_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_multiplication_neurons_DEFAULT;                                                            % [#] Number of Neurons.
@@ -4272,7 +4272,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4283,7 +4283,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4313,7 +4313,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4325,7 +4325,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapse for an inversion subnetwork.
-        function [ ID_new, synapse_new, synapses, self ] = create_inversion_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ ID_new, synapse_new, synapses, self ] = create_inversion_synapse( self, neuron_IDs, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons and synapses.
             n_neurons = self.num_inversion_neurons_DEFAULT;                                                                 % [#] Number of Neurons.
@@ -4336,7 +4336,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enabled = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
+            if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                             % [#] To Neuron ID.
             if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                         % [#] From Neuron ID.
@@ -4347,7 +4347,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
         
             % Process the synapse creation inputs.
-            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, array_utilities );
+            [ ~, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag ] = self.process_synapse_creation_inputs( n_synapses, synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4367,7 +4367,7 @@ classdef synapse_manager_class
             if name_flag, name = sprintf( 'Modulation %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
             
             % Create the modulation subnetwork synapse.    
-            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, b_enabled, synapses, true, false, array_utilities );
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, true, false, array_utilities );
                
             % Determine how to format the synapse IDs and objects.
             [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
@@ -4379,7 +4379,7 @@ classdef synapse_manager_class
 
         
         % Implement a function to create the synpases for a division subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_division_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_division_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_division_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
@@ -4390,7 +4390,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4401,7 +4401,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4431,7 +4431,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4443,7 +4443,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synpases for a derivation subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_derivation_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_derivation_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_derivation_neurons_DEFAULT;                                                                % [#] Number of Neurons.
@@ -4454,7 +4454,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                               	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4465,7 +4465,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4495,7 +4495,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4507,7 +4507,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for an integration subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_integration_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_integration_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_integration_neurons_DEFAULT;                                                               % [#] Number of Neurons.
@@ -4518,7 +4518,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4529,7 +4529,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4559,7 +4559,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4571,7 +4571,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a voltage based integration subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_vbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_vbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_vbi_neurons_DEFAULT;                                                                       % [#] Number of Neurons.
@@ -4582,7 +4582,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4593,7 +4593,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4623,7 +4623,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4635,7 +4635,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a split voltage based integration subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_svbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_svbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_svbi_neurons_DEFAULT;                                                                      % [#] Number of Neurons.
@@ -4646,7 +4646,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4657,7 +4657,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4687,7 +4687,7 @@ classdef synapse_manager_class
             end
             
            % Create the synapses.            
-            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, true, false, array_utilities );
+            [ IDs_new, synapses_new, synapses, synapse_manager ] = self.create_synapses( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, true, false, array_utilities );
 
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4699,7 +4699,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a modulated split voltage based integration subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_msvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_msvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons from the various subnetworks.
             n_svbi_neurons = self.num_svbi_neurons_DEFAULT;                                                                 % [#] Number of SVBI Neurons.
@@ -4716,7 +4716,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                 	% [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4727,7 +4727,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4741,7 +4741,7 @@ classdef synapse_manager_class
             i_start_svbi_synapses = 1; i_end_svbi_synapses = n_svbi_synapses;
             
             % Create the double subtraction subnetwork synapses.
-            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_svbi_synapses( neuron_IDs( i_start_svbi_neurons:i_end_svbi_neurons ), synapse_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), names{ i_start_svbi_synapses:i_end_svbi_synapses }, dEs( i_start_svbi_synapses:i_end_svbi_synapses ), gs( i_start_svbi_synapses:i_end_svbi_synapses ), from_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), to_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), deltas( i_start_svbi_synapses:i_end_svbi_synapses ), b_enableds( i_start_svbi_synapses:i_end_svbi_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_svbi_synapses( neuron_IDs( i_start_svbi_neurons:i_end_svbi_neurons ), synapse_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), names{ i_start_svbi_synapses:i_end_svbi_synapses }, dEs( i_start_svbi_synapses:i_end_svbi_synapses ), gs( i_start_svbi_synapses:i_end_svbi_synapses ), from_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), to_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), deltas( i_start_svbi_synapses:i_end_svbi_synapses ), enabled_flags( i_start_svbi_synapses:i_end_svbi_synapses ), synapses, true, false, array_utilities );
             
             % Define the starting and ending indexes for the double centering information.
             i_start_msvbi_synapses = i_end_svbi_synapses + 1; i_end_msvbi_synapses = i_end_svbi_synapses + n_msvbi_synapses;
@@ -4771,7 +4771,7 @@ classdef synapse_manager_class
             end
             
             % Create the msvbi synapses.            
-            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_synapses( n_msvbi_synapses, synapse_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, dEs( i_start_msvbi_synapses:i_end_msvbi_synapses ), gs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), deltas( i_start_msvbi_synapses:i_end_msvbi_synapses ), b_enableds( i_start_msvbi_synapses:i_end_msvbi_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_synapses( n_msvbi_synapses, synapse_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, dEs( i_start_msvbi_synapses:i_end_msvbi_synapses ), gs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), deltas( i_start_msvbi_synapses:i_end_msvbi_synapses ), enabled_flags( i_start_msvbi_synapses:i_end_msvbi_synapses ), synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );
@@ -4783,7 +4783,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to create the synapses for a modulated split difference voltage based integration subnetwork.
-        function [ IDs_new, synapses_new, synapses, self ] = create_mssvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, synapses_new, synapses, self ] = create_mssvbi_synapses( self, neuron_IDs, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons from the various subnetworks.
             n_ds_neurons = self.num_ds_neurons_DEFAULT;                                                                     % [#] Number of DS Neurons.
@@ -4802,7 +4802,7 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, b_enableds = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
             if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
@@ -4813,7 +4813,7 @@ classdef synapse_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end                                                                    % [#] Neuron IDs.
             
             % Process the synapse creation inputs.
-            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, b_enableds, synapses, array_utilities );
+            [ ~, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags ] = self.process_synapse_creation_inputs( n_synapses, synapse_IDs, names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, enabled_flags, synapses, array_utilities );
             
             % Ensure that the neuron properties match the require number of neurons.
             assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
@@ -4827,14 +4827,14 @@ classdef synapse_manager_class
             i_start_svbi_synapses = 1; i_end_svbi_synapses = n_svbi_synapses;
             
             % Create the double subtraction subnetwork synapses.
-            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_double_subtraction_synapses( neuron_IDs( i_start_svbi_neurons:i_end_svbi_neurons ), synapse_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), names{ i_start_svbi_synapses:i_end_svbi_synapses }, dEs( i_start_svbi_synapses:i_end_svbi_synapses ), gs( i_start_svbi_synapses:i_end_svbi_synapses ), from_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), to_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), deltas( i_start_svbi_synapses:i_end_svbi_synapses ), b_enableds( i_start_svbi_synapses:i_end_svbi_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 1 }, synapses_new{ 1 }, synapses, synapse_manager ] = self.create_double_subtraction_synapses( neuron_IDs( i_start_svbi_neurons:i_end_svbi_neurons ), synapse_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), names{ i_start_svbi_synapses:i_end_svbi_synapses }, dEs( i_start_svbi_synapses:i_end_svbi_synapses ), gs( i_start_svbi_synapses:i_end_svbi_synapses ), from_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), to_neuron_IDs( i_start_svbi_synapses:i_end_svbi_synapses ), deltas( i_start_svbi_synapses:i_end_svbi_synapses ), enabled_flags( i_start_svbi_synapses:i_end_svbi_synapses ), synapses, true, false, array_utilities );
             
             % Define the starting and ending indexes for the double subtraction information.
             i_start_msvbi_neurons = i_end_svbi_neurons + 1; i_end_msvbi_neurons = i_start_msvbi_neurons + n_msvbi_neurons;
             i_start_msvbi_synapses = i_end_svbi_synapses + 1; i_end_msvbi_synapses = i_start_msvbi_synapses + n_msvbi_synapses;
             
             % Create the modulated split voltage based integration subnetwork synapses.
-            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_msvbi_synapses( neuron_IDs( i_start_msvbi_neurons:i_end_msvbi_neurons ), synapse_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, dEs( i_start_msvbi_synapses:i_end_msvbi_synapses ), gs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), deltas( i_start_msvbi_synapses:i_end_msvbi_synapses ), b_enableds( i_start_msvbi_synapses:i_end_msvbi_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 2 }, synapses_new{ 2 }, synapses, synapse_manager ] = synapse_manager.create_msvbi_synapses( neuron_IDs( i_start_msvbi_neurons:i_end_msvbi_neurons ), synapse_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), names{ i_start_msvbi_synapses:i_end_msvbi_synapses }, dEs( i_start_msvbi_synapses:i_end_msvbi_synapses ), gs( i_start_msvbi_synapses:i_end_msvbi_synapses ), from_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), to_neuron_IDs( i_start_msvbi_synapses:i_end_msvbi_synapses ), deltas( i_start_msvbi_synapses:i_end_msvbi_synapses ), enabled_flags( i_start_msvbi_synapses:i_end_msvbi_synapses ), synapses, true, false, array_utilities );
             
             % Define the starting and ending indexes for the double subtraction information.
             i_start_mssvbi_neurons = i_end_msvbi_neurons + 1; i_end_mssvbi_neurons = i_start_mssvbi_neurons + n_mssvbi_neurons;
@@ -4865,7 +4865,7 @@ classdef synapse_manager_class
             end
             
             % Create the synapses unique to this subnetwork.
-            [ IDs_new{ 3 }, synapses_new{ 3 }, synapses, synapse_manager ] = synapse_manager.create_synapses( n_mssvbi_synapses, synapse_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), names{ i_start_mssvbi_synapses:i_end_mssvbi_synapses }, dEs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), gs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), from_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), to_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), deltas( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), b_enableds( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), synapses, true, false, array_utilities );
+            [ IDs_new{ 3 }, synapses_new{ 3 }, synapses, synapse_manager ] = synapse_manager.create_synapses( n_mssvbi_synapses, synapse_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), names{ i_start_mssvbi_synapses:i_end_mssvbi_synapses }, dEs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), gs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), from_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), to_neuron_IDs( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), deltas( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), enabled_flags( i_start_mssvbi_synapses:i_end_mssvbi_synapses ), synapses, true, false, array_utilities );
             
             % Determine how to format the synapse IDs and objects.
             [ IDs_new, synapses_new ] = self.process_synapse_creation_outputs( IDs_new, synapses_new, as_cell_flag, array_utilities );

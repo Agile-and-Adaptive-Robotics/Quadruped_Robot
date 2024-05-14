@@ -3595,7 +3595,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a driven multistate cpg split lead lag subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_sll_neurons( self, num_cpg_neurons, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_sll_neurons( self, num_cpg_neurons, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Compute the number of neurons.
             [ n_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
@@ -3629,7 +3629,7 @@ classdef neuron_manager_class
             if nargin < 6, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 3, network_type = 'Absolute'; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
@@ -3661,7 +3661,7 @@ classdef neuron_manager_class
                 i_end3 = i_end2 + k*n_mssvbi_neurons;
                 
                 % Create the modulated split difference voltage based integration subnetwork neurons.
-                [ IDs_new{ k + 2 }, neurons_new{ k + 2 }, neurons, neuron_manager ] = neuron_manager.create_mssvbi_neurons( network_type, IDs( i_start3:i_end3 ), names( i_start3:i_end3 ), Us( i_start3:i_end3 ), hs( i_start3:i_end3 ), Cms( i_start3:i_end3 ), Gms( i_start3:i_end3 ), Ers( i_start3:i_end3 ), Rs( i_start3:i_end3 ), Ams( i_start3:i_end3 ), Sms( i_start3:i_end3 ), dEms( i_start3:i_end3 ), Ahs( i_start3:i_end3 ), Shs( i_start3:i_end3 ), dEhs( i_start3:i_end3 ), dEnas( i_start3:i_end3 ), tauh_maxs( i_start3:i_end3 ), Gnas( i_start3:i_end3 ), I_leaks( i_start3:i_end3 ), I_syns( i_start3:i_end3 ), I_nas( i_start3:i_end3 ), I_tonics( i_start3:i_end3 ), I_apps( i_start3:i_end3 ), I_totals( i_start3:i_end3 ), enabled_flags( i_start3:i_end3 ), neurons, true, false, array_utilities );
+                [ IDs_new{ k + 2 }, neurons_new{ k + 2 }, neurons, neuron_manager ] = neuron_manager.create_mssvbi_neurons( encoding_scheme, IDs( i_start3:i_end3 ), names( i_start3:i_end3 ), Us( i_start3:i_end3 ), hs( i_start3:i_end3 ), Cms( i_start3:i_end3 ), Gms( i_start3:i_end3 ), Ers( i_start3:i_end3 ), Rs( i_start3:i_end3 ), Ams( i_start3:i_end3 ), Sms( i_start3:i_end3 ), dEms( i_start3:i_end3 ), Ahs( i_start3:i_end3 ), Shs( i_start3:i_end3 ), dEhs( i_start3:i_end3 ), dEnas( i_start3:i_end3 ), tauh_maxs( i_start3:i_end3 ), Gnas( i_start3:i_end3 ), I_leaks( i_start3:i_end3 ), I_syns( i_start3:i_end3 ), I_nas( i_start3:i_end3 ), I_tonics( i_start3:i_end3 ), I_apps( i_start3:i_end3 ), I_totals( i_start3:i_end3 ), enabled_flags( i_start3:i_end3 ), neurons, true, false, array_utilities );
                 
             end
             
@@ -3921,7 +3921,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a transmission subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_transmission_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_transmission_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_transmission_neurons_DEFAULT;
@@ -3955,7 +3955,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -3964,7 +3964,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Transmission Input' ], [ network_type, ' Transmission Output' ] };
+                names = { [ encoding_scheme, ' Transmission Input' ], [ encoding_scheme, ' Transmission Output' ] };
                 
             end
             
@@ -3975,7 +3975,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a modulation subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_modulation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_modulation_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_modulation_neurons_DEFAULT;
@@ -4009,7 +4009,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Validate the neuron properties.
             assert( self.validate_neuron_properties( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities ), 'Modulation subnetworks must contain exactly two neurons.' )
@@ -4018,7 +4018,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Modulation Input' ], [ network_type, ' Modulation Output' ] };
+                names = { [ encoding_scheme, ' Modulation Input' ], [ encoding_scheme, ' Modulation Output' ] };
                 
             end
             
@@ -4029,7 +4029,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for an addition subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_addition_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_addition_neurons( self, encoding_scheme, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
             if nargin < 3, n_neurons = self.num_addition_neurons_DEFAULT; end
@@ -4066,7 +4066,7 @@ classdef neuron_manager_class
             if nargin < 6, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4078,14 +4078,14 @@ classdef neuron_manager_class
                 if n_neurons ==  2                                                                                    	% If this subnetwork has exactly two neurons...
                     
                     % Define the name of the single input neuron.
-                    names{ 1 } = [ network_type, ' Addition Input' ];
+                    names{ 1 } = [ encoding_scheme, ' Addition Input' ];
                     
                 elseif n_neurons > 2                                                                                    % If this subnetwork has more than two neurons...
                     
                     for k = 1:( n_neurons - 1 )                                                                         % Iterate through each of the neurons...
                         
                         % Define the default input neuron names.
-                        names{ k } = sprintf( '%s Addition Input %0.0f', network_type, k );
+                        names{ k } = sprintf( '%s Addition Input %0.0f', encoding_scheme, k );
                         
                     end
                     
@@ -4097,7 +4097,7 @@ classdef neuron_manager_class
                 end
                 
                 % Define the default output neuron names.
-                names{ end } = [ network_type, ' Addition Output' ];
+                names{ end } = [ encoding_scheme, ' Addition Output' ];
                 
             end
             
@@ -4108,7 +4108,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a subtraction subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_subtraction_neurons( self, network_type, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_subtraction_neurons( self, encoding_scheme, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
             if nargin < 3, n_neurons = self.num_subtraction_neurons_DEFAULT; end
@@ -4145,7 +4145,7 @@ classdef neuron_manager_class
             if nargin < 6, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4157,14 +4157,14 @@ classdef neuron_manager_class
                 if n_neurons ==  2                                                                                      % If this subnetwork has exactly two neurons...
                     
                     % Define the name of the single input neuron.
-                    names{ 1 } = [ network_type, ' Subtraction Input' ];
+                    names{ 1 } = [ encoding_scheme, ' Subtraction Input' ];
                     
                 elseif n_neurons > 2                                                                                    % If this subnetwork has more than two neurons...
                     
                     for k = 1:( n_neurons - 1 )                                                                         % Iterate through each of the neurons...
                         
                         % Define the default input neuron names.
-                        names{ k } = sprintf( '%s Subtraction Input %0.0f', network_type, k );
+                        names{ k } = sprintf( '%s Subtraction Input %0.0f', encoding_scheme, k );
                         
                     end
                     
@@ -4176,7 +4176,7 @@ classdef neuron_manager_class
                 end
                 
                 % Define the default output neuron names.
-                names{ end } = [ network_type, ' Subtraction Output' ];
+                names{ end } = [ encoding_scheme, ' Subtraction Output' ];
                 
             end
             
@@ -4187,7 +4187,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a double subtraction subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_double_subtraction_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_double_subtraction_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
             n_neurons = self.num_double_subtraction_neurons_DEFAULT;
@@ -4221,7 +4221,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4230,7 +4230,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the neuron names.
-                names = { [ network_type, ' Subtraction Input 1' ], [ network_type, ' Subtraction Input 2' ], [ network_type, ' Subtraction Output 1' ], [ network_type, ' Subtraction Output 2' ] };
+                names = { [ encoding_scheme, ' Subtraction Input 1' ], [ encoding_scheme, ' Subtraction Input 2' ], [ encoding_scheme, ' Subtraction Output 1' ], [ encoding_scheme, ' Subtraction Output 2' ] };
                 
             end
             
@@ -4347,7 +4347,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a centered double subtraction subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_cds_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_cds_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
             [ n_neurons, n_ds_neurons, n_dc_neurons ] = self.compute_num_cds_neurons(  );
@@ -4381,7 +4381,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4395,7 +4395,7 @@ classdef neuron_manager_class
             i_end1 = n_ds_neurons;                                                                                      % [#] Ending Index 1.
             
             % Create the double subtraction subnetwork neurons.
-            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_double_subtraction_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), enabled_flags( i_start1:i_end1 ), neurons, true, false, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_double_subtraction_neurons( encoding_scheme, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), enabled_flags( i_start1:i_end1 ), neurons, true, false, array_utilities );
             
             % Set the indexes associated with the double centering neurons.
             i_start2 = i_end1 + 1;                                                                                  	% [#] Starting Index 2.
@@ -4414,7 +4414,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a multiplication subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_multiplication_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_multiplication_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
             n_neurons = self.num_multiplication_neurons_DEFAULT;
@@ -4448,7 +4448,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4457,7 +4457,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the neuron names.
-                names = { [ network_type, ' Multiplication Input 1' ], [ network_type, ' Multiplication Input 2' ], [ network_type, ' Multiplication Interneuron' ], [ network_type, ' Multiplication Output' ] };
+                names = { [ encoding_scheme, ' Multiplication Input 1' ], [ encoding_scheme, ' Multiplication Input 2' ], [ encoding_scheme, ' Multiplication Interneuron' ], [ encoding_scheme, ' Multiplication Output' ] };
                 
             end
             
@@ -4468,7 +4468,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for an inversion subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_inversion_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_inversion_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_inversion_neurons_DEFAULT;
@@ -4502,7 +4502,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4511,7 +4511,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Inversion Input' ], [ network_type, ' Inversion Output' ] };
+                names = { [ encoding_scheme, ' Inversion Input' ], [ encoding_scheme, ' Inversion Output' ] };
                 
             end
             
@@ -4522,7 +4522,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a division subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_division_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_division_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_division_neurons_DEFAULT;
@@ -4556,7 +4556,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4565,7 +4565,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Division Input 1' ], [ network_type, ' Division Input 2' ], [ network_type, ' Division Output' ] };
+                names = { [ encoding_scheme, ' Division Input 1' ], [ encoding_scheme, ' Division Input 2' ], [ encoding_scheme, ' Division Output' ] };
                 
             end
             
@@ -4576,7 +4576,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for a derivation subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_derivation_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_derivation_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_derivation_neurons_DEFAULT;
@@ -4610,7 +4610,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4619,7 +4619,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Derivation Input 1' ], [ network_type, ' Derivation Input 2' ], [ network_type, ' Derivation Output' ] };
+                names = { [ encoding_scheme, ' Derivation Input 1' ], [ encoding_scheme, ' Derivation Input 2' ], [ encoding_scheme, ' Derivation Output' ] };
                 
             end
             
@@ -4630,7 +4630,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the neurons for an integration subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_integration_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_integration_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
@@ -4664,7 +4664,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4673,7 +4673,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Integration Neuron 1' ], [ network_type, ' Integration Neuron 2' ] };
+                names = { [ encoding_scheme, ' Integration Neuron 1' ], [ encoding_scheme, ' Integration Neuron 2' ] };
                 
             end
             
@@ -4684,7 +4684,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the voltage based neurons for an integration subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_vbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_vbi_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_vbi_neurons_DEFAULT;
@@ -4718,7 +4718,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4727,7 +4727,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Integration Neuron 1' ], [ network_type, ' Integration Neuron 2' ], [ network_type, ' Interneuron 1' ], [ network_type, ' Interneuron 2' ] };
+                names = { [ encoding_scheme, ' Integration Neuron 1' ], [ encoding_scheme, ' Integration Neuron 2' ], [ encoding_scheme, ' Interneuron 1' ], [ encoding_scheme, ' Interneuron 2' ] };
                 
             end
             
@@ -4738,7 +4738,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the split voltage based neurons for an integration subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_svbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_svbi_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             n_neurons = self.num_svbi_neurons_DEFAULT;
@@ -4772,7 +4772,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4781,7 +4781,7 @@ classdef neuron_manager_class
             if all( [ names{ : } ] == '' )                                                                              % If the names are empty...
                 
                 % Define the default neuron names.
-                names = { [ network_type, ' Integration 1' ], [ network_type, ' Integration 2' ], [ network_type, ' Integration 3' ], [ network_type, ' Integration 4' ], [ network_type, ' Subtraction 1' ], [ network_type, ' Subtraction 2' ], [ network_type, ' Subtraction 3' ], [ network_type, ' Subtraction 4' ], [ network_type, ' Equilibrium 1' ] };
+                names = { [ encoding_scheme, ' Integration 1' ], [ encoding_scheme, ' Integration 2' ], [ encoding_scheme, ' Integration 3' ], [ encoding_scheme, ' Integration 4' ], [ encoding_scheme, ' Subtraction 1' ], [ encoding_scheme, ' Subtraction 2' ], [ encoding_scheme, ' Subtraction 3' ], [ encoding_scheme, ' Subtraction 4' ], [ encoding_scheme, ' Equilibrium 1' ] };
                 
             end
             
@@ -4792,7 +4792,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the modulated split voltage based neurons for an integration subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_msvbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_msvbi_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             [ n_neurons, n_vsbi_neurons, n_new_msvbi_neurons ] = self.compute_num_msvbi_neurons(  );
@@ -4826,7 +4826,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4840,7 +4840,7 @@ classdef neuron_manager_class
             i_end1 = n_vsbi_neurons;
             
             % Create the split voltage based integration neurons.
-            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_svbi_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), enabled_flags( i_start1:i_end1 ), neurons, true, false, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_svbi_neurons( encoding_scheme, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), enabled_flags( i_start1:i_end1 ), neurons, true, false, array_utilities );
             
             % Define the modulated split voltage based integration neuron indexes.
             i_start2 = i_end1 + 1;
@@ -4862,7 +4862,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to create the modulated split difference voltage based neurons for an integration subnetwork.
-        function [ IDs_new, neurons_new, neurons, self ] = create_mssvbi_neurons( self, network_type, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
+        function [ IDs_new, neurons_new, neurons, self ] = create_mssvbi_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
             [ n_neurons, n_ds_neurons, n_msvbi_neurons ] = self.compute_num_mssvbi_neurons(  );
@@ -4896,7 +4896,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID
-            if nargin < 2, network_type = 'Absolute'; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -4910,14 +4910,14 @@ classdef neuron_manager_class
             i_end1 = n_ds_neurons;
             
             % Create the double subtraction neurons.
-            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_double_subtraction_neurons( network_type, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), enabled_flags( i_start1:i_end1 ), neurons, true, false, array_utilities );
+            [ IDs_new{ 1 }, neurons_new{ 1 }, neurons, neuron_manager ] = self.create_double_subtraction_neurons( encoding_scheme, IDs( i_start1:i_end1 ), names( i_start1:i_end1 ), Us( i_start1:i_end1 ), hs( i_start1:i_end1 ), Cms( i_start1:i_end1 ), Gms( i_start1:i_end1 ), Ers( i_start1:i_end1 ), Rs( i_start1:i_end1 ), Ams( i_start1:i_end1 ), Sms( i_start1:i_end1 ), dEms( i_start1:i_end1 ), Ahs( i_start1:i_end1 ), Shs( i_start1:i_end1 ), dEhs( i_start1:i_end1 ), dEnas( i_start1:i_end1 ), tauh_maxs( i_start1:i_end1 ), Gnas( i_start1:i_end1 ), I_leaks( i_start1:i_end1 ), I_syns( i_start1:i_end1 ), I_nas( i_start1:i_end1 ), I_tonics( i_start1:i_end1 ), I_apps( i_start1:i_end1 ), I_totals( i_start1:i_end1 ), enabled_flags( i_start1:i_end1 ), neurons, true, false, array_utilities );
             
             % Define the modulated split voltage based integration neuron indexes.
             i_start2 = i_end1 + 1;
             i_end2 = i_end1 + n_msvbi_neurons;
             
             % Create the modulated split voltage based integration neurons.
-            [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_msvbi_neurons( network_type, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), enabled_flags( i_start2:i_end2 ), neurons, true, false, array_utilities );
+            [ IDs_new{ 2 }, neurons_new{ 2 }, neurons, neuron_manager ] = neuron_manager.create_msvbi_neurons( encoding_scheme, IDs( i_start2:i_end2 ), names( i_start2:i_end2 ), Us( i_start2:i_end2 ), hs( i_start2:i_end2 ), Cms( i_start2:i_end2 ), Gms( i_start2:i_end2 ), Ers( i_start2:i_end2 ), Rs( i_start2:i_end2 ), Ams( i_start2:i_end2 ), Sms( i_start2:i_end2 ), dEms( i_start2:i_end2 ), Ahs( i_start2:i_end2 ), Shs( i_start2:i_end2 ), dEhs( i_start2:i_end2 ), dEnas( i_start2:i_end2 ), tauh_maxs( i_start2:i_end2 ), Gnas( i_start2:i_end2 ), I_leaks( i_start2:i_end2 ), I_syns( i_start2:i_end2 ), I_nas( i_start2:i_end2 ), I_tonics( i_start2:i_end2 ), I_apps( i_start2:i_end2 ), I_totals( i_start2:i_end2 ), enabled_flags( i_start2:i_end2 ), neurons, true, false, array_utilities );
             
             % Determine how to format the neuron IDs and objects.
             [ IDs_new, neurons_new ] = self.process_neuron_creation_outputs( IDs_new, neurons_new, as_cell_flag, array_utilities );
