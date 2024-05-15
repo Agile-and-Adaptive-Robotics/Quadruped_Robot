@@ -4578,15 +4578,16 @@ classdef network_class
         
         
         % Implement a function to create the double subtraction subnetwork components.
-        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_double_subtraction_subnetwork_components( self, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_double_subtraction_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
             
             % Set the default input arguments.
-            if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
-            if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Unpack neuron and synapse input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4613,265 +4614,491 @@ classdef network_class
         
         
         % Implement a function to create the centering subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_centering_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_centering_subnetwork_components( self, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the centering subnetwork neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_centering_neurons(  );
+            % Set the default input arguments.
+            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
             
-            % Create the centering subnetwork synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_centering_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the centering subnetwork applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_centering_applied_currents( neuron_IDs );
+            % Create the centering subnetwork neurons, synapses, applied currents.            
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_centering_neurons( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );            
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_centering_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_centering_applied_currents( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the double centering subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_double_centering_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_double_centering_subnetwork_components( self, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the double centering subnetwork neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_double_centering_neurons(  );
+            % Set the default input arguments.
+            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
             
-            % Create the double centering subnetwork synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_double_centering_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the double centering subnetwork applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_double_centering_applied_currents( neuron_IDs );
+            % Create the double centering subnetwork neurons, synapses, and applied currents.            
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_double_centering_neurons( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_double_centering_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_double_centering_applied_currents( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the centered double subtraction subnetwork components.
-        function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_centered_double_subtraction_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_cds_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the centered double subtraction subnetwork neurons.
-            [ neuron_manager, neuron_IDs_cell ] = neuron_manager.create_centered_double_subtraction_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the centered double subtraction subnetwork synapses.
-            [ synapse_manager, synapse_IDs_cell ] = synapse_manager.create_centered_double_subtraction_synapses( neuron_IDs_cell );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the centered double subtraction subnetwork applied currents.
-            [ applied_current_manager, applied_current_IDs_cell ] = applied_current_manager.create_centered_double_subtraction_applied_currents( neuron_IDs_cell );
+            % Create the centered double subtraction subnetwork neurons, synapses, applied currents.            
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_cds_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_cds_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_cds_applied_currents( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the multiplication subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_ID ] = create_multiplication_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_multiplication_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the multiplication neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_multiplication_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the multiplication synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_multiplication_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the multiplication applied currents.
-            [ applied_current_manager, applied_current_ID ] = applied_current_manager.create_multiplication_applied_currents( neuron_IDs );
+            % Create the multiplication neurons, synapses, applied currents.
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_multiplication_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_multiplication_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_multiplication_applied_currents( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
             
-        end
-        
-        
-        % Implement a function to create the absolute multiplication subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_multiplication_subnetwork_components( self )
-            
-            % Create the neurons for an absolute multiplication subnetwork.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_absolute_multiplication_neurons(  );
-            
-            % Create the applied currents for an absolute multiplication subnetwork.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_absolute_multiplication_applied_currents( neuron_IDs );
-            
-            % Create the synapses for an absolute multiplication subnetwork.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_absolute_multiplication_synapses( neuron_IDs );
-            
-        end
-        
-        
-        % Implement a function to create the relative multiplication subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_multiplication_subnetwork_components( self )
-            
-            % Create the neurons for a relative multiplication subnetwork.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_relative_multiplication_neurons(  );
-            
-            % Create the applied currents for a relative multiplication subnetwork.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_relative_multiplication_applied_currents( neuron_IDs );
-            
-            % Create the synapses for a relative multiplication subnetwork.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_relative_multiplication_synapses( neuron_IDs );
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the inversion subnetwork components.
-        function [ self, neuron_IDs, synapse_ID, applied_current_ID ] = create_inversion_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_inversion_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the inversion neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_inversion_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the inversion synapse.
-            [ synapse_manager, synapse_ID ] = synapse_manager.create_inversion_synapse( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_ID, synapse_name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, synapse_enabled_flag ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the inversion applied current.
-            [ applied_current_manager, applied_current_ID ] = applied_current_manager.create_inversion_applied_current( neuron_IDs );
+            % Create the inversion neurons, synapses, applied currents.      
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_inversion_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_ID_new, synapse_new, synapses, synapse_manager ] = synapse_manager.create_inversion_synapse( neuron_IDs, synapse_ID, synapse_name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, synapse_enabled_flag, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_inversion_applied_current( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
             
-        end
-        
-        
-        % Implement a function to create the absolute inversion subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_inversion_subnetwork_components( self )
-            
-            % Create the neurons for an absolute inversion subnetwork.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_absolute_inversion_neurons(  );
-            
-            % Create the applied currents for an absolute inversion subnetwork.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_absolute_inversion_applied_currents( neuron_IDs );
-            
-            % Create the synapses for an absolute inversion subnetwork.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_absolute_inversion_synapses( neuron_IDs );
-            
-        end
-        
-        
-        % Implement a function to create the relative inversion subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_inversion_subnetwork_components( self )
-            
-            % Create the neurons for a relative inversion subnetwork.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_relative_inversion_neurons(  );
-            
-            % Create the applied currents for a relative inversion subnetwork.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_relative_inversion_applied_currents( neuron_IDs );
-            
-            % Create the synapses for a relative inversion subnetwork.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_relative_inversion_synapses( neuron_IDs );
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_ID_new, synapse_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the division subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs ] = create_division_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_division_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
             
-            % Create the division neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_division_neurons(  );
+            % Set the default input arguments.
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the division synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_division_synapses( neuron_IDs );
+            % Unpack neuron and synapse input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
             
-        end
-        
-        
-        % Implement a function to create the absolute division subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_absolute_division_subnetwork_components( self )
+            % Create the division neurons. and synapses.           
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_division_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_division_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
             
-            % Create the neurons for an absolute division subnetwork.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_absolute_division_neurons(  );
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
             
-            % Create the applied currents for an absolute division subnetwork.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_absolute_division_applied_currents( neuron_IDs );
-            
-            % Create the synapses for an absolute division subnetwork.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_absolute_division_synapses( neuron_IDs );
-            
-        end
-        
-        
-        % Implement a function to create the relative division subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_relative_division_subnetwork_components( self )
-            
-            % Create the neurons for a relative division subnetwork.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_relative_division_neurons(  );
-            
-            % Create the applied currents for a relative division subnetwork.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_relative_division_applied_currents( neuron_IDs );
-            
-            % Create the synapses for a relative division subnetwork.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_relative_division_synapses( neuron_IDs );
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the derivation subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs ] = create_derivation_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_derivation_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
             
-            % Create the derivation neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_derivation_neurons(  );
+            % Set the default input arguments.
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 6, synapse_manager = self.synapse_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the derivation synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_derivation_synapses( neuron_IDs );
+            % Unpack neuron and synapse input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            
+            % Create the derivation neurons and synapses.   
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_derivation_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_derivation_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the integration subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_integration_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_integration_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the integration neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_integration_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the integration synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_integration_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the integration applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_integration_applied_currents( neuron_IDs );
+            % Create the integration neurons, synapses, applied_currents.            
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_integration_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_integration_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager ] = applied_current_manager.create_integration_applied_currents( neuron_IDs, applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the voltage based integration subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_vb_integration_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_vbi_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the voltage based integration neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_vb_integration_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the voltage based integration synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_vb_integration_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the voltage based integration applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_vb_integration_applied_currents( neuron_IDs );
+            % Create the voltage based integration neurons, synapses, applied currents.          
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = create_vbi_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_vbi_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager ] = applied_current_manager.create_vbi_applied_currents( neuron_IDs, applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the split voltage based integration subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_split_vb_integration_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_svbi_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the split voltage based integration neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_split_vb_integration_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the split voltage based integration synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_split_vb_integration_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the split voltage based integration applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_split_vb_integration_applied_currents( neuron_IDs );
+            % Create the split voltage based integration neurons, synapses, applied currents.           
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_svbi_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_svbi_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager ] = applied_current_manager.create_svbi_applied_currents( neuron_IDs, applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the modulated split voltage based integration subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_vb_integration_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_msvbi_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the modulated split voltage based integration neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_mod_split_vb_integration_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the modulated split voltage based integration synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_mod_split_vb_integration_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the modulated split voltage based integration applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_mod_split_vb_integration_applied_currents( neuron_IDs );
+            % Create the modulated split voltage based integration neurons, synapses, applied currents.
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_msvbi_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_msvbi_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager ] = applied_current_manager.create_msvbi_applied_currents( neuron_IDs, applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
         
         % Implement a function to create the modulated split difference voltage based integration subnetwork components.
-        function [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = create_mod_split_sub_vb_integration_subnetwork_components( self )
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_mssvbi_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
             
-            % Create the modulated split difference voltage based integration neurons.
-            [ neuron_manager, neuron_IDs ] = neuron_manager.create_mod_split_sub_vb_integration_neurons(  );
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, synapse_manager = self.synapse_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
-            % Create the modulated split difference voltage based integration synapses.
-            [ synapse_manager, synapse_IDs ] = synapse_manager.create_mod_split_sub_vb_integration_synapses( neuron_IDs );
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
             
-            % Create the modulated split difference voltage based integration applied currents.
-            [ applied_current_manager, applied_current_IDs ] = applied_current_manager.create_mod_split_sub_vb_integration_applied_currents( neuron_IDs );
+            % Create the modulated split difference voltage based integration neurons, synapses, applied currents.
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_mssvbi_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_mssvbi_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager ] = applied_current_manager.create_mssvbi_applied_currents( neuron_IDs, applied_current_IDs, applied_current_names, target_neuron_IDs, ts, Ias, applied_current_enabled_flags, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
             
         end
         
@@ -5211,7 +5438,7 @@ classdef network_class
             if nargin < 2, k_sub1 = self.c_subtraction_DEFAULT; end
             
             % Create the centered double subtraction subnetwork components.
-            [  self, neuron_IDs_cell, synapse_IDs_cell, applied_current_ID_cell ] = self.create_centered_double_subtraction_subnetwork_components(  );
+            [  self, neuron_IDs_cell, synapse_IDs_cell, applied_current_ID_cell ] = self.create_cds_subnetwork_components(  );
             
             % Design the centered double subtraction subnetwork.
             self = self.design_cds_subnetwork( neuron_IDs_cell, k_sub1, k_sub2, k_add );
@@ -5458,7 +5685,7 @@ classdef network_class
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Create the voltage based integration subnetwork components.
-            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_vb_integration_subnetwork_components(  );
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_vbi_subnetwork_components(  );
             
             % Design the voltage based integration subnetwork.
             self = self.design_vbi_subnetwork( neuron_IDs, T, n, ki_mean, ki_range );
@@ -5475,7 +5702,7 @@ classdef network_class
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Create the split voltage based integration subnetwork specific components.
-            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_split_vb_integration_subnetwork_components(  );
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_svbi_subnetwork_components(  );
             
             % Design the split voltage based integration subnetwork.
             self = self.design_svbi_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub );
@@ -5493,7 +5720,7 @@ classdef network_class
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Create the modulated split voltage based integration subnetwork specific components.
-            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_mod_split_vb_integration_subnetwork_components(  );
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_msvbi_subnetwork_components(  );
             
             % Design the modulated split voltage based integration subnetwork.
             self = self.design_msvbi_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod );
@@ -5512,7 +5739,7 @@ classdef network_class
             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
             
             % Create the modulated split difference voltage based integration subnetwork specific components.
-            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_mod_split_sub_vb_integration_subnetwork_components(  );
+            [ self, neuron_IDs, synapse_IDs, applied_current_IDs ] = self.create_mssvbi_subnetwork_components(  );
             
             % Design the modulated split difference voltage based integration subnetwork.
             self = self.design_mssvbi_subnetwork( neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod );
