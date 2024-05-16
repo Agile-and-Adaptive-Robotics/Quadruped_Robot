@@ -823,7 +823,7 @@ classdef applied_voltage_manager_class
         
         
         % Implement a function to return the applied voltages associated with given neuron IDs.
-        function [ ts, Vas ] = neuron_IDs2Vas( self, to_neuron_IDs, dt, tf, applied_voltages, filter_disabled_flag, undetected_option )
+        function [ ts, Vas ] = to_neuron_IDs2Vas( self, to_neuron_IDs, dt, tf, applied_voltages, filter_disabled_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end

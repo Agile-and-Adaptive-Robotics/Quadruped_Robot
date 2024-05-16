@@ -5364,18 +5364,18 @@ classdef neuron_manager_class
         
         
         % Implement a function to load neuron data from a xlsx file.
-        function [ neurons, self ] = load_xlsx( self, file_name, directory, b_append, b_verbose, neurons, set_flag )
+        function [ neurons, self ] = load_xlsx( self, file_name, directory, neurons, append_flag, verbose_flag, set_flag )
             
             % Set the default input arguments.
             if nargin < 7, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 6, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
-            if nargin < 5, b_verbose = true; end
-            if nargin < 4, b_append = false; end
+            if nargin < 6, verbose_flag = true; end
+            if nargin < 5, append_flag = false; end
+            if nargin < 4, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 3, directory = '.'; end
             if nargin < 2, file_name = 'Neuron_Data.xlsx'; end
             
             % Determine whether to print status messages.
-            if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait...\n' ), end
+            if verbose_flag, fprintf( 'LOADING NEURON DATA. Please Wait...\n' ), end
             
             % Start a timer.
             tic
@@ -5401,7 +5401,7 @@ classdef neuron_manager_class
             end
             
             % Determine whether to append the neurons we just loaded.
-            if b_append                                                                     % If we want to append the neurons we just loaded...
+            if append_flag                                                                     % If we want to append the neurons we just loaded...
                 
                 % Append the neurons we just loaded to the array of existing neurons.
                 neurons = [ neurons, neurons_to_load ];
@@ -5434,7 +5434,7 @@ classdef neuron_manager_class
             elapsed_time = toc;
             
             % Determine whether to print status messages.
-            if b_verbose, fprintf( 'LOADING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
+            if verbose_flag, fprintf( 'LOADING NEURON DATA. Please Wait... Done. %0.3f [s] \n\n', elapsed_time ), end
             
         end
         

@@ -25,24 +25,24 @@ classdef network_class
     properties ( Access = private, Constant = true )
         
         % Define the gain parameters.
-        c_transmission_DEFAULT = 1;                                                                                             % [-] Transmission Subnetwork Gain
-        c_modulation_DEFAULT = 0.05;                                                                                            % [-] Modulation Subnetwork Gain
-        c_addition_DEFAULT = 1;                                                                                                 % [-] Addition Subnetwork Gain
-        c_subtraction_DEFAULT = 1;                                                                                              % [-] Subtraction Subnetwork Gain
-        c_inversion_DEFAULT = 1;                                                                                                % [-] Inversion Subnetwork Gain
-        epsilon_inversion_DEFAULT = 1e-6;                                                                                       % [-] Inversion Subnetwork Offset
-        c_multiplication_DEFAULT = 1;                                                                                           % [-] Multiplication Subnetwork Gain
-        c_division_DEFAULT = 1;                                                                                                 % [-] Division Subnetwork Gain
-        alpha_DEFAULT = 1e-6;                                                                                                   % [-] Division Subnetwork Denominator Adjustment
-        c_derivation_DEFAULT = 1e6;                                                                                             % [-] Derivation Subnetwork Gain
-        w_derivation_DEFAULT = 1;                                                                                               % [Hz?] Derivation Subnetwork Cutoff Frequency?
-        sf_derivation_DEFAULT = 0.05;                                                                                           % [-] Derivation Subnetwork Safety Factor
-        c_integration_mean_DEFAULT = 0.01e9;                                                                                    % [-] Integratin Subnetwork Gain Average
-        c_integration_range_DEFAULT = 0.01e9;                                                                                   % [-] Integration Subnetwork Gain Range
+        c_transmission_DEFAULT = 1;                                                                                             % [-] Transmission Subnetwork Gain.
+        c_modulation_DEFAULT = 0.05;                                                                                            % [-] Modulation Subnetwork Gain.
+        c_addition_DEFAULT = 1;                                                                                                 % [-] Addition Subnetwork Gain.
+        c_subtraction_DEFAULT = 1;                                                                                              % [-] Subtraction Subnetwork Gain.
+        c_inversion_DEFAULT = 1;                                                                                                % [-] Inversion Subnetwork Gain.
+        epsilon_inversion_DEFAULT = 1e-6;                                                                                       % [-] Inversion Subnetwork Offset.
+        c_multiplication_DEFAULT = 1;                                                                                           % [-] Multiplication Subnetwork Gain.
+        c_division_DEFAULT = 1;                                                                                                 % [-] Division Subnetwork Gain.
+        alpha_DEFAULT = 1e-6;                                                                                                   % [-] Division Subnetwork Denominator Adjustment.
+        c_derivation_DEFAULT = 1e6;                                                                                             % [-] Derivation Subnetwork Gain.
+        w_derivation_DEFAULT = 1;                                                                                               % [Hz?] Derivation Subnetwork Cutoff Frequency.
+        sf_derivation_DEFAULT = 0.05;                                                                                           % [-] Derivation Subnetwork Safety Factor.
+        c_integration_mean_DEFAULT = 0.01e9;                                                                                    % [-] Integratin Subnetwork Gain Average.
+        c_integration_range_DEFAULT = 0.01e9;                                                                                   % [-] Integration Subnetwork Gain Range.
         
         % Define applied current parameters.
-        Ia_DEFAULT = 0;                                                                                                         % [A] Applied Current
-        Id_max_DEFAULT = 1.25e-9;                                                                                           % [A] Maximum Drive Current.
+        Ia_DEFAULT = 0;                                                                                                         % [A] Applied Current.
+        Id_max_DEFAULT = 1.25e-9;                                                                                               % [A] Maximum Drive Current.
         
         % Define the cpg parameters.
         T_oscillation_DEFAULT = 2;                                                                                              % [s] Oscillation Period.
@@ -67,9 +67,14 @@ classdef network_class
         kp_gain_DEFAULT = 1;                                                                                                    % [-] Proportional Controller Gain.
         
         % Define default simulation properties.
-        tf_DEFAULT = 1;
-        dt_DEFAULT = 1e-3;
+        tf_DEFAULT = 1;                                                                                                         % [s] Simulation Duration.
+        dt_DEFAULT = 1e-3;                                                                                                      % [s] Simulation Time Step.
         
+        % Save and load properties.
+        file_name_DEFAULT = 'Network.mat';                                                                                      % [str] Save & Load File Name.
+        save_directory_DEFAULT = '.';                                                                                           % [str] Save Directory.
+        load_directory_DEFAULT = '.';                                                                                           % [str] Load Directory.
+
     end
     
     
@@ -95,14 +100,14 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 8, numerical_method_utilities = numerical_method_utilities_class(  ); end
-            if nargin < 7, network_utilities = network_utilities_class(  ); end
-            if nargin < 6, applied_voltage_manager = applied_voltage_manager_class(  ); end
-            if nargin < 5, applied_current_manager = applied_current_manager_class(  ); end
-            if nargin < 4, synapse_manager = synapse_manager_class(  ); end
-            if nargin < 3, neuron_manager = neuron_manager_class(  ); end
-            if nargin < 2, tf = self.tf_DEFAULT; end
-            if nargin < 1, dt = self.dt_DEFAULT; end
+            if nargin < 8, numerical_method_utilities = numerical_method_utilities_class(  ); end           % [class] Numerical Method Utilities Class.
+            if nargin < 7, network_utilities = network_utilities_class(  ); end                             % [class] Network Utilities Class.
+            if nargin < 6, applied_voltage_manager = applied_voltage_manager_class(  ); end                 % [class] Applied Voltage Manager Class.
+            if nargin < 5, applied_current_manager = applied_current_manager_class(  ); end                 % [class] Applied Current Manager Class.
+            if nargin < 4, synapse_manager = synapse_manager_class(  ); end                                 % [class] Synapse Manager.
+            if nargin < 3, neuron_manager = neuron_manager_class(  ); end                                   % [class] Neuron Manager.
+            if nargin < 2, tf = self.tf_DEFAULT; end                                                        % [s] Simulation Duration.
+            if nargin < 1, dt = self.dt_DEFAULT; end                                                        % [s] Simulation Timestep.
             
             % Store the utility classes.
             self.numerical_method_utilities = numerical_method_utilities;
@@ -140,9 +145,9 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 4, synapse_manager = self.synapse_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, neuron_IDs = 'all'; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                              % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                                % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                                	% [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -164,10 +169,10 @@ classdef network_class
             deltas = zeros( num_neurons );
             
             % Retrieve the entries of the delta matrix.
-            for k = 1:num_syanpses                         % Iterate through each synapse...
+            for k = 1:num_syanpses                                                                                                      % Iterate through each synapse...
                 
                 % Determine how to assign the delta value.
-                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                   % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                    % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron index.
                     from_neuron_index_local_logical = synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
@@ -178,11 +183,11 @@ classdef network_class
                     % Set the component of the delta matrix associated with this neuron.
                     deltas( to_neuron_index_local_logical, from_neuron_index_local_logical ) = synapse_manager.synapses( synapse_indexes( k ) ).delta;
                     
-                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )            % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )             % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
-                else                                        % Otherwise...
+                else                                                                                                                    % Otherwise...
                     
                     % Throw an error.
                     error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
@@ -208,9 +213,9 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 4, synapse_manager = self.synapse_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, neuron_IDs = 'all'; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                                  % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                                    % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                                      % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -232,10 +237,10 @@ classdef network_class
             dEs = zeros( num_neurons );
             
             % Retrieve the entries of the delta matrix.
-            for k = 1:num_syanpses                                                                                                                          % Iterate through each synapse...
+            for k = 1:num_syanpses                                                                                                  	% Iterate through each synapse...
                 
                 % Determine how to assign the synaptic reversal potential value.
-                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                                        	% If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                    % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron logical index.
                     from_neuron_index_local_logical = synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
@@ -246,11 +251,11 @@ classdef network_class
                     % Set the component of the synaptic reversal potential matrix associated with this neuron.
                     dEs( to_neuron_index_local_logical, from_neuron_index_local_logical ) = synapse_manager.synapses( synapse_indexes( k ) ).dEs;
                     
-                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                                    % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )             % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
-                else                                                                                                                                        % Otherwise...
+                else                                                                                                                  	% Otherwise...
                     
                     % Throw an error.
                     error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
@@ -276,9 +281,9 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 4, synapse_manager = self.synapse_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, neuron_IDs = 'all'; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                              % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                                % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                                  % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -300,10 +305,10 @@ classdef network_class
             gs = zeros( num_neurons );
             
             % Retrieve the entries of the maximum synaptic conductance matrix.
-            for k = 1:num_synapses                                                                                                                              % Iterate through each synapse...
+            for k = 1:num_synapses                                                                                                      % Iterate through each synapse...
                 
                 % Determine how to assign the maximum synaptic conductance value.
-                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                                               % If the synapse index is greater than zero and this synapse is enabled...
+                if ( synapse_indexes( k ) > 0 ) && ( synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                    % If the synapse index is greater than zero and this synapse is enabled...
                     
                     % Retrieve the from neuron index.
                     from_neuron_index_local_logical = synapse_manager.synapses( synapse_indexes( k ) ).from_neuron_ID == neuron_IDs;
@@ -314,11 +319,11 @@ classdef network_class
                     % Set the component of the maximum synaptic conductance matrix associated with this neuron.
                     gs( to_neuron_index_local_logical, from_neuron_index_local_logical ) = synapse_manager.synapses( synapse_indexes( k ) ).gs;
                     
-                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )                                        % If the synapse index is negative one...
+                elseif ( synapse_indexes( k ) == -1 ) || ( ~synapse_manager.synapses( synapse_indexes( k ) ).enabled_flag )             % If the synapse index is negative one...
                     
                     % Do nothing. (This keeps the default value of zero.)
                     
-                else                                                                                                                                            % Otherwise...
+                else                                                                                                                 	% Otherwise...
                     
                     % Throw an error.
                     error( 'Invalid synapse index %0.2f.', synapse_indexes( k ) )
@@ -344,9 +349,9 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 4, synapse_manager = self.synapse_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, neuron_IDs = 'all'; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                                                          % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                                                            % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                                                              % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -415,11 +420,11 @@ classdef network_class
             %}
             
             % Set the default neuron IDs.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, neuron_IDs = 'all'; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -428,8 +433,8 @@ classdef network_class
             num_neurons = length( neuron_IDs );
             
             % Set the delta of each of the synapses in this network to agree with the delta matrix.
-            for k1 = 1:num_neurons                                                                                                  % Iterate through each of the to neurons...
-                for k2 = 1:num_neurons                                                                                              % Iterate through each of the from neurons...
+            for k1 = 1:num_neurons                                                                                   	% Iterate through each of the to neurons...
+                for k2 = 1:num_neurons                                                                                  % Iterate through each of the from neurons...
                     
                     % Retrieve the synapse ID.
                     synapse_ID = synapse_manager.from_to_neuron_ID2synapse_ID( neuron_IDs( k2 ), neuron_IDs( k1 ), synapse_manager.synapses, undetected_option );
@@ -438,16 +443,16 @@ classdef network_class
                     synapse_index = synapse_manager.get_synapse_index( synapse_ID, synapse_manager.synapses, undetected_option );
                     
                     % Determine how to set the value for this synapse.
-                    if ( synapse_ID > 0) && ( synapse_manager.synapses( synapse_index ).enabled_flag )                                 % If the synapse ID is greater than zero...
+                    if ( synapse_ID > 0) && ( synapse_manager.synapses( synapse_index ).enabled_flag )                  % If the synapse ID is greater than zero...
                         
                         % Set the value of this synapse.
                         synapse_manager = synapse_manager.set_synapse_property( synapse_ID, deltas( k1, k2 ), 'delta' );
                         
-                    elseif ( synapse_ID == -1 ) || ( ~synapse_manager.synapses( synapse_index ).enabled_flag )                         % If the synapse ID is negative one...
+                    elseif ( synapse_ID == -1 ) || ( ~synapse_manager.synapses( synapse_index ).enabled_flag )          % If the synapse ID is negative one...
                         
                         % Do nothing.
                         
-                    else                                                                                                            % Otherwise...
+                    else                                                                                               	% Otherwise...
                         
                         % Throw an error.
                         error( 'Synapse ID %0.2f is not recognized.', synapse_ID )       
@@ -481,11 +486,11 @@ classdef network_class
             %}
             
             % Set the default neuron IDs.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, neuron_IDs = 'all'; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -535,7 +540,7 @@ classdef network_class
         % Implement a function to set the maximum synaptic conductances of each synapse based on the maximum synaptic conductance matrix.
         function [ synapses, synapse_manager, self ] = set_gs( self, gs, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option )
             
-            % Sets the maximum synaptic conductance of the neurons specified by neuron_IDs based on the entries of the given g_syn_maxs matrix.
+            % Sets the maximum synaptic conductance of the neurons specified by neuron_IDs based on the entries of the given gs matrix.
             
             %{
             Input(s):
@@ -548,11 +553,11 @@ classdef network_class
             %}
             
             % Set the default neuron IDs.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, neuron_IDs = 'all'; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -606,7 +611,7 @@ classdef network_class
             
             %{
             Input(s):
-                G_syns      =   [V] Synaptic Conductance Matrix.
+                Gs      =   [V] Synaptic Conductance Matrix.
                 neuron_IDs  =   [#] IDs of Neurons Whose Parameters Should be Set.
             
             Output(s):
@@ -614,11 +619,11 @@ classdef network_class
             %}
             
             % Set the default neuron IDs.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, neuron_IDs = 'all'; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -671,11 +676,11 @@ classdef network_class
         function [ Gs, synapses, synapse_manager, self ] = compute_Gs( self, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Define the default input arguments.
-            if nargin < 6, network_utilities = self.network_utilities; end
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, synapse_manager = self.synapse_manager; end
-            if nargin < 2, neuron_manager = self.neuron_manager; end
+            if nargin < 6, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 3, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 2, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the neuron properties.
             Us = neuron_manager.get_neuron_property( 'all', 'U', true, neuron_manager.neurons, undetected_option )';
@@ -697,12 +702,12 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_cpg_gs( self, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default neuron IDs.
-            if nargin < 7, network_utilities = self.network_utilities; end
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, synapse_manager = self.synapse_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, neuron_IDs = 'all'; end
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -749,13 +754,13 @@ classdef network_class
         function [ gs12, synapses, synapse_manager, self ] = compute_transmission_gs( self, neuron_IDs, synapse_ID, Ia2, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, k = self.c_transmission_DEFAULT; end
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                            	% [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
+            if nargin < 4, Ia2 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -787,13 +792,13 @@ classdef network_class
         function [ gs12, synapses, synapse_manager, self ] = compute_modulation_gs( self, neuron_IDs, synapse_ID, Ia2, c, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, c = self.c_modulation_DEFAULT; end
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, c = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 4, Ia2 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -826,13 +831,13 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_addition_gs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, k = self.c_addition_DEFAULT; end
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -869,13 +874,13 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_relative_addition_gs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, k = self.c_addition_DEFAULT; end
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                           	% [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -912,13 +917,13 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_subtraction_gs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, k = self.c_subtraction_DEFAULT; end
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -954,14 +959,14 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_multiplication_gs( self, neuron_IDs, synapse_IDs, Ia3, Ia4, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
-            if nargin < 6, k = self.c_multiplication_DEFAULT; end
-            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                            	% [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.                                    	% [str] Undetected Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, k = self.c_multiplication_DEFAULT; end                                                       % [-] Multiplication Gain.
+            if nargin < 5, Ia4 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );            
@@ -1004,14 +1009,14 @@ classdef network_class
         function [ gs12, synapses, synapse_manager, self ] = compute_inversion_gs( self, neuron_IDs, Ia2, epsilon, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, k = self.c_inversion_DEFAULT; end
-            if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end
-            if nargin < 3, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
+            if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end                                                % [-] Inversion Offset.
+            if nargin < 3, Ia2 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1039,8 +1044,8 @@ classdef network_class
         function epsilon = compute_relative_inversion_epsilon( self, c, network_utilities )
             
             % Define the default input arguments.
-            if nargin < 3, network_utilities = self.network_utilities; end
-            if nargin < 2, c = self.c_inversion_DEFAULT; end                    % [-] Inversion Subnetwork Gain
+            if nargin < 3, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 2, c = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
             
             % Compute the input offset.
             epsilon = network_utilities.compute_relative_inversion_epsilon( c );
@@ -1052,8 +1057,8 @@ classdef network_class
         function delta = compute_relative_inversion_delta( self, c, network_utilities )
             
             % Define the default input arguments.
-            if nargin < 3, network_utilities = self.network_utilities; end
-            if nargin < 2, c = self.c_inversion_DEFAULT; end                    % [-] Inversion Subnetwork Gain
+            if nargin < 3, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 2, c = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
             
             % Compute the output offset.
             delta = network_utilities.compute_relative_inversion_delta( c );
@@ -1065,14 +1070,14 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_division_gs( self, neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
-            if nargin < 6, c = [  ]; end
-            if nargin < 5, k = self.c_division_DEFAULT; end
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                          	% [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.                                  	% [str] Undetected Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, c = self.c_modulation_DEFAULT; end                                                       	% [-] Modulation Subnetwork Gain.
+            if nargin < 5, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1110,13 +1115,13 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_derivation_gs( self, neuron_IDs, synapse_IDs, Ia3, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, k = self.c_derivation_DEFAULT; end
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_derivation_DEFAULT; end                                                           % [-] Derivation Subnetwork Gain.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1152,12 +1157,12 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_integration_gs( self, neuron_IDs, synapse_IDs, ki_range, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 9, network_utilities = self.network_utilities; end
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, synapse_manager = self.synapse_mangaer; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
+            if nargin < 9, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_mangaer; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end                                             % [-] Integration Gain Range.
             
             % Validate the neuron IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1190,11 +1195,11 @@ classdef network_class
         function [ dEs, synapses, synapse_manager, self ] = compute_integration_dEs( self, neuron_IDs, synapse_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1231,12 +1236,12 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = compute_vbi_gs( self, neuron_IDs, synapse_IDs, T, n, ki_mean, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
-            if nargin < 6, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                          	% [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                   	% [str] Undetected Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Validate the neuron and synapse IDs.
             neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
@@ -1290,11 +1295,11 @@ classdef network_class
             %}
             
             % Define default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the number of different object types to delete.
             num_types = length( object_types );
@@ -1347,11 +1352,11 @@ classdef network_class
         function [ neuron_manager, synapse_manager, applied_current_manager, self ] = delete_all( self, neuron_manager, synapse_manager, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, synapse_manager = self.synapse_manager; end
-            if nargin < 2, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 2, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Delete all of the neurons.
             [ ~, neuron_manager ] = neuron_manager.delete_neurons( 'all', neuron_manager.neurons, true, undetected_option );
@@ -1363,7 +1368,7 @@ classdef network_class
             [ ~, applied_current_manager ] = applied_current_manager.delete_applied_currents( 'all', applied_current_manager.applied_currents, true, undetected_option );
             
             % Determine whether to update the network object.
-            if set_flag                                                                         % If we want to update the network object...
+            if set_flag                                                                                                 % If we want to update the network object...
                
                 % Update the network's neuron manager.
                 self.neuron_manager = neuron_manager;
@@ -1385,13 +1390,13 @@ classdef network_class
         function [ ts, Ias, applied_currents, applied_current_manager, self ] = design_mcpg_applied_currents( self, neuron_IDs, dt, tf, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, process_option = self.process_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 5, applied_current_manager = self.applied_current_manager; end
-            if nargin < 4, tf = self.tf; end
-            if nargin < 3, dt = self.dt; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+            if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
             
             % Design the applied currents for a multistate cpg subnetwork.            
             [ ts, Ias, applied_currents, applied_current_manager ] = applied_current_manager.design_mcpg_applied_current( neuron_IDs, dt, tf, applied_current_manager.applied_currents, filter_disabled_flag, true, process_option, undetected_option );
@@ -1406,14 +1411,14 @@ classdef network_class
         function [ ts, Ias, applied_currents, applied_current_manager, self ] = design_dmcpg_applied_currents( self, neuron_IDs, dt, tf, neuron_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, process_option = self.process_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, tf = self.tf; end
-            if nargin < 3, dt = self.dt; end
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                   	% [str] Undetected Option.
+            if nargin < 9, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+            if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
             
             % Design the multistate cpg applied currents.            
             [ ts_mcpg, Ias_mcpg, applied_currents, applied_current_manager, ~ ] = self.design_mcpg_applied_currents( neuron_IDs( 1:( end - 1 ) ), dt, tf, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option );
@@ -1439,10 +1444,10 @@ classdef network_class
 %         function self = design_dmcpg_sll_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 6, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 5, neuron_manager = self.neuron_manager; end
-%             if nargin < 4, tf = self.tf; end
-%             if nargin < 3, dt = self.dt; end
+%             if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+%             if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+%             if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
 %             
 %             % Retrieve the number of cpg neurons.
 %             num_cpg_neurons =  length( neuron_IDs_cell{ 1 } ) - 1;
@@ -1466,10 +1471,10 @@ classdef network_class
 %         function self = design_dmcpg_dcll_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
 %             
 %             % Set default input arguments.
-%             if nargin < 6, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 5, neuron_manager = self.neuron_manager; end
-%             if nargin < 4, tf = self.tf; end
-%             if nargin < 3, dt = self.dt; end
+%             if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+%             if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+%             if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
 %             
 %             % Design the applied currents for the driven multistate cpg split lead lag subnetwork.
 %             self = self.design_dmcpg_sll_applied_currents( neuron_IDs_cell{ 1 }, dt, tf, neuron_manager, applied_current_manager );
@@ -1484,8 +1489,8 @@ classdef network_class
 %         function self = design_dmcpgdcll2cds_applied_current( self, neuron_ID, neuron_manager, applied_current_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 4, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 3, neuron_manager = self.neuron_manager; end
+%             if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             
 %             % Retrieve the necessary neuron properties.
 %             Gm = neuron_manager.get_neuron_property( neuron_ID, 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1501,10 +1506,10 @@ classdef network_class
 %         function self = design_ol_dmcpg_dclle_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 6, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 5, neuron_manager = self.neuron_manager; end
-%             if nargin < 4, tf = self.tf; end
-%             if nargin < 3, dt = self.dt; end
+%             if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+%             if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+%             if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
 %             
 %             % Design the applied currents for the driven multistate cpg double centered lead lag subnetwork.
 %             self = self.design_dmcpg_dcll_applied_currents( neuron_IDs_cell{ 1 }, dt, tf, neuron_manager, applied_current_manager );
@@ -1522,8 +1527,8 @@ classdef network_class
 %         function self = design_clpc_dmcpg_dcll_applied_currents( self, neuron_IDs_cell, neuron_manager, applied_current_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 4, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 3, neuron_manager = self.neuron_manager; end
+%             if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             
 %             % Design the applied currents for an open loop driven multistate cpg double centered lead lag error subnetwork.
 %             self = self.design_ol_dmcpg_dclle_applied_currents( neuron_IDs_cell, neuron_manager, applied_current_manager );
@@ -1535,10 +1540,10 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_addition_applied_currents( self, neuron_IDs, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             
             % Design the absolute addition applied currents.
             [ Ias, applied_currents, applied_current_manager ] = applied_current_manager.design_addition_applied_currents( neuron_IDs, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
@@ -1553,10 +1558,10 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_subtraction_applied_currents( self, neuron_IDs, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             
             % Design the absolute subtraction applied currents.
             [ Ias, applied_currents, applied_current_manager ] = applied_current_manager.design_subtraction_applied_currents( neuron_IDs, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
@@ -1571,10 +1576,10 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_centering_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the necessary neuron properties.
             Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1593,10 +1598,10 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_double_centering_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the double centering applied currents (in the same way as the single centering applied currents).            
             [ Ias, applied_currents, applied_current_manager, self ] = self.design_centering_applied_currents( neuron_IDs, neuron_manager, applied_current_manager, set_flag, undetected_option );
@@ -1608,10 +1613,10 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_cds_applied_currents( self, neuron_IDs_cell, neuron_manager, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the applied currents for a double centering subnetwork.
             [ Ias, applied_currents, applied_current_manager, self ] = self.design_double_centering_applied_currents( neuron_IDs_cell{ 2 }, neuron_manager, applied_current_manager, set_flag, undetected_option );
@@ -1623,11 +1628,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_inversion_applied_current( self, neuron_IDs, encoding_scheme, neuron_manager, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the necessary neuron properties.
             Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1649,10 +1654,10 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_division_applied_currents( self, neuron_IDs, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             
             % Design the absolute division applied currents.                        
             [ Ias, applied_currents, applied_current_manager ] = applied_current_manager.design_division_applied_currents( neuron_IDs, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
@@ -1667,11 +1672,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_multiplication_applied_currents( self, neuron_IDs, encoding_scheme, neuron_manager, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, applied_current_manager = self.applied_current_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
 
             % Retrieve the necessary neuron properties.
             Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1693,11 +1698,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_integration_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the membrane conductances and voltage domain.
             Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1723,11 +1728,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_vbi_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the membrane conductances and voltage domain.
             Gms = neuron_manager.get_neuron_property( neuron_IDs( 3:4 ), 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1753,11 +1758,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_svbi_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Retrieve the relevant membrane conductance.
             Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -1790,11 +1795,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_msvbi_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the split voltage based integration applied currents.            
             [ Ias, applied_currents, applied_current_manager, self ] = self.design_svbi_applied_currents( neuron_IDs, neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option );
@@ -1806,11 +1811,11 @@ classdef network_class
         function [ Ias, applied_currents, applied_current_manager, self ] = design_mssvbi_applied_currents( self, neuron_IDs, neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the modulated split voltage based integration applied currents.            
             [ Ias, applied_currents, applied_current_manager, self ] = self.design_msvbi_applied_currents( neuron_IDs( 5:end ), neuron_manager, applied_current_manager, encoding_scheme, set_flag, undetected_option );
@@ -1824,9 +1829,9 @@ classdef network_class
         function [ Gnas, neurons, neuron_manager, self ] = design_mcpg_neurons( self, neuron_IDs, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the multistate cpg subnetwork neurons.            
             [ Gnas, neurons, neuron_manager ] = neuron_manager.design_mcpg_neurons( neuron_IDs, neuron_manager.neurons, true, undetected_option );
@@ -1841,9 +1846,9 @@ classdef network_class
         function [ Gnas, neurons, neuron_manager, self ] = design_dmcpg_neurons( self, neuron_IDs, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the multistate cpg neurons.
             [ Gnas_mcpg, ~, neuron_manager, ~ ] = self.design_mcpg_neurons( neuron_IDs( 1:( end - 1 ) ), neuron_manager, set_flag, undetected_option );
@@ -1864,9 +1869,9 @@ classdef network_class
 %         function self = design_dmcpg_sll_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 6, neuron_manager = self.neuron_manager; end
+%             if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 5, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 3, T = self.T_oscillation_DEFAULT; end
 %             
 %             % Retrieve the number of cpg neurons.
@@ -1895,9 +1900,9 @@ classdef network_class
 %         function self = design_dmcpg_dcll_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 6, neuron_manager = self.neuron_manager; end
+%             if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 5, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 3, T = self.T_oscillation_DEFAULT; end
 %             
 %             % Design the neurons for the driven multistate split lead lag subnetwork.
@@ -1913,9 +1918,9 @@ classdef network_class
 %         function self = design_ol_dmcpg_dclle_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 6, neuron_manager = self.neuron_manager; end
+%             if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 5, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 3, T = self.T_oscillation_DEFAULT; end
 %             
 %             % Design the neurons for the driven multiple cpg double centered lead lag subnetwork.
@@ -1934,9 +1939,9 @@ classdef network_class
 %         function self = design_clpc_dmcpg_dcll_neurons( self, neuron_IDs_cell, T, ki_mean, r, neuron_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 6, neuron_manager = self.neuron_manager; end
+%             if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 5, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 3, T = self.T_oscillation_DEFAULT; end
 %             
 %             % Design the neurons for an open loop driven multistate cpg double centered lead lag error subnetwork.
@@ -1949,10 +1954,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_transmission_neurons( self, neuron_IDs, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input argument.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the transmission subnetwork neurons.            
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_transmission_neurons( neuron_IDs, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -1967,10 +1972,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_slow_transmission_neurons( self, neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input argument.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the slow transmission subnetwork neurons.            
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_slow_transmission_neurons( neuron_IDs, num_cpg_neurons, T, r, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -1985,9 +1990,9 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_modulation_neurons( self, neuron_IDs, neuron_manager, set_flag, undetected_option )
             
             % Set the default input argument.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the modulation subnetwork neurons.            
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_modulation_neurons( neuron_IDs, neuron_manager.neurons, true, undetected_option );
@@ -2002,10 +2007,10 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_addition_neurons( self, neuron_IDs, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the addition subnetwork neurons.            
             [ Gnas, Gms, Cms, Rs, neurons, neuron_manager ] = neuron_manager.design_addition_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2020,11 +2025,11 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_subtraction_neurons( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the subtraction subnetwork neurons.            
             [ Gnas, Gms, Cms, Rs, neurons, neuron_manager ] = neuron_manager.design_subtraction_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2039,10 +2044,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_double_subtraction_neurons( self, neuron_IDs, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the double subtraction subnetwork neurons.
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_double_subtraction_neurons( neuron_IDs, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2057,11 +2062,11 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_centering_neurons( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the addition subnetwork neurons.            
             [ Gnas_addition, Gms_addition, Cms_addition, Rs_addition, ~, neuron_manager, network ] = self.design_addition_neurons( [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ], neuron_manager, encoding_scheme, true, undetected_option );
@@ -2085,11 +2090,11 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_double_centering_neurons( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the addition subnetwork neurons.
             [ Gnas_addition1, Gms_addition1, Cms_addition1, Rs_addition1, ~, neuron_manager, network ] = self.design_addition_neurons( [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ], neuron_manager, encoding_scheme, true, undetected_option );
@@ -2115,11 +2120,11 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_cds_neurons( self, neuron_IDs_cell, parameters, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the double subtraction subnetwork neurons.            
             [ Gnas_ds, Cms_ds, ~, neuron_manager, network ] = self.design_double_subtraction_neurons( neuron_IDs_cell{ 1 }, neuron_manager, encoding_scheme, true, undetected_option );
@@ -2141,10 +2146,10 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end
 
             % Design the multiplication subnetwork neurons.            
@@ -2160,11 +2165,11 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_inversion_neurons( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end                                       % { k_inversion, epsilon_inversion }.
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the inversion subnetwork neurons.            
             [ Gnas, Gms, Cms, Rs, neurons, neuron_manager ] = neuron_manager.design_inversion_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2179,11 +2184,11 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, self ] = design_division_neurons( self, neuron_IDs, neuron_manager, parameters, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end                                           % { c, alpha, epsilon }
-            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the division subnetwork neurons.            
             [ Gnas, Gms, Cms, Rs, neurons, neuron_manager ] = neuron_manager.design_division_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2198,12 +2203,12 @@ classdef network_class
         function [ Gnas, Gms, Cms, neurons, neuron_manager, self ] = design_derivation_neurons( self, neuron_IDs, k, w, safety_factor, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end
             if nargin < 4, w = self.w_derivation_DEFAULT; end
-            if nargin < 3, k = self.c_derivation_DEFAULT; end
+            if nargin < 3, k = self.c_derivation_DEFAULT; end                                                           % [-] Derivation Subnetwork Gain.
             
             % Design the derivation subnetwork neurons.            
             [ Gnas, Gms, Cms, neurons, neuron_manager ] = neuron_manager.design_derivation_neurons( neuron_IDs, k, w, safety_factor, neuron_manager.neurons, true, undetected_option );
@@ -2218,10 +2223,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_integration_neurons( self, neuron_IDs, ki_mean, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Design the integration subnetwork neurons.
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_integration_neurons( neuron_IDs, ki_mean, neuron_manager.neurons, true, undetected_option );
@@ -2236,10 +2241,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_vbi_neurons( self, neuron_IDs, ki_mean, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Design the integration subnetwork neurons.            
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_vbi_neurons( neuron_IDs, ki_mean, neuron_manager.neurons, true, undetected_option );
@@ -2254,10 +2259,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_svbi_neurons( self, neuron_IDs, ki_mean, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Design the integration subnetwork neurons.            
             [ Gnas, Cms, neurons, neuron_manager ] = neuron_manager.design_svbi_neurons( neuron_IDs, ki_mean, neuron_manager.neurons, true, undetected_option );
@@ -2272,10 +2277,10 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_msvbi_neurons( self, neuron_IDs, ki_mean, neuron_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Design the split voltage based integration neurons.            
             [ Gnas_svbi, Cms_svbi, ~, neuron_manager ] = neuron_manager.design_svbi_neurons( neuron_IDs( 1:9 ), ki_mean, neuron_manager.neurons, true, undetected_option );
@@ -2297,11 +2302,11 @@ classdef network_class
         function [ Gnas, Cms, neurons, neuron_manager, self ] = design_mssvbi_neurons( self, neuron_IDs, ki_mean, neuron_manager, encoding_scheme, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Design the double subtraction neurons.            
             [ Gnas_ds, Cms_ds, ~, neuron_manager, network ] = self.design_double_subtraction_neurons( neuron_IDs( 1:4 ), neuron_manager, encoding_scheme, true, undetected_option );
@@ -2326,11 +2331,11 @@ classdef network_class
         function [ gs, synapses, synapse_manager, self ] = design_mcpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 9, network_utilities = self.network_utilities; end
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 9, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the multistate cpg subnetwork synapses.
             [ ~, synapse_manager ] = synapse_manager.design_mcpg_synapses( neuron_IDs, delta_oscillatory, delta_bistable, synapse_manager.synapses, true, undetected_option, synapse_manager.array_utilities );
@@ -2345,9 +2350,9 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_dmcpg_synapses( self, neuron_IDs, delta_oscillatory, delta_bistable, Id_max, neuron_manager, synapse_manager, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Design the synapses of the multistate cpg subnetwork.            
             [ gs_mcpg, synapses, synapse_manager, ~ ] = self.design_mcpg_synapses( neuron_IDs( 1:( end - 1 ) ), delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, true, undetected_option, network_utilities );
@@ -2368,15 +2373,15 @@ classdef network_class
 %         function self = design_dmcpg_sll_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
 %             
 %             % Set the default input arguments.
-%             if nargin < 1, network_utilities = self.network_utilities; end
-%             if nargin < 14, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 13, synapse_manager = self.synapse_manager; end
-%             if nargin < 12, neuron_manager = self.neuron_manager; end
-%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 1, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+%             if nargin < 14, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 13, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+%             if nargin < 12, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -2431,13 +2436,13 @@ classdef network_class
 %         function self = design_dmcpg_dcll_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod )
 %             
 %             % Set the default input arguments.
-%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 12, k_sub3 = self.c_addition_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 12, k_sub3 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -2471,16 +2476,16 @@ classdef network_class
 %         function self = design_ol_dmcpg_dclle_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod )
 %             
 %             % Set the default input arguments.
-%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -2516,16 +2521,16 @@ classdef network_class
 %             
 %             % Set the default input arguments.
 %             if nargin < 17, kp_gain = self.kp_gain_DEFAULT; end
-%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -2556,17 +2561,17 @@ classdef network_class
         function [ dEs12, gs12, synapse_ID, synapses, synapse_manager, self ] = design_transmission_synapse( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, applied_current_compensation_flag, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
             if nargin < 8, applied_current_compensation_flag = true; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_transmission_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
             
             % Design the transmission subnetwork neurons.            
             [ dEs12, synapse_ID, ~, synapse_manager ] = synapse_manager.design_transmission_synapse( neuron_IDs, encoding_scheme, synapse_manager.synapses, true, undetected_option );
@@ -2601,14 +2606,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 11, network_utilities = self.network_utilites; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, process_option = self.process_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, c = self.c_modulation_DEFAULT; end
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, c = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
             
             % Design the modulation synapses.            
             [ dEs12, synapse_ID, ~, synapse_manager ] = synapse_manager.design_modulation_synapse( neuron_IDs, synapse_manager.synapses, true, undetected_option );
@@ -2632,16 +2637,16 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_addition_synapses( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_addition_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Design the addition subnetwork synapses.            
             [ dEs, synapse_IDs, ~, synapse_manager ] = synapse_manager.design_addition_synapses( neuron_IDs, encoding_scheme, synapse_manager.synapses, true, undetected_option );
@@ -2665,16 +2670,16 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_subtraction_synapses( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 10, process_option = self.process_option; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_subtraction_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Design the subtraction subnetwork synapses.            
             [ dEs, synapse_IDs, ~, synapse_manager ] = synapse_manager.design_subtraction_synapses( neuron_IDs, encoding_scheme, synapse_manager.synapses, true, undetected_option );
@@ -2698,16 +2703,16 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_double_subtraction_synapses( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_subtraction_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Retrieve the neuron IDs associated with each subtraction subnetwork.
             neuron_IDs1 = neuron_IDs( 1:3 );
@@ -2751,17 +2756,17 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_centering_synapses( self, neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_addition = self.c_addition_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 3, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Define the addition and subtraction neuron IDs.
             neuron_IDs_addition = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ];
@@ -2791,17 +2796,17 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_double_centering_synapses( self, neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_addition = self.c_addition_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 3, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Define the addition and subtraction neuron IDs.
             neuron_IDs_addition1 = [ neuron_IDs( 1 ), neuron_IDs( 2 ), neuron_IDs( 4 ) ];
@@ -2835,18 +2840,18 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_cds_synapses( self, neuron_IDs_cell, k_subtraction1, k_subtraction2, k_addition, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, process_option = self.process_option_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 5, k_addition = self.c_addition_DEFAULT; end
-            if nargin < 4, k_subtraction2 = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_subtraction1 = self.c_subtraction_DEFAULT; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 5, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+            if nargin < 4, k_subtraction2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 3, k_subtraction1 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Create an instance of the network.
             network = self;
@@ -2892,16 +2897,16 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_multiplication_synapses( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 10, process_option = self.process_option; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_multiplication_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_multiplication_DEFAULT; end                                                       % [-] Multiplication Gain.
             
             % Design the multiplication subnetwork synapses.
             [ dEs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_multiplication_synapses( neuron_IDs, encoding_scheme, synapse_manager.synapses, true, undetected_option );
@@ -2926,15 +2931,15 @@ classdef network_class
         function [ dEs12, gs12, synapse_ID, synapses, synapse_manager, self ] = design_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 10, process_option = self.process_option; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end                                   % { epsilon, k }
             
             % Design the inversion subnetwork synapse.
@@ -2959,17 +2964,17 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_division_synapses( self, neuron_IDs, k, c, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, filter_disabled_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 11, process_option = self.process_option; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, c = [  ]; end
-            if nargin < 3, k = self.c_division_DEFAULT; end
+            if nargin < 3, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
             
             % Design the division subnetwork synapses.
             [ dEs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
@@ -2993,15 +2998,15 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_derivation_synapses( self, neuron_IDs, k, neuron_manager, synapse_manager, applied_current_manager, set_flag, filter_disabled_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 9, process_option = self.process_option; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, k = self.c_derivation_DEFAULT; end
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, k = self.c_derivation_DEFAULT; end                                                           % [-] Derivation Subnetwork Gain.
             
             % Design the derivation subnetwork synapses.
             [ dEs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_derivation_synapses( neuron_IDs, synapse_manager.synapses, true, undetected_option );
@@ -3028,11 +3033,11 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_integration_synapses( self, neuron_IDs, ki_range, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, ki_range = self.c_integration_range_DEFAULT; end
             
             % Design the integration subnetwork synapses.            
@@ -3054,13 +3059,13 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_vbi_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Design the derivation subnetwork synapses.
             [ synapse_manager, synapse_IDs ] = synapse_manager.design_vbi_synapses( neuron_IDs );
@@ -3095,18 +3100,18 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_svbi_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 14, process_option = self.process_option_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if anrgin < 12, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 11, applied_current_manager = self.applied_current_manager; end
-            if nargin < 10, synapse_manager = self.synapse_manager; end
-            if anrgin < 9, neuron_manager = self.neuron_manager; end
-            if nargin < 8, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 7, k_sub = self.c_subtraction_DEFAULT; end
+            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 14, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if anrgin < 12, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 11, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if anrgin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 8, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 7, k_sub = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -3142,19 +3147,19 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_msvbi_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub, c_mod, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 17, network_utilities = self.network_utilities; end
-            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end
-            if anrgin < 15, process_option = self.process_option_DEFAULT; end
-            if anrgin < 14, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 12, applied_current_manager = self.applied_current_manager; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
-            if nargin < 9, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 8, c_mod = self.c_modulation_DEFAULT; end
-            if nargin < 7, k_sub = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 17, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if anrgin < 15, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if anrgin < 14, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 12, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 9, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 8, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 7, k_sub = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network class.
             network = self;
@@ -3195,20 +3200,20 @@ classdef network_class
         function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_mssvbi_synapses( self, neuron_IDs, T, n, ki_mean, ki_range, k_sub1, k_sub2, c_mod, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 18, network_utilities = self.network_utilities; end
-            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 16, process_option = self.process_option_DEFAULT; end
-            if nargin < 15, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 13, applied_current_manager = self.applied_current_manager; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
-            if nargin < 10, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 9, c_mod = self.c_modulation_DEFAULT; end
-            if nargin < 8, k_sub2 = self.c_subtraction_DEFAULT; end
-            if nargin < 7, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 18, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 16, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 15, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 10, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 9, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 8, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 7, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network class.
             network = self;
@@ -3248,18 +3253,18 @@ classdef network_class
         function [ Gnas, gs, ts, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_mcpg_subnetwork( self, neuron_IDs, dt, tf, delta_oscillatory, delta_bistable, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, process_option = self.process_option_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 6, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 5, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-            if nargin < 4, tf = self.tf; end
-            if nargin < 3, dt = self.dt; end
+            if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+            if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
@@ -3285,19 +3290,19 @@ classdef network_class
         function [ Gnas, dEs, gs, ts, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_dmcpg_subnetwork( self, neuron_IDs, dt, tf, delta_oscillatory, delta_bistable, Id_max, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 15, network_utilities = self.network_utilities; end
-            if anrgin < 14, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 13, process_option = self.process_option_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if anrgin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, Id_max = self.Id_max_DEFAULT; end
             if nargin < 6, delta_bistable = self.delta_bistable_DEFAULT; end
             if nargin < 5, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-            if nargin < 4, tf = self.tf; end
-            if nargin < 3, dt = self.dt; end
+            if nargin < 4, tf = self.tf; end                                                                            % [s] Simulation Duration.
+            if nargin < 3, dt = self.dt; end                                                                            % [s] Simulation Time Step.
             
             % ENSURE THAT THE SPECIFIED NEURON IDS ARE FULLY CONNECTED BEFORE CONTINUING.  THROW AN ERROR IF NOT.
             
@@ -3323,16 +3328,16 @@ classdef network_class
 %         function self = design_dmcpg_sll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r, dt, tf, neuron_manager, applied_current_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 16, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 15, neuron_manager = self.neuron_manager; end
-%             if nargin < 14, tf = self.tf; end
-%             if nargin < 13, dt = self.dt; end
+%             if nargin < 16, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 15, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+%             if nargin < 14, tf = self.tf; end                                                                            % [s] Simulation Duration.
+%             if nargin < 13, dt = self.dt; end                                                                            % [s] Simulation Time Step.
 %             if nargin < 12, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -3356,15 +3361,15 @@ classdef network_class
 %         function self = design_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_add, c_mod, r, neuron_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 15, neuron_manager = self.neuron_manager; end
+%             if nargin < 15, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 14, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 12, k_add = self.c_addition_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 12, k_add = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -3388,18 +3393,18 @@ classdef network_class
 %         function self = design_ol_dmcpg_dclle_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, neuron_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 18, neuron_manager = self.neuron_manager; end
+%             if nargin < 18, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 17, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -3423,20 +3428,20 @@ classdef network_class
 %         function self = design_clpc_dmcpg_dcll_subnetwork( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, k_sub3, k_sub4, k_sub5, k_add1, k_add2, c_mod, r, kp_gain, neuron_manager, applied_current_manager )
 %             
 %             % Set the default input arguments.
-%             if nargin < 20, applied_current_manager = self.applied_current_manager; end
-%             if nargin < 19, neuron_manager = self.neuron_manager; end
+%             if nargin < 20, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+%             if nargin < 19, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
 %             if nargin < 18, kp_gain = self.kp_gain_DEFAULT; end
 %             if nargin < 17, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -3461,15 +3466,15 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 12, network_utilities = self.network_utilites; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_transmission_DEFAULT; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3492,15 +3497,15 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_modulation_subnetwork( self, neuron_IDs, c, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, process_option = self.process_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, c = self.c_modulation_DEFAULT; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, c = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3523,16 +3528,16 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_addition_subnetwork( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_addition_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3555,17 +3560,17 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_subtraction_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end
-            if nargin < 3, k = self.c_subtraction_DEFAULT; end
+            if nargin < 3, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3588,16 +3593,16 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_double_subtraction_subnetwork( self, neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k = self.c_subtraction_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3620,17 +3625,17 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_centering_subnetwork( self, neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_addition = self.c_addition_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 3, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -3654,17 +3659,17 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_double_centering_subnetwork( self, neuron_IDs, k_addition, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_addition = self.c_addition_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 3, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -3688,18 +3693,18 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_cds_subnetwork( self, neuron_IDs_cell, k_subtraction1, k_subtraction2, k_addition, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, process_option = self.process_option_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 5, k_addition = self.c_addition_DEFAULT; end
-            if nargin < 4, k_subtraction2 = self.c_subtraction_DEFAULT; end
-            if nargin < 3, k_subtraction1 = self.c_subtraction_DEFAULT; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 5, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+            if nargin < 4, k_subtraction2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 3, k_subtraction1 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -3723,17 +3728,17 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_multiplication_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = {  }; end
-            if nargin < 3, k = self.c_multiplication_DEFAULT; end
+            if nargin < 3, k = self.c_multiplication_DEFAULT; end                                                       % [-] Multiplication Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3759,15 +3764,15 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_inversion_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end                               % { epsilon, k }
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
@@ -3794,18 +3799,18 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_division_subnetwork( self, neuron_IDs, k, c, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, process_option = self.process_option_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 5, parameters = {  }; end                               
             if nargin < 4, c = [  ]; end
-            if nargin < 3, k = self.c_division_DEFAULT; end
+            if nargin < 3, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3828,17 +3833,17 @@ classdef network_class
         function [ Gnas, Gms, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_derivation_subnetwork( self, neuron_IDs, k, w, safety_factor, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, safety_factor = self.sf_derivation_DEFAULT; end
             if nargin < 4, w = self.w_derivation_DEFAULT; end
-            if nargin < 3, k = self.c_derivation_DEFAULT; end
+            if nargin < 3, k = self.c_derivation_DEFAULT; end                                                           % [-] Derivation Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3861,14 +3866,14 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_integration_subnetwork( self, neuron_IDs, ki_mean, ki_range, neuron_manager, synapse_manager, applied_current_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 3, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3894,15 +3899,15 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_vbi_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
-            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3928,18 +3933,18 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_svbi_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_subtraction, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 14, process_option = self.process_option_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 12, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 11, applied_current_manager = self.applied_current_manager; end
-            if nargin < 10, synapse_manager = self.synapse_manager; end
-            if nargin < 9, neuron_manager = self.neuron_manager; end
-            if nargin < 8, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 7, k_subtraction = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 14, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 12, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 11, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 8, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 7, k_subtraction = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -3965,19 +3970,19 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_msvbi_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_subtraction, c_modulation, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 17, network_utilities = self.network_utilities; end
-            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 15, process_option = self.process_option_DEFAULT; end
-            if nargin < 14, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 12, applied_current_manager = self.applied_current_manager; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
-            if nargin < 9, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 8, c_modulation = self.c_modulation_DEFAULT; end
-            if nargin < 7, k_subtraction = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 17, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 15, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 14, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 12, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 9, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 8, c_modulation = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 7, k_subtraction = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -4003,20 +4008,20 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_mssvbi_subnetwork( self, neuron_IDs, T, n, ki_mean, ki_range, k_subtraction1, k_subtraction2, c_modulation, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 18, network_utilities = self.network_utilities; end
-            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 16, process_option = self.process_option_DEFAULT; end
-            if nargin < 15, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 13, applied_current_manager = self.applied_current_manager; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
-            if nargin < 10, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 9, c_modulation = self.c_modulation_DEFAULT; end
-            if nargin < 8, k_subtraction2 = self.c_subtraction_DEFAULT; end
-            if nargin < 7, k_subtraction1 = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 18, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 16, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 15, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 10, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 9, c_modulation = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 8, k_subtraction2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 7, k_subtraction1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 6, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 5, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -4137,7 +4142,7 @@ classdef network_class
         function parameters = pack_neuron_output_parameters( self, neuron_IDs_new, neurons_new, neurons, neuron_manager )
         
             % Set the default input arguments.
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, neurons = neuron_manager.neurons; end
             if nargin < 3, neurons_new = neurons; end
             if nargin < 2, neuron_IDs_new = neuron_manager.get_all_neuron_IDs( neurons ); end
@@ -4218,7 +4223,7 @@ classdef network_class
         function parameters = pack_synapse_output_parameters( self, synapse_IDs_new, synapses_new, synapses, synapse_manager )
         
             % Set the default input arguments.
-            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, synapses = synapse_manager.synapses; end
             if nargin < 3, synapses_new = synapses; end
             if nargin < 2, synapse_IDs_new = synapse_manager.get_all_synapse_IDs( synapses ); end
@@ -4292,7 +4297,7 @@ classdef network_class
         function parameters = pack_applied_current_output_parameters( self, applied_current_IDs_new, applied_currents_new, applied_currents, applied_current_manager )
         
             % Set the default input arguments.
-            if nargin < 5, applied_current_manager = self.applied_current_manager; end
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             if nargin < 4, applied_currents = applied_current_manager.applied_currents; end
             if nargin < 3, applied_currents_new = applied_currents; end
             if nargin < 2, applied_current_IDs_new = applied_current_manager.get_all_applied_current_IDs( applied_currents ); end
@@ -4331,10 +4336,10 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
@@ -4373,10 +4378,10 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
@@ -4487,9 +4492,9 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
             
@@ -4522,9 +4527,9 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
             
@@ -4557,9 +4562,9 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
             
@@ -4592,9 +4597,9 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 5, synapse_manager = self.synapse_manager; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
             
@@ -4627,12 +4632,12 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron and synapse input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4663,10 +4668,10 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
@@ -4704,10 +4709,10 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, applied_current_manager = self.applied_current_manager; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
@@ -4745,14 +4750,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4787,14 +4792,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4829,14 +4834,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4871,12 +4876,12 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron and synapse input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4907,12 +4912,12 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron and synapse input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4943,14 +4948,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -4985,14 +4990,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -5027,14 +5032,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -5069,14 +5074,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -5111,14 +5116,14 @@ classdef network_class
             
             % Set the default input arguments.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -5154,15 +5159,15 @@ classdef network_class
         function [ Gnas, gs, ts, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_mcpg_subnetwork( self, n_neurons, dt, tf, delta_oscillatory, delta_bistable, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 18, network_utilities = self.network_utilities; end
-            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 16, process_option = self.process_option_DEFAULT; end
+            if nargin < 18, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 16, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 15, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 14, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 12, applied_current_manager = self.applied_current_manager; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
+            if nargin < 14, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 12, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 9, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 8, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 7, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
@@ -5197,15 +5202,15 @@ classdef network_class
         function [ Gnas, dEs, gs, ts, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_dmcpg_subnetwork( self, n_neurons, dt, tf, delta_oscillatory, delta_bistable, Id_max, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 19, network_utilities = self.network_utilities; end
-            if nargin < 18, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 17, process_option = self.process_option_DEFAULT; end
+            if nargin < 19, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 18, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 17, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 16, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 15, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 13, applied_current_manager = self.applied_current_manager; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 15, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 9, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 8, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
@@ -5242,11 +5247,11 @@ classdef network_class
 %             
 %             % Set the default input arguments.
 %             if nargin < 12, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 11, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -5267,13 +5272,13 @@ classdef network_class
 %             
 %             % Set the default input arguments.
 %             if nargin < 14, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 12, k_add = self.c_addition_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 13, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 12, k_add = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -5294,16 +5299,16 @@ classdef network_class
 %             
 %             % Set the default input arguments.
 %             if nargin < 17, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -5325,16 +5330,16 @@ classdef network_class
 %             % Set the default input arguments.
 %             if nargin < 18, kp_gain = self.kp_gain_DEFAULT; end
 %             if nargin < 17, r = self.r_oscillation_DEFAULT; end
-%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end
-%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end
-%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end
-%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end
-%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end
-%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end
-%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end
-%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end
+%             if nargin < 16, c_mod = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+%             if nargin < 15, k_add2 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 14, k_add1 = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+%             if nargin < 13, k_sub5 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 12, k_sub4 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 11, k_sub3 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 10, k_sub2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+%             if nargin < 9, k_sub1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
 %             if nargin < 8, ki_range = self.c_integration_range_DEFAULT; end
-%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end
+%             if nargin < 7, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
 %             if nargin < 6, T = self.T_oscillation_DEFAULT; end
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
@@ -5354,18 +5359,18 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, k = self.c_transmission_DEFAULT; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, k = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5391,17 +5396,17 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_modulation_subnetwork( self, c, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, process_option = self.process_option_DEFAULT; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 6, synapse_manager = self.synapse_manager; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, c = self.c_modulation_DEFAULT; end
+            if nargin < 2, c = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5427,18 +5432,18 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_addition_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, k = self.c_addition_DEFAULT; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, k = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5464,33 +5469,33 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_subtraction_subnetwork( self, k, parameters, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, process_option = self.process_option_DEFAULT; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 11, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 6, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 5, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, parameters = self.subtraction_parameters_DEFAULT; end
-            if nargin < 2, k = self.c_subtraction_DEFAULT; end
+            if nargin < 2, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Create an instance of the network object.
             network = self;
             
-            % Create the subtraction subnetwork components.            
+            % Create the subtraction subnetwork components.
             [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_subtraction_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
             
             % Unpack the neuron, synapse, and applied current properties.
             neuron_IDs = neuron_output_parameters{ 1 };
             neuron_manager = neuron_output_parameters{ 4 };
             synapse_manager = synapse_output_parameters{ 4 };
-            
-            % Design the subtraction subnetwork.            
-            [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_subtraction_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+
+            % Design the subtraction subnetwork.
+            [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_subtraction_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, network.applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
             
             % Determine whether to update the network object.
             if set_flag, self = network; end
@@ -5502,18 +5507,18 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_double_subtraction_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, process_option = self.process_option_DEFAULT; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 7, synapse_manager = self.synapse_manager; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, k = self.c_subtraction_DEFAULT; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5539,21 +5544,21 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_centering_subnetwork( self, k_addition, k_subtraction, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 14, process_option = self.process_option_DEFAULT; end
+            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 14, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 6, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 5, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k_subtraction = self.c_subtraction_DEFAULT; end
-            if nargin < 2, k_addition = self.c_addition_DEFAULT; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 2, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5580,21 +5585,21 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_double_centering_subnetwork( self, k_addition, k_subtraction, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 14, process_option = self.process_option_DEFAULT; end
+            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 14, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 6, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 5, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, k_subtraction = self.c_subtraction_DEFAULT; end
-            if nargin < 2, k_addition = self.c_addition_DEFAULT; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 2, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5621,22 +5626,22 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_cds_subnetwork( self, k_subtraction1, k_subtraction2, k_addition, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 17, network_utilities = self.network_utilities; end
-            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 15, process_option = self.process_option_DEFAULT; end
+            if nargin < 17, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 15, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 12, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 11, applied_current_manager = self.applied_current_manager; end
-            if nargin < 10, synapse_manager = self.synapse_manager; end
-            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 12, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 11, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 8, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 7, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 6, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, k_addition = self.c_addition_DEFAULT; end
-            if nargin < 3, k_subtraction2 = self.c_subtraction_DEFAULT; end
-            if nargin < 2, k_subtraction1 = self.c_subtraction_DEFAULT; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 4, k_addition = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+            if nargin < 3, k_subtraction2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 2, k_subtraction1 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5663,19 +5668,19 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_inversion_subnetwork( self, parameters, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 15, network_utilities = self.network_utilities; end
-            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 13, process_option = self.process_option_DEFAULT; end
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end
-            if nargin < 8, synapse_manager = self.synapse_manager; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 6, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 2, parameters = self.inversion_parameters_DEFAULT; end
             
             % Create an instance of the network object.
@@ -5703,20 +5708,20 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_division_subnetwork( self, k, c, parameters, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 15, network_utilities = self.network_utilities; end
-            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 13, process_option = self.process_option_DEFAULT; end
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 6, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, parameters = self.division_parameters_DEFAULT; end
             if nargin < 3, c = [  ]; end
-            if nargin < 2, k = self.c_division_DEFAULT; end
+            if nargin < 2, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5742,21 +5747,21 @@ classdef network_class
         function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_multiplication_subnetwork( self, k, parameters, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 14, process_option = self.process_option_DEFAULT; end
+            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 14, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 12, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 11, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 6, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 5, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, parameters = self.inversion_parameters_DEFAULT; end
-            if nargin < 2, k = self.c_multiplication_DEFAULT; end
+            if nargin < 2, k = self.c_multiplication_DEFAULT; end                                                       % [-] Multiplication Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5783,20 +5788,20 @@ classdef network_class
         function [ Gnas, Gms, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_derivation_subnetwork( self, k, w, safety_factor, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 15, network_utilities = self.network_utilities; end
-            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 13, process_option = self.process_option_DEFAULT; end
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 6, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 4, safety_factor = self.sf_derivation_DEFAULT; end
             if nargin < 3, w = self.w_derivation_DEFAULT; end
-            if nargin < 2, k = self.c_derivation_DEFAULT; end
+            if nargin < 2, k = self.c_derivation_DEFAULT; end                                                           % [-] Derivation Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5822,19 +5827,19 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_integration_subnetwork( self, ki_mean, ki_range, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 6, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 5, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5861,19 +5866,19 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network, self ] = create_vbi_subnetwork( self, T, n, ki_mean, ki_range, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 14, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 13, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 12, applied_current_manager = self.applied_current_manager; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
+            if nargin < 13, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 12, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 9, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 8, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 7, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5900,22 +5905,22 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_svbi_subnetwork( self, T, n, ki_mean, ki_range, k_subtraction, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 19, network_utilities = self.network_utilities; end
-            if nargin < 18, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 17, process_option = self.process_option_DEFAULT; end
+            if nargin < 19, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 18, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 17, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 16, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 15, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 13, applied_current_manager = self.applied_current_manager; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 15, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 14, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 9, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 8, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 6, k_subtraction = self.c_subtraction_DEFAULT; end
+            if nargin < 7, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 6, k_subtraction = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5942,23 +5947,23 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_msvbi_subnetwork( self, T, n, ki_mean, ki_range, k_subtraction, c_modulation, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 20, network_utilities = self.network_utilities; end
-            if nargin < 19, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 18, process_option = self.process_option_DEFAULT; end
+            if nargin < 20, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 19, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 18, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 17, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 16, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 15, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 14, applied_current_manager = self.applied_current_manager; end
-            if nargin < 13, synapse_manager = self.synapse_manager; end
-            if nargin < 12, neuron_manager = self.neuron_manager; end
+            if nargin < 16, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 15, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 14, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 13, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 12, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 11, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 10, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 9, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 8, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 7, c_modulation = self.c_modulation_DEFAULT; end
-            if nargin < 6, k_subtraction = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 8, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 7, c_modulation = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 6, k_subtraction = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -5985,24 +5990,24 @@ classdef network_class
         function [ Gnas, Cms, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_mssvbi_subnetwork( self, T, n, ki_mean, ki_range, k_subtraction1, k_subtraction2, c_modulation, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 21, network_utilities = self.network_utilities; end
-            if nargin < 20, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 19, process_option = self.process_option_DEFAULT; end
+            if nargin < 21, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 20, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 19, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
             if nargin < 18, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 17, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 16, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end
-            if nargin < 15, applied_current_manager = self.applied_current_manager; end
-            if nargin < 14, synapse_manager = self.synapse_manager; end
-            if nargin < 13, neuron_manager = self.neuron_manager; end
+            if nargin < 17, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 16, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 15, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 14, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 13, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 12, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 11, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 10, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 9, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 8, c_modulation = self.c_modulation_DEFAULT; end
-            if nargin < 7, k_subtraction2 = self.c_subtraction_DEFAULT; end
-            if nargin < 6, k_subtraction1 = 2*self.c_subtraction_DEFAULT; end
+            if nargin < 9, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 8, c_modulation = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
+            if nargin < 7, k_subtraction2 = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 6, k_subtraction1 = 2*self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 5, ki_range = self.c_integration_range_DEFAULT; end
-            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end                                               % [-] Mean Integration Subnetwork Gain.
             
             % Create an instance of the network object.
             network = self;
@@ -6031,9 +6036,9 @@ classdef network_class
         function valid_flag = validate_network( self, neuron_manager, synapse_manager, applied_current_manager )
             
             % Set the default input arguments.
-            if nargin < 4, applied_current_manager = self.applied_current_manager; end
-            if nargin < 3, synapse_manager = self.synapse_manager; end
-            if nargin < 2, neuron_manager = self.neuron_manager; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 3, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 2, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             
             % Ensure that the neuron IDs are unique.
             [ valid_flag, ~ ] = neuron_manager.unique_existing_neuron_IDs( neuron_manager.neurons );
@@ -6074,10 +6079,10 @@ classdef network_class
         function A = compute_linearized_system_matrix( self, Cms, Gms, Rs, gs, dEs, Us0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if anrgin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if anrgin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, Us0 = zeros( length( Cm2 ), 1 ); end
             if nargin < 6, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 5, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6095,8 +6100,8 @@ classdef network_class
         function B = compute_linearized_input_matrix( self, Cms, Ias, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true ); end
             if nargin < 2, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
             
@@ -6110,10 +6115,10 @@ classdef network_class
         function [ A, B ] = get_linearized_system( self, Cms, Gms, Rs, gs, dEs, Ias, Us0, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, synapse_manager = self.synapse_manager; end
-            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 8, Us0 = zeros( neuron_manager.num_neurons, 1 ); end
             if nargin < 7, Ias = neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 6, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
@@ -6132,10 +6137,10 @@ classdef network_class
         function [ A, dt, condition_number ] = RK4_stability_analysis_at_point( self, Cms, Gms, Rs, gs, dEs, Us0, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, synapse_manager = self.synapse_manager; end
-            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 8, dt0 = self.dt_DEFAULT; end
             if nargin < 7, Us0 = zeros( neuron_manager.num_neurons, 1 ); end
             if nargin < 6, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
@@ -6154,10 +6159,10 @@ classdef network_class
         function [ As, dts, condition_numbers ] = RK4_stability_analysis( self, Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, synapse_manager = self.synapse_manager; end
-            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 8, dt0 = self.dt_DEFAULT; end
             if nargin < 7, Us = zeros( 1, neuron_manager.num_neurons ); end
             if nargin < 6, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
@@ -6196,11 +6201,11 @@ classdef network_class
         function [ U2s, As, dts, condition_numbers ] = achieved_transmission_RK4_stability_analysis( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, applied_current_manager = self.applied_current_manager; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 9, dt0 = self.dt_DEFAULT; end
             if nargin < 8, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 7, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6211,7 +6216,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved transmission steady state output at each of the provided inputs.
-            U2s = self.compute_achieved_transmission_steady_state_output( U1s, Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+            U2s = self.compute_achieved_transmission_sso( U1s, Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s ];
@@ -6226,10 +6231,10 @@ classdef network_class
         function [ U3s, As, dts, condition_numbers ] = achieved_addition_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, dt0 = self.dt_DEFAULT; end
             if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6241,7 +6246,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved addition steady state output at each of the provided inputs.
-            U3s = self.compute_achieved_addition_steady_state_output( [ U1s, U2s ], Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities );
+            U3s = self.compute_achieved_addition_sso( [ U1s, U2s ], Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s, U3s ];
@@ -6256,10 +6261,10 @@ classdef network_class
         function [ U3s, As, dts, condition_numbers ] = achieved_subtraction_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, dt0 = self.dt_DEFAULT; end
             if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6271,7 +6276,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved subtraction steady state output at each of the provided inputs.
-            U3s = self.compute_achieved_subtraction_steady_state_output( [ U1s, U2s ], Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities );
+            U3s = self.compute_achieved_subtraction_sso( [ U1s, U2s ], Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s, U3s ];
@@ -6286,10 +6291,10 @@ classdef network_class
         function [ U2s, As, dts, condition_numbers ] = achieved_inversion_RK4_stability_analysis( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 9, dt0 = self.dt_DEFAULT; end
             if nargin < 8, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 7, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6300,7 +6305,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved inversion steady state output at each of the provided inputs.
-            U2s = self.compute_achieved_inversion_steady_state_output( U1s, Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+            U2s = self.compute_achieved_inversion_sso( U1s, Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s ];
@@ -6315,10 +6320,10 @@ classdef network_class
         function [ U3s, As, dts, condition_numbers ] = achieved_division_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, dt0 = self.dt_DEFAULT; end
             if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6330,7 +6335,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved division steady state output at each of the provided inputs.
-            U3s = self.compute_achieved_division_steady_state_output( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Gms( 3 ), Ias( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+            U3s = self.compute_achieved_division_sso( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Gms( 3 ), Ias( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s, U3s ];
@@ -6345,10 +6350,10 @@ classdef network_class
         function [ U4s, U3s, As, dts, condition_numbers ] = achieved_multiplication_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
            
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, dt0 = self.dt_DEFAULT; end
             if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6360,7 +6365,7 @@ classdef network_class
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
             % Compute the achieved multiplication steady state output at each of the provided inputs.
-            [ U4s, U3s ] = self.compute_achieved_multiplication_steady_state_output( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Rs( 3 ), Gms( 3 ), Gms( 4 ), Ias( 3 ), Ias( 4 ), gs( 3, 2 ), gs( 4, 1 ), gs( 4, 3 ), dEs( 3, 2 ), dEs( 4, 1 ), dEs( 4, 3 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+            [ U4s, U3s ] = self.compute_achieved_multiplication_sso( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Rs( 3 ), Gms( 3 ), Gms( 4 ), Ias( 3 ), Ias( 4 ), gs( 3, 2 ), gs( 4, 1 ), gs( 4, 3 ), dEs( 3, 2 ), dEs( 4, 1 ), dEs( 4, 3 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s, U3s, U4s ];
@@ -6375,10 +6380,10 @@ classdef network_class
         function [ Us_outputs, As, dts, condition_numbers ] = achieved_linear_combination_RK4_stability_analysis( self, Us_inputs, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, synapse_manager = self.synapse_manager; end
-            if nargin < 10, neuron_manager = self.neuron_manager; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 9, dt0 = self.dt_DEFAULT; end
             if nargin < 8, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 7, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -6389,7 +6394,7 @@ classdef network_class
             if nargin < 2, Us_inputs = zeros( 1, length( Rs ) - 1 ); end
             
             % Compute the achieved division steady state output at each of the provided inputs.            
-            Us_outputs = self.compute_achieved_linear_combination_ss_output( Us_inputs', Rs', Gms', Ias', gs( end, 1:( end - 1 ) )', dEs( end , 1:( end - 1 ) )', neuron_manager, synapse_manager, undetected_option, network_utilities )';
+            Us_outputs = self.compute_achieved_linear_combination_sso( Us_inputs', Rs', Gms', Ias', gs( end, 1:( end - 1 ) )', dEs( end , 1:( end - 1 ) )', neuron_manager, synapse_manager, undetected_option, network_utilities )';
             
             % Create the operating points array.
             Us = [ Us_inputs, Us_outputs ];
@@ -6403,334 +6408,353 @@ classdef network_class
         %% Steady State Functions.
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
-        function U2s = compute_desired_absolute_transmission_steady_state_output( self, U1s, c, neuron_manager, undetected_option, network_utilities )
+        function U2s = compute_da_transmission_sso( self, U1s, c, neuron_manager, undetected_option, network_utilities )
  
             % Set the default input arguments.
-            if nargin < 6, network_utilities = self.network_utilities; end
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, c = self.c_transmission_DEFAULT; end
+            if nargin < 6, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, c = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
             if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U2s = network_utilities.compute_desired_absolute_transmission_steady_state_output( U1s, c );
+            U2s = network_utilities.compute_da_transmission_sso( U1s, c );
         
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative transmission subnetwork.
-        function U2s = compute_desired_relative_transmission_steady_state_output( self, U1s, c, R1, R2, neuron_manager, undetected_option, network_utilities )
+        function U2s = compute_dr_transmission_sso( self, U1s, c, R1, R2, neuron_manager, undetected_option, network_utilities )
  
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 4, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 3, c = self.c_transmission_DEFAULT; end
+            if nargin < 3, c = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
             if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U2s = network_utilities.compute_desired_relative_transmission_steady_state_output( U1s, c, R1, R2 );
+            U2s = network_utilities.compute_dr_transmission_sso( U1s, c, R1, R2 );
         
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a transmission subnetwork.
-        function U2s = compute_achieved_transmission_steady_state_output( self, U1s, R1, Gm2, Ia2, gs21, dEs21, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+        function U2s = compute_achieved_transmission_sso( self, U1s, R1, Gm2, Ia2, gs21, dEs21, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
         
 %             synapse_ID = synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option );
 %             applied_current_ID = applied_current_manager.to_neuron_ID2applied_current_ID( 2, applied_current_manager.applied_currents, undetected_option );
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 10, applied_current_manager = self.applied_current_manager; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, dEs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'dEs', true, synapse_manager.synapses, undetected_option ); end                                    % [V] Synaptic Reversal Potential (Synapse 21).
             if nargin < 6, gs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'gs', true, synapse_manager.synapses, undetected_option ); end                                      % [S] Synaptic Conductance (Synapse 21).
             if nargin < 5, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( 2, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end                                       % [A] Applied Current (Neuron 2).
             if nargin < 4, Gm2 = neuron_manager.get_neuron_property( 2, 'Gm', true, neuron_manager.neurons, undetected_option ); end                                        % [S] Membrane Conductance (Neuron 2).
             if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                     	% [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U2s = network_utilities.compute_achieved_transmission_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );
+            U2s = network_utilities.compute_achieved_transmission_sso( U1s, R1, Gm2, Ia2, gs21, dEs21 );
             
         end
         
             
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute addition subnetwork.
-        function U_outputs = compute_desired_absolute_addition_steady_state_output( self, U_inputs, c, neuron_manager, undetected_option, network_utilities )
+        function Us_outputs = compute_da_addition_sso( self, Us_inputs, c, neuron_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 6, network_utilities = self.network_utilities; end
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 4, neuron_manager = self.neuron_manaqer; end
-            if nargin < 3, c = self.c_addition_DEFAULT; end
-            if nargin < 2, U_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, c = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U_outputs = network_utilities.compute_desired_absolute_addition_steady_state_output( U_inputs, c );
+            Us_outputs = network_utilities.compute_da_addition_sso( Us_inputs, c );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative addition subnetwork.
-        function U_outputs = compute_desired_relative_addition_steady_state_output( self, U_inputs, Rs, c, neuron_manager, undetected_option, network_utilities )
+        function Us_outputs = compute_dr_addition_sso( self, Us_inputs, Rs, c, neuron_manager, undetected_option, network_utilities )
            
             % Set the default input arguments.
-            if nargin < 7, network_utilities = self.network_utilities; end
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 5, neuron_manager = self.neuron_manaqer; end
-            if nargin < 4, c = self.c_addition_DEFAULT; end
+            if nargin < 4, c = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 2, U_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U_outputs = network_utilities.compute_desired_relative_addition_steady_state_output( U_inputs, Rs, c );
+            Us_outputs = network_utilities.compute_dr_addition_sso( Us_inputs, Rs, c );
         
         end
             
         
         % Implement a function to compute the steady state output associated with the achieved formulation of an addition subnetwork.
-        function U_outputs = compute_achieved_addition_steady_state_output( self, U_inputs, Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function Us_outputs = compute_achieved_addition_sso( self, Us_inputs, Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 6, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 5, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 4, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
 
             % Compute the steady state network outputs.
-            U_outputs = network_utilities.compute_achieved_addition_steady_state_output( U_inputs, Rs, Gms, Ias, gs, dEs );
+            Us_outputs = network_utilities.compute_achieved_addition_sso( Us_inputs, Rs, Gms, Ias, gs, dEs );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute subtraction subnetwork.
-        function U_outputs = compute_desired_absolute_subtraction_steady_state_output( self, U_inputs, c, ss, neuron_manager, undetected_option, network_utilities )
+        function Us_outputs = compute_da_subtraction_sso( self, Us_inputs, c, ss, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 7, network_utilities = self.network_utilities; end
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, ss = self.subtraction_signature_DEFAULT; end         % [ 1, -1 ]
-            if nargin < 3, c = self.c_subtraction_DEFAULT; end
-            if nargin < 2, U_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, c = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U_outputs = network_utilities.compute_desired_absolute_subtraction_steady_state_output( U_inputs, c, ss );
+            Us_outputs = network_utilities.compute_da_subtraction_sso( Us_inputs, c, ss );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative subtraction subnetwork.
-        function U_outputs = compute_desired_relative_subtraction_steady_state_output( self, U_inputs, Rs, c, ss, neuron_manager, undetected_option, network_utilities )
+        function Us_outputs = compute_dr_subtraction_sso( self, Us_inputs, Rs, c, ss, neuron_manager, undetected_option, network_utilities )
            
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, ss = self.subtraction_signature_DEFAULT; end
-            if nargin < 4, c = self.c_subtraction_DEFAULT; end
+            if nargin < 4, c = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 2, U_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            U_outputs = network_utilities.compute_desired_relative_subtraction_steady_state_output( U_inputs, Rs, c, ss );
+            Us_outputs = network_utilities.compute_dr_subtraction_sso( Us_inputs, Rs, c, ss );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a subtraction subnetwork.
-        function U_outputs = compute_achieved_subtraction_steady_state_output( self, U_inputs, Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function Us_outputs = compute_achieved_subtraction_sso( self, Us_inputs, Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 6, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 5, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 4, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state network outputs.
-            U_outputs = network_utilities.compute_achieved_subtraction_steady_state_output( U_inputs, Rs, Gms, Ias, gs, dEs );
+            Us_outputs = network_utilities.compute_achieved_subtraction_sso( Us_inputs, Rs, Gms, Ias, gs, dEs );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute inversion subnetwork.
-        function U2s = compute_desired_absolute_inversion_steady_state_output( self, U1s, c1, c2, c3, network_utilities )
+        function U2s = compute_da_inversion_sso( self, U1s, c1, c2, c3, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, network_utilities = self.network_utilities; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, c3 = self.c3_da_inversion_DEFAULT; end                          % [A] Design Constant 3. 20e-9
             if nargin < 4, c2 = self.c2_da_inversion_DEFAULT; end                          % [S] Design Constant 2. 19e-6
             if nargin < 3, c1 = self.c1_da_inversion_DEFAULT; end                          % [W] Design Constant 1. 0.40e-9
-            
+            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U2s = network_utilities.compute_desired_absolute_inversion_steady_state_output( U1s, c1, c2, c3 );
+            U2s = network_utilities.compute_da_inversion_sso( U1s, c1, c2, c3 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
-        function U2s = compute_desired_reduced_absolute_inversion_steady_state_output( self, U1s, c1, c2, network_utilities )
+        function U2s = compute_dra_inversion_sso( self, U1s, c1, c2, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 5, network_utilities = self.network_utilities; end
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, c2 = self.c2_ra_inversion_DEFAULT; end                       % [mV] Design Constant 2.
             if nargin < 3, c1 = self.c1_ra_inversion_DEFAULT; end                        % [mV^2] Design Constant 1.
-            
+            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U2s = network_utilities.compute_desired_reduced_absolute_inversion_steady_state_output( U1s, c1, c2 );
+            U2s = network_utilities.compute_dra_inversion_sso( U1s, c1, c2 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative inversion subnetwork.
-        function U2s = compute_desired_relative_inversion_steady_state_output( self, Us1, c1, c2, c3, R1, R2, neuron_manager, undetected_option, network_utilities )
+        function U2s = compute_dr_inversion_sso( self, U1s, c1, c2, c3, R1, R2, neuron_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
             if nargin < 6, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 5, c3 = self.c3_dr_inversion_DEFAULT; end                                                                                               % [-] Design Constant 3. 1e-6
             if nargin < 4, c2 = self.c2_dr_inversion_DEFAULT; end                                                                                              % [-] Design Constant 2. 19e-6
             if nargin < 3, c1 = self.c1_dr_inversion_DEFAULT; end                                                                                               % [-] Design Constant 1. 1e-6
-            
+            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U2s = network_utilities.compute_desired_relative_inversion_steady_state_output( Us1, c1, c2, c3, R1, R2 );             % [V] Membrane Voltage (Neuron 2).
+            U2s = network_utilities.compute_dr_inversion_sso( U1s, c1, c2, c3, R1, R2 );             % [V] Membrane Voltage (Neuron 2).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
-        function U2s = compute_desired_reduced_relative_inversion_steady_state_output( self, Us1, c1, c2, R1, R2, neuron_manager, undetected_option, network_utilities )
+        function U2s = compute_drr_inversion_sso( self, U1s, c1, c2, R1, R2, neuron_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 9, network_utilities = self.network_utilities; end
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 9, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 6, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
             if nargin < 5, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 4, c2 = self.c2_rr_inversion_DEFAULT; end                                                                                            % [-] Design Constant 2. 52.6e-3
             if nargin < 3, c1 = self.c1_rr_inversion_DEFAULT; end                                                                                            % [-] Design Constant 1. 52.6e-3
-            
+            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U2s = network_utilities.compute_desired_reduced_relative_inversion_steady_state_output( Us1, c1, c2, R1, R2 );         % [V] Membrane Voltage (Neuron 2).
+            U2s = network_utilities.compute_drr_inversion_sso( U1s, c1, c2, R1, R2 );         % [V] Membrane Voltage (Neuron 2).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
-        function U2s = compute_achieved_inversion_steady_state_output( self, U1s, R1, Gm2, Ia2, gs21, dEs21, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function U2s = compute_achieved_inversion_sso( self, U1s, R1, Gm2, Ia2, gs21, dEs21, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, dEs21 = self.get_dEs( [ 1, 2 ], neuron_manager, synapse_manager ); end                                                                     % [V] Synaptic Reversal Potential (Synapse 21).
             if nargin < 6, gs21 = self.get_gs( [ 1, 2 ], neuron_manager, synapse_manager ); end                                                                    % [S] Maximum Synaptic Conductance (Synapse 21).
             if nargin < 5, Ia2 = neuron_manager.get_neuron_property( 2, 'I_tonic', true, neuron_manager.neurons, undetected_option ); end                               % [A] Applied Currents (Neuron 2).
             if nargin < 4, Gm2 = neuron_manager.get_neuron_property( 2, 'Gm', true, neuron_manager.neurons, undetected_option ); end                                    % [S] Membrane Conductance (Neuron 2).
             if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
 
             % Compute the steady state output.
-            U2s = network_utilities.compute_achieved_inversion_steady_state_output( U1s, R1, Gm2, Ia2, gs21, dEs21 );              % [V] Membrane Voltage (Neuron 2).
+            U2s = network_utilities.compute_achieved_inversion_sso( U1s, R1, Gm2, Ia2, gs21, dEs21 );              % [V] Membrane Voltage (Neuron 2).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
-        function U3s = compute_desired_absolute_division_steady_state_output( self, U_inputs, c1, c2, c3, network_utilities )
+        function U3s = compute_da_division_sso( self, Us_inputs, c1, c2, c3, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, network_utilities = self.network_utilities; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, c3 = self.c3_da_division_DEFAULT; end                                                                                            % [W] Design Constant 3. 0.40e-9
             if nargin < 4, c2 = self.c2_da_division_DEFAULT; end                                                                                             % [A] Design Constant 2. 380e-9
             if nargin < 3, c1 = self.c1_da_division_DEFAULT; end                                                                                            % [W] Design Constant 1. 0.40e-9
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U3s = network_utilities.compute_desired_absolute_division_steady_state_output( U_inputs, c1, c2, c3 );                 % [V] Membrane Voltage (Neuron 3).
+            U3s = network_utilities.compute_da_division_sso( Us_inputs, c1, c2, c3 );                 % [V] Membrane Voltage (Neuron 3).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
-        function U3s = compute_desired_reduced_absolute_division_steady_state_output( self, U_inputs, c1, c2, network_utilities )
+        function U3s = compute_dra_division_sso( self, Us_inputs, c1, c2, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 5, network_utilities = self.network_utilities; end
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, c2 = c2_dra_division_DEFAULT; end                                                                                            % [V] Design Constant 2. 1.05e-3
             if nargin < 3, c1 = self.c1_dra_division_DEFAULT; end                                                                                            % [V] Design Constant 1. 1.05e-3
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U3s = network_utilities.compute_desired_reduced_absolute_division_steady_state_output( U_inputs, c1, c2 );           	% [V] Membrane Voltage (Neuron 3).
+            U3s = network_utilities.compute_dra_division_sso( Us_inputs, c1, c2 );           	% [V] Membrane Voltage (Neuron 3).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative division subnetwork.
-        function U3s = compute_desired_relative_division_steady_state_output( self, U_inputs, c1, c2, c3, R1, R2, R3, neuron_manager, undetected_option, network_utilities )
+        function U3s = compute_dr_division_sso( self, Us_inputs, c1, c2, c3, R1, R2, R3, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 8, R3 = neuron_manager.get_neuron_property( 3, 'R', true, neuron_manager.neurons, undetected_option ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
             if nargin < 7, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
             if nargin < 6, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 5, c3 = self.c3_dr_division_DEFAULT; end                                                                                                   % [S] Design Constant 3. 1e-6
             if nargin < 4, c2 = self.c2_dr_division_DEFAULT; end                                                                                                  % [S] Design Constant 2. 19e-6
             if nargin < 3, c1 = self.c1_dr_division_DEFAULT; end                                                                                                   % [S] Design Constant 1. 1e-6
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U3s = network_utilities.compute_desired_relative_division_steady_state_output( U_inputs, c1, c2, c3, R1, R2, R3 );         % [V] Membrane Voltage (Neuron 3).
+            U3s = network_utilities.compute_dr_division_sso( Us_inputs, c1, c2, c3, R1, R2, R3 );         % [V] Membrane Voltage (Neuron 3).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division subnetwork.
-        function U3s = compute_desired_reduced_relative_division_steady_state_output( self, U_inputs, c1, c2, R1, R2, R3, neuron_manager, undetected_option, network_utilities )
+        function U3s = compute_drr_division_sso( self, Us_inputs, c1, c2, R1, R2, R3, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 10, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, R3 = neuron_manager.get_neuron_property( 3, 'R', true, neuron_manager.neurons, undetected_option ); end                                          % [V] Maximum Membrane Voltage (Neuron 3).
             if nargin < 6, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end                                          % [V] Maximum Membrane Voltage (Neuron 2).
             if nargin < 5, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                          % [V] Maximum Membrane Voltage (Neuron 1).
             if nargin < 4, c2 = self.c2_drr_division_DEFAULT; end                                                                                                 % [-] Design Constant 2. 0.0526
             if nargin < 3, c1 = self.c1_drr_division_DEFAULT; end                                                                                                 % [-] Design Constant 1. 0.0526
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U3s = network_utilities.compute_desired_reduced_relative_division_steady_state_output( U_inputs, c1, c2, R1, R2, R3 );     % [V] Membrane Voltage (Neuron 3).
+            U3s = network_utilities.compute_drr_division_sso( Us_inputs, c1, c2, R1, R2, R3 );     % [V] Membrane Voltage (Neuron 3).
             
         end
         
         
-        
         % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
-        function U3s = compute_achieved_division_steady_state_output( self, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function U3s = compute_achieved_division_sso( self, Us_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 12, synapse_manager = self.synapse_manager; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, dEs32 = self.get_dEs( [ 2, 3 ], neuron_manager, synapse_manager ); end                                                                                    % [V] Synaptic Reversal Potential (Synapse 32).
             if nargin < 9, dEs31 = self.get_dEs( [ 1, 3 ], neuron_manager, synapse_manager ); end                                                                                     % [V] Synaptic Revesal Potential (Synapse 31).
             if nargin < 8, gs32 = self.get_gs( [ 2, 3 ], neuron_manager, synapse_manager ); end                                                                                    % [S] Synaptic Conductance (Synapse 32).
@@ -6739,55 +6763,62 @@ classdef network_class
             if nargin < 5, Gm3 = neuron_manager.get_neuron_property( 3, 'Gm', true, neuron_manager.neurons, undetected_option ); end                                                    % [S] Membrane Conductance (Neuron 3).
             if nargin < 4, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end                                                      % [V] Maximum Membrane Voltage (Neuron 2).
             if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            U3s = network_utilities.compute_achieved_division_steady_state_output( U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 );         % [V] Membrane Voltage (Neuron 3).
+            U3s = network_utilities.compute_achieved_division_sso( Us_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 );         % [V] Membrane Voltage (Neuron 3).
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_absolute_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, network_utilities )
+        function [ U4s, U3s ] = compute_da_multiplication_sso( self, Us_inputs, c1, c2, c3, c4, c5, c6, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 8, c6 = self.c6_da_multiplication_DEFAULT; end        % 0.40e-9
             if nargin < 7, c5 = self.c5_da_multiplication_DEFAULT; end         % 380e-9
             if nargin < 6, c4 = self.c4_da_multiplication_DEFAULT; end        % 0.40e-9
             if nargin < 5, c3 = self.c3_da_multiplication_DEFAULT; end          % 20e-9
             if nargin < 4, c2 = self.c2_da_multiplication_DEFAULT; end          % 19e-6
             if nargin < 3, c1 = self.c1_da_multiplication_DEFAULT; end        % 0.40e-9
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            [ U4s, U3s ] = network_utilities.compute_desired_absolute_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6 );
+            [ U4s, U3s ] = network_utilities.compute_da_multiplication_sso( Us_inputs, c1, c2, c3, c4, c5, c6 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_red_abs_mult_ss_output( self, U_inputs, c1, c2, c3, c4, network_utilities )
+        function [ U4s, U3s ] = compute_dra_multiplication_sso( self, Us_inputs, c1, c2, c3, c4, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 9, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 6, c4 = self.c4_dra_multiplication_DEFAULT; end                      	% [V] Reduced Absolute Multiplication Design Constant 4 (Reduced Absolute Division Design Constant 2). 1.05e-3
             if nargin < 5, c3 = self.c3_dra_multiplication_DEFAULT; end                       	% [V] Reduced Absolute Multiplication Design Constant 3 (Reduced Absolute Division Design Constant 1). 1.05e-3
             if nargin < 4, c2 = self.c2_dra_multiplication_DEFAULT; end                       % [mV] Reduced Absolute Multiplication Design Constant 2 (Reduced Absolute Inversion Design Constant 2). 21.05e-6
             if nargin < 3, c1 = self.c1_dra_multiplication_DEFAULT; end                        % [mV^2] Reduced Absolute Multiplication Design Constant 1 (Reduced Absolute Inversion Design Constant 1). 1.05e-3
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            [ U4s, U3s ] = network_utilities.compute_desired_red_abs_mult_ss_output( U_inputs, c1, c2, c3, c4 );
+            [ U4s, U3s ] = network_utilities.compute_dra_multiplication_sso( Us_inputs, c1, c2, c3, c4 );
             
         end
         
                     
             
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_relative_multiplication_steady_state_output( self, U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4, neuron_manager, undetected_option, network_utilities )
+        function [ U4s, U3s ] = compute_dr_multiplication_sso( self, Us_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 15, network_utilities = self.network_utilities; end
-            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 13, neuron_manager = self.neuron_manager; end
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 12, R4 = neuron_manager.get_neuron_property( 4, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 11, R3 = neuron_manager.get_neuron_property( 3, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 10, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end
@@ -6798,20 +6829,21 @@ classdef network_class
             if nargin < 5, c3 = self.c3_dr_multiplication_DEFAULT; end           % 1e-6
             if nargin < 4, c2 = self.c2_dr_multiplication_DEFAULT; end          % 19e-6
             if nargin < 3, c1 = self.c1_dr_multiplication_DEFAULT; end           % 1e-6
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            [ U4s, U3s ] = network_utilities.compute_desired_relative_multiplication_steady_state_output( U_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
+            [ U4s, U3s ] = network_utilities.compute_dr_multiplication_sso( Us_inputs, c1, c2, c3, c4, c5, c6, R1, R2, R3, R4 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
-        function [ U4s, U3s ] = compute_desired_red_rel_mult_ss_output( self, U_inputs, c1, c2, c3, c4, R1, R2, R3, R4, neuron_manager, undetected_option, network_utilities )
+        function [ U4s, U3s ] = compute_drr_multiplication_sso( self, Us_inputs, c1, c2, c3, c4, R1, R2, R3, R4, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 10, R4 = neuron_manager.get_neuron_property( 4, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 9, R3 = neuron_manager.get_neuron_property( 3, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 8, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end
@@ -6820,21 +6852,22 @@ classdef network_class
             if nargin < 5, c3 = self.c3_drr_multiplication_DEFAULT; end           % 1e-6
             if nargin < 4, c2 = self.c2_drr_multiplication_DEFAULT; end          % 19e-6
             if nargin < 3, c1 = self.c1_drr_multiplication_DEFAULT; end           % 1e-6
-            
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
+
             % Compute the steady state output.
-            [ U4s, U3s ] = network_utilities.compute_desired_red_rel_mult_ss_output( U_inputs, c1, c2, c3, c4, R1, R2, R3, R4 );
+            [ U4s, U3s ] = network_utilities.compute_drr_multiplication_sso( Us_inputs, c1, c2, c3, c4, R1, R2, R3, R4 );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a multiplication subnetwork.
-        function [ U4s, U3s ] = compute_achieved_multiplication_steady_state_output( self, U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function [ U4s, U3s ] = compute_achieved_multiplication_sso( self, Us_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 19, network_utilities = self.network_utilities; end
-            if nargin < 18, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 17, synapse_manager = self.synapse_manager; end
-            if nargin < 16, neuron_manager = self.neuron_manager; end
+            if nargin < 19, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 18, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 17, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 16, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 15, dEs43 = self.get_dEs( [ 3, 4 ], neuron_manager, synapse_manager ); end
             if nargin < 14, dEs41 = self.get_dEs( [ 1, 4 ], neuron_manager, synapse_manager ); end
             if nargin < 13, dEs32 = self.get_dEs( [ 2, 3 ], neuron_manager, synapse_manager ); end
@@ -6848,19 +6881,20 @@ classdef network_class
             if nargin < 5, R3 = neuron_manager.get_neuron_property( 3, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 4, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( [ 1, 2 ], 'U', true, neuron_manager.neurons, undetected_option ); end
 
             % Compute the steady state output.
-            [ U4s, U3s ] = network_utilities.compute_achieved_multiplication_steady_state_output( U_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 );
+            [ U4s, U3s ] = network_utilities.compute_achieved_multiplication_sso( Us_inputs, R1, R2, R3, Gm3, Gm4, Ia3, Ia4, gs32, gs41, gs43, dEs32, dEs41, dEs43 );
             
         end
            
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute linear combination subnetwork.
-        function Us_output = compute_desired_absolute_linear_combination_steady_state_output( self, Us_inputs, cs, ss, network_utilities )
+        function Us_output = compute_da_linear_combination_sso( self, Us_inputs, cs, ss, neuron_manager, undetected_option, network_utilities )
         
             %{
             Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
+                Us_inputs    =   [V] Membrane Voltage Inputs.
                 cs          =   [-] Input Gains.
                 ss          =   [-1/1] Input Signatures.
             
@@ -6869,23 +6903,25 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 5, network_utilities = self.network_utilities; end
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, ss = self.signature_linear_combination_DEFAULT; end             	% [ 1; -1 ]
             if nargin < 3, cs = self.c_linear_combination_DEFAULT; end                     	% [ 1; 1 ]
-            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            Us_output = network_utilities.compute_desired_absolute_linear_combination_steady_state_output( Us_inputs, cs, ss );
+            Us_output = network_utilities.compute_da_linear_combination_sso( Us_inputs, cs, ss );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the desired formulation of a relative linear combination subnetwork.
-        function Us_output = compute_desired_relative_linear_combination_steady_state_output( self, Us_inputs, Rs, cs, ss, neuron_manager, undetected_option, network_utilities )
+        function Us_output = compute_dr_linear_combination_sso( self, Us_inputs, Rs, cs, ss, neuron_manager, undetected_option, network_utilities )
         
             %{
             Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
+                Us_inputs    =   [V] Membrane Voltage Inputs.
                 Rs          =   [V] Maximum Membrane Voltages.
                 cs          =   [-] Input Gains.
                 ss          =   [-1/1] Input Signatures.
@@ -6895,22 +6931,22 @@ classdef network_class
             %}
             
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 5, ss = self.signature_linear_combination_DEFAULT; end
             if nargin < 4, cs = self.c_linear_combination_DEFAULT; end
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 2, Us_inputs = zeros( 1, 2 ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the steady state network outputs.
-            Us_output = network_utilities.compute_desired_relative_linear_combination_steady_state_output( Us_inputs, Rs, cs, ss );
+            Us_output = network_utilities.compute_dr_linear_combination_sso( Us_inputs, Rs, cs, ss );
             
         end
         
         
         % Implement a function to compute the steady state output associated with the achieved formulation of a linear combination subnetwork.
-        function Us_output = compute_achieved_linear_combination_ss_output( self, Us_inputs, Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function Us_output = compute_achieved_linear_combination_sso( self, Us_inputs, Rs, Gms, Ias, gs, dEs, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             %{
             Input(s):
@@ -6926,19 +6962,19 @@ classdef network_class
             %}
  
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 9, synapse_manager = self.synapse_manager; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 11, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 8, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 7, dEs = self.get_dEs( [ 1, 3; 2, 3 ], neuron_manager, synapse_manager ); end
             if nargin < 6, gs = self.get_gs( [ 1, 3; 2, 3 ], neuron_manager, synapse_manager ); end
             if nargin < 5, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 4, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 2, Us_inputs = zeros( 2, 1 ); end
+            if nargin < 2, Us_inputs = neuron_manager.get_neuron_property( 1:( neuron_manager.num_neurons - 1 ), 'U', true, neuron_manager.neurons, undetected_option ); end
             
             % Compute the membrane voltage outputs.
-            Us_output = network_utilities.compute_achieved_linear_combination_ss_output( Us_inputs, Rs, Gms, Ias, gs, dEs );
+            Us_output = network_utilities.compute_achieved_linear_combination_sso( Us_inputs, Rs, Gms, Ias, gs, dEs );
             
         end
         
@@ -6946,14 +6982,27 @@ classdef network_class
         %% Simulation Functions
         
         % Implement a function to compute a single network simulation step.
-        function [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation_step( self )
+        function [ Us, hs, Gs, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neurons, synapses, neuron_manager, synapse_manager, self ] = compute_simulation_step( self, dt, tf, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, numerical_method_utilities, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, numerical_method_utilities = self.numerical_method_utilities; end
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 9, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, tf = self.tf; end                                                                            % [s] Simulation Duration.
+            if nargin < 2, dt = self.dt; end                                                                            % [s] Simulation Time Step.
             
             % Ensure that the network is constructed properly.
-            valid_flag = validate_network( neuron_manager, synapse_manager, applied_current_manager );
+            error( self.validate_network( neuron_manager, synapse_manager, applied_current_manager ), 'Invalid network detected.' )
 
             % Retrieve the IDs associated with the enabled neurons.
-            neuron_IDs = neuron_manager.get_enabled_neuron_IDs(  );
-            
+            neuron_IDs = neuron_manager.get_enabled_neuron_IDs( neuron_manager.neurons );
+                        
             % Retrieve basic neuron properties.
             Us = neuron_manager.get_neuron_property( neuron_IDs, 'U', true, neuron_manager.neurons, undetected_option );
             hs = neuron_manager.get_neuron_property( neuron_IDs, 'h', true, neuron_manager.neurons, undetected_option );
@@ -6974,60 +7023,69 @@ classdef network_class
             dEnas = neuron_manager.get_neuron_property( neuron_IDs, 'dEna', true, neuron_manager.neurons, undetected_option );
             
             % Retrieve synaptic properties.
-            g_syn_maxs = self.get_gs( neuron_IDs, neuron_manager, synapse_manager );
+            gs = self.get_gs( neuron_IDs, neuron_manager, synapse_manager );
             dEs = self.get_dEs( neuron_IDs, neuron_manager, synapse_manager );
             
-            % Retrieve applied currents.
-            I_apps = applied_current_manager.neuron_IDs2Iapps( neuron_IDs, self.dt, self.tf )';
+            % Retrieve applied currents.            
+            [ ~, Ias ] = applied_current_manager.to_neuron_IDs2Ias( neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option ); Ias = Ias';
             
             % Perform a single simulation step.
-            [ dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network_utilities.simulation_step( Us, hs, Gms, Cms, Rs, g_syn_maxs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps );
+            [ dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs ] = network_utilities.simulation_step( Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, Ias );
             
             % Compute the membrane voltages at the next time step.
-            Us = numerical_method_utilities.forward_euler_step( Us, dUs, self.dt );
+            Us = numerical_method_utilities.forward_euler_step( Us, dUs, dt );
             
             % Compute the sodium channel deactivation parameters at the next time step.
-            hs = numerical_method_utilities.forward_euler_step( hs, dhs, self.dt );
+            hs = numerical_method_utilities.forward_euler_step( hs, dhs, dt );
             
-        end
-        
-        
-        % Implement a function to compute and set a single network simulation step.
-        function self = compute_set_simulation_step( self )
-            
-            % Compute and set a single network simulation step.
-            [ Us, hs, G_syns, I_leaks, I_syns, I_nas, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation_step(  );
+            % Create an instance of the network class.
+            network = self;
             
             % Set the neuron properties.
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, Us, 'U' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, hs, 'h' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_leaks, 'I_leak' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_syns, 'I_syn' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_nas, 'I_na' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_totals, 'I_total' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, m_infs, 'm_inf' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, h_infs, 'h_inf' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, tauhs, 'tauh' );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, Us, 'U', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, hs, 'h', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_leaks, 'I_leak', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_syns, 'I_syn', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_nas, 'I_na', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_totals, 'I_total', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, m_infs, 'm_inf', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, h_infs, 'h_inf', neuron_manager.neurons, true );
+            [ neurons, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, tauhs, 'tauh', neuron_manager.neurons, true );
+                        
+            % Update the network's neuron manager.
+            network.neuron_manager = neuron_manager;
             
-            % Set the synapse properties.
-            self = self.set_Gs( G_syns, neuron_IDs );
+            % Set the synapse properties.            
+            [ synapses, synapse_manager, network ] = self.set_Gs( Gs, neuron_IDs, neuron_manager, synapse_manager, true, undetected_option );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
         
         % Implement a function to compute network simulation results.
-        function [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_simulation( self, dt, tf, method )
+        function [ ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neurons, synapses, neuron_manager, synapse_manager, self ] = compute_simulation( self, dt, tf, method, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
             
             % Set the default simulation duration.
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, applied_voltage_manager = self.applied_voltage_manager; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, method = 'RK4'; end
-            if nargin < 3, tf = self.tf; end
-            if nargin < 2, dt = self.dt; end
+            if nargin < 3, tf = self.tf; end                                                                            % [s] Simulation Duration.
+            if nargin < 2, dt = self.dt; end                                                                            % [s] Simulation Time Step.
             
             % Ensure that the network is constructed properly.
-            valid_flag = validate_network( neuron_manager, synapse_manager, applied_current_manager );
+            error( self.validate_network( neuron_manager, synapse_manager, applied_current_manager ), 'Invalid network detected.' )
             
             % Retrieve the IDs associated with the enabled neurons.
-            neuron_IDs = neuron_manager.get_enabled_neuron_IDs(  );
+            neuron_IDs = neuron_manager.get_enabled_neuron_IDs( neuron_manager.neurons );
             
             % Retrieve the neuron properties.
             Us = neuron_manager.get_neuron_property( neuron_IDs, 'U', true, neuron_manager.neurons, undetected_option )';
@@ -7047,140 +7105,105 @@ classdef network_class
             I_tonics = neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true, neuron_manager.neurons, undetected_option )';
 
             % Retrieve the synapse properties.
-            g_syn_maxs = self.get_gs( neuron_IDs, neuron_manager, synapse_manager );
+            gs = self.get_gs( neuron_IDs, neuron_manager, synapse_manager );
             dEs = self.get_dEs( neuron_IDs, neuron_manager, synapse_manager );
             
             % Retrieve the applied currents.
-            I_apps = applied_current_manager.neuron_IDs2Iapps( neuron_IDs, self.dt, self.tf, 'ignore' )';
-            
-            % Retrieve the applied voltages.
-            V_apps_cell = applied_voltage_manager.neuron_IDs2Vapps( neuron_IDs, self.dt, self.tf, 'ignore' )';
-            
-            %             Us = (1e3)*Us;
-            %             Gms = (1e6)*Gms;
-            %             Cms = (1e9)*Cms;
-            %             Rs = (1e3)*Rs;
-            %             Sms = (1e-3)*Sms;
-            %             dEms = (1e3)*dEms;
-            %             Shs = (1e-3)*Shs;
-            %             dEhs = (1e3)*dEhs;
-            %             Gnas = (1e6)*Gnas;
-            %             dEnas = (1e3)*dEnas;
-            %             I_tonics = (1e9)*I_tonics;
-            %             g_syn_maxs = (1e6)*g_syn_maxs;
-            %             dEs = (1e3)*dEs;
-            %             I_apps = (1e9)*I_apps;
+            [ ~, Ias ] = applied_current_manager.to_neuron_IDs2Ias( neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option ); Ias = Ias';
+
+            % Retrieve the applied voltages.            
+            [ ~, Vas ] = applied_voltage_manager.to_neuron_IDs2Vas( neuron_IDs, dt, tf, applied_voltages, filter_disabled_flag, undetected_option ); Vas = Vas';
             
             % Simulate the network.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = network_utilities.simulate( Us, hs, Gms, Cms, Rs, g_syn_maxs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, I_apps, V_apps_cell, tf, dt, method );
+            [ ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs ] = network_utilities.simulate( Us, hs, Gms, Cms, Rs, gs, dEs, Ams, Sms, dEms, Ahs, Shs, dEhs, tauh_maxs, Gnas, dEnas, I_tonics, Ias, Vas, tf, dt, method );
             
-            %             Us = (1e-3)*Us;
-            %             Gms = (1e-6)*Gms;
-            %             Cms = (1e-9)*Cms;
-            %             Rs = (1e-3)*Rs;
-            %             Sms = (1e3)*Sms;
-            %             dEms = (1e-3)*dEms;
-            %             Shs = (1e3)*Shs;
-            %             dEhs = (1e-3)*dEhs;
-            %             Gnas = (1e-6)*Gnas;
-            %             dEnas = (1e-3)*dEnas;
-            %             I_tonics = (1e-9)*I_tonics;
-            %             g_syn_maxs = (1e-6)*g_syn_maxs;
-            %             dEs = (1e-3)*dEs;
-            %             I_apps = (1e-9)*I_apps;
-            
-        end
-        
-        
-        % Implement a function to compute and set network simulation results.
-        function [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = compute_set_simulation( self, dt, tf, method )
-            
-            % Set the default input arguments.
-            if nargin < 4, method = 'RK4'; end
-            if nargin < 3, tf = self.tf; end
-            if nargin < 2, dt = self.dt; end
-            
-            % Compute the network simulation results.
-            [ ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_simulation( dt, tf, method );
+            % Create an instance of the network class.
+            network = self;
             
             % Set the neuron properties.
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, Us( :, end ), 'U' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, hs( :, end ), 'h' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_leaks( :, end ), 'I_leak' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_syns( :, end ), 'I_syn' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_nas( :, end ), 'I_na' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, I_totals( :, end ), 'I_total' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, m_infs( :, end ), 'm_inf' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, h_infs( :, end ), 'h_inf' );
-            neuron_manager = neuron_manager.set_neuron_property( neuron_IDs, tauhs( :, end ), 'tauh' );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, Us( :, end ), 'U', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, hs( :, end ), 'h', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_leaks( :, end ), 'I_leak', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_syns( :, end ), 'I_syn', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_nas( :, end ), 'I_na', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, I_totals( :, end ), 'I_total', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, m_infs( :, end ), 'm_inf', neuron_manager.neurons, true );
+            [ ~, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, h_infs( :, end ), 'h_inf', neuron_manager.neurons, true );
+            [ neurons, neuron_manager ] = neuron_manager.set_neuron_property( neuron_IDs, tauhs( :, end ), 'tauh', neuron_manager.neurons, true );
+            
+            % Update the network's neuron manager.
+            network.neuron_manager = neuron_manager;
             
             % Set the synapse properties.
-            self = self.set_Gs( G_syns( :, :, end ), neuron_IDs );
+            [ synapses, synapse_manager, network ] = self.set_Gs( Gs( :, :, end ), neuron_IDs, neuron_manager, synapse_manager, true, undetected_option );
+
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
             
         end
         
-        
-        % Implement a function to compute simulation results for given applied currents.
-        function [ self, ts, Us_flat, hs_flat, dUs_flat, dhs_flat, Gsyns_flat, Ileaks_flat, Isyns_flat, Inas_flat, Iapps_flat, Itotals_flat, minfs_flat, hinfs_flat, tauhs_flat, neuron_IDs ] = simulate_flat( self, applied_current_IDs, applied_currents_flat, dt, tf, method )
-                       
-            % Retrieve the number of neurons.
-            num_neurons = neuron_manager.num_neurons;
-
-            % Retrieve size information.
-            num_applied_currents = size( applied_currents_flat, 1 );
-            num_input_neurons = size( applied_currents_flat, 2 );
-            
-            % Compute the number of simulation timesteps.
-            num_timesteps = tf/dt + 1;
-            
-            % Create a matrix to store the membrane voltages.
-            Us_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            hs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            dUs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            dhs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            Gsyns_flat = zeros( num_applied_currents, num_neurons, num_neurons, num_timesteps );
-            Ileaks_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            Isyns_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            Inas_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            Iapps_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            Itotals_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            minfs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            hinfs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-            tauhs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
-
-            % Simulate the network for each of the applied current combinations.
-            for k1 = 1:num_applied_currents                      % Iterate through each of the applied currents...
-                
-                % Create applied currents.
-                for k2 = 1:num_input_neurons                    % Iterate through each of the input neurons...
-                    
-                    % Set the applied current for this input neuron.
-                    applied_current_manager = applied_current_manager.set_applied_current_property( applied_current_IDs( k2 ), applied_currents_flat( k1, k2 ), 'I_apps' );
-                    
-                end
-                
-                % Simulate the network.
-                [ self, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_set_simulation( dt, tf, method );
-                
-                % Retrieve the final membrane voltages.
-                Us_flat( k1, :, : ) = Us;
-                hs_flat( k1, :, : ) = hs;
-                dUs_flat( k1, :, : ) = dUs;
-                dhs_flat( k1, :, : ) = dhs;
-                Gsyns_flat( k1, :, :, : ) = G_syns;
-                Ileaks_flat( k1, :, : ) = I_leaks;
-                Isyns_flat( k1, :, : ) = I_syns;
-                Inas_flat( k1, :, : ) = I_nas;
-                Iapps_flat( k1, :, : ) = I_apps;
-                Itotals_flat( k1, :, : ) = I_totals;
-                minfs_flat( k1, :, : ) = m_infs;
-                hinfs_flat( k1, :, : ) = h_infs;
-                tauhs_flat( k1, :, : ) = tauhs;
-
-            end
-            
-        end
-        
+      %{  
+%         % Implement a function to compute simulation results for given applied currents.
+%         function [ self, ts, Us_flat, hs_flat, dUs_flat, dhs_flat, Gsyns_flat, Ileaks_flat, Isyns_flat, Inas_flat, Iapps_flat, Itotals_flat, minfs_flat, hinfs_flat, tauhs_flat, neuron_IDs ] = simulate_flat( self, applied_current_IDs, applied_currents_flat, dt, tf, method )
+%                        
+%             % Retrieve the number of neurons.
+%             num_neurons = neuron_manager.num_neurons;
+% 
+%             % Retrieve size information.
+%             num_applied_currents = size( applied_currents_flat, 1 );
+%             num_input_neurons = size( applied_currents_flat, 2 );
+%             
+%             % Compute the number of simulation timesteps.
+%             num_timesteps = tf/dt + 1;
+%             
+%             % Create a matrix to store the membrane voltages.
+%             Us_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             hs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             dUs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             dhs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             Gsyns_flat = zeros( num_applied_currents, num_neurons, num_neurons, num_timesteps );
+%             Ileaks_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             Isyns_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             Inas_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             Iapps_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             Itotals_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             minfs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             hinfs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+%             tauhs_flat = zeros( num_applied_currents, num_neurons, num_timesteps );
+% 
+%             % Simulate the network for each of the applied current combinations.
+%             for k1 = 1:num_applied_currents                      % Iterate through each of the applied currents...
+%                 
+%                 % Create applied currents.
+%                 for k2 = 1:num_input_neurons                    % Iterate through each of the input neurons...
+%                     
+%                     % Set the applied current for this input neuron.
+%                     applied_current_manager = applied_current_manager.set_applied_current_property( applied_current_IDs( k2 ), applied_currents_flat( k1, k2 ), 'I_apps' );
+%                     
+%                 end
+%                 
+%                 % Simulate the network.
+%                 [ self, ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = self.compute_set_simulation( dt, tf, method );
+%                 
+%                 % Retrieve the final membrane voltages.
+%                 Us_flat( k1, :, : ) = Us;
+%                 hs_flat( k1, :, : ) = hs;
+%                 dUs_flat( k1, :, : ) = dUs;
+%                 dhs_flat( k1, :, : ) = dhs;
+%                 Gsyns_flat( k1, :, :, : ) = Gs;
+%                 Ileaks_flat( k1, :, : ) = I_leaks;
+%                 Isyns_flat( k1, :, : ) = I_syns;
+%                 Inas_flat( k1, :, : ) = I_nas;
+%                 Iapps_flat( k1, :, : ) = I_apps;
+%                 Itotals_flat( k1, :, : ) = I_totals;
+%                 minfs_flat( k1, :, : ) = m_infs;
+%                 hinfs_flat( k1, :, : ) = h_infs;
+%                 tauhs_flat( k1, :, : ) = tauhs;
+% 
+%             end
+%             
+%         end
+        %}
         
         %% Save & Load Functions.
         
@@ -7188,8 +7211,8 @@ classdef network_class
         function save( self, directory, file_name )
             
             % Set the default input arguments.
-            if nargin < 3, file_name = 'Network.mat'; end
-            if nargin < 2, directory = '.'; end
+            if nargin < 3, file_name = self.file_name_DEFAULT; end
+            if nargin < 2, directory = self.save_directory_DEFAULT; end
             
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
@@ -7204,9 +7227,9 @@ classdef network_class
         function [ data, self ] = load( self, directory, file_name, set_flag )
             
             % Set the default input arguments.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
-            if nargin < 3, file_name = 'Network.mat'; end
-            if nargin < 2, directory = '.'; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 3, file_name = self.file_name_DEFAULT; end
+            if nargin < 2, directory = self.load_directory_DEFAULT; end
             
             % Create the full path to the file of interest.
             full_path = [ directory, '\', file_name ];
