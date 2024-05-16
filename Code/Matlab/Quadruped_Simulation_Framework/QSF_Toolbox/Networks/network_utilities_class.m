@@ -984,7 +984,7 @@ classdef network_utilities_class
             
             % Set the default input arguments.
             if nargin < 4, c = 1; end
-            if nargin < 3, Rs = ( 20e-3 )*ones( 1, 2 ); end
+            if nargin < 3, Rs = ( 20e-3 )*ones( 1, 3 ); end
             if nargin < 2, U_inputs = zeros( 1, 2 ); end
             
             % Compute the number of inputs.

@@ -540,7 +540,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to check if a proposed synapse ID is unique.
-        function [ b_unique, match_logicals, match_indexes ] = unique_synapse_ID( self, synapse_ID, synapses, array_utilities )
+        function [ unique_flag, match_logicals, match_indexes ] = unique_synapse_ID( self, synapse_ID, synapses, array_utilities )
             
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                        	% [class] Array Utilities Class.
@@ -553,29 +553,29 @@ classdef synapse_manager_class
             [ b_match_found, match_logicals, match_indexes ] = array_utilities.is_value_in_array( synapse_ID, existing_synapse_IDs );
             
             % Define the uniqueness flag.
-            b_unique = ~b_match_found;
+            unique_flag = ~b_match_found;
             
         end
         
         
         % Implement a function to check whether a proposed synapse ID is a unique natural.
-        function b_unique_natural = unique_natural_synapse_ID( self, synapse_ID, synapses, array_utilities )
+        function unique_flag_natural = unique_natural_synapse_ID( self, synapse_ID, synapses, array_utilities )
             
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                          % [class] Array Utilities Class.
             if narign < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             
             % Initialize the unique natural to false.
-            b_unique_natural = false;
+            unique_flag_natural = false;
             
             % Determine whether this synapse ID is unique.
-            b_unique = self.unique_synapse_ID( synapse_ID, synapses, array_utilities );
+            unique_flag = self.unique_synapse_ID( synapse_ID, synapses, array_utilities );
             
             % Determine whether this synapse ID is a unique natural.
-            if b_unique && ( synapse_ID > 0 ) && ( round( synapse_ID ) == synapse_ID )          % If this neuron ID is a unique natural...
+            if unique_flag && ( synapse_ID > 0 ) && ( round( synapse_ID ) == synapse_ID )          % If this neuron ID is a unique natural...
                 
                 % Set the unique natural flag to true.
-                b_unique_natural = true;
+                unique_flag_natural = true;
                 
             end
             
@@ -583,7 +583,7 @@ classdef synapse_manager_class
         
         
         % Implement a function to check if the existing synapse IDs are unique.
-        function [ b_unique, match_logicals ] = unique_existing_synapse_IDs( self, synapses )
+        function [ unique_flag, match_logicals ] = unique_existing_synapse_IDs( self, synapses )
             
             % Set the default input arguments.
             if nargin < 2, synapses = self.synapses; end                                                    % [class] Array of Synapse Class Objects.
@@ -598,7 +598,7 @@ classdef synapse_manager_class
             if length( unique( synapse_IDs ) ) == n_synapses                                                % If all of the synapse IDs are unique...
                 
                 % Set the unique flag to true.
-                b_unique = true;
+                unique_flag = true;
                 
                 % Set the logicals array to true.
                 match_logicals = false( 1, n_synapses );
@@ -606,7 +606,7 @@ classdef synapse_manager_class
             else                                                                                            % Otherwise...
                 
                 % Set the unique flag to false.
-                b_unique = false;
+                unique_flag = false;
                 
                 % Set the logicals array to true.
                 match_logicals = false( 1, synapses );
@@ -856,14 +856,14 @@ classdef synapse_manager_class
         
         
         % Implement a function to determine whether only a single synapse connects each pair of neurons.
-        function b_one_to_one = one_to_one_synapses( self, synapses, array_utilities )
+        function one_to_one_flag = one_to_one_synapses( self, synapses, array_utilities )
             
             % Set the default input arguments.
             if nargin < 3, array_utilities = self.array_utilities; end                                                                                                                              % [class] Array Utilities Class.
             if nargin < 2, synapses = self.synapses; end                                                                                                                                            % [class] Array of Synapse Class Objects.
             
             % Set the one-to-one flag.
-            b_one_to_one = true;
+            one_to_one_flag = true;
             
             % Initialize a counter variable.
             k = 0;
@@ -873,7 +873,7 @@ classdef synapse_manager_class
             enabled_flags = false( 1, n_synapses );
             
             % Determine whether there is only one synapse between each neuron.
-            while ( b_one_to_one ) && ( k < n_synapses )                                                                                                                                            % While we haven't found a synapse repetition and we haven't checked all of the synpases...
+            while ( one_to_one_flag ) && ( k < n_synapses )                                                                                                                                            % While we haven't found a synapse repetition and we haven't checked all of the synpases...
                 
                 % Advance the loop counter.
                 k = k + 1;
@@ -894,7 +894,7 @@ classdef synapse_manager_class
                     if from_neuron_ID_match && to_neuron_ID_match && enabled_flags( k ) && any( from_neuron_ID_match_logicals & to_neuron_ID_match_logicals & enabled_flags( 1:( k  - 1 ) ) )             % If both the from neuron ID match flag and to neuron ID match flag are true, and we detect that these flags are aligned...
                         
                         % Set the one-to-one flag to false (this synapse is duplicate).
-                        b_one_to_one = false;
+                        one_to_one_flag = false;
                         
                     end
                     

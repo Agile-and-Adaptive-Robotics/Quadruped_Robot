@@ -149,13 +149,13 @@ classdef neuron_manager_class
             n_neurons = length( neurons );
             
             % Set a flag variable to indicate whether a matching neuron index has been found.
-            b_match_found = false;
+            match_found_flag = false;
             
             % Initialize the neuron index.
             neuron_index = 0;
             
             % Search for a neuron whose ID matches the target value.
-            while ( neuron_index < n_neurons ) && ( ~b_match_found )                    % While we have not yet checked all of the neurons and have not yet found an ID match...
+            while ( neuron_index < n_neurons ) && ( ~match_found_flag )                    % While we have not yet checked all of the neurons and have not yet found an ID match...
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
@@ -164,14 +164,14 @@ classdef neuron_manager_class
                 if neurons( neuron_index ).ID == neuron_ID                              % If this neuron has the correct neuron ID...
                     
                     % Set the match found flag to true.
-                    b_match_found = true;
+                    match_found_flag = true;
                     
                 end
                 
             end
             
             % Determine whether to adjust the neuron index.
-            if ~b_match_found                                                           % If a match was not found...
+            if ~match_found_flag                                                           % If a match was not found...
                 
                 % Determine how to handle when a match is not found.
                 if strcmpi( undetected_option, 'error' )                                % If the undetected option is set to 'error'...
@@ -243,7 +243,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to check if a proposed neuron ID is unique.
-        function [ b_unique, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID, neurons, array_utilities )
+        function [ unique_flag, match_logicals, match_indexes ] = unique_neuron_ID( self, neuron_ID, neurons, array_utilities )
             
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
@@ -253,32 +253,32 @@ classdef neuron_manager_class
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
             
             % Determine whether the given neuron ID is one of the existing neuron IDs (if so, provide the matching logicals and indexes).
-            [ b_match_found, match_logicals, match_indexes ] = array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
+            [ match_found_flag, match_logicals, match_indexes ] = array_utilities.is_value_in_array( neuron_ID, existing_neuron_IDs );
             
             % Define the uniqueness flag.
-            b_unique = ~b_match_found;
+            unique_flag = ~match_found_flag;
             
         end
         
         
         % Implement a function to check whether a proposed neuron ID is a unique natural.
-        function b_unique_natural = unique_natural_neuron_ID( self, neuron_ID, neurons, array_utilities )
+        function unique_flag_natural = unique_natural_neuron_ID( self, neuron_ID, neurons, array_utilities )
             
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                   	% [class] Array Utilities Class.
             if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             
             % Initialize the unique natural to false.
-            b_unique_natural = false;
+            unique_flag_natural = false;
             
             % Determine whether this neuron ID is unique.
-            b_unique = self.unique_neuron_ID( neuron_ID, neurons, array_utilities );
+            unique_flag = self.unique_neuron_ID( neuron_ID, neurons, array_utilities );
             
             % Determine whether this neuron ID is a unique natural.
-            if b_unique && ( neuron_ID > 0 ) && ( round( neuron_ID ) == neuron_ID )         % If this neuron ID is a unique natural...
+            if unique_flag && ( neuron_ID > 0 ) && ( round( neuron_ID ) == neuron_ID )         % If this neuron ID is a unique natural...
                 
                 % Set the unique natural flag to true.
-                b_unique_natural = true;
+                unique_flag_natural = true;
                 
             end
             
@@ -286,7 +286,7 @@ classdef neuron_manager_class
         
         
         % Implement a function to check if an array of proposed neuron IDs are unique.
-        function [ b_uniques, match_logicals, match_indexes ] = unique_neuron_IDs( self, neuron_IDs, neurons, array_utilities )
+        function [ unique_flags, match_logicals, match_indexes ] = unique_neuron_IDs( self, neuron_IDs, neurons, array_utilities )
             
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
@@ -296,16 +296,16 @@ classdef neuron_manager_class
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
             
             % Determine whether the given neuron IDs are in the existing neuron IDs array (if so, provide the matching logicals and indexes).
-            [ b_match_founds, match_logicals, match_indexes ] = array_utilities.are_values_in_array( neuron_IDs, existing_neuron_IDs );
+            [ match_found_flags, match_logicals, match_indexes ] = array_utilities.are_values_in_array( neuron_IDs, existing_neuron_IDs );
             
             % Determine the uniqueness flags.
-            b_uniques = ~b_match_founds;
+            unique_flags = ~match_found_flags;
             
         end
         
         
         % Implement a function to check if the existing neuron IDs are unique.
-        function [ b_unique, match_logicals ] = unique_existing_neuron_IDs( self, neurons )
+        function [ unique_flag, match_logicals ] = unique_existing_neuron_IDs( self, neurons )
             
             % Set the default input arguments.
             if nargin < 2, neurons = self.neurons; end                                                      % [class] Array of Neuron Class Objects.
@@ -320,7 +320,7 @@ classdef neuron_manager_class
             if length( unique( neuron_IDs ) ) == n_neurons                                                  % If all of the neuron IDs are unique...
                 
                 % Set the unique flag to true.
-                b_unique = true;
+                unique_flag = true;
                 
                 % Set the logicals array to true.
                 match_logicals = false( 1, n_neurons );
@@ -328,7 +328,7 @@ classdef neuron_manager_class
             else                                                                                            % Otherwise...
                 
                 % Set the unique flag to false.
-                b_unique = false;
+                unique_flag = false;
                 
                 % Set the logicals array to true.
                 match_logicals = false( 1, n_neurons );
@@ -426,10 +426,10 @@ classdef neuron_manager_class
                 for k = 1:n_neurons                                                         % Iterate through each neuron...
                     
                     % Determine whether this neuron ID is non-unique.
-                    b_match_found = array_utilities.is_value_in_array( neurons( k ).ID, unique_neuron_IDs );
+                    match_found_flag = array_utilities.is_value_in_array( neurons( k ).ID, unique_neuron_IDs );
                     
                     % Determine whether to keep this neuron ID or generate a new one.
-                    if b_match_found                                                        % If this neuron ID already exists...
+                    if match_found_flag                                                        % If this neuron ID already exists...
                         
                         % Generate a new neuron ID.
                         unique_neuron_IDs( k ) = self.generate_unique_neuron_ID( neurons, array_utilities );
@@ -595,10 +595,10 @@ classdef neuron_manager_class
                 neuron_IDs( k ) = [  ];
                 
                 % Determine whether this neuron ID is non-unique.
-                b_match_found = array_utilities.is_value_in_array( neurons( k ).ID, neuron_IDs );
+                match_found_flag = array_utilities.is_value_in_array( neurons( k ).ID, neuron_IDs );
                 
                 % Determine whether this neuron ID is natural.
-                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 ) || b_match_found         % If this neuron ID is not a unique natural...
+                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 ) || match_found_flag         % If this neuron ID is not a unique natural...
                     
                     % Generate a new ID for this neuron.
                     new_neuron_IDs( k ) = array_utilities.get_lowest_natural_number( neuron_IDs );
