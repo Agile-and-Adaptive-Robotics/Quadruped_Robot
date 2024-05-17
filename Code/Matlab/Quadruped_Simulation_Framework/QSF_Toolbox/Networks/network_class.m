@@ -124,7 +124,7 @@ classdef network_class
             self.dt = dt;
             
             % Compute and set the synaptic conductances.
-            [ ~, ~, ~, self ] = self.compute_Gs( neuron_manager, synapse_manager, true, 'ignore', network_utilities );
+            [ ~, ~, ~, self ] = self.compute_Gs( 'all', neuron_manager, synapse_manager, true, 'ignore', network_utilities );
             
         end
         
@@ -673,21 +673,25 @@ classdef network_class
         %% Compute Functions.
         
         % Implement a function to compute the synaptic conductance for each synapse.
-        function [ Gs, synapses, synapse_manager, self ] = compute_Gs( self, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
+        function [ Gs, synapses, synapse_manager, self ] = compute_Gs( self, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
             % Define the default input arguments.
-            if nargin < 6, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 3, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 2, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
+            
+            % Validate the neuron IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
             
             % Retrieve the neuron properties.
-            Us = neuron_manager.get_neuron_property( 'all', 'U', true, neuron_manager.neurons, undetected_option )';
-            Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option )'; Rs = repmat( Rs', [ neuron_manager.num_neurons, 1 ] );
+            Us = neuron_manager.get_neuron_property( neuron_IDs, 'U', true, neuron_manager.neurons, undetected_option )';
+            Rs = neuron_manager.get_neuron_property( neuron_IDs, 'R', true, neuron_manager.neurons, undetected_option )'; Rs = repmat( Rs', [ neuron_manager.num_neurons, 1 ] );
             
             % Retrieve the maximum synaptic conductances.
-            gs = self.get_gs( 'all', neuron_manager, synapse_manager );
+            gs = self.get_gs( neuron_IDs, neuron_manager, synapse_manager );
             
             % Compute the synaptic conductance.
             Gs = network_utilities.compute_Gs( Us, Rs, gs );
@@ -4174,6 +4178,14 @@ classdef network_class
         end
         
         
+        % Implement a function to unpack the transmission neuron design parameters.
+        function [  ] = unpack_transmission_neuron_design_parameters( neuron_design_parameters )
+        
+            neuron_IDs, neuron_names, Cms, Gms, Rs
+        
+        end
+        
+        
         % Implement a function to pack the default synapse creation input parameters.
         function parameters = pack_synapse_input_parameters( self, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags )
             
@@ -5374,6 +5386,9 @@ classdef network_class
             
             % Create an instance of the network object.
             network = self;
+            
+            neuron_input_parameters = network.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags )
+            
             
             % Create the transmission subnetwork components.            
             [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_transmission_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
