@@ -4047,7 +4047,7 @@ classdef network_class
         end
         
         
-        %% Unpack & Pack Functions.
+        %% Network Component Pack & Unpack Functions.
         
         % Implement a function to pack the default neuron creation input parameters.
         function parameters = pack_neuron_input_parameters( self, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags )
@@ -4177,15 +4177,7 @@ classdef network_class
             
         end
         
-        
-        % Implement a function to unpack the transmission neuron design parameters.
-        function [  ] = unpack_transmission_neuron_design_parameters( neuron_design_parameters )
-        
-            neuron_IDs, neuron_names, Cms, Gms, Rs
-        
-        end
-        
-        
+
         % Implement a function to pack the default synapse creation input parameters.
         function parameters = pack_synapse_input_parameters( self, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags )
             
@@ -4340,6 +4332,1624 @@ classdef network_class
             
         end
         
+        
+        %% Network Design Pack & Unpack Parameters.
+        
+        % ---------- Transmission Packing & Unpacking Functions ----------
+        
+        % Implement a function to pack the absolute transmission design parameters.
+        function transmission_parameters = pack_absolute_transmission_parameters( self, c, R1, Gm1, Gm2, Cm1, Cm2 )
+            
+            % Set the default input arguments.
+            if nargin < 7, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 6, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
+            if nargin < 2, c = self.c_transmission_DEFAULT; end
+            
+            % Create a cell to store the transmission parameters.
+            transmission_parameters = cell( 1, 6 );
+            
+            % Pack the transmission parameters.
+            transmission_parameters{ 1 } = c;
+            transmission_parameters{ 2 } = R1;
+            transmission_parameters{ 3 } = Gm1;
+            transmission_parameters{ 4 } = Gm2;
+            transmission_parameters{ 5 } = Cm1;
+            transmission_parameters{ 6 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to unpack the absolute transmission design parameters.
+        function [ c, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_parameters( transmission_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, transmission_parameters = self.pack_absolute_transmission_parameters(  ); end
+            
+            % Unpack the transmission parameters.
+            c = transmission_parameters{ 1 };
+            R1 = transmission_parameters{ 2 };
+            Gm1 = transmission_parameters{ 3 };
+            Gm2 = transmission_parameters{ 4 };
+            Cm1 = transmission_parameters{ 5 };
+            Cm2 = transmission_parameters{ 6 };
+            
+        end
+        
+        
+        % Implement a function to pack the relative transmission design parameters.
+        function transmission_parameters = pack_relative_transmission_parameters( self, R1, R2, Gm1, Gm2, Cm1, Cm2 )
+            
+            % Set the default input arguments.
+            if nargin < 7, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 6, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 3, R2 = self.R_DEFAULT; end
+            if nargin < 2, R1 = self.R_DEFAULT; end
+
+            % Create a cell to store the transmission parameters.
+            transmission_parameters = cell( 1, 6 );
+            
+            % Pack the transmission parameters.
+            transmission_parameters{ 1 } = R1;
+            transmission_parameters{ 2 } = R2;
+            transmission_parameters{ 3 } = Gm1;
+            transmission_parameters{ 4 } = Gm2;
+            transmission_parameters{ 5 } = Cm1;
+            transmission_parameters{ 6 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to unpack the relative transmission design parameters.
+        function [ R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_relative_transmission_parameters( self, transmission_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, transmission_parameters = self.pack_relative_transmission_parameters(  ); end
+            
+            % Unpack the transmission parameters.
+            R1 = transmission_parameters{ 1 };
+            R2 = transmission_parameters{ 2 };
+            Gm1 = transmission_parameters{ 3 };
+            Gm2 = transmission_parameters{ 4 };
+            Cm1 = transmission_parameters{ 5 };
+            Cm2 = transmission_parameters{ 6 };
+            
+        end
+        
+        
+        % Implement a function to pack transmission design parameters.
+        function transmission_parameters = pack_transmission_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the transmission parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute transmission parameters.
+                transmission_parameters = self.pack_absolute_transmission_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative transmission parameters.
+                transmission_parameters = self.pack_relative_transmission_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+
+        
+        % ---------- Addition Packing & Unpacking Functions ----------
+        
+        % Implement a function to pack the absolute addition design parameters.
+        function addition_parameters = pack_absolute_addition_parameters( self, n_neurons, cs, Rs_input, Gms, Cms )
+            
+            % Ensure that the number of neurons is specified.
+            if nargin < 2, n_neurons = self.n_addition_neurons_DEFAULT; end
+            
+            % Set the default input arguments.
+            if nargin < 6, Cms = self.Cms_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 5, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 4, Rs_input = self.R_DEFAULT*ones( 1, n_neurons - 1 ); end
+            if nargin < 3, cs = self.c_addition_DEFAULT*ones( 1, n_neurons - 1 ); end
+            
+            % Create a cell to store the addition parameters.
+            addition_parameters = cell( 1, 4 );
+            
+            % Pack the addition parameters.
+            addition_parameters{ 1 } = cs;
+            addition_parameters{ 2 } = Rs_input;
+            addition_parameters{ 3 } = Gms;
+            addition_parameters{ 4 } = Cms;
+
+        end
+        
+        
+        % Implement a function to unpack the absolute addition design parameters.
+        function [ cs, Rs_input, Gms, Cms ] = unpack_absolute_addition_parameters( self, addition_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, addition_parameters = self.pack_absolute_addition_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            cs = addition_parameters{ 1 };
+            Rs_input = addition_parameters{ 2 };
+            Gms = addition_parameters{ 3 };
+            Cms = addition_parameters{ 4 };
+            
+        end
+        
+        
+        % Implement a function to pack the relative addition design parameters.
+        function addition_parameters = pack_relative_addition_parameters( self, n_neurons, cs, Rs, Gms, Cms )
+            
+            % Ensure that the number of neurons is specified.
+            if nargin < 2, n_neurons = self.n_addition_neurons_DEFAULT; end
+            
+            % Set the default input arguments.
+            if nargin < 6, Cms = self.Cms_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 5, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 4, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 3, cs = self.c_addition_DEFAULT*ones( 1, n_neurons - 1 ); end
+            
+            % Create a cell to store the addition parameters.
+            addition_parameters = cell( 1, 4 );
+            
+            % Pack the addition parameters.
+            addition_parameters{ 1 } = cs;
+            addition_parameters{ 2 } = Rs;
+            addition_parameters{ 3 } = Gms;
+            addition_parameters{ 4 } = Cms;
+
+        end
+        
+        
+        % Implement a function to unpack the relative addition design parameters.
+        function [ cs, Rs, Gms, Cms ] = unpack_relative_addition_parameters( self, addition_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, addition_parameters = self.pack_relative_addition_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            cs = addition_parameters{ 1 };
+            Rs = addition_parameters{ 2 };
+            Gms = addition_parameters{ 3 };
+            Cms = addition_parameters{ 4 };
+            
+        end
+        
+        
+        % Implement a function to pack the addition design parameters.
+        function addition_parameters = pack_addition_parameters( self, n_neurons, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            if nargin < 2, n_neurons = self.n_addition_DEFAULT; end
+
+            % Determine how to pack the addition parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute addition parameters.
+                addition_parameters = self.pack_absolute_addition_parameters( n_neurons );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative addition parameters.
+                addition_parameters = self.pack_relative_addition_parameters( n_neurons );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+
+        
+        % ---------- Subtraction Packing & Unpacking Functions ----------
+
+        % Implement a function to pack the absolute subtraction design parameters.
+        function subtraction_parameters = pack_absolute_subtraction_parameters( self, n_neurons, cs, ss, Rs_input, Gms, Cms )
+            
+            % Ensure that the number of neurons is specified.
+            if nargin < 2, n_neurons = self.n_subtraction_neurons_DEFAULT; end
+            
+            % Set the default input arguments.
+            if nargin < 7, Cms = self.Cms_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 6, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 5, Rs_input = self.R_DEFAULT*ones( 1, n_neurons - 1 ); end
+            if nargin < 4, ss = self.ss_subtraction_DEFAULT*ones( 1, n_neurons - 1 ); end
+        	if nargin < 3, cs = self.c_subtraction_DEFAULT*ones( 1, n_neurons - 1 ); end
+
+            % Create a cell to store the addition parameters.
+            subtraction_parameters = cell( 1, 5 );
+            
+            % Pack the addition parameters.
+            subtraction_parameters{ 1 } = cs;
+            subtraction_parameters{ 2 } = ss;
+            subtraction_parameters{ 3 } = Rs_input;
+            subtraction_parameters{ 4 } = Gms;
+            subtraction_parameters{ 5 } = Cms;
+
+        end
+        
+        
+        % Implement a function to unpack the absolute subtraction design parameters.
+        function [ cs, ss, Rs_input, Gms, Cms ] = unpack_absolute_subtraction_parameters( self, subtraction_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, subtraction_parameters = self.pack_absolute_subtraction_parameters(  ); end
+            
+            % Unpack the subtraction parameters.
+            cs = subtraction_parameters{ 1 };
+            ss = subtraction_parameters{ 2 };
+            Rs_input = subtraction_parameters{ 3 };
+            Gms = subtraction_parameters{ 4 };
+            Cms = subtraction_parameters{ 5 };
+            
+        end
+        
+        
+        % Implement a function to pack the relative subtraction design parameters.
+        function subtraction_parameters = pack_relative_subtraction_parameters( self, n_neurons, cs, ss, Rs, Gms, Cms )
+            
+            % Ensure that the number of neurons is specified.
+            if nargin < 2, n_neurons = self.n_subtraction_neurons_DEFAULT; end
+            
+            % Set the default input arguments.
+            if nargin < 7, Cms = self.Cms_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 6, Gms = self.Gm_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 5, Rs = self.R_DEFAULT*ones( 1, n_neurons ); end
+            if nargin < 4, ss = self.ss_subtraction_DEFAULT*ones( 1, n_neurons - 1 ); end
+            if nargin < 3, cs = self.c_subtraction_DEFAULT*ones( 1, n_neurons - 1 ); end
+            
+            % Create a cell to store the addition parameters.
+            subtraction_parameters = cell( 1, 5 );
+            
+            % Pack the addition parameters.
+            subtraction_parameters{ 1 } = cs;
+            subtraction_parameters{ 2 } = ss;
+            subtraction_parameters{ 3 } = Rs;
+            subtraction_parameters{ 4 } = Gms;
+            subtraction_parameters{ 5 } = Cms;
+
+        end
+        
+        
+        % Implement a function to unpack the relative subtraction design parameters.
+        function [ cs, ss, Rs, Gms, Cms ] = unpack_relative_subtraction_parameters( self, subtraction_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, subtraction_parameters = self.pack_relative_subtraction_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            cs = subtraction_parameters{ 1 };
+            ss = subtraction_parameters{ 2 };
+            Rs = subtraction_parameters{ 3 };
+            Gms = subtraction_parameters{ 4 };
+            Cms = subtraction_parameters{ 5 };
+            
+        end
+        
+        
+        % Implement a function to pack the subtraction design parameters.
+        function subtraction_parameters = pack_subtraction_parameters( self, n_neurons, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            if nargin < 2, n_neurons = self.n_addition_DEFAULT; end
+
+            % Determine how to pack the subtraction parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute subtraction parameters.
+                subtraction_parameters = self.pack_absolute_subtraction_parameters( n_neurons );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative subtraction parameters.
+                subtraction_parameters = self.pack_relative_subtraction_parameters( n_neurons );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+                
+        % ---------- Inversion Packing & Unpacking Functions ----------
+        
+        % Implement a function to pack the absolute inversion design parameters.
+        function inversion_parameters = pack_absolute_inversion_parameters( self, c1, c3, delta, R1, Gm1, Gm2, Cm1, Cm2 )
+            
+            % Set the default input arguments.
+            if nargin < 9, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 8, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 7, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 6, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_inversion_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            inversion_parameters = cell( 1, 8 );
+            
+            % Pack the inversion parameters.
+            inversion_parameters{ 1 } = c1;
+            inversion_parameters{ 2 } = c3;
+            inversion_parameters{ 3 } = delta;
+            inversion_parameters{ 4 } = R1;
+            inversion_parameters{ 5 } = Gm1;
+            inversion_parameters{ 6 } = Gm2;
+            inversion_parameters{ 7 } = Cm1;
+            inversion_parameters{ 8 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to unpack the absolute inversion design parameters.
+        function [ c1, c3, delta, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_inversion_parameters( self, inversion_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, inversion_parameters = self.pack_absolute_inversion_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            c1 = inversion_parameters{ 1 };
+            c3 = inversion_parameters{ 2 };
+            delta = inversion_parameters{ 3 };
+            R1 = inversion_parameters{ 4 };
+            Gm1 = inversion_parameters{ 5 };
+            Gm2 = inversion_parameters{ 6 };
+            Cm1 = inversion_parameters{ 7 };
+            Cm2 = inversion_parameters{ 8 };
+            
+        end
+        
+        
+        % Implement a function to pack the relative inversion design parameters.
+        function inversion_parameters = pack_relative_inversion_parameters( self, c3, delta, R1, R2, Gm1, Gm2, Cm1, Cm2 )
+            
+            % Set the default input arguments.
+            if nargin < 9, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 8, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 7, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 6, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c3_inversion_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            inversion_parameters = cell( 1, 8 );
+            
+            % Pack the inversion parameters.
+            inversion_parameters{ 1 } = c3;
+            inversion_parameters{ 2 } = delta;
+            inversion_parameters{ 3 } = R1;
+            inversion_parameters{ 4 } = R2;
+            inversion_parameters{ 5 } = Gm1;
+            inversion_parameters{ 6 } = Gm2;
+            inversion_parameters{ 7 } = Cm1;
+            inversion_parameters{ 8 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to unpack the relative inversion design parameters.
+        function [ c3, delta, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_relative_inversion_parameters( self, inversion_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, inversion_parameters = self.pack_relative_inversion_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            c3 = inversion_parameters{ 1 };
+            delta = inversion_parameters{ 2 };
+            R1 = inversion_parameters{ 3 };
+            R2 = inversion_parameters{ 4 };
+            Gm1 = inversion_parameters{ 5 };
+            Gm2 = inversion_parameters{ 6 };
+            Cm1 = inversion_parameters{ 7 };
+            Cm2 = inversion_parameters{ 8 };
+            
+        end
+        
+        
+        % Implement a function to pack the inversion design parameters.
+        function inversion_parameters = pack_inversion_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the inversion parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute inversion parameters.
+                inversion_parameters = self.pack_absolute_inversion_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative inversion parameters.
+                inversion_parameters = self.pack_relative_inversion_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Packing & Unpacking Functions ----------
+
+        % Implement a function to pack the reduced absolute inversion design parameters.
+        function inversion_parameters = pack_reduced_absolute_inversion_parameters( self, c1, delta, R1, Gm1, Gm2, Cm1, Cm2 )
+            
+            % Set the default input arguments.
+            if nargin < 8, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 7, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 6, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 5, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_inversion_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            inversion_parameters = cell( 1, 7 );
+            
+            % Pack the inversion parameters.
+            inversion_parameters{ 1 } = c1;
+            inversion_parameters{ 2 } = delta;
+            inversion_parameters{ 3 } = R1;
+            inversion_parameters{ 4 } = Gm1;
+            inversion_parameters{ 5 } = Gm2;
+            inversion_parameters{ 6 } = Cm1;
+            inversion_parameters{ 7 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to unpack the reduced absolute inversion design parameters.
+        function [ c1, delta, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_reduced_absolute_inversion_parameters( self, inversion_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, inversion_parameters = self.pack_reduced_absolute_inversion_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            c1 = inversion_parameters{ 1 };
+            delta = inversion_parameters{ 2 };
+            R1 = inversion_parameters{ 3 };
+            Gm1 = inversion_parameters{ 4 };
+            Gm2 = inversion_parameters{ 5 };
+            Cm1 = inversion_parameters{ 6 };
+            Cm2 = inversion_parameters{ 7 };
+            
+        end
+        
+        
+        % Implement a function to pack the reduced relative inversion design parameters.
+        function inversion_parameters = pack_reduced_relative_inversion_parameters( self, delta, R1, R2, Gm1, Gm2, Cm1, Cm2 )
+            
+            % Set the default input arguments.
+            if nargin < 8, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 7, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 6, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 5, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
+            if nargin < 2, delta = self.delta_inversion_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            inversion_parameters = cell( 1, 7 );
+            
+            % Pack the transmission parameters.
+            inversion_parameters{ 1 } = delta;
+            inversion_parameters{ 2 } = R1;
+            inversion_parameters{ 3 } = R2;
+            inversion_parameters{ 4 } = Gm1;
+            inversion_parameters{ 5 } = Gm2;
+            inversion_parameters{ 6 } = Cm1;
+            inversion_parameters{ 7 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to unpack the relative inversion design parameters.
+        function [ delta, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_reduced_relative_inversion_parameters( self, inversion_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, inversion_parameters = self.pack_reduced_relative_inversion_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            delta = inversion_parameters{ 1 };
+            R1 = inversion_parameters{ 2 };
+            R2 = inversion_parameters{ 3 };
+            Gm1 = inversion_parameters{ 4 };
+            Gm2 = inversion_parameters{ 5 };
+            Cm1 = inversion_parameters{ 6 };
+            Cm2 = inversion_parameters{ 7 };
+            
+        end
+        
+        
+        % Implement a function to pack the reduced inversion design parameters.
+        function inversion_parameters = pack_reduced_inversion_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the inversion parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute inversion parameters.
+                inversion_parameters = self.pack_reduced_absolute_inversion_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative inversion parameters.
+                inversion_parameters = self.pack_reduced_relative_inversion_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Division Packing & Unpacking Functions ----------
+        
+        % Implement a function to pack the absolute division design parameters.
+        function division_parameters = pack_absolute_division_parameters( self, c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 12, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 10, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 9, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 7, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_division_DEFAULT; end
+            
+            % Create a cell to store the division parameters.
+            division_parameters = cell( 1, 11 );
+            
+            % Pack the division parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = c3;
+            division_parameters{ 3 } = delta;
+            division_parameters{ 4 } = R1;
+            division_parameters{ 5 } = R2;
+            division_parameters{ 6 } = Gm1;
+            division_parameters{ 7 } = Gm2;
+            division_parameters{ 8 } = Gm3;
+            division_parameters{ 9 } = Cm1;
+            division_parameters{ 10 } = Cm2;
+            division_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the absolute division design parameters.
+        function [ c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_absolute_division_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_absolute_division_parameters(  ); end
+            
+            % Unpack the division parameters.
+            c1 = division_parameters{ 1 };
+            c3 = division_parameters{ 2 };
+            delta = division_parameters{ 3 };
+            R1 = division_parameters{ 4 };
+            R2 = division_parameters{ 5 };
+            Gm1 = division_parameters{ 6 };
+            Gm2 = division_parameters{ 7 };
+            Gm3 = division_parameters{ 8 };
+            Cm1 = division_parameters{ 9 };
+            Cm2 = division_parameters{ 10 };
+            Cm3 = division_parameters{ 11 };
+
+        end
+        
+        
+        % Implement a function to pack the relative division design parameters.
+        function division_parameters = pack_relative_division_parameters( self, c3, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 12, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 10, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 9, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 7, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_division_DEFAULT; end
+            if nargin < 2, c3 = self.c3_division_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            division_parameters = cell( 1, 11 );
+            
+            % Pack the inversion parameters.
+            division_parameters{ 1 } = c3;
+            division_parameters{ 2 } = delta;
+            division_parameters{ 3 } = R1;
+            division_parameters{ 4 } = R2;
+            division_parameters{ 5 } = R3;
+            division_parameters{ 6 } = Gm1;
+            division_parameters{ 7 } = Gm2;
+            division_parameters{ 8 } = Gm3;
+            division_parameters{ 9 } = Cm1;
+            division_parameters{ 10 } = Cm2;
+            division_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the relative division design parameters.
+        function [ c3, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_relative_division_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_relative_division_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            c3 = division_parameters{ 1 };
+            delta = division_parameters{ 2 };
+            R1 = division_parameters{ 3 };
+            R2 = division_parameters{ 4 };
+            R3 = division_parameters{ 5 };
+            Gm1 = division_parameters{ 6 };
+            Gm2 = division_parameters{ 7 };
+            Gm3 = division_parameters{ 8 };
+            Cm1 = division_parameters{ 9 };
+            Cm2 = division_parameters{ 10 };
+            Cm3 = division_parameters{ 11 };
+
+        end
+        
+        
+        % Implement a function to pack the division design parameters.
+        function division_parameters = pack_division_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the division parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute division parameters.
+                division_parameters = self.pack_absolute_division_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative division parameters.
+                division_parameters = self.pack_relative_division_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division Packing & Unpacking Functions ----------
+
+        % Implement a function to pack the reduced absolute division design parameters.
+        function division_parameters = pack_reduced_absolute_division_parameters( self, c1, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 11, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 10, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 9, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 8, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 7, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 6, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_division_DEFAULT; end
+            
+            % Create a cell to store the division parameters.
+            division_parameters = cell( 1, 10 );
+            
+            % Pack the division parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = delta;
+            division_parameters{ 3 } = R1;
+            division_parameters{ 4 } = R2;
+            division_parameters{ 5 } = Gm1;
+            division_parameters{ 6 } = Gm2;
+            division_parameters{ 7 } = Gm3;
+            division_parameters{ 8 } = Cm1;
+            division_parameters{ 9 } = Cm2;
+            division_parameters{ 10 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the reduced absolute division design parameters.
+        function [ c1, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_absolute_division_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_reduced_absolute_division_parameters(  ); end
+            
+            % Unpack the division parameters.
+            c1 = division_parameters{ 1 };
+            delta = division_parameters{ 2 };
+            R1 = division_parameters{ 3 };
+            R2 = division_parameters{ 4 };
+            Gm1 = division_parameters{ 5 };
+            Gm2 = division_parameters{ 6 };
+            Gm3 = division_parameters{ 7 };
+            Cm1 = division_parameters{ 8 };
+            Cm2 = division_parameters{ 9 };
+            Cm3 = division_parameters{ 10 };
+
+        end
+        
+        
+        % Implement a function to pack the reduced relative division design parameters.
+        function division_parameters = pack_reduced_relative_division_parameters( self, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 12, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 10, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 9, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 7, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_division_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            division_parameters = cell( 1, 10 );
+            
+            % Pack the inversion parameters.
+            division_parameters{ 1 } = delta;
+            division_parameters{ 2 } = R1;
+            division_parameters{ 3 } = R2;
+            division_parameters{ 4 } = R3;
+            division_parameters{ 5 } = Gm1;
+            division_parameters{ 6 } = Gm2;
+            division_parameters{ 7 } = Gm3;
+            division_parameters{ 8 } = Cm1;
+            division_parameters{ 9 } = Cm2;
+            division_parameters{ 10 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the reduced relative division design parameters.
+        function [ delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_relative_division_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_relative_division_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            delta = division_parameters{ 1 };
+            R1 = division_parameters{ 2 };
+            R2 = division_parameters{ 3 };
+            R3 = division_parameters{ 4 };
+            Gm1 = division_parameters{ 5 };
+            Gm2 = division_parameters{ 6 };
+            Gm3 = division_parameters{ 7 };
+            Cm1 = division_parameters{ 8 };
+            Cm2 = division_parameters{ 9 };
+            Cm3 = division_parameters{ 10 };
+
+        end
+        
+        
+        % Implement a function to pack the reduced division design parameters.
+        function division_parameters = pack_reduced_division_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the division parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the reduced absolute division parameters.
+                division_parameters = self.pack_reduced_absolute_division_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the reduced relative division parameters.
+                division_parameters = self.pack_reduced_relative_division_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Packing & Unpacking Functions ----------
+
+        % Implement a function to pack the absolute division after inversion design parameters.
+        function division_parameters = pack_absolute_division_after_inversion_parameters( self, c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 13, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 12, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 10, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 9, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_division_DEFAULT; end
+            
+            % Create a cell to store the division parameters.
+            division_parameters = cell( 1, 12 );
+            
+            % Pack the division parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = c3;
+            division_parameters{ 3 } = delta1;
+            division_parameters{ 4 } = delta2;
+            division_parameters{ 5 } = R1;
+            division_parameters{ 6 } = R2;
+            division_parameters{ 7 } = Gm1;
+            division_parameters{ 8 } = Gm2;
+            division_parameters{ 9 } = Gm3;
+            division_parameters{ 10 } = Cm1;
+            division_parameters{ 11 } = Cm2;
+            division_parameters{ 12 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the absolute division after inversion design parameters.
+        function [ c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_absolute_division_after_inversion_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_absolute_division_after_inversionparameters(  ); end
+            
+            % Unpack the division parameters.
+            c1 = division_parameters{ 1 };
+            c3 = division_parameters{ 2 };
+            delta1 = division_parameters{ 3 };
+            delta2 = division_parameters{ 4 };
+            R1 = division_parameters{ 5 };
+            R2 = division_parameters{ 6 };
+            Gm1 = division_parameters{ 7 };
+            Gm2 = division_parameters{ 8 };
+            Gm3 = division_parameters{ 9 };
+            Cm1 = division_parameters{ 10 };
+            Cm2 = division_parameters{ 11 };
+            Cm3 = division_parameters{ 12 };
+
+        end
+        
+        
+        % Implement a function to pack the relative division after inversion design parameters.
+        function division_parameters = pack_relative_division_after_inversion_parameters( self, c3, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 13, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 12, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 10, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 9, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 7, R3 = self.R_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c3_division_DEFAULT; end
+            
+            % Create a cell to store the inversion parameters.
+            division_parameters = cell( 1, 12 );
+            
+            % Pack the inversion parameters.
+            division_parameters{ 1 } = c3;
+            division_parameters{ 2 } = delta1;
+            division_parameters{ 3 } = delta2;
+            division_parameters{ 4 } = R1;
+            division_parameters{ 5 } = R2;
+            division_parameters{ 6 } = R3;
+            division_parameters{ 7 } = Gm1;
+            division_parameters{ 8 } = Gm2;
+            division_parameters{ 9 } = Gm3;
+            division_parameters{ 10 } = Cm1;
+            division_parameters{ 11 } = Cm2;
+            division_parameters{ 12 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the relative division after inversion design parameters.
+        function [ c3, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_relative_division_after_inversion_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_relative_division_after_inversion_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            c3 = division_parameters{ 1 };
+            delta1 = division_parameters{ 2 };
+            delta2 = division_parameters{ 3 };
+            R1 = division_parameters{ 4 };
+            R2 = division_parameters{ 5 };
+            R3 = division_parameters{ 6 };
+            Gm1 = division_parameters{ 7 };
+            Gm2 = division_parameters{ 8 };
+            Gm3 = division_parameters{ 9 };
+            Cm1 = division_parameters{ 10 };
+            Cm2 = division_parameters{ 11 };
+            Cm3 = division_parameters{ 12 };
+
+        end
+        
+        
+        % Implement a function to pack the division after inversion design parameters.
+        function division_parameters = pack_division_after_inversion_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the division after inversion parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute division after inversion parameters.
+                division_parameters = self.pack_absolute_division_after_inversion_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative division after inversion parameters.
+                division_parameters = self.pack_relative_division_after_inversion_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Packing & Unpacking Functions ----------
+
+        % Implement a function to pack the reduced absolute division after inversion design parameters.
+        function division_parameters = pack_reduced_absolute_division_after_inversion_parameters( self, c1, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 12, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 10, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 9, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 7, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_division_DEFAULT; end
+            
+            % Create a cell to store the division after inversion parameters.
+            division_parameters = cell( 1, 11 );
+            
+            % Pack the division after inversion parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = delta1;
+            division_parameters{ 3 } = delta2;
+            division_parameters{ 4 } = R1;
+            division_parameters{ 5 } = R2;
+            division_parameters{ 6 } = Gm1;
+            division_parameters{ 7 } = Gm2;
+            division_parameters{ 8 } = Gm3;
+            division_parameters{ 9 } = Cm1;
+            division_parameters{ 10 } = Cm2;
+            division_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the reduced absolute division after inversion design parameters.
+        function [ c1, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_absolute_after_inversion_division_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_reduced_absolute_division_after_inversion_parameters(  ); end
+            
+            % Unpack the division parameters.
+            c1 = division_parameters{ 1 };
+            delta1 = division_parameters{ 2 };
+            delta2 = division_parameters{ 3 };
+            R1 = division_parameters{ 4 };
+            R2 = division_parameters{ 5 };
+            Gm1 = division_parameters{ 6 };
+            Gm2 = division_parameters{ 7 };
+            Gm3 = division_parameters{ 8 };
+            Cm1 = division_parameters{ 9 };
+            Cm2 = division_parameters{ 10 };
+            Cm3 = division_parameters{ 11 };
+            
+        end
+        
+        
+        % Implement a function to pack the reduced relative division after inversion design parameters.
+        function division_parameters = pack_reduced_relative_division_after_inversion_parameters( self, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 )
+            
+            % Set the default input arguments.
+            if nargin < 12, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 11, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 10, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 9, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 8, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 7, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+
+            % Create a cell to store the inversion parameters.
+            division_parameters = cell( 1, 11 );
+            
+            % Pack the inversion parameters.
+            division_parameters{ 1 } = delta1;
+            division_parameters{ 2 } = delta2;
+            division_parameters{ 3 } = R1;
+            division_parameters{ 4 } = R2;
+            division_parameters{ 5 } = R3;
+            division_parameters{ 6 } = Gm1;
+            division_parameters{ 7 } = Gm2;
+            division_parameters{ 8 } = Gm3;
+            division_parameters{ 9 } = Cm1;
+            division_parameters{ 10 } = Cm2;
+            division_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to unpack the reduced relative division after inversion design parameters.
+        function [ delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_relative_division_after_inversion_parameters( self, division_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = self.pack_relative_division_after_inversion_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            delta1 = division_parameters{ 1 };
+            delta2 = division_parameters{ 2 };
+            R1 = division_parameters{ 3 };
+            R2 = division_parameters{ 4 };
+            R3 = division_parameters{ 5 };
+            Gm1 = division_parameters{ 6 };
+            Gm2 = division_parameters{ 7 };
+            Gm3 = division_parameters{ 8 };
+            Cm1 = division_parameters{ 9 };
+            Cm2 = division_parameters{ 10 };
+            Cm3 = division_parameters{ 11 };
+
+        end
+        
+        
+        % Implement a function to pack the reduced division after inversion design parameters.
+        function division_parameters = pack_reduced_division_after_inversion_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the division parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the reduced absolute division parameters.
+                division_parameters = self.pack_reduced_absolute_division_after_inversion_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the reduced relative division parameters.
+                division_parameters = self.pack_reduced_relative_division_after_inversion_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Multiplication Packing & Unpacking Functions ----------
+        
+        % Implement a function to pack the absolute multiplication design parameters.
+        function multiplication_parameters = pack_absolute_multiplication_parameters( self, c1, c3, c4, c6, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 )
+            
+            % Set the default input arguments.
+            if nargin < 17, Cm4 = self.Cm_DEFAULT; end
+            if nargin < 16, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 15, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 14, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 13, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 12, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 11, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 10, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 9, R2 = self.R_DEFAULT; end
+            if nargin < 8, R1 = self.R_DEFAULT; end
+            if nargin < 7, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 6, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 5, c6 = self.c6_division_DEFAULT; end
+            if nargin < 4, c4 = self.c4_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_inversion_DEFAULT; end
+            
+            % Create a cell to store the division parameters.
+            multiplication_parameters = cell( 1, 16 );
+            
+            % Pack the division parameters.
+            multiplication_parameters{ 1 } = c1;
+            multiplication_parameters{ 2 } = c3;
+            multiplication_parameters{ 3 } = c4;
+            multiplication_parameters{ 4 } = c6;
+            multiplication_parameters{ 5 } = delta1;
+            multiplication_parameters{ 6 } = delta2;
+            multiplication_parameters{ 7 } = R1;
+            multiplication_parameters{ 8 } = R2;
+            multiplication_parameters{ 9 } = Gm1;
+            multiplication_parameters{ 10 } = Gm2;
+            multiplication_parameters{ 11 } = Gm3;
+            multiplication_parameters{ 12 } = Gm4;
+            multiplication_parameters{ 13 } = Cm1;
+            multiplication_parameters{ 14 } = Cm2;
+            multiplication_parameters{ 15 } = Cm3;
+            multiplication_parameters{ 16 } = Cm4;
+
+        end
+
+        
+        % Implement a function to unpack the absolute multiplication design parameters.
+        function [ c1, c3, c4, c6, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_absolute_multiplication_parameters( self, multiplication_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, multiplication_parameters = self.pack_absolute_multiplication_parameters(  ); end
+            
+            % Unpack the division parameters.
+            c1 = multiplication_parameters{ 1 };
+            c3 = multiplication_parameters{ 2 };
+            c4 = multiplication_parameters{ 3 };
+            c6 = multiplication_parameters{ 4 };
+            delta1 = multiplication_parameters{ 5 };
+            delta2 = multiplication_parameters{ 6 };
+            R1 = multiplication_parameters{ 7 };
+            R2 = multiplication_parameters{ 8 };
+            Gm1 = multiplication_parameters{ 9 };
+            Gm2 = multiplication_parameters{ 10 };
+            Gm3 = multiplication_parameters{ 11 };
+            Gm4 = multiplication_parameters{ 12 };
+            Cm1 = multiplication_parameters{ 13 };
+            Cm2 = multiplication_parameters{ 14 };
+            Cm3 = multiplication_parameters{ 15 };
+            Cm4 = multiplication_parameters{ 16 };
+
+        end
+        
+        
+        % Implement a function to pack the relative multiplication design parameters.
+        function multiplication_parameters = pack_relative_multiplication_parameters( self, c3, c6, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 )
+            
+            % Set the default input arguments.
+            if nargin < 17, Cm4 = self.Cm_DEFAULT; end
+            if nargin < 16, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 15, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 14, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 13, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 12, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 11, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 10, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 9, R4 = self.R_DEFAULT; end
+            if nargin < 8, R3 = self.R_DEFAULT; end
+            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_division_DEFAULT; end
+            if nargin < 2, c3 = self.c3_inversion_DEFAULT; end
+
+            % Create a cell to store the inversion parameters.
+            multiplication_parameters = cell( 1, 16 );
+            
+            % Pack the inversion parameters.
+            multiplication_parameters{ 1 } = c3;
+            multiplication_parameters{ 2 } = c6;
+            multiplication_parameters{ 3 } = delta1;
+            multiplication_parameters{ 4 } = delta2;
+            multiplication_parameters{ 5 } = R1;
+            multiplication_parameters{ 6 } = R2;
+            multiplication_parameters{ 7 } = R3;
+            multiplication_parameters{ 8 } = R4;
+            multiplication_parameters{ 9 } = Gm1;
+            multiplication_parameters{ 10 } = Gm2;
+            multiplication_parameters{ 11 } = Gm3;
+            multiplication_parameters{ 12 } = Gm4;
+            multiplication_parameters{ 13 } = Cm1;
+            multiplication_parameters{ 14 } = Cm2;
+            multiplication_parameters{ 15 } = Cm3;
+            multiplication_parameters{ 16 } = Cm4;
+
+        end
+        
+        
+        % Implement a function to unpack the relative multiplication design parameters.
+        function [ c3, c6, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_relative_multiplication_parameters( self, multiplication_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, multiplication_parameters = self.pack_relative_multiplication_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            c3 = multiplication_parameters{ 1 };
+            c6 = multiplication_parameters{ 2 };
+            delta1 = multiplication_parameters{ 3 };
+            delta2 = multiplication_parameters{ 4 };
+            R1 = multiplication_parameters{ 5 };
+            R2 = multiplication_parameters{ 6 };
+            R3 = multiplication_parameters{ 7 };
+            R4 = multiplication_parameters{ 8 };
+            Gm1 = multiplication_parameters{ 9 };
+            Gm2 = multiplication_parameters{ 10 };
+            Gm3 = multiplication_parameters{ 11 };
+            Gm4 = multiplication_parameters{ 12 };
+            Cm1 = multiplication_parameters{ 13 };
+            Cm2 = multiplication_parameters{ 14 };
+            Cm3 = multiplication_parameters{ 15 };
+            Cm4 = multiplication_parameters{ 16 };
+
+        end
+        
+        
+        % Implement a function to pack the multiplication design parameters.
+        function multiplication_parameters = pack_multiplication_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the multiplication parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute multiplication parameters.
+                multiplication_parameters = self.pack_absolute_multiplication_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative multiplication parameters.
+                multiplication_parameters = self.pack_relative_multiplication_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Multiplication Packing & Unpacking Functions ----------
+        
+        % Implement a function to pack the reduced absolute multiplication design parameters.
+        function multiplication_parameters = pack_reduced_absolute_multiplication_parameters( self, c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 )
+            
+            % Set the default input arguments.
+            if nargin < 17, Cm4 = self.Cm_DEFAULT; end
+            if nargin < 16, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 15, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 14, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 13, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 12, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 11, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 10, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 9, R2 = self.R_DEFAULT; end
+            if nargin < 8, R1 = self.R_DEFAULT; end
+            if nargin < 7, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 6, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c1_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_inversion_DEFAULT; end
+            
+            % Create a cell to store the division parameters.
+            multiplication_parameters = cell( 1, 14 );
+            
+            % Pack the division parameters.
+            multiplication_parameters{ 1 } = c1;
+            multiplication_parameters{ 2 } = c3;
+            multiplication_parameters{ 3 } = delta1;
+            multiplication_parameters{ 4 } = delta2;
+            multiplication_parameters{ 5 } = R1;
+            multiplication_parameters{ 6 } = R2;
+            multiplication_parameters{ 7 } = Gm1;
+            multiplication_parameters{ 8 } = Gm2;
+            multiplication_parameters{ 9 } = Gm3;
+            multiplication_parameters{ 10 } = Gm4;
+            multiplication_parameters{ 11 } = Cm1;
+            multiplication_parameters{ 12 } = Cm2;
+            multiplication_parameters{ 13 } = Cm3;
+            multiplication_parameters{ 14 } = Cm4;
+
+        end
+
+        
+        % Implement a function to unpack the reduced absolute multiplication design parameters.
+        function [ c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_reduced_absolute_multiplication_parameters( self, multiplication_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, multiplication_parameters = self.pack_absolute_multiplication_parameters(  ); end
+            
+            % Unpack the division parameters.
+            c1 = multiplication_parameters{ 1 };
+            c3 = multiplication_parameters{ 2 };
+            delta1 = multiplication_parameters{ 3 };
+            delta2 = multiplication_parameters{ 4 };
+            R1 = multiplication_parameters{ 5 };
+            R2 = multiplication_parameters{ 6 };
+            Gm1 = multiplication_parameters{ 7 };
+            Gm2 = multiplication_parameters{ 8 };
+            Gm3 = multiplication_parameters{ 9 };
+            Gm4 = multiplication_parameters{ 10 };
+            Cm1 = multiplication_parameters{ 11 };
+            Cm2 = multiplication_parameters{ 12 };
+            Cm3 = multiplication_parameters{ 13 };
+            Cm4 = multiplication_parameters{ 14 };
+
+        end
+        
+        
+        % Implement a function to pack the reduced relative multiplication design parameters.
+        function multiplication_parameters = pack_reduced_relative_multiplication_parameters( self, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 )
+            
+            % Set the default input arguments.
+            if nargin < 17, Cm4 = self.Cm_DEFAULT; end
+            if nargin < 16, Cm3 = self.Cm_DEFAULT; end
+            if nargin < 15, Cm2 = self.Cm_DEFAULT; end
+            if nargin < 14, Cm1 = self.Cm_DEFAULT; end
+            if nargin < 13, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 12, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 11, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 10, Gm1 = self.Gm_DEFAULT; end
+            if nargin < 9, R4 = self.R_DEFAULT; end
+            if nargin < 8, R3 = self.R_DEFAULT; end
+            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_inversion_DEFAULT; end
+
+            % Create a cell to store the inversion parameters.
+            multiplication_parameters = cell( 1, 16 );
+            
+            % Pack the inversion parameters.
+            multiplication_parameters{ 3 } = delta1;
+            multiplication_parameters{ 4 } = delta2;
+            multiplication_parameters{ 5 } = R1;
+            multiplication_parameters{ 6 } = R2;
+            multiplication_parameters{ 7 } = R3;
+            multiplication_parameters{ 8 } = R4;
+            multiplication_parameters{ 9 } = Gm1;
+            multiplication_parameters{ 10 } = Gm2;
+            multiplication_parameters{ 11 } = Gm3;
+            multiplication_parameters{ 12 } = Gm4;
+            multiplication_parameters{ 13 } = Cm1;
+            multiplication_parameters{ 14 } = Cm2;
+            multiplication_parameters{ 15 } = Cm3;
+            multiplication_parameters{ 16 } = Cm4;
+
+        end
+        
+        
+        % Implement a function to unpack the reduced relative multiplication design parameters.
+        function [ delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_reduced_relative_multiplication_parameters( self, multiplication_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, multiplication_parameters = self.pack_relative_multiplication_parameters(  ); end
+            
+            % Unpack the inversion parameters.
+            delta1 = multiplication_parameters{ 1 };
+            delta2 = multiplication_parameters{ 2 };
+            R1 = multiplication_parameters{ 3 };
+            R2 = multiplication_parameters{ 4 };
+            R3 = multiplication_parameters{ 5 };
+            R4 = multiplication_parameters{ 6 };
+            Gm1 = multiplication_parameters{ 7 };
+            Gm2 = multiplication_parameters{ 8 };
+            Gm3 = multiplication_parameters{ 9 };
+            Gm4 = multiplication_parameters{ 10 };
+            Cm1 = multiplication_parameters{ 11 };
+            Cm2 = multiplication_parameters{ 12 };
+            Cm3 = multiplication_parameters{ 13 };
+            Cm4 = multiplication_parameters{ 14 };
+
+        end
+        
+        
+        % Implement a function to pack the reduced multiplication design parameters.
+        function multiplication_parameters = pack_reduced_multiplication_parameters( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme ( Must be either: 'absolute' or 'relative'. )
+            
+            % Determine how to pack the multiplication parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+                
+                % Pack the absolute multiplication parameters.
+                multiplication_parameters = self.pack_reduced_absolute_multiplication_parameters(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+            
+                % Pack the relative multiplication parameters.
+                multiplication_parameters = self.pack_reduced_relative_multiplication_parameters(  );
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be one of: ''absolute'' or ''relative''.' )
+                                
+            end
+            
+        end
+        
+        
+        %% Subnetwork Design Parameter Conversion Functions.
+        
+        % ---------- Transmission Design Parameter Conversion Functions ----------
+        
+        % Implement a function to convert absolute transmission design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = absolute_transmission_parameters2network_parameters( self, transmission_parameters, neuron_manager, synapse_manager )
+            
+            % Set the default input arguments.
+            if nargin < 2, transmission_parameters = self.pack_absolute_transmission_parameters(  ); end
+            
+            % Define the number of transmission neurons.
+            n_neurons = self.n_transmission_neurons_DEFAULT;
+            
+            % Unpack the transmission parameters.
+            [ ~, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            
+            R2 = self.R_DEFAULT;
+            
+            
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags );
+            
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
+        
+        % Implement a function to convert relative transmission design parameters to network parameters.
+        
+        
+        % Implement a function to convert transmission design parameters to network parameters.
+        
+        
+        
+        % ---------- Addition Design Parameter Conversion Functions ----------
+        
+        % Implement a function to convert absolute addition design parameters to network parameters.
+        
+        
+        % Implement a function to convert relative addition design parameters to network parameters.
+
+                
+        % Implement a function to convert addition design parameters to network parameters.
+
+         
+        
+        % ---------- Subtraction Design Parameter Conversion Functions ----------
+                 
+        % Implement a function to convert absolute subtraction design parameters to network parameters.
+        
+        
+        % Implement a function to convert relative subtraction design parameters to network parameters.
+
+                
+        % Implement a function to convert subtraction design parameters to network parameters.
+
+        
+        
+        % ---------- Inversion Design Parameter Conversion Functions ----------
+
+        % Implement a function to convert absolute inversion design parameters to network parameters.
+        
+        
+        % Implement a function to convert relative inversion design parameters to network parameters.
+
+        
+        % Implement a function to convert inversion design parameters to network parameters.
+
+        
+        
+        % ---------- Reduced Inversion Design Parameter Conversion Functions ----------
+        
+        % Implement a function to convert reduced absolute inversion design parameters to network parameters.
+        
+        
+        % Implement a function to convert reduced relative inversion design parameters to network parameters.
+
+        
+        % Implement a function to convert reduced inversion design parameters to network parameters.
+
+        
+        
+        % ---------- Division Design Parameter Conversion Functions ----------
+        
+        % Implement a function to convert absolute division design parameters to network parameters.
+        
+        
+        % Implement a function to convert relative division design parameters to network parameters.
+
+        
+        % Implement a function to convert division design parameters to network parameters.
+
+        
+        
+        % ---------- Reduced Division Design Parameter Conversion Functions ----------
+
+        % Implement a function to convert reduced absolute division parameters to network parameters.
+        
+        
+        % Implement a function to convert reduced relative division parameters to network parameters.
+
+        
+        % Implement a function to convert reduced division parameters to network parameters.
+
+        
+        
+        % ---------- Multiplication Design Parameter Conversion Functions ----------
+        
+        % Implement a function to convert absolute multiplication design parameters to network parameters.
+        
+        
+        % Implement a function to convert relative multiplication design parameters to network parameters.
+
+
+        % Implement a function to convert multiplication design parameters to network parameters.
+
+        
+        
+        % ---------- Reduced Multiplication Design Parameter Conversion Functions ----------
+
+        % Implement a function to convert reduced absolute multiplication parameters to network parameters.
+        
+        
+        % Implement a function to convert reduced relative multiplication parameters to network parameters.
+
+        
+        % Implement a function to convert reduced multiplication parameters to network parameters.
+
         
         %% Subnetwork Component Creation Functions.
         
@@ -5368,27 +6978,34 @@ classdef network_class
         %}
         
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, encoding_scheme, design_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
-            if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 2, k = self.c_transmission_DEFAULT; end                                                         % [-] Transmission Gain.
-            
+            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, design_parameters = self.c_transmission_DEFAULT; end                                        	% [-] Transmission Gain.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+
             % Create an instance of the network object.
             network = self;
             
-            neuron_input_parameters = network.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags )
+            % Free Design Parameters: c
+            % Free Network Parameters: R1, Gm1, Gm2, Cm1, Cm2
+            % Constrained Network Parameters: R2, Gna1, Gna2, gs21, dEs21, Ia2
             
+            % Default Network Parameters: neuron_IDs, neuron_names, Us, hs, Ers, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, I_leaks, I_syns, I_nas, I_tonics, I_totals, neuron_enabled_flags
+            
+            % 
+            neuron_input_parameters = network.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags );
+            
+            
+            synapse_input_parameters = network.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags )
             
             % Create the transmission subnetwork components.            
             [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_transmission_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );

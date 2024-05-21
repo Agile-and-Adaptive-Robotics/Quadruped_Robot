@@ -20,6 +20,35 @@ network_dt = 1.3e-4;                                % [s] Simulation Timestep.
 network_tf = 3;                                     % [s] Simulation Duration.
 
 
+%% Define the Absolute Transmission Subnetwork Parameters.
+
+% Define the subnetwork gain.
+transmission_gain = 1;
+
+% Define the subnetwork encoding scheme.
+encoding_scheme = 'absolute';
+
+% Define the neuron and synapse input parameters.
+neuron_input_parameters
+synapse_input_parameters
+
+% Define the subnetwork design options.
+filter_disabled_flag = true;
+set_flag = true;
+as_cell_flag = false;
+process_option = 'none';
+undetected_option = 'error';
+
+
+%% Create the Absolute Transmission Subnetwork.
+
+% Initialize the network object.
+network = network_class( network_dt, network_tf );
+
+% Create a transmission subnetwork.
+[ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_gain, encoding_scheme, neuron_input_parameters, synapse_input_parameters, network.neuron_manager, network.synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network.network_utilities );
+
+
 %% Define Absolute Transmission Subnetwork Parameters.
 
 % Define the maximum membrane voltages.
@@ -103,20 +132,7 @@ fprintf( '------------------------------------------------------------\n' )
 fprintf( '------------------------------------------------------------\n' )
 
 
-%% Initialize the network object.
-
-% Initialize the network object.
-network = network_class( network_dt, network_tf );
-
-% Create a transmission subnetwork.
-[ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities );
-
-
 %% Create Absolute Transmission Subnetwork.
-
-
-
-[ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );

@@ -191,6 +191,20 @@ classdef neuron_class
         end
         
         
+        %% Name Functions.
+        
+        % Implement a function to generate a name for this neuron.
+        function name = generate_name( self, ID )
+            
+            % Set the default input arguments.
+            if nargin < 2, ID = self.ID; end
+            
+            % Generate a name for the neuron.
+            name = sprintf( 'Neuron %s', ID );
+            
+        end
+                
+        
         %% Sodium Channel Activation & Deactivation Compute Functions.
         
         % Implement a function to compute the steady state sodium channel activation parameter.
