@@ -24,6 +24,43 @@ classdef network_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
+        % Define the neuron parameters.
+        neuron_ID_DEFAULT = 0;                                                                                                  % [#] Default Neuron ID.
+        neuron_name_DEFAULT = '';                                                                                               % [-] Default Neuron Name.
+        U_DEFUALT = 0;                                                                                                          % [V] Default Membrane Voltage.
+        h_DEFAULT = [  ];                                                                                                       % [-] Default Sodium Channel Deactivation Parameter.
+        Cm_DEFAULT = 5e-9;                                                                                                      % [C] Default Membrane Capacitance.
+        Gm_DEFAULT = 1e-6;                                                                                                      % [S] Default Membrane Conductance.
+        Er_DEFAULT = -60e-3;                                                                                                    % [V] Default Equilibrium Voltage.
+        R_DEFAULT = 20e-3;                                                                                                      % [V] Default Activation Domain.
+        Am_DEFAULT = 1;                                                                                                         % [-] Default Sodium Channel Activation Parameter Amplitude.
+        Sm_DEFAULT = -50;                                                                                                       % [-] Default Sodium Channel Activation Parameter Slope.
+        dEm_DEFAULT = 40e-3;                                                                                                    % [V] Default Sodium Channel Activation Reversal Potential.
+        Ah_DEFAULT = 0.5;                                                                                                       % [-] Default Sodium Channel Deactivation Parameter Amplitude.
+        Sh_DEFAULT = 50;                                                                                                        % [-] Default Sodium Channel Deactivation Parameter Slope.
+        dEh_DEFAULT = 0;                                                                                                        % [V] Default Sodium Channel Deactivation Reversal Potential.
+        dEna_DEFAULT = 110e-3;                                                                                                  % [V] Default Sodium Channel Reversal Potential.
+        tauh_max_DEFAULT = 0.25;                                                                                                % [s] Default Maximum Sodium Channel Steady State Time Constant.
+        Gna_DEFAULT = 1e-6;                                                                                                     % [S] Default Sodium Channel Conductance.
+        Ileak_DEFAULT = 0;                                                                                                      % [A] Default Leak Current.
+        Isyn_DEFAULT = 0;                                                                                                       % [A] Default Synaptic Current.
+        Ina_DEFAULT = 0;                                                                                                        % [A] Default Sodium Channel Current.
+        Itonic_DEFAULT = 0;                                                                                                     % [A] Default Tonic Current.
+        Iapp_DEFAULT = 0;                                                                                                       % [A] Default Applied Current.
+        Itotal_DEFAULT = 0;                                                                                                     % [A] Default Total Current.
+        neuron_enabled_flag_DEFAULT = true;                                                                                     % [T/F] Default Neuron Enabled Flag.
+
+        % Define the synapse parameters.
+        synapse_ID_DEFAULT = 0;                                                                                                 % [#] Synapse ID.
+        synapse_name_DEFAULT = '';                                                                                              % [-] Synapse Name.
+        dEs_DEFAULT = 194e-3;                                                                                                   % [V] Synaptic Reversal Potential.
+        gs_DEFAULT = 1e-6;                                                                                                      % [S] Maximum Synaptic Conductance.
+        Gs_DEFAULT = 0;                                                                                                         % [S] Synaptic Conductance.
+        from_neuron_ID_DEFAULT = -1;                                                                                            % [#] From Neuron ID.
+        to_neuron_ID_DEFAULT = -1;                                                                                              % [#] To Neuron ID.
+        delta_DEFAULT = 1e-6;                                                                                                   % [-] Subnetwork Output Offset.
+        synapse_enabled_flag_DEFAULT = true;                                                                                    % [T/F] Synapse Enabled Flag.
+        
         % Define the gain parameters.
         c_transmission_DEFAULT = 1;                                                                                             % [-] Transmission Subnetwork Gain.
         c_modulation_DEFAULT = 0.05;                                                                                            % [-] Modulation Subnetwork Gain.
@@ -5825,131 +5862,1432 @@ classdef network_class
         % ---------- Transmission Design Parameter Conversion Functions ----------
         
         % Implement a function to convert absolute transmission design parameters to network parameters.
-        function [ neuron_parameters, synapse_parameters ] = absolute_transmission_parameters2network_parameters( self, transmission_parameters, neuron_manager, synapse_manager )
+        function [ neuron_parameters, synapse_parameters ] = absolute_transmission_parameters2network_parameters( self, transmission_parameters, neuron_manager, synapse_manager, undetected_option )
             
             % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, transmission_parameters = self.pack_absolute_transmission_parameters(  ); end
             
             % Define the number of transmission neurons.
             n_neurons = self.n_transmission_neurons_DEFAULT;
+            n_synapses = self.n_transmission_synapses_DEFAULT;
             
             % Unpack the transmission parameters.
             [ ~, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters );
             
             % Define the neuron properties.
             neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2 ];
+            Gms = [ Gm1, Gm2 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
             
-            R2 = self.R_DEFAULT;
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
             
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
             
-            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags );
-            
+            % Pack the synapse input parameters.
             synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
             
         end
         
         
         % Implement a function to convert relative transmission design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = relative_transmission_parameters2network_parameters( self, transmission_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, transmission_parameters = self.pack_relative_transmission_parameters(  ); end
+            
+            % Define the number of transmission neurons.
+            n_neurons = self.n_transmission_neurons_DEFAULT;
+            n_synapses = self.n_transmission_synapses_DEFAULT;
+            
+            % Unpack the transmission parameters.
+            [ R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2 ];
+            Gms = [ Gm1, Gm2 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert transmission design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = transmission_parameters2network_parameters( self, transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert transmission design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
         
+                % Ensure that the transmission parameters have been defined.
+                if nargin < 2, transmission_parameters = self.pack_absolute_transmission_parameters(  ); end
+
+                % Convert absolue transmission parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.absolute_transmission_parameters2network_parameters( transmission_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the transmission parameters have been defined.
+                if nargin < 2, transmission_parameters = self.pack_relative_transmission_parameters(  ); end
+                
+                % Convert relative transmission parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.relative_transmission_parameters2network_parameters( transmission_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Addition Design Parameter Conversion Functions ----------
         
         % Implement a function to convert absolute addition design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = absolute_addition_parameters2network_parameters( self, addition_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, addition_parameters = self.pack_absolute_addition_parameters(  ); end
+            
+            % Define the number of addition neurons.
+            n_neurons = self.n_addition_neurons_DEFAULT;
+            n_synapses = self.n_addition_synapses_DEFAULT;
+            
+            % Unpack the addition parameters.            
+            [ ~, Rs_input, Gms, Cms ] = self.unpack_absolute_addition_parameters( addition_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Ers = self.Er_DEFAULT;
+            Rs = [ Rs_input, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert relative addition design parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = relative_addition_parameters2network_parameters( self, addition_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, addition_parameters = self.pack_relative_addition_parameters(  ); end
+            
+            % Define the number of addition neurons.
+            n_neurons = self.n_addition_neurons_DEFAULT;
+            n_synapses = self.n_addition_synapses_DEFAULT;
+            
+            % Unpack the addition parameters.                        
+            [ ~, Rs, Gms, Cms ] = self.unpack_relative_addition_parameters( addition_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Ers = self.Er_DEFAULT;
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
                 
         % Implement a function to convert addition design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = addition_parameters2network_parameters( self, addition_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
-         
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert addition design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the addition parameters have been defined.
+                if nargin < 2, addition_parameters = self.pack_absolute_addition_parameters(  ); end
+                
+                % Convert absolue addition parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.absolute_addition_parameters2network_parameters( addition_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the addition parameters have been defined.
+                if nargin < 23, addition_parameters = self.pack_relative_addition_parameters(  ); end
+                
+                % Convert relative addition parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.relative_addition_parameters2network_parameters( addition_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         % ---------- Subtraction Design Parameter Conversion Functions ----------
                  
         % Implement a function to convert absolute subtraction design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = absolute_subtraction_parameters2network_parameters( self, subtraction_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, subtraction_parameters = self.pack_absolute_subtraction_parameters(  ); end
+            
+            % Define the number of subtraction neurons.
+            n_neurons = self.n_subtraction_neurons_DEFAULT;
+            n_synapses = self.n_subtraction_synapses_DEFAULT;
+            
+            % Unpack the subtraction parameters.                        
+            [ ~, ~, Rs_input, Gms, Cms ] = self.unpack_absolute_subtraction_parameters( subtraction_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Ers = self.Er_DEFAULT;
+            Rs = [ Rs_input, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert relative subtraction design parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = relative_subtraction_parameters2network_parameters( self, subtraction_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, subtraction_parameters = self.pack_relative_subtraction_parameters(  ); end
+            
+            % Define the number of subtraction neurons.
+            n_neurons = self.n_subtraction_neurons_DEFAULT;
+            n_synapses = self.n_subtraction_synapses_DEFAULT;
+            
+            % Unpack the subtraction parameters.                        
+            [ ~, ~, Rs, Gms, Cms ] = self.unpack_relative_subtraction_parameters( subtraction_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Ers = self.Er_DEFAULT;
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
                 
         % Implement a function to convert subtraction design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = subtraction_parameters2network_parameters( self, subtraction_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert subtraction design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
         
+                % Ensure that the subtraction parameters have been defined.
+                if nargin < 2, subtraction_parameters = self.pack_absolute_subtraction_parameters(  ); end
+                
+                % Convert absolue subtraction parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.absolute_subtraction_parameters2network_parameters( subtraction_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the subtraction parameters have been defined.
+                if nargin < 2, subtraction_parameters = self.pack_relative_subtraction_parameters(  ); end
+                
+                % Convert relative subtraction parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.relative_subtraction_parameters2network_parameters( subtraction_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+    
         
         % ---------- Inversion Design Parameter Conversion Functions ----------
 
         % Implement a function to convert absolute inversion design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = absolute_inversion_parameters2network_parameters( self, inversion_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, inversion_parameters = self.pack_absolute_inversion_parameters(  ); end
+            
+            % Define the number of subtraction neurons.
+            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_synapses = self.n_inversion_synapses_DEFAULT;
+            
+            % Unpack the subtraction parameters.                                    
+            [ ~, ~, ~, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_absolute_inversion_parameters( inversion_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2 ];
+            Gms = [ Gm1, Gm2 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert relative inversion design parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = relative_inversion_parameters2network_parameters( self, inversion_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, inversion_parameters = self.pack_relative_inversion_parameters(  ); end
+            
+            % Define the number of subtraction neurons.
+            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_synapses = self.n_inversion_synapses_DEFAULT;
+            
+            % Unpack the subtraction parameters.                        
+            [ ~, ~, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_relative_inversion_parameters( inversion_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2 ];
+            Gms = [ Gm1, Gm2 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
         
         % Implement a function to convert inversion design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = inversion_parameters2network_parameters( self, inversion_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert inversion design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the inversion parameters have been defined.
+                if nargin < 2, inversion_parameters = self.pack_absolute_inversion_parameters(  ); end
+                
+                % Convert absolue inversion parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.absolute_inversion_parameters2network_parameters( inversion_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the inversion parameters have been defined.
+                if nargin < 2, inversion_parameters = self.pack_relative_inversion_parameters(  ); end
+                
+                % Convert relative inversion parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.relative_inversion_parameters2network_parameters( inversion_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Reduced Inversion Design Parameter Conversion Functions ----------
         
         % Implement a function to convert reduced absolute inversion design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = reduced_absolute_inversion_parameters2network_parameters( self, inversion_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, inversion_parameters = self.pack_absolute_inversion_parameters(  ); end
+            
+            % Define the number of subtraction neurons.
+            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_synapses = self.n_inversion_synapses_DEFAULT;
+            
+            % Unpack the subtraction parameters.                                    
+            [ ~, ~, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_absolute_inversion_parameters( inversion_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2 ];
+            Gms = [ Gm1, Gm2 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert reduced relative inversion design parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = reduced_relative_inversion_parameters2network_parameters( self, inversion_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, inversion_parameters = self.pack_relative_inversion_parameters(  ); end
+            
+            % Define the number of subtraction neurons.
+            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_synapses = self.n_inversion_synapses_DEFAULT;
+            
+            % Unpack the subtraction parameters.                                    
+            [ ~, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_relative_inversion_parameters( inversion_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2 ];
+            Gms = [ Gm1, Gm2 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
         
         % Implement a function to convert reduced inversion design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = reduced_inversion_parameters2network_parameters( self, inversion_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert inversion design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the inversion parameters have been defined.
+                if nargin < 2, inversion_parameters = self.pack_reduced_absolute_inversion_parameters(  ); end
+                
+                % Convert absolute inversion parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.reduced_absolute_inversion_parameters2network_parameters( inversion_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the inversion parameters have been defined.
+                if nargin < 2, inversion_parameters = self.pack_relative_inversion_parameters(  ); end
+                
+                % Convert relative inversion parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.reduced_relative_inversion_parameters2network_parameters( inversion_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Division Design Parameter Conversion Functions ----------
         
         % Implement a function to convert absolute division design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = absolute_division_parameters2network_parameters( self, division_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, division_parameters = self.pack_absolute_division_parameters(  ); end
+            
+            % Define the number of division neurons.
+            n_neurons = self.n_division_neurons_DEFAULT;
+            n_synapses = self.n_division_synapses_DEFAULT;
+            
+            % Unpack the division parameters.                                                
+            [ ~, ~, ~, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = self.unpack_absolute_division_parameters( division_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3 ];
+            Gms = [ Gm1, Gm2, Gm3 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert relative division design parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = relative_division_parameters2network_parameters( self, division_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, division_parameters = self.pack_relative_division_parameters(  ); end
+            
+            % Define the number of division neurons.
+            n_neurons = self.n_division_neurons_DEFAULT;
+            n_synapses = self.n_division_synapses_DEFAULT;
+            
+            % Unpack the division parameters.                                    
+            [ ~, ~, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = self.unpack_relative_division_parameters( division_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3 ];
+            Gms = [ Gm1, Gm2, Gm3 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, R3 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
         
         % Implement a function to convert division design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = division_parameters2network_parameters( self, division_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert division design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the division parameters have been defined.
+                if nargin < 2, division_parameters = self.pack_absolute_division_parameters(  ); end
+                
+                % Convert absolue division parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.absolute_division_parameters2network_parameters( division_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the division parameters have been defined.
+                if nargin < 2, division_parameters = self.pack_relative_division_parameters(  ); end
+                
+                % Convert relative division parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.relative_division_parameters2network_parameters( division_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Reduced Division Design Parameter Conversion Functions ----------
 
         % Implement a function to convert reduced absolute division parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = reduced_absolute_division_parameters2network_parameters( self, division_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, division_parameters = self.pack_absolute_division_parameters(  ); end
+            
+            % Define the number of division neurons.
+            n_neurons = self.n_division_neurons_DEFAULT;
+            n_synapses = self.n_division_synapses_DEFAULT;
+            
+            % Unpack the division parameters.                                                
+            [ ~, ~, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = self.unpack_reduced_absolute_division_parameters( division_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3 ];
+            Gms = [ Gm1, Gm2, Gm3 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert reduced relative division parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = reduced_relative_division_parameters2network_parameters( self, division_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, division_parameters = self.pack_relative_division_parameters(  ); end
+            
+            % Define the number of division neurons.
+            n_neurons = self.n_division_neurons_DEFAULT;
+            n_synapses = self.n_division_synapses_DEFAULT;
+            
+            % Unpack the division parameters.                                                
+            [ ~, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = self.unpack_reduced_relative_division_parameters( division_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3 ];
+            Gms = [ Gm1, Gm2, Gm3 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, R3 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
         
         % Implement a function to convert reduced division parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = reduced_division_parameters2network_parameters( self, division_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert division design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the division parameters have been defined.
+                if nargin < 2, division_parameters = self.pack_reduced_absolute_division_parameters(  ); end
+                
+                % Convert absolue division parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.reduced_absolute_division_parameters2network_parameters( division_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the division parameters have been defined.
+                if nargin < 2, division_parameters = self.pack_reduced_relative_division_parameters(  ); end
+                
+                % Convert relative division parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.reduced_relative_division_parameters2network_parameters( division_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Multiplication Design Parameter Conversion Functions ----------
         
         % Implement a function to convert absolute multiplication design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = absolute_multiplication_parameters2network_parameters( self, multiplication_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, multiplication_parameters = self.pack_absolute_multiplication_parameters(  ); end
+            
+            % Define the number of multiplication neurons.
+            n_neurons = self.n_multiplication_neurons_DEFAULT;
+            n_synapses = self.n_multiplication_synapses_DEFAULT;
+            
+            % Unpack the multiplication parameters.                                                
+            [ ~, ~, ~, ~, ~, ~, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = self.unpack_absolute_multiplication_parameters( multiplication_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3, Cm4 ];
+            Gms = [ Gm1, Gm2, Gm3, Gm4 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, self.R_DEFAULT, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert relative multiplication design parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = relative_multiplication_parameters2network_parameters( self, multiplication_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, multiplication_parameters = self.pack_relative_multiplication_parameters(  ); end
+            
+            % Define the number of multiplication neurons.
+            n_neurons = self.n_multiplication_neurons_DEFAULT;
+            n_synapses = self.n_multiplication_synapses_DEFAULT;
+            
+            % Unpack the multiplication parameters.                                    
+            [ ~, ~, ~, ~, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = self.unpack_relative_multiplication_parameters( multiplication_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3, Cm4 ];
+            Gms = [ Gm1, Gm2, Gm3, Gm4 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, R3, R4 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
 
         % Implement a function to convert multiplication design parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = multiplication_parameters2network_parameters( self, multiplication_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapse_manager = self.synapse_manager; end
+            if nargin < 4, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert multiplication design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the multiplication parameters have been defined.
+                if nargin < 2, multiplication_parameters = self.pack_absolute_multiplication_parameters(  ); end
+                
+                % Convert absolue multiplication parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.absolute_multiplication_parameters2network_parameters( multiplication_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the multiplication parameters have been defined.
+                if nargin < 2, multiplication_parameters = self.pack_relative_multiplication_parameters(  ); end
+                
+                % Convert relative multiplication parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.relative_multiplication_parameters2network_parameters( multiplication_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Reduced Multiplication Design Parameter Conversion Functions ----------
 
         % Implement a function to convert reduced absolute multiplication parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = reduced_absolute_multiplication_parameters2network_parameters( self, multiplication_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, multiplication_parameters = self.pack_absolute_multiplication_parameters(  ); end
+            
+            % Define the number of multiplication neurons.
+            n_neurons = self.n_multiplication_neurons_DEFAULT;
+            n_synapses = self.n_multiplication_synapses_DEFAULT;
+            
+            % Unpack the multiplication parameters.                                                
+            [ ~, ~, ~, ~, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = self.unpack_reduced_absolute_multiplication_parameters( multiplication_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3, Cm4 ];
+            Gms = [ Gm1, Gm2, Gm3, Gm4 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, self.R_DEFAULT, self.R_DEFAULT ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
         
         
         % Implement a function to convert reduced relative multiplication parameters to network parameters.
-
+        function [ neuron_parameters, synapse_parameters ] = reduced_relative_multiplication_parameters2network_parameters( self, multiplication_parameters, neuron_manager, synapse_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, multiplication_parameters = self.pack_relative_multiplication_parameters(  ); end
+            
+            % Define the number of multiplication neurons.
+            n_neurons = self.n_multiplication_neurons_DEFAULT;
+            n_synapses = self.n_multiplication_synapses_DEFAULT;
+            
+            % Unpack the multiplication parameters.                                                            
+            [ ~, ~, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = self.unpack_reduced_relative_multiplication_parameters( multiplication_parameters );
+            
+            % Define the neuron properties.
+            neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
+            [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
+            Us = self.U_DEFAULT*ones( 1, n_neurons );
+            hs = self.h_DEFAULT*ones( 1, n_neurons );
+            Cms = [ Cm1, Cm2, Cm3, Cm4 ];
+            Gms = [ Gm1, Gm2, Gm3, Gm4 ];
+            Ers = self.Er_DEFAULT;
+            Rs = [ R1, R2, R3, R4 ];
+            Ams = self.Am_DEFAULT*ones( 1, n_neurons );
+            Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
+            dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
+            Ahs = self.Ah_DEFAULT*ones( 1, n_neurons );
+            Shs = self.Sh_DEFAULT*ones( 1, n_neurons );
+            dEhs = self.dEh_DEFAULT*ones( 1, n_neurons );
+            dEnas = self.dEna_DEFAULT*ones( 1, n_neurons );
+            tauh_maxs = self.tauh_max_DEFAULT*ones( 1, n_neurons );
+            Gnas = self.Gna_DEFAULT*ones( 1, n_neurons );
+            Ileaks = self.Ileak_DEFAULT*ones( 1, n_neurons );
+            Isyns = self.Isyn_DEFAULT*ones( 1, n_neurons );
+            Inas = self.Ina_DEFAULT*ones( 1, n_neurons );
+            Itonics = self.Itonic_DEFAULT*ones( 1, n_neurons );
+            Ias = self.Iapp_DEFAULT*ones( 1, n_neurons );
+            Itotals = self.Itotal_DEFAULT*ones( 1, n_neurons );
+            neuron_enabled_flags = self.neuron_enabled_flag_DEFAULT*ones( 1, n_neurons );
+            
+            % Pack the neuron input parameters.
+            neuron_parameters = self.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, neuron_enabled_flags );
+            
+            % Define the synapse properties.
+            synapse_IDs = synapse_manager.generate_unique_synapse_IDs( n_synapses, synapse_manager.synapses, synapse_manager.array_utilities );
+            [ synapse_names, ~, ~ ] = synapse_manager.generate_names( synapse_IDs, synapse_manager.synapses, false, undetected_option );
+            dEs = self.dEs_DEFAULT*ones( 1, n_synapses );
+            gs = self.gs_DEFAULT*ones( 1, n_synapses );
+            from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
+            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
+            
+            % Pack the synapse input parameters.
+            synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+        end
+        
         
         % Implement a function to convert reduced multiplication parameters to network parameters.
+        function [ neuron_parameters, synapse_parameters ] = reduced_multiplication_parameters2network_parameters( self, multiplication_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to convert multiplication design parameters to network parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+        
+                % Ensure that the multiplication parameters have been defined.
+                if nargin < 2, multiplication_parameters = self.pack_reduced_absolute_multiplication_parameters(  ); end
+                
+                % Convert absolue multiplication parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.reduced_absolute_multiplication_parameters2network_parameters( multiplication_parameters, neuron_manager, synapse_manager, undetected_option );
+            
+            elseif strcmpi( encoding_scheme, 'relative' )            % If the encoding scheme is 'relative'...
+                
+                % Ensure that the multiplication parameters have been defined.
+                if nargin < 2, multiplication_parameters = self.pack_reduced_relative_multiplication_parameters(  ); end
+                
+                % Convert relative multiplication parameters to network parameters.
+                [ neuron_parameters, synapse_parameters ] = self.reduced_relative_multiplication_parameters2network_parameters( multiplication_parameters, neuron_manager, synapse_manager, undetected_option );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         %% Subnetwork Component Creation Functions.
         
@@ -6978,34 +8316,25 @@ classdef network_class
         %}
         
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, encoding_scheme, design_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 12, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 10, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 7, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 3, design_parameters = self.c_transmission_DEFAULT; end                                        	% [-] Transmission Gain.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 11, network_utilities = self.network_utilities; end                                           	% [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                    	% [str] Undetected Option.
+            if nargin < 9, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                % [T/F] As Cell Flag.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, transmission_parameters = self.pack_transmission_parameters( encoding_scheme ); end        	% [-] Transmission Gain.
 
             % Create an instance of the network object.
             network = self;
             
-            % Free Design Parameters: c
-            % Free Network Parameters: R1, Gm1, Gm2, Cm1, Cm2
-            % Constrained Network Parameters: R2, Gna1, Gna2, gs21, dEs21, Ia2
-            
-            % Default Network Parameters: neuron_IDs, neuron_names, Us, hs, Ers, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, I_leaks, I_syns, I_nas, I_tonics, I_totals, neuron_enabled_flags
-            
-            % 
-            neuron_input_parameters = network.pack_neuron_input_parameters( neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags );
-            
-            
-            synapse_input_parameters = network.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags )
+          	% Convert the transmission parameters to network parameters.
+            [ neuron_input_parameters, synapse_input_parameters ] = self.transmission_parameters2network_parameters( transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
             
             % Create the transmission subnetwork components.            
             [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_transmission_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );

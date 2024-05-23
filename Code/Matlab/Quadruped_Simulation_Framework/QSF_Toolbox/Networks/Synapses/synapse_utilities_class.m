@@ -79,6 +79,37 @@ classdef synapse_utilities_class
         end
         
         
+        %% Name Functions.
+        
+        % Implement a function to generate a name from an ID.
+        function name = ID2name( ~, ID )
+            
+            % Generate a name for the synapse.
+            name = sprintf( 'Synapse %s', ID );
+            
+        end
+        
+        
+        % Implement a function to generate names from IDs.
+        function names = IDs2names( self, IDs )
+        
+            % Compute the number of IDs.
+            num_IDs = length( IDs );
+            
+            % Preallocate a cell array to store the names.
+            names = cell( 1, num_IDs );
+            
+            % Generate a name for each ID.
+            for k = 1:num_IDs                 % Iterate through each of the IDs...
+                
+                % Generate the name associated with this ID.
+                names{ k } = self.ID2name( IDs( k ) );
+                
+            end
+            
+        end
+        
+        
         %% Synaptic Reversal Potential Compute Functions.
         
         % Implement a function to compute the synaptic reversal potential for a driven multistate cpg subnetwork.

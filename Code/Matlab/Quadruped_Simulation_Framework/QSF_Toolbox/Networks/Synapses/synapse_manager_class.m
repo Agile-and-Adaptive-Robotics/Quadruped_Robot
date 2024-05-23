@@ -24,18 +24,23 @@ classdef synapse_manager_class
         R_DEFAULT = 20e-3;                                 	% [V] Activation Domain.
         Gm_DEFAULT = 1e-6;                              	% [S] Membrane Conductance.
         
-        % Define the maximum synaptic conductance.
-        gs_max_DEFAULT = 1e-6;                            	% [S] Maximum Synaptic Conductance.
-        
+        % Define the synapse properties.
+        ID_DEFAULT = 0;                                  	% [#] Synapse ID.
+        name_DEFAULT = '';                                 	% [-] Synapse Name.
+        dEs_DEFAULT = 194e-3;                             	% [V] Synaptic Reversal Potential.
+        gs_DEFAULT = 1e-6;                                  % [S] Maximum Synaptic Conductance.
+        Gs_DEFAULT = 0;                                     % [S] Synaptic Conductance.
+        from_neuron_ID_DEFAULT = -1;                       	% [#] From Neuron ID.
+        to_neuron_ID_DEFAULT = -1;                         	% [#] To Neuron ID.
+        delta_DEFAULT = 1e-6;                               % [-] Subnetwork Output Offset.
+        enabled_flag_DEFAULT = true;                      	% [T/F] Synapse Enabled Flag.
+                
         % Define the synaptic reversal potential parameters.
         dEs_maximum_DEFAULT = 194e-3;                      	% [V] Maximum Synaptic Reversal Potential.
         dEs_minimum_DEFAULT = -40e-3;                      	% [V] Minimum Synaptic Reversal Potential.
         dEs_small_negative_DEFAULT = -1e-3;             	% [V] Small Negative Synaptic Reversal Potential.
         
         % Define the synapse identification parameters.
-        to_neuron_IDs_DEFAULT = -1;                          	% [#] To Neuron ID.
-        from_neuron_IDs_DEFAULT = -1;                       	% [#] From Neuron ID.
-        ID_DEFAULT = 0;                                  	% [#] Synapse ID.
         
         % Define the subnetwork gain parameters.
         c_absolute_addition_DEFAULT = 1;                   	% [-] Absolute Addition Subnetwork Gain.
@@ -51,7 +56,6 @@ classdef synapse_manager_class
         
         % Define the subnetwork offset parameters.
         epsilon_DEFAULT = 1e-6;                          	% [-] Subnetwork Input Offset.
-        delta_DEFAULT = 1e-6;                           	% [-] Subnetwork Output Offset.
         alpha_DEFAULT = 1e-6;                             	% [-] Division Subnetwork Denominator Offset.
         
         % Define the number of subnetwork neurons.
@@ -132,6 +136,40 @@ classdef synapse_manager_class
             
             % Compute the number of synapses.
             self.num_synapses = length( synapses );                                                 % [#] Number of Synapses.
+            
+        end
+        
+        
+        %% Synapse Name Functions.
+            
+        % Implement a function to generate names for synapses.
+        function [ names, synapses, self ] = generate_names( self, synapse_IDs, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, synapse_IDs = self.get_all_synapse_IDs( synapses ); end
+            
+            % Determine the number of synapses.
+            n_synapses = length( synapses );
+            
+            % Preallocate a cell to store the synapse names.
+            names = cell( 1, n_synapses );
+            
+            % Generate names for each of the synapses.
+            for k = 1:n_synapses                         % Iterate through each of the synapses...
+                                
+                % Retrieve the index associated with this synapse.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
+                
+               % Generate a name for this synapse.
+               [ names{ k }, synapses( synapse_index ) ] = synapses( synapse_index ).generate_name( synapse_IDs( k ), true );
+                
+            end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synapses = synapses; end
             
         end
         
@@ -2640,7 +2678,7 @@ classdef synapse_manager_class
             if nargin < 9, deltas = self.deltas_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
             if nargin < 8, to_neuron_IDs = 2*ones( 1, n_synapses ); end                                                     % [#] ID of Neuron At Which Synapse Terminates.
             if nargin < 7, from_neuron_IDs = ones( 1, n_synapses ); end                                                     % [#] ID of Neuron From Which Synapse Originates.
-            if nargin < 6, gs_maxs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                         % [S] Synaptic Conductances.
+            if nargin < 6, gs_maxs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                         % [S] Synaptic Conductances.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                      % [str] Synapse Names.
             if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end             % [#] Synapse IDs.
@@ -2830,9 +2868,9 @@ classdef synapse_manager_class
             if nargin < 10, synapses = self.synapses; end                                                 	% [class] Array of Synapse Class Objects.
             if nargin < 9, enabled_flags = true; end                                                           % [T/F] Synapse Enabled Flag
             if nargin < 8, deltas = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset
-            if nargin < 7, to_neuron_IDs = self.to_neuron_IDs_DEFAULT; end                              	% [-] To Neuron ID
-            if nargin < 6, from_neuron_IDs = self.from_neuron_IDs_DEFAULT; end                          	% [-] From Neuron ID
-            if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
+            if nargin < 7, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end                              	% [-] To Neuron ID
+            if nargin < 6, from_neuron_IDs = self.from_neuron_ID_DEFAULT; end                          	% [-] From Neuron ID
+            if nargin < 5, gs = self.gs_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance
             if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential
             if nargin < 3, names = ''; end                                                                  % [-] Synapse Name
             if nargin < 2, IDs = self.generate_unique_synapse_ID( synapses, array_utilities ); end          % [#] Synapse ID
@@ -2913,9 +2951,9 @@ classdef synapse_manager_class
             if nargin < 10, synapses = self.synapses; end                                                   % [class] Array of Synapse Class Objects.
             if nargin < 9, enabled_flag = true; end                                                            % [T/F] Synapse Enabled Flag.
             if nargin < 8, delta = self.delta_noncpg_DEFAULT; end                                         	% [V] Generic CPG Equilibrium Offset.
-            if nargin < 7, to_neuron_ID = self.to_neuron_IDs_DEFAULT; end                                  	% [-] To Neuron ID.
-            if nargin < 6, from_neuron_ID = self.from_neuron_IDs_DEFAULT; end                              	% [-] From Neuron ID.
-            if nargin < 5, gs = self.gs_max_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance.
+            if nargin < 7, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                                  	% [-] To Neuron ID.
+            if nargin < 6, from_neuron_ID = self.from_neuron_ID_DEFAULT; end                              	% [-] From Neuron ID.
+            if nargin < 5, gs = self.gs_DEFAULT; end                                                    % [S] Maximum Synaptic Conductance.
             if nargin < 4, dEs = self.dEs_minimum_DEFAULT; end                                              % [V] Synaptic Reversal Potential.
             if nargin < 3, name = ''; end                                                                   % [-] Synapse Name.
             if nargin < 2, ID = self.generate_unique_synapse_ID( synapses, array_utilities ); end           % [#] Synapse ID.
@@ -2961,9 +2999,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                           % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses_to_create ); end                                                       % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_noncpg_DEFAULT*ones( 1, n_synapses_to_create ); end                                  % [V] Generic CPG Equilibrium Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                          % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses_to_create ); end                      % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses_to_create ); end                                            % [S] Maximum Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses_to_create ); end                          % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses_to_create ); end                      % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses_to_create ); end                                            % [S] Maximum Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_minimum_DEFAULT*ones( 1, n_synapses_to_create ); end                                      % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses_to_create ); end                                                   % [-] Synapse Name.
             if nargin < 3, IDs = self.generate_unique_synapse_IDs( n_synapses_to_create, synapses, array_utilities ); end           % [#] Synapse ID.
@@ -3175,9 +3213,9 @@ classdef synapse_manager_class
             if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
-            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 9, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 8, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 7, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs. 
@@ -3244,9 +3282,9 @@ classdef synapse_manager_class
             if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
-            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 9, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 8, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 7, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -3326,9 +3364,9 @@ classdef synapse_manager_class
             if nargin < 12, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                          % [-] Subnetwork Output Offset.
-            if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 9, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 8, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 7, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -3420,9 +3458,9 @@ classdef synapse_manager_class
 %             if nargin < 12, synapses = self.synapses; end                                                                     % [class] Array of Synapse Class Objects.
 %             if nargin < 11, enabled_flags = true( 1, n_synapses ); end                                                           % [T/F] Synapse Enabled Flag.
 %             if nargin < 10, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
-%             if nargin < 9, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                              % [-] To Neuron ID.
-%             if nargin < 8, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                          % [-] From Neuron ID.
-%             if nargin < 7, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                % [S] Synaptic Conductance.
+%             if nargin < 9, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                              % [-] To Neuron ID.
+%             if nargin < 8, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                          % [-] From Neuron ID.
+%             if nargin < 7, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                % [S] Synaptic Conductance.
 %             if nargin < 6, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                  % [V] Synaptic Reversal Potential.
 %             if nargin < 5, names = repmat( { '' }, 1, n_synapses ); end                                                       % [str] Synapse names.
 %             if nargin < 4, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end       % [#] Synapse IDs.            
@@ -3707,9 +3745,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                              % [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                                % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                 % [#] To Neuron ID.
-            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                             % [#] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_ID = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                                 % [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                             % [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                    % [V] Synaptic Reversal Potential.
             if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                          % [str] Synapse Name.
             if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end          % [#] Synapse ID.     
@@ -3761,9 +3799,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            	% [#] To Neuron ID.
-            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        	% [#] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_ID = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            	% [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        	% [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                      % [str] Synapse Name.
             if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end      % [#] Synapse ID.            
@@ -3817,9 +3855,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                               % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                    % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                         % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end         % [#] Synapse IDs.            
@@ -3883,9 +3921,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                       % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                             % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                               % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                                % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                    % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                         % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end         % [#] Synapse IDs.            
@@ -3947,9 +3985,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4011,9 +4049,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4075,9 +4113,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4142,9 +4180,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4212,9 +4250,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4274,9 +4312,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4338,9 +4376,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_ID = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                             % [#] To Neuron ID.
-            if nargin < 7, from_neuron_ID = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                         % [#] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_ID = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                             % [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                  	% [str] Synapse Name.
             if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end      % [#] Synapse ID.            
@@ -4392,9 +4430,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4456,9 +4494,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4520,9 +4558,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4584,9 +4622,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4648,9 +4686,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4718,9 +4756,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -4804,9 +4842,9 @@ classdef synapse_manager_class
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
             if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_IDs_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_max_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            

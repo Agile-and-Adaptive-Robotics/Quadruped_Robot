@@ -21,89 +21,94 @@ classdef neuron_manager_class
     properties ( Access = private, Constant = true )
         
         % Define the neuron parameters.
-        Cm_DEFAULT = 5e-9;                                                   	% [C] Membrane Capacitance
-        Gm_DEFAULT = 1e-6;                                                   	% [S] Membrane Conductance
-        Er_DEFAULT = -60e-3;                                                  	% [V] Equilibrium Voltage
-        R_DEFAULT = 20e-3;                                                      % [V] Activation Domain
-        Am_DEFAULT = 1;                                                       	% [-] Sodium Channel Activation Parameter Amplitude
-        Sm_DEFAULT = -50;                                                     	% [-] Sodium Channel Activation Parameter Slope
-        dEm_DEFAULT = 40e-3;                                                   	% [V] Sodium Channel Activation Reversal Potential
-        Ah_DEFAULT = 0.5;                                                     	% [-] Sodium Channel Deactivation Parameter Amplitude
-        Sh_DEFAULT = 50;                                                      	% [-] Sodium Channel Deactivation Parameter Slope
-        dEh_DEFAULT = 0;                                                      	% [V] Sodium Channel Deactivation Reversal Potential
-        dEna_DEFAULT = 110e-3;                                                	% [V] Sodium Channel Reversal Potential
-        tauh_max_DEFAULT = 0.25;                                               	% [s] Maximum Sodium Channel Steady State Time Constant
-        Gna_DEFAULT = 1e-6;                                                   	% [S] Sodium Channel Conductance
-        Ileak_DEFAULT = 0;                                                      % [A] Leak Current
-        Isyn_DEFAULT = 0;                                                     	% [A] Synaptic Current
-        Ina_DEFAULT = 0;                                                     	% [A] Sodium Channel Current
-        Itonic_DEFAULT = 0;                                                  	% [A] Tonic Current
-        Iapp_DEFAULT = 0;                                                      	% [A] Applied Current
-        Itotal_DEFAULT = 0;                                                  	% [A] Total Current
+        ID_DEFAULT = 0;                                                      	% [#] Default Neuron ID.
+        name_DEFAULT = '';                                                     	% [-] Default Neuron Name.
+        U_DEFUALT = 0;                                                        	% [V] Default Membrane Voltage.
+        h_DEFAULT = [  ];                                                      	% [-] Default Sodium Channel Deactivation Parameter.
+        Cm_DEFAULT = 5e-9;                                                   	% [C] Default Membrane Capacitance.
+        Gm_DEFAULT = 1e-6;                                                   	% [S] Default Membrane Conductance.
+        Er_DEFAULT = -60e-3;                                                  	% [V] Default Equilibrium Voltage.
+        R_DEFAULT = 20e-3;                                                      % [V] Default Activation Domain.
+        Am_DEFAULT = 1;                                                       	% [-] Default Sodium Channel Activation Parameter Amplitude.
+        Sm_DEFAULT = -50;                                                     	% [-] Default Sodium Channel Activation Parameter Slope.
+        dEm_DEFAULT = 40e-3;                                                   	% [V] Default Sodium Channel Activation Reversal Potential.
+        Ah_DEFAULT = 0.5;                                                     	% [-] Default Sodium Channel Deactivation Parameter Amplitude.
+        Sh_DEFAULT = 50;                                                      	% [-] Default Sodium Channel Deactivation Parameter Slope.
+        dEh_DEFAULT = 0;                                                      	% [V] Default Sodium Channel Deactivation Reversal Potential.
+        dEna_DEFAULT = 110e-3;                                                	% [V] Default Sodium Channel Reversal Potential.
+        tauh_max_DEFAULT = 0.25;                                               	% [s] Default Maximum Sodium Channel Steady State Time Constant.
+        Gna_DEFAULT = 1e-6;                                                   	% [S] Default Sodium Channel Conductance.
+        Ileak_DEFAULT = 0;                                                      % [A] Default Leak Current.
+        Isyn_DEFAULT = 0;                                                     	% [A] Default Synaptic Current.
+        Ina_DEFAULT = 0;                                                     	% [A] Default Sodium Channel Current.
+        Itonic_DEFAULT = 0;                                                  	% [A] Default Tonic Current.
+        Iapp_DEFAULT = 0;                                                      	% [A] Default Applied Current.
+        Itotal_DEFAULT = 0;                                                  	% [A] Default Total Current.
+        enabled_flag_DEFAULT = true;                                            % [T/F] Default Enabled Flag.
         
         % Define the default sizes of the original FSA subnetworks.
-        num_transmission_neurons_DEFAULT = 2;                                   % [#] Number of Transmission Neurons.
-        num_modulation_neurons_DEFAULT = 2;                                     % [#] Number of Modulation Neurons.
-        num_inversion_neurons_DEFAULT = 2;                                      % [#] Number of Inversion Neurons.
-        num_addition_neurons_DEFAULT = 3;                                     	% [#] Number of Addition Neurons.
-        num_subtraction_neurons_DEFAULT = 3;                                  	% [#] Number of Subtraction Neurons.
-        num_division_neurons_DEFAULT = 3;                                    	% [#] Number of Division Neurons.
-        num_multiplication_neurons_DEFAULT = 4;                               	% [#] Number of Multiplication Neurons.
-        num_derivation_neurons_DEFAULT = 3;                                  	% [#] Number of Derivation Neurons.
-        num_integration_neurons_DEFAULT = 2;                                  	% [#] Number of Integration Neurons.
+        num_transmission_neurons_DEFAULT = 2;                                   % [#] Default Number of Transmission Neurons.
+        num_modulation_neurons_DEFAULT = 2;                                     % [#] Default Number of Modulation Neurons.
+        num_inversion_neurons_DEFAULT = 2;                                      % [#] Default Number of Inversion Neurons.
+        num_addition_neurons_DEFAULT = 3;                                     	% [#] Default Number of Addition Neurons.
+        num_subtraction_neurons_DEFAULT = 3;                                  	% [#] Default Number of Subtraction Neurons.
+        num_division_neurons_DEFAULT = 3;                                    	% [#] Default Number of Division Neurons.
+        num_multiplication_neurons_DEFAULT = 4;                               	% [#] Default Number of Multiplication Neurons.
+        num_derivation_neurons_DEFAULT = 3;                                  	% [#] Default Number of Derivation Neurons.
+        num_integration_neurons_DEFAULT = 2;                                  	% [#] Default Number of Integration Neurons.
         
         % Define the default sizes of custom FSA toolbox subnetworks.
-        num_cpg_neurons_DEFAULT = 2;                                          	% [#] Number of CPG Neurons.
-        num_dcpg_neurons_DEFAULT = 3;
-        num_double_subtraction_neurons_DEFAULT = 4;                         	% [#] Number of Double Subtraction Neurons.
-        num_centering_neurons_DEFAULT = 5;                                    	% [#] Number of Centering Neurons.
-        num_double_centering_neurons_DEFAULT = 7;                            	% [#] Number of Double Centering Neurons.
-        num_cds_neurons_DEFAULT = 11;
-        num_dmcpgdcll2cds_neurons_DEFAULT = 1;
-        num_vbi_neurons_DEFAULT = 4;                                         	% [#] Number of Voltage Based Integration Neurons.
-        num_svbi_neurons_DEFAULT = 9;                                         	% [#] Number of Split Voltage Based Integration Neurons.
-        num_new_msvbi_neurons_DEFAULT = 3;
-        num_msvbi_neurons_DEFAULT = 3;                                      	% [#] Number of Unique Modualted Split Voltage Based Integration Neurons.
-        num_mssvbi_neurons_DEFAULT = 16;                                      	% [#] Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
-        num_sll_neurons_DEFAULT = 4;                                         	% [#] Number of Split Lead Lag Neurons.
+        num_cpg_neurons_DEFAULT = 2;                                          	% [#] Default Number of CPG Neurons.
+        num_dcpg_neurons_DEFAULT = 3;                                           % [#] Default Number of Driven CPG Neurons.
+        num_double_subtraction_neurons_DEFAULT = 4;                         	% [#] Default Number of Double Subtraction Neurons.
+        num_centering_neurons_DEFAULT = 5;                                    	% [#] Default Number of Centering Neurons.
+        num_double_centering_neurons_DEFAULT = 7;                            	% [#] Default Number of Double Centering Neurons.
+        num_cds_neurons_DEFAULT = 11;                                           % [#] Default Number of Centered Double Subtraction Neurons.
+        num_dmcpgdcll2cds_neurons_DEFAULT = 1;                                  % [#] Default Number of Driven Multistate CPG Double Centered Lead Lag to Centered Double Subtraction Neurons.
+        num_vbi_neurons_DEFAULT = 4;                                         	% [#] Default Number of Voltage Based Integration Neurons.
+        num_svbi_neurons_DEFAULT = 9;                                         	% [#] Default Number of Split Voltage Based Integration Neurons.
+        num_new_msvbi_neurons_DEFAULT = 3;                                      % [#] Default Number of New Modulated Subtraction Voltage Based Integration Neurons.
+        num_msvbi_neurons_DEFAULT = 3;                                      	% [#] Default Number of Unique Modualted Split Voltage Based Integration Neurons.
+        num_mssvbi_neurons_DEFAULT = 16;                                      	% [#] Default Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
+        num_sll_neurons_DEFAULT = 4;                                         	% [#] Default Number of Split Lead Lag Neurons.
         
         % Define subtraction subnetwork parameters.
-        s_ks_DEFAULT = [ 1, -1 ];                                            	% [-] Subtraction Input Signature.
+        s_ks_DEFAULT = [ 1, -1 ];                                            	% [-] Default Subtraction Input Signature.
         
         % Define inversion subnetwork parameters.
-        c_inversion_DEFAULT = 1;                                             	% [-] Inversion Subnetwork Gain.
-        epsilon_inversion_DEFAULT = 1e-6;                                     	% [V] Inversion Subnetwork Input Offset.
-        delta_inversion_DEFAULT = 1e-6;                                       	% [V] Inversion Subnetwork Output Offset.
+        c_inversion_DEFAULT = 1;                                             	% [-] Default Inversion Subnetwork Gain.
+        epsilon_inversion_DEFAULT = 1e-6;                                     	% [V] Default Inversion Subnetwork Input Offset.
+        delta_inversion_DEFAULT = 1e-6;                                       	% [V] Default Inversion Subnetwork Output Offset.
         
         % Define division subnetwork parameters.
-        c_division_DEFAULT = 1;                                               	% [-] Division Subnetwork Gain.
-        epsilon_division_DEFAULT = 1e-6;                                     	% [-] Division Subnetwork Offset.
-        alpha_DEFAULT = 1e-6;                                                	% [-] Subnetwork Denominator Adjustment
+        c_division_DEFAULT = 1;                                               	% [-] Default Division Subnetwork Gain.
+        epsilon_division_DEFAULT = 1e-6;                                     	% [-] Default Division Subnetwork Offset.
+        alpha_DEFAULT = 1e-6;                                                	% [-] Default Subnetwork Denominator Adjustment.
         
         % Define multiplication subnetwork parameters.
-        c_multiplication_DEFAULT = 1;                                         	% [-] Multiplication Subnetwork Gain.
+        c_multiplication_DEFAULT = 1;                                         	% [-] Default Multiplication Subnetwork Gain.
         
         % Define derivation subnetwork parameters.
-        c_derivation_DEFAULT = 1e6;                                          	% [-] Derivative Subnetwork Gain
-        w_derivation_DEFAULT = 1;                                            	% [Hz?] Derivative Subnetwork Cutoff Frequency?
-        sf_derivation_DEFAULT = 0.05;                                          	% [-] Derivative Subnetwork Safety Factor
+        c_derivation_DEFAULT = 1e6;                                          	% [-] Default Derivative Subnetwork Gain.
+        w_derivation_DEFAULT = 1;                                            	% [Hz?] Default Derivative Subnetwork Cutoff Frequency.
+        sf_derivation_DEFAULT = 0.05;                                          	% [-] Default Derivative Subnetwork Safety Factor.
         
         % Define integration subnetwork parameters.
-        c_integration_mean_DEFAULT = 0.01e9;                                 	% [-] Average Integration Gain
+        c_integration_mean_DEFAULT = 0.01e9;                                 	% [-] Default Average Integration Gain.
         
         % Define cpg subnetwork parameters.
-        T_oscillation_DEFAULT = 2;                                            	% [s] Oscillation Period.
-        r_oscillation_DEFAULT = 0.90;                                          	% [-] Oscillation Decay.
+        T_oscillation_DEFAULT = 2;                                            	% [s] Default Oscillation Period.
+        r_oscillation_DEFAULT = 0.90;                                          	% [-] Default Oscillation Decay.
         
         % Define the default options.
-        encoding_scheme_DEFAULT = 'Absolute';                                 	% [str] Encoding Scheme ('Absolute' or 'Relative')
-        undetected_option_DEFAULT = 'error';                                	% [str] Undetected Option ('Error', 'Warning', 'Ignore'). Determines what to do when neuron IDs are not detected.
-        set_flag_DEFAULT = true;                                               	% [T/F] Flag to determine whether to update the neuron manager after operations.
-        as_cell_flag_DEFAULT = false;                                       	% [T/F] Flag to determine whether parameters are stored in cells.
+        encoding_scheme_DEFAULT = 'Absolute';                                 	% [str] Default Encoding Scheme ('Absolute' or 'Relative').
+        undetected_option_DEFAULT = 'error';                                	% [str] Default Undetected Option ('Error', 'Warning', 'Ignore'). Determines what to do when neuron IDs are not detected.
+        set_flag_DEFAULT = true;                                               	% [T/F] Default Flag to determine whether to update the neuron manager after operations.
+        as_cell_flag_DEFAULT = false;                                       	% [T/F] Default Flag to determine whether parameters are stored in cells.
         
         % Define the default saving and loading properties.
-        file_name_DEFAULT = 'Neuron_Manager.mat';
-        load_directory_DEFAULT = '.';
+        file_name_DEFAULT = 'Neuron_Manager.mat';                               % [str] Default File Name.
+        load_directory_DEFAULT = '.';                                           % [str] Default Load Directory.
         
     end
     
@@ -668,6 +673,40 @@ classdef neuron_manager_class
             
             % Remove extra neuron IDs.
             neuron_IDs = neuron_IDs( 1:k2 );
+            
+        end
+        
+        
+        %% Neuron Name Functions.
+            
+        % Implement a function to generate names for neurons.
+        function [ names, neurons, self ] = generate_names( self, neuron_IDs, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, neurons = self.neurons; end
+            if nargin < 2, neuron_IDs = self.get_all_neuron_IDs( neurons ); end
+            
+            % Determine the number of neurons.
+            n_neurons = length( neurons );
+            
+            % Preallocate a cell to store the neuron names.
+            names = cell( 1, n_neurons );
+            
+            % Generate names for each of the neurons.
+            for k = 1:n_neurons                         % Iterate through each of the neurons...
+                                
+                % Retrieve the index associated with this neuron.
+                neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
+                
+               % Generate a name for this neuron.
+               [ names{ k }, neurons( neuron_index ) ] = neurons( neuron_index ).generate_name( neuron_IDs( k ), true );
+                
+            end
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self.neurons = neurons; end
             
         end
         

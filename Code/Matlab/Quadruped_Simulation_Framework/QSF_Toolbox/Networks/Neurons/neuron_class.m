@@ -7,43 +7,43 @@ classdef neuron_class
     % Define the class properties.
     properties
         
-        ID                                                                                                              % [#] Neuron ID
-        name                                                                                                            % [-] Neuron Name
+        ID                                                                                                              % [#] Neuron ID.
+        name                                                                                                            % [-] Neuron Name.
         
-        U                                                                                                               % [V] Membrane Voltage
-        h                                                                                                               % [-] Sodium Channel Deactivation Parameter
+        U                                                                                                               % [V] Membrane Voltage.
+        h                                                                                                               % [-] Sodium Channel Deactivation Parameter.
         
-        Cm                                                                                                              % [C] Membrance Capacitance
-        Gm                                                                                                              % [S] Membrane Conductance
-        Er                                                                                                              % [V] Membrane Resting Potential
-        R                                                                                                               % [V] Activation Domain
+        Cm                                                                                                              % [C] Membrance Capacitance.
+        Gm                                                                                                              % [S] Membrane Conductance.
+        Er                                                                                                              % [V] Membrane Resting Potential.
+        R                                                                                                               % [V] Activation Domain.
         
-        Am                                                                                                              % [V] Sodium Channel Activation Amplitude
-        Sm                                                                                                              % [V] Sodium Channel Activation Slope
-        dEm                                                                                                             % [V] Sodium Channel Activation Reversal Potential
+        Am                                                                                                              % [V] Sodium Channel Activation Amplitude.
+        Sm                                                                                                              % [V] Sodium Channel Activation Slope.
+        dEm                                                                                                             % [V] Sodium Channel Activation Reversal Potential.
         
-        Ah                                                                                                              % [-] Sodium Channel Deactivation Amplitude
-        Sh                                                                                                              % [-] Sodium Channel Deactivation Slope
-        dEh                                                                                                             % [V] Sodium Channel Deactivation Reversal Potential
+        Ah                                                                                                              % [-] Sodium Channel Deactivation Amplitude.
+        Sh                                                                                                              % [-] Sodium Channel Deactivation Slope.
+        dEh                                                                                                             % [V] Sodium Channel Deactivation Reversal Potential.
         
-        dEna                                                                                                            % [V] Sodium Channel Reversal Potential
-        tauh_max                                                                                                        % [s] Maximum Sodium Channel Deactivation Time Constant
-        tauh                                                                                                            % [s] Sodium Channel Deactivation Time Constant
-        Gna                                                                                                             % [S] Sodium Channel Conductance
+        dEna                                                                                                            % [V] Sodium Channel Reversal Potential.
+        tauh_max                                                                                                        % [s] Maximum Sodium Channel Deactivation Time Constant.
+        tauh                                                                                                            % [s] Sodium Channel Deactivation Time Constant.
+        Gna                                                                                                             % [S] Sodium Channel Conductance.
         
-        minf                                                                                                           % [-] Steady State Sodium Channel Activation Parameter
-        hinf                                                                                                           % [-] Steady State Sodium Channel Deactivation Parameter
+        minf                                                                                                           % [-] Steady State Sodium Channel Activation Parameter.
+        hinf                                                                                                           % [-] Steady State Sodium Channel Deactivation Parameter.
         
-        Ileak                                                                                                          % [A] Leak Current
-        Isyn                                                                                                           % [A] Synaptic Current
-        Ina                                                                                                            % [A] Sodium Channel Current
-        Itonic                                                                                                         % [A] Tonic Current
-        Iapp                                                                                                           % [A] Applied Current
-        Itotal                                                                                                         % [A] Total Current
+        Ileak                                                                                                          % [A] Leak Current.
+        Isyn                                                                                                           % [A] Synaptic Current.
+        Ina                                                                                                            % [A] Sodium Channel Current.
+        Itonic                                                                                                         % [A] Tonic Current.
+        Iapp                                                                                                           % [A] Applied Current.
+        Itotal                                                                                                         % [A] Total Current.
         
-        enabled_flag                                                                                                       % [-] [T/F] Enable Flag
+        enabled_flag                                                                                                       % [-] [T/F] Enable Flag.
         
-        neuron_utilities                                                                                                % [-] Neuron Utilities Class
+        neuron_utilities                                                                                                % [-] Neuron Utilities Class.
         
     end
     
@@ -52,54 +52,58 @@ classdef neuron_class
     properties ( Access = private, Constant = true )
         
         % Define the neuron parameters.
-        Cm_DEFAULT = 5e-9;                                                                                              % [C] Membrane Capacitance.
-        Gm_DEFAULT = 1e-6;                                                                                              % [S] Membrane Conductance.
-        Er_DEFAULT = -60e-3;                                                                                            % [V] Equilibrium Voltage.
-        R_DEFAULT = 20e-3;                                                                                              % [V] Activation Domain.
-        Am_DEFAULT = 1;                                                                                                 % [-] Sodium Channel Activation Parameter Amplitude.
-        Sm_DEFAULT = -50;                                                                                               % [-] Sodium Channel Activation Parameter Slope.
-        dEm_DEFAULT = 40e-3;                                                                                            % [V] Sodium Channel Activation Reversal Potential.
-        Ah_DEFAULT = 0.5;                                                                                               % [-] Sodium Channel Deactivation Parameter Amplitude.
-        Sh_DEFAULT = 50;                                                                                                % [-] Sodium Channel Deactivation Parameter Slope.
-        dEh_DEFAULT = 0;                                                                                                % [V] Sodium Channel Deactivation Reversal Potential.
-        dEna_DEFAULT = 110e-3;                                                                                          % [V] Sodium Channel Reversal Potential.
-        tauh_max_DEFAULT = 0.25;                                                                                        % [s] Maximum Sodium Channel Steady State Time Constant.
-        Gna_DEFAULT = 1e-6;                                                                                             % [S] Sodium Channel Conductance.
-        Ileak_DEFAULT = 0;                                                                                              % [A] Leak Current.
-        Isyn_DEFAULT = 0;                                                                                               % [A] Synaptic Current.
-        Ina_DEFAULT = 0;                                                                                                % [A] Sodium Channel Current.
-        Itonic_DEFAULT = 0;                                                                                             % [A] Tonic Current.
-        Iapp_DEFAULT = 0;                                                                                               % [A] Applied Current.
-        Itotal_DEFAULT = 0;                                                                                             % [A] Total Current.
+        ID_DEFAULT = 0;                                                                                                 % [#] Default Neuron ID.
+        name_DEFAULT = '';                                                                                              % [-] Default Neuron Name.
+        U_DEFUALT = 0;                                                                                                  % [V] Default Membrane Voltage.
+        h_DEFAULT = [  ];                                                                                               % [-] Default Sodium Channel Deactivation Parameter.
+        Cm_DEFAULT = 5e-9;                                                                                              % [C] Default Membrane Capacitance.
+        Gm_DEFAULT = 1e-6;                                                                                              % [S] Default Membrane Conductance.
+        Er_DEFAULT = -60e-3;                                                                                            % [V] Default Equilibrium Voltage.
+        R_DEFAULT = 20e-3;                                                                                              % [V] Default Activation Domain.
+        Am_DEFAULT = 1;                                                                                                 % [-] Default Sodium Channel Activation Parameter Amplitude.
+        Sm_DEFAULT = -50;                                                                                               % [-] Default Sodium Channel Activation Parameter Slope.
+        dEm_DEFAULT = 40e-3;                                                                                            % [V] Default Sodium Channel Activation Reversal Potential.
+        Ah_DEFAULT = 0.5;                                                                                               % [-] Default Sodium Channel Deactivation Parameter Amplitude.
+        Sh_DEFAULT = 50;                                                                                                % [-] Default Sodium Channel Deactivation Parameter Slope.
+        dEh_DEFAULT = 0;                                                                                                % [V] Default Sodium Channel Deactivation Reversal Potential.
+        dEna_DEFAULT = 110e-3;                                                                                          % [V] Default Sodium Channel Reversal Potential.
+        tauh_max_DEFAULT = 0.25;                                                                                        % [s] Default Maximum Sodium Channel Steady State Time Constant.
+        Gna_DEFAULT = 1e-6;                                                                                             % [S] Default Sodium Channel Conductance.
+        Ileak_DEFAULT = 0;                                                                                              % [A] Default Leak Current.
+        Isyn_DEFAULT = 0;                                                                                               % [A] Default Synaptic Current.
+        Ina_DEFAULT = 0;                                                                                                % [A] Default Sodium Channel Current.
+        Itonic_DEFAULT = 0;                                                                                             % [A] Default Tonic Current.
+        Iapp_DEFAULT = 0;                                                                                               % [A] Default Applied Current.
+        Itotal_DEFAULT = 0;                                                                                             % [A] Default Total Current.
         
         % Define subtraction subnetwork parameters.
-        s_ks_DEFAULT = [ 1, -1 ];                                                                                       % [-] Subtraction Input Signature.
+        s_ks_DEFAULT = [ 1, -1 ];                                                                                       % [-] Default Subtraction Input Signature.
         
         % Define derivative subnetwork parameters.
-        c_derivation_DEFAULT = 1e6;                                                                                 	% [-] Derivative Gain.
-        w_derivation_DEFAULT = 1;                                                                                     	% [Hz?] Derivative Cutoff Frequency?
-        sf_derivation_DEFAULT = 0.05;                                                                                 	% [-] Derivative safety Factor.
+        c_derivation_DEFAULT = 1e6;                                                                                 	% [-] Default Derivative Gain.
+        w_derivation_DEFAULT = 1;                                                                                     	% [Hz?] Default Derivative Cutoff Frequency?
+        sf_derivation_DEFAULT = 0.05;                                                                                 	% [-] Default Derivative safety Factor.
         
         % Define integration subnetwork parameters.
-        c_integration_mean_DEFAULT = 0.01e9;                                                                          	% [-] Average Integration Gain.
+        c_integration_mean_DEFAULT = 0.01e9;                                                                          	% [-] Default Average Integration Gain.
         
         % Define centeral pattern generator subnetwork parameters.
-        T_oscillation_DEFAULT = 2;                                                                                   	% [s] Oscillation Period.
-        r_oscillation_DEFAULT = 0.90;                                                                                  	% [-] Oscillation Decay.
-        num_cpg_neurons_DEFAULT = 2;                                                                                  	% [#} Number of CPG Neurons.
+        T_oscillation_DEFAULT = 2;                                                                                   	% [s] Default Oscillation Period.
+        r_oscillation_DEFAULT = 0.90;                                                                                  	% [-] Default Oscillation Decay.
+        num_cpg_neurons_DEFAULT = 2;                                                                                  	% [#} Default Number of CPG Neurons.
         
         % Define inversion & division subnetwork parameters.
-        c_DEFAULT = 1;                                                                                                 	% [-] General Subnetwork Gain.
-        epsilon_DEFAULT = 1e-6;                                                                                        	% [-] Subnetwork Input Offset.
-        delta_DEFAULT = 1e-6;                                                                                          	% [-] Subnetwork Output Offset.
-        alpha_DEFAULT = 1e-6;                                                                                           % [-] Subnetwork Denominator Adjustment.
+        c_DEFAULT = 1;                                                                                                 	% [-] Default General Subnetwork Gain.
+        epsilon_DEFAULT = 1e-6;                                                                                        	% [-] Default Subnetwork Input Offset.
+        delta_DEFAULT = 1e-6;                                                                                          	% [-] Default Subnetwork Output Offset.
+        alpha_DEFAULT = 1e-6;                                                                                           % [-] Default Subnetwork Denominator Adjustment.
         
         % Define the default encoding scheme.
-        encoding_scheme_DEFAULT = 'Absolute';                                                                           % [str] Encoding Scheme.
+        encoding_scheme_DEFAULT = 'Absolute';                                                                           % [str] Default Encoding Scheme.
         
         % Define the default flags.
-        enabled_flag_DEFAULT = true;                                                                                    % [T/F] Enabled Flag.
-        set_flag_DEFAULT = true;                                                                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+        enabled_flag_DEFAULT = true;                                                                                    % [T/F] Default Enabled Flag.
+        set_flag_DEFAULT = true;                                                                                        % [T/F] Default Set Flag (Determines whether to update the neuron object.)
         
     end
     
@@ -115,12 +119,12 @@ classdef neuron_class
             % Set the default neuron properties.
             if nargin < 25, neuron_utilities = neuron_utilities_class(  ); end      % [class] Neuron Utilities Class.
             if nargin < 24, enabled_flag = self.enabled_flag_DEFAULT; end           % [T/F] Enable Flag.
-            if nargin < 23, Itotal = self.Itotal_DEFAULT; end                      % [A] Total Current.
-            if nargin < 22, Iapp = self.Iapp_DEFAULT; end                          % [A] Applied Current.
-            if nargin < 21, Itonic = self.Itonic_DEFAULT; end                      % [A] Tonic Current.
-            if nargin < 20, Ina = self.Ina_DEFAULT; end                            % [A] Sodium Channel Current.
+            if nargin < 23, Itotal = self.Itotal_DEFAULT; end                       % [A] Total Current.
+            if nargin < 22, Iapp = self.Iapp_DEFAULT; end                          	% [A] Applied Current.
+            if nargin < 21, Itonic = self.Itonic_DEFAULT; end                       % [A] Tonic Current.
+            if nargin < 20, Ina = self.Ina_DEFAULT; end                             % [A] Sodium Channel Current.
             if nargin < 19, Isyn = self.Isyn_DEFAULT; end                         	% [A] Synaptic Current.
-            if nargin < 18, Ileak = self.Ileak_DEFAULT; end                        % [A] Leak Current.
+            if nargin < 18, Ileak = self.Ileak_DEFAULT; end                         % [A] Leak Current.
             if nargin < 17, Gna = self.Gna_DEFAULT; end                             % [S] Sodium Channel Conductance.
             if nargin < 16, tauh_max = self.tauh_max_DEFAULT; end                   % [s] Maximum Sodium Channel Deactivation Time Constant.
             if nargin < 15, dEna = self.dEna_DEFAULT; end                           % [V] Sodium Channel Reveral Potential.
@@ -134,10 +138,10 @@ classdef neuron_class
             if nargin < 7, Er = self.Er_DEFAULT; end                                % [V] Membrane Reversal Potential.
             if nargin < 6, Gm = self.Gm_DEFAULT; end                                % [S] Membrane Conductance.
             if nargin < 5, Cm = self.Cm_DEFAULT; end                                % [C] Membrane Capacitance.
-            if nargin < 4, h = [  ]; end                                            % [-] Sodium Channel Deactivation.
-            if nargin < 3, U = 0; end                                               % [V] Membrane Voltage.
-            if nargin < 2, name = ''; end                                           % [-] Neuron Name.
-            if nargin < 1, ID = 0; end                                              % [#] ID Number.
+            if nargin < 4, h = self.h_DEFAULT; end                                	% [-] Sodium Channel Deactivation.
+            if nargin < 3, U = self.U_DEFUALT; end                                	% [V] Membrane Voltage.
+            if nargin < 2, name = self.name_DEFAULT; end                          	% [-] Neuron Name.
+            if nargin < 1, ID = self.ID_DEFAULT; end                               	% [#] ID Number.
             
             % Store an instance of the neuron utilities class.
             self.neuron_utilities = neuron_utilities;
@@ -194,13 +198,18 @@ classdef neuron_class
         %% Name Functions.
         
         % Implement a function to generate a name for this neuron.
-        function name = generate_name( self, ID )
+        function [ name, self ] = generate_name( self, ID, set_flag, neuron_utilities )
             
             % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
             if nargin < 2, ID = self.ID; end
             
             % Generate a name for the neuron.
-            name = sprintf( 'Neuron %s', ID );
+            name = neuron_utilities.ID2name( ID );
+            
+            % Determine whether to update the name.
+            if set_flag, self.name = name; end
             
         end
                 

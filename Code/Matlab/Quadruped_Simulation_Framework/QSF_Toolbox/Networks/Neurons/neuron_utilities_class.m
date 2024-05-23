@@ -80,6 +80,37 @@ classdef neuron_utilities_class
         end
         
         
+        %% Name Functions.
+        
+        % Implement a function to generate a name from an ID.
+        function name = ID2name( ~, ID )
+            
+            % Generate a name for the neuron.
+            name = sprintf( 'Neuron %s', ID );
+            
+        end
+        
+        
+        % Implement a function to generate names from IDs.
+        function names = IDs2names( self, IDs )
+        
+            % Compute the number of IDs.
+            num_IDs = length( IDs );
+            
+            % Preallocate a cell array to store the names.
+            names = cell( 1, num_IDs );
+            
+            % Generate a name for each ID.
+            for k = 1:num_IDs                 % Iterate through each of the IDs...
+                
+                % Generate the name associated with this ID.
+                names{ k } = self.ID2name( IDs( k ) );
+                
+            end
+            
+        end
+        
+        
         %% Sodium Channel Functions.
         
         % Implement a function to compute the steady state sodium channel activation and deactivation parameters.
@@ -265,6 +296,8 @@ classdef neuron_utilities_class
         
         %% Sodium Channel Conductance Functions.
         
+        % ---------- Transmission Subnetwork Functions ----------
+        
         % Implement a function to compute the sodium channel conductance of an absolute transmission subnetwork neuron.
         function Gna = compute_absolute_transmission_Gna( ~ )
             
@@ -283,6 +316,32 @@ classdef neuron_utilities_class
         end
         
         
+        % Implement a function compute the sodium channel conductance of a transmission subnetwork neuron.
+        function Gna = compute_transmission_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_transmission_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_transmission_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Modulation Subnetwork Functions ----------
+        
         % Implement a function to compute the sodium channel conductance of a modulation subnetwork neuron.
         function Gna = compute_modulation_Gna( ~ )
             
@@ -292,6 +351,8 @@ classdef neuron_utilities_class
         end
         
         
+        % ---------- Addition Subnetwork Functions ----------
+
         % Implement a function to compute the sodium channel conductance of an absolute addition subnetwork neuron.
         function Gna = compute_absolute_addition_Gna( ~ )
             
@@ -309,6 +370,32 @@ classdef neuron_utilities_class
             
         end
         
+        
+        % Implement a function compute the sodium channel conductance of a addition subnetwork neuron.
+        function Gna = compute_addition_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_addition_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_addition_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to compute the sodium channel conductance of an absolute subtraction subnetwork neuron.
         function Gna = compute_absolute_subtraction_Gna( ~ )
@@ -328,6 +415,32 @@ classdef neuron_utilities_class
         end
         
 
+        % Implement a function to comute the sodium channel conductance of a subtraction subnetwork neuron.
+        function Gna = compute_subtraction_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_subtraction_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_subtraction_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Double Subtraction Subnetwork Functions ----------
+        
         % Implement a function to compute the sodium channel conductance of an absolute double subtraction subnetwork neuron.
         function Gna = compute_absolute_double_subtraction_Gna( ~ )
             
@@ -345,24 +458,32 @@ classdef neuron_utilities_class
             
         end
         
-
-        % Implement a function to compute the sodium channel conductance of an absolute multiplication subnetwork neuron.
-        function Gna = compute_absolute_multiplication_Gna( ~ )
+        
+        % Implement a function to comute the sodium channel conductance of a double subtraction subnetwork neuron.
+        function Gna = compute_double_subtraction_Gna( self, encoding_scheme )
             
-            % Compute the sodium channel conductance.
-            Gna = 0;              % [S] Sodium Channel Conductance.
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_double_subtraction_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_double_subtraction_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
             
         end
         
         
-        % Implement a function to compute the sodium channel conductance of a relative multiplication subnetwork neuron.
-        function Gna = compute_relative_multiplication_Gna( ~ )
-            
-            % Compute the sodium channel conductance.
-            Gna = 0;              % [S] Sodium Channel Conductance.
-            
-        end
-        
+        % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the sodium channel conductance of an absolute inversion subnetwork neuron.
         function Gna = compute_absolute_inversion_Gna( ~ )
@@ -373,7 +494,7 @@ classdef neuron_utilities_class
         end
         
         
-        % Implement a function to compute the sodium channel conductance of a relative inversino subnetwork neuron.
+        % Implement a function to compute the sodium channel conductance of a relative inversion subnetwork neuron.
         function Gna = compute_relative_inversion_Gna( ~ )
             
             % Compute the sodium channel conductance.
@@ -381,6 +502,76 @@ classdef neuron_utilities_class
             
         end
         
+        
+        % Implement a function to comute the sodium channel conductance of an inversion subnetwork neuron.
+        function Gna = compute_inversion_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_inversion_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_inversion_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        % Implement a function to compute the sodium channel conductance of a reduced absolute inversion subnetwork neuron.
+        function Gna = compute_reduced_absolute_inversion_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a reduced relative inversion subnetwork neuron.
+        function Gna = compute_reduced_relative_inversion_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to comute the sodium channel conductance of a reduced inversion subnetwork neuron.
+        function Gna = compute_reduced_inversion_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_reduced_absolute_inversion_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_reduced_relative_inversion_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
 
         % Implement a function to compute the sodium channel conductance of an absolute division subnetwork neuron.
         function Gna = compute_absolute_division_Gna( ~ )
@@ -400,6 +591,164 @@ classdef neuron_utilities_class
         end
         
         
+        % Implement a function to comute the sodium channel conductance of a division subnetwork neuron.
+        function Gna = compute_division_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_division_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_division_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        % Implement a function to compute the sodium channel conductance of a reduced absolute division subnetwork neuron.
+        function Gna = compute_reduced_absolute_division_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a reduced relative division subnetwork neuron.
+        function Gna = compute_reduced_relative_division_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to comute the sodium channel conductance of a reduced division subnetwork neuron.
+        function Gna = compute_reduced_division_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_reduced_absolute_division_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_reduced_relative_division_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to compute the sodium channel conductance of an absolute multiplication subnetwork neuron.
+        function Gna = compute_absolute_multiplication_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a relative multiplication subnetwork neuron.
+        function Gna = compute_relative_multiplication_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to comute the sodium channel conductance of a multiplication subnetwork neuron.
+        function Gna = compute_multiplication_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_absolute_multiplication_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_relative_multiplication_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Redcued Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to compute the sodium channel conductance of a reduced absolute multiplication subnetwork neuron.
+        function Gna = compute_reduced_absolute_multiplication_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to compute the sodium channel conductance of a reduced relative multiplication subnetwork neuron.
+        function Gna = compute_reduced_relative_multiplication_Gna( ~ )
+            
+            % Compute the sodium channel conductance.
+            Gna = 0;              % [S] Sodium Channel Conductance.
+            
+        end
+        
+        
+        % Implement a function to comute the sodium channel conductance of a reduced multiplication subnetwork neuron.
+        function Gna = compute_reduced_multiplication_Gna( self, encoding_scheme )
+            
+            % Determine how to compute the sodium channel conductance.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the sodium channel conductance using an absolute encoding scheme.
+                Gna = self.compute_reduced_absolute_multiplication_Gna(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the sodium channel conductance using a relative encoding scheme.
+                Gna = self.compute_reduced_relative_multiplication_Gna(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Derivation Subnetwork Functions ----------
+        
         % Implement a function to compute the sodium channel conductance of a derivation subnetwork neuron.
         function Gna = compute_derivation_Gna( ~ )
             
@@ -408,6 +757,8 @@ classdef neuron_utilities_class
             
         end
         
+        
+        % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute the sodium channel conductance of a integration subnetwork neuron.
         function Gna = compute_integration_Gna( ~ )
@@ -436,6 +787,8 @@ classdef neuron_utilities_class
         end
         
        
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+        
         % Implement a function to compute the sodium channel conductances for a CPG subnetwork.
         function Gna = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna )
             
@@ -469,8 +822,9 @@ classdef neuron_utilities_class
         end
         
         
-        
         %% Membrane Conductance Functions.
+        
+        %{
         
         % Implement a function to compute the membrane conductance for absolute addition subnetwork input neurons.
         function Gm = compute_absolute_addition_Gm_input( self )
@@ -631,8 +985,12 @@ classdef neuron_utilities_class
             
         end
         
+        %}
+        
         
         %% Membrane Capacitance Functions.
+        
+        %{
         
         % Implement a function to compute the membrane capacitance of absolute transmission subnetwork neurons.
         function Cm = compute_absolute_transmission_Cm( self )
@@ -879,176 +1237,215 @@ classdef neuron_utilities_class
             
         end
         
+        %}
+        
         
         %% Activation Domain Functions.
         
-        % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
-        function R = compute_absolute_addition_R_input( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+        % ---------- Addition Subnetwork Functions ----------
+        
+%         % Implement a function to compute the operational domain of the absolute addition subnetwork input neurons.
+%         function R = compute_absolute_addition_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
         % Implement a function to compute the operational domain of the absolute addition subnetwork output neurons.
-        function R = compute_absolute_addition_R_output( self, Rs )
+        function Rn = compute_absolute_addition_R_output( self, Rs_input )
             
             % Define the default input arguments.
-            if nargin < 2, Rs = self.R_free_DEFAULT; end                        % [V] Activation Domain
+            if nargin < 2, Rs_input = self.R_DEFAULT; end                        % [V] Activation Domain
             
             % Compute the operational domain.
-            R = sum( Rs );                                              % [V] Activation Domain
+            Rn = sum( Rs_input );                                              % [V] Activation Domain
             
         end
         
         
-        % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
-        function R = compute_relative_addition_R_input( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the relative addition subnetwork input neurons.
+%         function R = compute_relative_addition_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
-        % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
-        function R = compute_relative_addition_R_output( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the relative addition subnetwork output neurons.
+%         function R = compute_relative_addition_R_output( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
+
+
+        % ---------- Subtraction Subnetwork Functions ----------
         
-        
-        % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
-        function R = compute_absolute_subtraction_R_input( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the absolute subtraction subnetwork input neurons.
+%         function R = compute_absolute_subtraction_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
         % Implement a function to compute the operational domain of the absolute subtraction subnetwork output neurons.
-        function R = compute_absolute_subtraction_R_output( self, Rs, s_ks )
+        function Rn = compute_absolute_subtraction_R_output( self, Rs_input, s_ks )
             
             % Define the default input arguments.
-            if nargin < 3, s_ks = 1; end                                  % [-1, +1] Excitatory / Inhibitory Sign
-            if nargin < 2, Rs = self.R_free_DEFAULT; end                        % [V] Activation Domain
+            if nargin < 3, s_ks = self.signature_DEFAULT; end         	% [-1, +1] Input Signature.
+            if nargin < 2, Rs_input = self.R_DEFAULT; end               % [V] Activation Domain.
+            
+            % Compute the excitatory and inhibitory input indexes.
+            excitatory_indexes = s_ks == 1;
+            inhibitory_indexes = s_ks == -1;
+            
+            % Retrieve the excitatory and inhibitory domains.       
+            R_excitatory = sum( Rs_input( excitatory_indexes ) );           % [V] Excitatory Activation Domain.
+            R_inhibitory = sum( Rs_input( inhibitory_indexes ) );          	% [V] Inhibitory Activation Domain.
             
             % Compute the operational domain.
-%             R = sum( s_ks.*Rs );                                           % [V] Activation Domain
-%             R = max( Rs );                                           % [V] Activation Domain
-            R = sum( Rs( s_ks == 1 ) );
+            Rn = max( R_excitatory, R_inhibitory );                       	% [V] Activation Domain.
             
         end
         
         
-        % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
-        function R = compute_relative_subtraction_R_input( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the relative subtraction subnetwork input neurons.
+%         function R = compute_relative_subtraction_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
-        % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
-        function R = compute_relative_subtraction_R_output( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the relative subtraction subnetwork output neurons.
+%         function R = compute_relative_subtraction_R_output( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
-        % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
-        function R = compute_absolute_inversion_R_input( self, epsilon, delta )
-            
-            % Define the default input argument.
-            if nargin < 3, delta = self.delta_DEFAULT; end                      % [V] Output Offset
-            if nargin < 2, epsilon = self.epsilon_DEFAULT; end                  % [V] Input Offset
-                
-            % Compute the operational domain.
-%             R = self.R_free_DEFAULT;                                      	% [V] Activation Domain
-           R = 1./delta - epsilon;                                             	% [V] Activation Domain
-            
-        end
+        % ---------- Inversion Subnetwork Functions ----------
+
+%         % Implement a function to compute the operational domain of the absolute inversion subnetwork input neurons.
+%         function R = compute_absolute_inversion_R_input( self, epsilon, delta )
+%             
+%             % Define the default input argument.
+%             if nargin < 3, delta = self.delta_DEFAULT; end                      % [V] Output Offset
+%             if nargin < 2, epsilon = self.epsilon_DEFAULT; end                  % [V] Input Offset
+%                 
+%             % Compute the operational domain.
+% %             R = self.R_free_DEFAULT;                                      	% [V] Activation Domain
+%            R = 1./delta - epsilon;                                             	% [V] Activation Domain
+%             
+%         end
         
         
         % Implement a function to compute the operational domain of the absolute inversion subnetwork output neurons.
-%         function R = compute_absolute_inversion_R_output( self, c, epsilon )
-        function R = compute_absolute_inversion_R_output( self, c, epsilon, delta )
+        function R2 = compute_absolute_inversion_R2( self, c1, c3 )
 
             % Define the default input arguments.
-            if nargin < 4, delta = self.delta_DEFAULT; end                      % [-] Output Offset
-            if nargin < 3, epsilon = self.epsilon_DEFAULT; end                  % [-] Input Offset
-            if nargin < 2, c = self.c_DEFAULT; end                              % [-] Subnetwork Gain
-            
+            if nargin < 3, c3 = self.c3_inversion_DEFAULT; end        	% [-] Inversion Subnetwork Gain 3.
+            if nargin < 2, c1 = self.c1_inversion_DEFAULT; end          % [-] Inversion Subnetwork Gain 1.
+
             % Compute the operational domain.
-%             R = c./epsilon;                                                   % [V] Activation Domain
-            R = c.*( 1./epsilon - delta );                                   	% [V] Activation Domain
+            R2 = c1/c3;                                                  % [V] Activation Domain.
 
         end
         
         
-        % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
-        function R = compute_relative_inversion_R_input( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the relative inversion subnetwork input neurons.
+%         function R = compute_relative_inversion_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
-        % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
-        function R = compute_relative_inversion_R_output( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+%         % Implement a function to compute the operational domain of the relative inversion subnetwork output neurons.
+%         function R = compute_relative_inversion_R_output( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
+
         
-        
-        % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
-        function R = compute_absolute_division_R_input( self )
-            
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
-        end
+        % ---------- Division Subnetwork Functions ----------
+
+%         % Implement a function to compute the operational domain of the absolute division subnetwork input neurons.
+%         function R = compute_absolute_division_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
         
         
         % Implement a function to compute the operational domain of the absolute division subnetwork output neurons.
-        function R = compute_absolute_division_R_output( self, c, alpha, epsilon, R_numerator )
+        function R3 = compute_absolute_division_R_output( self, c1, c3, R1 )
             
             % Define the default input arguments.
-            if nargin < 5, R_numerator = self.R_free_DEFAULT; end           % [V] Activation Domain
-            if nargin < 4, epsilon = self.epsilon_DEFAULT; end              % [-] Subnetwork Offset
-            if nargin < 3, alpha = self.alpha_DEFAULT; end                  % [-] Subnetwork Denominator Adjustment
-            if nargin < 2, c = self.c_DEFAULT; end                          % [-] Subnetwork Gain
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
             % Compute the operational domain.
-            R = ( c*R_numerator )./( alpha*R_numerator + epsilon );     % [V] Activation Domain
-            
+            % R = ( c*R_numerator )./( alpha*R_numerator + epsilon );     % [V] Activation Domain
+            R3 = ( c1*R1 )/c3;
+
         end
         
         
-        % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
-        function R = compute_relative_division_R_input( self )
+%         % Implement a function to compute the operational domain of the relative division subnetwork input neurons.
+%         function R = compute_relative_division_R_input( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
+        
+        
+%         % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
+%         function R = compute_relative_division_R_output( self )
+%             
+%             % Compute the operational domain.
+%             R = self.R_free_DEFAULT;                                             % [V] Activation Domain
+%             
+%         end
+
+
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        % Implement a function to compute the operational domain of the reduced absolute division subnetwork output neurons.
+        function R3 = compute_reduced_absolute_division_R3( self, c1, c2, R1 )
+            
+            % Define the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
             
             % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
-            
+            R3 = ( c1*R1 )/c2;
+
         end
+
+
+        % ---------- Multiplication Subnetwork Functions ----------
         
+        % Implement a function to compute the operational domain of the absolute multiplication subentwork neurons.
+        function [ R3, R4 ] = compute_absolute_multiplication_Rs( self  )
         
-        % Implement a function to compute the operational domain of the relative division subnetwork output neurons.
-        function R = compute_relative_division_R_output( self )
             
-            % Compute the operational domain.
-            R = self.R_free_DEFAULT;                                             % [V] Activation Domain
             
         end
         
@@ -1064,8 +1461,9 @@ classdef neuron_utilities_class
             if nargin < 2, c = self.c_DEFAULT; end                                                 % [-] Multiplication Subnetwork Gain
             
             % Compute the operational domain.
+%             R3 = ( c.*epsilon2 )./( c2 + c2.*epsilon1 - c.*c1.*epsilon1.*epsilon2 );             % [V] Activation Domain
             R3 = ( c.*epsilon2 )./( c2 + c2.*epsilon1 - c.*c1.*epsilon1.*epsilon2 );             % [V] Activation Domain
-            
+
         end
         
         

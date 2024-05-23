@@ -6,7 +6,6 @@ classdef synapse_class
     
     % Define the class properties.
     properties
-        
         ID                                                    	% [#] Synapse ID.
         name                                                  	% [-] Synapse Name.
         
@@ -23,6 +22,7 @@ classdef synapse_class
         
         synapse_utilities                                       % [-] Synapse Utilities Class.
         
+        
     end
     
     
@@ -35,6 +35,7 @@ classdef synapse_class
        
         % Define the maximum synaptic conductance.
         gs_DEFAULT = 1e-6;                                     	% [S] Maximum Synaptic Conductance.
+        Gs_DEFAULT = 0;                                         % [S] Synaptic Conductance.
         
         % Define the synaptic reversal potential parameters.
         dEs_maximum_DEFAULT = 194e-3;                        	% [V] Maximum Synaptic Reversal Potential.
@@ -82,7 +83,8 @@ classdef synapse_class
         to_neuron_ID_DEFAULT = 0;                            	% [#] To Neuron ID.
         from_neuron_ID_DEFAULT = 0;                           	% [#] From Neuron ID.
         ID_DEFAULT = 0;                                       	% [#] Synapse ID.
-
+        name_DEFAULT = '';                                      % [str] Synapse Name.
+        
         % Define the division subnetwork properties.
         alpha_DEFAULT = 1e-6;                                	% [-] Division Subnetwork Denominator Offset.
         
@@ -110,8 +112,8 @@ classdef synapse_class
             if nargin < 7, delta = self.delta_noncpg_DEFAULT; end                           % [V] CPG Equilibrium Offset.
             if nargin < 6, to_neuron_ID = self.to_neuron_ID_DEFAULT; end                  	% [#] To Neuron ID.
             if nargin < 5, from_neuron_ID = self.from_neuron_ID_DEFAULT; end             	% [S] Synaptic Conductance.
-            if nargin < 4, gs = self.gs_DEFAULT; end                             	% [S] Maximum Synaptic Conductance.
-            if nargin < 3, dEs = self.dEs_minimum_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 4, gs = self.gs_DEFAULT; end                                        % [S] Maximum Synaptic Conductance.
+            if nargin < 3, dEs = self.dEs_minimum_DEFAULT; end                              % [V] Synaptic Reversal Potential.
             if nargin < 2, name = ''; end                                                 	% [-] Synapse Name.
             if nargin < 1, ID = self.ID_DEFAULT; end                                      	% [#] Synapse ID.
             
@@ -128,11 +130,31 @@ classdef synapse_class
             % Store the synapse properties.
             self.delta = delta;
             self.gs = gs;
+            self.Gs = Gs_DEFAULT;
             self.dEs = dEs;
             
             % Store the synapse identification information.
             self.name = name;
             self.ID = ID;
+                        
+        end
+        
+        
+        %% Name Functions.
+        
+        % Implement a function to generate a name for this synapse.
+        function [ name, self ] = generate_name( self, ID, set_flag, synapse_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, synapse_utilities = self.synapse_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, ID = self.ID; end
+            
+            % Generate a name for the synapse.
+            name = synapse_utilities.ID2name( ID );
+            
+            % Determine whether to update the name.
+            if set_flag, self.name = name; end
             
         end
         
