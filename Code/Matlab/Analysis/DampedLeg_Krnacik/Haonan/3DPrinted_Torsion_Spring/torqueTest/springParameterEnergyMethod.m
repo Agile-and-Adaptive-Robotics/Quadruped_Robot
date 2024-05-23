@@ -3,7 +3,8 @@ figure
 plot(data)
 
 %%
-data = deg2rad(data(34:133));       
+n = 232;
+data = deg2rad(data(n:n+100));       
 data0 = data - data(1);
 
 %%
@@ -13,7 +14,7 @@ data0 = data - data(1);
 mList = [0.050 0.100 0.200 0.500 1.000];      % [kg]
 hList = [0.040 0.035 0.044 0.063 0.072];      % [m]
 
-index = 5;
+index = 4;
 
 m = mList(index);       %   [kg]
 hmass = hList(index);   %   [m]

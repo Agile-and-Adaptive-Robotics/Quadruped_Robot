@@ -80,16 +80,17 @@ n = 2; % Plotting GS muscle stimulation only
 %     alpha(knee2,a)
 %     alpha(ankle2,a)
 
-        plot(data(:,4),data(:,1),':k','LineWidth',3);
-        plot(data(:,4),data(:,2),':b','LineWidth',3);
-        plot(data(:,4),data(:,3),':r','LineWidth',3);
+%         plot(data3(:,4),data3(:,1),':k','LineWidth',3);
+%         plot(data(:,4),data(:,2),':b','LineWidth',3);
+%         plot(data(:,4),data(:,3),':r','LineWidth',3);
         
 %         plot(data2(:,4),data2(:,1),'--k','LineWidth',2);
 %         plot(data2(:,4),data2(:,2),'--b','LineWidth',2);
 %         plot(data2(:,4),data2(:,3),'--r','LineWidth',2);
 
 hold off
-legend('Hip (scaled rat)', 'Knee (scaled rat)', 'Ankle (scaled rat)','Hip (novel leg)','Knee (novel leg)','Ankle (novel leg)','Hip (original leg)','Knee (original leg)','Ankle (original leg)')
+% legend('Hip (scaled rat)','Hip (novel leg)')
+legend('Hip (scaled rat)', 'Knee (scaled rat)', 'Ankle (scaled rat)');%,'Hip (novel leg)','Knee (novel leg)','Ankle (novel leg)','Hip (original leg)','Knee (original leg)','Ankle (original leg)')
 title('Muscle stimulated: GS, Trial chosen:1','FontSize',15)
 % save figure
 % addpath('C:\Users\krnac\OneDrive\Desktop\School\Dynamic leg\Krnacik\Parameter optimization\Trial plotting')

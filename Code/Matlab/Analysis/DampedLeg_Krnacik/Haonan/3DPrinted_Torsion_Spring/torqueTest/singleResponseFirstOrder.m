@@ -4,7 +4,7 @@ plot(data)
 xlim([0 150])
 
 %%
-n = 33;
+n = 18;
 data0 = data - data(1);
 data = abs(deg2rad(data0(n:n+100)));
 data0 = data;
@@ -16,7 +16,7 @@ dataNorm = data/data(end);
 %torque [      0.123       0.245             0.429       0.613       0.858 1.226                        ]       % [Nm] big pulley
 mList = [0.050 0.100 0.150 0.200 0.250 0.300 0.350 0.400 0.500 0.600 0.700 1.000 1.200 1.500 1.700 2.000];      % [kg]
 
-index = 1;
+index = 14;
 
 I1 = 6.16561/1000^2;         % [kg*m^2]      inertia of the pulley and hex rod from Solidworks
 m = mList(index);       %   [kg]

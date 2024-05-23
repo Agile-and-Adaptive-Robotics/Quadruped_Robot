@@ -8,7 +8,7 @@ addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\IC_check')
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Optimizer_scripts\ParticleSwarmOpt')
 addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results')
-addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\Trial 3')
+addpath('C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Comparison\OnyxSpring')
 % addpath('C:\Users\Haonan\Documents\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs')
 % addpath('C:\Users\Haonan\Documents\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_spring_calcs')
 
@@ -26,7 +26,7 @@ sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-Data = load('-mat', 'SpringDampDataHaonanv5');
+Data = load('-mat', 'OnyxSpringDatav2');
 
 % Load solved b values and k values to use as inital conditions
 load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs_Haonan\Results_HaonanK119.mat', 'b_sols');
@@ -82,7 +82,7 @@ figure(1)
 for n = 1:3
     %Assign joints to be solved in reverse order
     joint = 4-n;
-    
+     
     data.joint = joint;
     % Run fminsearch on cost function
     fprintf('Beginning optimization for %s...\n', jnames(joint))
@@ -127,8 +127,9 @@ for n = 1:3
     end
 
          % Define which trial to use
-         trial = 4;
+         trial = 1;
          thetas = data_temp(:, (trial*3-2):trial*3);
+%          thetas = data_temp(:, (trial));
 
         % Interpolate data so that risetime may be more accurate
         tt = 0:0.0001:time(end);
