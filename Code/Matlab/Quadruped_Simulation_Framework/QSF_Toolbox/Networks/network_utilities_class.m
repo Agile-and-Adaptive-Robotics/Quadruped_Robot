@@ -407,35 +407,6 @@ classdef network_utilities_class
         end
 
         
-        % Implement a function to compute the maximum synaptic conductance for a signal modulation pathway.
-        function gs12 = compute_modulation_gs( ~, Gm2, R1, R2, dEs12, Ia2, c )
-            
-            %{
-            Input(s):
-                Gm2   	=   [S] Membrane Conductance (Neuron 2).
-                R1     	=   [V] Maximum Membrane Voltage (Neuron 1).
-                R2     	=   [V] Maximum Membrane Voltage (Neuron 2).
-                dEs12	=   [V] Synaptic Reversal Potential (Synapse 12).
-                Ia2    	=   [A] Applied Current (Neuron 2).
-                c      	=   [-] Modulation Gain.
-            
-            Output(s):
-                gs12     =   [S] Maximum Synaptic Conductance (Synapce 12).
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 7, c = self.c_modulation_DEFAULT*( R2/R1 ); end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
-
-            % Compute the maximum synaptic condcutance for a signal modulation pathway.
-            gs12 = ( Ia2 + ( R2 - c.*R1 ).*Gm2 )./( c.*R1 - dEs12 );
-
-            % Ensure that the synaptic reversal potential is large enough.
-            assert( all( gs12 > 0 ), 'It is not possible to design a modulation pathway with the specified gain c = %0.2f [-] given the current synaptic reversal potential dEsyn = %0.2f [V] and neuron operating domain R = %0.2f [V].  To fix this problem, increase dE_syn.', c, dEs12, R1 )
-            
-        end
-
-        
         %% Arithmetic Subnetwork Design Functions.
         
         % Implement a function to compute the maximum synaptic conductances for an addition subnetwork.
@@ -668,86 +639,6 @@ classdef network_utilities_class
             
             % Compute the maximum synaptic conductance for the third synapse.
             gs34 = self.compute_modulation_gs( Gm4, R3, R4, dEs34, Ia4, c );
-            
-        end
-        
-        
-        %% Derivation Subnetwork Design Functions.
-        
-        % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
-        function [ gs13, gs23 ] = compute_derivation_gs( self, Gm3, R1, dEs13, dEs23, Ia3, k )
-            
-            %{
-            Input(s):
-                Gm3             =   [S] Membrane Conductance (Neuron 3).
-                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
-                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
-                dE_syn23        =   [V] Synaptic Reversal Potential (Synapse 23).
-                I_app3          =   [A] Applied Current (Neuron 3).
-                k               =   [-] Derivation Subnetwork Gain.
-            
-            Output(s):
-                g_syn_max13     =   [S] Maximum Synaptic Conductance (Synapse 13).
-                g_syn_max23     =   [S] Maximum Synaptic Conductnace (Synapse 23).
-            %}
-            
-            % Compute the maximum synaptic conductances for a derivative subnetwork in the same way as for a subtraction subnetwork.
-            [ gs13, gs23 ] = self.compute_subtraction_gs( Gm3, R1, dEs13, dEs23, Ia3, k );
-            
-        end
-        
-        
-        % Implement a function to compute membrane conductance for a derivative subnetwork.
-        function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
-            
-            %{
-            Input(s):
-                k               =   [-] Derivation Subnetwork Gain.
-                w               =   [-] Derivation Subnetwork Cutoff.
-                safety_factor   =   [-] Derivation Subnetwork Safety Factor.
-            
-            Output(s):
-                Gm              =   [S] Membrane Conductance.
-            %}
-            
-            % Set the default input arugments.
-            if nargin < 4, safety_factor = self.sf_derivation_DEFAULT; end
-            if nargin < 3, w = self.w_derivation_DEFAULT; end
-            if nargin < 2, k = self.c_derivation_DEFAULT; end
-            
-            % Compute the required membrance conductance.
-            Gm = ( 1 - safety_factor )./( k.*w );    
-            
-        end
-        
-        
-        % Implement a function to compute membrane capacitances for a derivative subnetwork.
-        function [ Cm1, Cm2 ] = compute_derivation_Cms( ~, Gm, k, w )
-            
-            %{
-            Input(s):
-                Gm = [S] Membrane Conductance.
-                k = [-] Derivation Subnetwork Gain.
-            `   w = [-] Derivation Subnetwork Cutoff.
-            
-            Output(s):
-                Cm1 = [F] Membrane Conductance (Neuron 1).
-                Cm2 = [F] Membrane Conductnace (Neuron 2).
-            %}
-            
-            % Set the default input arugments.
-            if nargin < 4, w = self.w_derivation_DEFAULT; end
-            if nargin < 3, k = self.c_derivation_DEFAULT; end
-            if nargin < 2, Gm = 1e-6; end
-            
-           % Compute the required time constant.
-            tau = 1./w;
-            
-            % Compute the required membrane capacitance of the second neuron.
-            Cm2 = Gm.*tau;
-            
-            % Compute the required membrane capacitance of the first neuron.
-            Cm1 = Cm2 - ( Gm.^2 ).*k; 
             
         end
         

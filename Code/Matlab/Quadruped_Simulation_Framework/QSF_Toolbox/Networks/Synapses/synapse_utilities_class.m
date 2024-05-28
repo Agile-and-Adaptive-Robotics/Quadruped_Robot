@@ -63,6 +63,9 @@ classdef synapse_utilities_class
         delta_DEFAULT = 1e-6;                                 	% [V] Subnetwork Output Offset.
         alpha_DEFAULT = 1e-6;                                 	% [V] Division Subnetwork Denominator Offset.
         
+        % Set the default flags.
+        validation_flag_DEFAULT = true;                         % [T/F] Validation Flag. (Determines whether to validate computed values.)
+        
     end
     
     
@@ -107,6 +110,30 @@ classdef synapse_utilities_class
                 
             end
             
+        end
+        
+        
+        %% Synaptic Validation Functions.
+        
+        % Implement a function to validate synaptic conductance results.
+        function valid_flag = validate_gs( self, gs )
+
+            % Set the default input arguments.
+            if nargin < 2, gs = self.gs_DEFAULT; end
+            
+            % Determine whether the provided synaptic conductances are valid.
+            if all( gs >= 0 )           % If all of the synaptic conductances are greater than or equal to zero...
+               
+                % Set the valid flag to true;
+                valid_flag = true;
+                
+            else                        % Otherwise....
+                
+                % Set the valid flag to false.
+                valid_flag = false;
+                
+            end
+
         end
         
         
@@ -1140,9 +1167,10 @@ classdef synapse_utilities_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute transmission subnetwork synapses.
-        function gs21 = compute_absolute_transmission_gs21( self, R2, Gm2, dEs21, Ia2 )
+        function gs21 = compute_absolute_transmission_gs21( self, R2, Gm2, dEs21, Ia2, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia2 = self.Ia_DEFAULT; end
             if nargin < 4, dEs21 = self.dEs_DEFAULT; end
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
@@ -1151,13 +1179,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+                
         end
         
         
         % Implement a function to compute the maximm synaptic conductance of relative transmission subnetwork synapses.
-        function gs21 = compute_relative_transmission_gs21( self, R2, Gm2, dEs21, Ia2 )
+        function gs21 = compute_relative_transmission_gs21( self, R2, Gm2, dEs21, Ia2, validation_flag )
             
             % Set the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia2 = self.Ia_DEFAULT; end
             if nargin < 4, dEs21 = self.dEs_DEFAULT; end
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
@@ -1165,14 +1202,23 @@ classdef synapse_utilities_class
             
             % Compute the maximum synaptic conductance.
             gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );
+            
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
+            
+            end
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of transmission subnetwork synapses.
-        function gs21 = compute_transmission_gs21( self, parameters, encoding_scheme )
+        function gs21 = compute_transmission_gs21( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1185,7 +1231,7 @@ classdef synapse_utilities_class
                 Ia2 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs21 = self.compute_absolute_transmission_gs21( R2, Gm2, dEs21, Ia2 );
+                gs21 = self.compute_absolute_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1196,7 +1242,7 @@ classdef synapse_utilities_class
                 Ia2 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs21 = self.compute_relative_transmission_gs21( R2, Gm2, dEs21, Ia2 );
+                gs21 = self.compute_relative_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
             
             else
             
@@ -1211,9 +1257,10 @@ classdef synapse_utilities_class
         % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute addition subnetwork synapses.
-        function gs_nk = compute_absolute_addition_gs( self, c_k, R_k, Gm_n, dEs_nk, Ia_n )
+        function gs_nk = compute_absolute_addition_gs( self, c_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 6, Ia_n = self.Ia_absolute_addition_DEFAULT; end                                % [A] Applied Current.
             if nargin < 5, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
             if nargin < 4, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
@@ -1223,13 +1270,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs_nk = ( Ia_n - c_k.*R_k.*Gm_n )./( c_k.*R_k - dEs_nk );                                 	% [S] Maximum Synaptic Conductance.
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of relative addition subnetwork synapses.
-        function gs_nk = compute_relative_addition_gs( self, c_k, R_n, Gm_n, dEs_nk, Ia_n )
+        function gs_nk = compute_relative_addition_gs( self, c_k, R_n, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 6, Ia_n = self.Ia_relative_addition_DEFAULT; end                                % [A] Applied Current.
             if nargin < 5, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
             if nargin < 4, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
@@ -1239,13 +1295,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs_nk = ( Ia_n - c_k*R_n*Gm_n )/( c_k*R_n - dEs_nk );                                       % [S] Maximum Synaptic Conductance.
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of addition subnetwork synapses.
-        function gs_nk = compute_addition_gs( self, parameters, encoding_scheme )
+        function gs_nk = compute_addition_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1259,7 +1324,7 @@ classdef synapse_utilities_class
                 Ia_n = parameters{ 5 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs_nk = self.compute_absolute_addition_gs( c_k, R_k, Gm_n, dEs_nk, Ia_n );
+                gs_nk = self.compute_absolute_addition_gs( c_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1271,7 +1336,7 @@ classdef synapse_utilities_class
                 Ia_n = parameters{ 5 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs_nk = compute_relative_addition_gs( c_k, R_n, Gm_n, dEs_nk, Ia_n );
+                gs_nk = compute_relative_addition_gs( c_k, R_n, Gm_n, dEs_nk, Ia_n, validation_flag );
             
             else
             
@@ -1286,9 +1351,10 @@ classdef synapse_utilities_class
         % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute subtraction subnetwork synapses.
-        function gs_nk = compute_absolute_subtraction_gs( self, c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n )
+        function gs_nk = compute_absolute_subtraction_gs( self, c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, Ia_n = self.Ia_absolute_subtraction_DEFAULT; end                             % [A] Applied Current.
             if nargin < 6, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
             if nargin < 5, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
@@ -1299,13 +1365,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs_nk = ( Ia_n - c_k.*s_k.*R_k.*Gm_n )./( c_k.*s_k.*R_k - dEs_nk );                             % [S] Maximum Synaptic Conductance.
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of relative subtraction subnetwork synapses.
-        function gs_nk = compute_relative_subtraction_gs( self, c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n )
+        function gs_nk = compute_relative_subtraction_gs( self, c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
+            if nargin < 9, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 8, Ia_n = self.Ia_relative_subtraction_DEFAULT; end                             % [A] Applied Current.
             if nargin < 7, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
             if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
@@ -1317,13 +1392,22 @@ classdef synapse_utilities_class
             % gs_nk = ( npm_k.*Ia_n - c.*s_k.*Gm_n.*R_n )./( c.*s_k.*R_n - npm_k.*dEs_nk );	% [S] Maximum Synaptic Conductance.
             gs_nk = ( Ia_n - s_k*c_k*R_k*Gm_n )/( s_k*c_k*R_k - dEs_nk );
 
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
 
         % Implement a function to compute the maximum synaptic conductance of subtraction subnetwork synapses.
-        function gs_nk = compute_subtraction_gs( self, parameters, encoding_scheme )
+        function gs_nk = compute_subtraction_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1338,7 +1422,7 @@ classdef synapse_utilities_class
                 Ia_n = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs_nk = self.compute_absolute_subtraction_gs( c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n );
+                gs_nk = self.compute_absolute_subtraction_gs( c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1351,7 +1435,7 @@ classdef synapse_utilities_class
                 Ia_n = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs_nk = self.compute_relative_subtraction_gs( c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n );
+                gs_nk = self.compute_relative_subtraction_gs( c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag );
             
             else
             
@@ -1366,24 +1450,10 @@ classdef synapse_utilities_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute inversion subnetwork synapses.
-        function gs21 = compute_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2 )
+        function gs21 = compute_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 3, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
-            if nargin < 2, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
-            
-            % Compute the maximum synaptic conductance.
-            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                                             	% [S] Maximum Synaptic Conductance.
-
-        end
-        
-        
-        % Implement a function to compute the maximum synaptic conductance of relative inversion subnetwork synapses.
-        function gs21 = compute_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2 )
-            
-            % Define the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
             if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
@@ -1392,13 +1462,46 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                                             	% [S] Maximum Synaptic Conductance.
 
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of relative inversion subnetwork synapses.
+        function gs21 = compute_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
+            
+            % Define the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
+            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.
+            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                                             	% [S] Maximum Synaptic Conductance.
+
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of inversion subnetwork synapses.
-        function gs21 = compute_inversion_gs21( self, parameters, encoding_scheme )
+        function gs21 = compute_inversion_gs21( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1411,7 +1514,7 @@ classdef synapse_utilities_class
                 Ia2 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs21 = self.compute_absolute_inversion_gs21( delta, Gm2, dEs21, Ia2 );
+                gs21 = self.compute_absolute_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1422,7 +1525,7 @@ classdef synapse_utilities_class
                 Ia2 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs21 = self.compute_relative_inversion_gs21( delta, Gm2, dEs21, Ia2 );
+                gs21 = self.compute_relative_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
             
             else
             
@@ -1437,9 +1540,10 @@ classdef synapse_utilities_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to compute the maximum synaptic conductance of reduced absolute inversion subnetwork synapses.
-        function gs21 = compute_reduced_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2 )
+        function gs21 = compute_reduced_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia2 = self.Ia_DEFAULT; end
             if nargin < 4, dEs21 = self.dEs_DEFAULT; end
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
@@ -1448,13 +1552,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced relative inversion subnetwork synapses.
-        function gs21 = compute_reduced_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2 )
+        function gs21 = compute_reduced_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia2 = self.Ia_DEFAULT; end
             if nargin < 4, dEs21 = self.dEs_DEFAULT; end
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
@@ -1463,13 +1576,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );   
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced inversion subnetwork synapses.
-        function gs21 = compute_reduced_inversion_gs21( self, parameters, encoding_scheme )
+        function gs21 = compute_reduced_inversion_gs21( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1482,7 +1604,7 @@ classdef synapse_utilities_class
                 Ia2 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs21 = self.compute_reduced_absolute_inversion_gs21( delta, Gm2, dEs21, Ia2 );
+                gs21 = self.compute_reduced_absolute_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1493,7 +1615,7 @@ classdef synapse_utilities_class
                 Ia2 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs21 = self.compute_reduced_relative_inversion_gs21( delta, Gm2, dEs21, Ia2 );
+                gs21 = self.compute_reduced_relative_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
             
             else
             
@@ -1508,9 +1630,10 @@ classdef synapse_utilities_class
         % ---------- Division Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to compute the maximum synaptic conductance of numerator absolute division subnetwork synapses.
-        function gs31 = compute_absolute_division_gs31( self, R3, Gm3, dEs31, Ia3 )
+        function gs31 = compute_absolute_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arugments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             if nargin < 4, dEs31 = self.dEs_DEFAULT; end
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -1518,14 +1641,23 @@ classdef synapse_utilities_class
             
             % Compute the maximum synaptic conductance.
             gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );                                                         % [S] Maximum Synaptic Conductance.
+            
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs31 ), 'Invalid synaptic conductance detected.' )
+            
+            end
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of numerator relative division subnetwork synapses.
-        function gs31 = compute_relative_division_gs31( self, R3, Gm3, dEs31, Ia3 )
+        function gs31 = compute_relative_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arugments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             if nargin < 4, dEs31 = self.dEs_DEFAULT; end
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -1534,13 +1666,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );                                                         % [S] Maximum Synaptic Conductance.
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs31 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of numerator reduced inversion subnetwork synapses.
-        function gs31 = compute_reduced_inversion_gs31( self, parameters, encoding_scheme )
+        function gs31 = compute_reduced_inversion_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1553,7 +1694,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs31 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3 );
+                gs31 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1564,7 +1705,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs31 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3 );
+                gs31 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
             
             else
             
@@ -1579,9 +1720,10 @@ classdef synapse_utilities_class
         % ---------- Division Subnetwork Functions (Synapse 32) ----------
         
         % Implement a function to compute the maximum synaptic conductance of denominator absolute division subnetwork synapses.
-        function gs32 = compute_absolute_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3 )
+        function gs32 = compute_absolute_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -1591,14 +1733,23 @@ classdef synapse_utilities_class
             
             % Compute the maximum synaptic conductance.
             gs32 = ( ( dEs31 - delta )*gs31 + ( Ia3 - delta*Gm3 ) )/( delta - dEs32 );
+            
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs32 ), 'Invalid synaptic conductance detected.' )
+            
+            end
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of denominator relative division subnetwork synapses.
-        function gs32 = compute_relative_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3 )
+        function gs32 = compute_relative_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -1609,13 +1760,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs32 = ( ( dEs31 - delta )*gs31 + ( Ia3 - delta*Gm3 ) )/( delta - dEs32 );
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs32 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of denominator reduced inversion subnetwork synapses.
-        function gs32 = compute_reduced_inversion_gs32( self, parameters, encoding_scheme )
+        function gs32 = compute_reduced_inversion_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1630,7 +1790,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs32 = self.compute_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+                gs32 = self.compute_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1643,7 +1803,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs32 = self.compute_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+                gs32 = self.compute_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
             
             else
             
@@ -1658,33 +1818,52 @@ classdef synapse_utilities_class
         % ---------- Division Subnetwork Functions (Combined) ----------
 
         % Implement a function to compute the maximum synaptic conductance of combined absolute division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_absolute_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3 )
+        function [ gs31, gs32 ] = compute_absolute_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
 
+            % Set the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 7, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 5, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 4, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end
+            
             % Compute the maximum synaptic conductance for synapse 31.
-            gs31 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3 );
+            gs31 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.
-            gs32 = self.compute_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+            gs32 = self.compute_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of combined relative division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_relative_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3 )
+        function [ gs31, gs32 ] = compute_relative_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
 
+            % Set the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 7, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 5, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 4, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end    
+            
             % Compute the maximum synaptic conductance for synapse 31.            
-            gs31 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3 );
+            gs31 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.            
-            gs32 = self.compute_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+            gs32 = self.compute_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_division_gs( self, parameters, encoding_scheme )
+        function [ gs31, gs32 ] = compute_division_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1699,7 +1878,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                [ gs31, gs32 ] = self.compute_absolute_division_gs( delta, R3, Gm3, dEs31, dEs32, Ia3 );
+                [ gs31, gs32 ] = self.compute_absolute_division_gs( delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1712,7 +1891,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                [ gs31, gs32 ] = self.compute_relative_division_gs( delta, R3, Gm3, dEs31, dEs32, Ia3 );
+                [ gs31, gs32 ] = self.compute_relative_division_gs( delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag );
             
             else
             
@@ -1727,9 +1906,10 @@ classdef synapse_utilities_class
         % ---------- Reduced Division Subnetwork Functions (Synapse 31) ----------
 
         % Implement a function to compute the maximum synaptic conductance of numerator reduced absolute division subnetwork synapses.
-        function gs31 = compute_reduced_absolute_division_gs31( self, R3, Gm3, dEs31, Ia3 )
+        function gs31 = compute_reduced_absolute_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             if nargin < 4, dEs31 = self.dEs_DEFAULT; end
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -1737,14 +1917,23 @@ classdef synapse_utilities_class
             
             % Compute the maximum synaptic conductance.
             gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );
+            
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs31 ), 'Invalid synaptic conductance detected.' )
+            
+            end
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of numerator reduced relative division subnetwork synapses.
-        function gs31 = compute_reduced_relative_division_gs31( self, R3, Gm3, dEs31, Ia3 )
+        function gs31 = compute_reduced_relative_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arguments.
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             if nargin < 4, dEs31 = self.dEs_DEFAULT; end
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -1753,13 +1942,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs31 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of numerator reduced division subnetwork synapses.
-        function gs31 = compute_reduced_division_gs31( self, parameters, encoding_scheme )
+        function gs31 = compute_reduced_division_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1772,7 +1970,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs31 = self.compute_reduced_absolute_division_gs31( R3, Gm3, dEs31, Ia3 );
+                gs31 = self.compute_reduced_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1783,7 +1981,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs31 = self.compute_reduced_relative_division_gs31( R3, Gm3, dEs31, Ia3 );
+                gs31 = self.compute_reduced_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
             
             else
             
@@ -1798,9 +1996,10 @@ classdef synapse_utilities_class
         % ---------- Reduced Division Subnetwork Functions (Synapse 32) ----------        
         
         % Implement a function to compute the maximum synaptic conductance of denominator reduced relative division subnetwork synapses.
-        function gs32 = compute_reduced_absolute_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3 )
+        function gs32 = compute_reduced_absolute_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -1810,14 +2009,23 @@ classdef synapse_utilities_class
             
             % Compute the maximum synaptic conductance.
             gs32 = ( ( dEs31 - delta )*gs31 + ( Ia3 - delta*Gm3 ) )/( delta - dEs32 );
+            
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs32 ), 'Invalid synaptic conductance detected.' )
+            
+            end
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of denominator reduced relative division subnetwork synapses.
-        function gs32 = compute_reduced_relative_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3 )
+        function gs32 = compute_reduced_relative_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -1828,13 +2036,22 @@ classdef synapse_utilities_class
             % Compute the maximum synaptic conductance.
             gs32 = ( ( dEs31 - delta )*gs31 + ( Ia3 - delta*Gm3 ) )/( delta - dEs32 );
             
+            % Determine whether to validate the synaptic conductance.
+            if validation_flag              % If we want to validate the synaptic conductances...
+            
+                % Ensure that the synaptic conductance is valid.
+                assert( self.validate_gs( gs32 ), 'Invalid synaptic conductance detected.' )
+            
+            end
+            
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of numerator reduced division subnetwork synapses.
-        function gs32 = compute_reduced_division_gs32( self, parameters, encoding_scheme )
+        function gs32 = compute_reduced_division_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Determine how to compute the synaptic reversal potential.
@@ -1849,7 +2066,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs32 = self.compute_reduced_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+                gs32 = self.compute_reduced_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -1862,7 +2079,7 @@ classdef synapse_utilities_class
                 Ia3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs32 = self.compute_reduced_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+                gs32 = self.compute_reduced_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
             
             else
             
@@ -2595,6 +2812,31 @@ classdef synapse_utilities_class
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
                 
             end
+            
+        end
+        
+        
+        % ---------- Derivation Subnetwork Functions ----------
+        
+        % Implement a function to compute the maximum synaptic conductances for a derivative subnetwork.
+        function [ gs13, gs23 ] = compute_derivation_gs( self, Gm3, R1, dEs13, dEs23, Ia3, k )
+            
+            %{
+            Input(s):
+                Gm3             =   [S] Membrane Conductance (Neuron 3).
+                R1              =   [V] Maximum Membrane Voltage (Neuron 1).
+                dE_syn13        =   [V] Synaptic Reversal Potential (Synapse 13).
+                dE_syn23        =   [V] Synaptic Reversal Potential (Synapse 23).
+                I_app3          =   [A] Applied Current (Neuron 3).
+                k               =   [-] Derivation Subnetwork Gain.
+            
+            Output(s):
+                g_syn_max13     =   [S] Maximum Synaptic Conductance (Synapse 13).
+                g_syn_max23     =   [S] Maximum Synaptic Conductnace (Synapse 23).
+            %}
+            
+            % Compute the maximum synaptic conductances for a derivative subnetwork in the same way as for a subtraction subnetwork.
+            [ gs13, gs23 ] = self.compute_subtraction_gs( Gm3, R1, dEs13, dEs23, Ia3, k );
             
         end
         

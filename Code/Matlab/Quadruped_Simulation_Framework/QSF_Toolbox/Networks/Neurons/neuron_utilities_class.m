@@ -282,6 +282,77 @@ classdef neuron_utilities_class
         end
         
         
+        %% Membrane Conductance Functions.
+        
+        % ---------- Derivation Subnetwork Functions ----------
+        
+        %{
+        
+        % Implement a function to compute membrane conductance for a derivative subnetwork.
+        function Gm = compute_derivation_Gm( ~, k, w, safety_factor )
+            
+            %{
+            Input(s):
+                k               =   [-] Derivation Subnetwork Gain.
+                w               =   [-] Derivation Subnetwork Cutoff.
+                safety_factor   =   [-] Derivation Subnetwork Safety Factor.
+            
+            Output(s):
+                Gm              =   [S] Membrane Conductance.
+            %}
+            
+            % Set the default input arugments.
+            if nargin < 4, safety_factor = self.sf_derivation_DEFAULT; end
+            if nargin < 3, w = self.w_derivation_DEFAULT; end
+            if nargin < 2, k = self.c_derivation_DEFAULT; end
+            
+            % Compute the required membrance conductance.
+            Gm = ( 1 - safety_factor )./( k.*w );    
+            
+        end
+        
+        %}
+        
+        
+        %% Membrane Capacitance Functions.
+        
+        % ---------- Derivation Subnetwork Functions ----------
+        
+        %{
+        
+        % Implement a function to compute membrane capacitances for a derivative subnetwork.
+        function [ Cm1, Cm2 ] = compute_derivation_Cms( ~, Gm, k, w )
+            
+            %{
+            Input(s):
+                Gm = [S] Membrane Conductance.
+                k = [-] Derivation Subnetwork Gain.
+            `   w = [-] Derivation Subnetwork Cutoff.
+            
+            Output(s):
+                Cm1 = [F] Membrane Conductance (Neuron 1).
+                Cm2 = [F] Membrane Conductnace (Neuron 2).
+            %}
+            
+            % Set the default input arugments.
+            if nargin < 4, w = self.w_derivation_DEFAULT; end
+            if nargin < 3, k = self.c_derivation_DEFAULT; end
+            if nargin < 2, Gm = 1e-6; end
+            
+           % Compute the required time constant.
+            tau = 1./w;
+            
+            % Compute the required membrane capacitance of the second neuron.
+            Cm2 = Gm.*tau;
+            
+            % Compute the required membrane capacitance of the first neuron.
+            Cm1 = Cm2 - ( Gm.^2 ).*k; 
+            
+        end
+        
+        %}
+        
+        
         %% Sodium Channel Conductance Functions.
         
         % ---------- Transmission Subnetwork Functions ----------
