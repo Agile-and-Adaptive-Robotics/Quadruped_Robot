@@ -1384,8 +1384,8 @@ classdef synapse_utilities_class
         function gs21 = compute_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2 )
             
             % Define the default input arguments.
-            if nargin < 3, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
-            if nargin < 2, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
+            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
             
@@ -1946,31 +1946,31 @@ classdef synapse_utilities_class
         % ---------- Multiplication Subnetwork Functions (Synapse 41) ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
-        function gs41 = compute_absolute_multiplication_gs41( self, R3, Gm3, dEs31, Ia3 )
+        function gs41 = compute_absolute_multiplication_gs41( self, R4, Gm4, dEs41, Ia4 )
         
             % Set the default input arugments.
-            if nargin < 5, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 2, R3 = self.R_DEFAULT; end
+            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, R4 = self.R_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs41 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3 );
+            gs41 = self.compute_absolute_division_gs31( R4, Gm4, dEs41, Ia4 );
             
         end
         
             
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
-        function gs41 = compute_relative_multiplication_gs41( self, R3, Gm3, dEs31, Ia3 )
+        function gs41 = compute_relative_multiplication_gs41( self, R4, Gm4, dEs41, Ia4 )
            
             % Set the default input arugments.
-            if nargin < 5, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 2, R3 = self.R_DEFAULT; end
+            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, R4 = self.R_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs41 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3 );
+            gs41 = self.compute_relative_division_gs31( R4, Gm4, dEs41, Ia4 );
             
         end
         
@@ -1985,24 +1985,24 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                R3 = parameters{ 1 };
-                Gm3 = parameters{ 2 };
-                dEs31 = parameters{ 3 };
-                Ia3 = parameters{ 4 };
+                R4 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                dEs41 = parameters{ 3 };
+                Ia4 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs41 = self.compute_absolute_multiplication_gs41( R3, Gm3, dEs31, Ia3 );
+                gs41 = self.compute_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                R3 = parameters{ 1 };
-                Gm3 = parameters{ 2 };
-                dEs31 = parameters{ 3 };
-                Ia3 = parameters{ 4 };
+                R4 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                dEs41 = parameters{ 3 };
+                Ia4 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs41 = self.compute_relative_multiplication_gs41( R3, Gm3, dEs31, Ia3 );
+                gs41 = self.compute_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
             
             else
             
@@ -2017,35 +2017,31 @@ classdef synapse_utilities_class
         % ---------- Multiplication Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 32.
-        function gs32 = compute_absolute_multiplication_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3 )
+        function gs32 = compute_absolute_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3 )
         
             % Set the default input arguments.
-            if nargin < 7, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 4, gs31 = self.gs_DEFAULT; end
+            if nargin < 3, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
+            if nargin < 2, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs32 = self.compute_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+            gs32 = self.compute_absolute_inversion_gs21( delta1, Gm3, dEs32, Ia3 );
             
         end
         
             
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 32.
-        function gs32 = compute_relative_multiplication_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3 )
+        function gs32 = compute_relative_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3 )
            
             % Set the default input arguments.
-            if nargin < 7, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 4, gs31 = self.gs_DEFAULT; end
+            if nargin < 5, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
+            if nargin < 4, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs32 = self.compute_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );            
+            gs32 = self.compute_relative_inversion_gs21( delta1, Gm3, dEs32, Ia3 );            
             
         end
         
@@ -2060,28 +2056,24 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                delta = parameters{ 1 };
+                delta1 = parameters{ 1 };
                 Gm3 = parameters{ 2 };
-                gs31 = parameters{ 3 };
-                dEs31 = parameters{ 4 };
-                dEs32 = parameters{ 5 };
-                Ia3 = parameters{ 6 };
+                dEs32 = parameters{ 3 };
+                Ia3 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs32 = self.compute_absolute_multiplication_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+                gs32 = self.compute_absolute_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };
+                delta1 = parameters{ 1 };
                 Gm3 = parameters{ 2 };
-                gs31 = parameters{ 3 };
-                dEs31 = parameters{ 4 };
-                dEs32 = parameters{ 5 };
-                Ia3 = parameters{ 6 };
+                dEs32 = parameters{ 3 };
+                Ia3 = parameters{ 4 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs32 = self.compute_relative_multiplication_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3 );
+                gs32 = self.compute_relative_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
             
             else
             
@@ -2095,24 +2087,516 @@ classdef synapse_utilities_class
         
         % ---------- Multiplication Subnetwork Functions (Synapse 43) ----------
 
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
+        function gs43 = compute_absolute_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4 )
+        
+            % Set the default input arugments.
+            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 4, gs41 = self.gs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.            
+            gs43 = self.compute_absolute_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+        
+            
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
+        function gs43 = compute_relative_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4 )
+           
+            % Set the default input arguments.
+            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 4, gs41 = self.gs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.            
+            gs43 = compute_relative_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
+        function gs43 = compute_multiplication_gs43( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Unpack the parameters.
+                delta2 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                gs41 = parameters{ 3 };
+                dEs41 = parameters{ 4 };
+                dEs43 = parameters{ 5 };
+                Ia4 = parameters{ 6 };
+                
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                gs43 = self.compute_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Unpack the parameters.
+                delta2 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                gs41 = parameters{ 3 };
+                dEs41 = parameters{ 4 };
+                dEs43 = parameters{ 5 };
+                Ia4 = parameters{ 6 };
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                gs43 = self.compute_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+                
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         % ---------- Multiplication Subnetwork Functions (Combined) ----------
 
+        % Implement a function to compute the maximum synaptic conductance of combined absolute multiplication subnetwork synapses.
+        function [ gs41, gs32, gs43 ] = compute_absolute_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 )
+            
+            % Set the default input arguments.
+            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 10, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 4, R4 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance for synapse 41.            
+            gs41 = self.compute_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
+            
+            % Compute the maximum synaptic conductance for synapse 32.
+            gs32 = self.compute_absolute_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
+            
+            % Compute the maximum synaptic conductance for synapse 43.
+            gs43 = self.compute_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+
         
+        % Implement a function to compute the maximum synaptic conductance of combined relative multiplication subnetwork synapses.
+        function [ gs41, gs32, gs43 ] = compute_relative_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 )
+            
+            % Set the default input arguments.
+            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 10, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 4, R4 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance for synapse 41.            
+            gs41 = self.compute_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
+            
+            % Compute the maximum synaptic conductance for synapse 32.            
+            gs32 = self.compute_relative_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
+            
+            % Compute the maximum synaptic conductance for synapse 43.
+            gs43 = self.compute_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of reduced multiplication subnetwork synapses.
+        function [ gs41, gs32, gs43 ] = compute_multiplication_gs( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Unpack the parameters.
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R4 = parameters{ 3 };
+                Gm3 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
+                dEs32 = parameters{ 7 };
+                dEs43 = parameters{ 8 };
+                Ia3 = parameters{ 9 };
+                Ia4 = parameters{ 10 };
+                
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                [ gs41, gs32, gs43 ] = self.compute_absolute_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Unpack the parameters.
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R4 = parameters{ 3 };
+                Gm3 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
+                dEs32 = parameters{ 7 };
+                dEs43 = parameters{ 8 };
+                Ia3 = parameters{ 9 };
+                Ia4 = parameters{ 10 };
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                [ gs41, gs32, gs43 ] = self.compute_relative_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 );
+                
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 41) ----------
         
+        % Implement a function to compute the maximum synaptic conductance of reduced absolute multiplication subnetwork synapse 41.
+        function gs41 = compute_reduced_absolute_multiplication_gs41( self, R4, Gm4, dEs41, Ia4 )
+        
+            % Set the default input arugments.
+            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, R4 = self.R_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.
+            gs41 = self.compute_reduced_absolute_division_gs31( R4, Gm4, dEs41, Ia4 );
+                        
+        end
+        
+            
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
+        function gs41 = compute_reduced_relative_multiplication_gs41( self, R4, Gm4, dEs41, Ia4 )
+           
+            % Set the default input arugments.
+            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, R4 = self.R_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.
+            gs41 = self.compute_reduced_relative_division_gs31( R4, Gm4, dEs41, Ia4 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
+        function gs41 = compute_reduced_multiplication_gs41( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Unpack the parameters.
+                R4 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                dEs41 = parameters{ 3 };
+                Ia4 = parameters{ 4 };
+                
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                gs41 = self.compute_reduced_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Unpack the parameters.
+                R4 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                dEs41 = parameters{ 3 };
+                Ia4 = parameters{ 4 };
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                gs41 = self.compute_reduced_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 32) ----------
 
+        % Implement a function to compute the maximum synaptic conductance of reduced absolute multiplication subnetwork synapse 32.
+        function gs32 = compute_reduced_absolute_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 3, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
+            if nargin < 2, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 3, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.
+            gs32 = self.compute_reduced_absolute_inversion_gs21( delta1, Gm3, dEs32, Ia3 );
+            
+        end
+        
+            
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 32.
+        function gs32 = compute_reduced_relative_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3 )
+           
+            % Set the default input arguments.
+            if nargin < 5, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
+            if nargin < 4, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 3, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.
+            gs32 = self.compute_reduced_relative_inversion_gs21( delta1, Gm3, dEs32, Ia3 );            
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 32.
+        function gs32 = compute_reduced_multiplication_gs32( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Unpack the parameters.
+                delta1 = parameters{ 1 };
+                Gm3 = parameters{ 2 };
+                dEs32 = parameters{ 3 };
+                Ia3 = parameters{ 4 };
+                
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                gs32 = self.compute_reduced_absolute_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Unpack the parameters.
+                delta1 = parameters{ 1 };
+                Gm3 = parameters{ 2 };
+                dEs32 = parameters{ 3 };
+                Ia3 = parameters{ 4 };
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                gs32 = self.compute_reduced_relative_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 43) ----------
 
+        % Implement a function to compute the maximum synaptic conductance of reduced absolute multiplication subnetwork synapse 43.
+        function gs43 = compute_reduced_absolute_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4 )
+        
+            % Set the default input arugments.
+            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 4, gs41 = self.gs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.            
+            gs43 = self.compute_reduced_absolute_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+        
+            
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
+        function gs43 = compute_reduced_relative_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4 )
+           
+            % Set the default input arguments.
+            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 4, gs41 = self.gs_DEFAULT; end
+            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance.            
+            gs43 = compute_reduced_relative_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
+        function gs43 = compute_reduced_multiplication_gs43( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Unpack the parameters.
+                delta2 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                gs41 = parameters{ 3 };
+                dEs41 = parameters{ 4 };
+                dEs43 = parameters{ 5 };
+                Ia4 = parameters{ 6 };
+                
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                gs43 = self.compute_reduced_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Unpack the parameters.
+                delta2 = parameters{ 1 };
+                Gm4 = parameters{ 2 };
+                gs41 = parameters{ 3 };
+                dEs41 = parameters{ 4 };
+                dEs43 = parameters{ 5 };
+                Ia4 = parameters{ 6 };
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                gs43 = self.compute_reduced_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+                
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         % ---------- Reduced Multiplication Subnetwork Functions (Combined) ----------
         
+        % Implement a function to compute the maximum synaptic conductance of combined reduced absolute multiplication subnetwork synapses.
+        function [ gs41, gs32, gs43 ] = compute_reduced_absolute_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 )
+            
+            % Set the default input arguments.
+            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 10, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 4, R4 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance for synapse 41.            
+            gs41 = self.compute_reduced_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
+            
+            % Compute the maximum synaptic conductance for synapse 32.
+            gs32 = self.compute_reduced_absolute_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
+            
+            % Compute the maximum synaptic conductance for synapse 43.
+            gs43 = self.compute_reduced_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+
         
+        % Implement a function to compute the maximum synaptic conductance of combined relative multiplication subnetwork synapses.
+        function [ gs41, gs32, gs43 ] = compute_reduced_relative_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 )
+            
+            % Set the default input arguments.
+            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 10, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 4, R4 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+            
+            % Compute the maximum synaptic conductance for synapse 41.            
+            gs41 = self.compute_reduced_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4 );
+            
+            % Compute the maximum synaptic conductance for synapse 32.            
+            gs32 = self.compute_reduced_relative_multiplication_gs32( delta1, Gm3, dEs32, Ia3 );
+            
+            % Compute the maximum synaptic conductance for synapse 43.
+            gs43 = self.compute_reduced_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance of reduced multiplication subnetwork synapses.
+        function [ gs41, gs32, gs43 ] = compute_reduced_multiplication_gs( self, parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Unpack the parameters.
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R4 = parameters{ 3 };
+                Gm3 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
+                dEs32 = parameters{ 7 };
+                dEs43 = parameters{ 8 };
+                Ia3 = parameters{ 9 };
+                Ia4 = parameters{ 10 };
+                
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                [ gs41, gs32, gs43 ] = self.compute_absolute_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Unpack the parameters.
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R4 = parameters{ 3 };
+                Gm3 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
+                dEs32 = parameters{ 7 };
+                dEs43 = parameters{ 8 };
+                Ia3 = parameters{ 9 };
+                Ia4 = parameters{ 10 };
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                [ gs41, gs32, gs43 ] = self.compute_relative_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4 );
+                
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Central Pattern Generator Subnetwork Functions ----------
