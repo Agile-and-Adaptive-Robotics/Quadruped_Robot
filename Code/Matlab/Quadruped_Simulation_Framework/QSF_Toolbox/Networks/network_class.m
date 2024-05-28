@@ -707,7 +707,7 @@ classdef network_class
         end
         
         
-        %% Compute Functions.
+        %% Compute Synaptic Conductance Functions.
         
         % Implement a function to compute the synaptic conductance for each synapse.
         function [ Gs, synapses, synapse_manager, self ] = compute_Gs( self, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
@@ -739,58 +739,39 @@ classdef network_class
         end
         
         
-        % Implement a function to compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-        function [ gs, synapses, synapse_manager, self ] = compute_cpg_gs( self, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
+        %% Compute Design Parameter Functions.
+        
+        %{
+        
+        % Implement a function to compute the input offset for a relative inversion subnetwork.
+        function epsilon = compute_relative_inversion_epsilon( self, c, network_utilities )
             
-            % Set the default neuron IDs.
-            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 4, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 2, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
+            % Define the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 2, c = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
             
-            % Validate the neuron IDs.
-            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            % Compute the input offset.
+            epsilon = network_utilities.compute_relative_inversion_epsilon( c );
             
-            % Retrieve the neuron membrane conductances.
-            Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true, neuron_manager.neurons, undetected_option )';
+        end
+                
+        
+        % Implement a function to compute the output offset for a relative inversion subnetwork.
+        function delta = compute_relative_inversion_delta( self, c, network_utilities )
             
-            % Retrieve the neuron membrane voltage ranges.
-            Rs = neuron_manager.get_neuron_property( neuron_IDs, 'R', true, neuron_manager.neurons, undetected_option )'; Rs = repmat( Rs', [ neuron_manager.num_neurons, 1 ] );
+            % Define the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 2, c = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
             
-            % Retrieve the sodium channel conductances.
-            Gnas = neuron_manager.get_neuron_property( neuron_IDs, 'Gna', true, neuron_manager.neurons, undetected_option )';
-            
-            % Retrieve the neuron sodium channel activation parameters.
-            Ams = neuron_manager.get_neuron_property( neuron_IDs, 'Am', true, neuron_manager.neurons, undetected_option )';
-            Sms = neuron_manager.get_neuron_property( neuron_IDs, 'Sm', true, neuron_manager.neurons, undetected_option )';
-            dEms = neuron_manager.get_neuron_property( neuron_IDs, 'dEm', true, neuron_manager.neurons, undetected_option )';
-            
-            % Retrieve the neuron sodium channel deactivation parameters.
-            Ahs = neuron_manager.get_neuron_property( neuron_IDs, 'Ah', true, neuron_manager.neurons, undetected_option )';
-            Shs = neuron_manager.get_neuron_property( neuron_IDs, 'Sh', true, neuron_manager.neurons, undetected_option )';
-            dEhs = neuron_manager.get_neuron_property( neuron_IDs, 'dEh', true, neuron_manager.neurons, undetected_option )';
-            
-            % Retrieve the sodium channel reversal potentials.
-            dEnas = neuron_manager.get_neuron_property( neuron_IDs, 'dEna', true, neuron_manager.neurons, undetected_option )';
-            
-            % Retrieve the tonic currents.
-            Itonics = neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true, neuron_manager.neurons, undetected_option )';
-            
-            % Retrieve the synapse properties.
-            deltas = self.get_deltas( neuron_IDs, neuron_manager, synapse_manager );
-            dEs = self.get_dEs( neuron_IDs, neuron_manager, synapse_manager );
-            
-            % Compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
-            gs = network_utilities.compute_cpg_gs_matrix( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Itonics, neuron_manager.neuron_utilities );
-            
-            % Set the synaptic conductances (if appropriate).
-            [ synapses, synapse_manager, self ] = self.set_gs( gs, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option );
+            % Compute the output offset.
+            delta = network_utilities.compute_relative_inversion_delta( c );
             
         end
         
+        %}
         
+        %% Compute Maximum Synaptic Conductance Functions.
+                
         % Implement a function to compute the maximum synaptic conductances required to design a transmission subnetwork with the specified parameters.
         function [ gs12, synapses, synapse_manager, self ] = compute_transmission_gs( self, neuron_IDs, synapse_ID, Ia2, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
@@ -812,49 +793,12 @@ classdef network_class
             R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option );
             
             % Retrieve the synaptic reversal potential.
-            dEs12 = synapse_manager.get_synapse_property( synapse_ID, 'dEs', true, synapse_manager.synapses, undetected_option );
+            dEs21 = synapse_manager.get_synapse_property( synapse_ID, 'dEs', true, synapse_manager.synapses, undetected_option );
             
             % Compute the required maximum synaptic conductances required to design a transmission subnetwork.
-            gs12 = network_utilities.compute_transmission_gs( Gm2, R1, dEs12, Ia2, k );
+            gs12 = network_utilities.compute_transmission_gs( Gm2, R1, dEs21, Ia2, k );
             
-            % Set the maximum synaptic conductances of the relevant synapses.
-            synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs12, 'gs' );
-            
-            % Retrieve the updated synapses.
-            synapses = synapse_manager.synapses;
-            
-            % Determine whether to update the network object.
-            if set_flag, self.synapse_manager = synapse_manager; end
-            
-        end
-        
-        
-        % Implement a function to compute the maximum synaptic conductances required to design a modulation subnetwork with the specified parameters.
-        function [ gs12, synapses, synapse_manager, self ] = compute_modulation_gs( self, neuron_IDs, synapse_ID, Ia2, c, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 5, c = self.c_modulation_DEFAULT; end                                                           % [-] Modulation Gain.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
-            
-            % Validate the neuron and synapse IDs.
-            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
-            synapse_ID = synapse_manager.validate_synapse_IDs( synapse_ID );
-            
-            % Retrieve the neuron properties.
-            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option );
-            R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option );
-            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option );
-            
-            % Retrieve the synaptic reversal potential.
-            dEs12 = synapse_manager.get_synapse_property( synapse_ID, 'dEs', true, synapse_manager.synapses, undetected_option );
-            
-            % Compute the maximum synaptic conductance for a modulation subnetwork.
-            gs12 = network_utilities.compute_modulation_gs( Gm2, R1, R2, dEs12, Ia2, c );
+            gs21 = compute_transmission_gs21( parameters, encoding_scheme, validation_flag )
             
             % Set the maximum synaptic conductances of the relevant synapses.
             synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs12, 'gs' );
@@ -996,6 +940,86 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances required to design an inversion subnetwork with the specified parameters.
+        function [ gs12, synapses, synapse_manager, self ] = compute_inversion_gs( self, neuron_IDs, Ia2, epsilon, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, k = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
+            if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end                                                % [-] Inversion Offset.
+            if nargin < 3, Ia2 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
+            
+            % Validate the neuron IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option )';
+            R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option )';
+            
+            % Compute the maximum synaptic conductances for this inversion subnetwork.
+            gs12 = network_utilities.compute_inversion_gs( Gm2, R1, Ia2, k, epsilon );
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs12, 'gs' );
+            
+            % Retrieve the updated synapses.
+            synapses = synapse_manager.synapses;
+            
+            % Determine whether to update the network object.
+            if set_flag, self.synapse_manager = synapse_manager; end
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances required to design a division subnetwork with the specified parameters.
+        function [ gs, synapses, synapse_manager, self ] = compute_division_gs( self, neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 11, network_utilities = self.network_utilities; end                                          	% [class] Network Utilities Class.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.                                  	% [str] Undetected Option.
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 6, c = self.c_modulation_DEFAULT; end                                                       	% [-] Modulation Subnetwork Gain.
+            if nargin < 5, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
+            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
+            
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the neuron properties.
+            Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option )';
+            R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option )';
+            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option )';
+            R3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the synaptic reversal potentials associated with these synapses.
+            dEs13 = synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapse_manager.synapses, undetected_option )';
+            dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapse_manager.synapses, undetected_option )';
+            
+            % Compute the maximum synaptic conductances for this division subnetwork.
+            [ gs13, gs23 ] = network_utilities.compute_division_gs( Gm3, R1, R2, R3, dEs13, dEs23, Ia3, k, c );
+            
+            % Store the maximum synaptic conductances.
+            gs = [ gs13, gs23 ];
+            
+            % Set the maximum synaptic conductances of the relevant synapses.
+            synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'gs' );
+            
+            % Retrieve the updated synapses.
+            synapses = synapse_manager.synapses;
+            
+            % Determine whether to update the network object.
+            if set_flag, self.synapse_manager = synapse_manager; end
+            
+        end
+        
+        
         % Implement a function to compute the maximum synaptic conductances required to design a multiplication subnetwork with the specifed parameters.
         function [ gs, synapses, synapse_manager, self ] = compute_multiplication_gs( self, neuron_IDs, synapse_IDs, Ia3, Ia4, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
@@ -1039,112 +1063,6 @@ classdef network_class
             
             % Set the maximum synaptic conductances of the relevant synapses.
             synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'gs' );
-            
-            % Determine whether to update the network object.
-            if set_flag, self.synapse_manager = synapse_manager; end
-            
-        end
-        
-        
-        % Implement a function to compute the maximum synaptic conductances required to design an inversion subnetwork with the specified parameters.
-        function [ gs12, synapses, synapse_manager, self ] = compute_inversion_gs( self, neuron_IDs, Ia2, epsilon, k, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 10, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 5, k = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
-            if nargin < 4, epsilon = self.epsilon_inversion_DEFAULT; end                                                % [-] Inversion Offset.
-            if nargin < 3, Ia2 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
-            
-            % Validate the neuron IDs.
-            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
-            
-            % Retrieve the neuron properties.
-            Gm2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option )';
-            R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option )';
-            
-            % Compute the maximum synaptic conductances for this inversion subnetwork.
-            gs12 = network_utilities.compute_inversion_gs( Gm2, R1, Ia2, k, epsilon );
-            
-            % Set the maximum synaptic conductances of the relevant synapses.
-            synapse_manager = synapse_manager.set_synapse_property( synapse_ID, gs12, 'gs' );
-            
-            % Retrieve the updated synapses.
-            synapses = synapse_manager.synapses;
-            
-            % Determine whether to update the network object.
-            if set_flag, self.synapse_manager = synapse_manager; end
-            
-        end
-        
-        
-        % Implement a function to compute the input offset for a relative inversion subnetwork.
-        function epsilon = compute_relative_inversion_epsilon( self, c, network_utilities )
-            
-            % Define the default input arguments.
-            if nargin < 3, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 2, c = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
-            
-            % Compute the input offset.
-            epsilon = network_utilities.compute_relative_inversion_epsilon( c );
-            
-        end
-        
-        
-        % Implement a function to compute the output offset for a relative inversion subnetwork.
-        function delta = compute_relative_inversion_delta( self, c, network_utilities )
-            
-            % Define the default input arguments.
-            if nargin < 3, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 2, c = self.c_inversion_DEFAULT; end                                                            % [-] Inversion Gain.
-            
-            % Compute the output offset.
-            delta = network_utilities.compute_relative_inversion_delta( c );
-            
-        end
-        
-        
-        % Implement a function to compute the maximum synaptic conductances required to design a division subnetwork with the specified parameters.
-        function [ gs, synapses, synapse_manager, self ] = compute_division_gs( self, neuron_IDs, synapse_IDs, Ia3, k, c, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end                                          	% [class] Network Utilities Class.
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.                                  	% [str] Undetected Option.
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 6, c = self.c_modulation_DEFAULT; end                                                       	% [-] Modulation Subnetwork Gain.
-            if nargin < 5, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
-            if nargin < 4, Ia3 = self.Ia_DEFAULT; end                                                                   % [A] Applied Current.
-            
-            % Validate the neuron and synapse IDs.
-            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
-            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
-            
-            % Retrieve the neuron properties.
-            Gm3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option )';
-            R1 = neuron_manager.get_neuron_property( neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option )';
-            R2 = neuron_manager.get_neuron_property( neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option )';
-            R3 = neuron_manager.get_neuron_property( neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option )';
-            
-            % Retrieve the synaptic reversal potentials associated with these synapses.
-            dEs13 = synapse_manager.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapse_manager.synapses, undetected_option )';
-            dEs23 = synapse_manager.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapse_manager.synapses, undetected_option )';
-            
-            % Compute the maximum synaptic conductances for this division subnetwork.
-            [ gs13, gs23 ] = network_utilities.compute_division_gs( Gm3, R1, R2, R3, dEs13, dEs23, Ia3, k, c );
-            
-            % Store the maximum synaptic conductances.
-            gs = [ gs13, gs23 ];
-            
-            % Set the maximum synaptic conductances of the relevant synapses.
-            synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, gs, 'gs' );
-            
-            % Retrieve the updated synapses.
-            synapses = synapse_manager.synapses;
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -1232,47 +1150,6 @@ classdef network_class
         end
         
         
-        % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
-        function [ dEs, synapses, synapse_manager, self ] = compute_integration_dEs( self, neuron_IDs, synapse_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            
-            % Validate the neuron and synapse IDs.
-            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
-            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
-            
-            % Retrieve the membrane conductances and voltage domains.
-            Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true, neuron_manager.neurons, undetected_option );
-            Rs = neuron_manager.get_neuron_property( neuron_IDs, 'R', true, neuron_manager.neurons, undetected_option );
-            
-            % Retrieve the maximum synaptic conductances
-            gs = synapse_manager.get_synapse_property( synapse_IDs, 'gs', true, synapse_manager.synapses, undetected_option )';
-            
-            % Ensure that the integration network is symmetric.
-            assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
-            assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
-            assert( gs( 1 ) == gs( 2 ), 'Integration subnetwork neurons must have symmetrical maximum synaptic conductances.' );
-            
-            % Compute the synaptic reversal potentials for an integration subnetwork.
-            dEs = network_utilities.compute_integration_dEs( Gms( 1 ), Rs( 1 ), gs( 1 ) );
-            
-            % Set the synaptic reversal potentials of the relevant synapses.
-            synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, dEs*ones( 1, 2 ), 'dEs' );
-            
-            % Retrieve the updated synapses.
-            synapses = synapse_manager.synapses;
-            
-            % Determine whether to update the network object.
-            if set_flag, self.synapse_manager = synapse_manager; end
-            
-        end
-        
-        
         % Implement a function to compute the maximum synaptic conductances for an integration subnetwork.
         function [ gs, synapses, synapse_manager, self ] = compute_vbi_gs( self, neuron_IDs, synapse_IDs, T, n, ki_mean, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
             
@@ -1311,6 +1188,101 @@ classdef network_class
             
             % Set the maximum synaptic conductances of the relevant synapses.
             synapse_manager = synapse_manager.set_synapse_property( synapse_IDs( 1:2 ), gs, 'gs' );
+            
+            % Retrieve the updated synapses.
+            synapses = synapse_manager.synapses;
+            
+            % Determine whether to update the network object.
+            if set_flag, self.synapse_manager = synapse_manager; end
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
+        function [ gs, synapses, synapse_manager, self ] = compute_cpg_gs( self, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
+            
+            % Set the default neuron IDs.
+            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 4, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 3, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 2, neuron_IDs = 'all'; end                                                                      % [#] Neuron IDs.
+            
+            % Validate the neuron IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            
+            % Retrieve the neuron membrane conductances.
+            Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the neuron membrane voltage ranges.
+            Rs = neuron_manager.get_neuron_property( neuron_IDs, 'R', true, neuron_manager.neurons, undetected_option )'; Rs = repmat( Rs', [ neuron_manager.num_neurons, 1 ] );
+            
+            % Retrieve the sodium channel conductances.
+            Gnas = neuron_manager.get_neuron_property( neuron_IDs, 'Gna', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the neuron sodium channel activation parameters.
+            Ams = neuron_manager.get_neuron_property( neuron_IDs, 'Am', true, neuron_manager.neurons, undetected_option )';
+            Sms = neuron_manager.get_neuron_property( neuron_IDs, 'Sm', true, neuron_manager.neurons, undetected_option )';
+            dEms = neuron_manager.get_neuron_property( neuron_IDs, 'dEm', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the neuron sodium channel deactivation parameters.
+            Ahs = neuron_manager.get_neuron_property( neuron_IDs, 'Ah', true, neuron_manager.neurons, undetected_option )';
+            Shs = neuron_manager.get_neuron_property( neuron_IDs, 'Sh', true, neuron_manager.neurons, undetected_option )';
+            dEhs = neuron_manager.get_neuron_property( neuron_IDs, 'dEh', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the sodium channel reversal potentials.
+            dEnas = neuron_manager.get_neuron_property( neuron_IDs, 'dEna', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the tonic currents.
+            Itonics = neuron_manager.get_neuron_property( neuron_IDs, 'I_tonic', true, neuron_manager.neurons, undetected_option )';
+            
+            % Retrieve the synapse properties.
+            deltas = self.get_deltas( neuron_IDs, neuron_manager, synapse_manager );
+            dEs = self.get_dEs( neuron_IDs, neuron_manager, synapse_manager );
+            
+            % Compute the maximum synaptic conductances required to design a multistate CPG with the specified deltas.
+            gs = network_utilities.compute_cpg_gs_matrix( deltas, Gms, Rs, dEs, Gnas, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, Itonics, neuron_manager.neuron_utilities );
+            
+            % Set the synaptic conductances (if appropriate).
+            [ synapses, synapse_manager, self ] = self.set_gs( gs, neuron_IDs, neuron_manager, synapse_manager, set_flag, undetected_option );
+            
+        end
+        
+        
+        %% Compute Synaptic Reversal Potential Functions.
+        
+        % Implement a function to compute the synaptic reversal potentials for an integration subnetwork.
+        function [ dEs, synapses, synapse_manager, self ] = compute_integration_dEs( self, neuron_IDs, synapse_IDs, neuron_manager, synapse_manager, set_flag, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            
+            % Validate the neuron and synapse IDs.
+            neuron_IDs = neuron_manager.validate_neuron_IDs( neuron_IDs );
+            synapse_IDs = synapse_manager.validate_synapse_IDs( synapse_IDs );
+            
+            % Retrieve the membrane conductances and voltage domains.
+            Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true, neuron_manager.neurons, undetected_option );
+            Rs = neuron_manager.get_neuron_property( neuron_IDs, 'R', true, neuron_manager.neurons, undetected_option );
+            
+            % Retrieve the maximum synaptic conductances
+            gs = synapse_manager.get_synapse_property( synapse_IDs, 'gs', true, synapse_manager.synapses, undetected_option )';
+            
+            % Ensure that the integration network is symmetric.
+            assert( Gms( 1 ) == Gms( 2 ), 'Integration subnetwork neurons must have symmetrical membrance conductances.' );
+            assert( Rs( 1 ) == Rs( 2 ), 'Integration subnetwork neurons must have symmetrical voltage domains.' );
+            assert( gs( 1 ) == gs( 2 ), 'Integration subnetwork neurons must have symmetrical maximum synaptic conductances.' );
+            
+            % Compute the synaptic reversal potentials for an integration subnetwork.
+            dEs = network_utilities.compute_integration_dEs( Gms( 1 ), Rs( 1 ), gs( 1 ) );
+            
+            % Set the synaptic reversal potentials of the relevant synapses.
+            synapse_manager = synapse_manager.set_synapse_property( synapse_IDs, dEs*ones( 1, 2 ), 'dEs' );
             
             % Retrieve the updated synapses.
             synapses = synapse_manager.synapses;

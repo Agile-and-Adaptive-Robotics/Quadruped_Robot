@@ -352,6 +352,31 @@ classdef neuron_utilities_class
         
         %}
         
+        % ---------- Integration Subnetwork Functions ----------
+        
+        %{
+        
+        % Implement a function to compute the membrane capacitances for an integration subnetwork.
+        function Cm = compute_integration_Cm( ~, ki_mean )
+        
+            %{
+            Input(s):
+                ki_mean     =   [-] Intergration Subnetwork Gain.
+            
+            Output(s):
+                Cm          =   [F] Membrane Conductance.
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 2, ki_mean = self.c_integration_mean_DEFAULT; end
+            
+            % Compute the integration subnetwork membrane capacitance.
+            Cm = 1./( 2*ki_mean );
+            
+        end
+        
+        %}
+        
         
         %% Sodium Channel Conductance Functions.
         
@@ -1110,20 +1135,6 @@ classdef neuron_utilities_class
         end
 
         
-        % Implement a function to compute the operational domain of the reduced absolute division subnetwork output neuron.
-        function R3 = compute_reduced_absolute_division_R3( self, c1, c2, R1 )
-        
-            % Set the default input arguments.
-            if nargin < 4, R1 = self.R_DEFAULT; end
-            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
-            
-            % Compute the operational domain.
-            R3 = ( c1*R1 )/c2;
-            
-        end
-
- 
         % Implement a function to compute the operational domain of the absolute division after inversion subnetwork output neuron.
         function R3 = compute_absolute_division_after_inversion_R3( self, c1, c2, c3, delta1, R1 )
             
@@ -1138,6 +1149,22 @@ classdef neuron_utilities_class
 
         end
         
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to compute the operational domain of the reduced absolute division subnetwork output neuron.
+        function R3 = compute_reduced_absolute_division_R3( self, c1, c2, R1 )
+        
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the operational domain.
+            R3 = ( c1*R1 )/c2;
+            
+        end
+
         
         % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork output neuron.
         function R3 = compute_reduced_absolute_division_after_inversion_R3( self, c1, c2, delta1, R1 )
@@ -1156,22 +1183,82 @@ classdef neuron_utilities_class
         
         % ---------- Multiplication Subnetwork Functions ----------
         
-        % Implement a function to compute the operational domain of the absolute multiplication subnetwork neurons.
-        function [ R3, R4 ] = compute_absolute_multiplication_Rs( self, c1, c3, c4, c5, c6, delta1, R1 )
-        
+        % Implement a function to compute the operational domain of the absolute multiplication subnetwork neuron 3.
+        function R3 = compute_absolute_multiplication_R3( self, c1, c3 )
+            
             % Set the default input arguments.
-            if nargin < 6, R1 = self.R_DEFAULT; end
-            if nargin < 5, c6 = self.c3_absolute_division_DEFAULT; end
-            if nargin < 4, c4 = self.c1_absolute_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
             
             % Compute the operational domain of the absolute inversion subnetwork.
             R3 = self.compute_absolute_inversion_R2( c1, c3 );
             
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute multiplication subnetwork neuron 4.
+        function R4 = compute_absolute_multiplication_R4( self, c4, c5, c6, delta1, R1 )
+        
+            % Set the default input arguments.
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 4, c6 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 3, c5 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_division_DEFAULT; end
+            
             % Compute the operational domain of the absolute division subnetwork.
             R4 = self.compute_absolute_division_after_inversion_R3( c4, c5, c6, delta1, R1 );
+                
+        end
+        
             
+        % Implement a function to compute the operational domain of the absolute multiplication subnetwork neurons.
+        function [ R3, R4 ] = compute_absolute_multiplication_Rs( self, c1, c3, c4, c5, c6, delta1, R1 )
+        
+            % Set the default input arguments.
+            if nargin < 7, R1 = self.R_DEFAULT; end
+            if nargin < 6, c6 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 5, c5 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 4, c4 = self.c1_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Compute the operational domain of the absolute inversion subnetwork.
+            R3 = self.compute_absolute_multiplication_R3( c1, c3 );
+            
+            % Compute the operational domain of the absolute division subnetwork.
+            R4 = self.compute_absolute_multiplication_R4( c4, c5, c6, delta1, R1 );
+            
+        end
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to compute the operational domain of the reduced absolute multiplication subnetwork neuron 3.
+        function R3 = compute_reduced_absolute_multiplication_R3( self, c1, c2 )
+            
+            % Set the default input arguments.
+            if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Compute the operational domain of the absolute inversion subnetwork.
+            R3 = self.compute_reduced_absolute_inversion_R2( c1, c2 );
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced absolute multiplication subnetwork neuron 4.
+        function R4 = compute_reduced_absolute_multiplication_R4( self, c3, c4, delta1, R1 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c4 = self.c2_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c1_reduced_absolute_division_after_inversion_DEFAULT; end
+            
+            % Compute the operational domain of the absolute division subnetwork.
+            R4 = self.compute_reduced_absolute_division_after_inversion_R3( c3, c4, delta1, R1 );
+
         end
         
         
@@ -1181,16 +1268,16 @@ classdef neuron_utilities_class
             % Set the default input arguments.
             if nargin < 7, R1 = self.R_DEFAULT; end
             if nargin < 6, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 5, c4 = self.c2_reduced_absolute_division_DEFAULT; end
-            if nargin < 4, c3 = self.c1_reduced_absolute_division_DEFAULT; end
+            if nargin < 5, c4 = self.c2_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 4, c3 = self.c1_reduced_absolute_division_after_inversion_DEFAULT; end
             if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
             if anrgin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the reduced absolute inversion output operational domain.
-            R3 = self.compute_reduced_absolute_inversion_R2( c1, c2 );
+            R3 = self.compute_reduced_absolute_multiplication_R3( c1, c2 );
             
             % Compute the reduced absolute division output operational domain.
-            R4 = self.compute_reduced_absolute_division_after_inversion_R3( c3, c4, delta1, R1 );
+            R4 = self.compute_reduced_absolute_multiplication_R4( c3, c4, delta1, R1 );
             
         end
         

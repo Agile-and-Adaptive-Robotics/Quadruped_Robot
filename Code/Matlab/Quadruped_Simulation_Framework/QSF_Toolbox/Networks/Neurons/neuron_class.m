@@ -280,6 +280,8 @@ classdef neuron_class
         
         %% Sodium Channel Conductance Compute Functions.
         
+        % ---------- Transmission Subnetwork Functions ----------
+        
         % Implement a function to compute the required sodium channel conductance for a transmission subnetwork neuron.
         function [ Gna, self ] = compute_transmission_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
@@ -312,21 +314,7 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the required sodium channel conductance for a modulation subnetwork neuron.
-        function [ Gna, self ] = compute_modulation_Gna( self, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
-            if nargin < 2, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
-            
-            % Compute the sodium channel conductance for a modulation subnetwork neuron.
-            Gna = neuron_utilities.compute_modulation_Gna(  );                                          % [S] Sodium Channel Conductance
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
+        % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for an addition subnetwork neuron.
         function [ Gna, self ] = compute_addition_Gna( self, encoding_scheme, set_flag, neuron_utilities )
@@ -359,6 +347,8 @@ classdef neuron_class
             
         end
         
+        
+        % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for a subtraction subnetwork neuron.
         function [ Gna, self ] = compute_subtraction_Gna( self, encoding_scheme, set_flag, neuron_utilities )
@@ -424,37 +414,7 @@ classdef neuron_class
         end
         
         
-        % Implement a function to compute the required sodium channel conductance for a multiplication subnetwork neuron.
-        function [ Gna, self ] = compute_multiplication_Gna( self, encoding_scheme, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, neuron_utilities = self.neuron_utilities; end                   	% [class] Neuron Utilities.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                         	% [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            
-            % Determine how to compute the sodium channel conductance for this multiplication subnetwork neuron.
-            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
-
-                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue multiplication subnetwork.
-                Gna = neuron_utilities.compute_absolute_multiplication_Gna(  );             % [S] Sodium Channel Conductance
-            
-            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
-            
-                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative multiplication subnetwork.
-                Gna = neuron_utilities.compute_relative_multiplication_Gna(  );             % [S] Sodium Channel Conductance
-
-            else                                                                            % Otherwise...
-
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.Gna = Gna; end
-            
-        end
-        
+        % ---------- Inversion Subnetwork Functions ----------
       
         % Implement a function to compute the required sodium channel conductance for an inversion subnetwork neuron.
         function [ Gna, self ] = compute_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
@@ -488,6 +448,40 @@ classdef neuron_class
         end
         
         
+        % Implement a function to compute the required sodium channel conductance for a reduced inversion subnetwork neuron.
+        function [ Gna, self ] = compute_reduced_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end                	% [class] Neuron Utilities.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                           	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            
+            % Determine how to compute the sodium channel conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue inversion subnetwork.
+                Gna = neuron_utilities.compute_reduced_absolute_inversion_Gna(  );                  % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative inversion subnetwork.
+                Gna = neuron_utilities.compute_reduced_relative_inversion_Gna(  );                  % [S] Sodium Channel Conductance
+
+            else                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
         % Implement a function to compute the required sodium channel conductance for a division subnetwork neuron.
         function [ Gna, self ] = compute_division_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
@@ -519,6 +513,172 @@ classdef neuron_class
             
         end
         
+        
+        % Implement a function to compute the required sodium channel conductance for a reduced division subnetwork neuron.
+        function [ Gna, self ] = compute_reduced_division_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end                  	% [class] Neuron Utilities.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                          	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            
+            % Determine how to compute the sodium channel conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue division subnetwork.
+                Gna = neuron_utilities.compute_reduced_absolute_division_Gna(  );                   % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative division subnetwork.
+                Gna = neuron_utilities.compute_reduced_relative_division_Gna(  );                   % [S] Sodium Channel Conductance
+
+            else                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the required sodium channel conductance for a division after inversion subnetwork neuron.
+        function [ Gna, self ] = compute_division_after_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end                  	% [class] Neuron Utilities.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                          	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            
+            % Determine how to compute the sodium channel conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue division subnetwork.
+                Gna = neuron_utilities.compute_absolute_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative division subnetwork.
+                Gna = neuron_utilities.compute_relative_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+
+            else                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+                
+        % Implement a function to compute the required sodium channel conductance for a reduced division after inversion subnetwork neuron.
+        function [ Gna, self ] = compute_reduced_division_after_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end                  	% [class] Neuron Utilities.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                          	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            
+            % Determine how to compute the sodium channel conductance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue division subnetwork.
+                Gna = neuron_utilities.compute_reduced_absolute_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative division subnetwork.
+                Gna = neuron_utilities.compute_reduced_relative_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+
+            else                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to compute the required sodium channel conductance for a multiplication subnetwork neuron.
+        function [ Gna, self ] = compute_multiplication_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end                   	% [class] Neuron Utilities.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                         	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            
+            % Determine how to compute the sodium channel conductance for this multiplication subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue multiplication subnetwork.
+                Gna = neuron_utilities.compute_absolute_multiplication_Gna(  );             % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative multiplication subnetwork.
+                Gna = neuron_utilities.compute_relative_multiplication_Gna(  );             % [S] Sodium Channel Conductance
+
+            else                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+        
+        % Implement a function to compute the required sodium channel conductance for a reduced multiplication subnetwork neuron.
+        function [ Gna, self ] = compute_reduced_multiplication_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, neuron_utilities = self.neuron_utilities; end                   	% [class] Neuron Utilities.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                         	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            
+            % Determine how to compute the sodium channel conductance for this multiplication subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
+
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue multiplication subnetwork.
+                Gna = neuron_utilities.compute_reduced_absolute_multiplication_Gna(  );             % [S] Sodium Channel Conductance
+            
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+            
+                % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative multiplication subnetwork.
+                Gna = neuron_utilities.compute_reduced_relative_multiplication_Gna(  );             % [S] Sodium Channel Conductance
+
+            else                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.Gna = Gna; end
+            
+        end
+        
+        
+        % ---------- Derivation Subnetwork Functions ----------
                 
         % Implement a function to compute the required sodium channel conductance for a derivation subnetwork neuron.
         function [ Gna, self ] = compute_derivation_Gna( self, set_flag, neuron_utilities )
@@ -535,6 +695,8 @@ classdef neuron_class
             
         end
         
+        
+        % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for an integration subnetwork neuron.
         function [ Gna, self ] = compute_integration_Gna( self, set_flag, neuron_utilities )
@@ -584,6 +746,8 @@ classdef neuron_class
         end
         
         
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+
         % Implement a function to compute the required sodium channel conductance to create oscillation in a CPG subnetwork.
         function [ Gna, self ] = compute_cpg_Gna( self, R, Gm, Am, Sm, dEm, Ah, Sh, dEh, dEna, set_flag, neuron_utilities )
             
@@ -626,6 +790,8 @@ classdef neuron_class
         
         
         %% Membrane Conductance Compute Functions.
+        
+        %{
         
         % Implement a function to compute the membrance conductance for addition subnetwork input neurons.
         function [ Gm, self ] = compute_addition_Gm_input( self, encoding_scheme, set_flag, neuron_utilities )
@@ -901,8 +1067,11 @@ classdef neuron_class
             
         end
         
+        %}
         
         %% Membrane Capacitance Compute Functions.
+        
+        %{
         
         % Implement a function to compute the required membrane capacitance for a transmission subnetwork neuron.
         function [ Cm, self ] = compute_transmission_Cm( self, encoding_scheme, set_flag, neuron_utilities )
@@ -1283,11 +1452,14 @@ classdef neuron_class
             
         end
         
+        %}
         
         %% Parameter Unpacking Functions.
         
-        % Implement a function to unpack the parameters required to compute the absolute addition output activation domain.
-        function Rs = unpack_absolute_addition_R_output_parameters( self, parameters )
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters required to compute the absolute transmission output activation domain.
+        function [ c, R1 ] = unpack_absolute_transmission_Rn_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [-] Parameters Cell.
@@ -1296,12 +1468,45 @@ classdef neuron_class
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Rs = self.R_DEFAULT*ones( 1, 2 );                    	% [V] Activation Domain
+                c = self.c_absolute_transmission_DEFAULT;
+                R1 = self.R_DEFAULT;                    	% [V] Activation Domain
                 
-            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
+            elseif length( parameters ) == 2                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Rs = parameters{ 1 };                                	% [V] Activation Domain
+                c = parameters{ 1 };
+                R1 = parameters{ 2 };                                	% [V] Activation Domain
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters required to compute the absolute addition output activation domain.
+        function [ cs, Rs ] = unpack_absolute_addition_Rn_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                cs = self.c_absolute_addition_DEFAULT*ones( 1, 2 );
+                Rs = self.R_DEFAULT*ones( 1, 2 );                    	% [V] Activation Domain
+                
+            elseif length( parameters ) == 2                          	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = parameters{ 1 };
+                Rs = parameters{ 2 };                                	% [V] Activation Domain
                 
             else                                                     	% Otherwise...
                 
@@ -1313,8 +1518,10 @@ classdef neuron_class
         end
         
     
+        % ---------- Subtraction Subnetwork Functions ----------
+        
         % Implement a function to unpack the parameters required to compute the absolute subtraction output activation domain.
-        function [ Rs, s_ks ] = unpack_absolute_subtraction_R_output_parameters( self, parameters )
+        function [ cs, s_ks, Rs ] = unpack_absolute_subtraction_Rn_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [-] Parameters Cell.
@@ -1323,14 +1530,16 @@ classdef neuron_class
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Rs = self.R_DEFAULT*ones( 1, 2 );                       % [V] Activation Domain.
+                cs = self.c_absolute_subtraction_DEFAULT;
                 s_ks = self.s_ks_DEFAULT;                               % [-] Subtraction Signature.
-                    
+                Rs = self.R_DEFAULT*ones( 1, 2 );                       % [V] Activation Domain.
+
             elseif length( parameters ) == 2                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Rs = parameters{ 1 };                                   % [V] Activation Domain.
+                cs = parameters{ 1 };
                 s_ks = parameters{ 2 };                                 % [-] Subtraction Signature.
+                Rs = parameters{ 3 };                                   % [V] Activation Domain.
                                     
             else                                                        % Otherwise...
                 
@@ -1342,37 +1551,10 @@ classdef neuron_class
         end
         
         
-        % Implement a function to unpack the parameters required to compute the absolute inversion input activation domain.
-        function [ epsilon, delta ] = unpack_absolute_inversion_R_input_parameters( self, parameters )
-        
-            % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                	% [-] Parameters Cell.
-            
-            % Determine how to set the parameters.
-            if isempty( parameters )                                % If the parameters are empty...
-
-                % Set the default parameters.
-                epsilon = self.epsilon_DEFAULT;                  	% [-] Subnetwork Input Offset
-                delta = self.delta_DEFAULT;                       	% [-] Subnetwork Output Offset
-
-            elseif length( parameters ) == 1                     	% If there are a specific number of parameters...
-
-                % Retrieve the parameters.
-                epsilon = parameters{ 1 };                       	% [-] Subnetwork Input Offset
-                delta = parameters{ 2 };                         	% [-] Subnetwork Output Offset
-
-            else                                                  	% Otherwise...
+        % ---------- Inversion Subnetwork Functions ----------
                 
-                % Throw an error.
-                error( 'Unable to unpack parameters.' )
-                
-            end            
-            
-        end
-        
-        
         % Implement a function to unpack the parameters required to compute the absolute inversion output activation domain.
-        function [ c, epsilon, delta ] = unpack_absolute_inversion_R_output_parameters( self, parameters )
+        function [ c1, c3 ] = unpack_absolute_inversion_R2_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                   % [-] Parameters Cell.
@@ -1381,16 +1563,14 @@ classdef neuron_class
             if isempty( parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c = self.c_DEFAULT;                              	% [-] General Subnetwork Gain
-                epsilon = self.epsilon_DEFAULT;                  	% [-] Subnetwork Input Offset
-                delta = self.delta_DEFAULT;                       	% [-] Subnetwork Output Offset
+                c1 = self.c1_absolute_inversion_DEFAULT;          	% [-] General Subnetwork Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;         	% [-] General Subnetwork Gain 3.
 
-            elseif length( parameters ) == 1                     	% If there are a specific number of parameters...
+            elseif length( parameters ) == 2                     	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c = parameters{ 1 };                            	% [-] General Subnetwork Gain
-                epsilon = parameters{ 2 };                        	% [-] Subnetwork Input Offset
-                delta = parameters{ 3 };                           	% [-] Subnetwork Output Offset
+                c1 = parameters{ 1 };                            	% [-] General Subnetwork Gain 1.
+                c3 = parameters{ 2 };                               % [-] General Subnetwork Gain 3.
                 
             else                                                    % Otherwise...
                 
@@ -1402,8 +1582,39 @@ classdef neuron_class
         end
         
         
+        % Implement a function to unpack the parameters required to compute the reduced absolute inversion output activation domain.
+        function [ c1, c2 ] = unpack_reduced_absolute_inversion_R2_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                        % If the parameters are empty...
+
+                % Set the default parameters.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;          	% [-] General Subnetwork Gain 1.
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;            % [-] General Subnetwork Gain 3.
+
+            elseif length( parameters ) == 2                                % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c1 = parameters{ 1 };                                       % [-] General Subnetwork Gain 1.
+                c2 = parameters{ 2 };                                       % [-] General Subnetwork Gain 3.
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
         % Implement a function to unpack the parameters required to compute the absolute division output activation domain.
-        function [ c, alpha, epsilon, R_numerator ] = unpack_absolute_division_R_output_parameters( self, parameters )
+        function [ c1, c3, R1 ] = unpack_absolute_division_R3_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end               	% [-] Parameters Cell.
@@ -1412,18 +1623,16 @@ classdef neuron_class
             if isempty( parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c = self.c_DEFAULT;                                 % [-] General Subnetwork Gain
-                alpha = self.alpha_DEFAULT;                      	% [-] Subnetwork Denominator Adjustment
-                epsilon = self.epsilon_DEFAULT;                    	% [-] Subnetwork Input Offset
-                R_numerator = self.R;                             	% [V] Activation Domain.
+                c1 = self.c1_absolute_division_DEFAULT;             % [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_division_DEFAULT;           	% [-] Subnetwork Gain 3.
+                R1 = self.R_DEFAULT;                                % [V] Activation Domain 1.
 
-            elseif length( parameters ) == 1                      	% If there are a specific number of parameters...
+            elseif length( parameters ) == 3                      	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c = parameters{ 1 };                              	% [-] General Subnetwork Gain
-                alpha = parameters{ 2 };                         	% [-] Subnetwork Input Offset
-                epsilon = parameters{ 3 };                       	% [-] Subnetwork Output Offset
-                R_numerator = parameters{ 4 };                     	% [V] Activation Domain.
+                c1 = parameters{ 1 };                              	% [-] Subnetwork Gain 1.
+                c3 = parameters{ 2 };                               % [-] Subnetwork Gain 3.
+                R1 = parameters{ 3 };                               % [V] Activation Domain 1.
                 
             else                                                   	% Otherwise...
                 
@@ -1435,26 +1644,263 @@ classdef neuron_class
         end
 
         
+        % Implement a function to unpack the parameters required to compute the absolute division after inversion output activation domain.
+        function [ c1, c2, c3, delta1, R1 ] = unpack_absolute_division_after_inversion_R3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                                   % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                                % If the parameters are empty...
+
+                % Set the default parameters.
+                c1 = self.c1_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 1.
+                c2 = self.c2_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 2.
+                c3 = self.c3_absolute_division_after_inversion_DEFAULT;           	% [-] Subnetwork Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Inversion Subnetwork Offest.
+                R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
+
+            elseif length( parameters ) == 5                                        % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c1 = parameters{ 1 };                                               % [-] Subnetwork Gain 1.
+                c2 = parameters{ 2 };                                               % [-] Subnetwork Gain 2.
+                c3 = parameters{ 3 };                                               % [-] Subnetwork Gain 3.
+                delta1 = parameters{ 4 };                                           % [V] Inversion Subnetwork Offset.
+                R1 = parameters{ 5 };                                               % [V] Activation Domain 1.
+                
+            else                                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+                
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters required to compute the reduced absolute division output activation domain.
+        function [ c1, c2, R1 ] = unpack_reduced_absolute_division_R3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end               	% [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                % If the parameters are empty...
+
+                % Set the default parameters.
+                c1 = self.c1_absolute_division_DEFAULT;           	% [-] Subnetwork Gain 1.
+                c2 = self.c2_absolute_division_DEFAULT;         	% [-] Subnetwork Gain 2.
+                R1 = self.R_DEFAULT;                                % [V] Activation Domain 1.
+
+            elseif length( parameters ) == 3                      	% If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c1 = parameters{ 1 };                              	% [-] Subnetwork Gain 1.
+                c2 = parameters{ 2 };                               % [-] Subnetwork Gain 2.
+                R1 = parameters{ 3 };                               % [V] Activation Domain 1.
+                
+            else                                                   	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the reduced absolute division after inversion output activation domain.
+        function [ c1, c2, delta1, R1 ] = unpack_reduced_absolute_division_after_inversion_R3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                                   % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                                % If the parameters are empty...
+
+                % Set the default parameters.
+                c1 = self.c1_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 1.
+                c2 = self.c2_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 2.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Inversion Subnetwork Offest.
+                R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
+
+            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c1 = parameters{ 1 };                                               % [-] Subnetwork Gain 1.
+                c2 = parameters{ 2 };                                               % [-] Subnetwork Gain 2.
+                delta1 = parameters{ 3 };                                           % [V] Inversion Subnetwork Offset.
+                R1 = parameters{ 4 };                                               % [V] Activation Domain 1.
+                
+            else                                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters required to compute the absolute multiplication neuron 3 activation domain.
+        function [ c1, c3 ] = unpack_absolute_multiplication_R3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                        % If the parameters are empty...
+
+                % Set the default parameters.
+                c1 = self.c1_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 3.
+
+            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c1 = parameters{ 1 };                                       % [-] Absolute Inversion Gain 1.
+                c3 = parameters{ 2 };                                       % [-] Absolute Inversion Gain 3.
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the absolute multiplication neuron 4 activation domain.
+        function [ c4, c5, c6, delta1, R1 ] = unpack_absolute_multiplication_R4_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                        % If the parameters are empty...
+
+                % Set the default parameters.
+                c4 = self.c1_absolute_division_DEFAULT;
+                c5 = self.c2_absolute_division_DEFAULT;
+                c6 = self.c3_absolute_division_DEFAULT;
+                delta1 = self.delta_absolute_inversion_DEFAULT;
+                R1 = self.R_DEFAULT;
+
+            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c4 = parameters{ 1 };
+                c5 = parameters{ 2 };
+                c6 = parameters{ 3 };
+                delta1 = parameters{ 4 };
+                R1 = parameters{ 5 };
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to unpack the parameters required to compute the reduced absolute multiplication neuron 3 activation domain.
+        function [ c1, c2 ] = unpack_reduced_absolute_multiplication_R3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                        % If the parameters are empty...
+
+                % Set the default parameters.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 1.
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 3.
+
+            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c1 = parameters{ 1 };                                       % [-] Absolute Inversion Gain 1.
+                c2 = parameters{ 2 };                                       % [-] Absolute Inversion Gain 3.
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the reduced absolute multiplication neuron 4 activation domain.
+        function [ c3, c4, delta1, R1 ] = unpack_reduced_absolute_multiplication_R4_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                        % If the parameters are empty...
+
+                % Set the default parameters.
+                c3 = self.c1_reduced_absolute_division_DEFAULT;
+                c4 = self.c2_reduced_absolute_division_DEFAULT;
+                delta1 = self.delta_absolute_inversion_DEFAULT;
+                R1 = self.R_DEFAULT;
+
+            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                c3 = parameters{ 1 };
+                c4 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                R1 = parameters{ 4 };
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
         %% Activation Domain Compute Functions.
         
-        % Implement a function to compute the operational domain of the addition subnetwork input neurons.
-        function [ R, self ] = compute_addition_R_input( self, encoding_scheme, set_flag, neuron_utilities )
-            
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to compute the operational domain of the transmission output neuron.
+        function [ R2, self ] = compute_transmission_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        
             % Set the default input arguments.
-            if nargin < 4, neuron_utilities = self.neuron_utilities; end           	% [class] Neuron Utilities.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                  	% [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end           	% [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                  	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end
             
             % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
 
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue addition subnetwork.
-                R = neuron_utilities.compute_absolute_addition_R_input(  );         % [V] Activation Domain.
+                % Unpack the absolute transmission parameters.
+                [ c, R1 ] = self.unpack_absolute_transmission_Rn_parameters( parameters );
+                
+                % Compute the activation domain for this neuron assuming that it belongs to an absolue addition subnetwork.
+                R2 = neuron_utilities.compute_absolute_transmission_R2( c, R1 );         % [V] Activation Domain.
             
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative addition subnetwork.
-                R = neuron_utilities.compute_relative_addition_R_input(  );         % [V] Activation Domain.
+                % Throw an error.
+                error( 'R2 is a free parameter for relative transmission subnetworks.' )
 
             else                                                                    % Otherwise...
 
@@ -1464,13 +1910,15 @@ classdef neuron_class
             end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
+            if set_flag, self.R = R2; end
+                    
         end
         
         
-        % Implement a function to compute the operational domain of the addition subnetwork output neurons.
-        function [ R, self ] = compute_addition_R_output( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to compute the operational domain of the addition subnetwork output neuron.
+        function [ Rn, self ] = compute_addition_Rn( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end              	% [class] Neuron Utilities.
@@ -1481,16 +1929,16 @@ classdef neuron_class
             % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
 
-                % Unpack the parameters required to compute the absolute addition subnetwork output activation domain.
-                Rs = self.unpack_absolute_addition_R_output_parameters( parameters );
-                    
+                % Unpack the parameters required to compute the absolute addition subnetwork output activation domain.                    
+                [ cs, Rs ] = self.unpack_absolute_addition_Rn_parameters( parameters );
+                
                 % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue addition subnetwork.
-                R = neuron_utilities.compute_absolute_addition_R_output( Rs );          % [V] Activation Domain.
+                Rn = neuron_utilities.compute_absolute_addition_Rn( cs, Rs );          % [V] Activation Domain.
             
             elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
             
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative addition subnetwork.
-                R = neuron_utilities.compute_relative_addition_R_output(  );            % [V] Activation Domain.
+                % Throw an error.
+                error( 'Rn is a free parameter for relative addition subnetworks.' )
 
             else                                                                        % Otherwise...
 
@@ -1500,45 +1948,15 @@ classdef neuron_class
             end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
+            if set_flag, self.R = Rn; end
             
         end
         
         
-        % Implement a function to compute the operational domain of the subtraction subnetwork input neurons.
-        function [ R, self ] = compute_subtraction_R_input( self, encoding_scheme, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, neuron_utilities = self.neuron_utilities; end                  	% [class] Neuron Utilities.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                          	% [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            
-            % Determine how to compute the membrane capacitance for this subtraction subnetwork neuron.
-            if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
-
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue subtraction subnetwork.
-                R = neuron_utilities.compute_absolute_subtraction_R_input(  );              % [V] Activation Domain.
-            
-            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
-            
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative subtraction subnetwork.
-                R = neuron_utilities.compute_relative_subtraction_R_input(  );              % [V] Activation Domain.
-
-            else                                                                            % Otherwise...
-
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
-        
+        % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the subtraction subnetwork output neurons.
-        function [ R, self ] = compute_subtraction_R_output( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        function [ Rn, self ] = compute_subtraction_Rn( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                            % [class] Neuron Utilities.
@@ -1550,16 +1968,16 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is set to absolute...
 
                 % Unpack the parameters required to compute the absolute subtraction subnetwork output activation domain.
-                [ Rs, s_ks ] = self.unpack_absolute_subtraction_R_output_parameters( parameters );
+                [ cs, s_ks, Rs ] = self.unpack_absolute_subtraction_Rn_parameters( parameters );
                 
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue subtraction subnetwork.
-                R = neuron_utilities.compute_absolute_subtraction_R_output( Rs, s_ks );             % [V] Activation Domain.
-            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue subtraction subnetwork.            
+                Rn = neuron_utilities.compute_absolute_subtraction_Rn( cs, s_ks, Rs );              % [V] Activation Domain.
+                
             elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is set to relative...
             
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative subtraction subnetwork.
-                R = neuron_utilities.compute_relative_subtraction_R_output(  );                     % [V] Activation Domain.
-
+                % Throw an error.
+                error( 'Rn is a free parameter for relative subtraction subnetworks.' )
+                
             else                                                                                    % Otherwise...
 
                 % Throw an error.
@@ -1568,49 +1986,15 @@ classdef neuron_class
             end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
+            if set_flag, self.R = Rn; end
             
         end
 
-
-        % Implement a function to compute the operational domain of the inversion subnetwork input neurons.
-        function [ R, self ] = compute_inversion_R_input( self, parameters, encoding_scheme, set_flag, neuron_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 5, neuron_utilities = self.neuron_utilities; end                            % [class] Neuron Utilities.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                   % [-] Parameters Cell.
-            
-            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is set to absolute...
-
-                % Unpack the parameters required to compute the absolute inversion subnetwork input activation domain.
-                [ epsilon, delta ] = self.unpack_absolute_inversion_R_input_parameters( parameters );
-                
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
-                R = neuron_utilities.compute_absolute_inversion_R_input( epsilon, delta );          % [V] Activation Domain.
-            
-            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is set to relative...
-            
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
-                R = neuron_utilities.compute_relative_inversion_R_input(  );                        % [V] Activation Domain.
-
-            else                                                                                    % Otherwise...
-
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-            
-            % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
-        end
         
+        % ---------- Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the operational domain of the inversion subnetwork output neurons.
-        function [ R, self ] = compute_inversion_R_output( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        % Implement a function to compute the operational domain of the inversion subnetwork output neuron.
+        function [ R2, self ] = compute_inversion_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
@@ -1622,15 +2006,15 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                                   % If the encoding scheme is set to absolute...
 
                 % Unpack the parameters required to compute the absolute inversion subnetwork output activation domain.
-                [ c, epsilon, delta ] = self.unpack_absolute_inversion_R_output_parameters( parameters );
+                [ c1, c3 ] = self.unpack_absolute_inversion_R2_parameters( parameters );
                 
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.
-                R = neuron_utilities.compute_absolute_inversion_R_output( c, epsilon, delta );          % [V] Activation Domain.
-            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.            
+                R2 = neuron_utilities.compute_absolute_inversion_R2( c1, c3 );                          % [V] Activation Domain.
+                
             elseif strcmpi( encoding_scheme, 'relative' )                                               % If the encoding scheme is set to relative...
             
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.
-                R = neuron_utilities.compute_relative_inversion_R_output(  );                           % [V] Activation Domain.
+                % Throw an error.
+                error( 'R2 is a free parameter for relative inversion subnetworks.' )
 
             else                                                                                        % Otherwise...
 
@@ -1640,31 +2024,35 @@ classdef neuron_class
             end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
+            if set_flag, self.R = R2; end
 
         end
-
-
-        % Implement a function to compute the operational domain of the division subnetwork input neurons.
-        function [ R, self ] = compute_division_R_input( self, encoding_scheme, set_flag, neuron_utilities )
+        
+        
+        % Implement a function to compute the operational domain of the reduced inversion subnetwork output neuron.
+        function [ R2, self ] = compute_reduced_inversion_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, neuron_utilities = self.neuron_utilities; end               	% [class] Neuron Utilities.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                      	% [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end       	% [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                         	% [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                       % [-] Parameters Cell.
             
-            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
-            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                   % If the encoding scheme is set to absolute...
 
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.
-                R = neuron_utilities.compute_absolute_division_R_input(  );             % [V] Activation Domain.
+                % Unpack the parameters required to compute the absolute inversion subnetwork output activation domain.
+                [ c1, c2 ] = self.unpack_reduced_absolute_inversion_R2_parameters( parameters );
+                
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.            
+                R2 = neuron_utilities.compute_reduced_absolute_inversion_R2( c1, c2 );                          % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                               % If the encoding scheme is set to relative...
             
-            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
-            
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inverdivisionsion subnetwork.
-                R = neuron_utilities.compute_relative_division_R_input(  );             % [V] Activation Domain.
+                % Throw an error.
+                error( 'R2 is a free parameter for reduced relative inversion subnetworks.' )
 
-            else                                                                        % Otherwise...
+            else                                                                                        % Otherwise...
 
                 % Throw an error.
                 error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
@@ -1672,13 +2060,15 @@ classdef neuron_class
             end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
-            
+            if set_flag, self.R = R2; end
+
         end
-        
+
+
+        % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the division subnetwork output neurons.
-        function [ R, self ] = compute_division_R_output( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        function [ R3, self ] = compute_division_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
@@ -1690,15 +2080,15 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the absolute division subnetwork output activation domain.
-                [ c, alpha, epsilon, R_numerator ] = self.unpack_absolute_division_R_output_parameters( parameters );
+                [ c1, c3, R1 ] = self.unpack_absolute_division_R3_parameters( parameters );
                 
-                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.
-                R = neuron_utilities.compute_absolute_division_R_output( c, alpha, epsilon, R_numerator );          % [V] Activation Domain.
-            
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.            
+                R3 = neuron_utilities.compute_absolute_division_R3( c1, c3, R1 );                                   % [V] Activation Domain.
+                
             elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
             
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inverdivisionsion subnetwork.
-                R = neuron_utilities.compute_relative_division_R_output(  );                                        % [V] Activation Domain.
+                % Throw an error.
+                error( 'R3 is a free parameter for relative division subnetworks.' )
 
             else                                                                                                    % Otherwise...
 
@@ -1708,29 +2098,266 @@ classdef neuron_class
             end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
+            if set_flag, self.R = R3; end
+                        
+        end
+        
+
+        % Implement a function to compute the operational domain of the division after inversion subnetwork output neurons.
+        function [ R3, self ] = compute_division_after_inversion_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute division subnetwork output activation domain.
+                [ c1, c2, c3, delta1, R1 ] = self.unpack_absolute_division_after_inversion_R3_parameters( parameters );
+                
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.            
+                R3 = neuron_utilities.compute_absolute_division_after_inversion_R3( c1, c2, c3, delta1, R1 );                                   % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R3 is a free parameter for relative division subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R3; end
                         
         end
         
         
-        % Implement a function to compute the operational domain of the relative multiplication subnetwork output neurons.
-        function [ R, self ] = compute_relative_multiplication_R_output( self, c, c1, c2, epsilon1, epsilon2, set_flag, neuron_utilities )
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to compute the operational domain of the reduced division subnetwork output neurons.
+        function [ R3, self ] = compute_reduced_division_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
-            % Define the default input arguments.
-            if nargin < 8, neuron_utilities = self.neuron_utitlies; end
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 6, epsilon2 = self.epsilon_DEFAULT; end                                                         % [-] Division Subnetwork Offset.
-            if nargin < 5, epsilon1 = self.epsilon_DEFAULT; end                                                         % [-] Inversion Subnetwork Offset.
-            if nargin < 4, c2 = self.c_DEFAULT; end                                                                     % [-] Division Subnetwork Gain.
-            if nargin < 3, c1 = self.c_DEFAULT; end                                                                     % [-] Inversion Subnetwork Gain.
-            if nargin < 2, c = self.c_DEFAULT; end                                                                      % [-] Multiplication Subnetwork Gain.
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
             
-            % Compute the operational domain.
-            R = neuron_utilities.compute_relative_multiplication_R_output( c, c1, c2, epsilon1, epsilon2 );             % [V] Activation Domain.
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute division subnetwork output activation domain.
+                [ c1, c2, R1 ] = self.unpack_reduced_absolute_division_R3_parameters( parameters );
+                
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.            
+                R3 = neuron_utilities.compute_reduced_absolute_division_R3( c1, c2, R1 );                                   % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R3 is a free parameter for relative division subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
             
             % Determine whether to update the neuron object.
-            if set_flag, self.R = R; end
+            if set_flag, self.R = R3; end
+                        
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced division after inversion subnetwork output neurons.
+        function [ R3, self ] = compute_reduced_division_after_inversion_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute division subnetwork output activation domain.
+                [ c1, c2, delta1, R1 ] = self.unpack_reduced_absolute_division_after_inversion_R3_parameters( parameters );
+                
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.            
+                R3 = neuron_utilities.compute_reduced_absolute_division_after_inversion_R3( c1, c2, delta1, R1 );                                   % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R3 is a free parameter for reduced relative division subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R3; end
+                        
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to compute the operational domain of the absolute multiplication subnetwork neuron 3.
+        function [ R3, self ] = compute_multiplication_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute multiplication subnetwork output activation domain.                
+                [ c1, c3 ] = self.unpack_absolute_multiplication_R3_parameters( parameters );
+                
+                % Compute the activation domain for this neuron assuming that it belongs to an absolue multiplicationb subnetwork.                            
+                R3 = neuron_utilities.compute_absolute_multiplication_R3( c1, c3 );                                 % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R3 is a free parameter for relative multiplication subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R3; end
+        
+        end
+        
+            
+        % Implement a function to compute the operational domain of the absolute multiplication subnetwork neuron 4.
+        function [ R4, self ] = compute_multiplication_R4( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute multiplication subnetwork output activation domain.                
+                [ c4, c5, c6, delta1, R1 ] = self.unpack_absolute_multiplication_R4_parameters( parameters );
+                
+                % Compute the activation domain for this neuron assuming that it belongs to an absolue multiplicationb subnetwork.                            
+                R4 = neuron_utilities.compute_absolute_multiplication_R4( c4, c5, c6, delta1, R1 );                                 % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R4 is a free parameter for relative multiplication subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R4; end
+        
+        end
+        
+                
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to compute the operational domain of the reduced absolute multiplication subnetwork neuron 3.
+        function [ R3, self ] = compute_reduced_multiplication_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute multiplication subnetwork output activation domain.                
+                [ c1, c2 ] = self.unpack_reduced_absolute_multiplication_R3_parameters( parameters );
+                
+                % Compute the activation domain for this neuron assuming that it belongs to an absolue multiplicationb subnetwork.                            
+                R3 = neuron_utilities.compute_reduced_absolute_multiplication_R3( c1, c2 );                                 % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R3 is a free parameter for reduced relative multiplication subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R3; end
+        
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced absolute multiplication subnetwork neuron 4.
+        function [ R4, self ] = compute_reduced_multiplication_R4( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            
+            % Determine how to compute the membrane capacitance for this division subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the absolute multiplication subnetwork output activation domain.                
+                [ c3, c4, delta1, R1 ] = self.unpack_reduced_absolute_multiplication_R4_parameters( parameters );
+                
+                % Compute the activation domain for this neuron assuming that it belongs to an absolue multiplicationb subnetwork.                            
+                R4 = neuron_utilities.compute_reduced_absolute_multiplication_R4( c3, c4, delta1, R1 );                                 % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R4 is a free parameter for relative multiplication subnetworks.' )
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R4; end
+        
         end
         
         

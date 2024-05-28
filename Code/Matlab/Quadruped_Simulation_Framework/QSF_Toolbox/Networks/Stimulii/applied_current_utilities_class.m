@@ -181,6 +181,35 @@ classdef applied_current_utilities_class
             
         end
         
+        %{
+        
+        % Implement a function to compute the desired intermediate synaptic current for a voltage based integration subnetwork.
+        function Is12 = compute_vbi_Is( ~, R2, Ta, ki_mean, inhibition_flag )
+
+            %{
+            Input(s):
+                R2              =   [V] Maximum Membrane Voltage.
+                Ta              =   [s] Activation Period.
+                ki_mean         =   [-] Integration Subnetwork Gain.
+                inhibition_flag    =   [T/F] Inhibition Flag.
+            
+            Output(s):
+                Is12            =   [A] Synaptic Current (Synapse 12).
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 5, inhibition_flag = false; end
+            if nargin < 4, ki_mean = self.c_integration_mean_DEFAULT; end
+            
+            % Compute the intermediate synaptic current.
+            Is12 = R2./( 2*Ta.*ki_mean );    
+            
+            % Determine whether to switch the sign on the intermediate synaptic current.
+            if inhibition_flag, Is12 = - Is12; end
+            
+        end
+        
+        %}
         
         % Implement a function to compute the magnitude of voltage based integration subnetwork applied currents.
         function Ias = compute_vbi_Ias( self, Gm, R )

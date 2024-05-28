@@ -351,7 +351,6 @@ classdef synapse_class
         end
         
         
-        
         % Implement a function to unpack the parameters required to compute the absolute subtraction synaptic conductance.
         function [ c, s_k, R_k, Gm_n, dEs_nk, Ia_n ] = unpack_absolute_subtraction_gs_parameters( self, parameters )
         
@@ -620,24 +619,10 @@ classdef synapse_class
         
         %% Synaptic Reversal Potential Compute Functions.
         
-        % Implement a function to compute the synaptic reversal potential of a driven multistate cpg subnetwork.
-        function [ dEs, self ] = compute_dmcpg_dEs( self, set_flag, synapse_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, synapse_utilities = self.synapse_utilities; end          % [class] Synapse Utilities.
-            if nargin < 2, set_flag = true; end                                     % [T/F] Set Flag.
-            
-            % Compute the synaptic reversal potential.
-            dEs = synapse_utilities.compute_dmcpg_dEs(  );                          % [V] Synaptic Reversal Potential.
-            
-            % Determine whether to update the synapse object.
-            if set_flag, self.dEs = dEs; end
-            
-        end
-        
+        % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to compute the synaptic reversal potential of a transmission subnetwork.
-        function [ dEs, self ] = compute_transmission_dEs( self, encoding_scheme, set_flag, synapse_utilities )
+        function [ dEs21, self ] = compute_transmission_dEs21( self, encoding_scheme, set_flag, synapse_utilities )
             
             % Set the default input arguments.
             if nargin < 4, synapse_utilities = self.synapse_utilities; end          % [class] Synapse Utilities.
@@ -648,12 +633,12 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
                 
                 % Compute the synaptic reversal potential for an absolue transmission subnetwork.
-                dEs = synapse_utilities.compute_absolute_transmission_dEs(  );      % [V] Synaptic Reversal Potential.
+                dEs21 = synapse_utilities.compute_absolute_transmission_dEs(  );      % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
             
                 % Compute the synaptic reversal potential for a relative transmission subnetwork.
-                dEs = synapse_utilities.compute_relative_transmission_dEs(  );      % [V] Synaptic Reversal Potential.
+                dEs21 = synapse_utilities.compute_relative_transmission_dEs(  );      % [V] Synaptic Reversal Potential.
                 
             else                                                                    % Otherwise...
                 
@@ -663,26 +648,12 @@ classdef synapse_class
             end
                 
             % Determine whether to update the synapse object.
-            if set_flag, self.dEs = dEs; end
+            if set_flag, self.dEs = dEs21; end
             
         end
         
         
-        % Implement a function to compute the synaptic reversal potential of a modulation subnetwork.
-        function [ dEs, self ] = compute_modulation_dEs( self, set_flag, synapse_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 3, synapse_utilities = self.synapse_utilities; end          % [class] Synapse Utilities.
-            if nargin < 2, set_flag = true; end                                     % [T/F] Set Flag.
-            
-            % Compute the synaptic reversal potential.
-            dEs = synapse_utilities.compute_modulation_dEs(  );                     % [V] Synaptic Reversal Potential.
-            
-            % Determine whether to update the synapse object.
-            if set_flag, self.dEs = dEs; end
-            
-        end
-        
+        % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to compute the synaptic reversal potential of an addition subnetwork.
         function [ dEs1, self ] = compute_addition_dEs1( self, encoding_scheme, set_flag, synapse_utilities )
@@ -779,6 +750,8 @@ classdef synapse_class
             
         end
 
+        
+        % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to compute the synaptic reversal potential of a subtraction subnetwork.
         function [ dEs1, self ] = compute_subtraction_dEs1( self, encoding_scheme, set_flag, synapse_utilities )
@@ -907,7 +880,144 @@ classdef synapse_class
             
         end
         
+                
+        % ---------- Inversion Subnetwork Functions ----------
         
+        % Implement a function to compute the synaptic reversal potential of inversion subnetwork synapses.
+        function [ dEs, self ] = compute_inversion_dEs( self, parameters, encoding_scheme, set_flag, synapse_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, synapse_utilities = self.synapse_utilities; end                                      % [class] Synapse Utilities.
+            if nargin < 4, set_flag = true; end                                                                 % [T/F] Set Flag.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme.
+            if nargin < 2, parameters = {  }; end                                                               % [-] Input Parameters Cell.
+            
+            % Determine how to compute the synaptic reversal potential for an inversion subnetwork.
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If the encoding scheme is set to absolute...
+                
+                % Unpack the parameters required to compute the synaptic reversal potential for absolute inversion subnetworks.
+                [ c, delta_offset ] = self.unpack_absolute_inversion_dEs_parameters( parameters );
+                
+                % Compute the synaptic reversal potential for an absolue inversion subnetwork.
+                dEs = synapse_utilities.compute_absolute_inversion_dEs( c, delta_offset );                      % [V] Synaptic Reversal Potential.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If the encoding scheme is set to relative...
+            
+                % Unpack the parmaeters required to compute the synaptic reversal potential for relative inversion subnetworks.
+                [ epsilon, delta_offset, R2 ] = self.unpack_relative_inversion_dEs_parameters( parameters );
+                
+                % Compute the synaptic reversal potential for a relative inversion subnetwork.
+                dEs = synapse_utilities.compute_relative_inversion_dEs( epsilon, delta_offset, R2 );            % [V] Synaptic Reversal Potential.
+                
+            else                                                                                                % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the synapse object.
+            if set_flag, self.dEs = dEs; end
+
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the synaptic reversal potential of reduced inversion subnetwork synapses.
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to compute the synaptic reversal potential of a division subnetwork.
+        function [ dEs1, self ] = compute_division_dEs1( self, parameters, encoding_scheme, set_flag, synapse_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, synapse_utilities = self.synapse_utilities; end                          % [class] Synapse Utilities.
+            if nargin < 4, set_flag = true; end                                                     % [T/F] Set Flag.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
+            if nargin < 2, parameters = {  }; end                                                   % [-] Input Parameters Cell.
+            
+            % Determine how to compute the synaptic reversal potential for a division subnetwork.
+            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is set to absolute...
+                
+                % Unpack absolute division synaptic reversal potential parameters.
+                [ c, alpha ] = self.unpack_absolute_division_dEs_parameters( parameters );
+                
+                % Compute the synaptic reversal potential for an absolue division subnetwork.
+                dEs1 = synapse_utilities.compute_absolute_division_dEs1( c, alpha );                % [V] Synaptic Reversal Potential.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                        	% If the encoding scheme is set to relative...
+            
+                % Unpack relative division synaptic reversal potential parameters.
+                [ c, alpha ] = self.unpack_relative_division_dEs_parameters( parameters );
+                
+                % Compute the synaptic reversal potential for a relative division subnetwork.
+                dEs1 = synapse_utilities.compute_relative_division_dEs1( c, alpha );                % [V] Synaptic Reversal Potential.
+                
+            else                                                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the synapse object.
+            if set_flag, self.dEs = dEs1; end
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential of a division subnetwork.
+        function [ dEs2, self ] = compute_division_dEs2( self, encoding_scheme, set_flag, synapse_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, synapse_utilities = self.synapse_utilities; end                  % [class] Synapse Utilities.
+            if nargin < 3, set_flag = true; end                                             % [T/F] Set Flag.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme.
+            
+            % Determine how to compute the synaptic reversal potential for a division subnetwork.
+            if strcmpi( encoding_scheme, 'absolute' )                                     	% If the encoding scheme is set to absolute...
+                
+                % Compute the synaptic reversal potential for an absolue division subnetwork.
+                dEs2 = synapse_utilities.compute_absolute_division_dEs2(  );                % [V] Synaptic Reversal Potential.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
+                
+                % Compute the synaptic reversal potential for a relative division subnetwork.
+                dEs2 = synapse_utilities.compute_relative_division_dEs2(  );                % [V] Synaptic Reversal Potential.
+                
+            else                                                                          	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the synapse object.
+            if set_flag, self.dEs = dEs2; end
+            
+        end
+        
+    
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        % Implement a function to compute the synpatic reversal potential dEs1 of a reduced division subnetwork.
+        
+        
+        % Implement a function to compute the synaptic reversal potential dEs2 of a reduced division subnetwork.
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
         % Implement a function to compute the synaptic reversal potential of a multiplication subnetwork.
         function [ dEs1, self ] = compute_multiplication_dEs1( self, encoding_scheme, set_flag, synapse_utilities )
             
@@ -1004,116 +1114,11 @@ classdef synapse_class
         end
         
         
-        % Implement a function to compute the synaptic reversal potential of inversion subnetwork synapses.
-        function [ dEs, self ] = compute_inversion_dEs( self, parameters, encoding_scheme, set_flag, synapse_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 5, synapse_utilities = self.synapse_utilities; end                                      % [class] Synapse Utilities.
-            if nargin < 4, set_flag = true; end                                                                 % [T/F] Set Flag.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                               % [-] Input Parameters Cell.
-            
-            % Determine how to compute the synaptic reversal potential for an inversion subnetwork.
-            if strcmpi( encoding_scheme, 'absolute' )                                                           % If the encoding scheme is set to absolute...
-                
-                % Unpack the parameters required to compute the synaptic reversal potential for absolute inversion subnetworks.
-                [ c, delta_offset ] = self.unpack_absolute_inversion_dEs_parameters( parameters );
-                
-                % Compute the synaptic reversal potential for an absolue inversion subnetwork.
-                dEs = synapse_utilities.compute_absolute_inversion_dEs( c, delta_offset );                      % [V] Synaptic Reversal Potential.
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If the encoding scheme is set to relative...
-            
-                % Unpack the parmaeters required to compute the synaptic reversal potential for relative inversion subnetworks.
-                [ epsilon, delta_offset, R2 ] = self.unpack_relative_inversion_dEs_parameters( parameters );
-                
-                % Compute the synaptic reversal potential for a relative inversion subnetwork.
-                dEs = synapse_utilities.compute_relative_inversion_dEs( epsilon, delta_offset, R2 );            % [V] Synaptic Reversal Potential.
-                
-            else                                                                                                % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the synapse object.
-            if set_flag, self.dEs = dEs; end
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
 
-        end
         
-        
-        % Implement a function to compute the synaptic reversal potential of a division subnetwork.
-        function [ dEs1, self ] = compute_division_dEs1( self, parameters, encoding_scheme, set_flag, synapse_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 5, synapse_utilities = self.synapse_utilities; end                          % [class] Synapse Utilities.
-            if nargin < 4, set_flag = true; end                                                     % [T/F] Set Flag.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                   % [-] Input Parameters Cell.
-            
-            % Determine how to compute the synaptic reversal potential for a division subnetwork.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is set to absolute...
-                
-                % Unpack absolute division synaptic reversal potential parameters.
-                [ c, alpha ] = self.unpack_absolute_division_dEs_parameters( parameters );
-                
-                % Compute the synaptic reversal potential for an absolue division subnetwork.
-                dEs1 = synapse_utilities.compute_absolute_division_dEs1( c, alpha );                % [V] Synaptic Reversal Potential.
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                        	% If the encoding scheme is set to relative...
-            
-                % Unpack relative division synaptic reversal potential parameters.
-                [ c, alpha ] = self.unpack_relative_division_dEs_parameters( parameters );
-                
-                % Compute the synaptic reversal potential for a relative division subnetwork.
-                dEs1 = synapse_utilities.compute_relative_division_dEs1( c, alpha );                % [V] Synaptic Reversal Potential.
-                
-            else                                                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the synapse object.
-            if set_flag, self.dEs = dEs1; end
-            
-        end
-        
-        
-        % Implement a function to compute the synaptic reversal potential of a division subnetwork.
-        function [ dEs2, self ] = compute_division_dEs2( self, encoding_scheme, set_flag, synapse_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, synapse_utilities = self.synapse_utilities; end                  % [class] Synapse Utilities.
-            if nargin < 3, set_flag = true; end                                             % [T/F] Set Flag.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme.
-            
-            % Determine how to compute the synaptic reversal potential for a division subnetwork.
-            if strcmpi( encoding_scheme, 'absolute' )                                     	% If the encoding scheme is set to absolute...
-                
-                % Compute the synaptic reversal potential for an absolue division subnetwork.
-                dEs2 = synapse_utilities.compute_absolute_division_dEs2(  );                % [V] Synaptic Reversal Potential.
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
-                
-                % Compute the synaptic reversal potential for a relative division subnetwork.
-                dEs2 = synapse_utilities.compute_relative_division_dEs2(  );                % [V] Synaptic Reversal Potential.
-                
-            else                                                                          	% Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the synapse object.
-            if set_flag, self.dEs = dEs2; end
-            
-        end
-        
-        
+        % ---------- Derivation Subnetwork Functions ----------
+
         % Implement a function to compute the synaptic reversal potential of a derivation subnetwork.
         function [ dEs1, self ] = compute_derivation_dEs1( self, set_flag, synapse_utilities )
             
@@ -1145,6 +1150,8 @@ classdef synapse_class
             
         end
         
+        
+        % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute the synaptic reversal potential of a voltage based integration subnetwork.
         function [ dEs1, self ] = compute_integration_dEs1( self, set_flag, synapse_utilities )
@@ -1210,25 +1217,30 @@ classdef synapse_class
         end
         
         
-        %% Maximum Synaptic Conductance Compute Functions.
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
         
-        % Implement a function to compute the maximum synaptic conductance of a driven multistate cpg subnetwork.
-        function [ gs, self ] = compute_dmcpg_gs( self, dEs, delta_oscillatory, Id_max, set_flag, synapse_utilities )
+        % Implement a function to compute the synaptic reversal potential of a driven multistate cpg subnetwork.
+        function [ dEs, self ] = compute_dmcpg_dEs( self, set_flag, synapse_utilities )
             
-            % Define the default input arguments.
-            if nargin < 5, synapse_utilities = self.synapse_utilities; end                              % [class] Synapse Utilities.
-            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                            % [A] Maximum Drive Current.
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                      % [-] Oscillatory Delta.
-            if nargin < 2, dEs = self.dEs; end                                                     	% [V] Synaptic Reversal Potential.
+            % Set the default input arguments.
+            if nargin < 3, synapse_utilities = self.synapse_utilities; end          % [class] Synapse Utilities.
+            if nargin < 2, set_flag = true; end                                     % [T/F] Set Flag.
             
-            % Compute the maximum synaptic conductance.
-            gs = synapse_utilities.compute_dmcpg_gsynmax( dEs, delta_oscillatory, Id_max );             % [S] Maximum Synaptic Conductance
+            % Compute the synaptic reversal potential.
+            dEs = synapse_utilities.compute_dmcpg_dEs(  );                          % [V] Synaptic Reversal Potential.
             
             % Determine whether to update the synapse object.
-            if set_flag, self.gs = gs; end
+            if set_flag, self.dEs = dEs; end
             
         end
         
+        
+        %% Maximum Synaptic Conductance Compute Functions.
+                
+        % ---------- Transmission Subnetwork Functions ----------
+
+        
+        % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of addition synapses.
         function [ gs_nk, self ] = compute_addition_gs( self, parameters, encoding_scheme, set_flag, synapse_utilities )
@@ -1269,6 +1281,8 @@ classdef synapse_class
         end
         
         
+        % ---------- Subtraction Subnetwork Functions ----------
+
         % Implement a function to compute the maximum synaptic conductance of subtraction synapses.
         function [ gs_nk, self ] = compute_subtraction_gs( self, parameters, encoding_scheme, set_flag, synapse_utilities )
             
@@ -1307,7 +1321,9 @@ classdef synapse_class
             
         end
         
-
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute the maximum synaptic conductance of inversion synapses.
         function [ gs21, self ] = compute_inversion_gs( self, parameters, encoding_scheme, set_flag, synapse_utilities )
             
@@ -1346,6 +1362,11 @@ classdef synapse_class
 
         end
 
+
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        
+        % ---------- Division Subnetwork Functions ----------
 
         % Implement a function to compute the maximum synaptic conductance of division numerator synapses.
         function [ gs31, self ] = compute_division_gs31( self, parameters, encoding_scheme, set_flag, synapse_utilities )
@@ -1424,6 +1445,41 @@ classdef synapse_class
            
         end
 
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+        
+        % Implement a function to compute the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function [ gs, self ] = compute_dmcpg_gs( self, dEs, delta_oscillatory, Id_max, set_flag, synapse_utilities )
+            
+            % Define the default input arguments.
+            if nargin < 5, synapse_utilities = self.synapse_utilities; end                              % [class] Synapse Utilities.
+            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                            % [A] Maximum Drive Current.
+            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end                      % [-] Oscillatory Delta.
+            if nargin < 2, dEs = self.dEs; end                                                     	% [V] Synaptic Reversal Potential.
+            
+            % Compute the maximum synaptic conductance.
+            gs = synapse_utilities.compute_dmcpg_gsynmax( dEs, delta_oscillatory, Id_max );             % [S] Maximum Synaptic Conductance
+            
+            % Determine whether to update the synapse object.
+            if set_flag, self.gs = gs; end
+            
+        end
+        
         
         %% Enable & Disable Functions
         
