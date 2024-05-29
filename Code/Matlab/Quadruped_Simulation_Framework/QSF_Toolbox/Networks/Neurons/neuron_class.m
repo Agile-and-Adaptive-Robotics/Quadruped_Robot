@@ -448,6 +448,8 @@ classdef neuron_class
         end
         
         
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute the required sodium channel conductance for a reduced inversion subnetwork neuron.
         function [ Gna, self ] = compute_reduced_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
@@ -513,6 +515,8 @@ classdef neuron_class
             
         end
         
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for a reduced division subnetwork neuron.
         function [ Gna, self ] = compute_reduced_division_Gna( self, encoding_scheme, set_flag, neuron_utilities )
@@ -580,6 +584,8 @@ classdef neuron_class
         end
         
                 
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute the required sodium channel conductance for a reduced division after inversion subnetwork neuron.
         function [ Gna, self ] = compute_reduced_division_after_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
@@ -645,6 +651,8 @@ classdef neuron_class
             
         end
         
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for a reduced multiplication subnetwork neuron.
         function [ Gna, self ] = compute_reduced_multiplication_Gna( self, encoding_scheme, set_flag, neuron_utilities )
@@ -2029,6 +2037,8 @@ classdef neuron_class
         end
         
         
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute the operational domain of the reduced inversion subnetwork output neuron.
         function [ R2, self ] = compute_reduced_inversion_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
@@ -2103,6 +2113,8 @@ classdef neuron_class
         end
         
 
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute the operational domain of the division after inversion subnetwork output neurons.
         function [ R3, self ] = compute_division_after_inversion_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
@@ -2176,6 +2188,8 @@ classdef neuron_class
                         
         end
         
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the reduced division after inversion subnetwork output neurons.
         function [ R3, self ] = compute_reduced_division_after_inversion_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )

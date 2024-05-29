@@ -903,7 +903,7 @@ classdef neuron_utilities_class
         end
         
         
-        % ---------- Redcued Multiplication Subnetwork Functions ----------
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
         
         % Implement a function to compute the sodium channel conductance of a reduced absolute multiplication subnetwork neuron.
         function [ Gna3, Gna4 ] = compute_reduced_absolute_multiplication_Gna( ~ )
@@ -1106,6 +1106,8 @@ classdef neuron_utilities_class
         end
         
         
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute the operational domain of the reduced absolute inversion subnetwork output neuron.
         function R2 = compute_reduced_absolute_inversion_R2( self, c1, c2 )
         
@@ -1134,22 +1136,7 @@ classdef neuron_utilities_class
 
         end
 
-        
-        % Implement a function to compute the operational domain of the absolute division after inversion subnetwork output neuron.
-        function R3 = compute_absolute_division_after_inversion_R3( self, c1, c2, c3, delta1, R1 )
-            
-            % Set the default input arguments.
-            if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, c3 = self.c3_absolute_division_DEFAULT; end
-            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
-            
-            % Compute the operational domain.
-            R3 = ( c1*R1 )/( c2*delta1 + c3 );
-
-        end
-        
-        
+                
         % ---------- Reduced Division Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the reduced absolute division subnetwork output neuron.
@@ -1166,6 +1153,25 @@ classdef neuron_utilities_class
         end
 
         
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the operational domain of the absolute division after inversion subnetwork output neuron.
+        function R3 = compute_absolute_division_after_inversion_R3( self, c1, c2, c3, delta1, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Compute the operational domain.
+            R3 = ( c1*R1 )/( c2*delta1 + c3 );
+
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
         % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork output neuron.
         function R3 = compute_reduced_absolute_division_after_inversion_R3( self, c1, c2, delta1, R1 )
             
