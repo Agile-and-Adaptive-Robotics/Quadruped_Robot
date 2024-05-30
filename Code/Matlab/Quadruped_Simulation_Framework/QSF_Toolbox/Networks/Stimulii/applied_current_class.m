@@ -213,6 +213,7 @@ classdef applied_current_class
            
         end
         
+        
         %% Parameter Unpacking Functions.
         
         % Implement a function to unpack the parameters required to compute the absolute inversion applied current magnitudes.
@@ -275,173 +276,7 @@ classdef applied_current_class
         
         %% Compute Applied Current Functions.
         
-        % Implement a function to compute the magnitude of multistate cpg subnetwork applied currents.
-        function [ Ias, self ] = compute_mcpg_Ias( self, dt, tf, set_flag, applied_current_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 3, tf = self.tf; end                                                        % [s] Final Simulation Time.
-            if nargin < 2, dt = self.dt; end                                                        % [s] Simulation Timestep.
-            
-           % Compute the magnitude of multistate cpg subnetwork applied currents.
-           Ias = applied_current_utilities.compute_mcpg_Ias( dt, tf );
-            
-           % Determine whether to update the applied current object.
-           if set_flag, self.Ias = Ias; end
-           
-        end
-        
-        
-        % Implement a function to compute the magnitude of driven multistate cpg subnetwork applied currents.
-        function [ Ias, self ] = compute_dmcpg_Ias( self, Gm, R, set_flag, applied_current_utilities )
-            
-            % Define the default input arguments.
-            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain.
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance.
-            
-           % Compute the magnitude of driven multistate cpg subnetwork applied currents.
-           Ias = applied_current_utilities.compute_dmcpg_Ias( Gm, R );
-            
-           % Determine whether to update the applied current object.
-           if set_flag, self.Ias = Ias; end
-           
-        end
-        
-        
-        % Implement a function to compute the applied current magnitude that connects the dmcpgdcll and cds subnetworks.
-        function [ Ias, self ] = compute_dmcpgdcll2cds_Ias( self, Gm, R, set_flag, applied_current_utilities )
-            
-            % Define the default input arguments.
-            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain.
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance.
-            
-           % Compute the magnitude of these applied currents.
-           Ias = applied_current_utilities.compute_dmcpgdcll2cds_Ias( Gm, R );
-            
-           % Determine whether to update the applied current object.
-           if set_flag, self.Ias = Ias; end
-           
-        end
-                
-        
-        % Implement a function to compute the magnitude of centering subnetwork applied currents.
-        function [ Ias, self ] = compute_centering_Ias( self, Gm, R, set_flag, applied_current_utilities )
-            
-            % Define the default input arguments.
-            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain.
-            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance.
-            
-            % Compute the magnitude of centering subnetwork applied currents.
-            Ias = applied_current_utilities.compute_centering_Ias( Gm, R );
-            
-            % Determine whether to update the applied current object.
-           if set_flag, self.Ias = Ias; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of transmission applied currents.
-        function [ Ias, self ] = compute_transmission_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            
-            % Determine how to compute the applied current magnitude.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
-            
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_transmission_Ias(  );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
-               
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_relative_transmission_Ias(  );
-                
-            else                                                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of addition applied currents.
-        function [ Ias, self ] = compute_addition_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                  	% [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            
-            % Determine how to compute the applied current magnitude.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
-            
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_addition_Ias(  );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
-               
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_relative_addition_Iapps(  );
-                
-            else                                                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of subtraction applied currents.
-        function [ Ias, self ] = compute_subtraction_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            
-            % Determine how to compute the applied current magnitude.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
-            
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_subtraction_Ias(  );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                        	% If the encoding scheme is relative...
-               
-                % Compute the applied current magnitudes.
-                Ias = self.applied_current_utilities.compute_relative_subtraction_Ias(  );  
-                
-            else                                                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
-            
-        end
-        
+        % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of inversion input applied currents.
         function [ Ias, self ] = compute_inversion_Ias_input( self, encoding_scheme, set_flag, applied_current_utilities )
@@ -514,37 +349,10 @@ classdef applied_current_class
         end
         
         
-        % Implement a function to compute the magnitude of division applied currents.
-        function [ Ias, self ] = compute_division_Ias( self, encoding_scheme, set_flag, applied_current_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            
-            % Determine how to compute the applied current magnitude.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
-            
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_division_Ias(  );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
-               
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_relative_division_Ias(  );  
-                
-            else                                                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
-            
-        end
+        % ---------- Reduced Inversion Subnetwork Functions ----------
 
+        
+        % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function [ Ias, self ] = compute_multiplication_Ias( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
@@ -584,6 +392,11 @@ classdef applied_current_class
             
         end
         
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        
+        % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of integration subnetwork applied currents.
         function [ Ias, self ] = compute_integration_Ias( self, Gm, R, set_flag, applied_current_utilities )
@@ -656,6 +469,82 @@ classdef applied_current_class
             
         end
         
+        
+        % ---------- Centering Subnetwork Functions ----------
+        
+        % Implement a function to compute the magnitude of centering subnetwork applied currents.
+        function [ Ias, self ] = compute_centering_Ias( self, Gm, R, set_flag, applied_current_utilities )
+            
+            % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
+            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain.
+            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance.
+            
+            % Compute the magnitude of centering subnetwork applied currents.
+            Ias = applied_current_utilities.compute_centering_Ias( Gm, R );
+            
+            % Determine whether to update the applied current object.
+           if set_flag, self.Ias = Ias; end
+            
+        end
+        
+        
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+        
+        % Implement a function to compute the magnitude of multistate cpg subnetwork applied currents.
+        function [ Ias, self ] = compute_mcpg_Ias( self, dt, tf, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
+            if nargin < 3, tf = self.tf; end                                                        % [s] Final Simulation Time.
+            if nargin < 2, dt = self.dt; end                                                        % [s] Simulation Timestep.
+            
+           % Compute the magnitude of multistate cpg subnetwork applied currents.
+           Ias = applied_current_utilities.compute_mcpg_Ias( dt, tf );
+            
+           % Determine whether to update the applied current object.
+           if set_flag, self.Ias = Ias; end
+           
+        end
+        
+        
+        % Implement a function to compute the magnitude of driven multistate cpg subnetwork applied currents.
+        function [ Ias, self ] = compute_dmcpg_Ias( self, Gm, R, set_flag, applied_current_utilities )
+            
+            % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
+            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain.
+            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance.
+            
+           % Compute the magnitude of driven multistate cpg subnetwork applied currents.
+           Ias = applied_current_utilities.compute_dmcpg_Ias( Gm, R );
+            
+           % Determine whether to update the applied current object.
+           if set_flag, self.Ias = Ias; end
+           
+        end
+        
+        
+        % Implement a function to compute the applied current magnitude that connects the dmcpgdcll and cds subnetworks.
+        function [ Ias, self ] = compute_dmcpgdcll2cds_Ias( self, Gm, R, set_flag, applied_current_utilities )
+            
+            % Define the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
+            if nargin < 3, R = self.R_DEFAULT; end                                                  % [V] Activation Domain.
+            if nargin < 2, Gm = self.Gm_DEFAULT; end                                                % [S] Membrane Conductance.
+            
+           % Compute the magnitude of these applied currents.
+           Ias = applied_current_utilities.compute_dmcpgdcll2cds_Ias( Gm, R );
+            
+           % Determine whether to update the applied current object.
+           if set_flag, self.Ias = Ias; end
+           
+        end
+                
         
         %% Sampling Functions.
         

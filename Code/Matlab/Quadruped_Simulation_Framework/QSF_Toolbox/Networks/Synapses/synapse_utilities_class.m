@@ -421,7 +421,7 @@ classdef synapse_utilities_class
         end
         
         
-        % ---------- Division Subnetwork Functions (Numerator) ----------
+        % ---------- Division Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to compute the synaptic reversal potential for absolute division numerator synapses.
         function dEs31 = compute_absolute_division_dEs31( self )
@@ -468,7 +468,7 @@ classdef synapse_utilities_class
         end
         
         
-        % ---------- Division Subnetwork Functions (Denominator) ----------
+        % ---------- Division Subnetwork Functions (Synapse 32) ----------
         
         % Implement a function to compute the synaptic reversal potential for absolute division denominator synapses.
         function dEs32 = compute_absolute_division_dEs32( ~ )
@@ -558,7 +558,7 @@ classdef synapse_utilities_class
         end
         
         
-        % ---------- Reduced Division Subnetwork Functions (Numerator) ----------
+        % ---------- Reduced Division Subnetwork Functions (Synapse 31) ----------
 
         % Implement a function to compute the synaptic reversal potential for reduced absolute division numerator synapses.
         function dEs31 = compute_reduced_absolute_division_dEs31( self )
@@ -605,7 +605,7 @@ classdef synapse_utilities_class
         end
         
         
-        % ---------- Reduced Division Subnetwork Functions (Denominator) ----------
+        % ---------- Reduced Division Subnetwork Functions (Synapse 32) ----------
         
         % Implement a function to compute the synaptic reversal potential for reduced absolute division denominator synapses.
         function dEs32 = compute_reduced_absolute_division_dEs32( ~ )
@@ -689,6 +689,276 @@ classdef synapse_utilities_class
             
             % Compute the synaptic reversal potential of the denominator synapse.
             dEs32 = self.compute_reduced_division_dEs32( encoding_scheme );
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions (Synapse 31) ----------
+
+        % Implement a function to compute the synaptic reversal potential for absolute division after inversion synapse 31.
+        function dEs31 = compute_absolute_division_after_inversion_dEs31( self )
+            
+            % Compute the synaptic reversal potential.
+            dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for relative division after inversion synapse 31.
+        function dEs31 = compute_relative_division_after_inversion_dEs31( self )
+            
+            % Compute the synaptic reversal potential.
+            dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for division after inversion subnetwork synapse 31.
+        function dEs31 = compute_division_after_inversion_dEs31( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                dEs31 = self.compute_absolute_after_inversion_division_dEs31(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                dEs31 = self.compute_relative_division_after_inversion_dEs31(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions (Synapse 32) ----------
+
+        % Implement a function to compute the synaptic reversal potential for absolute division after inversion synapse 32.
+        function dEs32 = compute_absolute_division_after_inversion_dEs32( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
+
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for relative division after inversion synapse 32.
+        function dEs32 = compute_relative_division_after_inversion_dEs32( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
+
+        end
+
+        
+        % Implement a function to compute the synaptic reversal potential for division after inversion subnetwork synapse 32.
+        function dEs32 = compute_division_after_inversion_dEs32( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                dEs32 = self.compute_absolute_division_after_inversion_dEs32(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                dEs32 = self.compute_relative_division_after_inversion_dEs32(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions (Combined) ----------
+
+        % Implement a function to compute the synaptic reversal potential for absolute division after inversion synapses.
+        function [ dEs31, dEs32 ] = compute_absolute_division_after_inversion_dEs( self )
+        
+            % Compute the synaptic reversal potential of the numerator synapse.
+            dEs31 = self.compute_absolute_division_after_inversion_dEs31(  );
+            
+            % Compute the synaptic reversal potential of the denominator synapse.
+            dEs32 = self.compute_absolute_division_after_inversion_dEs32(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for relative division after inversion synapses.
+        function [ dEs31, dEs32 ] = compute_relative_division_after_inversion_dEs( self )
+        
+            % Compute the synaptic reversal potential of the numerator synapse.
+            dEs31 = self.compute_relative_division_after_inversion_dEs31(  );
+            
+            % Compute the synaptic reversal potential of the denominator synapse.
+            dEs32 = self.compute_relative_division_after_inversion_dEs32(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for division after inversion synapes.
+        function [ dEs31, dEs32 ] = compute_division_after_inversion_dEs( self, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Compute the synaptic reversal potential of the numerator synapse.
+            dEs31 = self.compute_division_after_inversion_dEs31( encoding_scheme );
+            
+            % Compute the synaptic reversal potential of the denominator synapse.
+            dEs32 = self.compute_division_after_inversion_dEs32( encoding_scheme );
+            
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 31) ----------
+
+        % Implement a function to compute the synaptic reversal potential for reduced absolute division after inversion synapse 31.
+        function dEs31 = compute_reduced_absolute_division_after_inversion_dEs31( self )
+            
+            % Compute the synaptic reversal potential.
+            dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for reduced relative division after inversion synapse 31.
+        function dEs31 = compute_reduced_relative_division_after_inversion_dEs31( self )
+            
+            % Compute the synaptic reversal potential.
+            dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for reduced division after inversion subnetwork synapse 31.
+        function dEs31 = compute_reduced_division_after_inversion_dEs31( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                dEs31 = self.compute_reduced_absolute_after_inversion_division_dEs31(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                dEs31 = self.compute_reduced_relative_division_after_inversion_dEs31(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 32) ----------
+
+        % Implement a function to compute the synaptic reversal potential for reduced absolute division after inversion synapse 32.
+        function dEs32 = compute_reduced_absolute_division_after_inversion_dEs32( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
+
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for reduced relative division after inversion synapse 32.
+        function dEs32 = compute_reduced_relative_division_after_inversion_dEs32( ~ )
+            
+            % Compute the synaptic reversal potential.
+            dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
+
+        end
+
+        
+        % Implement a function to compute the synaptic reversal potential for reduced division after inversion subnetwork synapse 32.
+        function dEs32 = compute_reduced_division_after_inversion_dEs32( self, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Determine how to compute the synaptic reversal potential.
+            if strcmpi( encoding_scheme, 'absolute' )
+               
+                % Compute the synaptic reversal potential using an absolute encoding scheme.
+                dEs32 = self.compute_reduced_absolute_division_after_inversion_dEs32(  );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )
+                
+                % Compute the synaptic reversal potential using a relative encoding scheme.
+                dEs32 = self.compute_reduced_relative_division_after_inversion_dEs32(  );
+            
+            else
+            
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions (Combined) ----------
+        
+        % Implement a function to compute the synaptic reversal potential for reduced absolute division after inversion synapses.
+        function [ dEs31, dEs32 ] = compute_reduced_absolute_division_after_inversion_dEs( self )
+        
+            % Compute the synaptic reversal potential of the numerator synapse.
+            dEs31 = self.compute_reduced_absolute_division_after_inversion_dEs31(  );
+            
+            % Compute the synaptic reversal potential of the denominator synapse.
+            dEs32 = self.compute_reduced_absolute_division_after_inversion_dEs32(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for reduced relative division after inversion synapses.
+        function [ dEs31, dEs32 ] = compute_reduced_relative_division_after_inversion_dEs( self )
+        
+            % Compute the synaptic reversal potential of the numerator synapse.
+            dEs31 = self.compute_reduced_relative_division_after_inversion_dEs31(  );
+            
+            % Compute the synaptic reversal potential of the denominator synapse.
+            dEs32 = self.compute_reduced_relative_division_after_inversion_dEs32(  );
+            
+        end
+        
+        
+        % Implement a function to compute the synaptic reversal potential for reduced division after inversion synapes.
+        function [ dEs31, dEs32 ] = compute_reduced_division_after_inversion_dEs( self, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            
+            % Compute the synaptic reversal potential of the numerator synapse.
+            dEs31 = self.compute_reduced_division_after_inversion_dEs31( encoding_scheme );
+            
+            % Compute the synaptic reversal potential of the denominator synapse.
+            dEs32 = self.compute_reduced_division_after_inversion_dEs32( encoding_scheme );
             
         end
         
@@ -1096,19 +1366,19 @@ classdef synapse_utilities_class
         % ---------- Derivation Subnetwork Functions ----------
         
         % Implement a function to compute the synaptic reversal potential for a derivation subnetwork.
-        function dEs1 = compute_derivation_dEs1( self )
+        function dEs31 = compute_derivation_dEs31( self )
             
             % Compute the synaptic reversal potential.
-            dEs1 = self.dEs_max_DEFAULT;                                    % [V] Synaptic Reversal Potential.
+            dEs31 = self.dEs_max_DEFAULT;                                    % [V] Synaptic Reversal Potential.
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for a derivation subnetwork.
-        function dEs2 = compute_derivation_dEs2( self )
+        function dEs32 = compute_derivation_dEs32( self )
             
             % Compute the synaptic reversal potential.
-            dEs2 = self.dEs_min_DEFAULT;                                	% [V] Synaptic Reversal Potential.
+            dEs32 = self.dEs_min_DEFAULT;                                	% [V] Synaptic Reversal Potential.
             
         end
         

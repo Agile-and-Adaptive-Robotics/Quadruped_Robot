@@ -1651,40 +1651,7 @@ classdef synapse_manager_class
         
         %% Synaptic Reversal Potential Compute Functions.
         
-        % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
-        function [ dEs, synapses, self ] = compute_dmcpg_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
-            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Preallocate an array to store the computed values.
-            dEs = zeros( 1, num_synapses_to_evaluate );
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                [  dEs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_dmcpg_dEs( true, synapses( synapse_index ).synapse_utilities );
-                
-            end
-            
-            % Determine whether to update the synapse manager object.
-            if set_flag, self.synapses = synapses; end
-            
-        end
-        
+        % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to compute and set the synaptic reversal potential of a transmission subnetwork.
         function [ dEs, synapses, self ] = compute_transmission_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
@@ -1722,40 +1689,7 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to compute and set the synaptic reversal potential of a modulation subnetwork.
-        function [ dEs, synapses, self ] = compute_modulation_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
-            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Preallocate an array to store the computed values.
-            dEs = zeros( 1, num_synapses_to_evaluate );
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                [ dEs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_modulation_dEs( true, synapses( synapse_index ).synapse_utilities );
-                
-            end
-            
-            % Determine whether to update the synapse manager object.
-            if set_flag, self.synpases = synapses; end
-            
-        end
-        
+        % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to compute and set the synaptic reversal potential of an addition subnetwork.
         function [ dEs1, synapses, self ] = compute_addition_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
@@ -1864,6 +1798,8 @@ classdef synapse_manager_class
             
         end
         
+        
+        % ---------- Subtraction Subnetwork Functions ----------
 
         % Implement a function to compute and set the synaptic reversal potential of a subtraction subnetwork.
         function [ dEs1, synapses, self ] = compute_subtraction_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
@@ -2008,6 +1944,144 @@ classdef synapse_manager_class
             
         end
         
+                
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute and set the synaptic reversal potential of an inversion subnetwork.
+        function [ dEs, synapses, self ] = compute_inversion_dEs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the parameters.
+            parameters = self.process_inversion_dEs_parameters( parameters, encoding_scheme );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            dEs = zeros( 1, num_synapses_to_evaluate ); 
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
+                
+                % Compute and set the required parameter for this synapse.
+                [ dEs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_inversion_dEs( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                
+            end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
+        function [ dEs1, synapses, self ] = compute_division_dEs1( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the parameters.
+            parameters = process_division_dEs1_parameters( parameters, encoding_scheme );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            dEs1 = zeros( 1, num_synapses_to_evaluate ); 
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
+                
+                % Compute and set the required parameter for this synapse.
+                [ dEs1( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_dEs1( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                
+            end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
+            
+        end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
+        function [ dEs2, synapses, self ] = compute_division_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            dEs2 = zeros( 1, num_synapses_to_evaluate ); 
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
+                
+                % Compute and set the required parameter for this synapse.
+                [ dEs2( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_dEs2( encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
+                
+            end
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
+            
+        end
+                
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to compute and set the synaptic reversal potential of a multiplication subnetwork.
         function [ dEs1, synapses, self ] = compute_multiplication_dEs1( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
@@ -2117,121 +2191,10 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to compute and set the synaptic reversal potential of an inversion subnetwork.
-        function [ dEs, synapses, self ] = compute_inversion_dEs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Process the parameters.
-            parameters = self.process_inversion_dEs_parameters( parameters, encoding_scheme );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Preallocate an array to store the computed values.
-            dEs = zeros( 1, num_synapses_to_evaluate ); 
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                [ dEs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_inversion_dEs( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
-                
-            end
-            
-            % Determine whether to update the synapse manager object.
-            if set_flag, self.synpases = synapses; end
-            
-        end
+        % ---------- Rduced Multiplication Subnetwork Functions ----------
+
         
-        
-        % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
-        function [ dEs1, synapses, self ] = compute_division_dEs1( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
-            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Process the parameters.
-            parameters = process_division_dEs1_parameters( parameters, encoding_scheme );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Preallocate an array to store the computed values.
-            dEs1 = zeros( 1, num_synapses_to_evaluate ); 
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                [ dEs1( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_dEs1( parameters, encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
-                
-            end
-            
-            % Determine whether to update the synapse manager object.
-            if set_flag, self.synpases = synapses; end
-            
-        end
-        
-        
-        % Implement a function to compute and set the synaptic reversal potential of a division subnetwork.
-        function [ dEs2, synapses, self ] = compute_division_dEs2( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 4, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
-            
-            % Validate the synapse IDs.
-            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
-            
-            % Determine how many synapses to which we are going to apply the given method.
-            num_synapses_to_evaluate = length( synapse_IDs );
-            
-            % Preallocate an array to store the computed values.
-            dEs2 = zeros( 1, num_synapses_to_evaluate ); 
-            
-            % Evaluate the given synapse method for each neuron.
-            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
-                
-                % Retrieve the index associated with this synapse ID.
-                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
-                
-                % Compute and set the required parameter for this synapse.
-                [ dEs2( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_division_dEs2( encoding_scheme, true, synapses( synapse_index ).synapse_utilities );
-                
-            end
-            
-            % Determine whether to update the synapse manager object.
-            if set_flag, self.synpases = synapses; end
-            
-        end
-                
+        % ---------- Derivation Subnetwork Functions ----------
         
         % Implement a function to compute and set the synaptic reversal potential of a derivation subnetwork.
         function [ dEs1, synapses, self ] = compute_derivation_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
@@ -2302,6 +2265,8 @@ classdef synapse_manager_class
             
         end
         
+        
+        % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute and set the synaptic reversal potential of a voltage based integration subnetwork.
         function [ dEs1, synapses, self ] = compute_integration_dEs1( self, synapse_IDs, synapses, set_flag, undetected_option )
@@ -2443,17 +2408,15 @@ classdef synapse_manager_class
         end
         
         
-        %% Maximum Synaptic Conductance Compute Functions.
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
         
-        % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
-        function [ gs, synapses, self ] = compute_dmcpg_gs( self, synapse_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
+        % Implement a function to compute and set the synaptic reversal potential of a driven multistate cpg subnetwork.
+        function [ dEs, synapses, self ] = compute_dmcpg_dEs( self, synapse_IDs, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
-            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                    % [A] Max Drive Current.                                  	% [A] Maximum Drive Current.
-            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end              % [V] Oscillatory CPG Bifurcation Parameter.            	% [V] Oscillatory CPG Equilibrium Offset.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 3, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -2463,7 +2426,7 @@ classdef synapse_manager_class
             num_synapses_to_evaluate = length( synapse_IDs );
             
             % Preallocate an array to store the computed values.
-            gs = zeros( 1, num_synapses_to_evaluate ); 
+            dEs = zeros( 1, num_synapses_to_evaluate );
             
             % Evaluate the given synapse method for each neuron.
             for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
@@ -2472,16 +2435,23 @@ classdef synapse_manager_class
                 synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
                 
                 % Compute and set the required parameter for this synapse.
-                [ gs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_dmcpg_gs( synapses( synapse_index ).dE_syn, delta_oscillatory, Id_max, true, synapses( synapse_index ).synapse_utilities );
+                [  dEs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_dmcpg_dEs( true, synapses( synapse_index ).synapse_utilities );
                 
             end
             
             % Determine whether to update the synapse manager object.
-            if set_flag, self.synpases = synapses; end
+            if set_flag, self.synapses = synapses; end
             
         end
         
         
+        %% Maximum Synaptic Conductance Compute Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+
+        
+        % ---------- Addition Subnetwork Functions ----------
+
         % Implement a function to compute and set the maximum synaptic conductance of addition subnetwork synapses.
         function [ gs_nk, synapses, self ] = compute_addition_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
@@ -2524,6 +2494,8 @@ classdef synapse_manager_class
             
         end
         
+        
+        % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to compute and set the maximum synaptic conductance of subtraction subnetwork synapses.
         function [ gs_nk, synapses, self ] = compute_subtraction_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
@@ -2568,6 +2540,8 @@ classdef synapse_manager_class
         end
         
         
+        % ---------- Inversion Subnetwork Functions ----------
+        
         % Implement a function to compute and set the maximum synaptic conductance of absolute inversion subnetwork synapses.
         function [ gs21, synapses, self ] = compute_inversion_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
@@ -2607,6 +2581,11 @@ classdef synapse_manager_class
             
         end
         
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        
+        % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to compute and set the maximum synaptic conductance of division subnetwork numerator synapses.
         function [ gs31, synapses, self ] = compute_division_gs31( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
@@ -2659,6 +2638,62 @@ classdef synapse_manager_class
             
             % Compute and set the required parameter for the denominator synapse.
             [ gs32, synapses( synapse_index_denominator ) ] = synapses( synapse_index_denominator ).compute_division_gs32( parameters, encoding_scheme, true, synapses( synapse_index_denominator ).synapse_utilities );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self.synpases = synapses; end
+            
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+        
+        % Implement a function to compute and set the maximum synaptic conductance of a driven multistate cpg subnetwork.
+        function [ gs, synapses, self ] = compute_dmcpg_gs( self, synapse_IDs, delta_oscillatory, Id_max, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, Id_max = self.Id_max_DEFAULT; end                                    % [A] Max Drive Current.                                  	% [A] Maximum Drive Current.
+            if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAULT; end              % [V] Oscillatory CPG Bifurcation Parameter.            	% [V] Oscillatory CPG Equilibrium Offset.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Determine how many synapses to which we are going to apply the given method.
+            num_synapses_to_evaluate = length( synapse_IDs );
+            
+            % Preallocate an array to store the computed values.
+            gs = zeros( 1, num_synapses_to_evaluate ); 
+            
+            % Evaluate the given synapse method for each neuron.
+            for k = 1:num_synapses_to_evaluate                                                  % Iterate through each of the synapses of interest...
+                
+                % Retrieve the index associated with this synapse ID.
+                synapse_index = self.get_synapse_index( synapse_IDs( k ), synapses, undetected_option );
+                
+                % Compute and set the required parameter for this synapse.
+                [ gs( k ), synapses( synapse_index ) ] = synapses( synapse_index ).compute_dmcpg_gs( synapses( synapse_index ).dE_syn, delta_oscillatory, Id_max, true, synapses( synapse_index ).synapse_utilities );
+                
+            end
             
             % Determine whether to update the synapse manager object.
             if set_flag, self.synpases = synapses; end
