@@ -1106,29 +1106,33 @@ classdef synapse_class
         % ---------- Multiplication Subnetwork Functions (Synapse 41) ----------
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 41 of an absolute multiplication subnetwork.
-        function [ R4, Gm4, dEs41, Ia4 ] = unpack_absolute_multiplication_gs41_parameters( self, parameters )
+        function [ c4, c6, delta1, delta2, R1, R3 ] = unpack_absolute_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                % If the parameters are empty...
+            if isempty( parameters )                                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R4 = self.R_DEFAULT;                                                % [V] Activation Domain.
-                Gm4 = self.Gm_DEFAULT;                                              % [S] Membrane Conductance.
-                dEs41 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_absolute_dai_DEFAULT;            % [A] Applied Current.
+                c4 = self.c1_absolute_division_after_inversion_DEFAULT;                 % [-] Absolute Division After Inversion Gain 1.
+                c6 = self.c3_absolute_division_after_inversion_DEFAULT;                 % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                         % [V] Absolute Inversion Offset.
+                delta2 = self.delta_absolute_division_after_inversion_DEFAULT;          % [V] Absolute Division Offset.
+                R1 = self.R_DEFAULT;                                                    % [V] Activation Domain.
+                R3 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R4 = parameters{ 1 };                                               % [V] Activation Domain.
-                Gm4 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                dEs41 = parameters{ 3 };                                            % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 4 };                                              % [A] Applied Current.
+                c4 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters{ 2 };                                                   % [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters{ 3 };                                               % [V] Absolute Inversion Offset.
+                delta2 = parameters{ 4 };                                               % [V] Absolute Division Offset.
+                R1 = parameters{ 5 };                                                   % [V] Activation Domain.
+                R3 = parameters{ 6 };                                                   % [V] Activation Domain.
             
-            else                                                                    % Otherwise...
+            else                                                                        % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1139,7 +1143,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 41 of a relative multiplication subnetwork.
-        function [ R4, Gm4, dEs41, Ia4 ] = unpack_relative_multiplication_gs41_parameters( self, parameters )
+        function [ c4, c6, delta1, delta2, R3, dEs41 ] = unpack_relative_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
@@ -1148,18 +1152,22 @@ classdef synapse_class
             if isempty( parameters )                                                % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R4 = self.R_DEFAULT;                                                % [V] Activation Domain.
-                Gm4 = self.Gm_DEFAULT;                                              % [S] Membrane Conductance.
+                c4 = self.c1_relative_division_after_inversion_DEFAULT;             % [-] Absolute Division After Inversion Gain 1.
+                c6 = self.c3_relative_division_after_inversion_DEFAULT;             % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_relative_inversion_DEFAULT;                     % [V] Absolute Inversion Offset.
+                delta2 = self.delta_relative_division_DEFAULT;                      % [V] Absolute Division Offset.
+                R3 = self.R_DEFAULT;                                                % [V] Activation Domain.
                 dEs41 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_relative_dai_DEFAULT;            % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R4 = parameters{ 1 };                                               % [V] Activation Domain.
-                Gm4 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                dEs41 = parameters{ 3 };                                            % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 4 };                                              % [A] Applied Current.
+                c4 = parameters{ 1 };                                               % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters{ 2 };                                               % [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters{ 3 };                                           % [V] Absolute Inversion Offset.
+                delta2 = parameters{ 4 };                                           % [V] Absolute Division Offset.
+                R3 = parameters{ 5 };                                               % [V] Activation Domain.
+                dEs41 = parameters{ 6 };                                           	% [V] Synaptic Reversal Potential.
             
             else                                                                    % Otherwise...
                
@@ -1242,33 +1250,33 @@ classdef synapse_class
         % ---------- Multiplication Subnetwork Functions (Synapse 43) ----------
 
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 43 of an absolute multiplication subnetwork.
-        function [ delta2, Gm4, gs41, dEs41, dEs43, Ia4 ] = unpack_absolute_multiplication_gs43_parameters( self, parameters )
+        function [ c4, c6, delta2, R1, R3, dEs41 ] = unpack_absolute_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                % If the parameters are empty...
+            if isempty( parameters )                                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta2 = self.delta_absolute_division_DEFAULT;                      % [V] Absolute Division Offset.
-                Gm4 = self.Gm_DEFAULT;                                              % [S] Membrane Conductance.
-                gs41 = self.gs_DEFAULT;                                             % [S] Synaptic Conductance.
-                dEs41 = self.dEs_DEFAULT;                                           % [V] Synaptic Reversal Potential.
-                dEs43 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_absolute_dai_DEFAULT;            % [A] Applied Current.
+                c4 = self.c1_absolute_division_after_inversion_DEFAULT;                 % [-] Absolute Division After Inversion Gain 1.
+                c6 = self.c3_absolute_division_after_inversion_DEFAULT;                 % [-] Absolute Division After Inversion Gain 3.
+                delta2 = self.delta_absolute_division_after_inversion_DEFAULT;          % [V] Absolute Division Offset.
+                R1 = self.R_DEFAULT;                                                    % [V] Activation Domain.
+                R3 = self.R_DEFAULT;                                                    % [V] Activation Domain.
+                dEs41 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };                                           % [V] Absolute Division Offset.
-                Gm4 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                gs41 = parameters{ 3 };                                             % [S] Synaptic Conductance.
-                dEs41 = parameters{ 4 };                                           	% [V] Synaptic Reversal Potential.
-                dEs43 = parameters{ 5 };                                            % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 6 };                                              % [A] Applied Current.
+                c4 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters{ 2 };                                                   % [-] Absolute Division After Inversion Gain 3.
+                delta2 = parameters{ 3 };                                               % [V] Absolute Division Offset.
+                R1 = parameters{ 4 };                                                   % [V] Activation Domain.
+                R3 = parameters{ 5 };                                                   % [V] Activation Domain.
+                dEs41 = parameters{ 6 };                                                % [V] Synaptic Reversal Potential.
             
-            else                                                                    % Otherwise...
+            else                                                                        % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1279,31 +1287,31 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 43 of a relative multiplication subnetwork.
-        function [ delta2, Gm4, gs41, dEs41, dEs43, Ia4 ] = unpack_relative_multiplication_gs43_parameters( self, parameters )
+        function [ c4, c6, delta1, delta2, R3, dEs41 ] = unpack_relative_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                % If the parameters are empty...
+            if isempty( parameters )                                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta2 = self.delta_relative_division_DEFAULT;                      % [V] Relative Division Offset.
-                Gm4 = self.Gm_DEFAULT;                                              % [S] Membrane Conductance.
-                gs41 = self.gs_DEFAULT;                                             % [S] Maximum Synaptic Conductance.
-                dEs41 = self.dEs_DEFAULT;                                           % [V] Synaptic Reversal Potential.
-                dEs43 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_relative_dai_DEFAULT;            % [A] Applied Current.
+                c4 = self.c1_absolute_division_after_inversion_DEFAULT;                 % [-] Absolute Division After Inversion Gain 1.
+                c6 = self.c3_absolute_division_after_inversion_DEFAULT;                 % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_inversion_division_DEFAULT;                         % [V] Absolute Inversion Offset.
+                delta2 = self.delta_absolute_division_after_inversion_DEFAULT;          % [V] Absolute Division After Inversion Offset.
+                R3 = self.R_DEFAULT;                                                    % [V] Activation Domain.
+                dEs41 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };                                           % [V] Relative Division Offset.
-                Gm4 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                gs41 = parameters{ 3 };                                             % [S] Maximum Synaptic Conductance.
-                dEs41 = parameters{ 4 };                                            % [V] Synaptic Reversal Potential.
-                dEs43 = parameters{ 5 };                                            % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 6 };                                              % [A] Applied Current.
+                c4 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters{ 2 };                                                  	% [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters{ 3 };                                               % [V] Absolute Inversion Offset.
+                delta2 = parameters{ 4 };                                               % [V] Absolute Division After Inversion Offset.
+                R3 = parameters{ 5 };                                                   % [V] Activation Domain.
+                dEs41 = parameters{ 6 };                                                % [V] Synaptic Reversal Potential.
             
             else                                                                    % Otherwise...
                
@@ -1318,29 +1326,33 @@ classdef synapse_class
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 41) ----------
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 41 of a reduced absolute multiplication subnetwork.
-        function [ R4, Gm4, dEs41, Ia4 ] = unpack_reduced_absolute_multiplication_gs41_parameters( self, parameters )
+        function [ delta1, delta2, R3, R4, Gm4, dEs41 ] = unpack_reduced_absolute_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                % If the parameters are empty...
+            if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R4 = self.R_DEFAULT;                                                % [V] Activation Domain.
-                Gm4 = self.Gm_DEFAULT;                                              % [S] Membrane Conductance.
-                dEs41 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_absolute_dai_DEFAULT;            % [A] Applied Current.
+                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                         % [V] Absolute Inversion Offset.
+                delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT;          % [V] Absolute Division After Inversion Offset.
+                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
+                R4 = self.R_DEFAULT;                                                            % [V] Activation Domain.
+                Gm4 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
+                dEs41 = self.dEs;                                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R4 = parameters{ 1 };                                               % [V] Activation Domain.
-                Gm4 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                dEs41 = parameters{ 3 };                                            % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 4 };                                           	% [A] Applied Current.
+                delta1 = parameters{ 1 };                                                       % [V] Absolute Inversion Offset.
+                delta2 = parameters{ 2 };                                                       % [V] Absolute Division Offset.
+                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
+                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
+                Gm4 = parameters{ 5 };                                                          % [S] Membrane Conductance.
+                dEs41 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
             
-            else                                                                    % Otherwise...
+            else                                                                                % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1351,29 +1363,31 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 41 of a relative multiplication subnetwork.
-        function [ R4, Gm4, dEs41, Ia4 ] = unpack_reduced_relative_multiplication_gs41_parameters( self, parameters )
+        function [ delta1, delta2, R3, R4, dEs41 ] = unpack_reduced_relative_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                % If the parameters are empty...
+            if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R4 = self.R_DEFAULT;                                                % [V] Activation Domain.
-                Gm4 = self.Gm_DEFAULT;                                              % [S] Membrane Conductance.
-                dEs41 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_relative_dai_DEFAULT;            % [A] Applied Current.
+                delta1 = self.delta_reduced_relative_inversion_DEFAULT;                         % [V] Relative Inversion Offset.
+                delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT;          % [V] Relative Division After Inversion Offset.
+                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
+                R4 = self.R_DEFAULT;                                                            % [V] Activation Domain.
+                dEs41 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( parameters ) == 5                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R4 = parameters{ 1 };                                               % [V] Activation Domain.
-                Gm4 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                dEs41 = parameters{ 3 };                                           	% [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 4 };                                              % [A] Applied Current.
+                delta1 = parameters{ 1 };                                                       % [V] Relative Inversion Offset.
+                delta2 = parameters{ 2 };                                                       % [V] Relative Division After Inversion Offset.
+                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
+                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
+                dEs41 = parameters{ 5 };                                                        % [V] Synaptic Reversal Potential.
             
-            else                                                                    % Otherwise...
+            else                                                                                % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1454,33 +1468,33 @@ classdef synapse_class
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 43) ----------
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 43 of a reduced absolute multiplication subnetwork.
-        function [ delta2, Gm4, gs41, dEs41, dEs43, Ia4 ] = unpack_reduced_absolute_multiplication_gs43_parameters( self, parameters )
+        function [ delta1, delta2, R3, R4, Gm4, dEs41 ] = unpack_reduced_absolute_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                        % If the parameters are empty...
+            if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta2 = self.delta_reduced_absolute_division_DEFAULT;                      % [V] Reduced Absolute Division Offset.a
-                Gm4 = self.Gm_DEFAULT;                                                      % [S] Membrane Conductance.
-                gs41 = self.gs_DEFAULT;                                                     % [S] Synaptic Conductance.
-                dEs41 = self.dEs_DEFAULT;                                                   % [V] Synaptic Reversal Potential.
-                dEs43 = self.dEs;                                                           % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_reduced_absolute_dai_DEFAULT;            % [A] Applied Current.
+                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                         % [V] Absolute Inversion Offset.
+                delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT;          % [V] Absolute Division After Inversion Offset.
+                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
+                R4 = self.R_DEFAULT;                                                            % [V} Activation Domain.
+                Gm4 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
+                dEs41 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };                                                   % [V] Reduced Absolute Division Offset.a
-                Gm4 = parameters{ 2 };                                                      % [S] Membrane Conductance.
-                gs41 = parameters{ 3 };                                                     % [S] Synaptic Conductance.
-                dEs41 = parameters{ 4 };                                                    % [V] Synaptic Reversal Potential.
-                dEs43 = parameters{ 5 };                                                    % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 6 };                                                      % [A] Applied Current.
+                delta1 = parameters{ 1 };                                                       % [V] Absolute Inversion Offset.
+                delta2 = parameters{ 2 };                                                       % [V] Absolute Division After Inversion Offset.
+                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
+                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
+                Gm4 = parameters{ 5 };                                                          % [S] Membrane Conductance.
+                dEs41 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
             
-            else                                                                           	% Otherwise...
+            else                                                                                % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1491,33 +1505,33 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the synaptic conductance for synapse 43 of a reduced relative multiplication subnetwork.
-        function [ delta2, Gm4, gs41, dEs41, dEs43, Ia4 ] = unpack_reduced_relative_multiplication_gs43_parameters( self, parameters )
+        function [ delta1, delta2, R3, R4, Gm4, dEs41 ] = unpack_reduced_relative_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                        	% [-] Input Parameters Cell.
+            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                        % If the parameters are empty...
+            if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta2 = self.delta_reduced_relative_division_DEFAULT;                      % [V] Reduced Relative Division Offset.
-                Gm4 = self.Gm_DEFAULT;                                                      % [S] Membrane Conductance.
-                gs41 = self.gs_DEFAULT;                                                     % [S] Synaptic Conductance.
-                dEs41 = self.dEs_DEFAULT;                                                   % [V] Synaptic Reversal Potential.
-                dEs43 = self.dEs;                                                           % [V] Synaptic Reversal Potential.
-                Ia4 = self.Ia_reduced_relative_dai_DEFAULT;            % [A] Applied Current.
+                delta1 = self.delta_reduced_relative_inversion_DEFAULT;                         % [V] Relative Inversion Offset.
+                delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT;          % [V] Relative Division After Inversion Offset.
+                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
+                R4 = self.R_DEFAULT;                                                            % [V} Activation Domain.
+                Gm4 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
+                dEs41 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                % If there are a specific number of parameters...
+            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };                                                   % [V] Reduced Relative Division Offset.
-                Gm4 = parameters{ 2 };                                                      % [S] Membrane Conductance.
-                gs41 = parameters{ 3 };                                                     % [S] Synaptic Conductance.
-                dEs41 = parameters{ 4 };                                                    % [V] Synaptic Reversal Potential.
-                dEs43 = parameters{ 5 };                                                    % [V] Synaptic Reversal Potential.
-                Ia4 = parameters{ 6 };                                                      % [A] Applied Current.
+                delta1 = parameters{ 1 };                                                       % [V] Relative Inversion Offset.
+                delta2 = parameters{ 2 };                                                       % [V] Relative Division After Inversion Offset.
+                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
+                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
+                Gm4 = parameters{ 5 };                                                          % [S] Membrane Conductance.
+                dEs41 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
             
-            else                                                                          	% Otherwise...
+            else                                                                                % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
