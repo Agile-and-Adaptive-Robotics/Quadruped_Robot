@@ -759,7 +759,7 @@ classdef neuron_utilities_class
         % ---------- Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to compute the sodium channel conductance of an absolute division after inversion subnetwork neuron.
-        function Gna = compute_absolute_division_after_inversion_Gna( ~ )
+        function Gna = compute_absolute_dai_Gna( ~ )
         
             % Compute the sodium channel conductance.
             Gna = 0;
@@ -768,7 +768,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the sodium channel conductance of a relative division after inversion subnetwork neuron.
-        function Gna = compute_relative_division_after_inversion_Gna( ~ )
+        function Gna = compute_relative_dai_Gna( ~ )
         
             % Compute the sodium channel conductance.
             Gna = 0;
@@ -777,7 +777,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the sodium channel conductance of a division after inversion subnetwork neuron.
-        function Gna = compute_division_after_inversion_Gna( ~ )
+        function Gna = compute_dai_Gna( ~ )
            
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -786,12 +786,12 @@ classdef neuron_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Compute the sodium channel conductance using an absolute encoding scheme.
-                Gna = self.compute_reduced_absolute_division_after_inversion_Gna(  );
+                Gna = self.compute_reduced_absolute_dai_Gna(  );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Compute the sodium channel conductance using a relative encoding scheme.
-                Gna = self.compute_reduced_relative_division_after_inversion_Gna(  );
+                Gna = self.compute_reduced_relative_dai_Gna(  );
             
             else
             
@@ -806,7 +806,7 @@ classdef neuron_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to compute the sodium channel conductance of a reduced absolute division after inversion subnetwork neuron.
-        function Gna = compute_reduced_absolute_division_after_inversion_Gna( ~ )
+        function Gna = compute_reduced_absolute_dai_Gna( ~ )
         
             % Compute the sodium channel conductance.
             Gna = 0;
@@ -815,7 +815,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the sodium channel conductance of a reduced relative division after inversion subnetwork neuron.
-        function Gna = compute_reduced_relative_division_after_inversion_Gna( ~ )
+        function Gna = compute_reduced_relative_dai_Gna( ~ )
         
             % Compute the sodium channel conductance.
             Gna = 0;
@@ -824,7 +824,7 @@ classdef neuron_utilities_class
         
         
         % Implement a function to compute the sodium channel conductance of a reduced division after inversion subnetwork neuron.
-        function Gna = compute_reduced_division_after_inversion_Gna( ~ )
+        function Gna = compute_reduced_dai_Gna( ~ )
            
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -833,12 +833,12 @@ classdef neuron_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Compute the sodium channel conductance using an absolute encoding scheme.
-                Gna = self.compute_reduced_absolute_division_after_inversion_Gna(  );
+                Gna = self.compute_reduced_absolute_dai_Gna(  );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Compute the sodium channel conductance using a relative encoding scheme.
-                Gna = self.compute_reduced_relative_division_after_inversion_Gna(  );
+                Gna = self.compute_reduced_relative_dai_Gna(  );
             
             else
             
@@ -859,7 +859,7 @@ classdef neuron_utilities_class
             Gna3 = compute_absolute_inversion_Gna(  );                                      % [S] Sodium Channel Conductance.
             
             % Compute the absolute division subnetwork sodium channel conductance.
-            Gna4 = self.compute_absolute_division_after_inversion_Gna(  );                  % [S] Sodium Channel Conductance.
+            Gna4 = self.compute_absolute_dai_Gna(  );                  % [S] Sodium Channel Conductance.
             
         end
         
@@ -871,7 +871,7 @@ classdef neuron_utilities_class
             Gna3 = compute_relative_inversion_Gna(  );                                      % [S] Sodium Channel Conductance.
             
             % Compute the relative division subnetwork sodium channel conductance.
-            Gna4 = self.compute_relative_division_after_inversion_Gna(  );                  % [S] Sodium Channel Conductance.
+            Gna4 = self.compute_relative_dai_Gna(  );                  % [S] Sodium Channel Conductance.
             
         end
         
@@ -912,7 +912,7 @@ classdef neuron_utilities_class
             Gna3 = compute_reduced_absolute_inversion_Gna(  );                                      % [S] Sodium Channel Conductance.
             
             % Compute the absolute division subnetwork sodium channel conductance.
-            Gna4 = self.compute_reduced_absolute_division_after_inversion_Gna(  );                  % [S] Sodium Channel Conductance.
+            Gna4 = self.compute_reduced_absolute_dai_Gna(  );                  % [S] Sodium Channel Conductance.
             
         end
         
@@ -924,7 +924,7 @@ classdef neuron_utilities_class
             Gna3 = compute_reduced_relative_inversion_Gna(  );                                      % [S] Sodium Channel Conductance.
             
             % Compute the relative division subnetwork sodium channel conductance.
-            Gna4 = self.compute_reduced_relative_division_after_inversion_Gna(  );                  % [S] Sodium Channel Conductance.
+            Gna4 = self.compute_reduced_relative_dai_Gna(  );                  % [S] Sodium Channel Conductance.
             
         end
         
@@ -1156,7 +1156,7 @@ classdef neuron_utilities_class
         % ---------- Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the absolute division after inversion subnetwork output neuron.
-        function R3 = compute_absolute_division_after_inversion_R3( self, c1, c2, c3, delta1, R1 )
+        function R3 = compute_absolute_dai_R3( self, c1, c2, c3, delta1, R1 )
             
             % Set the default input arguments.
             if nargin < 5, R1 = self.R_DEFAULT; end
@@ -1173,7 +1173,7 @@ classdef neuron_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork output neuron.
-        function R3 = compute_reduced_absolute_division_after_inversion_R3( self, c1, c2, delta1, R1 )
+        function R3 = compute_reduced_absolute_dai_R3( self, c1, c2, delta1, R1 )
             
             % Set the default input arguments.
             if nargin < 5, R1 = self.R_DEFAULT; end
@@ -1213,7 +1213,7 @@ classdef neuron_utilities_class
             if nargin < 2, c4 = self.c1_absolute_division_DEFAULT; end
             
             % Compute the operational domain of the absolute division subnetwork.
-            R4 = self.compute_absolute_division_after_inversion_R3( c4, c5, c6, delta1, R1 );
+            R4 = self.compute_absolute_dai_R3( c4, c5, c6, delta1, R1 );
                 
         end
         
@@ -1259,11 +1259,11 @@ classdef neuron_utilities_class
             % Set the default input arguments.
             if nargin < 5, R1 = self.R_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 3, c4 = self.c2_reduced_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c3 = self.c1_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, c4 = self.c2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
             
             % Compute the operational domain of the absolute division subnetwork.
-            R4 = self.compute_reduced_absolute_division_after_inversion_R3( c3, c4, delta1, R1 );
+            R4 = self.compute_reduced_absolute_dai_R3( c3, c4, delta1, R1 );
 
         end
         
@@ -1274,8 +1274,8 @@ classdef neuron_utilities_class
             % Set the default input arguments.
             if nargin < 7, R1 = self.R_DEFAULT; end
             if nargin < 6, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 5, c4 = self.c2_reduced_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 4, c3 = self.c1_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 5, c4 = self.c2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
             if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
             if anrgin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             

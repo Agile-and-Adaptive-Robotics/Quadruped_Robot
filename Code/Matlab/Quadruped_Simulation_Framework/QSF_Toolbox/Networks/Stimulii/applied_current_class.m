@@ -216,8 +216,10 @@ classdef applied_current_class
         
         %% Parameter Unpacking Functions.
         
-        % Implement a function to unpack the parameters required to compute the absolute inversion applied current magnitudes.
-        function [ Gm, R ] = unpack_absolute_inversion_Ia_output_parameters( self, parameters )
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 2 of an absolute inversion subnetwork.
+        function [ Gm2, R2 ] = unpack_absolute_inversion_Ias2_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
@@ -226,14 +228,14 @@ classdef applied_current_class
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Gm = self.Gm_DEFAULT;                                   % [S] Membrane Conductance.
-                R = self.R_DEFAULT;                                     % [V] Activation Domain.
+                Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R2 = self.R_DEFAULT;                                 	% [V] Activation Domain.
                 
-            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
+            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm = parameters{ 1 };                                   % [S] Membrane Conductance.
-                R = parameters{ 2 };                                    % [V] Activation Domain.
+                Gm2 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R2 = parameters{ 2 };                               	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -245,8 +247,8 @@ classdef applied_current_class
         end
         
         
-        % Implement a function to unpack the parameters required to compute the relative inversion applied current magnitudes.
-        function [ Gm, R ] = unpack_relative_inversion_Ia_output_parameters( self, parameters )
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 2 of a relative inversion subnetwork.
+        function [ Gm2, R2 ] = unpack_relative_inversion_Ias2_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
@@ -255,14 +257,134 @@ classdef applied_current_class
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Gm = self.Gm_DEFAULT;                                   % [S] Membrane Conductance.
-                R = self.R_DEFAULT;                                     % [V] Activation Domain.
+                Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R2 = self.R_DEFAULT;                                    % [V] Activation Domain.
                 
             elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm = parameters{ 1 };                                   % [S] Membrane Conductance.
-                R = parameters{ 2 };                                    % [V] Activation Domain.
+                Gm2 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R2 = parameters{ 2 };                                 	% [V] Activation Domain.
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 2 of a reduced absolute inversion subnetwork.
+        function [ Gm2, R2 ] = unpack_reduced_absolute_inversion_Ias2_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R2 = self.R_DEFAULT;                                 	% [V] Activation Domain.
+                
+            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm2 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R2 = parameters{ 2 };                               	% [V] Activation Domain.
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 2 of a reduced relative inversion subnetwork.
+        function [ Gm2, R2 ] = unpack_reduced_relative_inversion_Ias2_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R2 = self.R_DEFAULT;                                    % [V] Activation Domain.
+                
+            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm2 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R2 = parameters{ 2 };                                 	% [V] Activation Domain.
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 3 of an absolute multiplication subnetwork.
+        function [ Gm3, R3 ] = unpack_absolute_multiplication_Ias3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
+                
+            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 3 of a relative multiplication subnetwork.
+        function [ Gm3, R3 ] = unpack_relative_multiplication_Ias3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
+                
+            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R3 = parameters{ 2 };                               	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -278,40 +400,8 @@ classdef applied_current_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the magnitude of inversion input applied currents.
-        function [ Ias, self ] = compute_inversion_Ias_input( self, encoding_scheme, set_flag, applied_current_utilities )
-            
-            % Set the default input arguments.
-            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            
-            % Determine how to compute the applied current magnitude.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
-            
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_inversion_Ias_input(  );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
-               
-                % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_relative_inversion_Ias_input(  );  
-                
-            else                                                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
-                
-            end
-                
-            % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of inversion output applied currents.
-        function [ Ias, self ] = compute_inversion_Ias_output( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
+        % Implement a function to compute the applied current magnitude for neuron 2 of an inversion subnetwork.
+        function [ Ias2, self ] = compute_inversion_Ias2( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
             
             % Set the default input arguments.
             if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
@@ -323,18 +413,18 @@ classdef applied_current_class
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
             
                 % Unpack the parameters required to compute the absolute inversion applied current magnitudes.
-                [ Gm, R ] = self.unpack_absolute_inversion_Ia_output_parameters( parameters );
+                [ Gm2, R2 ] = self.unpack_absolute_inversion_Ias2_parameters( parameters );
                 
                 % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_inversion_Ias_output( Gm, R );
+                Ias2 = applied_current_utilities.compute_absolute_inversion_Ias2( Gm2, R2 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
                
                 % Unpack the parameters required to compute the relative inversion applied current magnitudes.
-                [ Gm, R ] = self.unpack_relative_inversion_Ia_output_parameters( parameters );
+                [ Gm2, R2 ] = self.unpack_relative_inversion_Ias2_parameters( parameters );
                 
                 % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_relative_inversion_Ias_output( Gm, R );  
+                Ias2 = applied_current_utilities.compute_relative_inversion_Ias2( Gm2, R2 );  
                 
             else                                                                                    % Otherwise...
                 
@@ -344,18 +434,56 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
+            if set_flag, self.Ias = Ias2; end
 
         end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
+        % Implement a function to compute the applied current magnitude for neuron 2 of a reduced inversion subnetwork.
+        function [ Ias2, self ] = compute_reduced_inversion_Ias2( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                                   % [cell] Parmaeters Cell.
+            
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
+            
+                % Unpack the parameters required to compute the absolute inversion applied current magnitudes.
+                [ Gm2, R2 ] = self.unpack_reduced_absolute_inversion_Ias2_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias2 = applied_current_utilities.compute_reduced_absolute_inversion_Ias2( Gm2, R2 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
+               
+                % Unpack the parameters required to compute the relative inversion applied current magnitudes.
+                [ Gm2, R2 ] = self.unpack_reduced_relative_inversion_Ias2_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias2 = applied_current_utilities.compute_reduced_relative_inversion_Ias2( Gm2, R2 );  
+                
+            else                                                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.Ias = Ias2; end
+
+        end
+        
         
         % ---------- Multiplication Subnetwork Functions ----------
         
-        % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
-        function [ Ias, self ] = compute_multiplication_Ias( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
+        % Implement a function to compute the applied current magnitude for neuron 3 of a multiplication subnetwork.
+        function [ Ias3, self ] = compute_multiplication_Ias3( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
             
             % Set the default input arguments.
             if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
@@ -367,18 +495,18 @@ classdef applied_current_class
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
             
                 % Unpack the parameters required to compute the absolute multiplication applied current magnitudes.
-                [ Gm, R ] = self.unpack_absolute_multiplicatio_Ia_parameters( parameters );
+                [ Gm3, R3 ] = self.unpack_absolute_multiplication_Ias3_parameters( parameters );
                 
                 % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_absolute_multiplication_Ias( Gm, R );
+                Ias3 = applied_current_utilities.compute_absolute_multiplication_Ias3( Gm3, R3 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
                
                 % Unpack the parameters required to compute the relative multiplication applied current magnitudes.
-                [ Gm, R ] = self.unpack_relative_multiplication_Ia_parameters( parameters );
+                [ Gm3, R3 ] = self.unpack_relative_multiplication_Ias3_parameters( parameters );
                 
                 % Compute the applied current magnitudes.
-                Ias = applied_current_utilities.compute_relative_multiplication_Ias( Gm, R );  
+                Ias3 = applied_current_utilities.compute_relative_multiplication_Ias3( Gm3, R3 );  
                 
             else                                                                                  	% Otherwise...
                 
@@ -388,13 +516,51 @@ classdef applied_current_class
             end
                 
             % Determine whether to update the applied current object.
-            if set_flag, self.Ias = Ias; end
+            if set_flag, self.Ias = Ias3; end
             
         end
         
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
+        % Implement a function to compute the applied current magnitude for neuron 3 of a reduced multiplication subnetwork.
+        function [ Ias3, self ] = compute_reduced_multiplication_Ias3( self, parameters, encoding_scheme, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                                   % [cell] Parmaeters Cell.
+            
+            % Determine how to compute the applied current magnitude.
+            if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
+            
+                % Unpack the parameters required to compute the absolute multiplication applied current magnitudes.
+                [ Gm3, R3 ] = self.unpack_reduced_absolute_multiplication_Ias3_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias3 = applied_current_utilities.compute_reduced_absolute_multiplication_Ias3( Gm3, R3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
+               
+                % Unpack the parameters required to compute the relative multiplication applied current magnitudes.
+                [ Gm3, R3 ] = self.unpack_reduced_relative_multiplication_Ias3_parameters( parameters );
+                
+                % Compute the applied current magnitudes.
+                Ias3 = applied_current_utilities.compute_reduced_relative_multiplication_Ias3( Gm3, R3 );  
+                
+            else                                                                                  	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+                
+            % Determine whether to update the applied current object.
+            if set_flag, self.Ias = Ias3; end
+            
+        end
+        
         
         % ---------- Integration Subnetwork Functions ----------
         

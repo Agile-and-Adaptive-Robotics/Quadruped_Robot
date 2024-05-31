@@ -553,7 +553,7 @@ classdef neuron_class
         % ---------- Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for a division after inversion subnetwork neuron.
-        function [ Gna, self ] = compute_division_after_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_dai_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 4, neuron_utilities = self.neuron_utilities; end                  	% [class] Neuron Utilities.
@@ -564,12 +564,12 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
 
                 % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue division subnetwork.
-                Gna = neuron_utilities.compute_absolute_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+                Gna = neuron_utilities.compute_absolute_dai_Gna(  );                   % [S] Sodium Channel Conductance
             
             elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
             
                 % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative division subnetwork.
-                Gna = neuron_utilities.compute_relative_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+                Gna = neuron_utilities.compute_relative_dai_Gna(  );                   % [S] Sodium Channel Conductance
 
             else                                                                            % Otherwise...
 
@@ -587,7 +587,7 @@ classdef neuron_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the required sodium channel conductance for a reduced division after inversion subnetwork neuron.
-        function [ Gna, self ] = compute_reduced_division_after_inversion_Gna( self, encoding_scheme, set_flag, neuron_utilities )
+        function [ Gna, self ] = compute_reduced_dai_Gna( self, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 4, neuron_utilities = self.neuron_utilities; end                  	% [class] Neuron Utilities.
@@ -598,12 +598,12 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                       % If the encoding scheme is set to absolute...
 
                 % Compute the sodium channel conductance for this neuron assuming that it belongs to an absolue division subnetwork.
-                Gna = neuron_utilities.compute_reduced_absolute_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+                Gna = neuron_utilities.compute_reduced_absolute_dai_Gna(  );                   % [S] Sodium Channel Conductance
             
             elseif strcmpi( encoding_scheme, 'relative' )                                   % If the encoding scheme is set to relative...
             
                 % Compute the sodium channel conductance for this neuron assuming that it belongs to a relative division subnetwork.
-                Gna = neuron_utilities.compute_reduced_relative_division_after_inversion_Gna(  );                   % [S] Sodium Channel Conductance
+                Gna = neuron_utilities.compute_reduced_relative_dai_Gna(  );                   % [S] Sodium Channel Conductance
 
             else                                                                            % Otherwise...
 
@@ -1653,7 +1653,7 @@ classdef neuron_class
 
         
         % Implement a function to unpack the parameters required to compute the absolute division after inversion output activation domain.
-        function [ c1, c2, c3, delta1, R1 ] = unpack_absolute_division_after_inversion_R3_parameters( self, parameters )
+        function [ c1, c2, c3, delta1, R1 ] = unpack_absolute_dai_R3_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                                   % [-] Parameters Cell.
@@ -1662,9 +1662,9 @@ classdef neuron_class
             if isempty( parameters )                                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 1.
-                c2 = self.c2_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 2.
-                c3 = self.c3_absolute_division_after_inversion_DEFAULT;           	% [-] Subnetwork Gain 3.
+                c1 = self.c1_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 1.
+                c2 = self.c2_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 2.
+                c3 = self.c3_absolute_dai_DEFAULT;           	% [-] Subnetwork Gain 3.
                 delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Inversion Subnetwork Offest.
                 R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
 
@@ -1721,7 +1721,7 @@ classdef neuron_class
         
         
         % Implement a function to unpack the parameters required to compute the reduced absolute division after inversion output activation domain.
-        function [ c1, c2, delta1, R1 ] = unpack_reduced_absolute_division_after_inversion_R3_parameters( self, parameters )
+        function [ c1, c2, delta1, R1 ] = unpack_reduced_absolute_dai_R3_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                                   % [-] Parameters Cell.
@@ -1730,8 +1730,8 @@ classdef neuron_class
             if isempty( parameters )                                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 1.
-                c2 = self.c2_absolute_division_after_inversion_DEFAULT;             % [-] Subnetwork Gain 2.
+                c1 = self.c1_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 1.
+                c2 = self.c2_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 2.
                 delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Inversion Subnetwork Offest.
                 R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
 
@@ -2116,7 +2116,7 @@ classdef neuron_class
         % ---------- Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the division after inversion subnetwork output neurons.
-        function [ R3, self ] = compute_division_after_inversion_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        function [ R3, self ] = compute_dai_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
@@ -2128,10 +2128,10 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the absolute division subnetwork output activation domain.
-                [ c1, c2, c3, delta1, R1 ] = self.unpack_absolute_division_after_inversion_R3_parameters( parameters );
+                [ c1, c2, c3, delta1, R1 ] = self.unpack_absolute_dai_R3_parameters( parameters );
                 
                 % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.            
-                R3 = neuron_utilities.compute_absolute_division_after_inversion_R3( c1, c2, c3, delta1, R1 );                                   % [V] Activation Domain.
+                R3 = neuron_utilities.compute_absolute_dai_R3( c1, c2, c3, delta1, R1 );                                   % [V] Activation Domain.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
             
@@ -2192,7 +2192,7 @@ classdef neuron_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the reduced division after inversion subnetwork output neurons.
-        function [ R3, self ] = compute_reduced_division_after_inversion_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        function [ R3, self ] = compute_reduced_dai_R3( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
@@ -2204,10 +2204,10 @@ classdef neuron_class
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the absolute division subnetwork output activation domain.
-                [ c1, c2, delta1, R1 ] = self.unpack_reduced_absolute_division_after_inversion_R3_parameters( parameters );
+                [ c1, c2, delta1, R1 ] = self.unpack_reduced_absolute_dai_R3_parameters( parameters );
                 
                 % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue division subnetwork.            
-                R3 = neuron_utilities.compute_reduced_absolute_division_after_inversion_R3( c1, c2, delta1, R1 );                                   % [V] Activation Domain.
+                R3 = neuron_utilities.compute_reduced_absolute_dai_R3( c1, c2, delta1, R1 );                                   % [V] Activation Domain.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                           % If the encoding scheme is set to relative...
             

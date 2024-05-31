@@ -2482,10 +2482,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, R2 = self.R_DEFAULT; end
             if nargin < 6, R1 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 4, delta1 = self.delta_relative_division_after_inversion_DEFAULT; end
-            if nargin < 3, c3 = self.c3_division_after_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_relative_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
             gs31 = ( c1*c3 )/( ( c1*R1*delta1 + c3*R2*delta2 - c3*delta1*delta2 )*R2 );                                                         % [S] Maximum Synaptic Conductance.
@@ -2508,10 +2508,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, R2 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 3, c3 = self.c3_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
             gs31 = ( ( c3^2 )*delta1*delta2 + ( c1 - c3 )*R2*c3*delta2 )/( -c3*delta1*delta2 + c3*dEs31*delta1 + ( c3 - c1 )*R2*delta2 );                                                         % [S] Maximum Synaptic Conductance.
@@ -2581,9 +2581,9 @@ classdef synapse_utilities_class
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, R2 = self.R_DEFAULT; end
             if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 3, c3 = self.c3_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
             gs32 = ( ( delta2*c3 - R1*c1 )*dEs31*c3 )/( ( R1*c1 - dEs31*c3 )*R1*R2*delta2 );                                                         % [S] Maximum Synaptic Conductance.
@@ -2606,10 +2606,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, R2 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 3, c3 = self.c3_relative_division_after_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
             gs32 = ( ( c1 - c3 )*c3*R2*dEs31 )/( -c3*delta1*delta2 + c3*dEs31*delta1 + ( c3 - c1 )*R2*delta2 );                                                         % [S] Maximum Synaptic Conductance.
@@ -2679,10 +2679,10 @@ classdef synapse_utilities_class
             if nargin < 8, dEs31 = self.dEs_DEFAULT; end
             if nargin < 7, R2 = self.R_DEFAULT; end
             if nargin < 6, R1 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 3, c3 = self.c3_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
                         
             % Compute the maximum synaptic conductance for synapse 31.
             gs31 = self.compute_absolute_dai_gs31( c1, c3, delta1, delta2, R1, R2, validation_flag );
@@ -2700,10 +2700,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, R2 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 3, c3 = self.c3_relative_division_after_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 31.            
             gs31 = self.compute_relative_dai_gs31( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
@@ -2770,7 +2770,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
             if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
@@ -2794,7 +2794,7 @@ classdef synapse_utilities_class
             if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
             if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
                         
             % Compute the maximum synaptic conductance.
@@ -2865,7 +2865,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
             if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
@@ -2891,7 +2891,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
             if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
                         
             % Compute the maximum synaptic conductance.
@@ -2963,7 +2963,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
             if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 31.            
@@ -2984,7 +2984,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
             if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 31.                        
@@ -3049,10 +3049,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, R3 = self.R_DEFAULT; end
             if nargin < 6, R1 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 3, c6 = self.c3_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c4 = self.c1_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
             gs41 = self.compute_absolute_dai_gs31( c4, c6, delta1, delta2, R1, R3, validation_flag );
@@ -3067,10 +3067,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 3, c6 = self.c3_relative_division_after_inversion_DEFAULT; end
-            if nargin < 2, c4 = self.c1_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
             gs41 = self.compute_relative_dai_gs31( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
@@ -3206,9 +3206,9 @@ classdef synapse_utilities_class
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
             if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 3, c6 = self.c3_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c4 = self.c1_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.            
             gs43 = self.compute_absolute_dai_gs32( c4, c6, delta2, R1, R3, dEs41, validation_flag );
@@ -3223,10 +3223,10 @@ classdef synapse_utilities_class
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 3, c6 = self.c3_relative_division_after_inversion_DEFAULT; end
-            if nargin < 2, c4 = self.c1_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance.            
             gs43 = compute_relative_dai_gs32( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
@@ -3291,10 +3291,10 @@ classdef synapse_utilities_class
             if nargin < 8, Gm3 = self.Gm_DEFAULT; end
             if nargin < 7, R3 = self.R_DEFAULT; end
             if nargin < 6, R1 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 3, c6 = self.c3_absolute_division_after_inversion_DEFAULT; end
-            if nargin < 2, c4 = self.c1_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_dai_DEFAULT; end
                         
             % Compute the maximum synaptic conductance for synapse 41.                        
             gs41 = self.compute_absolute_multiplication_gs41( c4, c6, delta1, delta2, R1, R3, validation_flag );
@@ -3318,10 +3318,10 @@ classdef synapse_utilities_class
             if nargin < 8, dEs41 = self.dEs_DEFAULT; end
             if nargin < 7, Gm3 = self.Gm_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
-            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 3, c6 = self.c3_relative_division_after_inversion_DEFAULT; end
-            if nargin < 2, c4 = self.c1_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_dai_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 41.            
             gs41 = self.compute_relative_multiplication_gs41( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
@@ -3397,7 +3397,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm4 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.                        
@@ -3414,7 +3414,7 @@ classdef synapse_utilities_class
             if nargin < 6, dEs41 = self.dEs_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
@@ -3551,7 +3551,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm4 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.            
@@ -3569,7 +3569,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm4 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.                        
@@ -3636,7 +3636,7 @@ classdef synapse_utilities_class
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
                         
             % Compute the maximum synaptic conductance for synapse 41.            
