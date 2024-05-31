@@ -233,7 +233,7 @@ classdef synapse_utilities_class
         end
         
         
-        % ---------- Subtraction Subnetwork Functions ----------
+        % ---------- Subtraction Subnetwork Functions (Excitatory) ----------
         
         % Implement a function to compute the synaptic reversal potential for absolute subtraction subnetwork excitatory synapses.
         function dEs = compute_absolute_subtraction_dEs_excitatory( self )
@@ -244,32 +244,12 @@ classdef synapse_utilities_class
         end
         
         
-        % Implement a function to compute the synaptic reversal potential for absolute subtraction subnetwork inhibitory synapses.
-        function dEs = compute_absolute_subtraction_dEs_inhibitory( self )
-            
-            % Compute the synaptic reversal potential.
-%             dEs = self.dEs_min_DEFAULT;                                   % [V] Synaptic Reversal Potential.
-            dEs = self.dEs_min_DEFAULT;                                    % [V] Synaptic Reversal Potential.
-
-        end
-        
-        
         % Implement a function to compute the synaptic reversal potential for relative subtraction subnetwork excitatory synapses.
         function dEs = compute_relative_subtraction_dEs_excitatory( self )
             
             % Compute the synaptic reversal potential.
             dEs = self.dEs_max_DEFAULT;                                     % [V] Synaptic Reversal Potential.
             
-        end
-        
-        
-        % Implement a function to compute the synaptic reversal potential for relative subtraction subnetwork inhibitory synapses.
-        function dEs = compute_relative_subtraction_dEs_inhibitory( self )
-            
-            % Compute the synaptic reversal potential.
-%             dEs = self.dEs_min_DEFAULT;                                   % [V] Synaptic Reversal Potential.
-            dEs = self.dEs_min_DEFAULT;                                    % [V] Synaptic Reversal Potential.
-
         end
         
         
@@ -299,6 +279,28 @@ classdef synapse_utilities_class
             
         end
         
+        
+        % ---------- Subtraction Subnetwork Functions (Inhibitory) ----------
+        
+        % Implement a function to compute the synaptic reversal potential for absolute subtraction subnetwork inhibitory synapses.
+        function dEs = compute_absolute_subtraction_dEs_inhibitory( self )
+            
+            % Compute the synaptic reversal potential.
+%             dEs = self.dEs_min_DEFAULT;                                   % [V] Synaptic Reversal Potential.
+            dEs = self.dEs_min_DEFAULT;                                    % [V] Synaptic Reversal Potential.
+
+        end
+        
+                
+        % Implement a function to compute the synaptic reversal potential for relative subtraction subnetwork inhibitory synapses.
+        function dEs = compute_relative_subtraction_dEs_inhibitory( self )
+            
+            % Compute the synaptic reversal potential.
+%             dEs = self.dEs_min_DEFAULT;                                   % [V] Synaptic Reversal Potential.
+            dEs = self.dEs_min_DEFAULT;                                    % [V] Synaptic Reversal Potential.
+
+        end
+                
         
         % Implement a function to compute the synaptic reversal potential for subtraction subnetwork inhibitory synapses.
         function dEs = compute_subtraction_dEs_inhibitory( self, encoding_scheme )
@@ -696,7 +698,7 @@ classdef synapse_utilities_class
         % ---------- Division After Inversion Subnetwork Functions (Synapse 31) ----------
 
         % Implement a function to compute the synaptic reversal potential for absolute division after inversion synapse 31.
-        function dEs31 = compute_absolute_division_after_inversion_dEs31( self )
+        function dEs31 = compute_absolute_dai_dEs31( self )
             
             % Compute the synaptic reversal potential.
             dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
@@ -705,7 +707,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for relative division after inversion synapse 31.
-        function dEs31 = compute_relative_division_after_inversion_dEs31( self )
+        function dEs31 = compute_relative_dai_dEs31( self )
             
             % Compute the synaptic reversal potential.
             dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
@@ -714,7 +716,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for division after inversion subnetwork synapse 31.
-        function dEs31 = compute_division_after_inversion_dEs31( self, encoding_scheme )
+        function dEs31 = compute_dai_dEs31( self, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -723,12 +725,12 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                dEs31 = self.compute_absolute_after_inversion_division_dEs31(  );
+                dEs31 = self.compute_absolute_dai_dEs31(  );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                dEs31 = self.compute_relative_division_after_inversion_dEs31(  );
+                dEs31 = self.compute_relative_dai_dEs31(  );
             
             else
             
@@ -743,7 +745,7 @@ classdef synapse_utilities_class
         % ---------- Division After Inversion Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to compute the synaptic reversal potential for absolute division after inversion synapse 32.
-        function dEs32 = compute_absolute_division_after_inversion_dEs32( ~ )
+        function dEs32 = compute_absolute_dai_dEs32( ~ )
             
             % Compute the synaptic reversal potential.
             dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
@@ -752,7 +754,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for relative division after inversion synapse 32.
-        function dEs32 = compute_relative_division_after_inversion_dEs32( ~ )
+        function dEs32 = compute_relative_dai_dEs32( ~ )
             
             % Compute the synaptic reversal potential.
             dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
@@ -761,7 +763,7 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the synaptic reversal potential for division after inversion subnetwork synapse 32.
-        function dEs32 = compute_division_after_inversion_dEs32( self, encoding_scheme )
+        function dEs32 = compute_dai_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -770,12 +772,12 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                dEs32 = self.compute_absolute_division_after_inversion_dEs32(  );
+                dEs32 = self.compute_absolute_dai_dEs32(  );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                dEs32 = self.compute_relative_division_after_inversion_dEs32(  );
+                dEs32 = self.compute_relative_dai_dEs32(  );
             
             else
             
@@ -790,40 +792,40 @@ classdef synapse_utilities_class
         % ---------- Division After Inversion Subnetwork Functions (Combined) ----------
 
         % Implement a function to compute the synaptic reversal potential for absolute division after inversion synapses.
-        function [ dEs31, dEs32 ] = compute_absolute_division_after_inversion_dEs( self )
+        function [ dEs31, dEs32 ] = compute_absolute_dai_dEs( self )
         
             % Compute the synaptic reversal potential of the numerator synapse.
-            dEs31 = self.compute_absolute_division_after_inversion_dEs31(  );
+            dEs31 = self.compute_absolute_dai_dEs31(  );
             
             % Compute the synaptic reversal potential of the denominator synapse.
-            dEs32 = self.compute_absolute_division_after_inversion_dEs32(  );
+            dEs32 = self.compute_absolute_dai_dEs32(  );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for relative division after inversion synapses.
-        function [ dEs31, dEs32 ] = compute_relative_division_after_inversion_dEs( self )
+        function [ dEs31, dEs32 ] = compute_relative_dai_dEs( self )
         
             % Compute the synaptic reversal potential of the numerator synapse.
-            dEs31 = self.compute_relative_division_after_inversion_dEs31(  );
+            dEs31 = self.compute_relative_dai_dEs31(  );
             
             % Compute the synaptic reversal potential of the denominator synapse.
-            dEs32 = self.compute_relative_division_after_inversion_dEs32(  );
+            dEs32 = self.compute_relative_dai_dEs32(  );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for division after inversion synapes.
-        function [ dEs31, dEs32 ] = compute_division_after_inversion_dEs( self, encoding_scheme )
+        function [ dEs31, dEs32 ] = compute_dai_dEs( self, encoding_scheme )
         
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Compute the synaptic reversal potential of the numerator synapse.
-            dEs31 = self.compute_division_after_inversion_dEs31( encoding_scheme );
+            dEs31 = self.compute_dai_dEs31( encoding_scheme );
             
             % Compute the synaptic reversal potential of the denominator synapse.
-            dEs32 = self.compute_division_after_inversion_dEs32( encoding_scheme );
+            dEs32 = self.compute_dai_dEs32( encoding_scheme );
             
         end
         
@@ -831,7 +833,7 @@ classdef synapse_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 31) ----------
 
         % Implement a function to compute the synaptic reversal potential for reduced absolute division after inversion synapse 31.
-        function dEs31 = compute_reduced_absolute_division_after_inversion_dEs31( self )
+        function dEs31 = compute_reduced_absolute_dai_dEs31( self )
             
             % Compute the synaptic reversal potential.
             dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
@@ -840,7 +842,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for reduced relative division after inversion synapse 31.
-        function dEs31 = compute_reduced_relative_division_after_inversion_dEs31( self )
+        function dEs31 = compute_reduced_relative_dai_dEs31( self )
             
             % Compute the synaptic reversal potential.
             dEs31 = self.dEs_max_DEFAULT;                                   % [V] Synaptic Reversal Potential.
@@ -849,7 +851,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for reduced division after inversion subnetwork synapse 31.
-        function dEs31 = compute_reduced_division_after_inversion_dEs31( self, encoding_scheme )
+        function dEs31 = compute_reduced_dai_dEs31( self, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -858,12 +860,12 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                dEs31 = self.compute_reduced_absolute_after_inversion_division_dEs31(  );
+                dEs31 = self.compute_reduced_absolute_dai_dEs31(  );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                dEs31 = self.compute_reduced_relative_division_after_inversion_dEs31(  );
+                dEs31 = self.compute_reduced_relative_dai_dEs31(  );
             
             else
             
@@ -878,7 +880,7 @@ classdef synapse_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to compute the synaptic reversal potential for reduced absolute division after inversion synapse 32.
-        function dEs32 = compute_reduced_absolute_division_after_inversion_dEs32( ~ )
+        function dEs32 = compute_reduced_absolute_dai_dEs32( ~ )
             
             % Compute the synaptic reversal potential.
             dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
@@ -887,7 +889,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the synaptic reversal potential for reduced relative division after inversion synapse 32.
-        function dEs32 = compute_reduced_relative_division_after_inversion_dEs32( ~ )
+        function dEs32 = compute_reduced_relative_dai_dEs32( ~ )
             
             % Compute the synaptic reversal potential.
             dEs32 = 0;                                                        % [V] Synaptic Reversal Potential.
@@ -896,7 +898,7 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the synaptic reversal potential for reduced division after inversion subnetwork synapse 32.
-        function dEs32 = compute_reduced_division_after_inversion_dEs32( self, encoding_scheme )
+        function dEs32 = compute_reduced_dai_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -905,12 +907,12 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                dEs32 = self.compute_reduced_absolute_division_after_inversion_dEs32(  );
+                dEs32 = self.compute_reduced_absolute_dai_dEs32(  );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                dEs32 = self.compute_reduced_relative_division_after_inversion_dEs32(  );
+                dEs32 = self.compute_reduced_relative_dai_dEs32(  );
             
             else
             
@@ -925,40 +927,40 @@ classdef synapse_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Combined) ----------
         
         % Implement a function to compute the synaptic reversal potential for reduced absolute division after inversion synapses.
-        function [ dEs31, dEs32 ] = compute_reduced_absolute_division_after_inversion_dEs( self )
+        function [ dEs31, dEs32 ] = compute_reduced_absolute_dai_dEs( self )
         
             % Compute the synaptic reversal potential of the numerator synapse.
-            dEs31 = self.compute_reduced_absolute_division_after_inversion_dEs31(  );
+            dEs31 = self.compute_reduced_absolute_dai_dEs31(  );
             
             % Compute the synaptic reversal potential of the denominator synapse.
-            dEs32 = self.compute_reduced_absolute_division_after_inversion_dEs32(  );
+            dEs32 = self.compute_reduced_absolute_dai_dEs32(  );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for reduced relative division after inversion synapses.
-        function [ dEs31, dEs32 ] = compute_reduced_relative_division_after_inversion_dEs( self )
+        function [ dEs31, dEs32 ] = compute_reduced_relative_dai_dEs( self )
         
             % Compute the synaptic reversal potential of the numerator synapse.
-            dEs31 = self.compute_reduced_relative_division_after_inversion_dEs31(  );
+            dEs31 = self.compute_reduced_relative_dai_dEs31(  );
             
             % Compute the synaptic reversal potential of the denominator synapse.
-            dEs32 = self.compute_reduced_relative_division_after_inversion_dEs32(  );
+            dEs32 = self.compute_reduced_relative_dai_dEs32(  );
             
         end
         
         
         % Implement a function to compute the synaptic reversal potential for reduced division after inversion synapes.
-        function [ dEs31, dEs32 ] = compute_reduced_division_after_inversion_dEs( self, encoding_scheme )
+        function [ dEs31, dEs32 ] = compute_reduced_dai_dEs( self, encoding_scheme )
         
             % Set the default input arguments.
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
             
             % Compute the synaptic reversal potential of the numerator synapse.
-            dEs31 = self.compute_reduced_division_after_inversion_dEs31( encoding_scheme );
+            dEs31 = self.compute_reduced_dai_dEs31( encoding_scheme );
             
             % Compute the synaptic reversal potential of the denominator synapse.
-            dEs32 = self.compute_reduced_division_after_inversion_dEs32( encoding_scheme );
+            dEs32 = self.compute_reduced_dai_dEs32( encoding_scheme );
             
         end
         
@@ -969,7 +971,7 @@ classdef synapse_utilities_class
         function dEs41 = compute_absolute_multiplication_dEs41( self )
             
             % Compute the synaptic reversal potential.
-            dEs41 = self.compute_absolute_division_dEs31( self );                                    % [V] Synaptic Reversal Potential.
+            dEs41 = self.compute_absolute_dai_dEs31( self );                                    % [V] Synaptic Reversal Potential.
             
         end
         
@@ -978,7 +980,7 @@ classdef synapse_utilities_class
         function dEs41 = compute_relative_multiplication_dEs41( self )
             
             % Compute the synaptic reversal potential.
-            dEs41 = self.compute_relative_division_dEs31( self );                                    % [V] Synaptic Reversal Potential.
+            dEs41 = self.compute_relative_dai_dEs31( self );                                    % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1063,7 +1065,7 @@ classdef synapse_utilities_class
         function dEs43 = compute_absolute_multiplication_dEs43( self )
             
             % Compute the synaptic reversal potential.
-            dEs43 = self.compute_absolute_division_dEs32(  );                         % [V] Synaptic Reversal Potential.
+            dEs43 = self.compute_absolute_dai_dEs32(  );                         % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1072,7 +1074,7 @@ classdef synapse_utilities_class
         function dEs43 = compute_relative_multiplication_dEs43( self )
             
             % Compute the synaptic reversal potential.
-            dEs43 = self.compute_relative_division_dEs32(  );                         % [V] Synaptic Reversal Potential.
+            dEs43 = self.compute_relative_dai_dEs32(  );                         % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1169,7 +1171,7 @@ classdef synapse_utilities_class
         function dEs41 = compute_reduced_absolute_multiplication_dEs41( self )
             
             % Compute the synaptic reversal potential.
-            dEs41 = self.compute_absolute_division_dEs31( self );                                    % [V] Synaptic Reversal Potential.
+            dEs41 = self.compute_reduced_absolute_dai_dEs31( self );                                    % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1178,7 +1180,7 @@ classdef synapse_utilities_class
         function dEs41 = compute_reduced_relative_multiplication_dEs41( self )
             
             % Compute the synaptic reversal potential.
-            dEs41 = self.compute_relative_division_dEs31( self );                                    % [V] Synaptic Reversal Potential.
+            dEs41 = self.compute_reduced_relative_dai_dEs31( self );                                    % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1216,7 +1218,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_reduced_absolute_multiplication_dEs32( self )
             
             % Compute the synaptic reversal potential.
-            dEs32 = self.compute_absolute_inversion_dEs21(  );                         % [V] Synaptic Reversal Potential.
+            dEs32 = self.compute_reduced_absolute_inversion_dEs21(  );                         % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1225,7 +1227,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_reduced_relative_multiplication_dEs32( self )
             
             % Compute the synaptic reversal potential.
-            dEs32 = self.compute_relative_inversion_dEs21(  );                         % [V] Synaptic Reversal Potential.
+            dEs32 = self.compute_reduced_relative_inversion_dEs21(  );                         % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1263,7 +1265,7 @@ classdef synapse_utilities_class
         function dEs43 = compute_reduced_absolute_multiplication_dEs43( self )
             
             % Compute the synaptic reversal potential.
-            dEs43 = self.compute_absolute_division_dEs32(  );                         % [V] Synaptic Reversal Potential.
+            dEs43 = self.compute_reduced_absolute_dai_dEs32(  );                         % [V] Synaptic Reversal Potential.
             
         end
         
@@ -1272,7 +1274,7 @@ classdef synapse_utilities_class
         function dEs43 = compute_reduced_relative_multiplication_dEs43( self )
             
             % Compute the synaptic reversal potential.
-            dEs43 = self.compute_relative_division_dEs32(  );                         % [V] Synaptic Reversal Potential.
+            dEs43 = self.compute_reduced_relative_dai_dEs32(  );                         % [V] Synaptic Reversal Potential.
             
         end
         
@@ -2474,7 +2476,7 @@ classdef synapse_utilities_class
         % ---------- Division After Inversion Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to compute the maximum synaptic conductance of numerator absolute division after inversion subnetwork synapse 31.
-        function gs31 = compute_absolute_division_after_inversion_gs31( self, c1, c3, delta1, delta2, R1, R2, validation_flag )
+        function gs31 = compute_absolute_dai_gs31( self, c1, c3, delta1, delta2, R1, R2, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2500,7 +2502,7 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the maximum synaptic conductance of numerator relative division subnetwork synapse 31.
-        function gs31 = compute_relative_division_after_inversion_gs31( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
+        function gs31 = compute_relative_dai_gs31( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2526,7 +2528,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of numerator reduced inversion subnetwork synapse 31.
-        function gs31 = compute_division_after_inversion_gs31( self, parameters, encoding_scheme, validation_flag )
+        function gs31 = compute_dai_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
@@ -2544,7 +2546,7 @@ classdef synapse_utilities_class
                 R2 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs31 = self.compute_absolute_division_after_inversion_gs31( c1, c3, delta1, delta2, R1, R2, validation_flag );
+                gs31 = self.compute_absolute_dai_gs31( c1, c3, delta1, delta2, R1, R2, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -2557,7 +2559,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs31 = self.compute_relative_division_after_inversion_gs31( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
+                gs31 = self.compute_relative_dai_gs31( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
             
             else
             
@@ -2572,7 +2574,7 @@ classdef synapse_utilities_class
         % ---------- Division After Inversion Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to compute the maximum synaptic conductance of absolute division after inversion subnetwork synapse 32.
-        function gs32 = compute_absolute_division_after_inversion_gs32( self, c1, c3, delta2, R1, R2, dEs31, validation_flag )
+        function gs32 = compute_absolute_dai_gs32( self, c1, c3, delta2, R1, R2, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2598,7 +2600,7 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the maximum synaptic conductance of relative division after inversion subnetwork synapse 32.
-        function gs32 = compute_relative_division_after_inversion_gs32( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
+        function gs32 = compute_relative_dai_gs32( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2624,7 +2626,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of division after inversion subnetwork synapse 32.
-        function gs32 = compute_division_after_inversion_gs32( self, parameters, encoding_scheme, validation_flag )
+        function gs32 = compute_dai_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
@@ -2642,7 +2644,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.                
-                gs32 = self.compute_absolute_division_after_inversion_gs32( c1, c3, delta2, R1, R2, dEs31, validation_flag );
+                gs32 = self.compute_absolute_dai_gs32( c1, c3, delta2, R1, R2, dEs31, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -2655,7 +2657,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.            
-                gs32 = self.compute_relative_division_after_inversion_gs32( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
+                gs32 = self.compute_relative_dai_gs32( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
                 
             else
             
@@ -2670,49 +2672,50 @@ classdef synapse_utilities_class
         % ---------- Division After Inversion Subnetwork Functions (Combined) ----------
 
         % Implement a function to compute the maximum synaptic conductance of combined absolute division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_absolute_division_after_inversion_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
+        function [ gs31, gs32 ] = compute_absolute_dai_gs( self, c1, c3, delta1, delta2, R1, R2, dEs31, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 4, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 3, R3 = self.R_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end
-            
+            if nargin < 9, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_after_inversion_DEFAULT; end
+                        
             % Compute the maximum synaptic conductance for synapse 31.
-            gs31 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
+            gs31 = self.compute_absolute_dai_gs31( c1, c3, delta1, delta2, R1, R2, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.
-            gs32 = self.compute_absolute_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
+            gs32 = self.compute_absolute_dai_gs32( c1, c3, delta2, R1, R2, dEs31, validation_flag );
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of combined relative division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_relative_division_after_inversion_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
+        function [ gs31, gs32 ] = compute_relative_dai_gs( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
 
             % Set the default input arguments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 4, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 3, R3 = self.R_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end    
+            if nargin < 7, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_division_after_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_division_after_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 31.            
-            gs31 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
+            gs31 = self.compute_relative_dai_gs31( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.            
-            gs32 = self.compute_relative_division_gs32( delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );
+            gs32 = self.compute_relative_dai_gs32( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_division_after_inversion_gs( self, parameters, encoding_scheme, validation_flag )
+        function [ gs31, gs32 ] = compute_dai_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
@@ -2722,28 +2725,29 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                delta = parameters{ 1 };
-                R3 = parameters{ 2 };
-                Gm3 = parameters{ 3 };
-                dEs31 = parameters{ 4 };
-                dEs32 = parameters{ 5 };
-                Ia3 = parameters{ 6 };
+                c1 = parameters{ 1 };
+                c3 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R1 = parameters{ 5 };
+                R2 = parameters{ 6 };
+                dEs31 = parameters{ 7 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                [ gs31, gs32 ] = self.compute_absolute_division_after_inversion_gs( delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag );
+                [ gs31, gs32 ] = self.compute_absolute_dai_gs( c1, c3, delta1, delta2, R1, R2, dEs31, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };
-                R3 = parameters{ 2 };
-                Gm3 = parameters{ 3 };
-                dEs31 = parameters{ 4 };
-                dEs32 = parameters{ 5 };
-                Ia3 = parameters{ 6 };
+                c1 = parameters{ 1 };
+                c3 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R2 = parameters{ 5 };
+                dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                [ gs31, gs32 ] = self.compute_relative_division_after_inversion_gs( delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag );
+                [ gs31, gs32 ] = self.compute_relative_dai_gs( c1, c3, delta1, delta2, R2, dEs31, validation_flag );
             
             else
             
@@ -2758,7 +2762,7 @@ classdef synapse_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to compute the maximum synaptic conductance of reduced absolute division after inversion subnetwork synapse 31.
-        function gs31 = compute_reduced_absolute_division_after_inversion_gs31( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
+        function gs31 = compute_reduced_absolute_dai_gs31( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2784,7 +2788,7 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the maximum synaptic conductance of reduced relative division subnetwork synapse 31.
-        function gs31 = compute_reduced_relative_division_after_inversion_gs31( self, delta1, delta2, R2, R3, dEs31, validation_flag )
+        function gs31 = compute_reduced_relative_dai_gs31( self, delta1, delta2, R2, R3, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
@@ -2808,7 +2812,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced division after inversion subnetwork synapse 31.
-        function gs31 = compute_reduced_division_after_inversion_gs31( self, parameters, encoding_scheme, validation_flag )
+        function gs31 = compute_reduced_dai_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
@@ -2826,7 +2830,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs31 = self.compute_reduced_absolute_division_after_inversion_gs31( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+                gs31 = self.compute_reduced_absolute_dai_gs31( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -2838,7 +2842,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 5 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs31 = self.compute_reduced_relative_division_after_inversion_gs31( delta1, delta2, R2, R3, dEs31, validation_flag );
+                gs31 = self.compute_reduced_relative_dai_gs31( delta1, delta2, R2, R3, dEs31, validation_flag );
             
             else
             
@@ -2853,7 +2857,7 @@ classdef synapse_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to compute the maximum synaptic conductance of reduced absolute division after inversion subnetwork synapse 32.
-        function gs32 = compute_reduced_absolute_division_after_inversion_gs32( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
+        function gs32 = compute_reduced_absolute_dai_gs32( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2879,7 +2883,7 @@ classdef synapse_utilities_class
 
         
         % Implement a function to compute the maximum synaptic conductance of reduced relative division after inversion subnetwork synapse 32.
-        function gs32 = compute_reduced_relative_division_after_inversion_gs32( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
+        function gs32 = compute_reduced_relative_dai_gs32( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
             
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2905,7 +2909,7 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced division after inversion subnetwork synapse 32.
-        function gs32 = compute_reduced_division_after_inversion_gs32( self, parameters, encoding_scheme, validation_flag )
+        function gs32 = compute_reduced_dai_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
@@ -2923,7 +2927,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.                
-                gs32 = self.compute_reduced_absolute_division_after_inversion_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+                gs32 = self.compute_reduced_absolute_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -2936,7 +2940,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.            
-                gs32 = self.compute_reduced_relative_division_after_inversion_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+                gs32 = self.compute_reduced_relative_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
                 
             else
             
@@ -2951,7 +2955,7 @@ classdef synapse_utilities_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Combined) ----------
 
         % Implement a function to compute the maximum synaptic conductance of combined reduced absolute division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_reduced_absolute_division_after_inversion_gs( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
+        function [ gs31, gs32 ] = compute_reduced_absolute_dai_gs( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
 
             % Set the default input arguments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2963,16 +2967,16 @@ classdef synapse_utilities_class
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 31.            
-            gs31 = self.compute_reduced_absolute_division_after_inversion_gs31( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+            gs31 = self.compute_reduced_absolute_dai_gs31( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.            
-            gs32 = self.compute_reduced_absolute_division_after_inversion_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+            gs32 = self.compute_reduced_absolute_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of combined reduced relative division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_reduced_relative_division_after_inversion_gs( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
+        function [ gs31, gs32 ] = compute_reduced_relative_dai_gs( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
 
             % Set the default input arguments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
@@ -2984,16 +2988,16 @@ classdef synapse_utilities_class
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 31.                        
-            gs31 = self.compute_reduced_relative_division_after_inversion_gs31( delta1, delta2, R2, R3, dEs31, validation_flag );
+            gs31 = self.compute_reduced_relative_dai_gs31( delta1, delta2, R2, R3, dEs31, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.                        
-            gs32 = self.compute_reduced_relative_division_after_inversion_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+            gs32 = self.compute_reduced_relative_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
             
         end
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced division subnetwork synapses.
-        function [ gs31, gs32 ] = compute_reduced_division_after_inversion_gs( self, parameters, encoding_scheme, validation_flag )
+        function [ gs31, gs32 ] = compute_reduced_dai_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
@@ -3011,7 +3015,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                [ gs31, gs32 ] = self.compute_reduced_absolute_division_after_inversion_gs( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+                [ gs31, gs32 ] = self.compute_reduced_absolute_dai_gs( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
@@ -3024,7 +3028,7 @@ classdef synapse_utilities_class
                 dEs31 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                [ gs31, gs32 ] = self.compute_reduced_relative_division_after_inversion_gs( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
+                [ gs31, gs32 ] = self.compute_reduced_relative_dai_gs( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );
             
             else
             
@@ -3039,33 +3043,37 @@ classdef synapse_utilities_class
         % ---------- Multiplication Subnetwork Functions (Synapse 41) ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
-        function gs41 = compute_absolute_multiplication_gs41( self, R4, Gm4, dEs41, Ia4, validation_flag )
+        function gs41 = compute_absolute_multiplication_gs41( self, c4, c6, delta1, delta2, R1, R3, validation_flag )
         
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, R4 = self.R_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 7, R3 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_division_after_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs41 = self.compute_absolute_division_gs31( R4, Gm4, dEs41, Ia4, validation_flag );
+            gs41 = self.compute_absolute_dai_gs31( c4, c6, delta1, delta2, R1, R3, validation_flag );
             
         end
         
             
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
-        function gs41 = compute_relative_multiplication_gs41( self, R4, Gm4, dEs41, Ia4, validation_flag )
+        function gs41 = compute_relative_multiplication_gs41( self, c4, c6, delta1, delta2, R3, dEs41, validation_flag )
            
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, R4 = self.R_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_division_after_inversion_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_division_after_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs41 = self.compute_relative_division_gs31( R4, Gm4, dEs41, Ia4, validation_flag );
+            gs41 = self.compute_relative_dai_gs31( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
             
         end
         
@@ -3081,25 +3089,29 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                R4 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                dEs41 = parameters{ 3 };
-                Ia4 = parameters{ 4 };
+                c4 = parameters{ 1 };
+                c6 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R1 = parameters{ 5 };
+                R3 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs41 = self.compute_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
+                gs41 = self.compute_absolute_multiplication_gs41( c4, c6, delta1, delta2, R1, R3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                R4 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                dEs41 = parameters{ 3 };
-                Ia4 = parameters{ 4 };
+                c4 = parameters{ 1 };
+                c6 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R3 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs41 = self.compute_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
-            
+                gs41 = self.compute_relative_multiplication_gs41( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
+                            
             else
             
                 % Throw an error.
@@ -3187,38 +3199,38 @@ classdef synapse_utilities_class
         % ---------- Multiplication Subnetwork Functions (Synapse 43) ----------
 
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
-        function gs43 = compute_absolute_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag )
+        function gs43 = compute_absolute_multiplication_gs43( self, c4, c6, delta2, R1, R3, dEs41, validation_flag )
         
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 4, gs41 = self.gs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_division_after_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.            
-            gs43 = self.compute_absolute_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+            gs43 = self.compute_absolute_dai_gs32( c4, c6, delta2, R1, R3, dEs41, validation_flag );
             
         end
         
             
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
-        function gs43 = compute_relative_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag )
+        function gs43 = compute_relative_multiplication_gs43( self, c4, c6, delta1, delta2, R3, dEs41, validation_flag )
            
             % Set the default input arguments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 4, gs41 = self.gs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_division_after_inversion_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_division_after_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.            
-            gs43 = compute_relative_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
-            
+            gs43 = compute_relative_dai_gs32( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
+                        
         end
         
         
@@ -3233,28 +3245,28 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                gs41 = parameters{ 3 };
-                dEs41 = parameters{ 4 };
-                dEs43 = parameters{ 5 };
-                Ia4 = parameters{ 6 };
+                c4 = parameters{ 1 };
+                c6 = parameters{ 2 };
+                delta2 = parameters{ 3 };
+                R1 = parameters{ 4 };
+                R3 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
                 
-                % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs43 = self.compute_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using an absolute encoding scheme.                                
+                gs43 = self.compute_absolute_multiplication_gs43( c4, c6, delta2, R1, R3, dEs41, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                gs41 = parameters{ 3 };
-                dEs41 = parameters{ 4 };
-                dEs43 = parameters{ 5 };
-                Ia4 = parameters{ 6 };
-                
+                c4 = parameters{ 1 };
+                c6 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R3 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
+                                
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs43 = self.compute_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+                gs43 = self.compute_relative_multiplication_gs43( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
                 
             else
             
@@ -3269,57 +3281,56 @@ classdef synapse_utilities_class
         % ---------- Multiplication Subnetwork Functions (Combined) ----------
 
         % Implement a function to compute the maximum synaptic conductance of combined absolute multiplication subnetwork synapses.
-        function [ gs41, gs32, gs43 ] = compute_absolute_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag )
+        function [ gs41, gs32, gs43 ] = compute_absolute_multiplication_gs( self, c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
             if nargin < 12, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 10, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 4, R4 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 8, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 7, R3 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_division_after_inversion_DEFAULT; end
+                        
+            % Compute the maximum synaptic conductance for synapse 41.                        
+            gs41 = self.compute_absolute_multiplication_gs41( c4, c6, delta1, delta2, R1, R3, validation_flag );
             
-            % Compute the maximum synaptic conductance for synapse 41.            
-            gs41 = self.compute_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
-            
-            % Compute the maximum synaptic conductance for synapse 32.
+            % Compute the maximum synaptic conductance for synapse 32.            
             gs32 = self.compute_absolute_multiplication_gs32( delta1, Gm3, dEs32, Ia3, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 43.
-            gs43 = self.compute_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+            gs43 = self.compute_absolute_multiplication_gs43( c4, c6, delta2, R1, R3, dEs41, validation_flag );
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of combined relative multiplication subnetwork synapses.
-        function [ gs41, gs32, gs43 ] = compute_relative_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag )
+        function [ gs41, gs32, gs43 ] = compute_relative_multiplication_gs( self, c4, c6, delta1, delta2, R3, Gm3, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 12, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 10, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 4, R4 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 9, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 7, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_division_after_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_division_after_inversion_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_division_after_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance for synapse 41.            
-            gs41 = self.compute_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
+            gs41 = self.compute_relative_multiplication_gs41( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.            
             gs32 = self.compute_relative_multiplication_gs32( delta1, Gm3, dEs32, Ia3, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 43.
-            gs43 = self.compute_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+            gs43 = self.compute_relative_multiplication_gs43( c4, c6, delta1, delta2, R3, dEs41, validation_flag );
             
         end
         
@@ -3335,36 +3346,35 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };
-                delta2 = parameters{ 2 };
-                R4 = parameters{ 3 };
-                Gm3 = parameters{ 4 };
-                Gm4 = parameters{ 5 };
-                dEs41 = parameters{ 6 };
-                dEs32 = parameters{ 7 };
-                dEs43 = parameters{ 8 };
-                Ia3 = parameters{ 9 };
-                Ia4 = parameters{ 10 };
+                c4 = parameters{ 1 };
+                c6 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R1 = parameters{ 5 };
+                R3 = parameters{ 6 };
+                Gm3 = parameters{ 7 };
+                dEs41 = parameters{ 8 };
+                dEs32 = parameters{ 9 };
+                Ia3 = parameters{ 10 };
                 
-                % Compute the synaptic reversal potential using an absolute encoding scheme.
-                [ gs41, gs32, gs43 ] = self.compute_absolute_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using an absolute encoding scheme.                
+                [ gs41, gs32, gs43 ] = self.compute_absolute_multiplication_gs( c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };
-                delta2 = parameters{ 2 };
-                R4 = parameters{ 3 };
-                Gm3 = parameters{ 4 };
-                Gm4 = parameters{ 5 };
-                dEs41 = parameters{ 6 };
-                dEs32 = parameters{ 7 };
-                dEs43 = parameters{ 8 };
+                c4 = parameters{ 1 };
+                c6 = parameters{ 2 };
+                delta1 = parameters{ 3 };
+                delta2 = parameters{ 4 };
+                R3 = parameters{ 5 };
+                Gm3 = parameters{ 6 };
+                dEs41 = parameters{ 7 };
+                dEs32 = parameters{ 8 };
                 Ia3 = parameters{ 9 };
-                Ia4 = parameters{ 10 };
                 
-                % Compute the synaptic reversal potential using a relative encoding scheme.
-                [ gs41, gs32, gs43 ] = self.compute_relative_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using a relative encoding scheme.                
+                [ gs41, gs32, gs43 ] = self.compute_relative_multiplication_gs( c4, c6, delta1, delta2, R3, Gm3, dEs41, dEs32, Ia3, validation_flag );
                 
             else
             
@@ -3379,33 +3389,36 @@ classdef synapse_utilities_class
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 41) ----------
         
         % Implement a function to compute the maximum synaptic conductance of reduced absolute multiplication subnetwork synapse 41.
-        function gs41 = compute_reduced_absolute_multiplication_gs41( self, R4, Gm4, dEs41, Ia4, validation_flag )
+        function gs41 = compute_reduced_absolute_multiplication_gs41( self, delta1, delta2, R3, R4, Gm4, dEs41, validation_flag )
         
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, R4 = self.R_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
-            % Compute the maximum synaptic conductance.
-            gs41 = self.compute_reduced_absolute_division_gs31( R4, Gm4, dEs41, Ia4, validation_flag );
-                        
+            % Compute the maximum synaptic conductance.                        
+            gs41 = self.compute_reduced_absolute_dai_gs31( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
+            
         end
         
             
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 41.
-        function gs41 = compute_reduced_relative_multiplication_gs41( self, R4, Gm4, dEs41, Ia4, validation_flag )
+        function gs41 = compute_reduced_relative_multiplication_gs41( self, delta1, delta2, R3, R4, dEs41, validation_flag )
            
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, R4 = self.R_DEFAULT; end
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs41 = self.compute_reduced_relative_division_gs31( R4, Gm4, dEs41, Ia4, validation_flag );
+            gs41 = self.compute_reduced_relative_dai_gs31( delta1, delta2, R3, R4, dEs41, validation_flag );
             
         end
         
@@ -3421,24 +3434,27 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                R4 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                dEs41 = parameters{ 3 };
-                Ia4 = parameters{ 4 };
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R3 = parameters{ 3 };
+                R4 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
                 
-                % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs41 = self.compute_reduced_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using an absolute encoding scheme.                
+                gs41 = self.compute_reduced_absolute_multiplication_gs41( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                R4 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                dEs41 = parameters{ 3 };
-                Ia4 = parameters{ 4 };
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R3 = parameters{ 3 };
+                R4 = parameters{ 4 };
+                dEs41 = parameters{ 5 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs41 = self.compute_reduced_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
+                gs41 = self.compute_reduced_relative_multiplication_gs41( delta1, delta2, R3, R4, dEs41, validation_flag );
             
             else
             
@@ -3527,37 +3543,37 @@ classdef synapse_utilities_class
         % ---------- Reduced Multiplication Subnetwork Functions (Synapse 43) ----------
 
         % Implement a function to compute the maximum synaptic conductance of reduced absolute multiplication subnetwork synapse 43.
-        function gs43 = compute_reduced_absolute_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag )
+        function gs43 = compute_reduced_absolute_multiplication_gs43( self, delta1, delta2, R3, R4, Gm4, dEs41, validation_flag )
         
             % Set the default input arugments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 4, gs41 = self.gs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.            
-            gs43 = self.compute_reduced_absolute_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
-            
+            gs43 = self.compute_reduced_absolute_dai_gs32( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
+                        
         end
         
             
         % Implement a function to compute the maximum synaptic conductance of absolute multiplication subnetwork synapse 43.
-        function gs43 = compute_reduced_relative_multiplication_gs43( self, delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag )
+        function gs43 = compute_reduced_relative_multiplication_gs43( self, delta1, delta2, R3, R4, Gm4, dEs41, validation_flag )
            
             % Set the default input arguments.
             if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia4 = self.Ia_DEFAULT; end
-            if nargin < 6, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 5, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 4, gs41 = self.gs_DEFAULT; end
-            if nargin < 3, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 2, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_division_after_inversion_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
-            % Compute the maximum synaptic conductance.            
-            gs43 = compute_reduced_relative_division_gs32( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+            % Compute the maximum synaptic conductance.                        
+            gs43 = self.compute_reduced_relative_dai_gs32( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
             
         end
         
@@ -3573,28 +3589,28 @@ classdef synapse_utilities_class
             if strcmpi( encoding_scheme, 'absolute' )
                
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                gs41 = parameters{ 3 };
-                dEs41 = parameters{ 4 };
-                dEs43 = parameters{ 5 };
-                Ia4 = parameters{ 6 };
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R3 = parameters{ 3 };
+                R4 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
                 
-                % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs43 = self.compute_reduced_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using an absolute encoding scheme.                
+                gs43 = self.compute_reduced_absolute_multiplication_gs43( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
-                delta2 = parameters{ 1 };
-                Gm4 = parameters{ 2 };
-                gs41 = parameters{ 3 };
-                dEs41 = parameters{ 4 };
-                dEs43 = parameters{ 5 };
-                Ia4 = parameters{ 6 };
+                delta1 = parameters{ 1 };
+                delta2 = parameters{ 2 };
+                R3 = parameters{ 3 };
+                R4 = parameters{ 4 };
+                Gm4 = parameters{ 5 };
+                dEs41 = parameters{ 6 };
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs43 = self.compute_reduced_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+                gs43 = self.compute_reduced_relative_multiplication_gs43( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
                 
             else
             
@@ -3609,57 +3625,55 @@ classdef synapse_utilities_class
         % ---------- Reduced Multiplication Subnetwork Functions (Combined) ----------
         
         % Implement a function to compute the maximum synaptic conductance of combined reduced absolute multiplication subnetwork synapses.
-        function [ gs41, gs32, gs43 ] = compute_reduced_absolute_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag )
+        function [ gs41, gs32, gs43 ] = compute_reduced_absolute_multiplication_gs( self, delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 12, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 10, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 4, R4 = self.R_DEFAULT; end
-            if nargin < 3, delta2 = self.delta_division_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
-            
+            if nargin < 9, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 7, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_absolute_division_after_inversion_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
+                        
             % Compute the maximum synaptic conductance for synapse 41.            
-            gs41 = self.compute_reduced_absolute_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
+            gs41 = self.compute_reduced_absolute_multiplication_gs41( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.
             gs32 = self.compute_reduced_absolute_multiplication_gs32( delta1, Gm3, dEs32, Ia3, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 43.
-            gs43 = self.compute_reduced_absolute_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+            gs43 = self.compute_reduced_absolute_multiplication_gs43( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
             
         end
 
         
         % Implement a function to compute the maximum synaptic conductance of combined relative multiplication subnetwork synapses.
-        function [ gs41, gs32, gs43 ] = compute_reduced_relative_multiplication_gs( self, delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag )
+        function [ gs41, gs32, gs43 ] = compute_reduced_relative_multiplication_gs( self, delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 12, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 11, Ia4 = self.Ia_DEFAULT; end
+            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end
             if nargin < 10, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 9, dEs43 = self.dEs_DEFAULT; end
-            if nargin < 8, dEs32 = self.dEs_DEFAULT; end
-            if nargin < 7, dEs41 = self.dEs_DEFAULT; end
-            if nargin < 6, Gm4 = self.Gm_DEFAULT; end
-            if nargin < 5, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 4, R4 = self.R_DEFAULT; end
+            if nargin < 9, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 8, dEs41 = self.dEs_DEFAULT; end
+            if nargin < 7, Gm4 = self.Gm_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
             if nargin < 3, delta2 = self.delta_division_DEFAULT; end
             if nargin < 2, delta1 = self.delta_inversion_DEFAULT; end
-            
+                        
             % Compute the maximum synaptic conductance for synapse 41.            
-            gs41 = self.compute_reduced_relative_multiplication_gs41( R4, Gm4, dEs41, Ia4, validation_flag );
+            gs41 = self.compute_reduced_relative_multiplication_gs41( delta1, delta2, R3, R4, dEs41, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 32.            
             gs32 = self.compute_reduced_relative_multiplication_gs32( delta1, Gm3, dEs32, Ia3, validation_flag );
             
             % Compute the maximum synaptic conductance for synapse 43.
-            gs43 = self.compute_reduced_relative_multiplication_gs43( delta2, Gm4, gs41, dEs41, dEs43, Ia4, validation_flag );
+            gs43 = self.compute_reduced_relative_multiplication_gs43( delta1, delta2, R3, R4, Gm4, dEs41, validation_flag );
             
         end
         
@@ -3677,34 +3691,32 @@ classdef synapse_utilities_class
                 % Unpack the parameters.
                 delta1 = parameters{ 1 };
                 delta2 = parameters{ 2 };
-                R4 = parameters{ 3 };
-                Gm3 = parameters{ 4 };
-                Gm4 = parameters{ 5 };
-                dEs41 = parameters{ 6 };
-                dEs32 = parameters{ 7 };
-                dEs43 = parameters{ 8 };
+                R3 = parameters{ 3 };
+                R4 = parameters{ 4 };
+                Gm3 = parameters{ 5 };
+                Gm4 = parameters{ 6 };
+                dEs41 = parameters{ 7 };
+                dEs32 = parameters{ 8 };
                 Ia3 = parameters{ 9 };
-                Ia4 = parameters{ 10 };
                 
-                % Compute the synaptic reversal potential using an absolute encoding scheme.
-                [ gs41, gs32, gs43 ] = self.compute_absolute_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using an absolute encoding scheme.                
+                [ gs41, gs32, gs43 ] = self.compute_reduced_absolute_multiplication_gs( delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3, validation_flag );
                 
             elseif strcmpi( encoding_scheme, 'relative' )
                 
                 % Unpack the parameters.
                 delta1 = parameters{ 1 };
                 delta2 = parameters{ 2 };
-                R4 = parameters{ 3 };
-                Gm3 = parameters{ 4 };
-                Gm4 = parameters{ 5 };
-                dEs41 = parameters{ 6 };
-                dEs32 = parameters{ 7 };
-                dEs43 = parameters{ 8 };
+                R3 = parameters{ 3 };
+                R4 = parameters{ 4 };
+                Gm3 = parameters{ 5 };
+                Gm4 = parameters{ 6 };
+                dEs41 = parameters{ 7 };
+                dEs32 = parameters{ 8 };
                 Ia3 = parameters{ 9 };
-                Ia4 = parameters{ 10 };
                 
-                % Compute the synaptic reversal potential using a relative encoding scheme.
-                [ gs41, gs32, gs43 ] = self.compute_relative_multiplication_gs( delta1, delta2, R4, Gm3, Gm4, dEs41, dEs32, dEs43, Ia3, Ia4, validation_flag );
+                % Compute the synaptic reversal potential using a relative encoding scheme.                
+                [ gs41, gs32, gs43 ] = self.compute_reduced_relative_multiplication_gs( delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3, validation_flag );
                 
             else
             
