@@ -6086,6 +6086,9 @@ classdef neuron_manager_class
             if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 'all'; end
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
             % Process the transmission neurons.
             parameters = self.process_transmission_R2_parameters( parameters, encoding_scheme, neurons );
             
@@ -6142,6 +6145,9 @@ classdef neuron_manager_class
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
             % Process the parameters.
             parameters = self.process_addition_Rn_parameters( parameters, encoding_scheme, neurons );
             
@@ -6169,6 +6175,9 @@ classdef neuron_manager_class
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the parameters.
             parameters = self.process_subtraction_Rn_parameters( parameters, encoding_scheme, neurons );
@@ -6222,6 +6231,9 @@ classdef neuron_manager_class
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
             % Process the parameters.
             parameters = self.process_inversion_R2_parameters( parameters, encoding_scheme );
             
@@ -6249,6 +6261,9 @@ classdef neuron_manager_class
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the parameters.
             parameters = self.process_reduced_inversion_R2_parameters( parameters, encoding_scheme );
@@ -6278,6 +6293,9 @@ classdef neuron_manager_class
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
             % Process the parameters.
             parameters = self.process_division_Rn_parameters( parameters, encoding_scheme, neurons );
             
@@ -6305,6 +6323,9 @@ classdef neuron_manager_class
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the parameters.
             parameters = self.process_reduced_division_Rn_parameters( parameters, encoding_scheme, neurons );
@@ -6334,6 +6355,9 @@ classdef neuron_manager_class
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
             % Process the parameters.
             parameters = self.process_dai_R3_parameters( parameters, encoding_scheme, neurons );
             
@@ -6362,6 +6386,9 @@ classdef neuron_manager_class
             if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end
             
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
             % Process the parameters.
             parameters = self.process_reduced_dai_R3_parameters( parameters, encoding_scheme, neurons );
             
@@ -6380,7 +6407,7 @@ classdef neuron_manager_class
         % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to design the neurons for a multiplication subnetwork.
-        function [ Gnas, Gms, Cms, Rs, neurons, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ Gnas, Rs, neurons, self ] = design_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -6393,24 +6420,14 @@ classdef neuron_manager_class
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
-            % Retrieve the inversion and division neuron IDs.
-            neuron_IDs_inversion = neuron_IDs( 2:3 );
-            neuron_IDs_division = neuron_IDs( [ 1, 3, 4 ] );
+            % Process teh parameters.
+            parameters = self.process_multiplication_Rs_parameters( parameters, encoding_scheme, neurons );
             
-            % Process the multiplication parameters.
-            [ parameters_inversion, parameters_division, ~ ] = self.process_multiplication_design_parameters( parameters, encoding_scheme, neurons );
+            % Compute the sodium channel conductance.
+            [ Gnas, neurons, neuron_manager ] = self.compute_multiplication_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
             
-            % Design the inversion subnetwork neurons.
-            [ Gnas_inversion, Gms_inversion, Cms_inversion, Rs_inversion, neurons, neuron_manager ] = self.design_inversion_neurons( neuron_IDs_inversion, parameters_inversion, encoding_scheme, neurons, true, undetected_option );
-
-            % Design the division subnetwork neurons.
-            [ Gnas_division, Gms_division, Cms_division, Rs_division, neurons, neuron_manager ] = neuron_manager.design_division_neurons( neuron_IDs_division, parameters_division, encoding_scheme, neurons, true, undetected_option );
-            
-            % Create the multiplication subnetwork property arrays.
-            Gnas = [ Gnas_division( 1 ), Gnas_inversion( 1 ), Gnas_division( 2 ), Gnas_division ( 3 ) ];
-            Gms = [ Gms_division( 1 ), Gms_inversion( 1 ), Gms_division( 2 ), Gms_division ( 3 ) ];
-            Cms = [ Cms_division( 1 ), Cms_inversion( 1 ), Cms_division( 2 ), Cms_division ( 3 ) ];
-            Rs = [ Rs_division( 1 ), Rs_inversion( 1 ), Rs_division( 2 ), Rs_division ( 3 ) ];
+            % Compute the activation domain.
+           	[ Rs, neurons, neuron_manager ] = neuron_manager.compute_multiplication_Rs( neuron_IDs, parameters, encoding_scheme, neurons, true, undetected_option );
 
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end
@@ -6420,7 +6437,33 @@ classdef neuron_manager_class
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
-        
+        % Implement a function to design the neurons for a reduced multiplication subnetwork.
+        function [ Gnas, Rs, neurons, self ] = design_reduced_multiplication_neurons( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end
+
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process teh parameters.
+            parameters = self.process_reduced_multiplication_Rs_parameters( parameters, encoding_scheme, neurons );
+            
+            % Compute the sodium channel conductance.
+            [ Gnas, neurons, neuron_manager ] = self.compute_reduced_multiplication_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
+                        
+            % Compute the activation domain.
+            [ Rs, neurons, neuron_manager ] = neuron_manager.compute_reduced_multiplication_Rs( neuron_IDs, parameters, encoding_scheme, neurons, true, undetected_option );
+            
+            % Determine whether to update the neuron manager object.
+            if set_flag, self = neuron_manager; end
+            
+        end
         
         
         % ---------- Derivation Subnetwork Functions ----------

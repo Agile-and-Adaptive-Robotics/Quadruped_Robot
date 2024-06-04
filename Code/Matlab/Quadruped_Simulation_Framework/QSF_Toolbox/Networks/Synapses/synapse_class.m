@@ -2832,7 +2832,7 @@ classdef synapse_class
             elseif strcmpi( encoding_scheme, 'relative' )                                                   % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs32_parameters( parameters );
+                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
                 gs32 = synapse_utilities.compute_reduced_relative_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );                  % [V] Synaptic Reversal Potential.

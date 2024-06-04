@@ -1489,164 +1489,8 @@ classdef applied_current_manager_class
         
         
         %% Compute Functions.
-        
-        % Implement a function to compute the time vector of multistate cpg applied currents.
-        function [ ts, applied_currents, self ] = compute_mcpg_ts( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 8, process_option = self.process_option_DEFAULT; end                                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
-            if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Compute the number of timesteps associated with the given applied currents.
-            num_timesteps = get_num_timesteps( applied_current_IDs( 1 ), applied_currents, filter_disabled_flag, process_option, undetected_option );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            ts = zeros( num_timesteps, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the time vector for this applied current.
-                [ ts( :, k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_mcpg_ts( dt, tf, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of multistate cpg applied currents.
-        function [ Ias, applied_currents, self ] = compute_mcpg_Ias( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 8, process_option = self.process_option_DEFAULT; end                                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
-            if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Compute the number of timesteps associated with the given applied currents.
-            num_timesteps = get_num_timesteps( applied_current_IDs( 1 ), applied_currents, filter_disabled_flag, process_option, undetected_option );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( num_timesteps, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the time vector for this applied current.
-                [ Ias( :, k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_mcpg_Ias( dt, tf, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of driven multistate cpg applied currents.
-        function [ Ias, applied_currents, self ] = compute_dmcpg_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
-            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the time vector for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_dmcpg_Ias( Gm, R, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of the applied currents that connect the driven multistate cpg double centered lead lag and centered doube subtraction subnetworks.
-        function [ Ias, applied_currents, self ] = compute_dmcpgdcll2cds_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
-            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the time vector for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_dmcpgdcll2cds_Ias( Gm, R, true, applied_currents( applied_current_index ).applied_current_utilities );
-               
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
+    
+        % ---------- Centering Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of centering subnetwork applied currents.
         function [ Ias, applied_currents, self ] = compute_centering_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
@@ -1685,138 +1529,7 @@ classdef applied_current_manager_class
         end
         
         
-        % Implement a function to compute the magnitude of centering subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_transmission_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_transmission_Ias( encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of addition subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_addition_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_addition_Ias( encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
-        
-        % Implement a function to compute the magnitude of subtraction subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_subtraction_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
-                
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_subtraction_Ias( encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-                
-        
-        % Implement a function to compute the magnitude of the inversion subnetwork input applied currents.
-        function [ Ias, applied_currents, self ] = compute_inversion_Ias_input( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Retrieve the index associated with the input applied current.
-            applied_current_index = self.get_applied_current_index( applied_current_IDs( 1 ), applied_currents, undetected_option );
-
-            % Compute the magnitude for the input applied current.
-            [ Ias, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_inversion_Ias_input( encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
+        % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of the inversion subnetwork output applied currents.
         function [ Ias, applied_currents, self ] = compute_inversion_Ias_output( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
@@ -1847,41 +1560,10 @@ classdef applied_current_manager_class
         end
         
         
-        % Implement a function to compute the magnitude of the division subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_division_Ias( self, applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
-            
-            % Validate the applied current IDs.
-            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
-            
-            % Determine how many applied currents to which we are going to apply the given method.
-            num_applied_currents_to_evaluate = length( applied_current_IDs );
-            
-            % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
-            
-            % Evaluate the given applied current method for each neuron.
-            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
                 
-                % Retrieve the index associated with this applied current ID.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
-                
-                % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_division_Ias( encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
-                
-            end
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self.applied_currents = applied_currents; end
-            
-        end
-        
+        % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
         function [ Ias, applied_currents, self ] = compute_multiplication_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
@@ -1925,6 +1607,11 @@ classdef applied_current_manager_class
             
         end
         
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        
+        % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of integration subnetwork applied currents.
         function [ Ias, applied_currents, self ] = compute_integration_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
@@ -2096,6 +1783,167 @@ classdef applied_current_manager_class
             if set_flag, self.applied_currents = applied_currents; end
             
         end
+        
+        
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+        
+        % Implement a function to compute the time vector of multistate cpg applied currents.
+        function [ ts, applied_currents, self ] = compute_mcpg_ts( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, process_option = self.process_option_DEFAULT; end                                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
+            if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
+            
+            % Compute the number of timesteps associated with the given applied currents.
+            num_timesteps = get_num_timesteps( applied_current_IDs( 1 ), applied_currents, filter_disabled_flag, process_option, undetected_option );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Preallocate an array to store the time vectors associated with the applied currents.
+            ts = zeros( num_timesteps, num_applied_currents_to_evaluate );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+                
+                % Compute the time vector for this applied current.
+                [ ts( :, k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_mcpg_ts( dt, tf, true, applied_currents( applied_current_index ).applied_current_utilities );
+                
+            end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+        
+        
+        % Implement a function to compute the magnitude of multistate cpg applied currents.
+        function [ Ias, applied_currents, self ] = compute_mcpg_Ias( self, applied_current_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 8, process_option = self.process_option_DEFAULT; end                                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, tf = self.tf_DEFAULT; end                                                                % [s] Simulation Duration
+            if nargin < 3, dt = self.dt_DEFAULT; end                                                                % [s] Simulation Step Size
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
+            
+            % Compute the number of timesteps associated with the given applied currents.
+            num_timesteps = get_num_timesteps( applied_current_IDs( 1 ), applied_currents, filter_disabled_flag, process_option, undetected_option );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Preallocate an array to store the time vectors associated with the applied currents.
+            Ias = zeros( num_timesteps, num_applied_currents_to_evaluate );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+                
+                % Compute the time vector for this applied current.
+                [ Ias( :, k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_mcpg_Ias( dt, tf, true, applied_currents( applied_current_index ).applied_current_utilities );
+                
+            end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+        
+        
+        % Implement a function to compute the magnitude of driven multistate cpg applied currents.
+        function [ Ias, applied_currents, self ] = compute_dmcpg_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Preallocate an array to store the time vectors associated with the applied currents.
+            Ias = zeros( 1, num_applied_currents_to_evaluate );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+                
+                % Compute the time vector for this applied current.
+                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_dmcpg_Ias( Gm, R, true, applied_currents( applied_current_index ).applied_current_utilities );
+                
+            end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+        
+        
+        % Implement a function to compute the magnitude of the applied currents that connect the driven multistate cpg double centered lead lag and centered doube subtraction subnetworks.
+        function [ Ias, applied_currents, self ] = compute_dmcpgdcll2cds_Ias( self, applied_current_IDs, Gm, R, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Preallocate an array to store the time vectors associated with the applied currents.
+            Ias = zeros( 1, num_applied_currents_to_evaluate );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+                
+                % Compute the time vector for this applied current.
+                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_dmcpgdcll2cds_Ias( Gm, R, true, applied_currents( applied_current_index ).applied_current_utilities );
+               
+            end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+        
         
         
         %% Validation Functions.
@@ -2539,7 +2387,6 @@ classdef applied_current_manager_class
             
         end
         %}
-        
         
         % Implement a function to create the applied currents for an transmission subnetwork.
         function [ IDs_new, applied_currents_new, applied_currents, self ] = create_transmission_applied_currents( self, applied_currents, as_cell_flag )
