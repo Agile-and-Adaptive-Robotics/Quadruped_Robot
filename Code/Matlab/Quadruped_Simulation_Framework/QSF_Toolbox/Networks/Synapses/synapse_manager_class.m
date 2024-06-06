@@ -1058,7 +1058,7 @@ classdef synapse_manager_class
         % ---------- Transmission Subnetwork Functions ----------
 
         % Implement a function to process the maximum synaptic conductance parameters for synapse 21 of a transmission subnetwork.
-        function parameters = process_transmission_gs21_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        function parameters = process_transmission_gs21_parameters( self, synapse_ID, parameters, encoding_scheme, synapses, undetected_option )
             
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -1075,7 +1075,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     R2 = self.R_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1101,7 +1101,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     R2 = self.R_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1589,6 +1589,96 @@ classdef synapse_manager_class
             
         end
         
+                
+        % Implement a function to process the parameters for computing the synaptic conductances of a division subnetwork.
+        function parameters = process_division_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            %{ 
+            
+                % Absolute: delta, R3, Gm3, dEs31, dEs32, Ia3
+
+                % Absolute gs31: R3, Gm3, dEs31, Ia3
+                % Absolute gs32: delta, Gm3, gs31, dEs31, dEs32, Ia3
+
+                % Relative: delta, R3, gm3, dEs31, dEs32, Ia3
+
+                % Relative gs31: R3, Gm3, dEs31, Ia3
+                % Relative gs32: delta, Gm3, gs31, dEs31, dEs32, Ia3
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta = self.delta_division_DEFAULT;                                                                    % [V] Division Subnetwork Offset.
+                    R3 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                               	% [S] Membrane Conductance.
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
+                    dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { delta, R3, Gm3, dEs31, dEs32, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta = self.delta_division_DEFAULT;                                                                    % [V] Division Subnetwork Offset.
+                    R3 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                               	% [S] Membrane Conductance.
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
+                    dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { delta, R3, Gm3, dEs31, dEs32, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
         
         % ---------- Reduced Division Subnetwork Functions ----------
 
@@ -1717,6 +1807,96 @@ classdef synapse_manager_class
                     
                     % Store the required parameters in a cell.
                     parameters = { delta2, Gm3, gs31, dEs31, dEs32, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the parameters for computing the synaptic conductances of a reduced division subnetwork.
+        function parameters = process_reduced_division_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            %{
+                % Absolute: delta2, R3, Gm3, dEs31, dEs32, Ia3
+            
+                % Absolute gs31: R3, Gm3, dEs31, Ia3
+                % Absolute gs32: delta2, Gm3, gs31, dEs31, dEs32, Ia3
+        
+            
+                % Relative: delta2, R3, Gm3, dEs31, dEs32, Ia3
+            
+                % Relative gs31: R3, Gm3, dEs31, Ia3
+                % Relative gs32: delta2, Gm3, gs31, dEs31, dEs32, Ia3
+            
+            %}
+        
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta2 = self.delta_division_DEFAULT;                                                                   % [V] Division Subnetwork Offset.
+                    R3 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
+                    dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );        % [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+
+                    % Store the required parameters in a cell.
+                    parameters = { delta2, R3, Gm3, dEs31, dEs32, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta2 = self.delta_division_DEFAULT;                                                                   % [V] Division Subnetwork Offset.
+                    R3 = self.R_DEFAULT;                                                                                    % [V] Maximum Membrane Voltage.
+                    Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
+                    dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );        % [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+
+                    % Store the required parameters in a cell.
+                    parameters = { delta2, R3, Gm3, dEs31, dEs32, Ia3 };
                     
                 else                                                                                                        % Otherwise...
                     
@@ -1894,6 +2074,98 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to process the parameters for computing the synaptic conductances of a division after inversion subnetwork.
+        function parameters = process_dai_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            %{
+            
+            % Absolute:  c1, c3, delta1, delta2, R1, R2, dEs31
+        
+            % Absolute gs31: c1, c3, delta1, delta2, R1, R2
+            % Absolute gs32: c1, c3, delta2, R1, R2, dEs31
+
+        
+            % Relative: c1, c3, delta1, delta2, R2, dEs31
+        
+            % Relative gs31: c1, c3, delta1, delta2, R2, dEs31
+            % Relative gs32: c1, c3, delta1, delta2, R2, dEs31
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c1 = self.c1_dia_DEFAULT;
+                    c3 = self.c3_dia_DEFAULT;
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R1 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+
+                    % Store the required parameters in a cell.
+                    parameters = { c1, c3, delta1, delta2, R1, R2, dEs31 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 7                                                                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c1 = self.c1_dia_DEFAULT;
+                    c3 = self.c3_dia_DEFAULT;
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R2 = self.R_DEFAULT;
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c1, c3, delta1, delta2, R2, dEs31 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to process the maximum synaptic conductance for synapse 31 of a reduced division after inversion subnetwork.
@@ -2024,6 +2296,96 @@ classdef synapse_manager_class
 
                     % Store the required parameters in a cell.
                     parameters = { delta1, delta2, R2, R3, Gm3, dEs31 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the parameters for computing the synaptic conductances of a reduced division after inversion subnetwork.
+        function parameters = process_reduced_dai_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            %{
+            
+            % Absolute: delta1, delta2, R2, R3, Gm3, dEs31
+        
+            % Absolute gs31: delta1, delta2, R2, R3, Gm3, dEs31
+            % Absolute gs32: delta1, delta2, R2, R3, Gm3, dEs31
+        
+            % Relative: delta1, delta2, R2, R3, Gm3, dEs31
+            
+            % Relative gs31: delta1, delta2, R2, R3, dEs31
+            % Relative gs32: delta1, delta2, R2, R3, Gm3, dEs31
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R2 = self.R_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { delta1, delta2, R2, R3, Gm3, dEs31 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R2 = self.R_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    
+                    % Store the required parameters in a cell.
+                    parameters = {delta1, delta2, R2, R3, Gm3, dEs31 };
                     
                 else                                                                                                        % Otherwise...
                     
@@ -2273,6 +2635,104 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to process the parameters for computing the synaptic conductances of a multiplication subnetwork.
+        function parameters = process_multiplication_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+            
+            %{
+            
+            % Absolute: c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3
+        
+            % Absolute gs41: c4, c6, delta1, delta2, R1, R3
+            % Absolute gs32: delta1, Gm3, dEs32, Ia3
+            % Absolute gs43: c4, c6, delta2, R1, R3, dEs41
+        
+            % Relative: c4, c6, delta1, delta2, R3, Gm3, dEs41, Ia3
+            
+            % Relative gs41: c4, c6, delta1, delta2, R3, dEs41
+            % Relative gs32: delta1, Gm3, dEs32, Ia3
+            % Relative gs43: c4, c6, delta1, delta2, R3, dEs41
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c4 = self.c1_dai_DEFAULT;
+                    c6 = self.c3_dai_DEFAULT;
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R1 = self.R_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Ia3 = selrf.Ia_DEFAULT;
+
+                    % Store the required parameters in a cell.
+                    parameters = { c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 10                                                                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c4 = self.c1_dai_DEFAULT;
+                    c6 = self.c3_dai_DEFAULT;
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { c4, c6, delta1, delta2, R3, Gm3, dEs41, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 8                                                                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to process the maximum synaptic conductance for synapse 41 of a reduced multiplication subnetwork.
@@ -2480,6 +2940,103 @@ classdef synapse_manager_class
                     
                     % Determine whether the parameters cell has a valid number of entries.
                     if length( parameters ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the parameters for computing the synaptic conductances of a reduced multiplication subnetwork.
+        function parameters = process_reduced_multiplication_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
+        
+            %{
+            
+            % Absolute: delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3
+        
+            % Absolute gs41: delta1, delta2, R3, R4, Gm4, dEs41
+            % Absolute gs32: delta1, Gm3, dEs32, Ia3
+            % Absolute gs43: delta1, delta2, R3, R4, Gm4, dEs41
+        
+            % Relative: delta1, delta2, R3, R4, Gm3, Gm4, dEs41, Ia3
+        
+            % Relative gs41: delta1, delta2, R3, R4, dEs41
+            % Relative gs32: delta1, Gm3, dEs32, Ia3
+            % Relative gs43: delta1, delta2, R3, R4, Gm4, dEs41
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    R4 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    Gm4 = self.Gm_DEFAULT;
+                    dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;  
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 9                                                                            % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    delta1 = self.delta_inversion_DEFAULT;
+                    delta2 = self.delta_dai_DEFAULT;
+                    R3 = self.R_DEFAULT;
+                    R4 = self.R_DEFAULT;
+                    Gm3 = self.Gm_DEFAULT;
+                    Gm4 = self.Gm_DEFAULT;
+                    dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Ia3 = self.Ia_DEFAULT;  
+
+                    % Store the required parameters in a cell.
+                    parameters = { delta1, delta2, R3, R4, Gm3, Gm4, dEs41, Ia3 };
+                    
+                else                                                                                                        % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 8                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2885,6 +3442,31 @@ classdef synapse_manager_class
         end
                 
         
+        % Implement a function to compute and set the synaptic reversal ptoential for the synapses of a division subnetwork.
+        function [ dEs31, dEs32, synapses, self ] = compute_division_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Compute the synaptic reversal potential for synapse 31.
+            [ dEs31, synapses, synapse_manager ] = self.compute_division_dEs31( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 32.
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_division_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = synapse_manager; end
+            
+        end    
+            
+        
         % ---------- Reduced Division Subnetwork Functions ----------
 
         % Implement a function to compute and set the synaptic reversal potential for synapse 31 of a reduced division subnetwork.
@@ -2936,6 +3518,31 @@ classdef synapse_manager_class
             
         end
             
+        
+        % Implement a function to compute and set the synaptic reversal ptoential for the synapses of a reduced division subnetwork.
+        function [ dEs31, dEs32, synapses, self ] = compute_reduced_division_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Compute the synaptic reversal potential for synapse 31.
+            [ dEs31, synapses, synapse_manager ] = self.compute_reduced_division_dEs31( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 32.
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_division_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = synapse_manager; end
+            
+        end    
+         
         
         % ---------- Division After Inversion Subnetwork Functions ----------
 
@@ -2989,6 +3596,31 @@ classdef synapse_manager_class
         end
                 
         
+        % Implement a function to compute and set the synaptic reversal ptoential for the synapses of a division after inversion subnetwork.
+        function [ dEs31, dEs32, synapses, self ] = compute_dai_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Compute the synaptic reversal potential for synapse 31.
+            [ dEs31, synapses, synapse_manager ] = self.compute_dai_dEs31( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 32.
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_dai_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = synapse_manager; end
+            
+        end    
+            
+        
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to compute and set the synaptic reversal potential for synapase 31 of a reduced division after inversion subnetwork.
@@ -3040,6 +3672,31 @@ classdef synapse_manager_class
             
         end
                 
+        
+        % Implement a function to compute and set the synaptic reversal ptoential for the synapses of a reduced division after inversion subnetwork.
+        function [ dEs31, dEs32, synapses, self ] = compute_reduced_dai_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Compute the synaptic reversal potential for synapse 31.
+            [ dEs31, synapses, synapse_manager ] = self.compute_reduced_dai_dEs31( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 32.
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_dai_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = synapse_manager; end
+            
+        end    
+            
         
         % ---------- Multiplication Subnetwork Functions ----------
         
@@ -3118,6 +3775,34 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute and set the synaptic reversal potential for the synapses of a multiplication subnetwork.
+        function [ dEs41, dEs32, dEs43, synapses, self ] = compute_multiplication_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Compute the synaptic reversal potential for synapse 41.
+            [ dEs41, synapses, synapse_manager ] = self.compute_multiplication_dEs41( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 32.
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_multiplication_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 43.
+            [ dEs43, synapses, synapse_manager ] = synapse_manager.compute_multiplication_dEs43( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = synapse_manager; end
+            
+        end    
+            
+        
         % ---------- Rduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to compute and set the synaptic reversal potential for synapse 41 of a reduced multiplication subnetwork.
@@ -3170,7 +3855,7 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to compute and set the synaptic reversal potential for synapse 43 of a rduced multiplication subnetwork.
+        % Implement a function to compute and set the synaptic reversal potential for synapse 43 of a reduced multiplication subnetwork.
         function [ dEs43, synapses, self ] = compute_reduced_multiplication_dEs43( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
@@ -3193,6 +3878,34 @@ classdef synapse_manager_class
             if set_flag, self.synapses = synapses; end
             
         end
+        
+        
+        % Implement a function to compute and set the synaptic reversal potential for the synapses of a reduced multiplication subnetwork.
+        function [ dEs41, dEs32, dEs43, synapses, self ] = compute_reduced_multiplication_dEs( self, synapse_IDs, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Compute the synaptic reversal potential for synapse 41.
+            [ dEs41, synapses, synapse_manager ] = self.compute_reduced_multiplication_dEs41( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 32.
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_multiplication_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Compute the synaptic reversal potential for synapse 43.
+            [ dEs43, synapses, synapse_manager ] = synapse_manager.compute_reduced_multiplication_dEs43( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager object.
+            if set_flag, self = synapse_manager; end
+            
+        end    
         
         
         % ---------- Derivation Subnetwork Functions ----------
@@ -3446,6 +4159,779 @@ classdef synapse_manager_class
         end
         
         
+        %% Maximum Synaptic Conductnace Parameter Unpacking Functions.
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to unpack the design parameters for an absolute division subnetwork.
+        function [ delta, R3, Gm3, dEs31, dEs32, Ia3 ] = unpack_absolute_division_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Absolute: delta, R3, Gm3, dEs31, dEs32, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta = division_parameters{ 1 };                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_parameters{ 2 };                                                                              % [V] Activation Domain.
+                Gm3 = division_parameters{ 3 };                                                                             % [S] Membrane Conductance.
+                dEs31 = division_parameters{ 4 };                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_parameters{ 5 };                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_parameters{ 6 };                                                                             % [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the design parameters for a relative division subnetwork.
+        function [ delta, R3, Gm3, dEs31, dEs32, Ia3 ] = unpack_relative_division_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Relative: delta, R3, Gm3, dEs31, dEs32, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta = division_parameters{ 1 };                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_parameters{ 2 };                                                                              % [V] Activation Domain.
+                Gm3 = division_parameters{ 3 };                                                                             % [S] Membrane Conductance.
+                dEs31 = division_parameters{ 4 };                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_parameters{ 5 };                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_parameters{ 6 };                                                                             % [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        % Implement a function to unpack the design parameters for a reduced absolute division subnetwork.
+        function [ delta, R3, Gm3, dEs31, dEs32, Ia3 ] = unpack_reduced_absolute_division_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Absolute: delta2, R3, Gm3, dEs31, dEs32, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta = division_parameters{ 1 };                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_parameters{ 2 };                                                                              % [V] Activation Domain.
+                Gm3 = division_parameters{ 3 };                                                                             % [S] Membrane Conductance.
+                dEs31 = division_parameters{ 4 };                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_parameters{ 5 };                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_parameters{ 6 };                                                                             % [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the design parameters for a reduced relative division subnetwork.
+        function [ delta, R3, Gm3, dEs31, dEs32, Ia3 ] = unpack_reduced_relative_division_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Relative: delta, R3, Gm3, dEs31, dEs32, Ia3
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta = division_parameters{ 1 };                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_parameters{ 2 };                                                                              % [V] Activation Domain.
+                Gm3 = division_parameters{ 3 };                                                                             % [S] Membrane Conductance.
+                dEs31 = division_parameters{ 4 };                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_parameters{ 5 };                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_parameters{ 6 };                                                                             % [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+            
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the design parameters for an absolute division after inversion subnetwork.
+        function [ c1, c3, delta1, delta2, R1, R2, dEs31 ] = unpack_absolute_dai_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Absolute: c1, c3, delta1, delta2, R1, R2, dEs31
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_dai_DEFAULT;                                                                          % [-] Absolute Division After Inversion Gain 1.
+                c3 = self.c3_absolute_dai_DEFAULT;                                                                          % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R1 = self.R_DEFAULT;                                                                                        % [V] Acitvation Domain.
+                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                
+            elseif length( division_parameters ) == 7                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = division_parameters{ 1 };                                                                              % [-] Absolute Division After Inversion Gain 1.
+                c3 = division_parameters{ 2 };                                                                              % [-] Absolute Division After Inversion Gain 3.
+                delta1 = division_parameters{ 3 };                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_parameters{ 4 };                                                                        	% [V] Division Subnetwork Offset.
+                R1 = division_parameters{ 5 };                                                                             	% [V] Acitvation Domain.
+                R2 = division_parameters{ 6 };                                                                            	% [V] Activation Domain.
+                dEs31 = division_parameters{ 7 };                                                                           % [V] Synaptic Reversal Potential.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the design parameters for a relative division after inversion subnetwork.
+        function [ c1, c3, delta1, delta2, R2, dEs31 ] = unpack_relative_dai_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Relative: c1, c3, delta1, delta2, R2, dEs31
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_dai_DEFAULT;                                                                          % [-] Absolute Division After Inversion Gain 1.
+                c3 = self.c3_absolute_dai_DEFAULT;                                                                          % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = division_parameters{ 1 };                                                                              % [-] Absolute Division After Inversion Gain 1.
+                c3 = division_parameters{ 2 };                                                                              % [-] Absolute Division After Inversion Gain 3.
+                delta1 = division_parameters{ 3 };                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_parameters{ 4 };                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_parameters{ 5 };                                                                            	% [V] Activation Domain.
+                dEs31 = division_parameters{ 6 };                                                                           % [V] Synaptic Reversal Potential.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the design parameters for a reduced absolute division after inversion subnetwork.
+        function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_absolute_dai_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Absolute: delta1, delta2, R2, R3, Gm3, dEs31
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R2 = self.R_DEFAULT;                                                                                        % [V] Acitvation Domain.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta1 = division_parameters{ 1 };                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_parameters{ 2 };                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_parameters{ 3 };                                                                            	% [V] Activation Domain.
+                R3 = division_parameters{ 4 };                                                                            	% [V] Activation Domain.
+                Gm3 = division_parameters{ 5 };                                                                           	% [S] Membrane Conductance.
+                dEs31 = division_parameters{ 6 };                                                                           % [V] Synaptic Reversal Potential.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+                
+        % Implement a function to unpack the design parameters for a reduced relative division after inversion subnetwork.
+        function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_relative_dai_parameters( self, division_parameters, synapses, undetected_option )          
+            
+            % Relative: delta1, delta2, R2, R3, Gm3, dEs31
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, division_parameters = {  }; end                                  % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [V] Activation Domain.
+                dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                
+            elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta1 = division_parameters{ 1 };                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_parameters{ 2 };                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_parameters{ 3 };                                                                            	% [V] Activation Domain.
+                R3 = division_parameters{ 4 };                                                                            	% [V] Activation Domain.
+                Gm3 = division_parameters{ 5 };
+                dEs31 = division_parameters{ 6 };                                                                           % [V] Synaptic Reversal Potential.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+
+
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        % Implement a function to unpack the design parameters for an absolute multiplication subnetwork.
+        function [ c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3 ] = unpack_absolute_multiplication_parameters( self, multiplication_parameters, synapses, undetected_option )          
+            
+            % Absolute: c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, multiplication_parameters = {  }; end                                                         	% [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                      	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c4 = self.c1_absolute_dai_DEFAULT;                                                                          % [-] Division Subnetwork Gain 1.
+                c6 = self.c3_absolute_dai_DEFAULT;                                                                          % [-] Division Subnetwork Gain 3.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R1 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( multiplication_parameters ) == 10                                                              	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c4 = multiplication_parameters{ 1 };
+                c6 = multiplication_parameters{ 2 };
+                delta1 = multiplication_parameters{ 3 };                                                                 	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_parameters{ 4 };                                                                 	% [V] Division Subnetwork Offset.
+                R1 = multiplication_parameters{ 5 };                                                                      	% [V] Activation Domain.
+                R3 = multiplication_parameters{ 6 };                                                                       	% [V] Activation Domain.
+                Gm3 = multiplication_parameters{ 7 };                                                                     	% [S] Membrane Conductance.
+                dEs41 = multiplication_parameters{ 8 };                                                                    	% [V] Synaptic Reversal Potential.
+                dEs32 = multiplication_parameters{ 9 };                                                                  	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_parameters{ 10 };                                                                     	% [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+                    
+            
+        % Implement a function to unpack the design parameters for a relative multiplication subnetwork.
+        function [ c4, c6, delta1, delta2, R3, Gm3, dEs41, Ia3 ] = unpack_relative_multiplication_parameters( self, multiplication_parameters, synapses, undetected_option )          
+            
+            % Relative: c4, c6, delta1, delta2, R3, Gm3, dEs41, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                     	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c4 = self.c1_absolute_dai_DEFAULT;                                                                          % [-] Division Subnetwork Gain 1.
+                c6 = self.c3_absolute_dai_DEFAULT;                                                                          % [-] Division Subnetwork Gain 3.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( multiplication_parameters ) == 10                                                               	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c4 = multiplication_parameters{ 1 };
+                c6 = multiplication_parameters{ 2 };
+                delta1 = multiplication_parameters{ 3 };                                                                	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_parameters{ 4 };                                                                   	% [V] Division Subnetwork Offset.
+                R3 = multiplication_parameters{ 5 };                                                                      	% [V] Activation Domain.
+                Gm3 = multiplication_parameters{ 6 };                                                                      	% [S] Membrane Conductance.
+                dEs41 = multiplication_parameters{ 7 };                                                                    	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_parameters{ 8 };                                                                      	% [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to unpack the design parameters for a reduced absolute multiplication subnetwork.
+        function [ delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3 ] = unpack_reduced_absolute_multiplication_parameters( self, multiplication_parameters, synapses, undetected_option )          
+            
+            % Absolute: delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                      	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R4 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( multiplication_parameters ) == 9                                                               	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta1 = multiplication_parameters{ 1 };                                                                  	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_parameters{ 2 };                                                                 	% [V] Division Subnetwork Offset.
+                R3 = multiplication_parameters{ 3 };                                                                      	% [V] Activation Domain.
+                R4 = multiplication_parameters{ 4 };                                                                      	% [V] Activation Domain.
+                Gm3 = multiplication_parameters{ 5 };                                                                      	% [S] Membrane Conductance.
+                Gm4 = multiplication_parameters{ 6 };                                                                     	% [S] Membrane Conductance.
+                dEs41 = multiplication_parameters{ 7 };                                                                   	% [V] Synaptic Reversal Potential.
+                dEs32 = multiplication_parameters{ 8 };                                                                   	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_parameters{ 9 };                                                                    	% [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+
+        % Implement a function to unpack the design parameters for a reduced relative multiplication subnetwork.
+        function [ delta1, delta2, R3, R4, Gm3, Gm4, dEs41, Ia3 ] = unpack_reduced_relative_multiplication_parameters( self, multiplication_parameters, synapses, undetected_option )          
+            
+            % Relative: delta1, delta2, R3, R4, Gm3, Gm4, dEs41, Ia3
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, synapses = self.synapses; end
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                     	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subnetwork Offset.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
+                R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R4 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
+                dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                
+            elseif length( multiplication_parameters ) == 8                                                               	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta1 = multiplication_parameters{ 1 };                                                                  	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_parameters{ 2 };                                                                  	% [V] Division Subnetwork Offset.
+                R3 = multiplication_parameters{ 3 };                                                                     	% [V] Activation Domain.
+                R4 = multiplication_parameters{ 4 };                                                                       	% [V] Activation Domain.
+                Gm3 = multiplication_parameters{ 5 };                                                                     	% [S] Membrane Conductance.
+                Gm4 = multiplication_parameters{ 6 };                                                                     	% [S] Membrane Conductance.
+                dEs41 = multiplication_parameters{ 7 };                                                                    	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_parameters{ 8 };                                                                      	% [A] Applied Current.
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+
+        
+        %% Maximum Synaptic Conductance Parameter Packing Functions.
+        
+        % ---------- Division Subnetwork Functions ----------
+
+        % Implement a function to pack absolute division gs31 parameters.
+        function parameters = pack_absolute_division_gs31_parameters(  )
+            
+            
+            
+        end
+        
+        
+        % Implement a function to pack relative division gs31 parameters.
+        
+        
+        % Implement a function to pack absolute division gs32 parameters.
+        
+        
+        % Implement a function to pack relative division gs32 parameters.
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        % Implement a function to pack reduced absolute division gs31 parameters.
+        
+        
+        % Implement a function to pack reduced relative division gs31 parameters.
+        
+        
+        % Implement a function to pack reduced absolute division gs32 parameters.
+        
+        
+        % Implement a function to pack reduced relative division gs32 parameters.
+
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        % Implement a function to pack absolute division after inversion gs31 parameters.
+        
+        
+        % Implement a function to pack relative division after inversion gs31 parameters.
+        
+        
+        % Implement a function to pack absolute division after inversion gs32 parameters.
+        
+        
+        % Implement a function to pack relative division after inversion gs32 parameters.
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
+        % Implement a function to pack reduced absolute division after inversion gs31 parameters.
+        
+        
+        % Implement a function to pack reduced relative division after inversion gs31 parameters.
+        
+        
+        % Implement a function to pack reduced absolute division after inversion gs32 parameters.
+        
+        
+        % Implement a function to pack reduced relative division after inversion gs32 parameters.
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        % Implement a function to pack absolute multiplication gs41 parameters.
+        
+        
+        % Implement a function to pack relative multiplication gs41 parameters.
+        
+        
+        % Implement a function to pack absolute multiplication gs32 parameters.
+        
+        
+        % Implement a function to pack relative multiplication gs32 parameters.
+        
+        
+        % Implement a function to pack absolute multiplication gs43 parameters.
+        
+        
+        % Implement a function to pack relative multiplication gs43 parameters.
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to pack reduced absolute multiplication gs41 parameters.
+        
+        
+        % Implement a function to pack reduced relative multiplication gs41 parameters.
+        
+        
+        % Implement a function to pack reduced absolute multiplication gs32 parameters.
+        
+        
+        % Implement a function to pack reduced relative multiplication gs32 parameters.
+        
+        
+        % Implement a function to pack reduced absolute multiplication gs43 parameters.
+        
+        
+        % Implement a function to pack reduced relative multiplication gs43 parameters.
+        
+        
+        %% Maximum Synaptic Conductance Parameter Conversion Functions.
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to convert generic division design parameters into synapse 31 design parameters.
+        function parameters_gs31 = convert_division_parameters2gs31_parameters( self, division_parameters, encoding_scheme )
+        
+            %{ 
+            
+                % Absolute: delta, R3, Gm3, dEs31, dEs32, Ia3
+
+                % Absolute gs31: R3, Gm3, dEs31, Ia3
+                % Absolute gs32: delta, Gm3, gs31, dEs31, dEs32, Ia3
+
+                % Relative: delta, R3, gm3, dEs31, dEs32, Ia3
+
+                % Relative gs31: R3, Gm3, dEs31, Ia3
+                % Relative gs32: delta, Gm3, gs31, dEs31, dEs32, Ia3
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute division parameters.
+                
+                
+                % Pack the absolute division gs31 parameters.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Unpack the relative division parameters.
+                
+                % Pack the relative division gs31 parameters.
+                
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+            
+        % Implement a function to convert generic division design parameters into synapse 32 design parameters.
+        function parameters_gs31 = convert_division_parameters2gs32_parameters( self, division_parameters, encoding_scheme )
+        
+            %{ 
+            
+                % Absolute: delta, R3, Gm3, dEs31, dEs32, Ia3
+
+                % Absolute gs31: R3, Gm3, dEs31, Ia3
+                % Absolute gs32: delta, Gm3, gs31, dEs31, dEs32, Ia3
+
+                % Relative: delta, R3, gm3, dEs31, dEs32, Ia3
+
+                % Relative gs31: R3, Gm3, dEs31, Ia3
+                % Relative gs32: delta, Gm3, gs31, dEs31, dEs32, Ia3
+            
+            %}
+            
+            % Set the default input arguments.
+            if nargin < 2, division_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute division parameters.
+                
+                
+                % Pack the absolute division gs32 parameters.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Unpack the relative division parameters.
+                
+                % Pack the relative division gs32 parameters.
+                
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to convert generic reduced division design parameters into synapse 31 design parameters.
+        
+        
+        % Implement a function to convert generic reduced division design parameters into synapse 32 design parameters.
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert generic division after inversion design parameters into synapse 31 design parameters.
+        
+        
+        % Implement a function to convert generic division after inversion design parameters into synapse 32 design parameters.
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert generic reduced division after inversion design parameters into synapse 31 design parameters.
+        
+        
+        % Implement a function to convert generic reduced division after inversion design parameters into synapse 32 design parameters.
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        % Implement a function to convert generic multiplication design parameters into synapse 41 design parameters.
+        
+        
+        % Implement a function to convert generic multiplication design parameters into synapse 32 design parameters.
+        
+        
+        % Implement a function to convert generic multiplication design parameters into synapse 43 design parameters.
+
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to convert generic reduced multiplication design parameters into synapse 41 design parameters.
+        
+        
+        % Implement a function to convert generic reduced multiplication design parameters into synapse 32 design parameters.
+        
+        
+        % Implement a function to convert generic reduced multiplication design parameters into synapse 43 design parameters.
+        
+        
         %% Maximum Synaptic Conductance Compute Functions.
         
         % ---------- Transmission Subnetwork Functions ----------
@@ -3617,7 +5103,7 @@ classdef synapse_manager_class
             synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
             
             % Process the parameters.
-            parameters = process_reduced_inversion_gs21_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            parameters = self.process_reduced_inversion_gs21_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
 
             % Retrieve the index associated with this synapse ID.
             synapse_index = self.get_synapse_index( synapse_IDs( 1 ), synapses, undetected_option );
@@ -3691,9 +5177,44 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductance for the synapses of a division subnetwork.
+        function [ gs31, gs32, synapses, self ] = compute_division_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the generic parameters.
+            parameters = self.process_division_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            
+            % Convert the generic design parameters into gs31 design parameters.
+            
+            
+            % Compute the maximum synaptic conductance for synapse 31.
+            [ gs31, synapses, synapse_manager ] = self.compute_division_gs31( synapse_IDs, parameters_gs31, encoding_scheme, synapses, true, undetected_option );
+
+            % Convert the generic design parameters into gs32 design parameters.
+            
+            
+            % Compute the maximum synaptic conductnace for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_division_gs32( synapse_IDs, parameters_gs32, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
+            
+        end
+        
+        
         % ---------- Reduced Division Subnetwork Functions ----------
 
-        % Implement a function to compute and set the maximum synaptic conductance for synapse 31 of reduced division subnetwork.
+        % Implement a function to compute and set the maximum synaptic conductance for synapse 31 of a reduced division subnetwork.
         function [ gs31, synapses, self ] = compute_reduced_division_gs31( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
@@ -3722,7 +5243,7 @@ classdef synapse_manager_class
         end
         
         
-        % Implement a function to compute and set the maximum synaptic conductance for synapse 32 of reduced division subnetwork.
+        % Implement a function to compute and set the maximum synaptic conductance for synapse 32 of a reduced division subnetwork.
         function [ gs32, synapses, self ] = compute_reduced_division_gs32( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
@@ -3747,6 +5268,41 @@ classdef synapse_manager_class
             
             % Determine whether to update the synapse manager object.
             if set_flag, self.synapses = synapses; end
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductance for the synapses of a reduced division subnetwork.
+        function [ gs31, gs32, synapses, self ] = compute_reduced_division_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the generic parameters.
+            parameters = self.process_reduced_division_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            
+            % Convert the generic design parameters into gs31 design parameters.
+            
+            
+            % Compute the maximum synaptic conductance for synapse 31.
+            [ gs31, synapses, synapse_manager ] = self.compute_reduced_division_gs31( synapse_IDs, parameters_gs31, encoding_scheme, synapses, true, undetected_option );
+
+            % Convert the generic design  parameters into gs32 design parameters.
+            
+            
+            % Compute the maximum synaptic conductnace for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_division_gs32( synapse_IDs, parameters_gs32, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
@@ -3811,6 +5367,41 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute the maximum synaptic conductances for a division after inversion subnetwork.
+        function [ gs31, gs32, synapses, self ] = compute_dai_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the generic parameters.
+            parameters = self.process_dai_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            
+            % Convert the generic design parameters into gs31 design parameters.
+            
+            
+            % Compute the maximum synaptic conductance for synapse 31.
+            [ gs31, synapses, synapse_manager ] = self.compute_dai_gs31( synapse_IDs, parameters_gs31, encoding_scheme, synapses, true, undetected_option );
+
+            % Convert the generic design  parameters into gs32 design parameters.
+            
+            
+            % Compute the maximum synaptic conductnace for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_dai_gs32( synapse_IDs, parameters_gs32, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
+            
+        end
+        
+        
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to compute and set the maximum synaptic conductance for synapse 31 of a reduced division after inversion subnetwork.
@@ -3867,6 +5458,41 @@ classdef synapse_manager_class
             
             % Determine whether to update the synapse manager object.
             if set_flag, self.synapses = synapses; end
+            
+        end
+        
+        
+        % Implement a function to compute the maximum synaptic conductances for a reduced division after inversion subnetwork.
+        function [ gs31, gs32, synapses, self ] = compute_reduced_dai_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the generic parameters.
+            parameters = self.process_reduced_dai_gs_parameters(synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            
+            % Convert the generic design parameters into gs31 design parameters.
+            
+            
+            % Compute the maximum synaptic conductance for synapse 31.
+            [ gs31, synapses, synapse_manager ] = self.compute_reduced_dai_gs31( synapse_IDs, parameters_gs31, encoding_scheme, synapses, true, undetected_option );
+
+            % Convert the generic design  parameters into gs32 design parameters.
+            
+            
+            % Compute the maximum synaptic conductnace for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_dai_gs32( synapse_IDs, parameters_gs32, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
@@ -3960,6 +5586,47 @@ classdef synapse_manager_class
         end
         
         
+        % Implement a function to compute the amximum synaptic conductance for the synapses of a multiplication subnetwork.
+        function [ gs41, gs32, gs43, synapses, self ] = compute_multiplication_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the generic parameters.
+            parameters = self.process_multiplication_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            
+            % Convert the generic design parameters into gs41 design parameters.
+            
+            
+            % Compute the maximum synaptic conductance for synapse 41.
+            [ gs41, synapses, synapse_manager ] = self.compute_multiplication_gs41( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the generic design parameters into gs32 design parameters.
+
+            
+            % Compute the maximum synaptic conductance for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_multiplication_gs32( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the generic design parameters into gs43 design parameters.
+
+            
+            % Compute the maximum synaptic conductance for synapse 43.
+            [ gs43, synapses, synapse_manager ] = synapse_manager.compute_multiplication_gs43( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
+            
+        end
+        
+        
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to compute and set the maximum synaptic conductance for synapse 41 of a reduced multiplication subnetwork.
@@ -4045,6 +5712,47 @@ classdef synapse_manager_class
             
             % Determine whether to update the synapse manager object.
             if set_flag, self.synapses = synapses; end
+            
+        end
+        
+        
+        % Implement a function to compute the amximum synaptic conductance for the synapses of a reduced multiplication subnetwork.
+        function [ gs41, gs32, gs43, synapses, self ] = compute_reduced_multiplication_gs( self, synapse_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
+            
+            % Validate the synapse IDs.
+            synapse_IDs = self.validate_synapse_IDs( synapse_IDs, synapses );
+            
+            % Process the generic parameters.
+            parameters = self.process_reduced_multiplication_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
+            
+            % Convert the generic design parameters into gs41 design parameters.
+            
+            
+            % Compute the maximum synaptic conductance for synapse 41.
+            [ gs41, synapses, synapse_manager ] = self.compute_reduced_multiplication_gs41( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the generic design parameters into gs32 design parameters.
+
+            
+            % Compute the maximum synaptic conductance for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_multiplication_gs32( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the generic design parameters into gs43 design parameters.
+
+            
+            % Compute the maximum synaptic conductance for synapse 43.
+            [ gs43, synapses, synapse_manager ] = synapse_manager.compute_reduced_multiplication_gs43( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
             
         end
         
@@ -4297,7 +6005,7 @@ classdef synapse_manager_class
             if nargin < 3, names = ''; end                                                                  % [-] Synapse Name
             if nargin < 2, IDs = self.generate_unique_synapse_ID( synapses, array_utilities ); end          % [#] Synapse ID
            
-            % Convert the synpase parmaeters from cells to arrays as appropriate.
+            % Convert the synpase parameters from cells to arrays as appropriate.
             enabled_flags = array_utilities.cell2array( enabled_flags );                                          % [T/F] Synapse Enabled Flag
             deltas = array_utilities.cell2array( deltas );                                                  % [V] Generic CPG Equilibrium Offset
             to_neuron_IDs = array_utilities.cell2array( to_neuron_IDs );                                    % [-] To Neuron ID
@@ -6621,6 +8329,281 @@ classdef synapse_manager_class
         %}
         
         
+        %% Design Pack & Unpack Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for designing an absolute transmission subnetwork.
+        function transmission_parameters = pack_absolute_transmission_parameters( self )
+           
+            transmission_parameters = 1;
+            
+        end
+        
+        % R2, Gm2, dEs21, Ia2
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute transmission subnetwork.
+        
+        
+        
+        % Implement a function to pack the parameters for designing a relative transmission subnetwork.
+    
+        % R2, Gm2, dEs21, Ia2
+
+        
+        % Implement a function to unpack the parameters for designing a relative transmission subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a transmission subnetwork.
+
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing an absolute addition subnetwork.
+        
+        % c_k, R_k, Gm_n, dEs_nk, Ia_n
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute addition subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a relative addition subnetwork.
+        
+        % c_k, R_n, Gm_n, dEs_nk, Ia_n
+        
+        
+        % Implement a function to unpack the parameters for designing a relative addition subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing an addition subnetwork.
+
+                
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing an absolute subtraction subnetwork.
+        
+        % c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute subtraction subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a relative subtraction subnetwork.
+        
+        % c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n
+        
+        
+        % Implement a function to unpack the parameters for designing a relative subtraction subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing an subtraction subnetwork.
+        
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing an absolute inversion subnetwork.
+        
+        % delta1, Gm2, dEs21, Ia2
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute inversion subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a relative inversion subnetwork.
+        
+        % delta1, Gm2, dEs21, Ia2
+        
+        
+        % Implement a function to unpack the parameters for designing a relative inversion subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing an inversion subnetwork.
+        
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing a reduced absolute inversion subnetwork.
+        
+        % delta1, Gm2, dEs21, Ia2
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute inversion subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a reduced relative inversion subnetwork.
+        
+        % delta1, Gm2, dEs21, Ia2
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced relative inversion subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a reduced inversion subnetwork.
+        
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing an absolute division subnetwork.
+        
+        % R3, Gm3, dEs31, Ia3
+        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute division subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a relative division subnetwork.
+        
+        % R3, Gm3, dEs31, Ia3
+        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
+        
+        
+        % Implement a function to unpack the parameters for designing a relative division subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a division subnetwork.
+        
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing an absolute division after inversion subnetwork.
+        
+        % c1, c3, delta1, delta2, R1, R2
+        % c1, c3, delta2, R1, R2, dEs31
+        
+        % Implement a function to unpack the parameters for designing an absolute division after inversion subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a relative division after inversion subnetwork.
+        
+        % c1, c3, delta1, delta2, R2, dEs31
+        % c1, c3, delta1, delta2, R2, dEs31
+        
+        
+        % Implement a function to unpack the parameters for designing a relative division after inversion subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a division after inversion subnetwork.
+        
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing a reduced absolute division subnetwork.
+        
+        % R3, Gm3, dEs31, Ia3
+        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute division subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a reduced relative division subnetwork.
+        
+        % R3, Gm3, dEs31, Ia3
+        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced relative division subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a reduced division subnetwork.
+        
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing a reduced absolute division after inversion subnetwork.
+        
+        % delta1, delta2, R2, R3, Gm3, dEs31
+        % delta1, delta2, R2, R3, Gm3, dEs31
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute division after inversion subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a reduced relative division after inversion subnetwork.
+        
+        % delta1, delta2, R2, R3, dEs31
+        % delta1, delta2, R2, R3, Gm3, dEs31
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced relative division after inversion subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a reduced division after inversion subnetwork.
+        
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing an absolute multiplication subnetwork.
+        
+        % c4, c6, delta1, delta2, R1, R3
+        % delta1, Gm3, dEs32, Ia3
+        % c4, c6, delta2, R1, R3, dEs41
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute multiplication subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a relative multiplication subnetwork.
+        
+        % c4, c6, delta1, delta2, R3, dEs41
+        % delta1, Gm3, dEs32, Ia3
+        % c4, c6, delta1, delta2, R3, dEs41
+        
+        
+        % Implement a function to unpack the parameters for designing a relative multiplication subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a multiplication subnetwork.
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for designing a reduced absolute multiplication subnetwork.
+        
+        % delta1, delta2, R3, R4, Gm4, dEs41
+        % delta1, Gm3, dEs32, Ia3
+        % delta1, delta2, R3, R4, Gm4, dEs41
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute multiplication subnetwork.
+
+        
+        % Implement a function to pack the parameters for designing a reduced relative multiplication subnetwork.
+        
+        % delta1, delta2, R3, R4, dEs41
+        % delta1, Gm3, dEs32, Ia3
+        % delta1, delta2, R3, R4, Gm4, dEs41
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced relative multiplication subnetwork.
+        
+        
+        % Implement a function to pack the parameters for designing a reduced multiplication subnetwork.
+        
+        
+        %% Parameter Conversion Functions.
+        
+        % Implement a function to convert generic transmission synapse design parameters to synapse 21 synaptic conductance design parameters.
+        
+        
+        % Implement a function to convert generic transmission synapse design parameters to synapse 21 synaptic conductance design parameters.
+
+        
+        %% Process Design Parameters Functions.
+        
+        
+        
+        
         %% Subnetwork Synapse Design Functions.
         
         % THE PARAMETER PROCESSING FUNCTIONS USED WITHIN THE METHODS IN THIS SECTION NEEDS TO BE RECONSIDERED.
@@ -6643,11 +8626,14 @@ classdef synapse_manager_class
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
-            % Process the parameters.
-            parameters = self.process_transmission_gs21_parameters( parameters, encoding_scheme, synapses );
-            
             % Compute the synaptic reversal potential.
             [ dEs21, synapses, synapse_manager ] = self.compute_transmission_dEs21( synapse_ID, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the general synapse design parameters into synaptic conductance design parameters.
+            
+            
+            % Augment the parameters with the synaptic reversal potential.
+            parameters = { parameters{ 1 }, parameters{ 2 }, dEs21, parameters{ 3 } };
             
             % Compute the synaptic conductance.
             [ gs21, synapses, synapse_manager ] = synapse_manager.compute_transmission_gs21( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
@@ -6685,12 +8671,16 @@ classdef synapse_manager_class
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
                 
             end
-            
-            % Process the parameters.
-            parameters = self.process_addition_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
-
+                        
             % Compute the synaptic reversal potentials.
             [ dEs, synapses, synapse_manager ] = self.compute_addition_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+                        
+            
+            % Convert the general synapse design parameters into synaptic conductance design parameters.
+
+            
+            % Augment the parameters with the synaptic reversal potential.
+            parameters = { parameters{ 1 }, parameters{ 2 }, parameters{ 3 }, dEs, parameters{ 4 } };
             
             % Compute the maximum synaptic conductance.
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_addition_gs( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
@@ -6728,12 +8718,15 @@ classdef synapse_manager_class
                 synapse_IDs( k ) = self.from_to_neuron_ID2synapse_ID( neuron_IDs( k ), neuron_IDs( end ) );
                 
             end
-            
-            % Process the parameters.
-            parameters = self.process_subtraction_gs_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
-            
+               
             % Compute the synaptic reversal potentials.            
             [ dEs, synapses, synapse_manager ] = self.compute_subtraction_dEs( synapse_IDs, s_ks, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the general synapse design parameters into synaptic conductance design parameters.
+
+            
+            % Augment the parameters with the synaptic reversal potential.
+            parameters = { parameters{ 1 }, parameters{ 2 }, parameters{ 3 }, parameters{ 4 }, dEs, parameters{ 5 } };
             
             % Compute the maximum synaptic conductance.
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_subtraction_gs( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
@@ -6760,12 +8753,15 @@ classdef synapse_manager_class
             % Get the synapse ID that connects the first neuron to the second neuron.
             synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ), synapses, undetected_option );
             
-            % Process the parameters.
-            parameters = self.process_inversion_gs21_parameters( synapse_IDs, parameters, encoding_scheme, synapses, undetected_option );
-            
             % Compute and set the synapse reversal potential.            
             [ dEs21, synapses, synapse_manager ] = self.compute_inversion_dEs21( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
+            % Convert the general synapse design parameters into synaptic conductance design parameters.
+
+            
+            % Augment the parameters with the synaptic reversal potential.
+            parameters = { parameters{ 1 }, parameters{ 2 }, dEs21, parameters{ 3 } };
+                        
             % Compute the synaptic conductance.
             [ gs21, synapses, synapse_manager ] = synapse_manager.compute_inversion_gs21( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
             
@@ -6777,19 +8773,49 @@ classdef synapse_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
+        % Implement a function to design the synapses for a reduced inversion subnetwork.
+        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_reduced_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 1:self.num_inversion_neurons_DEFAULT; end               % [#] Neuron IDs.
+            
+            % Get the synapse ID that connects the first neuron to the second neuron.
+            synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ), synapses, undetected_option );
+            
+            % Compute and set the synapse reversal potential.            
+            [ dEs21, synapses, synapse_manager ] = self.compute_reduced_inversion_dEs21( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the general synapse design parameters into synaptic conductance design parameters.
+            
+            
+            % Augment the parameters with the synaptic reversal potential.
+            parameters = { parameters{ 1 }, parameters{ 2 }, dEs21, parameters{ 3 } };
+                        
+            % Compute the synaptic conductance.
+            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_reduced_inversion_gs21( synapse_IDs, parameters, encoding_scheme, synapses, true, undetected_option );
+            
+            % Determine whether to update the synapse manager.
+            if set_flag, self = synapse_manager; end
+            
+        end
         
         
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to design the synapses for a division subnetwork.
-        function [ dEs, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -6797,12 +8823,39 @@ classdef synapse_manager_class
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Compute the synaptic reversal potential.
-            [ dEs1, synapses, synapse_manager ] = self.compute_division_dEs31( synapse_IDs( 1 ), parameters, encoding_scheme, synapses, true, undetected_option );
-            [ dEs2, synapses, synapse_manager ] = synapse_manager.compute_division_dEs32( synapse_IDs( 2 ), encoding_scheme, synapses, true, undetected_option );
+            % Unpack the given parameters.
+            delta2 = parameters{ 1 };
+            R3 = parameters{ 2 };
+            Gm3 = parameters{ 3 };
+            Ia3 = parameters{ 4 };
             
-            % Store the synaptic reversal potentials in an array.
+            % Compute the synaptic reversal potential.
+            [ dEs31, synapses, synapse_manager ] = self.compute_division_dEs31( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            [ dEs32, synapses, synapse_manager ] = synapse_manager.compute_division_dEs32( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            
+            % Store the synaptic conductances in an array.
             dEs = [ dEs1, dEs2 ];
+
+            % Convert the general synapse design parameters into synapse 31 synaptic conductance design parameters.
+                        
+            
+            % Assemble the parameters for computing the synaptic conductance for synapse 31.
+            parameters_gs31 =  { R3, Gm3, dEs31, Ia3 };
+            
+            % Compute the synaptic conductance for synapse 31.
+            [ gs31, synapses, synapse_manager ] = synapse_manager.compute_division_gs31( synapse_IDs, parameters_gs31, encoding_scheme, synapses, true, undetected_option );
+            
+            % Convert the general synapse design parameters into synapse 32 synaptic conductance design parameters.
+
+            
+            % Assemble the parameters for computing the synaptic conductance for synapse 32.
+            parameters_gs32 = { delta2, Gm3, gs31, dEs31, dEs32, Ia3 };
+           
+            % Compute the synaptic conductance for synapse 32.
+            [ gs32, synapses, synapse_manager ] = synapse_manager.compute_division_gs32( synapse_IDs, parameters_gs32, encoding_scheme, synapses, true, undetected_option );
+            
+            % Store the synaptic conductances in an array.
+            gs = [ gs31, gs32 ];
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
