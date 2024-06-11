@@ -1070,10 +1070,12 @@ classdef applied_current_manager_class
         end
         
         
-        %% Process Functions.
+        %% Applied Current Magnitude Parameter Processing Functions.
         
-        % Implement a function to process inversion Ias output parameters.
-        function parameters = process_inversion_Ias_output_parameters( self, parameters, encoding_scheme )
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to process inversion Ias2 parameters.
+        function parameters = process_inversion_Ias2_parameters( self, parameters, encoding_scheme )
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
@@ -1086,11 +1088,11 @@ classdef applied_current_manager_class
                 if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    Gm = self.Gm_DEFAULT;
-                    R = self.R_DEFAULT;                           
+                    Gm2 = self.Gm_DEFAULT;
+                    R2 = self.R_DEFAULT;                           
                     
                     % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    parameters = { Gm2, R2 };
                     
                 else                                                                    % Otherwise...
                     
@@ -1110,11 +1112,11 @@ classdef applied_current_manager_class
                 if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    Gm = self.Gm_DEFAULT;
-                    R = self.R_DEFAULT;                           
+                    Gm2 = self.Gm_DEFAULT;
+                    R2 = self.R_DEFAULT;                           
                     
                     % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    parameters = { Gm2, R2 };
                     
                 else                                                                    % Otherwise...
                     
@@ -1138,17 +1140,15 @@ classdef applied_current_manager_class
         end
 
         
-        % Implement a function to process multiplication Ias parameters.
-        function parameters = process_multiplication_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        % Implement a function to process reduced inversion Ias2 parameters.
+        function parameters = process_reduced_inversion_Ias2_parameters( self, parameters, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, parameters = {  }; end
            
-            % Compute the number of applied currents.
-            n_applied_currents = length( applied_currents );
-            
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
@@ -1156,11 +1156,11 @@ classdef applied_current_manager_class
                 if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
-                    R = self.R_DEFAULT*ones( 1, n_applied_currents );
+                    Gm2 = self.Gm_DEFAULT;
+                    R2 = self.R_DEFAULT;                           
                     
                     % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    parameters = { Gm2, R2 };
                     
                 else                                                                    % Otherwise...
                     
@@ -1180,11 +1180,83 @@ classdef applied_current_manager_class
                 if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
-                    R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
+                    Gm2 = self.Gm_DEFAULT;
+                    R2 = self.R_DEFAULT;                           
                     
                     % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    parameters = { Gm2, R2 };
+                    
+                else                                                                    % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to process multiplication Ias3 parameters.
+        function parameters = process_multiplication_Ias3_parameters( self, parameters, encoding_scheme, applied_currents )
+        
+            % Set the default input arguments.
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, parameters = {  }; end
+           
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                % If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
+                    R3 = self.R_DEFAULT*ones( 1, n_applied_currents );
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { Gm3, R3 };
+                    
+                else                                                                    % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                % If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
+                    R3 = self.R_DEFAULT*ones( 1, n_applied_currents );                        
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { Gm3, R3 };
                     
                 else                                                                    % Otherwise...
                     
@@ -1208,6 +1280,80 @@ classdef applied_current_manager_class
         end
         
         
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to process reduced multiplication Ias3 parameters.
+        function parameters = process_reduced_multiplication_Ias3_parameters( self, parameters, encoding_scheme, applied_currents )
+        
+            % Set the default input arguments.
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, parameters = {  }; end
+           
+            % Compute the number of applied currents.
+            n_applied_currents = length( applied_currents );
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( parameters )                                                % If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
+                    R3 = self.R_DEFAULT*ones( 1, n_applied_currents );
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { Gm3, R3 };
+                    
+                else                                                                    % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
+                if isempty( parameters )                                                % If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
+                    R3 = self.R_DEFAULT*ones( 1, n_applied_currents );                        
+                    
+                    % Store the required parameters in a cell.
+                    parameters = { Gm3, R3 };
+                    
+                else                                                                    % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Integration Subnetwork Functions ----------
+
         % Implement a function to process integration Ias parameters.
         function parameters = process_integration_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
         
@@ -1532,7 +1678,7 @@ classdef applied_current_manager_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of the inversion subnetwork output applied currents.
-        function [ Ias, applied_currents, self ] = compute_inversion_Ias_output( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias2, applied_currents, self ] = compute_inversion_Ias2( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -1546,13 +1692,13 @@ classdef applied_current_manager_class
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Process the parameters.
-            parameters = self.process_inversion_Ias_output_parameters( parameters, encoding_scheme );
+            parameters = self.process_inversion_Ias2_parameters( parameters, encoding_scheme );
             
             % Retrieve the index associated with the output applied current.
             applied_current_index = self.get_applied_current_index( applied_current_IDs( end ), applied_currents, undetected_option );
 
             % Compute the magnitude for the output applied current.            
-            [ Ias, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_inversion_Ias_output( parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+            [ Ias2, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_inversion_Ias2( parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
             
             % Determine whether to update the applied current manager.
             if set_flag, self.applied_currents = applied_currents; end
@@ -1562,11 +1708,8 @@ classdef applied_current_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
-                
-        % ---------- Multiplication Subnetwork Functions ----------
-        
-        % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_multiplication_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        % Implement a function to compute the magnitude of the reduced inversion subnetwork output applied currents.
+        function [ Ias2, applied_currents, self ] = compute_reduced_inversion_Ias2( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -1580,13 +1723,44 @@ classdef applied_current_manager_class
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
             % Process the parameters.
-            parameters = self.process_multiplication_Ias_parameters( parameters, encoding_scheme, applied_currents );
+            parameters = self.process_reduced_inversion_Ias2_parameters( parameters, encoding_scheme );
+            
+            % Retrieve the index associated with the output applied current.
+            applied_current_index = self.get_applied_current_index( applied_current_IDs( end ), applied_currents, undetected_option );
+
+            % Compute the magnitude for the output applied current.
+            [ Ias2, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_reduced_inversion_Ias2( parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+                
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
+        function [ Ias3, applied_currents, self ] = compute_multiplication_Ias3( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFUALT; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
+            
+            % Process the parameters.            
+            parameters = self.process_multiplication_Ias3_parameters( parameters, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
             
             % Preallocate an array to store the time vectors associated with the applied currents.
-            Ias = zeros( 1, num_applied_currents_to_evaluate );
+            Ias3 = zeros( 1, num_applied_currents_to_evaluate );
             
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
@@ -1598,7 +1772,7 @@ classdef applied_current_manager_class
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_multiplication_Ias( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias3( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_multiplication_Ias3( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -1610,6 +1784,48 @@ classdef applied_current_manager_class
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
+        % Implement a function to compute the magnitude of reduced multiplication subnetwork applied currents.
+        function [ Ias3, applied_currents, self ] = compute_reduced_multiplication_Ias3( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFUALT; end
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            
+            % Validate the applied current IDs.
+            applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
+            
+            % Process the parameters.            
+            parameters = self.process_reduced_multiplication_Ias3_parameters( parameters, encoding_scheme, applied_currents );
+            
+            % Determine how many applied currents to which we are going to apply the given method.
+            num_applied_currents_to_evaluate = length( applied_current_IDs );
+            
+            % Preallocate an array to store the time vectors associated with the applied currents.
+            Ias3 = zeros( 1, num_applied_currents_to_evaluate );
+            
+            % Evaluate the given applied current method for each neuron.
+            for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
+                
+                % Retrieve the parameters associated with this applied current.
+                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                
+                % Retrieve the index associated with this applied current ID.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+                
+                % Compute the magnitude for this applied current.
+                [ Ias3( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_reduced_multiplication_Ias3( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                
+            end
+            
+            % Determine whether to update the applied current manager.
+            if set_flag, self.applied_currents = applied_currents; end
+            
+        end
+        
         
         % ---------- Integration Subnetwork Functions ----------
         
@@ -2215,6 +2431,485 @@ classdef applied_current_manager_class
         
         %% Subnetwork Applied Current Creation Functions
         
+        %{
+        % Implement a function to create the applied currents for an transmission subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_transmission_applied_currents( self, applied_currents, as_cell_flag )
+        
+            % Set the default input arguments.
+            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            
+            % Determine how to generate the applied current IDs and objects.
+            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
+                
+                % Set the new applied current IDs and objects to be empty cells.
+                IDs_new = {  };
+                applied_currents_new = {  };
+            
+            else                                % Otherwise...
+                
+                % Set the new applied current IDs and obejcts to be empty arrays.
+                IDs_new = [  ];
+                applied_currents_new = [  ];
+                
+            end
+        
+        end
+        
+        
+        % Implement a function to create the applied currents for an addition subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_addition_applied_currents( self, applied_currents, as_cell_flag )
+        
+            % Set the default input arguments.
+            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            
+            % Determine how to generate the applied current IDs and objects.
+            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
+                
+                % Set the new applied current IDs and objects to be empty cells.
+                IDs_new = {  };
+                applied_currents_new = {  };
+            
+            else                                % Otherwise...
+                
+                % Set the new applied current IDs and obejcts to be empty arrays.
+                IDs_new = [  ];
+                applied_currents_new = [  ];
+                
+            end
+        
+        end
+        
+        
+        % Implement a function to create the applied currents for a subtraction subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_subtraction_applied_currents( self, applied_currents, as_cell_flag )
+        
+            % Set the default input arguments.
+            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            
+            % Determine how to generate the applied current IDs and objects.
+            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
+                
+                % Set the new applied current IDs and objects to be empty cells.
+                IDs_new = {  };
+                applied_currents_new = {  };
+            
+            else                                % Otherwise...
+                
+                % Set the new applied current IDs and obejcts to be empty arrays.
+                IDs_new = [  ];
+                applied_currents_new = [  ];
+                
+            end
+        
+        end
+        
+        %}
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to create the applied currents for an inversion subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_inversion_applied_current( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+        
+            % Set the number of neurons.
+            n_neurons = self.num_inversion_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
+
+            % Determine whether to compute the name.
+            if isempty( name ), name = sprintf( 'Inversion Applied Current %0.0f', to_neuron_ID ); end
+            
+            % Create the subnetwork applied current.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+         
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        % Implement a function to create the applied currents for a reduced inversion subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_reduced_inversion_applied_current( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+        
+            % Set the number of neurons.
+            n_neurons = self.num_inversion_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
+
+            % Determine whether to compute the name.
+            if isempty( name ), name = sprintf( 'Reduced Inversion Applied Current %0.0f', to_neuron_ID ); end
+            
+            % Create the subnetwork applied current.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+       %{ 
+        % Implement a function to create the applied currents for a division subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_division_applied_currents( self, applied_currents, as_cell_flag )
+            
+            % Set the default input arguments.
+            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            
+            % Determine how to generate the applied current IDs and objects.
+            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
+                
+                % Set the new applied current IDs and objects to be empty cells.
+                IDs_new = {  };
+                applied_currents_new = {  };
+            
+            else                                % Otherwise...
+                
+                % Set the new applied current IDs and obejcts to be empty arrays.
+                IDs_new = [  ];
+                applied_currents_new = [  ];
+                
+            end
+            
+        end
+        %}
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to create the applied currents for a multiplication subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_multiplication_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Set the number of neurons.
+            n_neurons = self.num_multiplication_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 3 ); end
+
+            % Determine whether to compute the name.
+            if isempty( name ), name = sprintf( 'Multiplication Applied Current %0.0f', to_neuron_ID ); end
+            
+            % Create the subnetwork applied current.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+                
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to create the applied currents for a reduced multiplication subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_reduced_multiplication_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Set the number of neurons.
+            n_neurons = self.num_multiplication_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 3 ); end
+
+            % Determine whether to compute the name.
+            if isempty( name ), name = sprintf( 'Reduced Multiplication Applied Current %0.0f', to_neuron_ID ); end
+            
+            % Create the subnetwork applied current.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+        % ---------- Integration Subnetwork Functions ----------
+        
+        % Implement a function to create the applied currents for an integration subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_integration_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Set the number of neurons.
+            n_neurons = self.num_integration_neurons_DEFAULT;
+            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 5, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, names = ''; end
+            if nargin < 3, applied_current_IDs = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = self.process_applied_current_creation_inputs( n_applied_currents, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_IDs == self.to_neuron_ID_DEFAULT, to_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ) ]; end
+
+            % Determine whether to compute the name.
+            if all( [ names{ : } ] == '' )
+                
+                names = cells( 1, n_applied_currents );
+                
+                for k = 1:n_applied_currents
+                
+                    names{ k } = sprintf( 'Integration Applied Current %0.0f', to_neuron_IDs( k ) );
+            
+                end
+            
+            end
+            
+            % Create the subnetwork applied current.
+            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_applied_current( applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a voltage based integration subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_vbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Set the number of neurons.
+            n_neurons = self.num_integration_neurons_DEFAULT;
+            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 5, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, names = ''; end
+            if nargin < 3, applied_current_IDs = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = self.process_applied_current_creation_inputs( n_applied_currents, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_IDs == self.to_neuron_ID_DEFAULT, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 4 ) ]; end
+
+            % Determine whether to compute the name.     
+            if isempty( names ), names = { sprintf( 'VBI Applied Current %0.0f', to_neuron_ID( 3 ) ), sprintf( 'VBI Applied Current %0.0f', to_neuron_ID( 4 ) ) }; end
+             
+            % Create the subnetwork applied current.
+            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_applied_current( applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a split voltage based integration subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_svbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Set the number of neurons.
+            n_neurons = self.num_integration_neurons_DEFAULT;
+            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
+            if nargin < 5, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, names = ''; end
+            if nargin < 3, applied_current_IDs = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = self.process_applied_current_creation_inputs( n_applied_currents, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_IDs == self.to_neuron_ID_DEFAULT, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 9 ) ]; end
+
+            % Determine whether to compute the name.     
+            if isempty( names ), names = { sprintf( 'SVBI Applied Current %0.0f', to_neuron_ID( 3 ) ), sprintf( 'SVBI Applied Current %0.0f', to_neuron_ID( 4 ) ), sprintf( 'SVBI Applied Current %0.0f', to_neuron_ID( 9 ) ) }; end
+             
+            % Create the subnetwork applied current.
+            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_applied_current( applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a modulated split voltage based integration subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_msvbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Create the applied currents for a modulated split voltage based integration subnetwork.
+            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_svbi_applied_currents( neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a modulated split voltage based integration subnetwork.
+        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_mssvbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+            
+            % Create the modulated split voltage based integration applied currents.
+            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_msvbi_applied_currents( neuron_IDs( 5:end ), applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+
+        end
+        
+        
+        % ---------- Centering Subnetwork Functions ----------
+        
+        % Implement a function to create the applied currents for a centering subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_centering_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+       
+            % Set the number of neurons.
+            n_neurons = self.num_centering_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
+
+            % Determine whether to compute the name.
+            if isempty( name ), name = sprintf( 'Centering Applied Current %0.0f', to_neuron_ID ); end
+            
+            % Create the subnetwork applied current.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+            
+        
+        % Implement a function to create the applied currents for a double centering subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_double_centering_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+       
+            % Set the number of neurons.
+            n_neurons = self.num_double_centering_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Determine whether to compute the to neuron ID.
+            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
+
+            % Determine whether to compute the name.
+            if isempty( name ), name = sprintf( 'Double Centering Applied Current %0.0f', to_neuron_ID ); end
+            
+            % Create the subnetwork applied current.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+        
+        % Implement a function to create the applied currents for a centered double subtraction subnetwork.
+        function [ ID_new, applied_current_new, applied_currents, self ] = create_cds_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+        
+            % Define the number of neurons from the various subnetworks.
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                     % [#] Number of DS Neurons.
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;                                                       % [#] Number of DC Neurons.
+            n_neurons = n_ds_neurons + n_dc_neurons;                                                                        % [#] Number of Neurons.
+            
+            % Set the default input arguments.
+            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
+            if nargin < 7, Ias = self.Ias_DEFAULT; end
+            if nargin < 6, ts = self.ts_DEFAULT; end
+            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
+            if nargin < 4, name = ''; end
+            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the applied current creation inputs.
+            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            
+            % Ensure that the neuron properties match the require number of neurons.
+            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            
+            % Define the neuron indexes.
+            i_start_dc_neurons = i_end_ds_neurons + 1;
+            i_end_dc_neurons = i_end_ds_neurons + n_dc_neurons;
+
+            % Create the double centering applied currents.
+            [ ID_new, applied_current_new, applied_currents, self ] = self.create_double_centering_applied_currents( neuron_IDs( i_start_dc_neurons:i_end_dc_neurons ), applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            
+        end
+        
+
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
+        
         % Implement a function to create the applied currents for a multistate CPG subnetwork.
         function [ IDs_new, applied_currents_new, applied_currents, self ] = create_mcpg_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
             
@@ -2388,403 +3083,344 @@ classdef applied_current_manager_class
         end
         %}
         
-        % Implement a function to create the applied currents for an transmission subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_transmission_applied_currents( self, applied_currents, as_cell_flag )
         
+        %% Subnetwork Applied Current Design Functions
+        
+        %{
+        
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to design the applied currents for a transmission subnetwork.
+        function [ Ias, applied_currents, self ] = design_transmission_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
+        
+            % Compute the number of addition neurons.
+            n_neurons = self.num_transmission_neurons_DEFAULT;
+            
             % Set the default input arguments.
-            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
-            % Determine how to generate the applied current IDs and objects.
-            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
-                
-                % Set the new applied current IDs and objects to be empty cells.
-                IDs_new = {  };
-                applied_currents_new = {  };
+            % Retrieve the applied current ID associated with the neuron ID.
+            applied_current_IDs = self.to_neuron_ID2applied_current_ID( neuron_IDs, applied_currents, undetected_option );
             
-            else                                % Otherwise...
-                
-                % Set the new applied current IDs and obejcts to be empty arrays.
-                IDs_new = [  ];
-                applied_currents_new = [  ];
-                
-            end
-        
+            % Compute the applied current magnitudes of this subnetwork.
+            [ Ias, applied_currents, self ] = self.compute_transmission_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
+            
         end
         
         
-        % Implement a function to create the applied currents for an addition subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_addition_applied_currents( self, applied_currents, as_cell_flag )
-        
+        % ---------- Addition Subnetwork Functions ----------
+            
+        % Implement a function to design the applied currents for a addition subnetwork.
+        function [ Ias, applied_currents, self ] = design_addition_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+            % Compute the number of addition neurons.
+            n_neurons = self.num_addition_neurons_DEFAULT;
+            
             % Set the default input arguments.
-            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
-            % Determine how to generate the applied current IDs and objects.
-            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
-                
-                % Set the new applied current IDs and objects to be empty cells.
-                IDs_new = {  };
-                applied_currents_new = {  };
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            else                                % Otherwise...
-                
-                % Set the new applied current IDs and obejcts to be empty arrays.
-                IDs_new = [  ];
-                applied_currents_new = [  ];
-                
-            end
+            % Compute the addition current magnitudes.
+            [ Ias, applied_currents, self ] = self.compute_addition_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
+                        
+        end
+
         
+        % ---------- Subtraction Subnetwork Functions ----------
+
+        % Implement a function to design the applied currents for a subtraction subnetwork.
+        function [ Ias, applied_currents, self ] = design_subtraction_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+            % Compute the number of subtraction neurons.
+            n_neurons = self.num_subtraction_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
+            
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
+            
+            % Compute the applied current magnitudes for this subnetwork.
+            [ Ias, applied_currents, self ] = compute_subtraction_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
+            
         end
         
-        
-        % Implement a function to create the applied currents for a subtraction subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_subtraction_applied_currents( self, applied_currents, as_cell_flag )
-        
-            % Set the default input arguments.
-            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+        %}
             
-            % Determine how to generate the applied current IDs and objects.
-            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
-                
-                % Set the new applied current IDs and objects to be empty cells.
-                IDs_new = {  };
-                applied_currents_new = {  };
+        % ---------- Inversion Subnetwork Functions ----------
+
+        % Implement a function to design the applied currents for an inversion subnetwork.
+        function [ Ias2, applied_currents, self ] = design_inversion_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
-            else                                % Otherwise...
-                
-                % Set the new applied current IDs and obejcts to be empty arrays.
-                IDs_new = [  ];
-                applied_currents_new = [  ];
-                
-            end
-        
-        end
-        
-        
-        % Implement a function to create the applied currents for a centering subnetwork.
-        function [ ID_new, applied_current_new, applied_currents, self ] = create_centering_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
-       
-            % Set the number of neurons.
-            n_neurons = self.num_centering_neurons_DEFAULT;
+            % Compute the number of neurons.
+            n_neurons = self.num_inversion_neurons;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
-            if nargin < 7, Ias = self.Ias_DEFAULT; end
-            if nargin < 6, ts = self.ts_DEFAULT; end
-            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, name = ''; end
-            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            % Process the parameters.
+            parameters = self.process_inversion_Ias2_parameters( parameters, encoding_scheme );
             
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
-
-            % Determine whether to compute the name.
-            if isempty( name ), name = sprintf( 'Centering Applied Current %0.0f', to_neuron_ID ); end
-            
-            % Create the subnetwork applied current.
-            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Compute the inversion applied current magnitude outputs.
+            [ Ias2, applied_currents, self ] = self.compute_inversion_Ias2( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
-            
         
-        % Implement a function to create the applied currents for a double centering subnetwork.
-        function [ ID_new, applied_current_new, applied_currents, self ] = create_double_centering_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
-       
-            % Set the number of neurons.
-            n_neurons = self.num_double_centering_neurons_DEFAULT;
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+
+        % Implement a function to design the applied currents for a reduced inversion subnetwork.
+        function [ Ias2, applied_currents, self ] = design_reduced_inversion_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+            % Compute the number of neurons.
+            n_neurons = self.num_reduced_inversion_neurons;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
-            if nargin < 7, Ias = self.Ias_DEFAULT; end
-            if nargin < 6, ts = self.ts_DEFAULT; end
-            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, name = ''; end
-            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            % Process the parameters.
+            parameters = self.process_reduced_inversion_Ias2_parameters( parameters, encoding_scheme );
             
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
-
-            % Determine whether to compute the name.
-            if isempty( name ), name = sprintf( 'Double Centering Applied Current %0.0f', to_neuron_ID ); end
-            
-            % Create the subnetwork applied current.
-            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
-            
+            % Compute the inversion applied current magnitude outputs.
+            [ Ias2, applied_currents, self ] = self.compute_reduced_inversion_Ias2( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
         
-        % Implement a function to create the applied currents for a centered double subtraction subnetwork.
-        function [ ID_new, applied_current_new, applied_currents, self ] = create_cds_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+        %{
         
-            % Define the number of neurons from the various subnetworks.
-            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;                                                     % [#] Number of DS Neurons.
-            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;                                                       % [#] Number of DC Neurons.
-            n_neurons = n_ds_neurons + n_dc_neurons;                                                                        % [#] Number of Neurons.
+        % ---------- Division Subnetwork Functions ----------
+
+        % Implement a function to design the applied currents for a division subnetwork.
+        function [ Ias, applied_currents, self ] = design_division_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+            % Compute the number of division neurons.
+            n_neurons = self.num_division_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
-            if nargin < 7, Ias = self.Ias_DEFAULT; end
-            if nargin < 6, ts = self.ts_DEFAULT; end
-            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, name = ''; end
-            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
-            
-            % Define the neuron indexes.
-            i_start_dc_neurons = i_end_ds_neurons + 1;
-            i_end_dc_neurons = i_end_ds_neurons + n_dc_neurons;
+            % Compute the applied current magnitudes for this subnetwork.            
+            [ Ias, applied_currents, self ] = self.compute_division_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
 
-            % Create the double centering applied currents.
-            [ ID_new, applied_current_new, applied_currents, self ] = self.create_double_centering_applied_currents( neuron_IDs( i_start_dc_neurons:i_end_dc_neurons ), applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
-            
         end
         
-        
-        % Implement a function to create the applied currents for an inversion subnetwork.
-        function [ ID_new, applied_current_new, applied_currents, self ] = create_inversion_applied_current( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
-        
-            % Set the number of neurons.
-            n_neurons = self.num_inversion_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
-            if nargin < 7, Ias = self.Ias_DEFAULT; end
-            if nargin < 6, ts = self.ts_DEFAULT; end
-            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, name = ''; end
-            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
-            
-            % Process the applied current creation inputs.
-            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
-            
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
-            
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 2 ); end
-
-            % Determine whether to compute the name.
-            if isempty( name ), name = sprintf( 'Inversion Applied Current %0.0f', to_neuron_ID ); end
-            
-            % Create the subnetwork applied current.
-            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
-            
-        end
-                   
-        
-        % Implement a function to create the applied currents for a division subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_division_applied_currents( self, applied_currents, as_cell_flag )
-            
-            % Set the default input arguments.
-            if nargin < 3, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            
-            % Determine how to generate the applied current IDs and objects.
-            if as_cell_flag                     % If we want the applied current IDs and objects to be cells...
-                
-                % Set the new applied current IDs and objects to be empty cells.
-                IDs_new = {  };
-                applied_currents_new = {  };
-            
-            else                                % Otherwise...
-                
-                % Set the new applied current IDs and obejcts to be empty arrays.
-                IDs_new = [  ];
-                applied_currents_new = [  ];
-                
-            end
-            
-        end
+        %}
         
         
-        % Implement a function to create the applied currents for a multiplication subnetwork.
-        function [ ID_new, applied_current_new, applied_currents, self ] = create_multiplication_applied_currents( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to design the applied currents for a multiplication subnetwork.
+        function [ Ias3, applied_currents, self ] = design_multiplication_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
-            % Set the number of neurons.
+            % Compute the number of multiplication neurons.
             n_neurons = self.num_multiplication_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
-            if nargin < 7, Ias = self.Ias_DEFAULT; end
-            if nargin < 6, ts = self.ts_DEFAULT; end
-            if nargin < 5, to_neuron_ID = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, name = ''; end
-            if nargin < 3, applied_current_ID = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag ] = self.process_applied_current_creation_inputs( 1, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, array_utilities );
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            % Process the parameters.
+            parameters = self.process_multiplication_Ias3_parameters( parameters, encoding_scheme, applied_currents );
             
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_ID == self.to_neuron_ID_DEFAULT, to_neuron_ID = neuron_IDs( 3 ); end
-
-            % Determine whether to compute the name.
-            if isempty( name ), name = sprintf( 'Multiplication Applied Current %0.0f', to_neuron_ID ); end
-            
-            % Create the subnetwork applied current.
-            [ ID_new, applied_current_new, applied_currents, self ] = self.create_applied_current( applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Compute the multiplication applied current magnitude outputs.
+            [ Ias3, applied_currents, self ] = self.compute_multiplication_Ias3( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
-                
         
-        % Implement a function to create the applied currents for an integration subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_integration_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to design the applied currents for a reduced multiplication subnetwork.
+        function [ Ias3, applied_currents, self ] = design_reduced_multiplication_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
-            % Set the number of neurons.
-            n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            % Compute the number of reduced multiplication neurons.
+            n_neurons = self.num_reduced_multiplication_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 5, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, names = ''; end
-            if nargin < 3, applied_current_IDs = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = self.process_applied_current_creation_inputs( n_applied_currents, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities );
+            % Retrieve the applied current IDs associated with the provided neuron IDs.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            % Process the parameters.
+            parameters = self.process_reduced_multiplication_Ias3_parameters( parameters, encoding_scheme, applied_currents );
             
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_IDs == self.to_neuron_ID_DEFAULT, to_neuron_IDs = [ neuron_IDs( 1 ), neuron_IDs( 2 ) ]; end
-
-            % Determine whether to compute the name.
-            if all( [ names{ : } ] == '' )
-                
-                names = cells( 1, n_applied_currents );
-                
-                for k = 1:n_applied_currents
-                
-                    names{ k } = sprintf( 'Integration Applied Current %0.0f', to_neuron_IDs( k ) );
-            
-                end
-            
-            end
-            
-            % Create the subnetwork applied current.
-            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_applied_current( applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Compute the multiplication applied current magnitude outputs.
+            [ Ias3, applied_currents, self ] = self.compute_reduced_multiplication_Ias3( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
         
-        % Implement a function to create the applied currents for a voltage based integration subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_vbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+        % ---------- Integration Subnetwork Functions ----------
+        
+        % Implement a function to design the applied currents for an integration subnetwork.
+        function [ Ias, applied_currents, self ] = design_integration_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
-            % Set the number of neurons.
+            % Compute the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 5, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, names = ''; end
-            if nargin < 3, applied_current_IDs = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = self.process_applied_current_creation_inputs( n_applied_currents, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities );
+            % Process the parameters.
+            parameters = self.process_integration_Ias_parameters( parameters, encoding_scheme, applied_currents );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            % Get the applied current IDs that comprise this integration subnetwork.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_IDs == self.to_neuron_ID_DEFAULT, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 4 ) ]; end
-
-            % Determine whether to compute the name.     
-            if isempty( names ), names = { sprintf( 'VBI Applied Current %0.0f', to_neuron_ID( 3 ) ), sprintf( 'VBI Applied Current %0.0f', to_neuron_ID( 4 ) ) }; end
-             
-            % Create the subnetwork applied current.
-            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_applied_current( applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Compute the applied current magnitudes associated with this subnetwork.
+            [ Ias, applied_currents, self ] = self.compute_integration_Ias( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
         
-        % Implement a function to create the applied currents for a split voltage based integration subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_svbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+        % Implement a function to design the applied currents for a voltage based integration subnetwork.
+        function [ Ias, applied_currents, self ] = design_vbi_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
-            % Set the number of neurons.
-            n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            % Compute the number of neurons.
+            n_neurons = self.num_vbi_neurons_DEFAULT;
             
             % Set the default input arguments.
-            if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 7, Ias = self.Ias_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 6, ts = self.ts_DEFAULT*ones( 1, n_applied_currents ); end
-            if nargin < 5, to_neuron_IDs = self.to_neuron_ID_DEFAULT; end
-            if nargin < 4, names = ''; end
-            if nargin < 3, applied_current_IDs = self.generate_unique_applied_current_ID( applied_currents, array_utilities ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the applied current creation inputs.
-            [ ~, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags ] = self.process_applied_current_creation_inputs( n_applied_currents, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, array_utilities );
+            % Process the parameters.
+            parameters = self.process_vbi_Ias_parameters( parameters, encoding_scheme, applied_currents );
             
-            % Ensure that the neuron properties match the require number of neurons.
-            assert( n_neurons == length( neuron_IDs ), 'Provided neuron properties must be of consistent size.' )
+            % Get the applied current IDs that comprise this voltage based integration subnetwork.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Determine whether to compute the to neuron ID.
-            if to_neuron_IDs == self.to_neuron_ID_DEFAULT, to_neuron_IDs = [ neuron_IDs( 3 ), neuron_IDs( 4 ), neuron_IDs( 9 ) ]; end
+            % Compute the applied current magnitudes associated with this subnetwork.
+            [ Ias, applied_currents, self ] = self.compute_vbi_Ias( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+           
+        end
+        
+        
+        % Implement a function to design the applied currents for a split voltage based integration subnetwork.
+        function [ Ias, applied_currents, self ] = design_svbi_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+            
+             % Compute the number of neurons.
+            n_neurons = self.num_svbi_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, parameters = {  }; end
+            if nargin < 2, neuron_IDs = 1:n_neurons; end
+            
+            % Process the parameters.
+            parameters_Ias1 = self.process_svbi_Ias1_parameters( parameters{ 1 }, encoding_scheme, applied_currents );
+            parameters_Ias2 = self.process_svbi_Ias2_parameters( parameters{ 2 }, encoding_scheme, applied_currents );
 
-            % Determine whether to compute the name.     
-            if isempty( names ), names = { sprintf( 'SVBI Applied Current %0.0f', to_neuron_ID( 3 ) ), sprintf( 'SVBI Applied Current %0.0f', to_neuron_ID( 4 ) ), sprintf( 'SVBI Applied Current %0.0f', to_neuron_ID( 9 ) ) }; end
-             
-            % Create the subnetwork applied current.
-            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_applied_current( applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Get the applied current IDs that comprise this split voltage based integration subnetwork.
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-        end
-        
-        
-        % Implement a function to create the applied currents for a modulated split voltage based integration subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_msvbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
+            % Retrieve the applied current IDs associated with the two operations.
+            applied_current_IDs_Ias1 = applied_current_IDs( 1:2 );
+            applied_current_IDs_Ias2 = applied_current_IDs( 3 );
+
+            % Compute the applied current magnitudes associated with this subnetwork.
+            [ Ias1, applied_currents, applied_current_manager ] = self.compute_svbi_Ias1( applied_current_IDs_Ias1, parameters_Ias1, encoding_scheme, applied_currents, true, undetected_option );
+            [ Ias2, applied_currents, applied_current_manager ] = applied_current_manager.compute_svbi_Ias2( applied_current_IDs_Ias2, parameters_Ias2, encoding_scheme, applied_currents, true, undetected_option );
             
-            % Create the applied currents for a modulated split voltage based integration subnetwork.
-            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_svbi_applied_currents( neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Concatenate the applied current magnitudes.
+            Ias = [ Ias1, Ias2 ];
             
-        end
-        
-        
-        % Implement a function to create the applied currents for a modulated split voltage based integration subnetwork.
-        function [ IDs_new, applied_currents_new, applied_currents, self ] = create_mssvbi_applied_currents( self, neuron_IDs, applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities )
-            
-            % Create the modulated split voltage based integration applied currents.
-            [ IDs_new, applied_currents_new, applied_currents, self ] = self.create_msvbi_applied_currents( neuron_IDs( 5:end ), applied_current_IDs, names, to_neuron_IDs, ts, Ias, enabled_flags, applied_currents, set_flag, as_cell_flag, array_utilities );
+            % Determine whether to update the applied current manager.
+            if set_flag, self = applied_current_manager; end      
 
         end
         
         
-        %% Subnetwork Applied Current Design Functions
+        %{
+        
+        % ---------- Centering Subnetwork Functions ----------
+
+        % Implement a function to design the applied currents for a centering subnetwork.
+        function [ Ias, applied_currents, self ] = design_centering_applied_current( self, neuron_IDs, Gm2, R2, applied_currents, set_flag, undetected_option )
+            
+            % Compute the number of subtraction neurons.
+            n_neurons = self.num_centering_neurons_DEFAULT;
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
+            
+            % Get the applied currents IDs associated with the provided neuron IDs.
+            applied_current_ID = self.to_neuron_ID2applied_current_ID( neuron_IDs( 2 ), applied_currents, 'ignore' );
+            
+            % Compute the applied cuyrrent magnitudes for this subnetwork.
+            [ Ias, applied_currents, self ] = self.compute_centering_Ias( applied_current_ID, Gm2, R2, applied_currents, set_flag, undetected_option );
+            
+        end
+        
+        %}
+        
+        
+        % ---------- Central Pattern Generator Subnetwork Functions ----------
         
         % Implement a function to design the applied currents for a multistate cpg subnetwork.
         function [ ts, Ias, applied_currents, self ] = design_mcpg_applied_current( self, neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, set_flag, process_option, undetected_option )
@@ -2883,276 +3519,6 @@ classdef applied_current_manager_class
             % Set the applied current magnitude vector.
             [ Ias, applied_currents, self ] = self.compute_dmcpgdcll2cds_Ias( applied_current_ID, Gm, R, applied_currents, set_flag, undetected_option );
             
-        end
-        
-        
-        % Implement a function to design the applied currents for a transmission subnetwork.
-        function [ Ias, applied_currents, self ] = design_transmission_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-        
-            % Compute the number of addition neurons.
-            n_neurons = self.num_transmission_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
-            
-            % Retrieve the applied current ID associated with the neuron ID.
-            applied_current_IDs = self.to_neuron_ID2applied_current_ID( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the applied current magnitudes of this subnetwork.
-            [ Ias, applied_currents, self ] = self.compute_transmission_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
-            
-        end
-        
-            
-        % Implement a function to design the applied currents for a addition subnetwork.
-        function [ Ias, applied_currents, self ] = design_addition_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of addition neurons.
-            n_neurons = self.num_addition_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
-            
-            % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the addition current magnitudes.
-            [ Ias, applied_currents, self ] = self.compute_addition_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
-                        
-        end
-
-        
-        % Implement a function to design the applied currents for a subtraction subnetwork.
-        function [ Ias, applied_currents, self ] = design_subtraction_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of subtraction neurons.
-            n_neurons = self.num_subtraction_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
-            
-            % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the applied current magnitudes for this subnetwork.
-            [ Ias, applied_currents, self ] = compute_subtraction_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
-            
-        end
-        
-        
-        % Implement a function to design the applied currents for a centering subnetwork.
-        function [ Ias, applied_currents, self ] = design_centering_applied_current( self, neuron_IDs, Gm2, R2, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of subtraction neurons.
-            n_neurons = self.num_centering_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
-            
-            % Get the applied currents IDs associated with the provided neuron IDs.
-            applied_current_ID = self.to_neuron_ID2applied_current_ID( neuron_IDs( 2 ), applied_currents, 'ignore' );
-            
-            % Compute the applied cuyrrent magnitudes for this subnetwork.
-            [ Ias, applied_currents, self ] = self.compute_centering_Ias( applied_current_ID, Gm2, R2, applied_currents, set_flag, undetected_option );
-            
-        end
-        
-        
-        % Implement a function to design the applied currents for an inversion subnetwork.
-        function [ Ias, applied_currents, self ] = design_inversion_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of neurons.
-            n_neurons = self.num_inversion_neurons;
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
-            
-            % Process the parameters.
-            parameters = process_inversion_Ias_output_parameters( parameters, encoding_scheme );
-            
-            % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the inversion applied current magnitude inputs.
-            [ Ias_inputs, applied_currents, applied_current_manager ] = self.compute_inversion_Ias_input( applied_current_IDs( 1 ), encoding_scheme, applied_currents, true, undetected_option );
-            
-            % Compute the inversion applied current magnitude outputs.
-            [ Ias_outputs, applied_currents, applied_current_manager ] = applied_current_manager.compute_inversion_Ias_output( applied_current_IDs( 2 ), parameters, encoding_scheme, applied_currents, true, undetected_option );
-            
-            % Concatenate the applied current magnitudes.
-            Ias = [ Ias_inputs, Ias_outputs ];
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self = applied_current_manager; end
-            
-        end
-        
-        
-        % Implement a function to design the applied currents for a division subnetwork.
-        function [ Ias, applied_currents, self ] = design_division_applied_currents( self, neuron_IDs, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of division neurons.
-            n_neurons = self.num_division_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end                                                         % [#] Neuron IDs
-            
-            % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the applied current magnitudes for this subnetwork.            
-            [ Ias, applied_currents, self ] = self.compute_division_Ias( applied_current_IDs, encoding_scheme, applied_currents, set_flag, undetected_option );
-
-        end
-        
-        
-        % Implement a function to design the applied currents for a multiplication subnetwork.
-        function [ Ias, applied_currents, self ] = design_multiplication_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of multiplication neurons.
-            n_neurons = self.num_multiplication_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
-            
-            % Process the parameters.
-            parameters = process_inversion_Ias_output_parameters( parameters, encoding_scheme );
-            
-            % Retrieve the inversion and division subnetwork neuron IDs.
-            neuron_IDs_inversion = neuron_IDs( 2:3 );
-            neuron_IDs_division = neuron_IDs( [ 1, 3, 4 ] );
-            
-            % Compute the applied current magnitudes associated with the inversion subentwork.
-            [ Ias_inversion, applied_currents, applied_current_manager ] = self.design_inversion_applied_currents( neuron_IDs_inversion, parameters, encoding_scheme, applied_currents, true, undetected_option );
-            
-            % Compute the applied current magnitudes associated with the division subnetwork.
-            [ Ias_division, applied_currents, applied_current_manager ] = applied_current_manager.design_division_applied_currents( neuron_IDs_division, encoding_scheme, applied_currents, true, undetected_option );
-            
-            % Concatenate the applied current magnitudes.
-            Ias = [ Ias_inversion, Ias_division ];
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self = applied_current_manager; end            
-            
-        end
-        
-        
-        % Implement a function to design the applied currents for an integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_integration_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of neurons.
-            n_neurons = self.num_integration_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
-            
-            % Process the parameters.
-            parameters = self.process_integration_Ias_parameters( parameters, encoding_scheme, applied_currents );
-            
-            % Get the applied current IDs that comprise this integration subnetwork.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the applied current magnitudes associated with this subnetwork.
-            [ Ias, applied_currents, self ] = self.compute_integration_Ias( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
-            
-        end
-        
-        
-        % Implement a function to design the applied currents for a voltage based integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_vbi_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-            % Compute the number of neurons.
-            n_neurons = self.num_vbi_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
-            
-            % Process the parameters.
-            parameters = self.process_vbi_Ias_parameters( parameters, encoding_scheme, applied_currents );
-            
-            % Get the applied current IDs that comprise this voltage based integration subnetwork.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Compute the applied current magnitudes associated with this subnetwork.
-            [ Ias, applied_currents, self ] = self.compute_vbi_Ias( applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
-           
-        end
-        
-        
-        % Implement a function to design the applied currents for a split voltage based integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_svbi_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
-            
-             % Compute the number of neurons.
-            n_neurons = self.num_svbi_neurons_DEFAULT;
-            
-            % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
-            if nargin < 2, neuron_IDs = 1:n_neurons; end
-            
-            % Process the parameters.
-            parameters_Ias1 = self.process_svbi_Ias1_parameters( parameters{ 1 }, encoding_scheme, applied_currents );
-            parameters_Ias2 = self.process_svbi_Ias2_parameters( parameters{ 2 }, encoding_scheme, applied_currents );
-
-            % Get the applied current IDs that comprise this split voltage based integration subnetwork.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
-            
-            % Retrieve the applied current IDs associated with the two operations.
-            applied_current_IDs_Ias1 = applied_current_IDs( 1:2 );
-            applied_current_IDs_Ias2 = applied_current_IDs( 3 );
-
-            % Compute the applied current magnitudes associated with this subnetwork.
-            [ Ias1, applied_currents, applied_current_manager ] = self.compute_svbi_Ias1( applied_current_IDs_Ias1, parameters_Ias1, encoding_scheme, applied_currents, true, undetected_option );
-            [ Ias2, applied_currents, applied_current_manager ] = applied_current_manager.compute_svbi_Ias2( applied_current_IDs_Ias2, parameters_Ias2, encoding_scheme, applied_currents, true, undetected_option );
-            
-            % Concatenate the applied current magnitudes.
-            Ias = [ Ias1, Ias2 ];
-            
-            % Determine whether to update the applied current manager.
-            if set_flag, self = applied_current_manager; end      
-
         end
         
                 

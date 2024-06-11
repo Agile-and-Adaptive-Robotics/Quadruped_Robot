@@ -10597,11 +10597,11 @@ classdef synapse_manager_class
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                          % [T/F] Enabled Flag.
+            if nargin < 10, enabled_flag = true( 1, n_synapses ); end                                                      	% [T/F] Enabled Flag.
             if nargin < 9, delta = self.delta_DEFAULT*ones( 1, n_synapses ); end                                            % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_ID = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                             % [#] To Neuron ID.
-            if nargin < 7, from_neuron_ID = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [#] From Neuron ID.
-            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                            	% [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_ID = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                              % [#] To Neuron ID.
+            if nargin < 7, from_neuron_ID = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                          % [#] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, name = repmat( { '' }, 1, n_synapses ); end                                                  	% [str] Synapse Name.
             if nargin < 3, synapse_ID = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end      % [#] Synapse ID.            
@@ -12065,310 +12065,36 @@ classdef synapse_manager_class
         end
         %}
         
-        
-        %% Design Pack & Unpack Functions.
-        
-        % ---------- Transmission Subnetwork Functions ----------
-        
-        % Implement a function to pack the parameters for designing an absolute transmission subnetwork.
-        function transmission_parameters = pack_absolute_transmission_parameters( self )
-           
-            transmission_parameters = 1;
-            
-        end
-        
-        % R2, Gm2, dEs21, Ia2
-        
-        
-        % Implement a function to unpack the parameters for designing an absolute transmission subnetwork.
-        
-        
-        
-        % Implement a function to pack the parameters for designing a relative transmission subnetwork.
-    
-        % R2, Gm2, dEs21, Ia2
-
-        
-        % Implement a function to unpack the parameters for designing a relative transmission subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a transmission subnetwork.
-
-        
-        
-        % ---------- Addition Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing an absolute addition subnetwork.
-        
-        % c_k, R_k, Gm_n, dEs_nk, Ia_n
-        
-        
-        % Implement a function to unpack the parameters for designing an absolute addition subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a relative addition subnetwork.
-        
-        % c_k, R_n, Gm_n, dEs_nk, Ia_n
-        
-        
-        % Implement a function to unpack the parameters for designing a relative addition subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing an addition subnetwork.
-
-                
-        
-        % ---------- Subtraction Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing an absolute subtraction subnetwork.
-        
-        % c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n
-        
-        
-        % Implement a function to unpack the parameters for designing an absolute subtraction subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a relative subtraction subnetwork.
-        
-        % c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n
-        
-        
-        % Implement a function to unpack the parameters for designing a relative subtraction subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing an subtraction subnetwork.
-        
-        
-        
-        % ---------- Inversion Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing an absolute inversion subnetwork.
-        
-        % delta1, Gm2, dEs21, Ia2
-        
-        
-        % Implement a function to unpack the parameters for designing an absolute inversion subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a relative inversion subnetwork.
-        
-        % delta1, Gm2, dEs21, Ia2
-        
-        
-        % Implement a function to unpack the parameters for designing a relative inversion subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing an inversion subnetwork.
-        
-        
-        
-        % ---------- Reduced Inversion Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing a reduced absolute inversion subnetwork.
-        
-        % delta1, Gm2, dEs21, Ia2
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced absolute inversion subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a reduced relative inversion subnetwork.
-        
-        % delta1, Gm2, dEs21, Ia2
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced relative inversion subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a reduced inversion subnetwork.
-        
-        
-        
-        % ---------- Division Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing an absolute division subnetwork.
-        
-        % R3, Gm3, dEs31, Ia3
-        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
-        
-        
-        % Implement a function to unpack the parameters for designing an absolute division subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a relative division subnetwork.
-        
-        % R3, Gm3, dEs31, Ia3
-        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
-        
-        
-        % Implement a function to unpack the parameters for designing a relative division subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a division subnetwork.
-        
-        
-        
-        % ---------- Division After Inversion Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing an absolute division after inversion subnetwork.
-        
-        % c1, c3, delta1, delta2, R1, R2
-        % c1, c3, delta2, R1, R2, dEs31
-        
-        % Implement a function to unpack the parameters for designing an absolute division after inversion subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a relative division after inversion subnetwork.
-        
-        % c1, c3, delta1, delta2, R2, dEs31
-        % c1, c3, delta1, delta2, R2, dEs31
-        
-        
-        % Implement a function to unpack the parameters for designing a relative division after inversion subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a division after inversion subnetwork.
-        
-        
-        
-        % ---------- Reduced Division Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing a reduced absolute division subnetwork.
-        
-        % R3, Gm3, dEs31, Ia3
-        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
-        
-        % Implement a function to unpack the parameters for designing a reduced absolute division subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a reduced relative division subnetwork.
-        
-        % R3, Gm3, dEs31, Ia3
-        % delta2, Gm3, gs31, dEs31, dEs32, Ia3
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced relative division subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a reduced division subnetwork.
-        
-        
-        
-        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing a reduced absolute division after inversion subnetwork.
-        
-        % delta1, delta2, R2, R3, Gm3, dEs31
-        % delta1, delta2, R2, R3, Gm3, dEs31
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced absolute division after inversion subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a reduced relative division after inversion subnetwork.
-        
-        % delta1, delta2, R2, R3, dEs31
-        % delta1, delta2, R2, R3, Gm3, dEs31
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced relative division after inversion subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a reduced division after inversion subnetwork.
-        
-        
-        
-        % ---------- Multiplication Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing an absolute multiplication subnetwork.
-        
-        % c4, c6, delta1, delta2, R1, R3
-        % delta1, Gm3, dEs32, Ia3
-        % c4, c6, delta2, R1, R3, dEs41
-        
-        
-        % Implement a function to unpack the parameters for designing an absolute multiplication subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a relative multiplication subnetwork.
-        
-        % c4, c6, delta1, delta2, R3, dEs41
-        % delta1, Gm3, dEs32, Ia3
-        % c4, c6, delta1, delta2, R3, dEs41
-        
-        
-        % Implement a function to unpack the parameters for designing a relative multiplication subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a multiplication subnetwork.
-        
-        
-        % ---------- Reduced Multiplication Subnetwork Functions ----------
-
-        % Implement a function to pack the parameters for designing a reduced absolute multiplication subnetwork.
-        
-        % delta1, delta2, R3, R4, Gm4, dEs41
-        % delta1, Gm3, dEs32, Ia3
-        % delta1, delta2, R3, R4, Gm4, dEs41
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced absolute multiplication subnetwork.
-
-        
-        % Implement a function to pack the parameters for designing a reduced relative multiplication subnetwork.
-        
-        % delta1, delta2, R3, R4, dEs41
-        % delta1, Gm3, dEs32, Ia3
-        % delta1, delta2, R3, R4, Gm4, dEs41
-        
-        
-        % Implement a function to unpack the parameters for designing a reduced relative multiplication subnetwork.
-        
-        
-        % Implement a function to pack the parameters for designing a reduced multiplication subnetwork.
-        
-        
-        %% Parameter Conversion Functions.
-        
-        % Implement a function to convert generic transmission synapse design parameters to synapse 21 synaptic conductance design parameters.
-        
-        
-        % Implement a function to convert generic transmission synapse design parameters to synapse 21 synaptic conductance design parameters.
-
                 
         %% Subnetwork Synapse Design Functions.
-        
-        % THE PARAMETER PROCESSING FUNCTIONS USED WITHIN THE METHODS IN THIS SECTION NEEDS TO BE RECONSIDERED.
-        % THERE IS NOTHING WRONG WITH THE PARAMETER PROCESSING METHODS THEMSELVES, BUT RATHER THERE USE IN THESE METHODS.
-        % SINCE dEs IS OFTEN A PARAMETER OF THESE METHODS, BUT IS ALSO COMPUTED INSIDE THESE METHODS, A SEPARATE PARAMETER INPUT SHOULD BE USED THAT IS THEN AUGMENTED WITH THE dEs AFTER THEY HAVE BEEN COMPUTED.
-        
+
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to design the synapses for a transmission subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_transmission_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_transmission_synapse( self, neuron_IDs, transmission_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, transmission_parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:self.num_transmission_neurons_DEFAULT; end            % [#] Neuron IDs.
             
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
             % Process the design parameters.
-            parameters = self.process_transmission_parameters( parameters, encoding_scheme );
+            transmission_parameters = self.process_transmission_parameters( transmission_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs21, synapses, synapse_manager ] = self.compute_transmission_dEs21( synapse_ID, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs21 parameters.
-                % gs parameters: R2, Gm2, dEs21, Ia2
-            
+            transmission_gs_parameters = self.convert_transmission_parameters2gs_parameters( synapse_ID, transmission_parameters, dEs21, encoding_scheme, synapses, undetected_option );
+
             % Compute the synaptic conductance.
-            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_transmission_gs21( synapse_IDs, parameters_gs21, encoding_scheme, synapses, true, undetected_option );
+            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_transmission_gs21( synapse_IDs, transmission_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12379,14 +12105,14 @@ classdef synapse_manager_class
         % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to design the synapses for an addition subnetwork.
-        function [ dEs, gs, synapse_IDs, synapses, self ] = design_addition_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, self ] = design_addition_synapses( self, neuron_IDs, addition_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, addition_parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:self.num_addition_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Compute the number of synapses.
@@ -12404,17 +12130,17 @@ classdef synapse_manager_class
                 
             end
             
-            % Process the design parameters.
-            parameters = self.process_addition_parameters( synapse_IDs, parameters, encoding_scheme );
+            % Process the design parameters.            
+            addition_parameters = self.process_addition_parameters( synapse_IDs, addition_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potentials.
             [ dEs, synapses, synapse_manager ] = self.compute_addition_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
                         
             % Convert the generic parameters into gs parameters.
-
+            addition_gs_parameters = self.convert_addition_parameters2gs_parameters( synapse_IDs, addition_parameters, dEs, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductance.
-            [ gs, synapses, synapse_manager ] = synapse_manager.compute_addition_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs, synapses, synapse_manager ] = synapse_manager.compute_addition_gs( synapse_IDs, addition_gs_parameters, encoding_scheme, synapses, true, undetected_option );
 
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12425,14 +12151,14 @@ classdef synapse_manager_class
         % ---------- Subtraction Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a subtraction subnetwork.
-        function [ dEs, gs, synapse_IDs, synapses, self ] = design_subtraction_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, self ] = design_subtraction_synapses( self, neuron_IDs, subtraction_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, subtraction_parameters = {  }; end
             if nargin < 2, neuron_IDs = 1:self.num_subtraction_neurons_DEFAULT; end             % [#] Neuron IDs.   
             
             % Compute the number of synapses.
@@ -12450,17 +12176,17 @@ classdef synapse_manager_class
                 
             end
                
-            % Process the design parameters.
-            parameters = self.process_subtraction_parameters( synapse_IDs, parameters, encoding_scheme );
+            % Process the design parameters.            
+            subtraction_parameters = self.process_subtraction_parameters( synapse_IDs, subtraction_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potentials.            
             [ dEs, synapses, synapse_manager ] = self.compute_subtraction_dEs( synapse_IDs, s_ks, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-
+            subtraction_gs_parameters = self.convert_subtraction_parameters2gs_parameters( synapse_IDs, subtraction_parameters, dEs, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductance.
-            [ gs, synapses, synapse_manager ] = synapse_manager.compute_subtraction_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs, synapses, synapse_manager ] = synapse_manager.compute_subtraction_gs( synapse_IDs, subtraction_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12471,30 +12197,30 @@ classdef synapse_manager_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to design the synapses for an inversion subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_inversion_synapse( self, neuron_IDs, inversion_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, inversion_parameters = {  }; end                                               % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.num_inversion_neurons_DEFAULT; end               % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
             synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ), synapses, undetected_option );
             
-            % Process the design parameters.
-            parameters = self.process_inversion_parameters( parameters, encoding_scheme );
+            % Process the design parameters.            
+            inversion_parameters = self.process_inversion_parameters( inversion_parameters, encoding_scheme );
             
             % Compute and set the synapse reversal potential.            
             [ dEs21, synapses, synapse_manager ] = self.compute_inversion_dEs21( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-
+            inversion_gs_parameters = self.convert_inversion_parameters2gs_parameters( synapse_ID, inversion_parameters, dEs21, encoding_scheme, synapses, undetected_option );
                         
             % Compute the synaptic conductance.
-            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_inversion_gs21( synapse_IDs, parameters_gs21, encoding_scheme, synapses, true, undetected_option );
+            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_inversion_gs21( synapse_IDs, inversion_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12505,30 +12231,30 @@ classdef synapse_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced inversion subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_reduced_inversion_synapse( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_reduced_inversion_synapse( self, neuron_IDs, reduced_inversion_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, reduced_inversion_parameters = {  }; end                            	% [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.num_inversion_neurons_DEFAULT; end               % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
             synapse_ID = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1 ), neuron_IDs( 2 ), synapses, undetected_option );
             
             % Process the design parameters.
-            parameters = self.process_reduced_inversion_parameters( parameters, encoding_scheme );
+            reduced_inversion_parameters = self.process_reduced_inversion_parameters( reduced_inversion_parameters, encoding_scheme );
             
             % Compute and set the synapse reversal potential.            
             [ dEs21, synapses, synapse_manager ] = self.compute_reduced_inversion_dEs21( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-            
+            reduced_inversion_gs_parameters = self.convert_reduced_inversion_parameters2gs_parameters( synapse_ID, reduced_inversion_parameters, dEs21, encoding_scheme, synapses, undetected_option );
                         
             % Compute the synaptic conductance.
-            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_reduced_inversion_gs21( synapse_IDs, parameters_gs21, encoding_scheme, synapses, true, undetected_option );
+            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_reduced_inversion_gs21( synapse_IDs, reduced_inversion_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12539,14 +12265,14 @@ classdef synapse_manager_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to design the synapses for a division subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, division_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, division_parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -12555,16 +12281,16 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
             % Process the design parameters.
-            parameters = self.process_division_parameters( parameters, encoding_scheme );
+            division_parameters = self.process_division_parameters( division_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs31, dEs32, synapses, synapse_manager ] = self.compute_division_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
 
             % Convert the generic parameters into gs parameters.
-            
+            division_gs_parameters = self.convert_division_parameters2gs_parameters( synapse_IDs, division_parameters, dEs31, dEs32, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductances.
-            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_division_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_division_gs( synapse_IDs, division_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12575,14 +12301,14 @@ classdef synapse_manager_class
         % ---------- Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a division after inversion subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_dai_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_dai_synapses( self, neuron_IDs, dai_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, dai_parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -12591,16 +12317,16 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
             % Process the design parameters.
-            parameters = self.process_dai_parameters( parameters, encoding_scheme );
+            dai_parameters = self.process_dai_parameters( dai_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs31, dEs32, synapses, synapse_manager ] = self.compute_dai_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-            
+            dai_gs_parameters = self.convert_dai_parameters2gs_parameters( synapse_IDs, dai_parameters, dEs31, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductances.            
-            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_dai_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_dai_gs( synapse_IDs, dai_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12611,14 +12337,14 @@ classdef synapse_manager_class
         % ---------- Reduced Division Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced division subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_reduced_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_reduced_division_synapses( self, neuron_IDs, reduced_division_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_division_parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -12627,16 +12353,16 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
             % Process the design parameters.
-            parameters = self.process_reduced_division_parameters( parameters, encoding_scheme );
+            reduced_division_parameters = self.process_reduced_division_parameters( reduced_division_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs31, dEs32, synapses, synapse_manager ] = self.compute_reduced_division_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-            
+            reduced_division_gs_parameters = self.convert_reduced_division_parameters2gs_parameters( synapse_IDs, reduced_division_parameters, dEs31, dEs32, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductances.            
-            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_division_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_division_gs( synapse_IDs, reduced_division_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12647,14 +12373,14 @@ classdef synapse_manager_class
         % ---------- Reduced Division After Invesion Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced division after inversion subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_reduced_dai_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, self ] = design_reduced_dai_synapses( self, neuron_IDs, reduced_dai_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_dai_parameters = {  }; end                                               % [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -12663,16 +12389,16 @@ classdef synapse_manager_class
             synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
             % Process the design parameters.
-            parameters = self.process_reduced_dai_parameters( parameters, encoding_scheme );
+            reduced_dai_parameters = self.process_reduced_dai_parameters( reduced_dai_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.            
             [ dEs31, dEs32, synapses, synapse_manager ] = self.compute_reduced_dai_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-            
+            reduced_dai_gs_parameters = self.convert_reduced_dai_parameters2gs_parameters( synapse_IDs, reduced_dai_parameters, dEs31, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductances.                        
-            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_dai_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs31, gs32, synapses, synapse_manager ] = synapse_manager.compute_reduced_dai_gs( synapse_IDs, reduced_dai_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12683,30 +12409,30 @@ classdef synapse_manager_class
         % ---------- Multiplication Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a multiplication subnetwork.
-        function [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, self ] = design_multiplication_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, self ] = design_multiplication_synapses( self, neuron_IDs, multiplication_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, multiplication_parameters = {  }; end                                               % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 4 ) ], synapses, undetected_option );
             
             % Process the parameters.
-            parameters = self.process_multiplication_parameters( parameters, encoding_scheme );
+            multiplication_parameters = self.process_multiplication_parameters( multiplication_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs41, dEs32, dEs43, synapses, synapse_manager ] = self.compute_multiplication_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs parameters.
-            
+            multiplication_gs_parameters = self.convert_multiplication_parameters2gs_parameters( synapse_IDs, multiplication_parameters, dEs41, dEs32, encoding_scheme, synapses, undetected_option );
         
             % Compute the maximum synaptic conductance.
-            [ gs41, gs32, gs43, synapses, synapse_manager ] = synapse_manager.compute_multiplication_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs41, gs32, gs43, synapses, synapse_manager ] = synapse_manager.compute_multiplication_gs( synapse_IDs, multiplication_gs_parameters, encoding_scheme, synapses, true, undetected_option );
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12717,30 +12443,30 @@ classdef synapse_manager_class
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced multiplication subnetwork.
-        function [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, self ] = design_reduced_multiplication_synapses( self, neuron_IDs, parameters, encoding_scheme, synapses, set_flag, undetected_option )
+        function [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, self ] = design_reduced_multiplication_synapses( self, neuron_IDs, reduced_multiplication_parameters, encoding_scheme, synapses, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, reduced_multiplication_parameters = {  }; end                                               % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.
             synapse_IDs = self.from_to_neuron_IDs2synapse_IDs( neuron_IDs( 1:3 ), [ neuron_IDs( 4 ), neuron_IDs( 3 ), neuron_IDs( 4 ) ], synapses, undetected_option );
             
             % Process the parameters.
-            parameters = self.process_reduced_multiplication_parameters( parameters, encoding_scheme );
+            reduced_multiplication_parameters = self.process_reduced_multiplication_parameters( reduced_multiplication_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs41, dEs32, dEs43, synapses, synapse_manager ] = self.compute_reduced_multiplication_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
                         
             % Convert the generic parameters into gs parameters.
-            
+            reduced_multiplication_gs_parameters = self.convert_reduced_multiplication_parameters2gs_parameters( synapse_IDs, reduced_multiplication_parameters, dEs41, dEs32, encoding_scheme, synapses, undetected_option );
         
             % Compute the maximum synaptic conductance.
-            [ gs41, gs32, gs43, synapses, synapse_manager ] = synapse_manager.compute_reduced_multiplication_gs( synapse_IDs, parameters_gs, encoding_scheme, synapses, true, undetected_option );
+            [ gs41, gs32, gs43, synapses, synapse_manager ] = synapse_manager.compute_reduced_multiplication_gs( synapse_IDs, reduced_multiplication_gs_parameters, encoding_scheme, synapses, true, undetected_option );
                         
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
