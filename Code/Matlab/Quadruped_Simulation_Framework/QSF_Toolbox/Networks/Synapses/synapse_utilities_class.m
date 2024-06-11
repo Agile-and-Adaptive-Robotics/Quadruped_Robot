@@ -16,52 +16,132 @@ classdef synapse_utilities_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
+        % ---------- Neuron Properties ----------
+        
         % Define the neuron parameters.
         R_DEFAULT = 20e-3;                                     	% [V] Activation Domain.
         Gm_DEFAULT = 1e-6;                                  	% [S] Membrane Conductance.
+        
+        
+        % ---------- Synapse Properties ----------
         
         % Define the synaptic reversal potential parameters.
         dEs_max_DEFAULT = 194e-3;                             	% [V] Maximum Synaptic Reversal Potential.
         dEs_min_DEFAULT = -194e-3;                             	% [V] Minimum Synaptic Reversal Potential. (-40e-3 [mV] is a common choice.)
         dEs_small_negative_DEFAULT = -1e-3;                   	% [V] Small Negative Synaptic Reversal Potential.
         
-        % Define the applied current parameters.
-        Id_max_DEFAULT = 1.25e-9;                              	% [A] Maximum Drive Current.
-        Ia_absolute_addition_DEFAULT = 0;                      	% [A] Absolute Addition Applied Current.
-        Ia_relative_addition_DEFAULT = 0;                      	% [A] Relative Addition Applied Current.
-        Ia_absolute_subtraction_DEFAULT = 0;                  	% [A] Absolute Subtraction Applied Current.
-        Ia_relative_subtraction_DEFAULT = 0;                  	% [A] Relative Subtraction Applied Current.
-        Ia1_absolute_inversion_DEFAULT = 0;                    	% [A] Absolute Inversion Applied Current 1.
-        Ia2_absolute_inversion_DEFAULT = 2e-8;              	% [A] Absolute Inversion Applied Current 2.
-        Ia1_relative_inversion_DEFAULT = 0;                  	% [A] Relative Inversion Applied Current 1.
-        Ia2_relative_inversion_DEFAULT = 2e-8;                	% [A] Relative Inversion Applied Current 2.
-        Ia_absolute_division_DEFAULT = 0;                      	% [A] Absolute Division Applied Current.
-        Ia_relative_division_DEFAULT = 0;                    	% [A] Relative Division Applied Current.
         
-        % Define the CPG parameters.
-        delta_oscillatory_DEFAULT = 0.01e-3;                  	% [-] CPG Oscillatory Delta.
-        delta_bistable_DEFAULT = -10e-3;                     	% [-] CPG Bistable Delta.
-        delta_noncpg_DEFAULT = 0;                            	% [-] CPG Delta.
+        % ---------- Transmission Properties ----------
 
-        % Define the subnetwork design parameters.
-        c_absolute_addition_DEFAULT = 1;                      	% [-] Absolute Addition Subnetwork Gain.
-        c_relative_addition_DEFAULT = 1;                       	% [-] Relative Addition Subnetwork Gain.
-        c_absolute_subtraction_DEFAULT = 1;                    	% [-] Absolute Subtraction Subnetwork Gain.
-        c_relative_subtraction_DEFAULT = 1;                    	% [-] Relative Subtraction Subnetwork Gain.
-        c_absolute_inversion_DEFAULT = 1;                      	% [-] Absolute Inversion Subnetwork Gain.
-        c_relative_inversion_DEFAULT = 1;                      	% [-] Relative Inversion Subnetwork Gain.
-        c_absolute_division_DEFAULT = 1;                       	% [-] Absolute Division Subnetwork Gain.
-        c_relative_division_DEFAULT = 1;                    	% [-] Relative Division Subnetwork Gain.
-        c_absolute_multiplication_DEFAULT = 1;                	% [-] Absolute Multiplication Subnetwork Gain.
-        c_relative_multiplication_DEFAULT = 1;                  % [-] Relative Multiplication Subnetwork Gain.
+        % Define the transmission applied current.
+        Ia2_absolute_transmission_DEFAULT = 0.0;                % [V] Absolute Transmission Applied Current Magnitude.
+        Ia2_relative_transmission_DEFAULT = 0.0;                % [V] Relative Transmission Applied Current Magnitude.
         
-        % Define the subnetwork neuron numbers.
-        num_addition_neurons_DEFAULT = 3;                      	% [#] Number of Addition Neurons.
+        % Define the transmission subnetwork gains.
+        c_absolute_transmission_DEFAULT = 1.0;                  % [-] Absolute Transmission Subnetwork Gain.
+        c_relative_tranmission_DEFAULT = 1.0;                   % [-] Relative Transmission Subnetwork Gain.
         
-        % Define inversion and division subnetwork parameters.
-        epsilon_DEFAULT = 1e-6;                               	% [V] Subnetwork Input Offset.
-        delta_DEFAULT = 1e-6;                                 	% [V] Subnetwork Output Offset.
-        alpha_DEFAULT = 1e-6;                                 	% [V] Division Subnetwork Denominator Offset.
+        
+        % ---------- Addition Properties ----------
+        
+        % Define the addition applied current magnitudes.
+        Ian_absolute_addition_DEFAULT = 0.0;                 	% [A] Absolute Addition Applied Current.
+        Ian_relative_addition_DEFAULT = 0.0;                   	% [A] Relative Addition Applied Current.
+        
+        % Define the addition subnetwork gains.
+        c_absolute_addition_DEFAULT = 1.0;                      % [-] Absolute Addition Subnetwork Gain.
+        c_relative_addition_DEFAULT = 1.0;                      % [-] Relative Addition Subnetwork Gain.
+        
+        
+        % ---------- Subtraction Properties ----------
+
+        % Define the subtraction applied current magnitudes.
+        Ian_absolute_subtraction_DEFAULT = 0.0;               	% [A] Absolute Subtraction Applied Current.
+        Ian_relative_subtraction_DEFAULT = 0.0;                	% [A] Relative Subtraction Applied Current.
+        
+        % Define the subtraction subnetwork gains.
+        c_absolute_subtraction_DEFAULT = 1.0;                   % [-] Absolute Subtraction Subnetwork Gain.
+        c_relative_subtraction_DEFAULT = 1.0;                   % [-] Relative Subtraction Subnetwork Gain.
+        
+        
+        % ---------- Inversion Properties ----------
+
+        % Define the inversion applied current magnitudes.
+        Ia2_absolute_inversion_DEFAULT = 20e-9;              	% [A] Absolute Inversion Applied Current 2.
+        Ia2_relative_inversion_DEFAULT = 20e-9;                	% [A] Relative Inversion Applied Current 2.
+        
+        % Define the inversion subnetwork gains.
+        c_absolute_inversion_DEFAULT = 1.0;                     % [-] Absolute Inversion Subnetwork Gain.
+        c_relative_inversion_DEFAULT = 1.0;                     % [-] Relative Inversion Subnetwork Gain.
+        
+        
+        % ---------- Reduced Inversion Properties ----------
+
+        % Define the reduced inversion applied current magnitudes.
+        Ia2_reduced_absolute_inversion_DEFAULT = 20e-9;         % [A] Reduced Absolute Inversion Applied Current 2.
+        Ia2_reduced_relative_inversion_DEFAULT = 20e-9;         % [A] Reduced Relative Inversion Applied Current 2.
+        
+        % Define the reduced inversion subnetwork gains.
+        c_reduced_absolute_inversion_DEFAULT = 1.0;             % [-] Reduced Absolute Inversion Subnetwork Gain.
+        c_reduced_relative_inversion_DEFAULT = 1.0;             % [-] Reduced Relative Inversion Subnetwork Gain.
+        
+        
+        % ---------- Division Properties ----------
+
+        % Define the division applied current magnitudes.
+        Ia3_absolute_division_DEFAULT = 0.0;                  	% [A] Absolute Division Applied Current.
+        Ia3_relative_division_DEFAULT = 0.0;                   	% [A] Relative Division Applied Current.
+        
+        % Define the division subnetwork gains.
+        c_absolute_division_DEFAULT = 1.0;                      % [-] Absolute Division Subnetwork Gain.
+        c_relative_division_DEFAULT = 1.0;                    	% [-] Relative Division Subnetwork Gain.
+        
+        
+        % ---------- Reduced Division Properties ----------
+
+        % Define the reduced division applied current magnitudes.
+        Ia3_reduced_absolute_division_DEFAULT = 0.0;          	% [A] Reduced Absolute Division Applied Current.
+        Ia3_reduced_relative_division_DEFAULT = 0.0;          	% [A] Reduced Relative Division Applied Current.
+        
+        % Define the reduced division subnetwork gains.
+        c_reduced_absolute_division_DEFAULT = 1.0;              % [-] Reduced Absolute Division Subnetwork Gain.
+        c_reduced_relative_division_DEFAULT = 1.0;              % [-] Reduced Relative Division Subnetwork Gain.
+        
+        
+        % ---------- Division After Inversion Properties ----------
+
+        % Define the division after inversion applied current magnitudes.
+        Ia3_absolute_dai_DEFAULT = 0.0;                         % [A] Absolute Division After Inversion Applied Current.
+        Ia3_relative_dai_DEFAULT = 0.0;                         % [A] Relative Division After Inversion Applied Current.
+        
+        % Define the division after inversion subnetwork gains.
+        c_absolute_dai_DEFAULT = 1.0;                       	% [-] Absolute Division After Inversion Subnetwork Gain.
+        c_relative_dai_DEFAULT = 1.0;                           % [-] Relative Division After Inversion Subnetwork Gain.
+        
+        
+        % ---------- Reduced Division After Inversion Properties ----------
+
+        % Define the reduced division after inversion applied current magnitudes.
+        Ia3_reduced_absolute_dai_DEFAULT = 0.0;                	% [A] Reduced Absolute Division After Inversion Applied Current.
+        Ia3_reduced_relative_dai_DEFAULT = 0.0;                	% [A] Reduced Relative Division After Inversion Applied Current.
+        
+        % Define the reduced division after inversion subnetwork gains.
+        c_reduced_absolute_dai_DEFAULT = 1.0;                  	% [-] Reduced Absolute Division After Inversion Subnetwork Gain.
+        c_reduced_relative_dai_DEFAULT = 1.0;                	% [-] Reduced Relative Division After Inversion Subnetwork Gain.
+        
+        
+        % ---------- Central Pattern Generator Properties ----------
+
+        % Define the maximum drive current.
+        Id_max_DEFAULT = 1.25e-9;                              	% [A] Maximum Drive Current.
+
+        % Define the CPG oscillation offsets.
+        delta_oscillatory_DEFAULT = 0.01e-3;                  	% [V] CPG Oscillatory Delta.
+        delta_bistable_DEFAULT = -10e-3;                     	% [V] CPG Bistable Delta.
+        delta_noncpg_DEFAULT = 0;                            	% [V] CPG Delta.
+        
+        
+        % ---------- Design Properties ----------
         
         % Set the default flags.
         validation_flag_DEFAULT = true;                         % [T/F] Validation Flag. (Determines whether to validate computed values.)
@@ -163,7 +243,7 @@ classdef synapse_utilities_class
         function dEs21 = compute_transmission_dEs21( self, encoding_scheme )
            
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -210,7 +290,7 @@ classdef synapse_utilities_class
         function dEs = compute_addition_dEs( self, encoding_scheme )
            
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -257,7 +337,7 @@ classdef synapse_utilities_class
         function dEs = compute_subtraction_dEs_excitatory( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -306,7 +386,7 @@ classdef synapse_utilities_class
         function dEs = compute_subtraction_dEs_inhibitory( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -353,7 +433,7 @@ classdef synapse_utilities_class
         function dEs21 = compute_inversion_dEs21( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -400,7 +480,7 @@ classdef synapse_utilities_class
         function dEs21 = compute_reduced_inversion_dEs21( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -447,7 +527,7 @@ classdef synapse_utilities_class
         function dEs31 = compute_division_dEs31( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -496,7 +576,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_division_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -549,7 +629,7 @@ classdef synapse_utilities_class
         function [ dEs31, dEs32 ] = compute_division_dEs( self, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Compute the synaptic reversal potential of the numerator synapse.
             dEs31 = self.compute_division_dEs31( encoding_scheme );
@@ -584,7 +664,7 @@ classdef synapse_utilities_class
         function dEs31 = compute_reduced_division_dEs31( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -631,7 +711,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_reduced_division_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -684,7 +764,7 @@ classdef synapse_utilities_class
         function [ dEs31, dEs32 ] = compute_reduced_division_dEs( self, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Compute the synaptic reversal potential of the numerator synapse.
             dEs31 = self.compute_reduced_division_dEs31( encoding_scheme );
@@ -719,7 +799,7 @@ classdef synapse_utilities_class
         function dEs31 = compute_dai_dEs31( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -766,7 +846,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_dai_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -819,7 +899,7 @@ classdef synapse_utilities_class
         function [ dEs31, dEs32 ] = compute_dai_dEs( self, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Compute the synaptic reversal potential of the numerator synapse.
             dEs31 = self.compute_dai_dEs31( encoding_scheme );
@@ -854,7 +934,7 @@ classdef synapse_utilities_class
         function dEs31 = compute_reduced_dai_dEs31( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -901,7 +981,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_reduced_dai_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -954,7 +1034,7 @@ classdef synapse_utilities_class
         function [ dEs31, dEs32 ] = compute_reduced_dai_dEs( self, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Compute the synaptic reversal potential of the numerator synapse.
             dEs31 = self.compute_reduced_dai_dEs31( encoding_scheme );
@@ -989,7 +1069,7 @@ classdef synapse_utilities_class
         function dEs41 = compute_multiplication_dEs41( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1036,7 +1116,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_multiplication_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1083,7 +1163,7 @@ classdef synapse_utilities_class
         function dEs43 = compute_multiplication_dEs43( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1142,7 +1222,7 @@ classdef synapse_utilities_class
         function [ dEs41, dEs32, dEs43 ] = compute_multiplication_dEs( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1189,7 +1269,7 @@ classdef synapse_utilities_class
         function dEs41 = compute_reduced_multiplication_dEs41( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1236,7 +1316,7 @@ classdef synapse_utilities_class
         function dEs32 = compute_reduced_multiplication_dEs32( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1283,7 +1363,7 @@ classdef synapse_utilities_class
         function dEs43 = compute_reduced_multiplication_dEs43( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1342,7 +1422,7 @@ classdef synapse_utilities_class
         function [ dEs41, dEs32, dEs43 ] = compute_reduced_multiplication_dEs( self, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -1464,17 +1544,17 @@ classdef synapse_utilities_class
         function gs21 = compute_absolute_transmission_gs21( self, R2, Gm2, dEs21, Ia2, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, R2 = self.R_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia2 = self.Ia2_absolute_transmission_DEFAULT; end            % [A] Absolute Transmission Applied Current Magnitude.
+            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                % [V] Synapse Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 2, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             
             % Compute the maximum synaptic conductance.
             gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
@@ -1488,17 +1568,17 @@ classdef synapse_utilities_class
         function gs21 = compute_relative_transmission_gs21( self, R2, Gm2, dEs21, Ia2, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, R2 = self.R_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia2 = self.Ia2_relative_transmission_DEFAULT; end            % [A] Relative Transmission Applied Current Magnitude.
+            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                % [V] Synapse Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 2, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             
             % Compute the maximum synaptic conductance.
             gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
@@ -1512,33 +1592,33 @@ classdef synapse_utilities_class
         function gs21 = compute_transmission_gs21( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
                
                 % Unpack the parameters.
-                R2 = parameters{ 1 };
-                Gm2 = parameters{ 2 };
-                dEs21 = parameters{ 3 };
-                Ia2 = parameters{ 4 };
+                R2 = parameters{ 1 };                                                   % [V] Activation Domain.
+                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
                 gs21 = self.compute_absolute_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
                 
-            elseif strcmpi( encoding_scheme, 'relative' )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                R2 = parameters{ 1 };
-                Gm2 = parameters{ 2 };
-                dEs21 = parameters{ 3 };
-                Ia2 = parameters{ 4 };
+                R2 = parameters{ 1 };                                                   % [V] Activation Domain.
+                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
                 gs21 = self.compute_relative_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
             
-            else
+            else                                                                        % Otherwise...
             
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1554,18 +1634,18 @@ classdef synapse_utilities_class
         function gs_nk = compute_absolute_addition_gs( self, c_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 6, Ia_n = self.Ia_absolute_addition_DEFAULT; end                                % [A] Applied Current.
-            if nargin < 5, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
-            if nargin < 4, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
-            if nargin < 3, R_k = self.R_DEFAULT; end                                                    % [V] Activation Domain.
-            if nargin < 2, c_k = self.c_absolute_addition_DEFAULT; end                               	% [-] Absolute Addition Subnetwork Gain.
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 6, Ia_n = self.Ian_absolute_addition_DEFAULT; end              	% [A] Applied Current.
+            if nargin < 5, dEs_nk = self.dEs_max_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 4, Gm_n = self.Gm_DEFAULT; end                                	% [S] Membrane Conductance.
+            if nargin < 3, R_k = self.R_DEFAULT; end                                   	% [V] Activation Domain.
+            if nargin < 2, c_k = self.c_absolute_addition_DEFAULT; end                 	% [-] Absolute Addition Subnetwork Gain.
             
             % Compute the maximum synaptic conductance.
-            gs_nk = ( Ia_n - c_k.*R_k.*Gm_n )./( c_k.*R_k - dEs_nk );                                 	% [S] Maximum Synaptic Conductance.
+            gs_nk = ( Ia_n - c_k.*R_k.*Gm_n )./( c_k.*R_k - dEs_nk );                  	% [S] Maximum Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
@@ -1579,18 +1659,18 @@ classdef synapse_utilities_class
         function gs_nk = compute_relative_addition_gs( self, c_k, R_n, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 6, Ia_n = self.Ia_relative_addition_DEFAULT; end                                % [A] Applied Current.
-            if nargin < 5, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
-            if nargin < 4, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
-            if nargin < 3, R_n = self.R_DEFAULT; end                                                    % [V] Activation Domain.
-            if nargin < 2, c_k = self.c_relative_addition_DEFAULT; end                                	% [-] Absolute Addition Subnetwork Gain.
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 6, Ia_n = self.Ian_relative_addition_DEFAULT; end              	% [A] Applied Current.
+            if nargin < 5, dEs_nk = self.dEs_max_DEFAULT; end                       	% [V] Synaptic Reversal Potential.
+            if nargin < 4, Gm_n = self.Gm_DEFAULT; end                                 	% [S] Membrane Conductance.
+            if nargin < 3, R_n = self.R_DEFAULT; end                                   	% [V] Activation Domain.
+            if nargin < 2, c_k = self.c_relative_addition_DEFAULT; end                	% [-] Absolute Addition Subnetwork Gain.
             
             % Compute the maximum synaptic conductance.
-            gs_nk = ( Ia_n - c_k*R_n*Gm_n )/( c_k*R_n - dEs_nk );                                       % [S] Maximum Synaptic Conductance.
+            gs_nk = ( Ia_n - c_k*R_n*Gm_n )/( c_k*R_n - dEs_nk );                      	% [S] Maximum Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
@@ -1604,35 +1684,35 @@ classdef synapse_utilities_class
         function gs_nk = compute_addition_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
                
                 % Unpack the parameters.
-                c_k = parameters{ 1 };
-                R_k = parameters{ 2 };
-                Gm_n = parameters{ 3 };
-                dEs_nk = parameters{ 4 };
-                Ia_n = parameters{ 5 };
+                c_k = parameters{ 1 };                                                  % [-] Addition Subnetwork Gain.
+                R_k = parameters{ 2 };                                                  % [V] Activation Domain.
+                Gm_n = parameters{ 3 };                                                 % [S] Membrane Conductance.
+                dEs_nk = parameters{ 4 };                                               % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 5 };                                                 % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
                 gs_nk = self.compute_absolute_addition_gs( c_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag );
                 
-            elseif strcmpi( encoding_scheme, 'relative' )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                c_k = parameters{ 1 };
-                R_n = parameters{ 2 };
-                Gm_n = parameters{ 3 };
-                dEs_nk = parameters{ 4 };
-                Ia_n = parameters{ 5 };
+                c_k = parameters{ 1 };                                                  % [-] Addition Subnetwork Gain.
+                R_n = parameters{ 2 };                                                  % [V] Activation Domain.
+                Gm_n = parameters{ 3 };                                                 % [S] Membrane Conductance.
+                dEs_nk = parameters{ 4 };                                               % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 5 };                                                 % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
                 gs_nk = compute_relative_addition_gs( c_k, R_n, Gm_n, dEs_nk, Ia_n, validation_flag );
             
-            else
+            else                                                                        % Otherwise...
             
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1648,19 +1728,19 @@ classdef synapse_utilities_class
         function gs_nk = compute_absolute_subtraction_gs( self, c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, Ia_n = self.Ia_absolute_subtraction_DEFAULT; end                             % [A] Applied Current.
-            if nargin < 6, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
-            if nargin < 5, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
-            if nargin < 4, R_k = self.R_DEFAULT; end                                                    % [V] Activation Domain.
-            if nargin < 3, s_k = 1; end                                                                 % [-] Excitation / Inhibition Sign.
-            if nargin < 2, c_k = self.c_absolute_subtraction_DEFAULT; end                                 % [-] Absolute Subtraction Subnetwork Gain.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 7, Ia_n = self.c_absolute_subtraction_DEFAULT; end             	% [A] Applied Current.
+            if nargin < 6, dEs_nk = self.dEs_max_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 5, Gm_n = self.Gm_DEFAULT; end                                 	% [S] Membrane Conductance.
+            if nargin < 4, R_k = self.R_DEFAULT; end                                  	% [V] Activation Domain.
+            if nargin < 3, s_k = 1; end                                                	% [-] Excitation / Inhibition Sign.
+            if nargin < 2, c_k = self.c_absolute_subtraction_DEFAULT; end              	% [-] Absolute Subtraction Subnetwork Gain.
             
             % Compute the maximum synaptic conductance.
-            gs_nk = ( Ia_n - c_k.*s_k.*R_k.*Gm_n )./( c_k.*s_k.*R_k - dEs_nk );                             % [S] Maximum Synaptic Conductance.
+            gs_nk = ( Ia_n - c_k.*s_k.*R_k.*Gm_n )./( c_k.*s_k.*R_k - dEs_nk );     	% [S] Maximum Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
@@ -1674,20 +1754,20 @@ classdef synapse_utilities_class
         function gs_nk = compute_relative_subtraction_gs( self, c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 9, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 8, Ia_n = self.Ia_relative_subtraction_DEFAULT; end                             % [A] Applied Current.
-            if nargin < 7, dEs_nk = self.dEs_max_DEFAULT; end                                           % [V] Synaptic Reversal Potential.
-            if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                                  % [S] Membrane Conductance.
-            if nargin < 5, R_k = self.R_DEFAULT; end                                                    % [V] Activation Domain.
-            if nargin < 4, s_k = 1; end                                                                 % [-] Excitation / Inhibition Sign.
-            if nargin < 2, c_k = self.c_relative_subtraction_DEFAULT; end                            	% [-] Relative Subtraction Subnetwork Gain.
+            if nargin < 9, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 8, Ia_n = self.Ian_relative_subtraction_DEFAULT; end           	% [A] Applied Current.
+            if nargin < 7, dEs_nk = self.dEs_max_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
+            if nargin < 6, Gm_n = self.Gm_DEFAULT; end                                 	% [S] Membrane Conductance.
+            if nargin < 5, R_k = self.R_DEFAULT; end                                 	% [V] Activation Domain.
+            if nargin < 4, s_k = 1; end                                              	% [-] Excitation / Inhibition Sign.
+            if nargin < 2, c_k = self.c_relative_subtraction_DEFAULT; end             	% [-] Relative Subtraction Subnetwork Gain.
             
             % Compute the maximum synaptic conductance.
-            % gs_nk = ( npm_k.*Ia_n - c.*s_k.*Gm_n.*R_n )./( c.*s_k.*R_n - npm_k.*dEs_nk );	% [S] Maximum Synaptic Conductance.
-            gs_nk = ( Ia_n - s_k*c_k*R_k*Gm_n )/( s_k*c_k*R_k - dEs_nk );
+            % gs_nk = ( npm_k.*Ia_n - c.*s_k.*Gm_n.*R_n )./( c.*s_k.*R_n - npm_k.*dEs_nk );             % [S] Maximum Synaptic Conductance.
+            gs_nk = ( Ia_n - s_k*c_k*R_k*Gm_n )/( s_k*c_k*R_k - dEs_nk );               % [S] Maximum Synaptic Conductance.
 
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs_nk ), 'Invalid synaptic conductance detected.' )
@@ -1701,37 +1781,37 @@ classdef synapse_utilities_class
         function gs_nk = compute_subtraction_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
                
                 % Unpack the parameters.
-                c_k = parameters{ 1 };
-                s_k = parameters{ 2 };
-                R_k = parameters{ 3 };
-                Gm_n = parameters{ 4 };
-                dEs_nk = parameters{ 5 };
-                Ia_n = parameters{ 6 };
+                c_k = parameters{ 1 };                                               	% [-] Absolute Subtraction Gain.
+                s_k = parameters{ 2 };                                                  % [+1/-1] Subtraction Signature.
+                R_k = parameters{ 3 };                                                  % [V] Activation Domain.
+                Gm_n = parameters{ 4 };                                                 % [S] Membrane Conductance.
+                dEs_nk = parameters{ 5 };                                               % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 6 };                                                 % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
                 gs_nk = self.compute_absolute_subtraction_gs( c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag );
                 
-            elseif strcmpi( encoding_scheme, 'relative' )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                c_k = parameters{ 1 };
-                s_k = parameters{ 2 };
-                R_k = parameters{ 3 };
-                Gm_n = parameters{ 4 };
-                dEs_nk = parameters{ 5 };
-                Ia_n = parameters{ 6 };
+                c_k = parameters{ 1 };                                                  % [-] Absolute Subtraction Gain.
+                s_k = parameters{ 2 };                                                  % [+1/-1] Subtraction Signature.
+                R_k = parameters{ 3 };                                                  % [V] Activation Domain.
+                Gm_n = parameters{ 4 };                                                 % [S] Membrane Conductance.
+                dEs_nk = parameters{ 5 };                                               % [V] Synaptic Reversal Potential.
+                Ia_n = parameters{ 6 };                                                 % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
                 gs_nk = self.compute_relative_subtraction_gs( c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n, validation_flag );
             
-            else
+            else                                                                        % Otherwise...
             
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1747,17 +1827,17 @@ classdef synapse_utilities_class
         function gs21 = compute_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
-            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end               % [A] Applied Current.
+            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end             % [V] Synaptic Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end           % [V] Absolute Inversion Offset.
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                                             	% [S] Maximum Synaptic Conductance.
+            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                               % [S] Maximum Synaptic Conductance.
 
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
@@ -1771,17 +1851,17 @@ classdef synapse_utilities_class
         function gs21 = compute_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
-            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end               % [A] Applied Current.
+            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end             % [V] Synaptic Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end           % [V] Absolute Inversion Offset.
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                                             	% [S] Maximum Synaptic Conductance.
+            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                               % [S] Maximum Synaptic Conductance.
 
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
@@ -1795,33 +1875,33 @@ classdef synapse_utilities_class
         function gs21 = compute_inversion_gs21( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
                
                 % Unpack the parameters.
-                delta = parameters{ 1 };
-                Gm2 = parameters{ 2 };
-                dEs21 = parameters{ 3 };
-                Ia2 = parameters{ 4 };
+                delta = parameters{ 1 };                                                % [V] Absolute Inversion Offset.
+                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
                 gs21 = self.compute_absolute_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
                 
-            elseif strcmpi( encoding_scheme, 'relative' )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };
-                Gm2 = parameters{ 2 };
-                dEs21 = parameters{ 3 };
-                Ia2 = parameters{ 4 };
+                delta = parameters{ 1 };                                                % [V] Absolute Inversion Offset.
+                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia2 = parameters{ 4 };                                                	% [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
                 gs21 = self.compute_relative_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
             
-            else
+            else                                                                        % Otherwise...
             
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1837,17 +1917,17 @@ classdef synapse_utilities_class
         function gs21 = compute_reduced_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_reduced_inversion_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end                  % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia2 = self.Ia2_reduced_absolute_inversion_DEFAULT; end               % [A] Reduced Absolute Inversion Applied Current Magnitude.
+            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                        % [V] Synapse Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                           % [S] Membrane Conductance.
+            if nargin < 2, delta = self.delta_reduced_absolute_inversion_DEFAULT; end           % [V] Reduced Absolute Inversion Offset.
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );
+            gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                                       % [S] Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                                  % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
@@ -1861,17 +1941,17 @@ classdef synapse_utilities_class
         function gs21 = compute_reduced_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta = self.delta_reduced_inversion_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end                  % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia2 = self.Ia2_reduced_relative_inversion_DEFAULT; end               % [A] Reduced Relative Inversion Applied Current Magnitude.
+            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                        % [V] Synapse Reversal Potential.
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                           % [S] Membrane Conductance.
+            if nargin < 2, delta = self.delta_reduced_relative_inversion_DEFAULT; end           % [V] Reduced Relative Inversion Offset.
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );   
+            gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                                    	% [S] Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                                  % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs21 ), 'Invalid synaptic conductance detected.' )
@@ -1885,33 +1965,33 @@ classdef synapse_utilities_class
         function gs21 = compute_reduced_inversion_gs21( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
                
                 % Unpack the parameters.
-                delta = parameters{ 1 };
-                Gm2 = parameters{ 2 };
-                dEs21 = parameters{ 3 };
-                Ia2 = parameters{ 4 };
+                delta = parameters{ 1 };                                                % [V] Reduced Absolute Inversion Offset.
+                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
                 gs21 = self.compute_reduced_absolute_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
                 
-            elseif strcmpi( encoding_scheme, 'relative' )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };
-                Gm2 = parameters{ 2 };
-                dEs21 = parameters{ 3 };
-                Ia2 = parameters{ 4 };
+                delta = parameters{ 1 };                                                % [V] Reduced Absolute Inversion Offset.
+                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia2 = parameters{ 4 };                                               	% [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
                 gs21 = self.compute_reduced_relative_inversion_gs21( delta, Gm2, dEs21, Ia2, validation_flag );
             
-            else
+            else                                                                        % Otherwise...
             
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1927,17 +2007,17 @@ classdef synapse_utilities_class
         function gs31 = compute_absolute_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 2, R3 = self.R_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia3 = self.Ia3_absolute_division_DEFAULT; end                % [A] Absolute Division Applied Current Magnitude.
+            if nargin < 4, dEs31 = self.dEs_DEFAULT; end                                % [V] Synaptic Reversal Potential.
+            if nargin < 3, Gm3 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 2, R3 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             
             % Compute the maximum synaptic conductance.
-            gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );                                                         % [S] Maximum Synaptic Conductance.
+            gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );                                     % [S] Maximum Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs31 ), 'Invalid synaptic conductance detected.' )
@@ -1951,17 +2031,17 @@ classdef synapse_utilities_class
         function gs31 = compute_relative_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 5, Ia3 = self.Ia_DEFAULT; end
-            if nargin < 4, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 3, Gm3 = self.Gm_DEFAULT; end
-            if nargin < 2, R3 = self.R_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 5, Ia3 = self.Ia3_relative_division_DEFAULT; end                % [A] Relative Division Applied Current Magnitude.
+            if nargin < 4, dEs31 = self.dEs_DEFAULT; end                                % [V] Synaptic Reversal Potential.    
+            if nargin < 3, Gm3 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 2, R3 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             
             % Compute the maximum synaptic conductance.
-            gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );                                                         % [S] Maximum Synaptic Conductance.
+            gs31 = ( Ia3 - R3*Gm3 )/( R3 - dEs31 );                                     % [S] Maximum Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
-            if validation_flag              % If we want to validate the synaptic conductances...
+            if validation_flag                                                          % If we want to validate the synaptic conductances...
             
                 % Ensure that the synaptic conductance is valid.
                 assert( self.validate_gs( gs31 ), 'Invalid synaptic conductance detected.' )
@@ -1975,33 +2055,33 @@ classdef synapse_utilities_class
         function gs31 = compute_division_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
                
                 % Unpack the parameters.
-                R3 = parameters{ 1 };
-                Gm3 = parameters{ 2 };
-                dEs31 = parameters{ 3 };
-                Ia3 = parameters{ 4 };
+                R3 = parameters{ 1 };                                                   % [V] Activation Domain.
+                Gm3 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs31 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia3 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using an absolute encoding scheme.
                 gs31 = self.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
                 
-            elseif strcmpi( encoding_scheme, 'relative' )
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
                 
                 % Unpack the parameters.
-                R3 = parameters{ 1 };
-                Gm3 = parameters{ 2 };
-                dEs31 = parameters{ 3 };
-                Ia3 = parameters{ 4 };
+                R3 = parameters{ 1 };                                                   % [V] Activation Domain.
+                Gm3 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+                dEs31 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+                Ia3 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
                 
                 % Compute the synaptic reversal potential using a relative encoding scheme.
                 gs31 = self.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );
             
-            else
+            else                                                                        % Otherwise...
             
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2017,7 +2097,7 @@ classdef synapse_utilities_class
         function gs32 = compute_absolute_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2043,7 +2123,7 @@ classdef synapse_utilities_class
         function gs32 = compute_relative_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2069,8 +2149,8 @@ classdef synapse_utilities_class
         function gs32 = compute_division_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2115,7 +2195,7 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_absolute_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2136,7 +2216,7 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_relative_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2157,8 +2237,8 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_division_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2203,7 +2283,7 @@ classdef synapse_utilities_class
         function gs31 = compute_reduced_absolute_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             if nargin < 4, dEs31 = self.dEs_DEFAULT; end
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -2227,7 +2307,7 @@ classdef synapse_utilities_class
         function gs31 = compute_reduced_relative_division_gs31( self, R3, Gm3, dEs31, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, Ia3 = self.Ia_DEFAULT; end
             if nargin < 4, dEs31 = self.dEs_DEFAULT; end
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -2251,8 +2331,8 @@ classdef synapse_utilities_class
         function gs31 = compute_reduced_division_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2293,7 +2373,7 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_absolute_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2319,7 +2399,7 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_relative_division_gs32( self, delta, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2345,8 +2425,8 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_division_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2391,7 +2471,7 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_reduced_absolute_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2412,7 +2492,7 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_reduced_relative_division_gs( self, delta, R3, Gm3, dEs31, dEs32, Ia3, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, Ia3 = self.Ia_DEFAULT; end
             if nargin < 6, dEs32 = self.dEs_DEFAULT; end
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
@@ -2433,8 +2513,8 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_reduced_division_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2479,8 +2559,8 @@ classdef synapse_utilities_class
         function gs31 = compute_absolute_dai_gs31( self, c1, c3, delta1, delta2, R1, R2, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 7, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 6, R1 = self.R_DEFAULT; end
             if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_dai_DEFAULT; end
@@ -2505,9 +2585,9 @@ classdef synapse_utilities_class
         function gs31 = compute_relative_dai_gs31( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
@@ -2531,8 +2611,8 @@ classdef synapse_utilities_class
         function gs31 = compute_dai_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2577,9 +2657,9 @@ classdef synapse_utilities_class
         function gs32 = compute_absolute_dai_gs32( self, c1, c3, delta2, R1, R2, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 5, R1 = self.R_DEFAULT; end
             if nargin < 4, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
@@ -2603,9 +2683,9 @@ classdef synapse_utilities_class
         function gs32 = compute_relative_dai_gs32( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
             if nargin < 3, c3 = self.c3_relative_dai_DEFAULT; end
@@ -2629,8 +2709,8 @@ classdef synapse_utilities_class
         function gs32 = compute_dai_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2675,9 +2755,9 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_absolute_dai_gs( self, c1, c3, delta1, delta2, R1, R2, dEs31, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 9, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 9, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 8, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 7, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 6, R1 = self.R_DEFAULT; end
             if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
@@ -2697,9 +2777,9 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_relative_dai_gs( self, c1, c3, delta1, delta2, R2, dEs31, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
             if nargin < 3, c3 = self.c3_relative_dai_DEFAULT; end
@@ -2718,8 +2798,8 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_dai_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2765,11 +2845,11 @@ classdef synapse_utilities_class
         function gs31 = compute_reduced_absolute_dai_gs31( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
-            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
@@ -2791,9 +2871,9 @@ classdef synapse_utilities_class
         function gs31 = compute_reduced_relative_dai_gs31( self, delta1, delta2, R2, R3, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, dEs31 = self.dEs_DEFAULT; end
-            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
                         
@@ -2815,8 +2895,8 @@ classdef synapse_utilities_class
         function gs31 = compute_reduced_dai_gs31( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2860,11 +2940,11 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_absolute_dai_gs32( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
-            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
@@ -2886,11 +2966,11 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_relative_dai_gs32( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
             
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
-            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
                         
@@ -2912,8 +2992,8 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_dai_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -2958,11 +3038,11 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_reduced_absolute_dai_gs( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
-            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
@@ -2979,11 +3059,11 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_reduced_relative_dai_gs( self, delta1, delta2, R2, R3, Gm3, dEs31, validation_flag )
 
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs31 = self.dEs_DEFAULT; end
             if nargin < 6, Gm3 = self.Gm_DEFAULT; end
             if nargin < 5, R3 = self.R_DEFAULT; end
-            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
@@ -3000,8 +3080,8 @@ classdef synapse_utilities_class
         function [ gs31, gs32 ] = compute_reduced_dai_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3046,7 +3126,7 @@ classdef synapse_utilities_class
         function gs41 = compute_absolute_multiplication_gs41( self, c4, c6, delta1, delta2, R1, R3, validation_flag )
         
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, R3 = self.R_DEFAULT; end
             if nargin < 6, R1 = self.R_DEFAULT; end
             if nargin < 5, delta2 = self.delta_absolute_dai_DEFAULT; end
@@ -3064,7 +3144,7 @@ classdef synapse_utilities_class
         function gs41 = compute_relative_multiplication_gs41( self, c4, c6, delta1, delta2, R3, dEs41, validation_flag )
            
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
             if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
@@ -3082,8 +3162,8 @@ classdef synapse_utilities_class
         function gs41 = compute_multiplication_gs41( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3128,7 +3208,7 @@ classdef synapse_utilities_class
         function gs32 = compute_absolute_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
             if nargin < 4, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -3144,7 +3224,7 @@ classdef synapse_utilities_class
         function gs32 = compute_relative_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3, validation_flag )
            
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
             if nargin < 4, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -3160,8 +3240,8 @@ classdef synapse_utilities_class
         function gs32 = compute_multiplication_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3202,7 +3282,7 @@ classdef synapse_utilities_class
         function gs43 = compute_absolute_multiplication_gs43( self, c4, c6, delta2, R1, R3, dEs41, validation_flag )
         
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
             if nargin < 5, R1 = self.R_DEFAULT; end
@@ -3220,7 +3300,7 @@ classdef synapse_utilities_class
         function gs43 = compute_relative_multiplication_gs43( self, c4, c6, delta1, delta2, R3, dEs41, validation_flag )
            
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, R3 = self.R_DEFAULT; end
             if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
@@ -3238,8 +3318,8 @@ classdef synapse_utilities_class
         function gs43 = compute_multiplication_gs43( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3284,7 +3364,7 @@ classdef synapse_utilities_class
         function [ gs41, gs32, gs43 ] = compute_absolute_multiplication_gs( self, c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 12, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 12, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 11, Ia3 = self.Ia_DEFAULT; end
             if nargin < 10, dEs32 = self.dEs_DEFAULT; end
             if nargin < 9, dEs41 = self.dEs_DEFAULT; end
@@ -3312,7 +3392,7 @@ classdef synapse_utilities_class
         function [ gs41, gs32, gs43 ] = compute_relative_multiplication_gs( self, c4, c6, delta1, delta2, R3, Gm3, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 10, Ia3 = self.Ia_DEFAULT; end
             if nargin < 9, dEs32 = self.dEs_DEFAULT; end
             if nargin < 8, dEs41 = self.dEs_DEFAULT; end
@@ -3339,8 +3419,8 @@ classdef synapse_utilities_class
         function [ gs41, gs32, gs43 ] = compute_multiplication_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3392,7 +3472,7 @@ classdef synapse_utilities_class
         function gs41 = compute_reduced_absolute_multiplication_gs41( self, delta1, delta2, R3, R4, Gm4, dEs41, validation_flag )
         
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, Gm4 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
@@ -3410,7 +3490,7 @@ classdef synapse_utilities_class
         function gs41 = compute_reduced_relative_multiplication_gs41( self, delta1, delta2, R3, R4, dEs41, validation_flag )
            
             % Set the default input arugments.
-            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 6, dEs41 = self.dEs_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
@@ -3427,8 +3507,8 @@ classdef synapse_utilities_class
         function gs41 = compute_reduced_multiplication_gs41( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3472,7 +3552,7 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_absolute_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
             if nargin < 4, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -3488,7 +3568,7 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_relative_multiplication_gs32( self, delta1, Gm3, dEs32, Ia3, validation_flag )
            
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 5, Ia3 = self.Ia2_absolute_inversion_DEFAULT; end                               % [A] Applied Current.
             if nargin < 4, dEs32 = self.dEs_absolute_inversion_DEFAULT; end                         	% [V] Synaptic Reversal Potential.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
@@ -3504,8 +3584,8 @@ classdef synapse_utilities_class
         function gs32 = compute_reduced_multiplication_gs32( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3546,7 +3626,7 @@ classdef synapse_utilities_class
         function gs43 = compute_reduced_absolute_multiplication_gs43( self, delta1, delta2, R3, R4, Gm4, dEs41, validation_flag )
         
             % Set the default input arugments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, Gm4 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
@@ -3564,7 +3644,7 @@ classdef synapse_utilities_class
         function gs43 = compute_reduced_relative_multiplication_gs43( self, delta1, delta2, R3, R4, Gm4, dEs41, validation_flag )
            
             % Set the default input arguments.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 7, dEs41 = self.dEs_DEFAULT; end
             if nargin < 6, Gm4 = self.Gm_DEFAULT; end
             if nargin < 5, R4 = self.R_DEFAULT; end
@@ -3582,8 +3662,8 @@ classdef synapse_utilities_class
         function gs43 = compute_reduced_multiplication_gs43( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3628,7 +3708,7 @@ classdef synapse_utilities_class
         function [ gs41, gs32, gs43 ] = compute_reduced_absolute_multiplication_gs( self, delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 10, Ia3 = self.Ia_DEFAULT; end
             if nargin < 9, dEs32 = self.dEs_DEFAULT; end
             if nargin < 8, dEs41 = self.dEs_DEFAULT; end
@@ -3655,7 +3735,7 @@ classdef synapse_utilities_class
         function [ gs41, gs32, gs43 ] = compute_reduced_relative_multiplication_gs( self, delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 11, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 10, Ia3 = self.Ia_DEFAULT; end
             if nargin < 9, dEs32 = self.dEs_DEFAULT; end
             if nargin < 8, dEs41 = self.dEs_DEFAULT; end
@@ -3682,8 +3762,8 @@ classdef synapse_utilities_class
         function [ gs41, gs32, gs43 ] = compute_reduced_multiplication_gs( self, parameters, encoding_scheme, validation_flag )
         
             % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
             
             % Determine how to compute the synaptic reversal potential.
             if strcmpi( encoding_scheme, 'absolute' )
@@ -3772,7 +3852,7 @@ classdef synapse_utilities_class
             %}
             
             % Set the default input arguments.
-            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end
+            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 4, ki_range = self.c_integration_range_DEFAULT; end
             
             % Compute the integration subnetwork maximum synaptic conductances.

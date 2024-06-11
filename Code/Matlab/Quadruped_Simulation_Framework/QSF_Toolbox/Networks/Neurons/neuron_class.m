@@ -51,6 +51,8 @@ classdef neuron_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
+        % ---------- Neuron Properties ----------
+        
         % Define the neuron parameters.
         ID_DEFAULT = 0;                                                                                                 % [#] Default Neuron ID.
         name_DEFAULT = '';                                                                                              % [-] Default Neuron Name.
@@ -76,28 +78,150 @@ classdef neuron_class
         Iapp_DEFAULT = 0;                                                                                               % [A] Default Applied Current.
         Itotal_DEFAULT = 0;                                                                                             % [A] Default Total Current.
         
+        
+        % ---------- Transmission Properties ----------
+        
+        % Define transmission subnetwork gains.
+        c_absolute_transmission_DEFAULT = 1.0;                      % [-] Absolute Transmission Gain.
+        c_relative_transmission_DEFAULT = 1.0;                      % [-] Relative Transmission Gain.
+
+        
+        % ---------- Addition Properties ----------
+        
+        % Define addition subnetwork gains.
+        c_absolute_addition_DEFAULT = 1.0;                          % [-] Absolute Addition Gain.
+        c_relative_addition_DEFAULT = 1.0;                          % [-] Relative Addition Gain.
+        
+        
+        % ---------- Subtraction Properties ----------
+        
+        % Define subtraction subnetwork gains.
+        c_absolute_subtraction_DEFAULT = 1.0;                       % [-] Absolute Subtraction Gain.
+        c_relative_subtraction_DEFAULT = 1.0;                       % [-] Relative Subtraction Gain.
+        
         % Define subtraction subnetwork parameters.
         s_ks_DEFAULT = [ 1, -1 ];                                                                                       % [-] Default Subtraction Input Signature.
         
+        % ---------- Inversion Properties ----------
+
+        % Define absolute inversion subnetwork gains.
+        c1_absolute_inversion_DEFAULT = 1.0;                        % [-] Absolute Inversion Gain 1.
+        c2_absolute_inversion_DEFAULT = 1.0;                        % [-] Absolute Inversion Gain 2.
+        c3_absolute_inversion_DEFAULT = 1.0;                        % [-] Absolute Inversion Gain 3.
+        
+        % Define relative inversion subnetwork gains.
+        c1_relative_inversion_DEFAULT = 1.0;                        % [-] Relative Inversion Gain 1.
+        c2_relative_inversion_DEFAULT = 1.0;                        % [-] Relative Inversion Gain 2.
+        c3_relative_inversion_DEFAULT = 1.0;                        % [-] Relative Inversion Gain 3.
+        
+        % Define inversion subnetwork offsets.
+        delta_absolute_inversion_DEFAULT = 1e-3;                    % [V] Absolute Inversion Offset.
+        delta_relative_inversion_DEFAULT = 1e-3;                    % [V] Relative Inversion Offset.
+
+        
+        % ---------- Reduced Inversion Properties ----------
+        
+        % Define the reduced absolute inversion subnetwork gain.
+        c1_reduced_absolute_inversion_DEFAULT = 1.0;                % [-] Reduced Absolute Inversion Gain 1.
+        c2_reduced_absolute_inversion_DEFAULT = 1.0;                % [-] Reduced Absolute Inversion Gain 2.
+        
+        % Define the reduced relative inversion subnetwork gain.
+        c1_reduced_relative_inversion_DEFAULT = 1.0;                % [-] Reduced Relative Inversion Gain 1.
+        c2_reduced_relative_inversion_DEFAULT = 1.0;                % [-] Reduced Relative Inversion Gain 2.
+        
+        % Define reduced inversion subnetwork offsets.
+        delta_reduced_absolute_inversion_DEFAULT = 1e-3;            % [V] Reduced Absolute Inversion Offset.
+        delta_reduced_relative_inversion_DEFAULT = 1e-3;            % [V] Reduced Relative Inversion Offset.
+        
+        
+        % ---------- Division Properties ----------
+        
+        % Define the absolute division subnetwork gains.
+        c1_absolute_division_DEFAULT = 1.0;                         % [-] Absolute Division Gain 1.
+        c2_absolute_division_DEFAULT = 1.0;                         % [-] Absolute Division Gain 2.
+        c3_absolute_division_DEFAULT = 1.0;                         % [-] Absolute Division Gain 3.
+        
+        % Define the relative division subnetwork gains.
+        c1_relative_division_DEFAULT = 1.0;                         % [-] Relative Division Gain 1.
+        c2_relative_division_DEFAULT = 1.0;                         % [-] Relative Division Gain 2.
+        c3_relative_division_DEFAULT = 1.0;                         % [-] Relative Division Gain 3.
+        
+        % Define division subnetwork offsets.
+        delta_absolute_division_DEFAULT = 1e-3;                     % [V] Absolute Division Offset.
+        delta_relative_division_DEFAULT = 1e-3;                     % [V] Relative Division Offset.
+        
+        
+        % ---------- Reduced Division Properties ----------
+
+        % Define the reduced absolute division subnetwork gains.
+        c1_reduced_absolute_division_DEFAULT = 1.0;                 % [-] Reduced Absolute Division Gain 1.
+        c2_reduced_absolute_division_DEFAULT = 1.0;                 % [-] Reduced Absolute Division Gain 2.
+        
+        % Define the reduced relative division subnetwork gains.
+        c1_reduced_relative_division_DEFAULT = 1.0;                 % [-] Reduced Relative Division Gain 1.
+        c2_reduced_relative_division_DEFAULT = 1.0;                 % [-] Reduced Relative Division Gain 2.
+        
+        % Define reduced division subnetwork offsets.
+        delta_reduced_absolute_division_DEFAULT = 1e-3;             % [V] Reduced Absolute Division Offset.
+        delta_reduced_relative_division_DEFAULT = 1e-3;          	% [V] Reduced Relative Division Offset.
+        
+        
+        % ---------- Division After Inversion Properties ----------
+        
+        % Define the absolute division after inversion subnetwork gains.
+        c1_absolute_dai_DEFAULT = 1.0;                              % [-] Absolute Division Gain 1.
+        c2_absolute_dai_DEFAULT = 1.0;                              % [-] Absolute Division Gain 2.
+        c3_absolute_dai_DEFAULT = 1.0;                              % [-] Absolute Division Gain 3.
+        
+        % Define the relative division after inversion subnetwork gains.
+        c1_relative_dai_DEFAULT = 1.0;                              % [-] Relative Division Gain 1.
+        c2_relative_dai_DEFAULT = 1.0;                              % [-] Relative Division Gain 2.
+        c3_relative_dai_DEFAULT = 1.0;                              % [-] Relative Division Gain 3.
+        
+        % Define division after inversion subnetwork offsets.
+        delta_absolute_dai_DEFAULT = 2e-3;                          % [V] Absolute Division After Inversion Offset.
+        delta_relative_dai_DEFAULT = 2e-3;                          % [V] Relative Division After Inversion Offset.
+        
+        
+        % ---------- Reduced Division After Inversion Properties ----------
+        
+        % Define the reduced absolute division after inversion subnetwork gains.
+        c1_reduced_absolute_dai_DEFAULT = 1.0;                      % [-] Reduced Absolute Division Gain 1.
+        c2_reduced_absolute_dai_DEFAULT = 1.0;                      % [-] Reduced Absolute Division Gain 2.
+        
+        % Define the reduced relative division after inversion subnetwork gains.
+        c1_reduced_relative_dai_DEFAULT = 1.0;                      % [-] Reduced Relative Division Gain 1.
+        c2_reduced_relative_dai_DEFAULT = 1.0;                      % [-] Reduced Relative Division Gain 2.
+        
+        % Define reduced division after inversion subnetwork offsets.
+        delta_reduced_absolute_dai_DEFAULT = 2e-3;                 	% [V] Reduced Absolute Division After Inversion Offset.
+        delta_reduced_relative_dai_DEFAULT = 2e-3;                 	% [V] Reduced Relative Division After Inversion Offset.
+        
+
+        % ---------- Derivation Properties ----------
+
         % Define derivative subnetwork parameters.
         c_derivation_DEFAULT = 1e6;                                                                                 	% [-] Default Derivative Gain.
         w_derivation_DEFAULT = 1;                                                                                     	% [Hz?] Default Derivative Cutoff Frequency?
         sf_derivation_DEFAULT = 0.05;                                                                                 	% [-] Default Derivative safety Factor.
         
+        
+        % ---------- Integration Properties ----------
+        
         % Define integration subnetwork parameters.
         c_integration_mean_DEFAULT = 0.01e9;                                                                          	% [-] Default Average Integration Gain.
         
+        
+        % ---------- Central Pattern Generator Properties ----------
+
         % Define centeral pattern generator subnetwork parameters.
         T_oscillation_DEFAULT = 2;                                                                                   	% [s] Default Oscillation Period.
         r_oscillation_DEFAULT = 0.90;                                                                                  	% [-] Default Oscillation Decay.
         num_cpg_neurons_DEFAULT = 2;                                                                                  	% [#} Default Number of CPG Neurons.
+       
         
-        % Define inversion & division subnetwork parameters.
-        c_DEFAULT = 1;                                                                                                 	% [-] Default General Subnetwork Gain.
-        epsilon_DEFAULT = 1e-6;                                                                                        	% [-] Default Subnetwork Input Offset.
-        delta_DEFAULT = 1e-6;                                                                                          	% [-] Default Subnetwork Output Offset.
-        alpha_DEFAULT = 1e-6;                                                                                           % [-] Default Subnetwork Denominator Adjustment.
-        
+        % ---------- Design Properties ----------
+
         % Define the default encoding scheme.
         encoding_scheme_DEFAULT = 'Absolute';                                                                           % [str] Default Encoding Scheme.
         
@@ -1476,13 +1600,13 @@ classdef neuron_class
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                c = self.c_absolute_transmission_DEFAULT;
-                R1 = self.R_DEFAULT;                    	% [V] Activation Domain
+                c = self.c_absolute_transmission_DEFAULT;               % [-] Absolute Transmission Gain.
+                R1 = self.R_DEFAULT;                                    % [V] Activation Domain
                 
             elseif length( parameters ) == 2                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = parameters{ 1 };
+                c = parameters{ 1 };                                    % [-] Absolute Transmission Gain.
                 R1 = parameters{ 2 };                                	% [V] Activation Domain
                 
             else                                                     	% Otherwise...
@@ -1501,22 +1625,22 @@ classdef neuron_class
         function [ cs, Rs ] = unpack_absolute_addition_Rn_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Parameters Cell.
+            if nargin < 2, parameters = {  }; end                               % [-] Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                    % If the parameters are empty...
+            if isempty( parameters )                                            % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                cs = self.c_absolute_addition_DEFAULT*ones( 1, 2 );
-                Rs = self.R_DEFAULT*ones( 1, 2 );                    	% [V] Activation Domain
+                cs = self.c_absolute_addition_DEFAULT*ones( 1, 2 );             % [-] Absolute Addition Gain.
+                Rs = self.R_DEFAULT*ones( 1, 2 );                               % [V] Activation Domain
                 
-            elseif length( parameters ) == 2                          	% If there are a specific number of parameters...
+            elseif length( parameters ) == 2                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
                 cs = parameters{ 1 };
-                Rs = parameters{ 2 };                                	% [V] Activation Domain
+                Rs = parameters{ 2 };                                           % [V] Activation Domain.
                 
-            else                                                     	% Otherwise...
+            else                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1538,14 +1662,14 @@ classdef neuron_class
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                cs = self.c_absolute_subtraction_DEFAULT;
+                cs = self.c_absolute_subtraction_DEFAULT;               % [-] Absolute Subtraction Gain.
                 s_ks = self.s_ks_DEFAULT;                               % [-] Subtraction Signature.
                 Rs = self.R_DEFAULT*ones( 1, 2 );                       % [V] Activation Domain.
 
             elseif length( parameters ) == 2                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                cs = parameters{ 1 };
+                cs = parameters{ 1 };                                   % [-] Absolute Subtraction Gain.
                 s_ks = parameters{ 2 };                                 % [-] Subtraction Signature.
                 Rs = parameters{ 3 };                                   % [V] Activation Domain.
                                     
@@ -1662,19 +1786,19 @@ classdef neuron_class
             if isempty( parameters )                                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 1.
-                c2 = self.c2_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 2.
-                c3 = self.c3_absolute_dai_DEFAULT;           	% [-] Subnetwork Gain 3.
-                delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Inversion Subnetwork Offest.
+                c1 = self.c1_absolute_dai_DEFAULT;                                  % [-] Absolute Division After Inversion Subnetwork Gain 1.
+                c2 = self.c2_absolute_dai_DEFAULT;                                  % [-] Absolute Division After Inversion Subnetwork Gain 2.
+                c3 = self.c3_absolute_dai_DEFAULT;                                  % [-] Absolute Division After Inversion Subnetwork Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Absolute Inversion Subnetwork Offest.
                 R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
 
             elseif length( parameters ) == 5                                        % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                               % [-] Subnetwork Gain 1.
-                c2 = parameters{ 2 };                                               % [-] Subnetwork Gain 2.
-                c3 = parameters{ 3 };                                               % [-] Subnetwork Gain 3.
-                delta1 = parameters{ 4 };                                           % [V] Inversion Subnetwork Offset.
+                c1 = parameters{ 1 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 1.
+                c2 = parameters{ 2 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 2.
+                c3 = parameters{ 3 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 3.
+                delta1 = parameters{ 4 };                                           % [V] Absolute Inversion Subnetwork Offset.
                 R1 = parameters{ 5 };                                               % [V] Activation Domain 1.
                 
             else                                                                    % Otherwise...
@@ -1699,15 +1823,15 @@ classdef neuron_class
             if isempty( parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_absolute_division_DEFAULT;           	% [-] Subnetwork Gain 1.
-                c2 = self.c2_absolute_division_DEFAULT;         	% [-] Subnetwork Gain 2.
+                c1 = self.c1_absolute_division_DEFAULT;           	% [-] Absolute Division Subnetwork Gain 1.
+                c2 = self.c2_absolute_division_DEFAULT;         	% [-] Absolute Division Subnetwork Gain 2.
                 R1 = self.R_DEFAULT;                                % [V] Activation Domain 1.
 
             elseif length( parameters ) == 3                      	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                              	% [-] Subnetwork Gain 1.
-                c2 = parameters{ 2 };                               % [-] Subnetwork Gain 2.
+                c1 = parameters{ 1 };                              	% [-] Absolute Division Subnetwork Gain 1.
+                c2 = parameters{ 2 };                               % [-] Absolute Division Subnetwork Gain 2.
                 R1 = parameters{ 3 };                               % [V] Activation Domain 1.
                 
             else                                                   	% Otherwise...
@@ -1730,17 +1854,17 @@ classdef neuron_class
             if isempty( parameters )                                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 1.
-                c2 = self.c2_absolute_dai_DEFAULT;             % [-] Subnetwork Gain 2.
-                delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Inversion Subnetwork Offest.
+                c1 = self.c1_absolute_dai_DEFAULT;                                  % [-] Absolute Division After Inversion Subnetwork Gain 1.
+                c2 = self.c2_absolute_dai_DEFAULT;                                  % [-] Absolute Division After Inversion Subnetwork Gain 2.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Absolute Inversion Subnetwork Offest.
                 R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
 
             elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                               % [-] Subnetwork Gain 1.
-                c2 = parameters{ 2 };                                               % [-] Subnetwork Gain 2.
-                delta1 = parameters{ 3 };                                           % [V] Inversion Subnetwork Offset.
+                c1 = parameters{ 1 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 1.
+                c2 = parameters{ 2 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 2.
+                delta1 = parameters{ 3 };                                           % [V] Absolute Inversion Subnetwork Offset.
                 R1 = parameters{ 4 };                                               % [V] Activation Domain 1.
                 
             else                                                                    % Otherwise...
@@ -1794,20 +1918,20 @@ classdef neuron_class
             if isempty( parameters )                                        % If the parameters are empty...
 
                 % Set the default parameters.
-                c4 = self.c1_absolute_division_DEFAULT;
-                c5 = self.c2_absolute_division_DEFAULT;
-                c6 = self.c3_absolute_division_DEFAULT;
-                delta1 = self.delta_absolute_inversion_DEFAULT;
-                R1 = self.R_DEFAULT;
+                c4 = self.c1_absolute_division_DEFAULT;                     % [-] Absolute Division Gain 1.
+                c5 = self.c2_absolute_division_DEFAULT;                     % [-] Absolute Division Gain 2.
+                c6 = self.c3_absolute_division_DEFAULT;                     % [-] Absolute Division Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;             % [V] Absolute Inversion Offset.
+                R1 = self.R_DEFAULT;                                        % [V] Activation Domain.
 
-            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+            elseif length( parameters ) == 5                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c4 = parameters{ 1 };
-                c5 = parameters{ 2 };
-                c6 = parameters{ 3 };
-                delta1 = parameters{ 4 };
-                R1 = parameters{ 5 };
+                c4 = parameters{ 1 };                                       % [-] Absolute Division Gain 1.
+                c5 = parameters{ 2 };                                       % [-] Absolute Division Gain 2.
+                c6 = parameters{ 3 };                                       % [-] Absolute Division Gain 3.
+                delta1 = parameters{ 4 };                                   % [V] Absolute Inversion Offset.
+                R1 = parameters{ 5 };                                       % [V] Activation Domain.
                 
             else                                                            % Otherwise...
                 
@@ -1831,14 +1955,14 @@ classdef neuron_class
             if isempty( parameters )                                        % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_reduced_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 1.
-                c2 = self.c2_reduced_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 3.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;            % [-] Reduced Absolute Inversion Gain 1.
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;          	% [-] Reduced Absolute Inversion Gain 3.
 
             elseif length( parameters ) == 7                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                       % [-] Absolute Inversion Gain 1.
-                c2 = parameters{ 2 };                                       % [-] Absolute Inversion Gain 3.
+                c1 = parameters{ 1 };                                       % [-] Reduced Absolute Inversion Gain 1.
+                c2 = parameters{ 2 };                                       % [-] Reduced Absolute Inversion Gain 3.
                 
             else                                                            % Otherwise...
                 
@@ -1860,18 +1984,18 @@ classdef neuron_class
             if isempty( parameters )                                        % If the parameters are empty...
 
                 % Set the default parameters.
-                c3 = self.c1_reduced_absolute_division_DEFAULT;
-                c4 = self.c2_reduced_absolute_division_DEFAULT;
-                delta1 = self.delta_absolute_inversion_DEFAULT;
-                R1 = self.R_DEFAULT;
+                c3 = self.c1_reduced_absolute_division_DEFAULT;             % [-] Reduced Absolute Division Gain 1.
+                c4 = self.c2_reduced_absolute_division_DEFAULT;             % [-] Reduced Absolute Division Gain 2.
+                delta1 = self.delta_absolute_inversion_DEFAULT;             % [V] Absolute Inversion Offset.
+                R1 = self.R_DEFAULT;                                        % [V] Activation Domain.
 
-            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+            elseif length( parameters ) == 4                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c3 = parameters{ 1 };
-                c4 = parameters{ 2 };
-                delta1 = parameters{ 3 };
-                R1 = parameters{ 4 };
+                c3 = parameters{ 1 };                                       % [-] Reduced Absolute Division Gain 1.
+                c4 = parameters{ 2 };                                       % [-] Reduced Absolute Division Gain 2.
+                delta1 = parameters{ 3 };                                   % [V] Absolute Inversion Offset.
+                R1 = parameters{ 4 };                                       % [V] Activation Domain.
                 
             else                                                            % Otherwise...
                 

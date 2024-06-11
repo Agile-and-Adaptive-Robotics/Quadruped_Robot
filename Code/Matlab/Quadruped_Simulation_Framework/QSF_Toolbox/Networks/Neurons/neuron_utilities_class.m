@@ -15,43 +15,147 @@ classdef neuron_utilities_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
-        % Define default neuron parameters.
-        Cm_DEFAULT = 5e-9;                                  % [C] Membrane Capacitance.
-        Gm_DEFAULT = 1e-6;                                  % [S] Membrane Conductance.
-        Er_DEFAULT = -60e-3;                                % [V] Equilibrium Voltage.
-        R_DEFAULT = 20e-3;                                  % [V] Activation Domain.
-        Am_DEFAULT = 1;                                     % [-] Sodium Channel Activation Parameter Amplitude.
-        Sm_DEFAULT = -50;                                   % [-] Sodium Channel Activation Parameter Slope.
-        dEm_DEFAULT = 40e-3;                                % [V] Sodium Channel Activation Reversal Potential.
-        Ah_DEFAULT = 0.5;                                   % [-] Sodium Channel Deactivation Parameter Amplitude.
-        Sh_DEFAULT = 50;                                    % [-] Sodium Channel Deactivation Parameter Slope.
-        dEh_DEFAULT = 0;                                    % [V] Sodium Channel Deactivation Reversal Potential.
-        dEna_DEFAULT = 110e-3;                              % [V] Sodium Channel Reversal Potential.
-        tauh_max_DEFAULT = 0.25;                            % [s] Maximum Sodium Channel Steady State Time Constant.
-        Gna_DEFAULT = 0;                                    % [S] Sodium Channel Conductance.
-        Ileak_DEFAULT = 0;                                  % [A] Leak Current.
-        Isyn_DEFAULT = 0;                                   % [A] Synaptic Current.
-        Ina_DEFAULT = 0;                                    % [A] Sodium Channel Current.
-        Itonic_DEFAULT = 0;                                 % [A] Tonic Current.
-        Iapp_DEFAULT = 0;                                   % [A] Applied Current.
-        Itotal_DEFAULT = 0;                                 % [A] Total Current.
-                
-        % Define default subnetwork gains.
-        c_absolute_transmission_DEFAULT = 1;                % [-] Absolute Transmission Gain.
-        c_absolute_addition_DEFAULT = 1;                    % [-] Absolute Addition Gain.
-        c_absolute_substraction_DEFAULT = 1;                % [-] Absolute Subtraction Gain.
-        c1_inversion_DEFAULT = 1;                           % [-] Inversion Gain 1.
-        c3_inversion_DEFAULT = 1;                           % [-] Inversion Gain 3.
-        c1_reduced_inversion_DEFAULT = 1;                   % [-] Reduced Inversion Gain 1.
-        c2_reduced_inversion_DEFAULT = 1;                   % [-] Reduced Inversion Gain 2.
-        c1_absolute_division_DEFAULT = 1;                   % [-] Absolute Division Gain 1.
-        c3_absolute_division_DEFAULT = 1;                   % [-] Absolute Division Gain 3.
-        c1_reduced_absolute_division_DEFAULT = 1;           % [-] Reduced Absolute Division Gain 1.
-        c2_reduced_absolute_division_DEFAULT = 1;           % [-] Reduced Absolute Division Gain 2.
+        % ---------- Neuron Properties ----------
         
-        % Define the default signature.
-        signature_DEFAULT = 1;                              % [-1/+1] Subtraction Signature.
-    
+        % Define default neuron parameters.
+        Cm_DEFAULT = 5e-9;                                          % [C] Membrane Capacitance.
+        Gm_DEFAULT = 1e-6;                                          % [S] Membrane Conductance.
+        Er_DEFAULT = -60e-3;                                        % [V] Equilibrium Voltage.
+        R_DEFAULT = 20e-3;                                          % [V] Activation Domain.
+        Am_DEFAULT = 1;                                             % [-] Sodium Channel Activation Parameter Amplitude.
+        Sm_DEFAULT = -50;                                           % [-] Sodium Channel Activation Parameter Slope.
+        dEm_DEFAULT = 40e-3;                                        % [V] Sodium Channel Activation Reversal Potential.
+        Ah_DEFAULT = 0.5;                                           % [-] Sodium Channel Deactivation Parameter Amplitude.
+        Sh_DEFAULT = 50;                                            % [-] Sodium Channel Deactivation Parameter Slope.
+        dEh_DEFAULT = 0;                                            % [V] Sodium Channel Deactivation Reversal Potential.
+        dEna_DEFAULT = 110e-3;                                      % [V] Sodium Channel Reversal Potential.
+        tauh_max_DEFAULT = 0.25;                                    % [s] Maximum Sodium Channel Steady State Time Constant.
+        Gna_DEFAULT = 0;                                            % [S] Sodium Channel Conductance.
+        Ileak_DEFAULT = 0;                                          % [A] Leak Current.
+        Isyn_DEFAULT = 0;                                           % [A] Synaptic Current.
+        Ina_DEFAULT = 0;                                            % [A] Sodium Channel Current.
+        Itonic_DEFAULT = 0;                                         % [A] Tonic Current.
+        Iapp_DEFAULT = 0;                                           % [A] Applied Current.
+        Itotal_DEFAULT = 0;                                         % [A] Total Current.
+                
+        % ---------- Transmission Properties ----------
+        
+        % Define transmission subnetwork gains.
+        c_absolute_transmission_DEFAULT = 1.0;                      % [-] Absolute Transmission Gain.
+        c_relative_transmission_DEFAULT = 1.0;                      % [-] Relative Transmission Gain.
+
+        
+        % ---------- Addition Properties ----------
+        
+        % Define addition subnetwork gains.
+        c_absolute_addition_DEFAULT = 1.0;                          % [-] Absolute Addition Gain.
+        c_relative_addition_DEFAULT = 1.0;                          % [-] Relative Addition Gain.
+        
+        
+        % ---------- Subtraction Properties ----------
+        
+        % Define subtraction subnetwork gains.
+        c_absolute_subtraction_DEFAULT = 1.0;                       % [-] Absolute Subtraction Gain.
+        c_relative_subtraction_DEFAULT = 1.0;                       % [-] Relative Subtraction Gain.
+        
+        % Define the subtraction subnetwork signature.
+        signature_DEFAULT = 1;                                      % [-1/+1] Subtraction Signature.
+        
+        % ---------- Inversion Properties ----------
+
+        % Define absolute inversion subnetwork gains.
+        c1_absolute_inversion_DEFAULT = 1.0;                        % [-] Absolute Inversion Gain 1.
+        c2_absolute_inversion_DEFAULT = 1.0;                        % [-] Absolute Inversion Gain 2.
+        c3_absolute_inversion_DEFAULT = 1.0;                        % [-] Absolute Inversion Gain 3.
+        
+        % Define relative inversion subnetwork gains.
+        c1_relative_inversion_DEFAULT = 1.0;                        % [-] Relative Inversion Gain 1.
+        c2_relative_inversion_DEFAULT = 1.0;                        % [-] Relative Inversion Gain 2.
+        c3_relative_inversion_DEFAULT = 1.0;                        % [-] Relative Inversion Gain 3.
+        
+        % Define inversion subnetwork offsets.
+        delta_absolute_inversion_DEFAULT = 1e-3;                    % [V] Absolute Inversion Offset.
+        delta_relative_inversion_DEFAULT = 1e-3;                    % [V] Relative Inversion Offset.
+        
+        
+        % ---------- Reduced Inversion Properties ----------
+        
+        % Define the reduced absolute inversion subnetwork gain.
+        c1_reduced_absolute_inversion_DEFAULT = 1.0;                % [-] Reduced Absolute Inversion Gain 1.
+        c2_reduced_absolute_inversion_DEFAULT = 1.0;                % [-] Reduced Absolute Inversion Gain 2.
+        
+        % Define the reduced relative inversion subnetwork gain.
+        c1_reduced_relative_inversion_DEFAULT = 1.0;                % [-] Reduced Relative Inversion Gain 1.
+        c2_reduced_relative_inversion_DEFAULT = 1.0;                % [-] Reduced Relative Inversion Gain 2.
+        
+        % Define reduced inversion subnetwork offsets.
+        delta_reduced_absolute_inversion_DEFAULT = 1e-3;            % [V] Reduced Absolute Inversion Offset.
+        delta_reduced_relative_inversion_DEFAULT = 1e-3;            % [V] Reduced Relative Inversion Offset.
+        
+        
+        % ---------- Division Properties ----------
+        
+        % Define the absolute division subnetwork gains.
+        c1_absolute_division_DEFAULT = 1.0;                         % [-] Absolute Division Gain 1.
+        c2_absolute_division_DEFAULT = 1.0;                         % [-] Absolute Division Gain 2.
+        c3_absolute_division_DEFAULT = 1.0;                         % [-] Absolute Division Gain 3.
+        
+        % Define the relative division subnetwork gains.
+        c1_relative_division_DEFAULT = 1.0;                         % [-] Relative Division Gain 1.
+        c2_relative_division_DEFAULT = 1.0;                         % [-] Relative Division Gain 2.
+        c3_relative_division_DEFAULT = 1.0;                         % [-] Relative Division Gain 3.
+        
+        % Define division subnetwork offsets.
+        delta_absolute_division_DEFAULT = 1e-3;                     % [V] Absolute Division Offset.
+        delta_relative_division_DEFAULT = 1e-3;                     % [V] Relative Division Offset.
+        
+        
+        % ---------- Reduced Division Properties ----------
+
+        % Define the reduced absolute division subnetwork gains.
+        c1_reduced_absolute_division_DEFAULT = 1.0;                 % [-] Reduced Absolute Division Gain 1.
+        c2_reduced_absolute_division_DEFAULT = 1.0;                 % [-] Reduced Absolute Division Gain 2.
+        
+        % Define the reduced relative division subnetwork gains.
+        c1_reduced_relative_division_DEFAULT = 1.0;                 % [-] Reduced Relative Division Gain 1.
+        c2_reduced_relative_division_DEFAULT = 1.0;                 % [-] Reduced Relative Division Gain 2.
+        
+        % Define reduced division subnetwork offsets.
+        delta_reduced_absolute_division_DEFAULT = 1e-3;             % [V] Reduced Absolute Division Offset.
+        delta_reduced_relative_division_DEFAULT = 1e-3;          	% [V] Reduced Relative Division Offset.
+        
+        
+        % ---------- Division After Inversion Properties ----------
+        
+        % Define the absolute division after inversion subnetwork gains.
+        c1_absolute_dai_DEFAULT = 1.0;                              % [-] Absolute Division Gain 1.
+        c2_absolute_dai_DEFAULT = 1.0;                              % [-] Absolute Division Gain 2.
+        c3_absolute_dai_DEFAULT = 1.0;                              % [-] Absolute Division Gain 3.
+        
+        % Define the relative division after inversion subnetwork gains.
+        c1_relative_dai_DEFAULT = 1.0;                              % [-] Relative Division Gain 1.
+        c2_relative_dai_DEFAULT = 1.0;                              % [-] Relative Division Gain 2.
+        c3_relative_dai_DEFAULT = 1.0;                              % [-] Relative Division Gain 3.
+        
+        % Define division after inversion subnetwork offsets.
+        delta_absolute_dai_DEFAULT = 2e-3;                          % [V] Absolute Division After Inversion Offset.
+        delta_relative_dai_DEFAULT = 2e-3;                          % [V] Relative Division After Inversion Offset.
+        
+        
+        % ---------- Reduced Division After Inversion Properties ----------
+        
+        % Define the reduced absolute division after inversion subnetwork gains.
+        c1_reduced_absolute_dai_DEFAULT = 1.0;                      % [-] Reduced Absolute Division Gain 1.
+        c2_reduced_absolute_dai_DEFAULT = 1.0;                      % [-] Reduced Absolute Division Gain 2.
+        
+        % Define the reduced relative division after inversion subnetwork gains.
+        c1_reduced_relative_dai_DEFAULT = 1.0;                      % [-] Reduced Relative Division Gain 1.
+        c2_reduced_relative_dai_DEFAULT = 1.0;                      % [-] Reduced Relative Division Gain 2.
+        
+        % Define reduced division after inversion subnetwork offsets.
+        delta_reduced_absolute_dai_DEFAULT = 2e-3;                 	% [V] Reduced Absolute Division After Inversion Offset.
+        delta_reduced_relative_dai_DEFAULT = 2e-3;                 	% [V] Reduced Relative Division After Inversion Offset.
+        
     end
     
     
@@ -1071,7 +1175,7 @@ classdef neuron_utilities_class
             % Set the default input arguments.
             if nargin < 4, Rs_input = self.R_DEFAULT; end                                                           % [V] Activation Domain.
             if nargin < 3, s_ks = self.signature_DEFAULT*ones( 1, length( Rs_input ) ); end                       	% [-1, +1] Input Signature.
-            if nargin < 2, cs = self.c_absolute_substraction_DEFAULT*ones( 1, length( Rs_input ) ); end
+            if nargin < 2, cs = self.c_absolute_subtraction_DEFAULT*ones( 1, length( Rs_input ) ); end
             
             % Compute the excitatory and inhibitory input indexes.
             excitatory_indexes = s_ks == 1;
@@ -1097,8 +1201,8 @@ classdef neuron_utilities_class
         function R2 = compute_absolute_inversion_R2( self, c1, c3 )
 
             % Set the default input arguments.
-            if nargin < 3, c3 = self.c3_inversion_DEFAULT; end        	% [-] Inversion Subnetwork Gain 3.
-            if nargin < 2, c1 = self.c1_inversion_DEFAULT; end          % [-] Inversion Subnetwork Gain 1.
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end        	% [-] Inversion Subnetwork Gain 3.
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end          % [-] Inversion Subnetwork Gain 1.
 
             % Compute the operational domain.
             R2 = c1/c3;                                                  % [V] Activation Domain.
@@ -1112,8 +1216,8 @@ classdef neuron_utilities_class
         function R2 = compute_reduced_absolute_inversion_R2( self, c1, c2 )
         
             % Set the default input arguments.
-            if nargin < 3, c2 = self.c2_reduced_inversion_DEFAULT; end        	% [-] Inversion Subnetwork Gain 2.
-            if nargin < 2, c1 = self.c1_reduced_inversion_DEFAULT; end          % [-] Inversion Subnetwork Gain 1.
+            if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end        	% [-] Inversion Subnetwork Gain 2.
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end          % [-] Inversion Subnetwork Gain 1.
             
             % Compute the operational domain.
             R2 = c1/c2;
@@ -1160,9 +1264,9 @@ classdef neuron_utilities_class
             
             % Set the default input arguments.
             if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, c3 = self.c3_absolute_division_DEFAULT; end
-            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 3, c2 = self.c2_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
             % Compute the operational domain.
             R3 = ( c1*R1 )/( c2*delta1 + c3 );
@@ -1177,9 +1281,9 @@ classdef neuron_utilities_class
             
             % Set the default input arguments.
             if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, delta1 = self.delta_reduced_absolute_division_DEFAULT; end
-            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_dai_DEFAULT; end
 
             % Compute the opertional domain.
             R3 = ( c1*R1 )/( delta1 + c2 );
@@ -1258,7 +1362,7 @@ classdef neuron_utilities_class
         
             % Set the default input arguments.
             if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             if nargin < 3, c4 = self.c2_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
             
