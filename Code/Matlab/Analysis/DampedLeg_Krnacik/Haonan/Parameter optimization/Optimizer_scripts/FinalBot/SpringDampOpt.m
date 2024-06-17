@@ -26,7 +26,7 @@ sysName = 'MechPropBigRat';
 sysProp = load('-mat', sysName);
 
 % Load the data file for all joint data
-Data = load('-mat', 'OnyxSpringDatav2');
+Data = load('-mat', 'OnyxSpringDatav22');
 
 % Load solved b values and k values to use as inital conditions
 load('-mat', 'C:\GitHub\Quadruped_Robot\Code\Matlab\Analysis\DampedLeg_Krnacik\Haonan\Parameter optimization\Results\Robot_damping_calcs_Haonan\Results_HaonanK119.mat', 'b_sols');
