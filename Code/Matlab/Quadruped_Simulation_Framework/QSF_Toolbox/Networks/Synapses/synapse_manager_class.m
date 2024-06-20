@@ -20,9 +20,14 @@ classdef synapse_manager_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
+        % ---------- Neuron Properties ----------
+        
         % Define the neuron parameters.
         R_DEFAULT = 20e-3;                                 	% [V] Activation Domain.
         Gm_DEFAULT = 1e-6;                              	% [S] Membrane Conductance.
+        
+        
+        % ---------- Synapse Properties ----------
         
         % Define the synapse properties.
         ID_DEFAULT = 0;                                  	% [#] Synapse ID.
@@ -40,69 +45,197 @@ classdef synapse_manager_class
         dEs_minimum_DEFAULT = -40e-3;                      	% [V] Minimum Synaptic Reversal Potential.
         dEs_small_negative_DEFAULT = -1e-3;             	% [V] Small Negative Synaptic Reversal Potential.
         
-        % Define the synapse identification parameters.
         
-        % Define the subnetwork gain parameters.
+        % ---------- Transmission Properties ----------
+        
+        % Define the number of transmission neurons.
+        num_transmission_neurons_DEFAULT = 2;               % [#] Number of Transmission Neurons.
+        
+        % Define the number of transmission synapses.
+        num_transmission_synapses_DEFAULT = 1;            	% [#] Number of Transmission Synapses.
+
+        % Define the gain properties.
+        c_absolute_transmission_DEFAULT = 1.0;              % [-] Absolute Transmission Gain.
+        c_relative_transmission_DEFAULT = 1.0;              % [-] Relative Transmission Gain.
+        
+        % Define the applied current magnitudes.
+        Ian_absolute_transmission_DEFAULT = 0;          	% [A] Absolute Transmission Applied Current.
+        Ian_relative_transmission_DEFAULT = 0;             	% [A] Relative Transmission Applied Current.
+        
+        % ---------- Addition Properties ----------
+           
+        % Define the number of neurons.
+        num_addition_neurons_DEFAULT = 3;                 	% [#] Number of Addition Neurons.
+        
+        % Define the number of synapses.
+        num_addition_synapses_DEFAULT = 2;               	% [#] Number of Addition Synapses.
+
+        % Define the gain properties.
         c_absolute_addition_DEFAULT = 1;                   	% [-] Absolute Addition Subnetwork Gain.
         c_relative_addition_DEFAULT = 1;                   	% [-] Relative Addition Subnetwork Gain.
-        c_absolute_subtraction_DEFAULT = 1;             	% [-] Absolute Subtraction Subnetwork Gain.
-        c_relative_subtraction_DEFAULT = 1;              	% [-] Relative Subtraction Subnetwork Gain.
-        c_absolute_inversion_DEFAULT = 1;                	% [-] Absolute Inversion Subnetwork Gain.
-        c_relative_inversion_DEFAULT = 1;                 	% [-] Relative Inversion Subnetwork Gain.
-        c_absolute_division_DEFAULT = 1;                  	% [-] Absolute Division Subnetwork Gain.
-        c_relative_division_DEFAULT = 1;                  	% [-] Relative Division Subnetwork Gain.
-        c_absolute_multiplication_DEFAULT = 1;            	% [-] Absolute Multiplication Subnetwork Gain.
-        c_relative_multiplication_DEFAULT = 1;              % [-] Relative Multiplication Subnetwork Gain.
+                
+        % Define the applied current magnitudes.
+        Ian_absolute_addition_DEFAULT = 0;                	% [A] Absolute Addition Applied Current.
+        Ian_relative_addition_DEFAULT = 0;                 	% [A] Relative Addition Applied Current.
         
-        % Define the subnetwork offset parameters.
-        epsilon_DEFAULT = 1e-6;                          	% [-] Subnetwork Input Offset.
-        alpha_DEFAULT = 1e-6;                             	% [-] Division Subnetwork Denominator Offset.
         
-        % Define the number of subnetwork neurons.
-        num_addition_neurons_DEFAULT = 3;                 	% [#] Number of Addition Neurons.
+        % ---------- Subtraction Properties ----------
+
+        % Define the number of neurons.
         num_subtraction_neurons_DEFAULT = 3;              	% [#] Number of Subtraction Neurons.
         num_double_subtraction_neurons_DEFAULT = 4;       	% [#] Number of Double Subtraction Neurons.
+        
+        % Define the number of synapses.
+        num_subtraction_synapses_DEFAULT = 2;            	% [#] Number of Subtraction Synapses.
+        num_double_subtraction_synapses_DEFAULT = 4;       	% [#] Number of Double Subtraction Synapses.
+
+        % Define the gain properties.
+        c_absolute_subtraction_DEFAULT = 1;             	% [-] Absolute Subtraction Subnetwork Gain.
+        c_relative_subtraction_DEFAULT = 1;              	% [-] Relative Subtraction Subnetwork Gain.
+                    
+        % Define the applied current magnitude.
+        Ian_absolute_subtraction_DEFAULT = 0;             	% [A] Absolute Subtraction Applied Current.
+        Ian_relative_subtraction_DEFAULT = 0;             	% [A] Relative Subtraction Applied Current.
+        
+        
+        % ---------- Inversion Properties ----------
+        
+        % Define the number of neurons.
+        num_inversion_neurons_DEFAULT = 2;                    % [#] Number of Inversion Neurons.
+        
+        % Define the number of synapses.
+        num_inversion_synapses_DEFAULT = 1;                	% [#] Number of Inversion Synapses.
+        
+        % Define the gain properties.
+        c_absolute_inversion_DEFAULT = 1;                	% [-] Absolute Inversion Subnetwork Gain.
+        c_relative_inversion_DEFAULT = 1;                 	% [-] Relative Inversion Subnetwork Gain.
+        
+        % Define the applied current magnitudes.
+        Ia2_absolute_inversion_DEFAULT = 20e-9;          	% [A] Absolute Inversion Applied Current 2.
+        Ia2_relative_inversion_DEFAULT = 20e-9;            	% [A] Relative Inversion Applied Current 2.
+        
+        
+        % ---------- Reduced Inversion Properties ----------
+
+        % Define the number of neurons.
+        num_reduced_inversion_neurons_DEFAULT = 2;                	% [#] Number of Inversion Neurons.
+        
+        % Define the number of synapses.
+        num_reduced_inversion_synapses_DEFAULT = 1;                	% [#] Number of Inversion Synapses.
+        
+        % Define the gain properties.
+        c_reduced_absolute_inversion_DEFAULT = 1;                	% [-] Absolute Inversion Subnetwork Gain.
+        c_reduced_relative_inversion_DEFAULT = 1;                 	% [-] Relative Inversion Subnetwork Gain.
+        
+        % Define the applied current magnitudes.
+        Ia2_reduced_absolute_inversion_DEFAULT = 20e-9;          	% [A] Absolute Inversion Applied Current 2.
+        Ia2_reduced_relative_inversion_DEFAULT = 20e-9;            	% [A] Relative Inversion Applied Current 2.
+        
+        
+        % ---------- Division Properties ----------
+
+        % Define the number of synapses.
+        num_division_synapses_DEFAULT = 2;               	% [#] Number of Division Synapses.
+        
+        % Define the gain properties.
+        c_absolute_division_DEFAULT = 1;                  	% [-] Absolute Division Subnetwork Gain.
+        c_relative_division_DEFAULT = 1;                  	% [-] Relative Division Subnetwork Gain.
+        
+        % Define the applied current magnitudes.
+        Ia3_absolute_division_DEFAULT = 0;                	% [A] Absolute Division Applied Current.
+        Ia3_relative_division_DEFAULT = 0;                 	% [A] Relative Division Applied Current.
+        
+        
+        % ---------- Reduced Division Properties ----------
+
+        % Define the number of synapses.
+        num_reduced_division_synapses_DEFAULT = 2;               	% [#] Number of Division Synapses.
+        
+        % Define the gain properties.
+        c_reduced_absolute_division_DEFAULT = 1;                  	% [-] Reduced Absolute Division Subnetwork Gain.
+        c_reduced_relative_division_DEFAULT = 1;                  	% [-] Reduced Relative Division Subnetwork Gain.
+        
+        % Define the applied current magnitudes.
+        Ia3_reduced_absolute_division_DEFAULT = 0;                	% [A] Reduced Absolute Division Applied Current.
+        Ia3_reduced_relative_division_DEFAULT = 0;                 	% [A] Reduced Relative Division Applied Current.
+        
+        
+        % ---------- Division After Inversion Properties ----------
+
+        % Define the number of synapses.
+        num_dai_synapses_DEFAULT = 2;               	% [#] Number of Division Synapses.
+        
+        % Define the gain properties.
+        c_absolute_dai_DEFAULT = 1;                  	% [-] Absolute Division Subnetwork Gain.
+        c_relative_dai_DEFAULT = 1;                  	% [-] Relative Division Subnetwork Gain.
+        
+        % Define the applied current magnitudes.
+        Ia3_absolute_dai_DEFAULT = 0;                	% [A] Absolute Division Applied Current.
+        Ia3_relative_dai_DEFAULT = 0;                 	% [A] Relative Division Applied Current.
+        
+                        
+        % ---------- Reduced Division After Inversion Properties ----------
+
+        % Define the number of synapses.
+        num_reduced_dai_synapses_DEFAULT = 2;               	% [#] Number of Division Synapses.
+        
+        % Define the gain properties.
+        c_reduced_absolute_dai_DEFAULT = 1;                  	% [-] Absolute Division Subnetwork Gain.
+        c_reduced_relative_dai_DEFAULT = 1;                  	% [-] Relative Division Subnetwork Gain.
+        
+        % Define the applied current magnitudes.
+        Ia3_reduced_absolute_dai_DEFAULT = 0;                	% [A] Absolute Division Applied Current.
+        Ia3_reduced_relative_dai_DEFAULT = 0;                 	% [A] Relative Division Applied Current.
+        
+        
+        % ---------- Centering Properties ----------
+      
+        % Define the number of neurons.
         num_centering_neurons_DEFAULT = 4;               	% [#] Number of Centering Neurons.
         num_double_centering_neurons_DEFAULT = 7;           % [#] Number of Double Centering Neurions.
         num_ds2dc_neurons_DEFAULT = 11;                     % [#] Number of Double Subtraction to Double Centering Neurons.
-        
-        % Define the number of subnetwork synapses.
-        num_transmission_synapses_DEFAULT = 1;            	% [#] Number of Transmission Synapses.
-        num_modulation_synapses_DEFAULT = 1;               	% [#] Number of Modulation Synapses.
-        num_addition_synapses_DEFAULT = 2;               	% [#] Number of Addition Synapses.
-        num_subtraction_synapses_DEFAULT = 2;            	% [#] Number of Subtraction Synapses.
-        num_double_subtraction_synapses_DEFAULT = 4;       	% [#] Number of Double Subtraction Synapses.
+
+        % Define the number of synapses.
         num_centering_synapses_DEFAULT = 4;               	% [#] Number of Centering Synapses.
         num_double_centering_synapses_DEFAULT = 8;        	% [#] Number of Double Centering Synapses.
+        num_ds2dc_synapses_DEFAULT = 2;                     % [#] Number of Double Subtraction to Double Centering Synapses.
+
+        
+        % ---------- Multiplication Properties ----------
+
+        % Define the number of synapses.
         num_multiplication_synapses_DEFAULT = 3;          	% [#] Number of Multiplication Synapses.
-        num_inversion_synapses_DEFAULT = 1;                	% [#] Number of Inversion Synapses.
-        num_division_synapses_DEFAULT = 2;               	% [#] Number of Division Synapses.
+
+        
+        % ---------- Derivation Properties ----------
+
+        % Define the number of synapses.
         num_derivation_synapses_DEFAULT = 2;              	% [#] Number of Derivation Synapses.
+
+        
+        % ---------- Integration Properties ----------
+
+        % Define the number of synapses.
         num_integration_synapses_DEFAULT = 2;             	% [#] Number of Integration Synapses.
         num_vbi_synapses_DEFAULT = 4;                    	% [#] Number of Voltage Based Integration Synapses.
         num_svbi_synapses =  10;                          	% [#] Number of Split Voltage Based Integration Synapses.
         num_msvbi_synapses = 6;                          	% [#] Number of Modulated Split Voltage Based Integration Synapses.
         num_mssvbi_synapses = 2;                           	% [#] Number fo Modulated Split Difference Voltage Based Integration Synapses.
-        num_ds2dc_synapses_DEFAULT = 2;                     % [#] Number of Double Subtraction to Double Centering Synapses.
+        
+        
+        % ---------- Central Pattern Generator Properties ----------
 
-        % Define the CPG parameters.
+        % Define the central pattern generator offsets.
         delta_bistable_DEFAULT = -10e-3;                  	% [V] Bistable CPG Equilibrium Offset.
         delta_oscillatory_DEFAULT = 0.01e-3;              	% [V] Oscillatory CPG Equilibrium Offset.
         delta_noncpg_DEFAULT = 0;                         	% [V] Generic CPG Equilibrium Offset.
         
-        % Define the applied current parameters.
+        % Define the applied current magnitudes.
         Id_max_DEFAULT = 1.25e-9;                         	% [A] Maximum Drive Current.
-        Ia_absolute_addition_DEFAULT = 0;                	% [A] Absolute Addition Applied Current.
-        Ia_relative_addition_DEFAULT = 0;                 	% [A] Relative Addition Applied Current.
-        Ia_absolute_subtraction_DEFAULT = 0;             	% [A] Absolute Subtraction Applied Current.
-        Ia_relative_subtraction_DEFAULT = 0;             	% [A] Relative Subtraction Applied Current.
-        Ia1_absolute_inversion_DEFAULT = 0;              	% [A] Absolute Inversion Applied Current 1.
-        Ia2_absolute_inversion_DEFAULT = 2e-8;          	% [A] Absolute Inversion Applied Current 2.
-        Ia1_relative_inversion_DEFAULT = 0;                	% [A] Relative Inversion Applied Current 1.
-        Ia2_relative_inversion_DEFAULT = 2e-8;             	% [A] Relative Inversion Applied Current 2.
-        Ia_absolute_division_DEFAULT = 0;                  	% [A] Absolute Division Applied Current.
-        Ia_relative_division_DEFAULT = 0;                 	% [A] Relative Division Applied Current.
-        
+
+                
+        % ---------- Design Properties ----------
+                
         % Define the default undetected option.
         undetected_option_DEFAULT = 'error';
         
@@ -1073,18 +1206,18 @@ classdef synapse_manager_class
                 if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R2 = self.R_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
+                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    Ia2 = self.Ia_DEFAULT;                                                                             	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { R2, Gm2, dEs21, Ia2 };
                     
-                else                                                                                                        % Otherwise...
+                else                                                                                                   	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 4                                                                      	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1093,24 +1226,24 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                              	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                                                    % If no parameters were provided...
+                if isempty( parameters )                                                                              	% If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R2 = self.R_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
+                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    Ia2 = self.Ia_DEFAULT;                                                                            	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { R2, Gm2, dEs21, Ia2 };
                     
-                else                                                                                                        % Otherwise...
+                else                                                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 4                                                                     	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1119,7 +1252,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                                                                            % Otherwise...
+            else                                                                                                      	% Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1133,27 +1266,27 @@ classdef synapse_manager_class
         function parameters = process_transmission_parameters( self, parameters, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, parameters = {  }; end                                     	% [cell] Parameters Cell.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                                    % If no parameters were provided...
+                if isempty( parameters )                                              	% If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R2 = self.R_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    R2 = self.R_DEFAULT;                                              	% [V] Activation Domain.
+                    Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
+                    Ia2 = self.Ia_DEFAULT;                                             	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { R2, Gm2, Ia2 };
                     
-                else                                                                                                        % Otherwise...
+                else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                                            % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 3                                    	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1162,23 +1295,23 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                            	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                                                    % If no parameters were provided...
+                if isempty( parameters )                                              	% If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R2 = self.R_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    R2 = self.R_DEFAULT;                                             	% [V] Activation Domain.
+                    Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
+                    Ia2 = self.Ia_DEFAULT;                                            	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { R2, Gm2, Ia2 };
                     
-                else                                                                                                        % Otherwise...
+                else                                                                 	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 3                                      	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1187,7 +1320,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                                                                            % Otherwise...
+            else                                                                    	% Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1203,34 +1336,34 @@ classdef synapse_manager_class
         function parameters = process_addition_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
                     
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, synapses = self.synapses; end                                                                % [class] Array of Synapse Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                       % [cell] Parameters Cell.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                                % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c_k = self.c_DEFAULT;                                                                                 % [-] Subnetwork Gain.
-                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                    % [V] Maximum Membrane Voltage.
-                    Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );     % [V] Synaptic Reversal Potential.
-                    Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
+                    c_k = self.c_DEFAULT;                                                                                   % [-] Subnetwork Gain.
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                        % [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                                                                 % [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                                 % [A] Applied Current.
                                         
                     % Store the required parameters in a cell.
                     parameters = { c_k, R_k, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                                                                    % Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 5                                                                        % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1239,25 +1372,25 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                                                % If no parameters were provided...
+                if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    c_k = self.c_DEFAULT;                                                                                 % [-] Subnetwork Gain.
-                    R_n = self.R_DEFAULT;                                                                               % [V] Maximum Membrane Voltage.
-                    Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );     % [V] Synaptic Reversal Potential.
-                    Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
+                    c_k = self.c_DEFAULT;                                                                                   % [-] Subnetwork Gain.
+                    R_n = self.R_DEFAULT;                                                                                   % [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                                                                 % [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                                 % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = {c_k, R_n, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                                                                    % Otherwise...
+                else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 5                                                                        % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1266,7 +1399,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                                                                        % Otherwise...
+            else                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1280,31 +1413,31 @@ classdef synapse_manager_class
         function parameters = process_addition_parameters( self, synapse_IDs, parameters, encoding_scheme )
                     
             % Set the default input arguments.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                       % [cell] Parameters Cell.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                    	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                                % If no parameters were provided...
+                if isempty( parameters )                                              	% If no parameters were provided...
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c_k = self.c_DEFAULT;                                                                           	% [-] Subnetwork Gain.
-                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                    % [V] Maximum Membrane Voltage.
-                    Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
-                    Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
+                    c_k = self.c_DEFAULT;                                             	% [-] Subnetwork Gain.
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                  	% [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                           	% [S] Membrane Conductance.
+                    Ia_n = self.Ia_DEFAULT;                                           	% [A] Applied Current.
                                         
                     % Store the required parameters in a cell.
                     parameters = { c_k, R_k, Gm_n, Ia_n };
                     
-                else                                                                                                    % Otherwise...
+                else                                                                 	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                        % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 4                                       	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1313,24 +1446,24 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                            	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                                                % If no parameters were provided...
+                if isempty( parameters )                                               	% If no parameters were provided...
                     
                     % Set the default parameter values.
-                    c_k = self.c_DEFAULT;                                                                            	% [-] Subnetwork Gain.
-                    R_n = self.R_DEFAULT;                                                                               % [V] Maximum Membrane Voltage.
-                    Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
-                    Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
+                    c_k = self.c_DEFAULT;                                              	% [-] Subnetwork Gain.
+                    R_n = self.R_DEFAULT;                                            	% [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
+                    Ia_n = self.Ia_DEFAULT;                                          	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c_k, R_n, Gm_n, Ia_n };
                     
-                else                                                                                                    % Otherwise...
+                else                                                                 	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                        % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 4                                        % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1339,7 +1472,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                                                                        % Otherwise...
+            else                                                                        % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1355,35 +1488,35 @@ classdef synapse_manager_class
         function parameters = process_subtraction_gs_parameters( self, synapse_IDs, parameters, encoding_scheme, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, synapses = self.synapses; end                                                                        % [class] Array of Synapse Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                               % [cell] Parameters Cell.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                        	% [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                   	% [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                             	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                         	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                           % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                    	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                                        % If no parameters were provided...
+                if isempty( parameters )                                                                                  	% If no parameters were provided...
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c_k = self.c_DEFAULT;                                                                                         % [-] Subnetwork Gain.
-                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );                                                            % [-] Input Signature.
-                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                            % [V] Maximum Membrane Voltage.
-                    Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
-                    Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
+                    c_k = self.c_DEFAULT;                                                                                 	% [-] Subnetwork Gain.
+                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );                                                       	% [-] Input Signature.
+                    R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs );                                                       	% [V] Maximum Membrane Voltage.
+                    Gm_n = self.Gm_DEFAULT;                                                                                	% [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                                	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                                                                            % Otherwise...
+                else                                                                                                      	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                                                                                % If there is anything other than the required number of parameter entries...
+                    if length( parameters ) ~= 6                                                                           	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1392,29 +1525,29 @@ classdef synapse_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                                       % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                                                        % If no parameters were provided... 
+                if isempty( parameters )                                                                                  	% If no parameters were provided... 
                     
                     % Compute the number of synapse IDs.
                     num_synapse_IDs = length( synapse_IDs );
                     
                     % Set the default parameter values.
-                    c_k = self.c_DEFAULT;                                                                                         % [-] Subnetwork Gain.
-                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );                                                            % [-] Input Signature.
-                    R_k = self.R_DEFAULT;                                                                                       % [V] Maximum Membrane Voltage. 
-                    Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
-                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
-                    Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
+                    c_k = self.c_DEFAULT;                                                                                 	% [-] Subnetwork Gain.
+                    s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs );                                                      	% [-] Input Signature.
+                    R_k = self.R_DEFAULT;                                                                                 	% [V] Maximum Membrane Voltage. 
+                    Gm_n = self.Gm_DEFAULT;                                                                                	% [S] Membrane Conductance.
+                    dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
+                    Ia_n = self.Ia_DEFAULT;                                                                                	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
                     parameters = { c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n };
                     
-                else                                                                                                            % Otherwise...
+                else                                                                                                      	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                                                                             	% If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 6                                                                         	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1423,7 +1556,7 @@ classdef synapse_manager_class
                     
                 end
                 
-            else                                                                                                                % Otherwise...
+            else                                                                                                          	% Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -1530,8 +1663,8 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1556,8 +1689,8 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
+                    Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1600,7 +1733,7 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1625,7 +1758,7 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1672,7 +1805,7 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_reduced_absolute_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
@@ -1698,7 +1831,7 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_reduced_absolute_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.                                                                                 % [A] Applied Current.
                     
@@ -1742,7 +1875,7 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_reduced_absolute_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -1767,7 +1900,7 @@ classdef synapse_manager_class
                     
                     % Set the default parameter values.
                     delta1 = self.delta_reduced_absolute_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.                                                                                 % [A] Applied Current.
                     
                     % Store the required parameters in a cell.
@@ -2438,7 +2571,7 @@ classdef synapse_manager_class
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
                     R1 = self.R_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     parameters = { c1, c3, delta1, delta2, R1, R2 };
@@ -2465,7 +2598,7 @@ classdef synapse_manager_class
                     c3 = self.c3_dia_DEFAULT;
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
                     % Store the required parameters in a cell.
@@ -2513,7 +2646,7 @@ classdef synapse_manager_class
                     c3 = self.c3_dia_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
                     R1 = self.R_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
                     % Store the required parameters in a cell.
@@ -2541,7 +2674,7 @@ classdef synapse_manager_class
                     c3 = self.c3_dia_DEFAULT;
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
                     % Store the required parameters in a cell.
@@ -2605,7 +2738,7 @@ classdef synapse_manager_class
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
                     R1 = self.R_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
                     % Store the required parameters in a cell.
@@ -2633,7 +2766,7 @@ classdef synapse_manager_class
                     c3 = self.c3_dia_DEFAULT;
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
                     % Store the required parameters in a cell.
@@ -2680,7 +2813,7 @@ classdef synapse_manager_class
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
                     R1 = self.R_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
 
                     % Store the required parameters in a cell.
                     parameters = { c1, c3, delta1, delta2, R1, R2 };
@@ -2707,7 +2840,7 @@ classdef synapse_manager_class
                     c3 = self.c3_dia_DEFAULT;
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     parameters = { c1, c3, delta1, delta2, R2 };
@@ -2754,7 +2887,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
@@ -2782,7 +2915,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
@@ -2829,7 +2962,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
@@ -2857,7 +2990,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
@@ -2919,7 +3052,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
@@ -2947,7 +3080,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
@@ -2993,7 +3126,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     
@@ -3020,7 +3153,7 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     delta1 = self.delta_inversion_DEFAULT;
                     delta2 = self.delta_dai_DEFAULT;
-                    R2 = self.R_DEFAULT;
+                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     
@@ -4968,8 +5101,8 @@ classdef synapse_manager_class
             if isempty( transmission_parameters )                                                                               % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R2 = self.R_DEFAULT;                                                                                            % [V] Activation Domain.
-                Gm2 = self.Gm_DEFAULT;                                                                                          % [S] Membrane Conductance.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
+                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                          % [A] Applied Current.
                 
             elseif length( transmission_parameters ) == 3                                                                       % If there are a specific number of parameters...
@@ -5001,8 +5134,8 @@ classdef synapse_manager_class
             if isempty( transmission_parameters )                                                                               % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R2 = self.R_DEFAULT;                                                                                            % [V] Activation Domain.
-                Gm2 = self.Gm_DEFAULT;                                                                                          % [S] Membrane Conductance.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
+                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                          % [A] Applied Current.
                 
             elseif length( transmission_parameters ) == 3                                                                       % If there are a specific number of parameters...
@@ -5197,7 +5330,7 @@ classdef synapse_manager_class
             
                 % Set the default parameter values.
                 delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                                 	% [S] Membrane Conductance.
+                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                                 
             elseif length( inversion_parameters ) == 3                                                                	% If there are a specific number of parameters...
@@ -5230,7 +5363,7 @@ classdef synapse_manager_class
             
                 % Set the default parameter values.
                 delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                                 	% [S] Membrane Conductance.
+                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                                 
             elseif length( inversion_parameters ) == 3                                                                	% If there are a specific number of parameters...
@@ -5265,7 +5398,7 @@ classdef synapse_manager_class
             
                 % Set the default parameter values.
                 delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                                 	% [S] Membrane Conductance.
+                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                 
             elseif length( inversion_parameters ) == 3                                                                	% If there are a specific number of parameters...
@@ -5298,7 +5431,7 @@ classdef synapse_manager_class
             
                 % Set the default parameter values.
                 delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                                 	% [S] Membrane Conductance.
+                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                                 
             elseif length( inversion_parameters ) == 3                                                                	% If there are a specific number of parameters...
@@ -5339,7 +5472,7 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
                 
@@ -5380,7 +5513,7 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
                 
@@ -5417,7 +5550,7 @@ classdef synapse_manager_class
                 delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 4                                                                 	% If there are a specific number of parameters...
                 
@@ -5452,7 +5585,7 @@ classdef synapse_manager_class
                 delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 4                                                                       % If there are a specific number of parameters...
                 
@@ -5493,7 +5626,7 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
                 
@@ -5534,7 +5667,7 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
                 
@@ -5571,7 +5704,7 @@ classdef synapse_manager_class
                 delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 4                                                                       % If there are a specific number of parameters...
                 
@@ -5606,7 +5739,7 @@ classdef synapse_manager_class
                 delta = self.delta_division_DEFAULT;                                                                        % [V] Division Subnetwork Offset.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( division_parameters ) == 4                                                                       % If there are a specific number of parameters...
                 
@@ -5647,7 +5780,7 @@ classdef synapse_manager_class
                 delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
                 R1 = self.R_DEFAULT;                                                                                        % [V] Acitvation Domain.
-                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 
             elseif length( division_parameters ) == 7                                                                       % If there are a specific number of parameters...
@@ -5689,7 +5822,7 @@ classdef synapse_manager_class
                 c3 = self.c3_absolute_dai_DEFAULT;                                                                          % [-] Absolute Division After Inversion Gain 3.
                 delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
-                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 
             elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
@@ -5729,7 +5862,7 @@ classdef synapse_manager_class
                 delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
                 R1 = self.R_DEFAULT;                                                                                        % [V] Acitvation Domain.
-                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 
             elseif length( division_parameters ) == 6                                                                       % If there are a specific number of parameters...
                 
@@ -5767,7 +5900,7 @@ classdef synapse_manager_class
                 c3 = self.c3_absolute_dai_DEFAULT;                                                                          % [-] Absolute Division After Inversion Gain 3.
                 delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
-                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 
             elseif length( division_parameters ) == 5                                                                       % If there are a specific number of parameters...
                 
@@ -5806,7 +5939,7 @@ classdef synapse_manager_class
                 % Set the parameters to default values.
                 delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
-                R2 = self.R_DEFAULT;                                                                                        % [V] Acitvation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Acitvation Domain.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
@@ -5847,7 +5980,7 @@ classdef synapse_manager_class
                 % Set the parameters to default values.
                 delta1 = self.delta_inversion_DEFAULT;                                                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
-                R2 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [V] Activation Domain.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
@@ -5886,7 +6019,7 @@ classdef synapse_manager_class
                 % Set the parameters to default values.
                 delta1 = self.delta_inversion_DEFAULT;                                      % [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                          	% [V] Division Subnetwork Offset.
-                R2 = self.R_DEFAULT;                                                      	% [V] Acitvation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                      	% [V] Acitvation Domain.
                 R3 = self.R_DEFAULT;                                                      	% [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                    	% [S] Membrane Conductance.
                 
@@ -5923,7 +6056,7 @@ classdef synapse_manager_class
                 % Set the parameters to default values.
                 delta1 = self.delta_inversion_DEFAULT;                                   	% [V] Inversion Subbnetwork Offset.
                 delta2 = self.delta_dai_DEFAULT;                                          	% [V] Division Subnetwork Offset.
-                R2 = self.R_DEFAULT;                                                       	% [V] Activation Domain.
+                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                       	% [V] Activation Domain.
                 R3 = self.R_DEFAULT;                                                    	% [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                    	% [V] Activation Domain.
                 
@@ -5971,7 +6104,7 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 10                                                              	% If there are a specific number of parameters...
                 
@@ -6018,7 +6151,7 @@ classdef synapse_manager_class
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 10                                                               	% If there are a specific number of parameters...
                 
@@ -6061,7 +6194,7 @@ classdef synapse_manager_class
                 R1 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 8                                                              	% If there are a specific number of parameters...
                 
@@ -6103,7 +6236,7 @@ classdef synapse_manager_class
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
                 R3 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 7                                                               	% If there are a specific number of parameters...
                 
@@ -6150,7 +6283,7 @@ classdef synapse_manager_class
                 Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 9                                                               	% If there are a specific number of parameters...
                 
@@ -6196,7 +6329,7 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 8                                                               	% If there are a specific number of parameters...
                 
@@ -6238,7 +6371,7 @@ classdef synapse_manager_class
                 R4 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 7                                                               	% If there are a specific number of parameters...
                 
@@ -6279,7 +6412,7 @@ classdef synapse_manager_class
                 R4 = self.R_DEFAULT;                                                                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
+                Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
             elseif length( multiplication_parameters ) == 7                                                               	% If there are a specific number of parameters...
                 

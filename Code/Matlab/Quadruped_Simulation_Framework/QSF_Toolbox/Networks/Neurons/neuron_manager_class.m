@@ -51,52 +51,152 @@ classdef neuron_manager_class
         
         % ---------- Transmission Properties ----------
 
+        % Define the number of transmission neurons.
         num_transmission_neurons_DEFAULT = 2;                                   % [#] Default Number of Transmission Neurons.
+
+        % Define the transmission subnetwork gain.
+        c_absolute_transmission_DEFAULT = 1;                                    % [-] Absolute Transmission Subnetwork Gain.
+        c_relative_transmission_DEFAULT = 1;                                    % [-] Relative Transmission Subnetwork Gain.
 
         
         % ---------- Addition Properties ----------
 
+        % Define the number of addition neurons.
         num_addition_neurons_DEFAULT = 3;                                     	% [#] Default Number of Addition Neurons.
 
+        % Define the addition subnetwork gain.
+        c_absolute_addition_DEFAULT = 1.0;                                    	% [-] Absolute Addition Subnetwork Gain.
+        c_relative_addition_DEFAULT = 1.0;                                    	% [-] Relative Addition Subnetwork Gain.
+
+        
         % ---------- Subtraction Properties ----------
 
+        % Define the number of subtraction neurons.
         num_subtraction_neurons_DEFAULT = 3;                                  	% [#] Default Number of Subtraction Neurons.
         num_double_subtraction_neurons_DEFAULT = 4;                         	% [#] Default Number of Double Subtraction Neurons.
 
         % Define subtraction subnetwork parameters.
         s_ks_DEFAULT = [ 1, -1 ];                                            	% [-] Default Subtraction Input Signature.
         
+        % Define the subtraction subnetwork gain.
+        c_absolute_subtraction_DEFAULT = 1.0;                                  	% [-] Absolute Subtraction Subnetwork Gain.
+        c_relative_subtraction_DEFAULT = 1.0;                                   % [-] Relative Subtraction Subnetwork Gain.
+        
         
         % ---------- Inversion Properties ----------
 
+        % Define the number of inversion neurons.
         num_inversion_neurons_DEFAULT = 2;                                      % [#] Default Number of Inversion Neurons.
 
-        % Define inversion subnetwork parameters.
-        c_inversion_DEFAULT = 1;                                             	% [-] Default Inversion Subnetwork Gain.
-        epsilon_inversion_DEFAULT = 1e-6;                                     	% [V] Default Inversion Subnetwork Input Offset.
-        delta_inversion_DEFAULT = 1e-6;                                       	% [V] Default Inversion Subnetwork Output Offset.
+        % Define absolute inversion subnetwork gains.
+        c1_absolute_inversion_DEFAULT = 1.0;                                    % [-] Absolute Inversion Gain 1.
+        c2_absolute_inversion_DEFAULT = 1.0;                                    % [-] Absolute Inversion Gain 2.
+        c3_absolute_inversion_DEFAULT = 1.0;                                    % [-] Absolute Inversion Gain 3.
+        
+        % Define relative inversion subnetwork gains.
+        c1_relative_inversion_DEFAULT = 1.0;                                    % [-] Relative Inversion Gain 1.
+        c2_relative_inversion_DEFAULT = 1.0;                                    % [-] Relative Inversion Gain 2.
+        c3_relative_inversion_DEFAULT = 1.0;                                    % [-] Relative Inversion Gain 3.
+        
+        % Define inversion subnetwork offsets.
+        delta_absolute_inversion_DEFAULT = 1e-6;                              	% [V] Absolute Inversion Subnetwork Offset.
+        delta_relative_inversion_DEFAULT = 1e-6;                                % [V] Relative Inversion Subnetwork Offset.
+        
+        
+        % ---------- Reduced Inversion Properties ----------
+
+        % Define the reduced absolute inversion subnetwork gain.
+        c1_reduced_absolute_inversion_DEFAULT = 1.0;                            % [-] Reduced Absolute Inversion Gain 1.
+        c2_reduced_absolute_inversion_DEFAULT = 1.0;                            % [-] Reduced Absolute Inversion Gain 2.
+        
+        % Define the reduced relative inversion subnetwork gain.
+        c1_reduced_relative_inversion_DEFAULT = 1.0;                            % [-] Reduced Relative Inversion Gain 1.
+        c2_reduced_relative_inversion_DEFAULT = 1.0;                            % [-] Reduced Relative Inversion Gain 2.
+        
+        % Define reduced inversion subnetwork offsets.
+        delta_reduced_absolute_inversion_DEFAULT = 1e-3;                        % [V] Reduced Absolute Inversion Offset.
+        delta_reduced_relative_inversion_DEFAULT = 1e-3;                        % [V] Reduced Relative Inversion Offset.
         
         
         % ---------- Division Properties ----------
 
-        num_division_neurons_DEFAULT = 3;                                    	% [#] Default Number of Division Neurons.
+        % Define the number of division neurons.
+        num_division_neurons_DEFAULT = 3;                                    	% [#] Number of Division Neurons.
 
-        % Define division subnetwork parameters.
-        c_division_DEFAULT = 1;                                               	% [-] Default Division Subnetwork Gain.
-        epsilon_division_DEFAULT = 1e-6;                                     	% [-] Default Division Subnetwork Offset.
-        alpha_DEFAULT = 1e-6;                                                	% [-] Default Subnetwork Denominator Adjustment.
+        % Define the absolute division subnetwork gains.
+        c1_absolute_division_DEFAULT = 1.0;                                     % [-] Absolute Division Gain 1.
+        c2_absolute_division_DEFAULT = 1.0;                                     % [-] Absolute Division Gain 2.
+        c3_absolute_division_DEFAULT = 1.0;                                     % [-] Absolute Division Gain 3.
+        
+        % Define the relative division subnetwork gains.
+        c1_relative_division_DEFAULT = 1.0;                                     % [-] Relative Division Gain 1.
+        c2_relative_division_DEFAULT = 1.0;                                     % [-] Relative Division Gain 2.
+        c3_relative_division_DEFAULT = 1.0;                                     % [-] Relative Division Gain 3.
+        
+        % Define division subnetwork offsets.
+        delta_absolute_division_DEFAULT = 1e-3;                                 % [V] Absolute Division Offset.
+        delta_relative_division_DEFAULT = 1e-3;                                 % [V] Relative Division Offset.
+        
+        
+        % ---------- Reduced Division Properties ----------
+
+        % Define the reduced absolute division subnetwork gains.
+        c1_reduced_absolute_division_DEFAULT = 1.0;                             % [-] Reduced Absolute Division Gain 1.
+        c2_reduced_absolute_division_DEFAULT = 1.0;                             % [-] Reduced Absolute Division Gain 2.
+        
+        % Define the reduced relative division subnetwork gains.
+        c1_reduced_relative_division_DEFAULT = 1.0;                             % [-] Reduced Relative Division Gain 1.
+        c2_reduced_relative_division_DEFAULT = 1.0;                             % [-] Reduced Relative Division Gain 2.
+        
+        % Define reduced division subnetwork offsets.
+        delta_reduced_absolute_division_DEFAULT = 1e-3;                         % [V] Reduced Absolute Division Offset.
+        delta_reduced_relative_division_DEFAULT = 1e-3;                         % [V] Reduced Relative Division Offset.
+        
+        
+        % ---------- Division After Inversion Properties ----------
+
+        % Define the number of division after inversion neurons.
+        num_dai_neurons_DEFAULT = 3;                                            % [#] Number of Division After Inversion Neurons.
+        
+        % Define the absolute division after inversion subnetwork gains.
+        c1_absolute_dai_DEFAULT = 1.0;                                          % [-] Absolute Division Gain 1.
+        c2_absolute_dai_DEFAULT = 1.0;                                          % [-] Absolute Division Gain 2.
+        c3_absolute_dai_DEFAULT = 1.0;                                          % [-] Absolute Division Gain 3.
+        
+        % Define the relative division after inversion subnetwork gains.
+        c1_relative_dai_DEFAULT = 1.0;                                          % [-] Relative Division Gain 1.
+        c2_relative_dai_DEFAULT = 1.0;                                          % [-] Relative Division Gain 2.
+        c3_relative_dai_DEFAULT = 1.0;                                          % [-] Relative Division Gain 3.
+        
+        % Define division after inversion subnetwork offsets.
+        delta_absolute_dai_DEFAULT = 2e-3;                                      % [V] Absolute Division After Inversion Offset.
+        delta_relative_dai_DEFAULT = 2e-3;                                      % [V] Relative Division After Inversion Offset.
+        
+        
+        % ---------- Reduced Division After Inversion Properties ----------
+        
+        % Define the reduced absolute division after inversion subnetwork gains.
+        c1_reduced_absolute_dai_DEFAULT = 1.0;                                  % [-] Reduced Absolute Division Gain 1.
+        c2_reduced_absolute_dai_DEFAULT = 1.0;                                  % [-] Reduced Absolute Division Gain 2.
+        
+        % Define the reduced relative division after inversion subnetwork gains.
+        c1_reduced_relative_dai_DEFAULT = 1.0;                                  % [-] Reduced Relative Division Gain 1.
+        c2_reduced_relative_dai_DEFAULT = 1.0;                                 	% [-] Reduced Relative Division Gain 2.
+        
+        % Define reduced division after inversion subnetwork offsets.
+        delta_reduced_absolute_dai_DEFAULT = 2e-3;                              % [V] Reduced Absolute Division After Inversion Offset.
+        delta_reduced_relative_dai_DEFAULT = 2e-3;                              % [V] Reduced Relative Division After Inversion Offset.
         
         
         % ---------- Multiplication Properties ----------
 
-        num_multiplication_neurons_DEFAULT = 4;                               	% [#] Default Number of Multiplication Neurons.
-        
-        % Define multiplication subnetwork parameters.
-        c_multiplication_DEFAULT = 1;                                         	% [-] Default Multiplication Subnetwork Gain.
-        
+        % Define the number of multiplication neurons.
+        num_multiplication_neurons_DEFAULT = 4;                                 % [#] Default Number of Multiplication Neurons.
+
         
         % ---------- Derivation Properties ----------
 
+        % Define the number of derivation neurons.
         num_derivation_neurons_DEFAULT = 3;                                  	% [#] Default Number of Derivation Neurons.
 
         % Define derivation subnetwork parameters.
@@ -107,6 +207,7 @@ classdef neuron_manager_class
         
         % ---------- Integration Properties ----------
         
+        % Define the number of integration neurons.
         num_integration_neurons_DEFAULT = 2;                                  	% [#] Default Number of Integration Neurons.
         num_vbi_neurons_DEFAULT = 4;                                         	% [#] Default Number of Voltage Based Integration Neurons.
         num_svbi_neurons_DEFAULT = 9;                                         	% [#] Default Number of Split Voltage Based Integration Neurons.
