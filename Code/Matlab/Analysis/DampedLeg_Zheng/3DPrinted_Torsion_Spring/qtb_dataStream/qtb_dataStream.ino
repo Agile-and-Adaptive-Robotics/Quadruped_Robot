@@ -36,7 +36,7 @@ int n             = 20  ;//[#] number of readings across which to average
 // **********************************************************************
 
 // create encoder objects
-Encoder encoder(2,3);
+Encoder encoder(4,3);
 
 // initialize joint position vars
 double position   = -999.0;
