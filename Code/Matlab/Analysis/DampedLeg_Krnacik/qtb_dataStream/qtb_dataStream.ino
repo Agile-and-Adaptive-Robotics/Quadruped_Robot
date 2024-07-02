@@ -51,7 +51,7 @@ int n             = 20  ;//[#] number of readings across which to average
 
 //--display settings
 bool displayMsg   = true;//determines whether to print angles to serial window
-bool verboseMsg   = true;//determines whether context is printed with joint angles
+bool verboseMsg   = false;//determines whether context is printed with joint angles
 
 // **********************************************************************
 
@@ -84,12 +84,11 @@ unsigned long previousTime = millis();
 // ******************** setup() ****************************************
 void setup(){
   // initialize serial communications
-  Serial.begin(115200);
+  Serial.begin(57600);
 }
 
 // ******************** loop() *****************************************
 void loop(){
-  
   // once timeInterval has passed, fetch current joint angles
   if(millis() - previousTime >= timeInterval)
   {
@@ -218,11 +217,11 @@ void printMsg(){
     Serial.println(millis() % 1000);
   } else {
     Serial.print(angleHip);
-    Serial.print("\t");
+    Serial.print(",");
     Serial.print(angleKne);
-    Serial.print("\t");
+    Serial.print(",");
     Serial.print(angleAnk);
-    Serial.print("\t");
+    Serial.print(",");
     Serial.println(millis() % 1000);
   }
 }
