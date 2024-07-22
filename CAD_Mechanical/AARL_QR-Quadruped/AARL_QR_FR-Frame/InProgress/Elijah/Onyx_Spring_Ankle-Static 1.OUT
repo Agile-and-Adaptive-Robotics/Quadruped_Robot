@@ -1,0 +1,194 @@
+
+****************************************************************
+****************************************************************
+**                                                            **
+**                                                            **
+**        CCC     OO      SSS    M    M     OO      SSS       **
+**       C       O  O    S       MM  MM    O  O    S          **
+**       C       O  O     SS     M MM M    O  O     SS        **
+**       C       O  O       S    M    M    O  O       S       **
+**        CCC     OO     SSS     M    M     OO     SSS        **
+**                                                            **
+**                                                            **
+**                   Simulations  V2021-B3                    **
+**                 Simulation Premium Package                 **
+**           Distributed By: SOLIDWORKS Corporation           **
+**               6320 Canoga Avenue, Suite 300                **
+**               Woodland Hills, California 91367             **
+**               Telephone Number (818)673-2200               **
+**         Copyright 1988-2018 SOLIDWORKS Corporation         **
+**                                                            **
+****************************************************************
+****************************************************************
+
+Problem name: E:\GitHub\Quadruped_Robot\CAD_Mechanical
+Date        : 07/17/2024     Time:   15:57:37
+
+
+ SYSTEM OF UNITS:
+ International System of Units, SI, is used for all input/output data.
+ Common Quantities:
+ Length:meter, Mass:kilogram, Time:second, Temperature:kelvin
+ Force:newton, Pressure also stress:pascal, Energy:joule, Power:watt
+
+ NUMBER OF PHYSICAL CORES USED TO RUN SIMULATION:  6
+
+  C O N T R O L  I N F O R M A T I O N                  
+
+   CURRENT RESTRAINT SET . . . . . . . . . . . (BC_SET)  =           1
+
+   NUMBER OF LOAD CASES  . . . . . . . . . . . (NLCASE)  =           1
+   SOLUTION MODE . . . . . . . . . . . . . . . (MODEX)   =           0
+      EQ. 0, STATIC ANALYSIS                              
+      EQ. 1, BUCKLING ANALYSIS                            
+      EQ. 2, DYNAMIC ANALYSIS                             
+      EQ. 3, DROP TEST                                    
+
+   SOLVER TYPE . . . . . . . . . . . . . . . . .(ISOL)   =           2
+      EQ. 0, DIRECT SPARSE SOLVER                         
+      EQ. 1, DIRECT SKYLINE SOLVER                        
+      EQ. 2, ITERATIVE SOLVER                             
+      EQ. 3, EXPLICIT INTEGRATION                         
+      EQ. 4, LARGE PROBLEM DIRECT SPARSE SOLVER           
+      EQ. 5, INTEL DIRECT SPARSE SOLVER                   
+      EQ. 6, INTEL NETWORK SPARSE SOLVER                  
+
+   ITERATIVE SOLUTION MODE . . . . . . . . . . (IMODE)   =           1
+      EQ. 1, GENERAL                                      
+      EQ. 2, MEMORY SAVER (FOR TETRA10)                   
+      EQ. 3, ULTRA-MEMORY SAVER (FOR TETRA10)             
+
+   SOLVER CONVERGENCE TOLERANCE  . . . . . . . (CONVR)   =   0.100E-03
+
+   THERMAL LOADING FLAG . . . . . . . . . . . .(ITHERM)  =           0
+      EQ. 0, NO THERMAL EFFECTS CONSIDERED                
+      EQ. 1, ADD TEMPERATURE EFFECT                       
+   GRAVITY LOADING FLAG . . . . . . . . . . . .(IGRAV)   =           0
+      EQ. 0, NO GRAVITY LOADING CONSIDERED                
+      EQ. 1, ADD GRAVITY LOADING EFFECT                   
+   CENTRIFUGAL LOADING FLAG . . . . . . . . . .(ICNTRF)  =           0
+      EQ. 0, NO CENTRIFUGAL LOADING CONSIDERED            
+      EQ. 1, ADD CENTRIFUGAL LOADING EFFECT               
+   IN-PLANE STIFFENING FLAG . . . . . . . . . .(INPLN)   =           0
+      EQ. 0, NO IN-PLANE EFFECTS CONSIDERED               
+      EQ. 1, IN-PLANE EFFECTS CONSIDERED                  
+   SOFT SPRING ADDITION FLAG . . . . . . . . . (ISOFT)   =           0
+      EQ. 0, NO SOFT SPRING OPTION                        
+      EQ. 1, SOFT SPRING ADDED                            
+
+   SAVE DECOMPOSED STIFFNESS MATRIX FLAG . . . (ISAVK)   =           0
+      EQ. 0, DO NOT SAVE DECOMPOSED K                     
+      EQ. 1, SAVE DECOMPOSED K                            
+   FORM STIFFNESS MATRIX FLAG . . . . . . . . .(IFORMK)  =           0
+      EQ. 0, FORM STIFFNESS MATRIX                        
+      EQ. 1, USE EXISTING DECOMPOSED STIFFNESS MATRIX     
+
+   SPIN SOFTENING FLAG . . . . . . . . . . . . (ISPIN)   =           0
+      EQ. 0, NO SPIN SOFTENING EFFECTS CONSIDERED         
+      EQ. 1, SPIN SOFTENING EFFECTS CONSIDERED            
+   INERTIA RELIEF FLAG  . . . . . . . . . . . .(IFORMK)  =           0
+      EQ. 0, NO INERITA RELIEF EFFECTS CONSIDERED         
+      EQ. 1, INERITA RELIEF EFFECTS CONSIDERED            
+   RIGID CONNECTIONS FLAG  . . . . . . . . . . (IRIGID)  =           0
+      EQ. 0, HINGE CONNECTIONS BETWEEN SOLIDS & SHELLS    
+      EQ. 1, RIGID CONNECTIONS BETWEEN SOLIDS & SHELLS    
+
+
+  T O T A L  S Y S T E M  D A T A                        
+   NUMBER OF EQUATIONS . . . . . . . . . . . . . .(NEQ)  =        5874
+   NUMBER OF ELEMENTS. . . . . . . . . . . . . . .(NUME) =        1285
+   NUMBER OF NODAL POINTS. . . . . . . . . . . . .(NUMNP)=        2963
+
+
+
+
+************************************************************************
+    D I S P L A C E M E N T     P R I N T O U T    (LOAD CASE     1)
+************************************************************************
+
+
+
+
+************************************************************************
+    D I S P L A C E M E N T     P R I N T O U T    (LOAD CASE     1)
+************************************************************************
+
+
+  STATUS OF THERMAL EFFECTS FOR THIS LOAD CASE:
+  ---------------------------------------------
+
+    - Thermal flag is off (no thermal effect)
+
+
+
+             D I S P L A C E M E N T S
+
+     NODE X-DISPL.     Y-DISPL.     Z-DISPL.     XX-ROT.      YY-ROT.      ZZ-ROT.
+
+
+ MINIMUM/MAXIMUM DISPLACEMENTS
+
+  NODE        56            1         2884            0            0            0
+  MIN.  -1.81133E-04   0.0000     -1.81022E-04   0.0000       0.0000       0.0000    
+
+  NODE         1         2963         2721            0            0            0
+  MAX.   1.80964E-04   0.0000      1.81078E-04   0.0000       0.0000       0.0000    
+
+ MAXIMUM RESULTANT DISPLACEMENT
+
+  NODE      2790
+  MAX.   1.81136E-04
+
+
+
+
+********************************************************************************
+         R E A C T I O N   F O R C E   F O R   LOAD CASE NO.  1
+********************************************************************************
+
+    NODE CSYS    Fx         Fy         Fz         Mx         My         Mz
+
+ FOR REQUESTED                 (Global Cartesian Coord. System)
+    NODES         FX         FY         FZ         MX         MY         MZ
+ Total React. -.2684E+00 0.0000E+00 0.3053E+00 0.0000E+00 0.0000E+00 0.0000E+00
+  
+
+
+  STRESS OUTPUT FOR TRIANG ELE. GROUP
+ ELEMENT                                                                             VON MISES
+  NUMBER    NODE      SIGMA-X1   SIGMA-X2   SIGMA-X3    TAU-X12    TAU-X13    TAU-X23  STRESS
+
+
+
+
+********************************************************************************
+ MAXIMUM NODAL VON MISES STRESS & ERROR ESTIMATE FOR LOAD CASE   1
+********************************************************************************
+
+  NODE       197
+  MAX.     0.10580E+08
+
+
+
+   E R R O R    E S T I M A T I O N
+   (for requested elements)
+
+   Total Strain Energy (TSE)        =  0.323908E-02
+   Total Error Energy (TEE)         =  0.839310E-04
+   Ave. Percentage Error (APE)      =  0.113094E+02
+     ( APE =  sqrt (TEE/(TSE*2. + TEE)) * 100. )
+
+  S O L U T I O N   T I M E   L O G   I N   S E C
+            FOR PROBLEM
+     TIME FOR INPUT PHASE  . . . . . . . . . . . . . . =       0
+     TIME FOR CALCULATION OF STRUCTURE STIFFNESS MATRIX=       0
+     TIME FOR FFEPLUS (PCG ITERATIVE) SOLVER . . . . . =       0
+     TIME FOR AL CONTACT (AND/OR LARGE DISP) OPERATIONS=       0
+     TIME FOR REACTION FORCE & DISP UPDATE TO POST . . =       0
+     TIME FOR STRESS CALCULATION . . . . . . . . . . . =       0
+     TIME FOR LOAD CASE SOLUTIONS  . . . . . . . . . . =       0
+      T O T A L   S O L U T I O N   T I M E  . . . . . =       0
+
+
+
+T O T A L   S O L U T I O N   T I M E (sec) . . . . =       0
