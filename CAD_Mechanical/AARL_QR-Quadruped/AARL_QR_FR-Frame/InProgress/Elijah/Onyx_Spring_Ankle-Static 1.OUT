@@ -22,7 +22,7 @@
 ****************************************************************
 
 Problem name: E:\GitHub\Quadruped_Robot\CAD_Mechanical
-Date        : 07/17/2024     Time:   15:57:37
+Date        : 07/25/2024     Time:   09:27:43
 
 
  SYSTEM OF UNITS:
@@ -95,9 +95,9 @@ Date        : 07/17/2024     Time:   15:57:37
 
 
   T O T A L  S Y S T E M  D A T A                        
-   NUMBER OF EQUATIONS . . . . . . . . . . . . . .(NEQ)  =        5874
-   NUMBER OF ELEMENTS. . . . . . . . . . . . . . .(NUME) =        1285
-   NUMBER OF NODAL POINTS. . . . . . . . . . . . .(NUMNP)=        2963
+   NUMBER OF EQUATIONS . . . . . . . . . . . . . .(NEQ)  =        6026
+   NUMBER OF ELEMENTS. . . . . . . . . . . . . . .(NUME) =        1329
+   NUMBER OF NODAL POINTS. . . . . . . . . . . . .(NUMNP)=        3039
 
 
 
@@ -128,16 +128,16 @@ Date        : 07/17/2024     Time:   15:57:37
 
  MINIMUM/MAXIMUM DISPLACEMENTS
 
-  NODE        56            1         2884            0            0            0
-  MIN.  -1.81133E-04   0.0000     -1.81022E-04   0.0000       0.0000       0.0000    
+  NODE        56            1         2960            0            0            0
+  MIN.  -6.14023E-06   0.0000     -6.14338E-06   0.0000       0.0000       0.0000    
 
-  NODE         1         2963         2721            0            0            0
-  MAX.   1.80964E-04   0.0000      1.81078E-04   0.0000       0.0000       0.0000    
+  NODE         1         3039         2798            0            0            0
+  MAX.   6.14253E-06   0.0000      6.14347E-06   0.0000       0.0000       0.0000    
 
  MAXIMUM RESULTANT DISPLACEMENT
 
-  NODE      2790
-  MAX.   1.81136E-04
+  NODE      2765
+  MAX.   6.14567E-06
 
 
 
@@ -150,7 +150,7 @@ Date        : 07/17/2024     Time:   15:57:37
 
  FOR REQUESTED                 (Global Cartesian Coord. System)
     NODES         FX         FY         FZ         MX         MY         MZ
- Total React. -.2684E+00 0.0000E+00 0.3053E+00 0.0000E+00 0.0000E+00 0.0000E+00
+ Total React. 0.1516E-01 0.0000E+00 0.1664E+00 0.0000E+00 0.0000E+00 0.0000E+00
   
 
 
@@ -165,17 +165,17 @@ Date        : 07/17/2024     Time:   15:57:37
  MAXIMUM NODAL VON MISES STRESS & ERROR ESTIMATE FOR LOAD CASE   1
 ********************************************************************************
 
-  NODE       197
-  MAX.     0.10580E+08
+  NODE       330
+  MAX.     0.14893E+07
 
 
 
    E R R O R    E S T I M A T I O N
    (for requested elements)
 
-   Total Strain Energy (TSE)        =  0.323908E-02
-   Total Error Energy (TEE)         =  0.839310E-04
-   Ave. Percentage Error (APE)      =  0.113094E+02
+   Total Strain Energy (TSE)        =  0.108577E-03
+   Total Error Energy (TEE)         =  0.299472E-05
+   Ave. Percentage Error (APE)      =  0.116633E+02
      ( APE =  sqrt (TEE/(TSE*2. + TEE)) * 100. )
 
   S O L U T I O N   T I M E   L O G   I N   S E C
