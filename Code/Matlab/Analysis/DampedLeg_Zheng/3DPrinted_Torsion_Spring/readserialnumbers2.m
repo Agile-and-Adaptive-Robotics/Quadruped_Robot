@@ -3,7 +3,7 @@
 function data = readserialnumbers2()
 
 %Initialize the serial port on the correct port, with a baud rate
-s = serialport('COM4', 115200);
+s = serialport('COM14', 115200);
 
 %Determine how many lines of data to collect, and initialize a cell array
 %to store in the data from the serial port
