@@ -22,7 +22,7 @@
 ****************************************************************
 
 Problem name: E:\GitHub\Quadruped_Robot\CAD_Mechanical
-Date        : 07/31/2024     Time:   16:42:28
+Date        : 08/05/2024     Time:   11:13:57
 
 
  SYSTEM OF UNITS:
@@ -44,7 +44,7 @@ Date        : 07/31/2024     Time:   16:42:28
       EQ. 2, DYNAMIC ANALYSIS                             
       EQ. 3, DROP TEST                                    
 
-   SOLVER TYPE . . . . . . . . . . . . . . . . .(ISOL)   =           5
+   SOLVER TYPE . . . . . . . . . . . . . . . . .(ISOL)   =           2
       EQ. 0, DIRECT SPARSE SOLVER                         
       EQ. 1, DIRECT SKYLINE SOLVER                        
       EQ. 2, ITERATIVE SOLVER                             
@@ -53,7 +53,14 @@ Date        : 07/31/2024     Time:   16:42:28
       EQ. 5, INTEL DIRECT SPARSE SOLVER                   
       EQ. 6, INTEL NETWORK SPARSE SOLVER                  
 
-   THERMAL LOADING FLAG . . . . . . . . . . . .(ITHERM)  =           1
+   ITERATIVE SOLUTION MODE . . . . . . . . . . (IMODE)   =           1
+      EQ. 1, GENERAL                                      
+      EQ. 2, MEMORY SAVER (FOR TETRA10)                   
+      EQ. 3, ULTRA-MEMORY SAVER (FOR TETRA10)             
+
+   SOLVER CONVERGENCE TOLERANCE  . . . . . . . (CONVR)   =   0.100E-03
+
+   THERMAL LOADING FLAG . . . . . . . . . . . .(ITHERM)  =           0
       EQ. 0, NO THERMAL EFFECTS CONSIDERED                
       EQ. 1, ADD TEMPERATURE EFFECT                       
    GRAVITY LOADING FLAG . . . . . . . . . . . .(IGRAV)   =           0
@@ -88,12 +95,9 @@ Date        : 07/31/2024     Time:   16:42:28
 
 
   T O T A L  S Y S T E M  D A T A                        
-   NUMBER OF EQUATIONS . . . . . . . . . . . . . .(NEQ)  =       50967
-   MEAN HALF BANDWIDTH . . . . . . . . . . . . . .(MM )  =          84
-   NUMBER OF ELEMENTS. . . . . . . . . . . . . . .(NUME) =        9850
-   NUMBER OF NODAL POINTS. . . . . . . . . . . . .(NUMNP)=       17277
-
-   ORIGINAL NO. OF MATRIX ELEMENTS . . . . . . . .(NWK)  =     1834706
+   NUMBER OF EQUATIONS . . . . . . . . . . . . . .(NEQ)  =       50604
+   NUMBER OF ELEMENTS. . . . . . . . . . . . . . .(NUME) =        9670
+   NUMBER OF NODAL POINTS. . . . . . . . . . . . .(NUMNP)=       17276
 
 
 
@@ -113,39 +117,20 @@ Date        : 07/31/2024     Time:   16:42:28
   STATUS OF THERMAL EFFECTS FOR THIS LOAD CASE:
   ---------------------------------------------
 
-    - User Prescribed Nodal Temperatures
+    - Thermal flag is off (no thermal effect)
 
-
-     ITERATION  NUMBER     1
-
-     ITERATION  NUMBER     2
-
-     ITERATION  NUMBER     3
-
-     ITERATION  NUMBER     4
-
-     ITERATION  NUMBER     5
-
-     ITERATION  NUMBER     6
-
-     ITERATION  NUMBER     7
-
-
-
-
- CONVERGENCE REACHED FOR RTOL 0.1000E-04
 
 
   B U C K L I N G    E I G E N V A L U E (S) 
                  by 
-  S U B S P A C E   A L G O R I T H M
+ L A N C Z O S   A L G O R I T H M
 
 
     EIGENVALUE      EIGENVALUE
       NUMBER       
 
-         1        0.1617027E+00
+         1        0.8289417E+00
 
 
 
-T O T A L   S O L U T I O N   T I M E (sec) . . . . =       3
+T O T A L   S O L U T I O N   T I M E (sec) . . . . =       6

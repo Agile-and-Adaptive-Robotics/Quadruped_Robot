@@ -12,5 +12,5 @@
 729lipOnyx_Spring_Ankle-Buckling 1.MFC=-1
 [StudyName]
 [Solver]
-729lipOnyx_Spring_Ankle-Buckling 1.MFC=Sparse
+729lipOnyx_Spring_Ankle-Buckling 1.MFC=Iterative
 [StudyName1]

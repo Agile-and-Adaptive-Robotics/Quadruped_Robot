@@ -3,7 +3,7 @@ figure
 plot(data)
 
 %%
-n = 232;
+n = 39;
 data = deg2rad(data(n:n+100));       
 data0 = data - data(1);
 
@@ -20,7 +20,7 @@ m = mList(index);       %   [kg]
 hmass = hList(index);   %   [m]
 
 g = 9.81;       %   [m/s^2]
-r = 0.02039;      %   [m]                   small pulley  
+r = 0.02;      %   [m]                   small pulley  
 % r = 0.125;      %   [m]                       big pulley
 hmax = 0.7675;   %   [m]
 h0 = 0.5725 + 2*pi*r  ;     %   [m]          small pulley
