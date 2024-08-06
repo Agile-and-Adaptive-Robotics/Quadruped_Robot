@@ -1,4 +1,4 @@
-xclose all
+close all
 figure
 plot(data)
 %xlim([0 150])
