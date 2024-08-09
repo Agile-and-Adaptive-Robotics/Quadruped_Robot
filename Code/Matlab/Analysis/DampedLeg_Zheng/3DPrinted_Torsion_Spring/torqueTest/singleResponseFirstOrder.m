@@ -18,7 +18,7 @@ mList = [0.050 0.100 0.150 0.200 0.250 0.300 0.350 0.400 0.500 0.600 0.700 1.000
 
 index = 9;
 
-I1 = 6.16561/1000^2;         % [kg*m^2]      inertia of the pulley and hex rod from Solidworks
+I1 = 9.00366/1000^2;         % [kg*m^2]      inertia of the pulley and hex rod from Solidworks
 m = mList(index);       %   [kg]
 
 g = 9.81;       %   [m/s^2]
