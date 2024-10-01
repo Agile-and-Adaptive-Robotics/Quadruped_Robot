@@ -76,8 +76,8 @@ classdef network_utilities_class
             %}
                 
             % Compute the synaptic conductance associated with this neuron. % CPG SUBNETWORK SEEMS TO REQUIRE SATURATION... % MULTIPLICATION SUBNETWORK SEEMS TO REQUIRE NO SATURATION...
-            Gs = gs.*( min( max( U'./R, 0 ), 1 ) );                           % [S] Synaptic Conductance.
-%             Gs = gs.*( U'./R );                                     
+            Gs = gs.*( min( max( U'./R, 0 ), 1 ) );                      	% [S] Synaptic Conductance. % SATURATION (APPEARS TO BE REQUIRED BY CPG SUBNETWORK).
+%             Gs = gs.*( U'./R );                                          	% [S] Synaptic Conductance. % NO SATURATION (APPEARS TO BE REQUIRED BY MULTIPLICATION SUBNETWORK).
             
         end
         
@@ -263,7 +263,7 @@ classdef network_utilities_class
             row_prev = 0;
             
             % Store each of the synaptic conductance vector entries into the synaptic conductance matrix.
-            for k = 1:length( gs_vector )            % Iterate through each synaptic conductance...
+            for k = 1:length( gs_vector )       	% Iterate through each synaptic conductance...
                 
                 % Compute the relevant remainder and quotient.
                 r = mod( k - 1, num_neurons - 1 );
@@ -273,7 +273,7 @@ classdef network_utilities_class
                 row = q + 1;
                 
                 % Determine whether to reset the column associated with this entry.
-                if row ~= row_prev              % If the current row is different than the previous row...
+                if row ~= row_prev                  % If the current row is different than the previous row...
                     
                     % Reset the column index.
                     col = 0;
@@ -284,7 +284,7 @@ classdef network_utilities_class
                 col = col + 1;
                 
                 % Determine whether the column index needs to be advanced a second time.
-                if row == col           % If this column would yield an entry on the diagonal...
+                if row == col                       % If this column would yield an entry on the diagonal...
                     
                     % Advance the column index a second time.
                     col = col + 1;
@@ -1041,12 +1041,12 @@ classdef network_utilities_class
         
             %{
             Input(s):
-                U_inputs = [V] Membrane Voltage Inputs.
-                c1 = [?] Reduced Absolute Division Design Constant 1.
-                c2 = [?] Reduced Absolute Division Design Constant 2.
+                U_inputs    =   [V] Membrane Voltage Inputs.
+                c1          =   [?] Reduced Absolute Division Design Constant 1.
+                c2          =   [?] Reduced Absolute Division Design Constant 2.
             
             Output(s):
-                U3s = [V] Membrane Voltages (Neuron 3).
+                U3s         =   [V] Membrane Voltages (Neuron 3).
             %}
             
             % Set the default input arguments.
@@ -1808,7 +1808,7 @@ classdef network_utilities_class
             dhs = dx( ( num_states + 1 ):end );
             
             % Determine whether there are applied voltages to consider.
-            for k = 1:num_states                % Iterate through each of the states...
+            for k = 1:num_states                                                        % Iterate through each of the states...
                
                 if ~isempty(  Vas_cell{ k } )
                     
@@ -2083,13 +2083,13 @@ classdef network_utilities_class
             
             % Define the percentage of the total number of frames that should persist during the animation.
             frame_persist_percentage = 0.125;       % Works for two neurons CPGs.
-%             frame_persist_percentage = 0.10;         % Works for multistate CPGs.
+%             frame_persist_percentage = 0.10;     	% Works for multistate CPGs.
 
             % Compute the number of frames that should persist during the animation.
             num_frames_persist = floor( frame_persist_percentage*num_frames );
             
             % Create the figure elements associated with each of the neurons.
-            for k = 1:num_neurons               % Iterate through each of the neurons...
+            for k = 1:num_neurons                   % Iterate through each of the neurons...
                 
                 % Create data source strings for the path figure element.
 %                 xdatastr_path = sprintf( 'Us(%0.0f, 1:k)', k );

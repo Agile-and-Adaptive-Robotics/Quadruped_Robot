@@ -302,7 +302,7 @@ classdef neuron_manager_class
             neuron_index = 0;
             
             % Search for a neuron whose ID matches the target value.
-            while ( neuron_index < n_neurons ) && ( ~match_found_flag )                    % While we have not yet checked all of the neurons and have not yet found an ID match...
+            while ( neuron_index < n_neurons ) && ( ~match_found_flag )              	% While we have not yet checked all of the neurons and have not yet found an ID match...
                 
                 % Advance the neuron index.
                 neuron_index = neuron_index + 1;
@@ -318,7 +318,7 @@ classdef neuron_manager_class
             end
             
             % Determine whether to adjust the neuron index.
-            if ~match_found_flag                                                           % If a match was not found...
+            if ~match_found_flag                                                     	% If a match was not found...
                 
                 % Determine how to handle when a match is not found.
                 if strcmpi( undetected_option, 'error' )                                % If the undetected option is set to 'error'...
@@ -455,7 +455,7 @@ classdef neuron_manager_class
         function [ unique_flag, match_logicals ] = unique_existing_neuron_IDs( self, neurons )
             
             % Set the default input arguments.
-            if nargin < 2, neurons = self.neurons; end                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, neurons = self.neurons; end                                                   	% [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -513,8 +513,8 @@ classdef neuron_manager_class
         function neuron_ID = generate_unique_neuron_ID( self, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
-            if nargin < 2, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 3, array_utilities = self.array_utilities; end                	% [class] Array Utilities Class.
+            if nargin < 2, neurons = self.neurons; end                                	% [class] Array of Neuron Class Objects.
             
             % Retrieve the existing neuron IDs.
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -529,8 +529,8 @@ classdef neuron_manager_class
         function neuron_IDs = generate_unique_neuron_IDs( self, num_IDs, neurons, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end                      % [class] Array Utilities Class.
-            if nargin < 3, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, array_utilities = self.array_utilities; end                  % [class] Array Utilities Class.
+            if nargin < 3, neurons = self.neurons; end                                 	% [class] Array of Neuron Class Objects.
             
             % Retrieve the existing neuron IDs.
             existing_neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -539,7 +539,7 @@ classdef neuron_manager_class
             neuron_IDs = zeros( 1, num_IDs );
             
             % Generate each of the new IDs.
-            for k = 1:num_IDs                                                               % Iterate through each of the new IDs...
+            for k = 1:num_IDs                                                          	% Iterate through each of the new IDs...
                 
                 % Generate a unique neuron ID.
                 neuron_IDs( k ) = array_utilities.get_lowest_natural_number( [ existing_neuron_IDs, neuron_IDs( 1:( k - 1 ) ) ] );
@@ -576,7 +576,7 @@ classdef neuron_manager_class
                     match_found_flag = array_utilities.is_value_in_array( neurons( k ).ID, unique_neuron_IDs );
                     
                     % Determine whether to keep this neuron ID or generate a new one.
-                    if match_found_flag                                                        % If this neuron ID already exists...
+                    if match_found_flag                                                    	% If this neuron ID already exists...
                         
                         % Generate a new neuron ID.
                         unique_neuron_IDs( k ) = self.generate_unique_neuron_ID( neurons, array_utilities );
@@ -661,7 +661,7 @@ classdef neuron_manager_class
             for k = 1:n_neurons                                                             % Iterate through each of the neurons...
                 
                 % Determine whether this neuron ID is an integer.
-                if round( neurons( k ).ID ) ~= neurons( k ).ID                               % If this neuron ID is not an integer...
+                if round( neurons( k ).ID ) ~= neurons( k ).ID                            	% If this neuron ID is not an integer...
                     
                     % Generate a new ID for this neuron.
                     new_neuron_IDs( k ) = array_utilities.get_lowest_natural_number( neuron_IDs );
@@ -722,9 +722,9 @@ classdef neuron_manager_class
         function [ new_neuron_IDs, neurons, self ] = make_neuron_IDs_unique_naturals( self, neurons, set_flag, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end                                                  % [class] Array Utilities Class.
-            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag (Determines whether output self object is updated.)
-            if nargin < 2, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 4, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end                                                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 2, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
             
             % Compute the number of neurons.
             n_neurons = length( neurons );
@@ -733,7 +733,7 @@ classdef neuron_manager_class
             new_neuron_IDs = zeros( 1, n_neurons );
             
             % Ensure that all of the neuron IDs are naturals.
-            for k = 1:n_neurons                                                                                         % Iterate through each of the neurons...
+            for k = 1:n_neurons                                                                                             % Iterate through each of the neurons...
                 
                 % Retrieve all of the existing neuron IDs.
                 neuron_IDs = self.get_all_neuron_IDs( neurons );
@@ -745,7 +745,7 @@ classdef neuron_manager_class
                 match_found_flag = array_utilities.is_value_in_array( neurons( k ).ID, neuron_IDs );
                 
                 % Determine whether this neuron ID is natural.
-                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 ) || match_found_flag         % If this neuron ID is not a unique natural...
+                if ( round( neurons( k ).ID ) ~= neurons( k ).ID ) || ( neurons( k ).ID <= 0 ) || match_found_flag      	% If this neuron ID is not a unique natural...
                     
                     % Generate a new ID for this neuron.
                     new_neuron_IDs( k ) = array_utilities.get_lowest_natural_number( neuron_IDs );
@@ -801,7 +801,7 @@ classdef neuron_manager_class
             for k1 = 1:n_neurons                                    % Iterate through each of the neurons...
                 
                 % Determine whether to store this neuron ID.
-                if neurons( k1 ).enabled_flag                          % If this neuron is enabled...
+                if neurons( k1 ).enabled_flag                      	% If this neuron is enabled...
                     
                     % Advance the counter variable.
                     k2 = k2 + 1;
@@ -873,7 +873,7 @@ classdef neuron_manager_class
             xs = cell( 1, num_properties_to_get );
             
             % Retrieve the given neuron property for each neuron.
-            for k = 1:num_properties_to_get                 % Iterate through each of the properties to get...
+            for k = 1:num_properties_to_get                     % Iterate through each of the properties to get...
                 
                 % Retrieve the index associated with this neuron ID.
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
@@ -2121,6 +2121,7 @@ classdef neuron_manager_class
         
         %}
         
+        
         %% Membrane Capacitance Compute Functions.
         
         %{
@@ -2648,6 +2649,7 @@ classdef neuron_manager_class
         end
         
         %}
+        
         
         %% Method Parameter Processing Functions.
         

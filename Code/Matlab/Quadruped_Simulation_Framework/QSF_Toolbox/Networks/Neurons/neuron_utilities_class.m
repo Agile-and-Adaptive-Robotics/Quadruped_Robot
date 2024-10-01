@@ -388,6 +388,8 @@ classdef neuron_utilities_class
         
         %% Membrane Conductance Functions.
         
+        % NOTE: Membrane conductance, Gm, is typically a free variable for subnetwork's who encode their output as their steady state value.  This is because the membrane conductance affects the temporal dynamics of the network, but not its steady state output.
+        
         % ---------- Derivation Subnetwork Functions ----------
         
         %{
@@ -419,6 +421,9 @@ classdef neuron_utilities_class
         
         
         %% Membrane Capacitance Functions.
+        
+        % NOTE: Membrane capacitance, Cm, is typically a free variable for subnetwork's who encode their output as their steady state value.  This is because the membrane capacitance affects the temporal dynamics of the network, but not its steady state output.
+
         
         % ---------- Derivation Subnetwork Functions ----------
         
