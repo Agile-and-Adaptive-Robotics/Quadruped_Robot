@@ -3164,7 +3164,7 @@ classdef applied_current_manager_class
         % ---------- Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for an inversion subnetwork.
-        function [ Ias2, applied_currents, self ] = design_inversion_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias2, applied_currents, self ] = design_inversion_applied_current( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.num_inversion_neurons;
@@ -3192,7 +3192,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a reduced inversion subnetwork.
-        function [ Ias2, applied_currents, self ] = design_reduced_inversion_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias2, applied_currents, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.num_reduced_inversion_neurons;
@@ -3248,7 +3248,7 @@ classdef applied_current_manager_class
         % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to design the applied currents for a multiplication subnetwork.
-        function [ Ias3, applied_currents, self ] = design_multiplication_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias3, applied_currents, self ] = design_multiplication_applied_current( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of multiplication neurons.
             n_neurons = self.num_multiplication_neurons_DEFAULT;
@@ -3276,7 +3276,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a reduced multiplication subnetwork.
-        function [ Ias3, applied_currents, self ] = design_reduced_multiplication_applied_currents( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias3, applied_currents, self ] = design_reduced_multiplication_applied_current( self, neuron_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of reduced multiplication neurons.
             n_neurons = self.num_reduced_multiplication_neurons_DEFAULT;
