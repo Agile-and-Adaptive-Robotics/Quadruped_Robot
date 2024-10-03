@@ -1240,7 +1240,7 @@ classdef network_class
             
             % Design the inversion subnetwork applied current.                        
             [ Ias2, applied_currents, applied_current_manager ] = applied_current_manager.design_reduced_inversion_applied_current( neuron_IDs, parameters, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
-            
+                        
             % Determine whether to update the network object.
             if set_flag, self.applied_current_manager = applied_current_manager; end
             
@@ -1290,7 +1290,7 @@ classdef network_class
             
             % Design the multiplication subnetwork applied current.
             [ Ias3, applied_currents, applied_current_manager ] = applied_current_manager.design_multiplication_applied_current( neuron_IDs, parameters, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
-            
+                        
             % Determine whether to update the network object.
             if set_flag, self.applied_current_manager = applied_current_manager; end
             
@@ -1318,7 +1318,7 @@ classdef network_class
             
             % Design the multiplication subnetwork applied current.
             [ Ias3, applied_currents, applied_current_manager ] = applied_current_manager.design_reduced_multiplication_applied_current( neuron_IDs, parameters, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
-                        
+                                    
             % Determine whether to update the network object.
             if set_flag, self.applied_current_manager = applied_current_manager; end
             
@@ -1566,7 +1566,7 @@ classdef network_class
         end
         
         
-         %{
+        %{
 %         % Implement a function to design the applied currents for a driven multistate cpg split lead lag subnetwork.
 %         function self = design_dmcpg_sll_applied_currents( self, neuron_IDs_cell, dt, tf, neuron_manager, applied_current_manager )
 %             
@@ -1680,7 +1680,7 @@ classdef network_class
             
             % Design the transmission subnetwork neurons.            
             [ Gnas, R2, neurons, neuron_manager ] = neuron_manager.design_transmission_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager.neurons, true, undetected_option );
-            
+                        
             % Determine whether to update the network object.
             if set_flag, self.neuron_manager = neuron_manager; end
             
@@ -2467,7 +2467,7 @@ classdef network_class
        	% ---------- Division Subnetwork Functions ----------
 
         % Implement a function to design the synapses of a division subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
@@ -2477,7 +2477,7 @@ classdef network_class
             if nargin < 3, parameters = {  }; end                                                                     	% [-] Parameter Cell.
             
             % Design the division subnetwork synapses.            
-            [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
+            [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -2488,7 +2488,7 @@ classdef network_class
      	% ---------- Reduced Division Subnetwork Functions ----------
 
         % Implement a function to design the synapses of a reduced division subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager, self ] = design_reduced_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_reduced_division_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
@@ -2498,7 +2498,7 @@ classdef network_class
             if nargin < 3, parameters = {  }; end                                                                     	% [-] Parameter Cell.
             
             % Design the division subnetwork synapses.            
-            [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
+            [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -2509,7 +2509,7 @@ classdef network_class
      	% ---------- Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapses of a division subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager, self ] = design_dai_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_dai_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
@@ -2519,7 +2519,7 @@ classdef network_class
             if nargin < 3, parameters = {  }; end                                                                     	% [-] Parameter Cell.
             
             % Design the division subnetwork synapses.                        
-            [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_dai_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
+            [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_dai_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -2530,7 +2530,7 @@ classdef network_class
      	% ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapses of a reduced division after inversion subnetwork.
-        function [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager, self ] = design_reduced_dai_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_reduced_dai_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
@@ -2540,7 +2540,7 @@ classdef network_class
             if nargin < 3, parameters = {  }; end                                                                     	% [-] Parameter Cell.
             
             % Design the division subnetwork synapses.                        
-            [ dEs31, dEs32, gs31, gs32, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_dai_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
+            [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_dai_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -2551,7 +2551,7 @@ classdef network_class
      	% ---------- Multiplication Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a multiplication subnetwork.
-        function [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, synapse_manager, self ] = design_multiplication_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_multiplication_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  	% [str] Undetected Option.
@@ -2561,7 +2561,7 @@ classdef network_class
             if nargin < 3, parameters = {  }; end                                                       % [-] Parameter Cell.
             
             % Design the multiplication subnetwork synapses.                        
-            [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_multiplication_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
+            [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_multiplication_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -2572,7 +2572,7 @@ classdef network_class
        	% ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced multiplication subnetwork.
-        function [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, synapse_manager, self ] = design_reduced_multiplication_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
+        function [ dEs, gs, synapse_IDs, synapses, synapse_manager, self ] = design_reduced_multiplication_synapses( self, neuron_IDs, parameters, encoding_scheme, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  	% [str] Undetected Option.
@@ -2582,7 +2582,7 @@ classdef network_class
             if nargin < 3, parameters = {  }; end                                                       % [-] Parameter Cell.
             
             % Design the multiplication subnetwork synapses.                        
-            [ dEs41, dEs32, dEs43, gs41, gs32, gs43, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_multiplication_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
+            [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_multiplication_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager.synapses, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -3035,6 +3035,7 @@ classdef network_class
             
         end
         
+        
         %{
 %         % Implement a function to design the synapses for a driven multistate cpg split lead lag subnetwork.
 %         function self = design_dmcpg_sll_synapses( self, neuron_IDs_cell, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, neuron_manager, synapse_manager, applied_current_manager, network_utilities )
@@ -3458,32 +3459,26 @@ classdef network_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to design a division subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_division_subnetwork( self, neuron_IDs, k, c, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, R3, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_division_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
-            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 5, parameters = {  }; end                               
-            if nargin < 4, c = [  ]; end
-            if nargin < 3, k = self.c_division_DEFAULT; end                                                             % [-] Division Subnetwork Gain.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                               
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Create an instance of the network object.
             network = self;
             
-            % Design the division subnetwork neurons.            
-            [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, network ] = network.design_division_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
+            % Design the division subnetwork neurons.
+            [ Gnas, R3, neurons, neuron_manager, network ] = network.design_division_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
             
-            % Design the division subnetwork synapses.            
-            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_division_synapses( neuron_IDs, k, c, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, true, filter_disabled_flag, process_option, undetected_option, network_utilities );
+            % Design the division subnetwork synapses.
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self = network; end
@@ -3493,44 +3488,121 @@ classdef network_class
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        
-        % ---------- Division After Inversion Subnetwork Functions ----------
-        
-        
-        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
-        
-        
-        % ---------- Multiplication Subnetwork Functions ----------
-        
-        % Implement a function to design a multiplication subnetwork ( using the specified neurons, synapses, and applied currents ).
-        function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_multiplication_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network_utilities )
+        % Implement a function to design a reduced division subnetwork ( using the specified neurons, synapses, and applied currents ).
+        function [ Gnas, R3, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_reduced_division_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
-            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 4, parameters = {  }; end
-            if nargin < 3, k = self.c_multiplication_DEFAULT; end                                                       % [-] Multiplication Gain.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                   	% [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                     	% [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                               
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
             % Create an instance of the network object.
             network = self;
             
-            % Design the multiplication subnetwork neurons.            
-            [ Gnas, Gms, Cms, Rs, neurons, neuron_manager, network ] = network.design_multiplication_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
+            % Design the division subnetwork neurons.                        
+            [ Gnas, R3, neurons, neuron_manager, network ] = network.design_reduced_division_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
             
-            % Design the multiplication subnetwork applied currents.            
-            [ Ias, applied_currents, applied_current_manager, network ] = network.design_multiplication_applied_current( neuron_IDs, encoding_scheme, neuron_manager, applied_current_manager, true, undetected_option );
+            % Design the division subnetwork synapses.                        
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_reduced_division_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
             
-            % Design the multiplication subnetwork synapses.            
-            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_multiplication_synapses( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to design a division after inversion subnetwork ( using the specified neurons, synapses, and applied currents ).
+        function [ Gnas, R3, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_dai_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                               
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            % Create an instance of the network object.
+            network = self;
+            
+            % Design the division subnetwork neurons.            
+            [ Gnas, R3, neurons, neuron_manager, network ] = network.design_dai_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
+            
+            % Design the division subnetwork synapses.
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_dai_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
+                        
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
+            
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to design a reduced division after inversion subnetwork ( using the specified neurons, synapses, and applied currents ).
+        function [ Gnas, R3, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = design_reduced_dai_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                               
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            % Create an instance of the network object.
+            network = self;
+            
+            % Design the division subnetwork neurons.            
+            [ Gnas, R3, neurons, neuron_manager, network ] = network.design_reduced_dai_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
+                        
+            % Design the division subnetwork synapses.
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_reduced_dai_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
+                                    
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
+            
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to design a multiplication subnetwork ( using the specified neurons, synapses, and applied currents ).
+        function [ Gnas, Rs, dEs, gs, Ias3, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_multiplication_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            % Create an instance of the network object.
+            network = self;
+            
+            % Design the multiplication subnetwork neurons.                        
+            [ Gnas, Rs, neurons, neuron_manager, network ] = network.design_multiplication_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
+            
+            % Design the multiplication subnetwork applied currents.                        
+            [ Ias3, applied_currents, applied_current_manager, network ] = network.design_multiplication_applied_current( neuron_IDs, encoding_scheme, neuron_manager, applied_current_manager, true, undetected_option );
+            
+            % Design the multiplication subnetwork synapses.
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_multiplication_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self = network; end
@@ -3539,6 +3611,37 @@ classdef network_class
         
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to design a reduced multiplication subnetwork ( using the specific neurons, synapses, and applied currents ).
+        function [ Gnas, Rs, dEs, gs, Ias3, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = design_reduced_multiplication_subnetwork( self, neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end
+            
+            % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
+            
+            % Create an instance of the network object.
+            network = self;
+            
+            % Design the multiplication subnetwork neurons.                        
+            [ Gnas, Rs, neurons, neuron_manager, network ] = network.design_reduced_multiplication_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
+                        
+            % Design the multiplication subnetwork applied currents.                        
+            [ Ias3, applied_currents, applied_current_manager, network ] = network.design_reduced_multiplication_applied_current( neuron_IDs, encoding_scheme, neuron_manager, applied_current_manager, true, undetected_option );
+                        
+            % Design the multiplication subnetwork synapses.
+            [ dEs, gs, ~, synapses, synapse_manager, network ] = network.design_reduced_multiplication_synapses( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
+            
+            % Determine whether to update the network object.
+            if set_flag, self = network; end
+            
+        end
         
         
         % ---------- Derivation Subnetwork Functions ----------
@@ -6378,6 +6481,7 @@ classdef network_class
             % Define the number of subtraction neurons.
             n_neurons = self.n_inversion_neurons_DEFAULT;
             n_synapses = self.n_inversion_synapses_DEFAULT;
+            n_applied_currents = self.n_applied_currents_DEFAULT;
             
             % Unpack the subtraction parameters.                                    
             [ ~, ~, ~, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_absolute_inversion_parameters( inversion_parameters );
@@ -6423,6 +6527,17 @@ classdef network_class
             
             % Pack the synapse input parameters.
             synapse_parameters = self.pack_synapse_input_parameters( synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags );
+            
+            % Define the applied current properties.
+            applied_current_IDs = applied_current_manager.generate_unique_applied_current_IDs( n_applied_currents, applied_current_manager.applied_currents, applied_current_manager.array_utilities );
+            applied_current_names = applied_current_manager.generate_names(  );
+            to_neuron_IDs = neuron_IDs( 2 );
+            ts = zeros( 1, n_applied_currents );
+            Ias = zeros( 1, n_applied_currents );
+            applied_current_enabled_flags = self.applied_current_enabled_flag_DEFAULT*ones( 1, n_applied_currents );
+            
+            % Pack the applied current input parameters.
+            applied_current_parameters = self.pack_applied_current_input_parameters( applied_current_IDs, applied_current_names, to_neuron_IDs, ts, Ias, applied_current_enabled_flags )
             
         end
         
@@ -7519,6 +7634,47 @@ classdef network_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
+        % Implement a function to create the reduced inversion subnetwork components.
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_reduced_inversion_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
+            
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_ID, synapse_name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, synapse_enabled_flag ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
+            
+            % Create the inversion neurons, synapses, applied currents.      
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_reduced_inversion_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_ID_new, synapse_new, synapses, synapse_manager ] = synapse_manager.create_reduced_inversion_synapse( neuron_IDs, synapse_ID, synapse_name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, synapse_enabled_flag, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );            
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_reduced_inversion_applied_current( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_ID_new, synapse_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
+            
+        end
+        
         
         % ---------- Division Subnetwork Functions ----------
         
@@ -7538,7 +7694,7 @@ classdef network_class
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
             [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
             
-            % Create the division neurons. and synapses.           
+            % Create the division neurons and synapses.           
             [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_division_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
             [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_division_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
             
@@ -7560,11 +7716,116 @@ classdef network_class
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
+        % Implement a function to create the reduced division subnetwork components.
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_reduced_division_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
+            
+            % Set the default input arguments.
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            
+            % Unpack neuron and synapse input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            
+            % Create the division neurons and synapses.
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_reduced_division_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_reduced_division_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                
+            end
+            
+        end
+ 
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to create the division after inversion subnetwork components.
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_dai_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
+            
+            % Set the default input arguments.
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            
+            % Unpack neuron and synapse input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            
+            % Create the division neurons and synapses.           
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_dai_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_dai_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                
+            end
+            
+        end
+        
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to create the reduced division after inversion subnetwork components.
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_reduced_dai_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
+            
+            % Set the default input arguments.
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            
+            % Unpack neuron and synapse input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            
+            % Create the division neurons and synapses.           
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_reduced_dai_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+           	[ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_reduced_dai_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+                        
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                
+            end
+            
+        end
         
         
         % ---------- Multiplication Subnetwork Functions ----------
@@ -7612,6 +7873,47 @@ classdef network_class
         
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to create the reduced multiplication subnetwork components.
+        function [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, self ] = create_reduced_multiplication_subnetwork_components( self, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag )
+            
+            % Set the default input arguments.
+            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
+            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            
+            % Unpack neuron, synapse, applied current input parameters.
+            [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
+            [ synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags ] = self.unpack_synapse_input_parameters( synapse_input_parameters );
+            [ applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag ] = self.unpack_applied_current_input_parameters( applied_current_input_parameters );
+            
+            % Create the multiplication neurons, synapses, applied currents.
+            [ neuron_IDs_new, neurons_new, neurons, neuron_manager ] = neuron_manager.create_reduced_multiplication_neurons( encoding_scheme, neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags, neuron_manager.neurons, true, as_cell_flag, neuron_manager.array_utilities );
+            [ synapse_IDs_new, synapses_new, synapses, synapse_manager ] = synapse_manager.create_reduced_multiplication_synapses( neuron_IDs, synapse_IDs, synapse_names, dEs, gs, from_neuron_IDs, to_neuron_IDs, deltas, synapse_enabled_flags, synapse_manager.synapses, true, as_cell_flag, synapse_manager.array_utilities );
+            [ applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager ] = applied_current_manager.create_reduced_multiplication_applied_currents( neuron_IDs, applied_current_ID, applied_current_name, target_neuron_ID, ts, Ias, applied_current_enabled_flag, applied_current_manager.applied_currents, true, as_cell_flag, applied_current_manager.array_utilities );
+                        
+            % Pack the neuron and synapse output parameters.
+            neuron_output_parameters = self.pack_neuron_output_parameters( neuron_IDs_new, neurons_new, neurons, neuron_manager );
+            synapse_output_parameters = self.pack_synapse_output_parameters( synapse_IDs_new, synapses_new, synapses, synapse_manager );
+            applied_current_output_parameters = self.pack_applied_current_output_parameters( applied_current_ID_new, applied_current_new, applied_currents, applied_current_manager );
+
+            % Determine whether to update the network object.
+            if set_flag                                                     % If we want to update the network object...
+                
+                % Update the neuron and synapse manager.
+                self.neuron_manager = neuron_manager;
+                self.synapse_manager = synapse_manager;
+                self.applied_current_manager = applied_current_manager;
+                
+            end
+            
+        end
         
         
         % ---------- Derivation Subnetwork Functions ----------
@@ -8075,7 +8377,8 @@ classdef network_class
             
         end
         
-        %{  
+        
+        %{
 %         % Implement a function to create the driven multistate CPG split lead lag subnetwork components.
 %         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork_components( self, num_cpg_neurons )
 %             
@@ -8148,6 +8451,7 @@ classdef network_class
 %         end
         %}
         
+        
         %{
         % Implement a function to create the modulation subnetwork components.
         function [ neuron_output_parameters, synapse_output_parameters, self ] = create_modulation_subnetwork_components( self, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
@@ -8190,37 +8494,34 @@ classdef network_class
         % ---------- Transmission Subnetwork Functions ----------
 
         % Implement a function to create a transmission subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, R2, dEs21, gs21, neurons, synapses, neuron_manager, synapse_manager, self ] = create_transmission_subnetwork( self, transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, as_cell_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end                                           	% [class] Network Utilities Class.
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                    	% [str] Undetected Option.
-            if nargin < 9, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                % [T/F] As Cell Flag.
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                    	% [str] Undetected Option.
+            if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                % [T/F] As Cell Flag.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 2, transmission_parameters = self.pack_transmission_parameters( encoding_scheme ); end        	% [-] Transmission Gain.
+            if nargin < 2, transmission_parameters = self.pack_transmission_parameters( encoding_scheme ); end        	% [-] Transmission Parameters.
 
             % Create an instance of the network object.
             network = self;
             
           	% Convert the transmission parameters to network parameters.
-            [ neuron_input_parameters, synapse_input_parameters ] = self.transmission_parameters2network_parameters( transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
-            
-            % Create the transmission subnetwork components.            
+            [ neuron_input_parameters, synapse_input_parameters ] = network.transmission_parameters2network_parameters( transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
+                        
+            % Create the transmission subnetwork components.
             [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_transmission_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
-            
+                                    
             % Unpack the neuron, synapse, and applied current properties.
             neuron_IDs = neuron_output_parameters{ 1 };
             neuron_manager = neuron_output_parameters{ 4 };
             synapse_manager = synapse_output_parameters{ 4 };
             
-            % Design a transmission subnetwork.            
-            [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_transmission_subnetwork( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, network.applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
-            
+            % Design a transmission subnetwork.
+            [ Gnas, R2, dEs21, gs21, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_transmission_subnetwork( neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, true, undetected_option );
+                        
             % Determine whether to update the network object.
             if set_flag, self = network; end
             
@@ -8230,36 +8531,34 @@ classdef network_class
         % ---------- Addition Subnetwork Functions ----------
        
         % Implement a function to create an addition subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_addition_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, Rn, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_addition_subnetwork( self, addition_parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, as_cell_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 11, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 10, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 9, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 8, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 7, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 6, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
-            if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 2, k = self.c_addition_DEFAULT; end                                                             % [-] Addition Gain.
-            
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                                  % [str] Undetected Option.
+            if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                            % [T/F] As Cell Flag.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                                    % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                              % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                                % [class] Neuron Manager Class.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                      % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, addition_parameters = self.pack_addition_parameters( self.n_addition_DEFAULT, encoding_scheme ); end     % [-] Addition Parameters.
+
             % Create an instance of the network object.
             network = self;
             
-            % Create addition subnetwork components.            
-            [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_addition_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
+            % Convert the addition parameters into network parameters.
+            [ neuron_input_parameters, synapse_input_parameters ] = network.addition_parameters2network_parameters( addition_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
             
+            % Create addition subnetwork components.
+            [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_addition_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
+                                    
             % Unpack the neuron, synapse, and applied current properties.
             neuron_IDs = neuron_output_parameters{ 1 };
             neuron_manager = neuron_output_parameters{ 4 };
             synapse_manager = synapse_output_parameters{ 4 };
             
-            % Design the addition subnetwork.            
-            [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_addition_subnetwork( neuron_IDs, k, encoding_scheme, neuron_manager, synapse_manager, network.applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
-            
+            % Design the addition subnetwork.
+            [ Gnas, Rn, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_addition_subnetwork( neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, true, undetected_option );
+                                     
             % Determine whether to update the network object.
             if set_flag, self = network; end
             
@@ -8269,42 +8568,41 @@ classdef network_class
         % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to create a subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_subtraction_subnetwork( self, k, parameters, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, Rn, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_subtraction_subnetwork( self, subtraction_parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, as_cell_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 12, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 11, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 10, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 9, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 6, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
-            if nargin < 5, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, parameters = self.subtraction_parameters_DEFAULT; end
-            if nargin < 2, k = self.c_subtraction_DEFAULT; end                                                          % [-] Subtraction Gain.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                                      % [str] Undetected Option.
+            if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                                % [T/F] As Cell Flag.
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                                        % [T/F] Set Flag.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                                                  % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                                                    % [class] Neuron Manager Class.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, subtraction_parameters = self.pack_subtraction_parameters( n_subtraction_DEFAULT, encoding_scheme ); end     % [-] Addition Parameters.
             
             % Create an instance of the network object.
             network = self;
             
+            % Convert the subtraction parameters into network parameters.
+            [ neuron_input_parameters, synapse_input_parameters ] = network.subtraction_parameters2network_parameters( subtraction_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
+
             % Create the subtraction subnetwork components.
             [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_subtraction_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
-            
+                                    
             % Unpack the neuron, synapse, and applied current properties.
             neuron_IDs = neuron_output_parameters{ 1 };
             neuron_manager = neuron_output_parameters{ 4 };
             synapse_manager = synapse_output_parameters{ 4 };
 
-            % Design the subtraction subnetwork.
-            [ Gnas, Gms, Cms, Rs, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_subtraction_subnetwork( self, neuron_IDs, k, parameters, encoding_scheme, neuron_manager, synapse_manager, network.applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
-            
+            % Design the subtraction subnetwork.            
+            [ Gnas, Rn, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_subtraction_subnetwork( neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, true, undetected_option );
+                        
             % Determine whether to update the network object.
             if set_flag, self = network; end
             
         end
+       
         
+        %{
         
         % Implement a function to create a double subtraction subnetwork ( generating neurons, synapses, etc. as necessary ).
         function [ Gnas, Cms, dEs, gs, neurons, synapses, neuron_manager, synapse_manager, self ] = create_double_subtraction_subnetwork( self, k, encoding_scheme, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
@@ -8342,30 +8640,30 @@ classdef network_class
             
         end
         
+        %}
+        
         
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to create an inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_inversion_subnetwork( self, parameters, encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, set_flag, as_cell_flag, process_option, undetected_option, network_utilities )
+        function [ Gnas, R2, dEs21, gs21, Ias2, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_inversion_subnetwork( self, parameters, encoding_scheme, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, set_flag, as_cell_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 13, process_option = self.process_option_DEFAULT; end                                            % [str] Process Option.
-            if nargin < 12, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 11, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 10, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                % [T/F] Filter Disabled Flag.
-            if nargin < 9, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
-            if nargin < 8, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 6, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
-            if nargin < 5, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
-            if nargin < 4, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                    	% [str] Undetected Option.
+            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end
+            if nargin < 8, set_flag = self.set_flag_DEFAULT; end                                                     	% [T/F] Set Flag.
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end                                 	% [class] Applied Current Manager Class.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 2, parameters = self.inversion_parameters_DEFAULT; end
             
             % Create an instance of the network object.
             network = self;
+            
+            % Convert the subtraction parameters into network parameters.
+            [ neuron_input_parameters, synapse_input_parameters ] = network.inversion_parameters2network_parameters( inversion_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
             
             % Create inversion subnetwork components.            
             [ neuron_output_parameters, synapse_output_parameters, applied_current_output_parameters, network ] = network.create_inversion_subnetwork_components( encoding_scheme, neuron_input_parameters, synapse_input_parameters, applied_current_input_parameters, neuron_manager, synapse_manager, applied_current_manager, true, as_cell_flag );
@@ -8377,8 +8675,8 @@ classdef network_class
             applied_current_manager = applied_current_output_parameters{ 4 };
             
             % Design the inversion subnetwork.            
-            [ Gnas, Gms, Cms, Rs, dEs, gs, Ias, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.design_inversion_subnetwork( neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, filter_disabled_flag, true, process_option, undetected_option, network_utilities );
-            
+            [ Gnas, R2, dEs21, gs21, Ias2, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.design_inversion_subnetwork( neuron_IDs, parameters, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, true, undetected_option );
+                        
             % Determine whether to update the network object.
             if set_flag, self = network; end
             
@@ -8386,6 +8684,8 @@ classdef network_class
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to create a reduced inversion subnetwork ( generating neurons, syanpses, etc. as necessary ).
         
         
         % ---------- Division Subnetwork Functions ----------
@@ -8431,11 +8731,17 @@ classdef network_class
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
+        % Implement a function to create a reduced division subnetwork ( generating neurons, synapses, etc. as necessary ).
+        
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to create a division after inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
+        
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to create a reduced division after inversion subnetwork ( generating neurons, synapses, etc. as necessary ).
         
         
         % ---------- Multiplication Subnetwork Functions ----------
@@ -8483,6 +8789,7 @@ classdef network_class
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
         
+        % Implement a function to create a reduced multiplication subnetwork ( generating neurons, synapses, etc. as necessary ).
         
         
         % ---------- Derivation Subnetwork Functions ----------
@@ -8949,6 +9256,7 @@ classdef network_class
             
         end
         
+        
         %{
 %         % Implement a function to create a driven multistate cpg split lead lag subnetwork ( generating neurons, synapses, etc. as necessary ).
 %         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork( self, num_cpg_neurons, delta_oscillatory, delta_bistable, Id_max, T, ki_mean, ki_range, k_sub1, k_sub2, c_mod, r )
@@ -9062,6 +9370,7 @@ classdef network_class
 %             
 %         end
         %}
+        
         
         %{
         % Implement a function to create a modulation subnetwork ( generating neurons, synapses, etc. as necessary ).
@@ -9752,6 +10061,8 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the steady state output associated with the achieved formulation of a reduced inversion subnetwork.
+        
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
@@ -9856,10 +10167,31 @@ classdef network_class
         end
         
         
+        % Implement a function to compute the steady state output associated with the achieved formulation of a reduced division subnetwork.
+        
+        
         % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of an absolute division after inversion subnetwork.
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a relative division after inversion subnetwork.
+
+                
+        % Implement a function to compute the steady state output associated with the achieved formulation of a division after inversion subnetwork.
+
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute division after inversion subnetwork.
+        
+        
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division after inversion subnetwork.
+
+                
+        % Implement a function to compute the steady state output associated with the achieved formulation of a reduced division after inversion subnetwork.
+
         
         
         % ---------- Multiplication Subnetwork Functions ----------
@@ -9960,7 +10292,7 @@ classdef network_class
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a relative multiplication subnetwork.
+        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative multiplication subnetwork.
         function [ U4s, U3s ] = compute_drr_multiplication_sso( self, Us_inputs, c1, c2, c3, c4, R1, R2, R3, R4, neuron_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
@@ -9981,6 +10313,9 @@ classdef network_class
             [ U4s, U3s ] = network_utilities.compute_drr_multiplication_sso( Us_inputs, c1, c2, c3, c4, R1, R2, R3, R4 );
             
         end
+        
+        
+        % Implement a function to compute the steady state output associated with the achieved formulation of a reduced mutliplication subnetwork.
         
         
         % ---------- Linear Combination Subnetwork Functions ----------
@@ -10238,7 +10573,8 @@ classdef network_class
             
         end
         
-      %{  
+        
+        %{
 %         % Implement a function to compute simulation results for given applied currents.
 %         function [ self, ts, Us_flat, hs_flat, dUs_flat, dhs_flat, Gsyns_flat, Ileaks_flat, Isyns_flat, Inas_flat, Iapps_flat, Itotals_flat, minfs_flat, hinfs_flat, tauhs_flat, neuron_IDs ] = simulate_flat( self, applied_current_IDs, applied_currents_flat, dt, tf, method )
 %                        
@@ -10300,6 +10636,7 @@ classdef network_class
 %             
 %         end
         %}
+        
         
         %% Save & Load Functions.
         

@@ -461,6 +461,7 @@ classdef neuron_utilities_class
         
         %}
         
+        
         % ---------- Integration Subnetwork Functions ----------
         
         %{

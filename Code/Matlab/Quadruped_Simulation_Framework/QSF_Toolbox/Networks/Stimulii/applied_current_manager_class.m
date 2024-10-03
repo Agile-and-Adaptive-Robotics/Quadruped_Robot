@@ -36,8 +36,8 @@ classdef applied_current_manager_class
         num_svbi_applied_currents_DEFAULT = 3;                                                                  % [#] Number of Split Voltage Based Integration Applied Currents.
         
         % Define the default applied current properties.
-        Ias_DEFAULT = 0;
-        ts_DEFAULT = 0;
+        Ias_DEFAULT = 0;                                                                                        % [A] Applied Current Magnitudes.
+        ts_DEFAULT = 0;                                                                                         % [s] Applied Current Times.
         
         % Define the simulation parameters.
         dt_DEFAULT = 1e-3;                                                                                  	% [s] Simulation Time Step.
@@ -1643,11 +1643,11 @@ classdef applied_current_manager_class
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
-            if nargin < 4, R = self.R_DEFAULT; end                                                                  % [V] Activation Domain
-            if nargin < 3, Gm = self.Gm_DEFAULT; end                                                                % [S] Membrane Conductance
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                          	% [T/F] Set Flag. (Determines whether to updated the applied current manager.)
+            if nargin < 5, applied_currents = self.applied_currents; end                 	% [class] Array of Applied Current Class Objects.
+            if nargin < 4, R = self.R_DEFAULT; end                                       	% [V] Activation Domain.
+            if nargin < 3, Gm = self.Gm_DEFAULT; end                                        % [S] Membrane Conductance.
+            if nargin < 2, applied_current_IDs = 'all'; end                                	% [-] Applied Current IDs.
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
@@ -1683,10 +1683,10 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
-            if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 5, applied_currents = self.applied_currents; end                	% [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, parameters = {  }; end
-            if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
+            if nargin < 2, applied_current_IDs = 'all'; end                                 % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
@@ -2508,6 +2508,7 @@ classdef applied_current_manager_class
         
         %}
         
+        
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to create the applied currents for an inversion subnetwork.
@@ -2997,6 +2998,7 @@ classdef applied_current_manager_class
             
         end
         
+        
         %{
 %         % Implement a function to create the applied currents for a driven multistate CPG split lead lag subnetwork.
 %         function [ self, applied_current_IDs_cell ] = create_dmcpg_sll_applied_currents( self, to_neuron_IDs_cell )
@@ -3160,7 +3162,8 @@ classdef applied_current_manager_class
         end
         
         %}
-            
+           
+        
         % ---------- Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for an inversion subnetwork.

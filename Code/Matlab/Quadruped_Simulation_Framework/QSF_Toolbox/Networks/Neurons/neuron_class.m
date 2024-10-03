@@ -1201,6 +1201,7 @@ classdef neuron_class
         
         %}
         
+        
         %% Membrane Capacitance Compute Functions.
         
         %{
@@ -1585,6 +1586,7 @@ classdef neuron_class
         end
         
         %}
+        
         
         %% Parameter Unpacking Functions.
         

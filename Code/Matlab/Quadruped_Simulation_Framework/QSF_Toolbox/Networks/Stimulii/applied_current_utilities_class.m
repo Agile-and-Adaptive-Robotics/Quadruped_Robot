@@ -39,6 +39,37 @@ classdef applied_current_utilities_class
         end
         
         
+        %% Name Functions.
+        
+        % Implement a function to generate a name from an ID.
+        function name = ID2name( ~, ID )
+            
+            % Generate a name for the applied current.
+            name = sprintf( 'Applied Current %s', ID );
+            
+        end
+        
+        
+        % Implement a function to generate names from IDs.
+        function names = IDs2names( self, IDs )
+        
+            % Compute the number of IDs.
+            num_IDs = length( IDs );
+            
+            % Preallocate a cell array to store the names.
+            names = cell( 1, num_IDs );
+            
+            % Generate a name for each ID.
+            for k = 1:num_IDs                 % Iterate through each of the IDs...
+                
+                % Generate the name associated with this ID.
+                names{ k } = self.ID2name( IDs( k ) );
+                
+            end
+            
+        end
+        
+        
         %% Applied Current Magnitude Design Functions.        
         
         % ---------- Inversion Subnetwork Functions ----------
@@ -307,6 +338,7 @@ classdef applied_current_utilities_class
             
         end
         
+        
         %{
         
         % Implement a function to compute the desired intermediate synaptic current for a voltage based integration subnetwork.
@@ -336,6 +368,7 @@ classdef applied_current_utilities_class
         end
         
         %}
+        
         
         % Implement a function to compute the magnitude of voltage based integration subnetwork applied currents.
         function Ias = compute_vbi_Ias( self, Gm, R )

@@ -96,6 +96,25 @@ classdef applied_current_class
         end
         
 
+        %% Name Functions.
+        
+        % Implement a function to generate a name for this applied current.
+        function [ name, self ] = generate_name( self, ID, set_flag, applied_current_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 4, applied_current_utilities = self.applied_current_utilities; end
+            if nargin < 3, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 2, ID = self.ID; end
+            
+            % Generate a name for the applied current.
+            name = applied_current_utilities.ID2name( ID );
+            
+            % Determine whether to update the name.
+            if set_flag, self.name = name; end
+            
+        end
+        
+        
         %% Validation Functions.
         
         % Implement a function to validate the applied current.
@@ -369,6 +388,66 @@ classdef applied_current_class
         
         % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 3 of a relative multiplication subnetwork.
         function [ Gm3, R3 ] = unpack_relative_multiplication_Ias3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
+                
+            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 3 of a reduced absolute multiplication subnetwork.
+        function [ Gm3, R3 ] = unpack_reduced_absolute_multiplication_Ias3_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
+                R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
+                
+            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
+                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                
+            else                                                     	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end      
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 3 of a reduced relative multiplication subnetwork.
+        function [ Gm3, R3 ] = unpack_reduced_relative_multiplication_Ias3_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
