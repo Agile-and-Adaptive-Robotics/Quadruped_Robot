@@ -12778,6 +12778,29 @@ classdef synapse_manager_class
         end
         
         
+        %% Print Functions
+        
+        % Implement a function to print the properties of the synapses contained in the synapse manager.
+        function print( self, synapses, verbose_flag )
+        
+            % Set the default input arguments.
+            if nargin < 3, verbose_flag = false; end
+            if nargin < 2, synapses = self.synapses; end
+            
+            % Retrieve the number of synapses.
+            n_synapses = length( synapses );
+            
+            % Print out the properties associated with each synapses.
+            for k = 1:n_synapses             % Iterate through each of the synapses...
+            
+                % Print out the properties for this synapses.
+                synapses( k ).print( synapses( k ).ID, synapses( k ).name, synapses( k ).dEs, synapses( k ).gs, synapses( k ).Gs, synapses( k ).from_neuron_ID, synapses( k ).to_neuron_ID, synapses( k ).delta, synapses( k ).enabled_flag, verbose_flag );
+            
+            end
+            
+        end
+        
+        
         %% Save & Load Functions
         
         % Implement a function to save synapse manager data as a matlab object.

@@ -472,6 +472,12 @@ classdef applied_current_utilities_class
             
         end
         
+        
+        %% Print Functions.
+        
+        % Implement a function to print applied current properties.
+        
+        
 
     end
 end

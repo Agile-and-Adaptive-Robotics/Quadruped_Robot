@@ -6,6 +6,7 @@ classdef synapse_class
     
     % Define the class properties.
     properties
+        
         ID                                                    	% [#] Synapse ID.
         name                                                  	% [-] Synapse Name.
         
@@ -21,7 +22,6 @@ classdef synapse_class
         enabled_flag                                            % [T/F] Synapse Enabled Flag.
         
         synapse_utilities                                       % [-] Synapse Utilities Class.
-        
         
     end
     
@@ -3230,6 +3230,29 @@ classdef synapse_class
             
             % Determine wehther to update the neuron object.
             if set_flag, self.enabled_flag = enabled_flag; end
+            
+        end
+        
+        
+        %% Print Functions.
+        
+        % Implement a function to print the synapse information.
+        function print( self, ID, name, dEs, gs, Gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, verbose_flag )
+           
+            % Set the default input arguments.
+            if nargin < 11, verbose_flag = false; end
+            if nargin < 10, enabled_flag = self.enabled_flag; end
+            if nargin < 9, delta = self.delta; end
+            if nargin < 8, to_neuron_ID = self.to_neuron_ID; end
+            if nargin < 7, from_neuron_ID = self.from_neuron_ID; end
+            if nargin < 6, Gs = self.Gs; end
+            if nargin < 5, gs = self.gs; end
+            if nargin < 4, dEs = self.dEs; end
+            if nargin < 3, name = self.name; end
+            if nargin < 2, ID = self.ID; end
+            
+            % Print out the information for this neuron.
+            synapse_utilies.print( ID, name, dEs, gs, Gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, verbose_flag );
             
         end
         

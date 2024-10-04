@@ -38,6 +38,7 @@ classdef neuron_utilities_class
         Iapp_DEFAULT = 0;                                           % [A] Applied Current.
         Itotal_DEFAULT = 0;                                         % [A] Total Current.
                 
+        
         % ---------- Transmission Properties ----------
         
         % Define transmission subnetwork gains.
@@ -1397,6 +1398,79 @@ classdef neuron_utilities_class
             
         end
         
+        
+        %% Print Functions.
+        
+        % Implement a function to print the properties of this neuron.
+        function print( ~, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, Ileak, Isyn, Ina, Itonic, Iapp, Itotal, enabled_flag, verbose_flag )
+        
+            % Define the default input arguments.
+            if nargin < 24, verbose_flag = false; end
+            
+            % Print out a header for this neuron.
+            fprintf( '---------- NEURON %0.0f: %s ----------\n', ID, name )
+            
+            % Determine which information to print about this neuron.
+            if verbose_flag         % If we want to print all of the information...
+                
+                fprintf( 'Membrane Voltage:                                     U           =   %0.2f \t[mV]\n', U*( 10^3 ) )
+                fprintf( 'Sodium Channel Deactivation:                          h           =   %0.2f \t[-]\n', h )
+
+                fprintf( 'Membrane Capacitance:                                 Cm          =   %0.2f \t[nF]\n', Cm*( 10^9 ) )
+                fprintf( 'Membrane Conductance:                                 Gm          =   %0.2f \t[muS]\n', Gm*( 10^6 ) )
+                fprintf( 'Resting Membrane Voltage:                             Er          =   %0.2f \t[mV]\n', Er*( 10^3 ) )
+                fprintf( 'Maximum Membrane Voltage:                             R           =   %0.2f \t[mV]\n', R*( 10^3 ) )
+                
+                fprintf( 'Sodium Channel Activation Amplitude:                  Am          =   %0.2f \t[mV]\n', Am*( 10^3 ) )
+                fprintf( 'Sodium Channel Activation Slope:                      Sm          =   %0.2f \t[mV]\n', Sm*( 10^3 ) )
+                fprintf( 'Sodium Channel Activation Reversal Potential:         dEm         =   %0.2f \t[mV]\n', dEm*( 10^3 ) )
+                
+                fprintf( 'Sodium Channel Deactivation Amplitude:                Ah          =   %0.2f \t[mV]\n', Ah*( 10^3 ) )
+                fprintf( 'Sodium Channel Deactivation Slope:                    Sh          =   %0.2f \t[mV]\n', Sh*( 10^3 ) )
+                fprintf( 'Sodium Channel Deactivation Reversal Potential:       dEh         =   %0.2f [mV]\n', dEh*( 10^3 ) )
+
+                fprintf( 'Sodium Channel Reversal Potential:                    dEna        =   %0.2f \t[mV]\n', dEna*( 10^3 ) )
+                fprintf( 'Maximum Sodium Channel Deactivation Time Constant:    tauh_max    =   %0.2f \t[ms]\n', tauh_max*( 10^3 ) )
+                fprintf( 'Sodium Channel Deactivation Time Constant:            tauh        =   %0.2f \t[ms]\n', tauh*( 10^3 ) )
+                fprintf( 'Sodium Channel Conductance:                           Gna         =   %0.2f \t[muS]\n', Gna*( 10^6 ) )
+                
+                fprintf( 'Steady State Sodium Channel Activation Parameter:     minf        =   %0.2f \t[-]\n', minf )
+                fprintf( 'Steady State Sodium Channel Deactivation Parameter:   hinf        =   %0.2f \t[-]\n', hinf )
+
+                fprintf( 'Leak Current:                                         Ileak       =   %0.2f \t[nA]\n', Ileak*( 10^9 ) )
+                fprintf( 'Synaptic Current:                                     Isyn        =   %0.2f \t[nA]\n', Isyn*( 10^9 ) )
+                fprintf( 'Sodium Channel Current:                               Ina         =   %0.2f \t[nA]\n', Ina*( 10^9 ) )
+                fprintf( 'Tonic Current:                                        Itonic      =   %0.2f \t[nA]\n', Itonic*( 10^9 ) )
+                fprintf( 'Applied Current:                                      Iapp        =   %0.2f \t[nA]\n', Iapp*( 10^9 ) )
+                fprintf( 'Total Current:                                        Itotal      =   %0.2f \t[nA]\n', Itotal*( 10^9 ) )
+
+                fprintf( 'Enabled Flag:                                         Enabled     =   %0.2f \t[T/F]\n', enabled_flag )
+
+            else                    % Otherwise...
+                
+                fprintf( 'Membrane Capacitance:                                 Cm          =   %0.2f \t[nF]\n', Cm*( 10^9 ) )
+                fprintf( 'Membrane Conductance:                                 Gm          =   %0.2f \t[muS]\n', Gm*( 10^6 ) )
+                fprintf( 'Resting Membrane Voltage:                             Er          =   %0.2f \t[mV]\n', Er*( 10^3 ) )
+                fprintf( 'Maximum Membrane Voltage:                             R           =   %0.2f \t[mV]\n', R*( 10^3 ) )
+                
+                fprintf( 'Sodium Channel Activation Amplitude:                  Am          =   %0.2f \t[mV]\n', Am*( 10^3 ) )
+                fprintf( 'Sodium Channel Activation Slope:                      Sm          =   %0.2f \t[mV]\n', Sm*( 10^3 ) )
+                fprintf( 'Sodium Channel Activation Reversal Potential:         dEm         =   %0.2f \t[mV]\n', dEm*( 10^3 ) )
+                
+                fprintf( 'Sodium Channel Deactivation Amplitude:                Ah          =   %0.2f \t[mV]\n', Ah*( 10^3 ) )
+                fprintf( 'Sodium Channel Deactivation Slope:                    Sh          =   %0.2f \t[mV]\n', Sh*( 10^3 ) )
+                fprintf( 'Sodium Channel Deactivation Reversal Potential:       dEh         =   %0.2f [mV]\n', dEh*( 10^3 ) )
+
+                fprintf( 'Sodium Channel Reversal Potential:                    dEna        =   %0.2f \t[mV]\n', dEna*( 10^3 ) )
+                fprintf( 'Maximum Sodium Channel Deactivation Time Constant:    tauh_max    =   %0.2f \t[ms]\n', tauh_max*( 10^3 ) )
+                fprintf( 'Sodium Channel Conductance:                           Gna         =   %0.2f \t[muS]\n', Gna*( 10^6 ) )
+                
+            end
+            
+            % Print out a footer.
+            fprintf( '----------------------------------------\n' )
+            
+        end
         
     end
     

@@ -4,16 +4,14 @@
 clear, close('all'), clc
 
 
-%% Initialize Simulation Properties.
+%% Initialize Project Options.
 
 % Set the level of verbosity.
-verbose_flag = true;
+b_verbose = true;
 
-% Define the simulation step size.
+% Define the network integration step size.
 % network_dt = 1.0e-2;
 network_dt = 1e-3;
-
-% Define the simulation duration.
 network_tf = 3;
 
 

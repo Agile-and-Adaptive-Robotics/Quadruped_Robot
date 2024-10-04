@@ -11,7 +11,7 @@ save_directory = '.\Save';                       	% [str] Save Directory.
 load_directory = '.\Load';                         	% [str] Load Directory.
 
 % Define the level of verbosity.
-verbose_flag = true;                             	% [T/F] Printing Flag.
+b_verbose = true;                                   % [T/F] Printing Flag.
 
 % Define the network integration step size.
 network_dt = 1.3e-4;                                % [s] Simulation Timestep.
@@ -22,35 +22,91 @@ network_tf = 3;                                     % [s] Simulation Duration.
 
 %% Define Absolute Transmission Subnetwork Parameters.
 
-% Define the transmission subnetwork design parameters.
-c = 1.0;        % [-] Absolute Transmission Subnetwork Gain.
-R1 = 20e-3;     % [V] Maximum Membrane Voltage (Neuron 1).
-Gm1 = 1e-6;     % [S] Membrane Conductance (Neuron 1).
-Gm2 = 1e-6;     % [S] Membrane Conductance (Neuron 2).
-Cm1 = 5e-9;     % [F] Membrane Capacitance (Neuron 1).
-Cm2 = 5e-9;     % [F] Membrane Capacitance (Neuron 2).
+% Define the maximum membrane voltages.
+R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 
-% Store the transmission subnetwork design parameters in a cell.
-transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
+% Define the membrane conductances.
+Gm1 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 1)
+Gm2 = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2) 
 
-% Define the encoding scheme.
-encoding_scheme = 'absolute';
+% Define the membrane capacitance.
+Cm1 = 5e-9;                                     	% [F] Membrane Capacitance (Neuron 1)
+Cm2 = 5e-9;                                      	% [F] Membrane Capacitance (Neuron 2)
+
+% Define the sodium channel conductance.
+Gna1 = 0;                                           % [S] Sodium Channel Conductance (Neuron 1).
+Gna2 = 0;                                           % [S] Sodium Channel Conductance (Neuron 2).
+
+% Define the synaptic conductances.
+dEs21 = 194e-3;                                   	% [V] Synaptic Reversal Potential (Synapse 21).
+
+% Define the applied currents.
+Ia1 = R1*Gm1;                                      	% [A] Applied Current (Neuron 1)
+Ia2 = 0;                                            % [A] Applied Current (Neuron 2).
+
+% Define the current state.
+current_state1 = 1;                                 % [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
+
+% Define the network design parameters.
+c = 1;                                              % [-] Design Constant.
+
+
+%% Compute Derived Absolute Transmission Subnetwork Constraints.
+
+% Compute the maximum membrane voltages.
+R2 = c*R1;                                          % [V] Maximum Membrane Voltage (Neuron 2).
+
+% Compute the synaptic conductances.
+gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );             % [S] Synaptic Conductance (Synapse 21).
+
+
+%% Print Absolute Transmission Subnetwork Parameters.
+
+% Print out a header.
+fprintf( '\n------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
+fprintf( 'ABSOLUTE TRANSMISSION SUBNETWORK PARAMETERS:\n' )
+fprintf( '------------------------------------------------------------\n' )
+
+% Print out neuron information.
+fprintf( 'Neuron Parameters:\n' )
+fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
+fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
+
+fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
+fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
+
+fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
+fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
+
+fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
+fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the synapse information.
+fprintf( 'Synapse Parameters:\n' )
+fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21*( 10^3 ) )
+fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21*( 10^6 ) )
+fprintf( '\n' )
+
+% Print out the applied current information.
+fprintf( 'Applied Curent Parameters:\n' )
+fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1*Ia1*( 10^9 ) )
+fprintf( '\n' )
+
+% Print out the network design parameters.
+fprintf( 'Network Design Parameters:\n' )
+fprintf( 'c \t\t= \t%0.2f \t[-]\n', c )
+
+% Print out ending information.
+fprintf( '------------------------------------------------------------\n' )
+fprintf( '------------------------------------------------------------\n' )
 
 
 %% Create Absolute Transmission Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
-
-% Create a transmission subnetwork.
-[ Gnas, R2, dEs21, gs21, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, true, false, 'error' );
-
-
-%% Define the Input Signals.
-
-% Define the input current.
-
-
 
 % Create the network components.
 [ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 2 );

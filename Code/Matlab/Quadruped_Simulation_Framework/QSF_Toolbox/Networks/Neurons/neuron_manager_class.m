@@ -4208,7 +4208,7 @@ classdef neuron_manager_class
             
             % Set the default neuron properties.
             if nargin < 30, array_utilities = self.array_utilities; end                                                             % [class] Array Utilities Class.
-            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
+            if nargin < 29, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                           % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 28, set_flag = self.set_flag_DEFAULT; end                                                                   % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 27, neurons = self.neurons; end                                                                             % [class] Array of Neuron Class Objects.
             if nargin < 26, enabled_flags = true( 1, num_neurons_to_create ); end                                                  	% [T/F] Neuron Enabled Flag.
@@ -6730,6 +6730,29 @@ classdef neuron_manager_class
             
             % Compute the sodium channel conductance required for a driven multistate cpg.
             [ Gnas, neurons, self ] = self.compute_dmcpg_Gnas( neuron_IDs, neurons, set_flag, undetected_option );
+            
+        end
+        
+        
+        %% Print Functions
+        
+        % Implement a function to print the properties of the neurons contained in the neuron manager.
+        function print( self, neurons, verbose_flag )
+        
+            % Set the default input arguments.
+            if nargin < 3, verbose_flag = false; end
+            if nargin < 2, neurons = self.neurons; end
+            
+            % Retrieve the number of neurons.
+            n_neurons = length( neurons );
+            
+            % Print out the properties associated with each neurons.
+            for k = 1:n_neurons             % Iterate through each of the neurons...
+            
+                % Print out the properties for this neurons.
+                neurons( k ).print( neurons( k ).U, neurons( k ).h, neurons( k ).Cm, neurons( k ).Gm, neurons( k ).Er, neurons( k ).R, neurons( k ).Am, neurons( k ).Sm, neurons( k ).dEm, neurons( k ).Ah, neurons( k ).Sh, neurons( k ).dEh, neurons( k ).dEna, neurons( k ).tauh_max, neurons( k ).Gna, neurons( k ).Ileak, neurons( k ).Isyn, neurons( k ).Ina, neurons( k ).Itonic, neurons( k ).Iapp, neurons( k ).Itotal, neurons( k ).enabled_flag, verbose_flag );
+            
+            end
             
         end
         

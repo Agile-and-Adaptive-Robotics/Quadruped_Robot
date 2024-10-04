@@ -2615,6 +2615,42 @@ classdef neuron_class
         end
 
         
+        %% Print Functions.
+        
+        % Implement a function to print the properties of this neuron.
+        function print( self, U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, Ileak, Isyn, Ina, Itonic, Iapp, Itotal, enabled_flag, verbose_flag )
+   
+            % Define the default input arguments.
+            if nargin < 24, verbose_flag = false; end
+            if nargin < 23, enabled_flag = self.enabled_flag; end
+            if nargin < 22, Itotal = self.Itotal; end
+            if nargin < 21, Iapp = self.Iapp; end
+            if nargin < 20, Itonic = self.Itonic; end
+            if nargin < 19, Ina = self.Ina; end
+            if nargin < 18, Isyn = self.Isyn; end
+            if nargin < 17, Ileak = self.Ileak; end
+            if nargin < 16, Gna = self.Gna; end
+            if nargin < 15, tauh_max = self.tauh_max; end
+            if nargin < 14, dEna = self.dEna; end
+            if nargin < 13, dEh = self.dEh; end
+            if nargin < 12, Sh = self.Sh; end
+            if nargin < 11, Ah = self.Ah; end
+            if nargin < 10, dEm = self.dEm; end
+            if nargin < 9, Sm = self.Sm; end
+            if nargin < 8, Am = self.Am; end
+            if nargin < 7, R = self.R; end
+            if nargin < 6, Er = self.Er; end
+            if nargin < 5, Gm = self.Gm; end
+            if nargin < 4, Cm = self.Cm; end
+            if nargin < 3, h = self.h; end
+            if nargin < 2, U = self.U; end
+                
+            % Print the network information.
+            self.network_utilities.print( U, h, Cm, Gm, Er, R, Am, Sm, dEm, Ah, Sh, dEh, dEna, tauh_max, Gna, Ileak, Isyn, Ina, Itonic, Iapp, Itotal, enabled_flag, verbose_flag )
+            
+        end
+        
+        
         %% Save & Load Functions.
         
         % Implement a function to save neuron data as a matlab object.
