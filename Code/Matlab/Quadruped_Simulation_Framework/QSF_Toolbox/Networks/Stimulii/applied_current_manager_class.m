@@ -13,6 +13,7 @@ classdef applied_current_manager_class
         
         array_utilities
         data_loader_utilities
+        applied_current_utilities
         
     end
     
@@ -75,6 +76,40 @@ classdef applied_current_manager_class
             
             % Compute the number of applied currents.
             self.num_applied_currents = length( applied_currents );
+            
+        end
+        
+        
+        %% Applied Current Name Functions.
+            
+        % Implement a function to generate names for applied currents.
+        function [ names, applied_currents, self ] = generate_names( self, applied_current_IDs, applied_currents, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end
+            if nargin < 3, applied_currents = self.applied_currents; end
+            if nargin < 2, applied_current_IDs = self.get_all_applied_current_IDs( applied_currents ); end
+            
+            % Determine the number of synapses.
+            n_applied_currents = length( applied_currents );
+            
+            % Preallocate a cell to store the applied current names.
+            names = cell( 1, n_applied_currents );
+            
+            % Generate names for each of the applied currents.
+            for k = 1:n_applied_currents                         % Iterate through each of the applied currents...
+                                
+                % Retrieve the index associated with this applied current.
+                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+                
+               % Generate a name for this applied current.
+               [ names{ k }, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).generate_name( applied_current_IDs( k ), true, applied_currents( applied_current_index ).applied_current_utilities );
+                
+            end
+            
+            % Determine whether to update the applied current manager object.
+            if set_flag, self.applied_currents = applied_currents; end
             
         end
         
@@ -633,8 +668,8 @@ classdef applied_current_manager_class
         function [ unique_flag, match_logicals, match_indexes ] = unique_applied_current_ID( self, applied_current_ID, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
-            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, array_utilities = self.array_utilities; end          % [class] Array Utilities Class.
+            if nargin < 3, applied_currents = self.applied_currents; end        % [class] Array of Applied Current Class Objects.
             
             % Retrieve all of the existing applied current IDs.
             applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
@@ -652,8 +687,8 @@ classdef applied_current_manager_class
         function applied_current_ID = generate_unique_applied_current_ID( self, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 3, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
-            if nargin < 2, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 3, array_utilities = self.array_utilities; end         	% [class] Array Utilities Class.
+            if nargin < 2, applied_currents = self.applied_currents; end        % [class] Array of Applied Current Class Objects.
             
             % Retrieve the existing applied current IDs.
             existing_applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
@@ -668,8 +703,8 @@ classdef applied_current_manager_class
         function applied_current_IDs = generate_unique_applied_current_IDs( self, num_IDs, applied_currents, array_utilities )
             
             % Set the default input arguments.
-            if nargin < 4, array_utilities = self.array_utilities; end                                                      % [class] Array Utilities Class.
-            if nargin < 3, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
+            if nargin < 4, array_utilities = self.array_utilities; end          % [class] Array Utilities Class.
+            if nargin < 3, applied_currents = self.applied_currents; end      	% [class] Array of Applied Current Class Objects.
             
             % Retrieve the existing applied current IDs.
             existing_applied_current_IDs = self.get_all_applied_current_IDs( applied_currents );
@@ -678,7 +713,7 @@ classdef applied_current_manager_class
             applied_current_IDs = zeros( 1, num_IDs );
             
             % Generate each of the new IDs.
-            for k = 1:num_IDs                           % Iterate through each of the new IDs...
+            for k = 1:num_IDs                                                   % Iterate through each of the new IDs...
                 
                 % Generate a unique applied current ID.
                 applied_current_IDs( k ) = array_utilities.get_lowest_natural_number( [ existing_applied_current_IDs, applied_current_IDs( 1:( k - 1 ) ) ] );
