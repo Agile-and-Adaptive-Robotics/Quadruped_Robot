@@ -57,7 +57,7 @@ classdef neuron_class
         ID_DEFAULT = 0;                                          	% [#] Default Neuron ID.
         name_DEFAULT = '';                                         	% [-] Default Neuron Name.
         U_DEFUALT = 0;                                             	% [V] Default Membrane Voltage.
-        h_DEFAULT = [  ];                                          	% [-] Default Sodium Channel Deactivation Parameter.
+        h_DEFAULT = NaN;                                          	% [-] Default Sodium Channel Deactivation Parameter.
         Cm_DEFAULT = 5e-9;                                        	% [C] Default Membrane Capacitance.
         Gm_DEFAULT = 1e-6;                                        	% [S] Default Membrane Conductance.
         Er_DEFAULT = -60e-3;                                      	% [V] Default Equilibrium Voltage.
@@ -308,13 +308,13 @@ classdef neuron_class
             
             % Compute the steady state sodium channel activation and deactivation parameters.
             [ ~, self ] = self.compute_minf( U, Am, Sm, dEm, true, neuron_utilities );                      % [-] Steady State Sodium Channel Activation Parameter
-            [ hinf, self ] = self.compute_hinf( U, Ah, Sh, dEh, true, neuron_utilities );                  % [-] Steady State Sodium Channel Deactivation Parameter
+            [ hinf, self ] = self.compute_hinf( U, Ah, Sh, dEh, true, neuron_utilities );                   % [-] Steady State Sodium Channel Deactivation Parameter
             
             % Determine whether to set the sodium channel activation parameter to its steady state value.
-            if isempty( self.h ), self.h = hinf; end                                                     	% [-] Steady State Sodium Channel Deactivation Parameter
+            if any( isnan( self.h ) ), self.h = hinf; end                                                  	% [-] Steady State Sodium Channel Deactivation Parameter
             
             % Compute and set the sodium channel deactivation time constant.
-            [ ~, self ] = self.compute_tauh( U, tauh_max, hinf, Ah, Sh, dEh, true, neuron_utilities );     % [-] Sodium Channel Deactivation Time Constant                                                                         
+            [ ~, self ] = self.compute_tauh( U, tauh_max, hinf, Ah, Sh, dEh, true, neuron_utilities );      % [-] Sodium Channel Deactivation Time Constant                                                                         
             
         end
         

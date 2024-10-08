@@ -27,19 +27,19 @@ classdef applied_current_manager_class
         to_neuron_ID_DEFAULT = -1;                                                                            	% [#] Neuron ID.
         
         % Define subnetwork neuron quantities.
-        num_mcpg_applied_currents_DEFAULT = 1;                                                                	% [#] Number of Multistate CPG Applied Currents.
-        num_centering_applied_currents_DEFAULT = 1;                                                         	% [#] Number of Centering Applied Currents.
-        num_dc_applied_currents_DEFAULT = 1;                                                                   	% [#] Number of Double Centering Applied Currents.
-        num_inversion_applied_currents_DEFAULT = 1;                                                           	% [#] Number of Inversion Applied Currents.
-        num_multiplication_applied_currents_DEFAULT = 1;                                                      	% [#] Number of Multiplication Applied Currents.
-        num_integration_applied_currents_DEFAULT = 2;                                                          	% [#] Number of Integration Applied Currents.
-        num_vbi_applied_currents = 2;                                                                        	% [#] Number of Voltage Based Integration Applied Currents.
-        num_svbi_applied_currents_DEFAULT = 3;                                                                  % [#] Number of Split Voltage Based Integration Applied Currents.
+        n_mcpg_applied_currents_DEFAULT = 1;                                                                	% [#] Number of Multistate CPG Applied Currents.
+        n_centering_applied_currents_DEFAULT = 1;                                                               % [#] Number of Centering Applied Currents.
+        n_dc_applied_currents_DEFAULT = 1;                                                                   	% [#] Number of Double Centering Applied Currents.
+        n_inversion_applied_currents_DEFAULT = 1;                                                           	% [#] Number of Inversion Applied Currents.
+        n_multiplication_applied_currents_DEFAULT = 1;                                                      	% [#] Number of Multiplication Applied Currents.
+        n_integration_applied_currents_DEFAULT = 2;                                                          	% [#] Number of Integration Applied Currents.
+        n_vbi_applied_currents = 2;                                                                             % [#] Number of Voltage Based Integration Applied Currents.
+        n_svbi_applied_currents_DEFAULT = 3;                                                                    % [#] Number of Split Voltage Based Integration Applied Currents.
         
         % Define the default applied current properties.
-        Ias_DEFAULT = 0;                                                                                        % [A] Applied Current Magnitudes.
         ts_DEFAULT = 0;                                                                                         % [s] Applied Current Times.
-        
+        Ias_DEFAULT = 0;                                                                                        % [A] Applied Current Magnitudes.
+
         % Define the simulation parameters.
         dt_DEFAULT = 1e-3;                                                                                  	% [s] Simulation Time Step.
         tf_DEFAULT = 1;                                                                                        	% [s] Simulation Duration.
@@ -91,25 +91,35 @@ classdef applied_current_manager_class
             if nargin < 3, applied_currents = self.applied_currents; end
             if nargin < 2, applied_current_IDs = self.get_all_applied_current_IDs( applied_currents ); end
             
-            % Determine the number of synapses.
-            n_applied_currents = length( applied_currents );
-            
-            % Preallocate a cell to store the applied current names.
-            names = cell( 1, n_applied_currents );
-            
-            % Generate names for each of the applied currents.
-            for k = 1:n_applied_currents                         % Iterate through each of the applied currents...
-                                
-                % Retrieve the index associated with this applied current.
-                applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+            % Determine how to generate the applied current names.
+            if isempty( applied_currents )              	% If there are no existing applied currents...
+
+                % Convert the applied current IDs to applied current names.
+                names = self.applied_current_utilities.IDs2names( applied_current_IDs );
                 
-               % Generate a name for this applied current.
-               [ names{ k }, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).generate_name( applied_current_IDs( k ), true, applied_currents( applied_current_index ).applied_current_utilities );
-                
+            else                                            % If there are existing applied currents...
+
+                % Determine the number of applied currents.
+                n_applied_currents = length( applied_currents );
+
+                % Preallocate a cell to store the applied current names.
+                names = cell( 1, n_applied_currents );
+
+                % Generate names for each of the applied currents.
+                for k = 1:n_applied_currents                         % Iterate through each of the applied currents...
+
+                    % Retrieve the index associated with this applied current.
+                    applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
+
+                   % Generate a name for this applied current.
+                   [ names{ k }, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).generate_name( applied_current_IDs( k ), true, applied_currents( applied_current_index ).applied_current_utilities );
+
+                end
+
+                % Determine whether to update the applied current manager object.
+                if set_flag, self.applied_currents = applied_currents; end
+
             end
-            
-            % Determine whether to update the applied current manager object.
-            if set_flag, self.applied_currents = applied_currents; end
             
         end
         
@@ -2718,7 +2728,7 @@ classdef applied_current_manager_class
             
             % Set the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            n_applied_currents = self.n_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
@@ -2762,7 +2772,7 @@ classdef applied_current_manager_class
             
             % Set the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            n_applied_currents = self.n_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
@@ -2796,7 +2806,7 @@ classdef applied_current_manager_class
             
             % Set the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
+            n_applied_currents = self.n_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end

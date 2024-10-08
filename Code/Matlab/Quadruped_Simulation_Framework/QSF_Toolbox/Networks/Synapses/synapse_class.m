@@ -40,7 +40,7 @@ classdef synapse_class
 
         % Define the maximum synaptic conductance.
         gs_DEFAULT = 1e-6;                                     	% [S] Maximum Synaptic Conductance.
-        Gs_DEFAULT = 0;                                         % [S] Synaptic Conductance.
+        Gs_DEFAULT = 0.0;                                     	% [S] Synaptic Conductance.
         
         % Define the synaptic reversal potential parameters.
         dEs_maximum_DEFAULT = 194e-3;                        	% [V] Maximum Synaptic Reversal Potential.
@@ -68,23 +68,23 @@ classdef synapse_class
         % ---------- Addition Subnetwork Properties ----------
 
         % Define the applied current magnitude properties.
-        Ia_absolute_addition_DEFAULT = 0;                   	% [A] Absolute Addition Applied Current.
-        Ia_relative_addition_DEFAULT = 0;                      	% [A] Relative Addition Applied Current.
+        Ia_absolute_addition_DEFAULT = 0.0;                   	% [A] Absolute Addition Applied Current.
+        Ia_relative_addition_DEFAULT = 0.0;                  	% [A] Relative Addition Applied Current.
         
         % Define the subnetwork gain properties.
-        c_absolute_addition_DEFAULT = 1;                      	% [-] Absolute Addition Subnetwork Gain.
-        c_relative_addition_DEFAULT = 1;                      	% [-] Relative Addition Subnetwork Gain.
+        c_absolute_addition_DEFAULT = 1.0;                  	% [-] Absolute Addition Subnetwork Gain.
+        c_relative_addition_DEFAULT = 1.0;                   	% [-] Relative Addition Subnetwork Gain.
        
         
         % ---------- Subtraction Subnetwork Properties ----------
 
         % Define the applied current magnitude properties.
-        Ia_absolute_subtraction_DEFAULT = 0;                  	% [A] Absolute Subtraction Applied Current.
-        Ia_relative_subtraction_DEFAULT = 0;                	% [A] Relative Subtraction Applied Current.
+        Ia_absolute_subtraction_DEFAULT = 0.0;              	% [A] Absolute Subtraction Applied Current.
+        Ia_relative_subtraction_DEFAULT = 0.0;                	% [A] Relative Subtraction Applied Current.
         
         % Define the subnetwork gain properties.
-        c_absolute_subtraction_DEFAULT = 1;                    	% [-] Absolute Subtraction Subnetwork Gain.
-        c_relative_subtraction_DEFAULT = 1;                  	% [-] Relative Subtraction Subnetwork Gain.
+        c_absolute_subtraction_DEFAULT = 1.0;                	% [-] Absolute Subtraction Subnetwork Gain.
+        c_relative_subtraction_DEFAULT = 1.0;                  	% [-] Relative Subtraction Subnetwork Gain.
         
         
         % ---------- Inversion Subnetwork Properties ----------
@@ -94,8 +94,8 @@ classdef synapse_class
         Ia2_relative_inversion_DEFAULT = 20e-9;                	% [A] Relative Inversion Applied Current 2.
         
         % Define the subnetwork gain properties.
-        c_absolute_inversion_DEFAULT = 1;                      	% [-] Absolute Inversion Subnetwork Gain.
-        c_relative_inversion_DEFAULT = 1;                      	% [-] Relative Inversion Subnetwork Gain.
+        c_absolute_inversion_DEFAULT = 1.0;                   	% [-] Absolute Inversion Subnetwork Gain.
+        c_relative_inversion_DEFAULT = 1.0;                   	% [-] Relative Inversion Subnetwork Gain.
         
         
         % ---------- Reduced Inversion Subnetwork Properties ----------
@@ -112,12 +112,12 @@ classdef synapse_class
         % ---------- Division Subnetwork Properties ----------
 
         % Define the applied current magnitude properties.
-        Ia_absolute_division_DEFAULT = 0;                    	% [A] Absolute Division Applied Current.
-        Ia_relative_division_DEFAULT = 0;                      	% [A] Relative Division Applied Current.
+        Ia_absolute_division_DEFAULT = 0.0;                    	% [A] Absolute Division Applied Current.
+        Ia_relative_division_DEFAULT = 0.0;                   	% [A] Relative Division Applied Current.
         
         % Define the subnetwork gain properties.
-        c_absolute_division_DEFAULT = 1;                      	% [-] Absolute Division Subnetwork Gain.
-        c_relative_division_DEFAULT = 1;                      	% [-] Relative Division Subnetwork Gain.
+        c_absolute_division_DEFAULT = 1.0;                    	% [-] Absolute Division Subnetwork Gain.
+        c_relative_division_DEFAULT = 1.0;                    	% [-] Relative Division Subnetwork Gain.
         
         
         % ---------- Reduced Division Subnetwork Properties ----------
@@ -161,7 +161,7 @@ classdef synapse_class
         % Define the CPG offset parameters.
         delta_oscillatory_DEFAULT = 0.01e-3;                  	% [V] CPG Oscillatory Delta.
         delta_bistable_DEFAULT = -10e-3;                      	% [V] CPG Bistable Delta.
-        delta_noncpg_DEFAULT = 0;                             	% [V] CPG Delta.
+        delta_noncpg_DEFAULT = 0.0;                            	% [V] CPG Delta.
                 
         
         % ---------- Synapse Design Properties ----------
@@ -208,7 +208,7 @@ classdef synapse_class
             % Store the synapse properties.
             self.delta = delta;
             self.gs = gs;
-            self.Gs = Gs_DEFAULT;
+            self.Gs = self.Gs_DEFAULT;
             self.dEs = dEs;
             
             % Store the synapse identification information.

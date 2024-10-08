@@ -179,7 +179,7 @@ classdef neuron_utilities_class
         function name = ID2name( ~, ID )
             
             % Generate a name for the neuron.
-            name = sprintf( 'Neuron %s', ID );
+            name = sprintf( 'Neuron %0.0f', ID );
             
         end
         

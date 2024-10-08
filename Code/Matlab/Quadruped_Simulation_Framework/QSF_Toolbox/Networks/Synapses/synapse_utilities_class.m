@@ -168,7 +168,7 @@ classdef synapse_utilities_class
         function name = ID2name( ~, ID )
             
             % Generate a name for the synapse.
-            name = sprintf( 'Synapse %s', ID );
+            name = sprintf( 'Synapse %0.0f', ID );
             
         end
         
@@ -3930,7 +3930,7 @@ classdef synapse_utilities_class
             
             
             % Determine which information to print about this synapse.
-            if verbose_flag:            % If we want to print all of the information...
+            if verbose_flag            % If we want to print all of the information...
                 
                 fprintf( 'Synaptic Reversal Potential:      dEs        	= %0.2f \t[mV]\n', dEs )
                 fprintf( 'Maximum Synaptic Conductance:     gs          = %0.2f \t[muS]\n', gs )

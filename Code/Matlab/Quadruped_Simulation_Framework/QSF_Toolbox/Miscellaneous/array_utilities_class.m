@@ -357,7 +357,7 @@ classdef array_utilities_class
         
         
         % Implement a function to convert a cell array to a regular array.
-        function array = cell2array( ~, array )
+        function array = cell2array( self, array )
             
             % Extract the contents of the array as long as it still contains
             while self.contains_cell( array )               % While the provided array contains at least one cell entry...

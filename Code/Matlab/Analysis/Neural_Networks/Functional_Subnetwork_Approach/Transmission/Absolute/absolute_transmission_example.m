@@ -23,12 +23,12 @@ network_tf = 3;                                     % [s] Simulation Duration.
 %% Define Absolute Transmission Subnetwork Parameters.
 
 % Define the transmission subnetwork design parameters.
-c = 1.0;        % [-] Absolute Transmission Subnetwork Gain.
-R1 = 20e-3;     % [V] Maximum Membrane Voltage (Neuron 1).
-Gm1 = 1e-6;     % [S] Membrane Conductance (Neuron 1).
-Gm2 = 1e-6;     % [S] Membrane Conductance (Neuron 2).
-Cm1 = 5e-9;     % [F] Membrane Capacitance (Neuron 1).
-Cm2 = 5e-9;     % [F] Membrane Capacitance (Neuron 2).
+c = 1.0;                                            % [-] Absolute Transmission Subnetwork Gain.
+R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
+Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
+Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
+Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
+Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
 % Store the transmission subnetwork design parameters in a cell.
 transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
@@ -37,41 +37,36 @@ transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
 encoding_scheme = 'absolute';
 
 
+%% Define the Absolute Transmission Subnetwork Input Current Parameters.
+
+% Define the current identification properties.
+input_current_ID = 1;                               % [#] Input Current ID.
+input_current_name = 'Applied Current 1';           % [str] Input Current Name.
+input_current_to_neuron_ID = 1;                     % [#] Neuron ID to Which Input Current is Applied.
+
+% Compute the number of simulation timesteps.
+n_timesteps = floor( network_tf/network_dt ) + 1;   % [#] Number of Simulation Timesteps.
+
+% Construct the simulation times associated with the input currents.
+ts = 0:network_dt:network_tf;                       % [s] Simulation Times.
+
+% Define the current magnitudes.
+Ia_input_mag = R1*Gm1;                          	% [A] Applied Current Magnitude.
+
+% Define the magnitudes of the applied current input.
+Ias_input = Ia_input_mag*ones( n_timesteps, 1 );    % [A] Applied Currents.
+
+
 %% Create Absolute Transmission Subnetwork.
 
-% Create an instance of the network class.
+% Create an instance of the netwo5rk class.
 network = network_class( network_dt, network_tf );
 
 % Create a transmission subnetwork.
 [ Gnas, R2, dEs21, gs21, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, true, false, 'error' );
 
-
-%% Define the Input Signals.
-
-% Define the input current.
-
-
-
-% Create the network components.
-[ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 2 );
-[ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 1 );
-[ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 2 );
-
-% Set the neuron parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2 ], 'Gna' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2 ], 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2 ], 'Gm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2 ], 'Cm' );
-
-% Set the synapse parameters.
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, 1, 'from_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, 2, 'to_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, gs21, 'g_syn_max' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, dEs21, 'dE_syn' );
-
-% Set the applied current parameters.
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, Ia2 ], 'I_apps' );
+% Create the input applied current.
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID, input_current_name, input_current_to_neuron_ID, ts, Ias_input, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
 
 
 %% Compute Absolute Transmission Numerical Stability Analysis Parameters.

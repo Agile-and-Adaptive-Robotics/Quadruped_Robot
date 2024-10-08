@@ -45,7 +45,7 @@ classdef applied_current_utilities_class
         function name = ID2name( ~, ID )
             
             % Generate a name for the applied current.
-            name = sprintf( 'Applied Current %s', ID );
+            name = sprintf( 'Applied Current %0.0f', ID );
             
         end
         

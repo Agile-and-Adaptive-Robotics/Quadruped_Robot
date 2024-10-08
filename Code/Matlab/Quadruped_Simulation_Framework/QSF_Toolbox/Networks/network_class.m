@@ -27,51 +27,53 @@ classdef network_class
         % ---------- Neuron Properties ----------
         
         % Define the neuron parameters.
-        neuron_ID_DEFAULT = 0;                                                                                                  % [#] Default Neuron ID.
-        neuron_name_DEFAULT = '';                                                                                               % [-] Default Neuron Name.
-        U_DEFUALT = 0;                                                                                                          % [V] Default Membrane Voltage.
-        h_DEFAULT = [  ];                                                                                                       % [-] Default Sodium Channel Deactivation Parameter.
-        Cm_DEFAULT = 5e-9;                                                                                                      % [C] Default Membrane Capacitance.
-        Gm_DEFAULT = 1e-6;                                                                                                      % [S] Default Membrane Conductance.
-        Er_DEFAULT = -60e-3;                                                                                                    % [V] Default Equilibrium Voltage.
-        R_DEFAULT = 20e-3;                                                                                                      % [V] Default Activation Domain.
-        Am_DEFAULT = 1;                                                                                                         % [-] Default Sodium Channel Activation Parameter Amplitude.
-        Sm_DEFAULT = -50;                                                                                                       % [-] Default Sodium Channel Activation Parameter Slope.
-        dEm_DEFAULT = 40e-3;                                                                                                    % [V] Default Sodium Channel Activation Reversal Potential.
-        Ah_DEFAULT = 0.5;                                                                                                       % [-] Default Sodium Channel Deactivation Parameter Amplitude.
-        Sh_DEFAULT = 50;                                                                                                        % [-] Default Sodium Channel Deactivation Parameter Slope.
-        dEh_DEFAULT = 0;                                                                                                        % [V] Default Sodium Channel Deactivation Reversal Potential.
-        dEna_DEFAULT = 110e-3;                                                                                                  % [V] Default Sodium Channel Reversal Potential.
-        tauh_max_DEFAULT = 0.25;                                                                                                % [s] Default Maximum Sodium Channel Steady State Time Constant.
-        Gna_DEFAULT = 1e-6;                                                                                                     % [S] Default Sodium Channel Conductance.
-        Ileak_DEFAULT = 0;                                                                                                      % [A] Default Leak Current.
-        Isyn_DEFAULT = 0;                                                                                                       % [A] Default Synaptic Current.
-        Ina_DEFAULT = 0;                                                                                                        % [A] Default Sodium Channel Current.
-        Itonic_DEFAULT = 0;                                                                                                     % [A] Default Tonic Current.
-        Iapp_DEFAULT = 0;                                                                                                       % [A] Default Applied Current.
-        Itotal_DEFAULT = 0;                                                                                                     % [A] Default Total Current.
-        neuron_enabled_flag_DEFAULT = true;                                                                                     % [T/F] Default Neuron Enabled Flag.
+        neuron_ID_DEFAULT = 0;                                    	% [#] Default Neuron ID.
+        neuron_name_DEFAULT = '';                                  	% [-] Default Neuron Name.
+        U_DEFAULT = 0;                                           	% [V] Default Membrane Voltage.
+        h_DEFAULT = NaN;                                        	% [-] Default Sodium Channel Deactivation Parameter.
+        Cm_DEFAULT = 5e-9;                                       	% [C] Default Membrane Capacitance.
+        Gm_DEFAULT = 1e-6;                                       	% [S] Default Membrane Conductance.
+        Er_DEFAULT = -60e-3;                                       	% [V] Default Equilibrium Voltage.
+        R_DEFAULT = 20e-3;                                         	% [V] Default Activation Domain.
+        Am_DEFAULT = 1;                                           	% [-] Default Sodium Channel Activation Parameter Amplitude.
+        Sm_DEFAULT = -50;                                         	% [-] Default Sodium Channel Activation Parameter Slope.
+        dEm_DEFAULT = 40e-3;                                      	% [V] Default Sodium Channel Activation Reversal Potential.
+        Ah_DEFAULT = 0.5;                                          	% [-] Default Sodium Channel Deactivation Parameter Amplitude.
+        Sh_DEFAULT = 50;                                          	% [-] Default Sodium Channel Deactivation Parameter Slope.
+        dEh_DEFAULT = 0;                                          	% [V] Default Sodium Channel Deactivation Reversal Potential.
+        dEna_DEFAULT = 110e-3;                                    	% [V] Default Sodium Channel Reversal Potential.
+        tauh_max_DEFAULT = 0.25;                                   	% [s] Default Maximum Sodium Channel Steady State Time Constant.
+        Gna_DEFAULT = 1e-6;                                     	% [S] Default Sodium Channel Conductance.
+        Ileak_DEFAULT = 0;                                      	% [A] Default Leak Current.
+        Isyn_DEFAULT = 0;                                          	% [A] Default Synaptic Current.
+        Ina_DEFAULT = 0;                                          	% [A] Default Sodium Channel Current.
+        Itonic_DEFAULT = 0;                                        	% [A] Default Tonic Current.
+        Iapp_DEFAULT = 0;                                         	% [A] Default Applied Current.
+        Itotal_DEFAULT = 0;                                      	% [A] Default Total Current.
+        neuron_enabled_flag_DEFAULT = true;                         % [T/F] Default Neuron Enabled Flag.
 
         
         % ---------- Synapse Properties ----------
         
         % Define the synapse parameters.
-        synapse_ID_DEFAULT = 0;                                                                                                 % [#] Synapse ID.
-        synapse_name_DEFAULT = '';                                                                                              % [-] Synapse Name.
-        dEs_DEFAULT = 194e-3;                                                                                                   % [V] Synaptic Reversal Potential.
-        gs_DEFAULT = 1e-6;                                                                                                      % [S] Maximum Synaptic Conductance.
-        Gs_DEFAULT = 0;                                                                                                         % [S] Synaptic Conductance.
-        from_neuron_ID_DEFAULT = -1;                                                                                            % [#] From Neuron ID.
-        to_neuron_ID_DEFAULT = -1;                                                                                              % [#] To Neuron ID.
-        delta_DEFAULT = 1e-6;                                                                                                   % [-] Subnetwork Output Offset.
-        synapse_enabled_flag_DEFAULT = true;                                                                                    % [T/F] Synapse Enabled Flag.
+        synapse_ID_DEFAULT = 0;                                  	% [#] Synapse ID.
+        synapse_name_DEFAULT = '';                               	% [-] Synapse Name.
+        dEs_DEFAULT = 194e-3;                                     	% [V] Synaptic Reversal Potential.
+        gs_DEFAULT = 1e-6;                                      	% [S] Maximum Synaptic Conductance.
+        Gs_DEFAULT = 0;                                           	% [S] Synaptic Conductance.
+        from_neuron_ID_DEFAULT = -1;                              	% [#] From Neuron ID.
+        to_neuron_ID_DEFAULT = -1;                               	% [#] To Neuron ID.
+        delta_DEFAULT = 1e-6;                                      	% [-] Subnetwork Output Offset.
+        synapse_enabled_flag_DEFAULT = true;                      	% [T/F] Synapse Enabled Flag.
         
         
         % ---------- Transmission Properties ----------
 
-        % Define the number of transmission neurons.
-        num_transmission_neurons_DEFAULT = 2;                      	% [#] Default Number of Transmission Neurons.
-
+        % Define the number of transmission components.
+        n_transmission_neurons_DEFAULT = 2;                      	% [#] Number of Transmission Neurons (Default).
+        n_transmission_synapses_DEFAULT = 1;                        % [#] Number of Transmission Synapses (Default).
+        n_transmission_applied_currents_DEFAULT = 0;                % [#] Number of Transmission Applied Currents (Default).
+        
         % Define the transmission subnetwork gain.
         c_absolute_transmission_DEFAULT = 1;                       	% [-] Absolute Transmission Subnetwork Gain.
         c_relative_transmission_DEFAULT = 1;                      	% [-] Relative Transmission Subnetwork Gain.
@@ -83,9 +85,11 @@ classdef network_class
         
         % ---------- Addition Properties ----------
 
-        % Define the number of addition neurons.
-        num_addition_neurons_DEFAULT = 3;                        	% [#] Default Number of Addition Neurons.
-
+        % Define the number of addition components.
+        n_addition_neurons_DEFAULT = 3;                             % [#] Number of Addition Neurons (Default).
+        n_addition_synapses_DEFAULT = 1;                            % [#] Number of Addition Synapses (Default).
+        n_addition_applied_currents_DEFAULT = 0;                    % [#] Number of Addition Applied Currents (Default).
+        
         % Define the addition subnetwork gain.
         c_absolute_addition_DEFAULT = 1.0;                        	% [-] Absolute Addition Subnetwork Gain.
         c_relative_addition_DEFAULT = 1.0;                       	% [-] Relative Addition Subnetwork Gain.
@@ -97,10 +101,16 @@ classdef network_class
         
         % ---------- Subtraction Properties ----------
 
-        % Define the number of subtraction neurons.
-        num_subtraction_neurons_DEFAULT = 3;                      	% [#] Default Number of Subtraction Neurons.
-        num_double_subtraction_neurons_DEFAULT = 4;                	% [#] Default Number of Double Subtraction Neurons.
-
+        % Define the number of subtraction components.
+        n_subtraction_neurons_DEFAULT = 3;                      	% [#] Number of Subtraction Neurons (Default).
+        n_subtraction_synapses_DEFAULT = 2;                         % [#] Number of Subtraction Synapses (Default).
+        n_subtraction_applied_currents_DEFAULT = 0;                 % [#] Number of Subtraction Applied Currents (Default).
+        
+        % Define the number of double subtraction components.
+        n_double_subtraction_neurons_DEFAULT = 4;                	% [#] Number of Double Subtraction Neurons.
+        n_double_subtraction_synapses_DEFAULT = 4;                  % [#] Number of Double Substraction Synapses (Default).
+        n_double_subtraction_applied_currents_DEFAULT = 0;          % [#] Number of Double Subtraction Applied Currents (Default).
+        
         % Define subtraction subnetwork parameters.
         s_ks_DEFAULT = [ 1, -1 ];                                 	% [-] Default Subtraction Input Signature.
         
@@ -116,7 +126,9 @@ classdef network_class
         % ---------- Inversion Properties ----------
 
         % Define the number of inversion neurons.
-        num_inversion_neurons_DEFAULT = 2;                       	% [#] Default Number of Inversion Neurons.
+        n_inversion_neurons_DEFAULT = 2;                            % [#] Number of Inversion Neurons (Default).
+        n_inversion_synapses_DEFAULT = 1;                           % [#] Number of Inversion Synapses (Default).
+        n_inversion_applied_currents_DEFAULT = 1;                   % [#] Number of Inversion Applied Currents (Default).
 
         % Define absolute inversion subnetwork gains.
         c1_absolute_inversion_DEFAULT = 1.0;                      	% [-] Absolute Inversion Gain 1.
@@ -159,8 +171,10 @@ classdef network_class
         % ---------- Division Properties ----------
 
         % Define the number of division neurons.
-        num_division_neurons_DEFAULT = 3;                        	% [#] Number of Division Neurons.
-
+        n_division_neurons_DEFAULT = 3;                             % [#] Number of Division Neurons (Default).
+        n_division_synapses_DEFAULT = 2;                            % [#] Number of Division Synapses (Default).
+        n_division_applied_currents_DEFAULT = 0;                    % [#] Number of Division Applied Currents (Default).
+        
         % Define the absolute division subnetwork gains.
         c1_absolute_division_DEFAULT = 1.0;                      	% [-] Absolute Division Gain 1.
         c2_absolute_division_DEFAULT = 1.0;                        	% [-] Absolute Division Gain 2.
@@ -202,7 +216,9 @@ classdef network_class
         % ---------- Division After Inversion Properties ----------
 
         % Define the number of division after inversion neurons.
-        num_dai_neurons_DEFAULT = 3;                             	% [#] Number of Division After Inversion Neurons.
+        n_dai_neurons_DEFAULT = 3;                                  % [#] Number of Division After Inversion Neurons (Default).
+        n_dia_synapses_DEFAULT = 2;                                 % [#] Number of Division After Inversion Synapses (Default).
+        n_dia_applied_currents_DEFAULT = 0;                         % [#] Number of Division After Inversion Applied Currents (Default).
         
         % Define the absolute division after inversion subnetwork gains.
         c1_absolute_dai_DEFAULT = 1.0;                            	% [-] Absolute Division Gain 1.
@@ -245,13 +261,15 @@ classdef network_class
         % ---------- Multiplication Properties ----------
 
         % Define the number of multiplication neurons.
-        num_multiplication_neurons_DEFAULT = 4;                 	% [#] Default Number of Multiplication Neurons.
-
+        n_multiplication_neurons_DEFAULT = 4;                       % [#] Number of Multiplication Neurons (Default).
+        n_multiplication_synapses_DEFAULT = 3;                      % [#] Number of Multiplication Synapses (Default).
+        n_multiplication_applied_currents_DEFAULT = 1;              % [#] Number of Multiplication Applied Currents (Default).
+        
         
         % ---------- Derivation Properties ----------
 
         % Define the number of derivation neurons.
-        num_derivation_neurons_DEFAULT = 3;                     	% [#] Default Number of Derivation Neurons.
+        n_derivation_neurons_DEFAULT = 3;                           % [#] Default Number of Derivation Neurons.
 
         % Define derivation subnetwork parameters.
         c_derivation_DEFAULT = 1e6;                              	% [-] Default Derivative Subnetwork Gain.
@@ -262,13 +280,13 @@ classdef network_class
         % ---------- Integration Properties ----------
         
         % Define the number of integration neurons.
-        num_integration_neurons_DEFAULT = 2;                    	% [#] Default Number of Integration Neurons.
-        num_vbi_neurons_DEFAULT = 4;                               	% [#] Default Number of Voltage Based Integration Neurons.
-        num_svbi_neurons_DEFAULT = 9;                             	% [#] Default Number of Split Voltage Based Integration Neurons.
-        num_new_msvbi_neurons_DEFAULT = 3;                      	% [#] Default Number of New Modulated Subtraction Voltage Based Integration Neurons.
-        num_msvbi_neurons_DEFAULT = 3;                             	% [#] Default Number of Unique Modualted Split Voltage Based Integration Neurons.
-        num_mssvbi_neurons_DEFAULT = 16;                         	% [#] Default Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
-        num_sll_neurons_DEFAULT = 4;                             	% [#] Default Number of Split Lead Lag Neurons.
+        n_integration_neurons_DEFAULT = 2;                          % [#] Default Number of Integration Neurons.
+        n_vbi_neurons_DEFAULT = 4;                               	% [#] Default Number of Voltage Based Integration Neurons.
+        n_svbi_neurons_DEFAULT = 9;                             	% [#] Default Number of Split Voltage Based Integration Neurons.
+        n_new_msvbi_neurons_DEFAULT = 3;                            % [#] Default Number of New Modulated Subtraction Voltage Based Integration Neurons.
+        n_msvbi_neurons_DEFAULT = 3;                             	% [#] Default Number of Unique Modualted Split Voltage Based Integration Neurons.
+        n_mssvbi_neurons_DEFAULT = 16;                              % [#] Default Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
+        n_sll_neurons_DEFAULT = 4;                                  % [#] Default Number of Split Lead Lag Neurons.
         
         % Define integration subnetwork parameters.
         c_integration_mean_DEFAULT = 0.01e9;                     	% [-] Default Average Integration Gain.
@@ -278,17 +296,17 @@ classdef network_class
         % ---------- Centering Properties ----------
 
         % Define the number of centering neurons.
-        num_centering_neurons_DEFAULT = 5;                       	% [#] Default Number of Centering Neurons.
-        num_double_centering_neurons_DEFAULT = 7;                  	% [#] Default Number of Double Centering Neurons.
-        num_cds_neurons_DEFAULT = 11;                              	% [#] Default Number of Centered Double Subtraction Neurons.
+        n_centering_neurons_DEFAULT = 5;                            % [#] Default Number of Centering Neurons.
+        n_double_centering_neurons_DEFAULT = 7;                  	% [#] Default Number of Double Centering Neurons.
+        n_cds_neurons_DEFAULT = 11;                              	% [#] Default Number of Centered Double Subtraction Neurons.
 
         
         % ---------- Central Pattern Generator Properties ----------
 
         % Define the number of cpg neurons.
-        num_cpg_neurons_DEFAULT = 2;                              	% [#] Default Number of CPG Neurons.
-        num_dcpg_neurons_DEFAULT = 3;                             	% [#] Default Number of Driven CPG Neurons.
-        num_dmcpgdcll2cds_neurons_DEFAULT = 1;                    	% [#] Default Number of Driven Multistate CPG Double Centered Lead Lag to Centered Double Subtraction Neurons.
+        n_cpg_neurons_DEFAULT = 2;                              	% [#] Default Number of CPG Neurons.
+        n_dcpg_neurons_DEFAULT = 3;                             	% [#] Default Number of Driven CPG Neurons.
+        n_dmcpgdcll2cds_neurons_DEFAULT = 1;                    	% [#] Default Number of Driven Multistate CPG Double Centered Lead Lag to Centered Double Subtraction Neurons.
 
         % Define cpg subnetwork parameters.
         T_oscillation_DEFAULT = 2;                                	% [s] Default Oscillation Period.
@@ -1678,7 +1696,7 @@ classdef network_class
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             if nargin < 3, parameters = {  }; end                                                                       % [-] Neuron Design Parameters.
             
-            % Design the transmission subnetwork neurons.            
+            % Design the transmission subnetwork neurons.
             [ Gnas, R2, neurons, neuron_manager ] = neuron_manager.design_transmission_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager.neurons, true, undetected_option );
                         
             % Determine whether to update the network object.
@@ -3282,10 +3300,10 @@ classdef network_class
             % Create an instance of the network object.
             network = self;
             
-            % Design the transmission subnetwork neurons.                        
+            % Design the transmission subnetwork neurons.
             [ Gnas, R2, neurons, neuron_manager, network ] = network.design_transmission_neurons( neuron_IDs, parameters, encoding_scheme, neuron_manager, true, undetected_option );
             
-            % Design the tranmission subnetwork synapses.                        
+            % Design the tranmission subnetwork synapses.
             [ dEs21, gs21, ~, synapses, synapse_manager, network ] = network.design_transmission_synapse( neuron_IDs, parameters, encoding_scheme, synapse_manager, true, undetected_option );
             
             % Determine whether to update the network object.
@@ -4538,18 +4556,18 @@ classdef network_class
         
         
         % Implement a function to unpack the absolute transmission design parameters.
-        function [ c, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_parameters( transmission_parameters )
+        function [ c, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters )
             
             % Set the default input arguments.
             if nargin < 2, transmission_parameters = self.pack_absolute_transmission_parameters(  ); end
             
             % Unpack the transmission parameters.
-            c = transmission_parameters{ 1 };
-            R1 = transmission_parameters{ 2 };
-            Gm1 = transmission_parameters{ 3 };
-            Gm2 = transmission_parameters{ 4 };
-            Cm1 = transmission_parameters{ 5 };
-            Cm2 = transmission_parameters{ 6 };
+            c = transmission_parameters{ 1 };           % [-] Subnetwork Gain.
+            R1 = transmission_parameters{ 2 };          % [V] Maximum Member Voltage.
+            Gm1 = transmission_parameters{ 3 };         % [S] Membrane Conductance 1.
+            Gm2 = transmission_parameters{ 4 };         % [S] Membrane Conductance 2.
+            Cm1 = transmission_parameters{ 5 };         % [F] Membrane Capacitance 1.
+            Cm2 = transmission_parameters{ 6 };         % [F] Membrane Capacitance 2.
             
         end
         
@@ -6022,7 +6040,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6051,7 +6069,7 @@ classdef network_class
             gs = self.gs_DEFAULT*ones( 1, n_synapses );
             from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses );
             to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses );
-            deltas = self.detla_DEFAULT*ones( 1, n_synapses );
+            deltas = self.delta_DEFAULT*ones( 1, n_synapses );
             synapse_enabled_flags = self.synapse_enabled_flag_DEFAULT*ones( 1, n_synapses );
             
             % Pack the synapse input parameters.
@@ -6083,7 +6101,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6180,7 +6198,7 @@ classdef network_class
             [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
             Us = self.U_DEFAULT*ones( 1, n_neurons );
             hs = self.h_DEFAULT*ones( 1, n_neurons );
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ Rs_input, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6239,7 +6257,7 @@ classdef network_class
             [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
             Us = self.U_DEFAULT*ones( 1, n_neurons );
             hs = self.h_DEFAULT*ones( 1, n_neurons );
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
             dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
@@ -6335,7 +6353,7 @@ classdef network_class
             [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
             Us = self.U_DEFAULT*ones( 1, n_neurons );
             hs = self.h_DEFAULT*ones( 1, n_neurons );
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ Rs_input, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6394,7 +6412,7 @@ classdef network_class
             [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );
             Us = self.U_DEFAULT*ones( 1, n_neurons );
             hs = self.h_DEFAULT*ones( 1, n_neurons );
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
             dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
@@ -6494,7 +6512,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6568,7 +6586,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6681,7 +6699,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6754,7 +6772,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6865,7 +6883,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -6926,7 +6944,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, R3 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7025,7 +7043,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7086,7 +7104,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, R3 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7185,7 +7203,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7246,7 +7264,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, R3 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7345,7 +7363,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7406,7 +7424,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3 ];
             Gms = [ Gm1, Gm2, Gm3 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, R3 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7507,7 +7525,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3, Cm4 ];
             Gms = [ Gm1, Gm2, Gm3, Gm4 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, self.R_DEFAULT, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7581,7 +7599,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3, Cm4 ];
             Gms = [ Gm1, Gm2, Gm3, Gm4 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, R3, R4 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7694,7 +7712,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3, Cm4 ];
             Gms = [ Gm1, Gm2, Gm3, Gm4 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, self.R_DEFAULT, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7768,7 +7786,7 @@ classdef network_class
             hs = self.h_DEFAULT*ones( 1, n_neurons );
             Cms = [ Cm1, Cm2, Cm3, Cm4 ];
             Gms = [ Gm1, Gm2, Gm3, Gm4 ];
-            Ers = self.Er_DEFAULT;
+            Ers = self.Er_DEFAULT*ones( 1, n_neurons );
             Rs = [ R1, R2, R3, R4 ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
@@ -7859,15 +7877,16 @@ classdef network_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to create the transmission subnetwork components.
-        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_transmission_subnetwork_components( self, neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, set_flag, as_cell_flag )
+        function [ neuron_output_parameters, synapse_output_parameters, self ] = create_transmission_subnetwork_components( self, neuron_input_parameters, synapse_input_parameters, encoding_scheme, neuron_manager, synapse_manager, set_flag, as_cell_flag )
             
             % Set the default input arguments.
-            if nargin < 7, as_cell_flag = self.as_cell_flag_DEFAULT; end
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
-            if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 4, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 3, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
-            if nargin < 2, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
+            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                % [T/F] As Cell Flag.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
+            if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end                       % [-] Synapse Input Parameters.
+            if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end                         % [-] Neuron Input Parameters.
+            if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme.
             
             % Unpack neuron and synapse input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -8721,7 +8740,7 @@ classdef network_class
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, n_neurons = self.n_cpg_neurons_DEFAULT; end
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -8763,7 +8782,7 @@ classdef network_class
             if nargin < 5, applied_current_input_parameters = self.pack_applied_current_input_parameters(  ); end
             if nargin < 4, synapse_input_parameters = self.pack_synapse_input_parameters(  ); end
             if nargin < 3, neuron_input_parameters = self.pack_neuron_input_parameters(  ); end
-            if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, n_neurons = self.n_cpg_neurons_DEFAULT; end
             
             % Unpack neuron, synapse, applied current input parameters.
             [ neuron_IDs, neuron_names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, neuron_enabled_flags ] = self.unpack_neuron_input_parameters( neuron_input_parameters );
@@ -8798,7 +8817,7 @@ classdef network_class
 %         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_sll_subnetwork_components( self, num_cpg_neurons )
 %             
 %             % Set the default input arguments.
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the driven multistate cpg neurons.
 %             [ neuron_manager, neuron_IDs_cell ] = neuron_manager.create_dmcpg_sll_neurons( num_cpg_neurons );
@@ -8816,7 +8835,7 @@ classdef network_class
 %         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_dmcpg_dcll_subnetwork_components( self, num_cpg_neurons )
 %             
 %             % Set the default input arguments.
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the driven multistate cpg double centered lead lag subnetwork neurons.
 %             [ neuron_manager, neuron_IDs_cell ] = neuron_manager.create_dmcpg_dcll_neurons( num_cpg_neurons );
@@ -8834,7 +8853,7 @@ classdef network_class
 %         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_ol_dmcpg_dclle_subnetwork_components( self, num_cpg_neurons )
 %             
 %             % Set the default input arguments.
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the open loop driven multistate cpg double centered lead lag error subnetwork neurons.
 %             [ neuron_manager, neuron_IDs_cell ] = neuron_manager.create_ol_dmcpg_dclle_neurons( num_cpg_neurons );
@@ -8852,7 +8871,7 @@ classdef network_class
 %         function [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = create_clpc_dmcpg_dcll_subnetwork_components( self, num_cpg_neurons )
 %             
 %             % Set the default input arguments.
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the closed loop P controlled driven multistate cpg double centered lead lag subnetwork neurons.
 %             [ neuron_manager, neuron_IDs_cell ] = neuron_manager.create_clpc_dmcpg_dcll_neurons( num_cpg_neurons );
@@ -8927,7 +8946,7 @@ classdef network_class
             [ neuron_input_parameters, synapse_input_parameters ] = network.transmission_parameters2network_parameters( transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
                         
             % Create the transmission subnetwork components.
-            [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_transmission_subnetwork_components( neuron_input_parameters, synapse_input_parameters, neuron_manager, synapse_manager, true, as_cell_flag );
+            [ neuron_output_parameters, synapse_output_parameters, network ] = network.create_transmission_subnetwork_components( neuron_input_parameters, synapse_input_parameters, encoding_scheme, neuron_manager, synapse_manager, true, as_cell_flag );
                                     
             % Unpack the neuron, synapse, and applied current properties.
             neuron_IDs = neuron_output_parameters{ 1 };
@@ -9760,7 +9779,7 @@ classdef network_class
             if nargin < 5, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
             if nargin < 4, tf = self.tf_DEFAULT; end
             if nargin < 3, dt = self.dt_DEFAULT; end
-            if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end
+            if nargin < 2, n_neurons = self.n_cpg_neurons_DEFAULT; end
             
             % Create an instance of the network object.
             network = self;
@@ -9842,7 +9861,7 @@ classdef network_class
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
 %             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the driven multistate cpg subnetwork components.
 %             [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_dmcpg_sll_subnetwork_components( num_cpg_neurons );
@@ -9869,7 +9888,7 @@ classdef network_class
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
 %             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the driven multistate cpg double centered lead lag subnetwork components.
 %             [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_dmcpg_dcll_subnetwork_components( num_cpg_neurons );
@@ -9899,7 +9918,7 @@ classdef network_class
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
 %             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the open loop driven multistate cpg double centered lead lag error subnetwork components.
 %             [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_ol_dmcpg_dclle_subnetwork_components( num_cpg_neurons );
@@ -9930,7 +9949,7 @@ classdef network_class
 %             if nargin < 5, Id_max = self.Id_max_DEFAULT; end
 %             if nargin < 4, delta_bistable = self.delta_bistable_DEFAULT; end
 %             if nargin < 3, delta_oscillatory = self.delta_oscillatory_DEFAUT; end
-%             if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end
+%             if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end
 %             
 %             % Create the closed loop P controlled double centered dmcpg lead lag subnetwork components.
 %             [ self, neuron_IDs_cell, synapse_IDs_cell, applied_current_IDs_cell ] = self.create_clpc_dmcpg_dcll_subnetwork_components( num_cpg_neurons );
